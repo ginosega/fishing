@@ -1,8 +1,8 @@
 # Fishing New Chat Bootstrap Prompt
 
-**Status:** CONTINUATION-READY DRAFT — ONENOTE MIGRATED, LINKS EMBEDDED INLINE, HISTORICAL CHAT AUDIT NOT COMPLETE
+**Status:** FINAL — MIGRATION COMPLETE / ONENOTE MIGRATED / LINKS EMBEDDED INLINE / AUDIT CLOSED
 
-Use this prompt to start a future Fishing chat during the migration period. Do not remove this warning until `Fishing_Migration_Audit.md` says the overall historical-chat source-to-destination audit has passed.
+Use this prompt to start a future Fishing chat.
 
 ---
 
@@ -33,13 +33,13 @@ Then read topic files only as needed:
 - `Topics/Maintenance_Repairs_Procedures.md`
 - `Topics/Researched_Candidate_Gear.md`
 
-## Current migration state
+## Knowledge-base status
 
-The OneNote PDF export has been migrated into the Markdown files. The later OneNote Single File Web Page/MHT export was used to restore the OneNote hyperlinks, and those links are now embedded inline in the relevant Markdown pages so they are clickable in GitHub Preview. The temporary `Fishing_Reference_Links.md` file was deleted after inline restoration.
+The OneNote PDF export was migrated into the Markdown files. The later OneNote Single File Web Page/MHT export was used to restore the OneNote hyperlinks, and those links are embedded inline in the relevant Markdown pages so they are clickable in GitHub Preview. The temporary `Fishing_Reference_Links.md` file was deleted after inline restoration.
 
-The GitHub repo should now be treated as the active working knowledge base and OneNote replacement-in-progress, but the **overall historical ChatGPT conversation audit is not complete**. Historical chats have been seeded and partially summarized, not independently reconciled line-by-line/source-to-destination.
+On 2026-08-29, I designated OneNote as the **most up-to-date historical source of truth** for this project and closed the migration audit without requiring exhaustive line-by-line reconciliation of every earlier ChatGPT conversation. Historical chats remain useful supplemental evidence and decision history, but they are not a completeness gate.
 
-If something important seems missing or conflicts with my recollection, do not assume it never existed. Check `Fishing_Migration_Audit.md` and `Fishing_Source_Reconciliation_Exceptions.md`, then ask or audit the historical source.
+The GitHub repo is now the active durable working knowledge base and OneNote replacement. If something important seems missing or conflicts with my recollection, check `Fishing_Migration_Audit.md` and `Fishing_Source_Reconciliation_Exceptions.md`, then ask me or recover the historical source as useful. Treat such discoveries as normal project maintenance rather than automatically reopening the migration audit.
 
 ## Evidence/status labels
 
@@ -51,7 +51,7 @@ Use these labels consistently:
 - **MANUFACTURER DOCUMENTED** — supported by exact manufacturer documentation.
 - **ONENOTE SOURCE** — imported from the OneNote PDF export.
 - **ONENOTE LINK RESTORED** — URL restored from the OneNote MHT export and embedded inline.
-- **HISTORICAL CHAT SEED** — imported from prior Fishing chat context but not yet fully audited against source transcripts.
+- **HISTORICAL CHAT SEED** — imported from prior Fishing chat context as supplemental historical evidence; not necessarily reconciled line-by-line against the original transcript.
 - **RESEARCHED / CANDIDATE** — considered but not purchased or installed.
 - **REJECTED / SUPERSEDED** — no longer current, but preserved for decision history.
 - **PROBABLE** — strong inference but not verified.
@@ -79,7 +79,6 @@ For fishing plans, be practical and rod-by-rod. Account for the paddle-only kaya
 
 Use `Fishing_TODO.md` as canonical. Important open items include:
 
-- Historical-chat reconciliation audit.
 - Verification of actual fish-finder wiring/fuse/connector installed state.
 - Bonafide RVR119 insert bolt/thread size verification.
 - Rear flush rod-holder angle decision.
@@ -101,8 +100,8 @@ For durable updates:
 
 ## Operating style
 
-For ordinary fishing questions, answer normally and practically. The strict reconciliation procedure matters most when importing documents, updating durable gear/configuration records, auditing history, or making broad claims that the knowledge base is complete.
+For ordinary fishing questions, answer normally and practically. Use strict source reconciliation when importing a new structured source or resolving a material conflict, but do not treat the completed migration as perpetually provisional.
 
 ---
 
-Final version of this file should be rewritten after the historical-chat reconciliation audit passes.
+This is the final post-migration bootstrap unless later project changes require an ordinary content update.
