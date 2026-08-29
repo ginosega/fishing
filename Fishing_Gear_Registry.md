@@ -1,6 +1,6 @@
 # Fishing Gear Registry
 
-**Status:** OneNote PDF + MHT links migrated. Historical-chat audit still in progress.
+**Status:** OneNote PDF + MHT links migrated; migration audit closed 2026-08-29.
 
 This file is for **owned / installed / current equipment**. Researched or rejected gear belongs in `Topics/Researched_Candidate_Gear.md` or `Fishing_Decision_Log.md`.
 
