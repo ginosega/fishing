@@ -1,6 +1,6 @@
 # Fishing Decision Log
 
-**Status:** OneNote PDF migrated; OneNote MHT links embedded inline. Historical-chat audit still in progress.
+**Status:** OneNote migration complete; links embedded inline; migration audit closed 2026-08-29.
 
 This file preserves **why** decisions were made so rejected or superseded ideas do not keep resurfacing.
 
@@ -21,7 +21,8 @@ This file preserves **why** decisions were made so rejected or superseded ideas 
 | 2026-08 | Hook correction | Corrected #3 trout/bait hooks to #4 | Earlier note said #3 | User correction supersedes prior note: hooks are #4, #6, #8 in standard and Aberdeen | CORRECTED | `Fishing_Tackle_Inventory.md` |
 | 2026-08 | Migration | Proceeded with PDF-based OneNote migration | Single File Web Page export also possible | PDF contained useful text and rendered page images, enough for content migration; actual hyperlink targets were not preserved | MIGRATED WITH EXCEPTIONS | `Fishing_Migration_Audit.md`; `Fishing_Source_Reconciliation_Exceptions.md` |
 | 2026-08 | Migration / GitHub usability | Embedded restored OneNote links inline in topic files and deleted temporary link-index file | Keeping a separate `Fishing_Reference_Links.md` index vs. embedding links directly where used | User wants GitHub Preview to replace basic OneNote usability; inline links are necessary while reading individual Markdown pages | CURRENT / COMPLETED | `README.md`; `Fishing_Migration_Audit.md`; `Fishing_Source_Reconciliation_Exceptions.md` |
-| 2026-08 | New chat handoff | Revised continuation-ready bootstrap prompt | Continue in long chat vs. start clean chat with repo state | Chat performance was degrading; durable state should be restored from GitHub Markdown in the next chat | CURRENT / COMPLETED DRAFT | `Fishing_New_Chat_Bootstrap_Prompt.md` |
+| 2026-08-29 | Migration audit scope | Close the migration audit using OneNote as the authoritative historical source of truth; do not require exhaustive historical-chat transcript reconciliation | Continue transcript-by-transcript historical audit vs. accept OneNote as the most current consolidated source | User stated OneNote was the most up-to-date source of truth and that an exhaustive historical-chat audit was unnecessary for this project. Historical chats remain supplemental evidence and can contribute later corrections without reopening migration. | CURRENT / AUDIT CLOSED | `Fishing_Migration_Audit.md`; `README.md`; `Fishing_TODO.md` |
+| 2026-08-29 | New chat handoff | Finalize the GitHub-based new-chat bootstrap prompt | Keep migration-period draft vs. finalize for normal ongoing use | Audit closure removes the migration warning; future chats should restore durable state from GitHub and treat historical chats as supplemental | CURRENT / FINAL | `Fishing_New_Chat_Bootstrap_Prompt.md` |
 
 ## Preserved research/candidate decisions
 
