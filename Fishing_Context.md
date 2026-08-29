@@ -1,6 +1,6 @@
 # Fishing Context
 
-**Status:** Active working context after OneNote PDF migration. Historical-chat source audit is still in progress.
+**Status:** Active working context after OneNote PDF migration and OneNote MHT inline-link restoration. Historical-chat source audit is still in progress.
 
 This is a compact router/current-state summary. Do not use it as the detailed owner for procedures, inventories, or specifications.
 
@@ -11,6 +11,7 @@ This is a compact router/current-state summary. Do not use it as the detailed ow
 - Main platforms: Bonafide RVR119 kayak, bank fishing, dock fishing.
 - Common targets: bass, trout, panfish/perch, and opportunistic mixed species.
 - Preferred planning style: practical, rod-by-rod, matched to actual gear and location conditions.
+- Project goal: GitHub Markdown should replace OneNote for basic fishing/kayak reference use, including clickable inline links in GitHub Preview.
 
 ## Current core platform
 
@@ -80,11 +81,13 @@ Details: `Topics/Rods_Reels_Line_Knots.md`.
 See `Fishing_TODO.md`. Current high-priority items include:
 
 - Complete historical-chat reconciliation against the Markdown repository.
-- Keep final new-chat bootstrap prompt in draft until audit passes.
+- Keep final new-chat bootstrap prompt in draft until the historical-chat audit passes.
 - Preserve and resolve source conflicts, especially hook-size guidance for PowerBait and knot guidance around loop knots.
 - Verify purchase status for Bonafide RVR119 Under Seat Tackle Storage and YakAttack fish cooler bag.
 - Verify actual installed state of fish-finder wiring/fuse/connector details.
 
-## Migration note
+## Migration and handoff note
 
-The uploaded OneNote PDF has been migrated. The PDF text and page images were adequate for the core migration, but it did not reliably expose the actual targets behind many links labeled `mfr`, `Amazon`, `video`, or `link`. See `Fishing_Source_Reconciliation_Exceptions.md`.
+The uploaded OneNote PDF has been migrated. The later OneNote Single File Web Page/MHT export was used to recover hyperlinks, and those links have been embedded inline in the relevant Markdown files so they are clickable in GitHub Preview. The temporary `Fishing_Reference_Links.md` file was deleted after inline link restoration.
+
+The repository is suitable as the active working knowledge base for a new chat, but the overall historical-chat reconciliation audit is still open. If something seems missing, check `Fishing_Migration_Audit.md` and `Fishing_Source_Reconciliation_Exceptions.md` before assuming it never existed.
