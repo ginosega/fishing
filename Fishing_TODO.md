@@ -1,6 +1,6 @@
 # Fishing TODO
 
-**Status:** OneNote PDF migrated. Historical-chat audit still in progress.
+**Status:** OneNote PDF migrated; OneNote MHT links embedded inline. Historical-chat audit still in progress.
 
 When resolving a TODO, update the authoritative topic/registry file first, then mark the TODO complete.
 
@@ -8,8 +8,8 @@ When resolving a TODO, update the authoritative topic/registry file first, then 
 |---|---|---|---|---|---|---|
 | FISH-TODO-001 | High | DONE | Migration | Import OneNote fishing/kayak notebook PDF | Initial OneNote PDF migration completed; exceptions recorded separately | OneNote PDF |
 | FISH-TODO-002 | High | OPEN | Migration | Perform historical-chat reconciliation audit | Compare historical Fishing project conversations against Markdown files and record disposition in `Fishing_Migration_Audit.md` | User bootstrap request |
-| FISH-TODO-003 | High | OPEN | Migration | Create final new-chat bootstrap prompt | Placeholder exists; finalize only after historical-chat reconciliation passes | User bootstrap request |
-| FISH-TODO-004 | High | OPEN | Migration | Obtain richer OneNote export if exact links matter | PDF did not preserve actual hyperlink targets behind labels like `mfr`, `Amazon`, `video`, `link`; Single File Web Page may improve this | OneNote migration exception |
+| FISH-TODO-003 | High | OPEN | Migration | Create final new-chat bootstrap prompt | Continuation-ready draft updated 2026-08-29; finalize only after historical-chat reconciliation passes | User bootstrap request |
+| FISH-TODO-004 | High | DONE | Migration | Restore OneNote hyperlinks from richer export | User provided Single File Web Page/MHT export; recovered links were embedded inline in relevant Markdown files for GitHub Preview usability; temporary `Fishing_Reference_Links.md` was deleted | OneNote MHT |
 | FISH-TODO-005 | Medium | OPEN | Gear registry | Verify exact fish-finder power system installed state | OneNote has parts: Amped Outdoors 12V 8Ah battery, 3A inline fuse, 2-pin IP68 connector, disconnects; confirm what is actually installed | OneNote PDF + historical chat seed |
 | FISH-TODO-006 | Medium | OPEN | Kayak | Verify Bonafide RVR119 brass insert bolt/thread sizes | Recover source details from historical chats/OneNote or user measurement | Historical chat seed |
 | FISH-TODO-007 | Medium | OPEN | Kayak rigging | Decide whether/how to modify rear flush rod-holder angle | Preserve installed Pelican rod-holder details; evaluate alternatives to heat-bending | Historical chat seed |
@@ -39,3 +39,4 @@ When resolving a TODO, update the authoritative topic/registry file first, then 
 | FISH-TODO-031 | Low | OPEN | Learning | Listen/watch Science of the Strike episodes 8 and 16 | Dissolved oxygen and turbidity noted | OneNote PDF |
 | FISH-TODO-032 | Low | OPEN | Trip logs | Continue adding catch/no-bite reports | OneNote catch log migrated; future trips should be appended | OneNote + project workflow |
 | FISH-TODO-033 | Low | OPEN | Safety/regulations | Create regulation recheck checklist | Include Fish Washington app, lake-specific rules, species ID, bait/retention implications | Historical chat seed |
+| FISH-TODO-034 | Low | OPEN | Markdown usability | Spot-check inline links in GitHub Preview | Links were embedded from MHT; spot-check during normal use and fix any link placement/context issues that affect OneNote-replacement usability | Current chat handoff |
