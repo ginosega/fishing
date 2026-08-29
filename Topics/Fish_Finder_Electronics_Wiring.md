@@ -1,15 +1,15 @@
 # Fish Finder, Electronics, and Wiring
 
-**Status:** OneNote PDF migrated. Historical-chat audit still in progress.
+**Status:** OneNote PDF + MHT links migrated. Historical-chat audit still in progress.
 
 ## Current electronics
 
 | Component | Manufacturer / model | Details | Status / Evidence |
 |---|---|---|---|
-| Fish finder | Humminbird Helix 5 CHIRP DI GPS G3 | 2D sonar, Down Imaging, GPS; base map only; OneNote price note $360 | OWNED / user stated + OneNote source |
-| Transducer | Humminbird XNT 9 HW DI T | OneNote price note $180 | OWNED / user stated + OneNote source |
+| Fish finder | [Humminbird Helix 5 CHIRP DI GPS G3](https://humminbird.johnsonoutdoors.com/us/shop/fish-finders/helix/helix-5-chirp-di-gps-g3) | 2D sonar, Down Imaging, GPS; base map only; OneNote price note $360; [software update page](https://humminbird-help.johnsonoutdoors.com/hc/en-us/articles/25950149299351-HELIX-5-CHIRP-DI-GPS-G3-Software-Update?_gl=1%2A4grday%2A_gcl_dc%2AR0NMLjE3Nzk4MjUwOTYuOGMxYTA0NTJhMmQ5MTQ5NzIwZDE2ZTU5YTlhZmQ3YzU.%2A_gcl_au%2AMjAzNjc3ODc3LjE3NzkxMzE5NjI.%2AFPAU%2AMjAzNjc3ODc3LjE3NzkxMzE5NjI.%2A_ga%2AOTU3MzA1MjA2LjE3NzkxMzE5NjI.%2A_ga_JE4T2LF5XP%2AczE3Nzk4MjUwODAkbzQkZzEkdDE3Nzk4MjYzNjckajUwJGwwJGgxNDExNzkyMTQw%2A_fplc%2AdDZJOURaamM0Mjc3UHUycjF5eHZHM2JjdUZvJTJCZnNGWjhLSGJCa05GZERWJTJCRTgwUk1yNDB0VHUyWEpmTVIlMkJUVVd6bzFBU2h3WUEzQ3hmdWxMJTJGY1ZLQmw5bFN0TkRIQ014ZDhqWjQ4N2FXd3duQWdKQlRDQiUyRmlvOGFiTVMwdyUzRCUzRA..) | OWNED / user stated + OneNote source |
+| Transducer | [Humminbird XNT 9 HW DI T](https://humminbird.johnsonoutdoors.com/us/shop/accessories/transducers/xnt-9-hw-di-t-down-imaging-dual-spectrum-chirp-w-temp-transom) | OneNote price note $180 | OWNED / user stated + OneNote source |
 | Mapping | Garmin Navionics app | Detailed lake contours on phone | USER STATED |
-| Battery | Amped Outdoors 12V 8Ah | 2 lb; 3A charger; 2.5 hr charge time; OneNote price note $75 via Eco Fishing | OWNED / OneNote source |
+| Battery | [Amped Outdoors 12V 8Ah](https://ampedoutdoors.com/products/8ah-lithium-battery-lifepo4?_pos=1&_psq=8ah&_ss=e&_v=1.0), sourced via [Eco Fishing](https://ecofishingshop.com/products/8ah-lithium-battery-lifepo4) | 2 lb; 3A charger; 2.5 hr charge time; OneNote price note $75 via Eco Fishing | OWNED / OneNote source |
 | Charger | Included 3A charger | 2.5 hr charge time per OneNote | OWNED / OneNote source |
 
 ## Planning roles
@@ -85,27 +85,28 @@ Parts list from OneNote:
 
 | Item | Detail | Status |
 |---|---|---|
-| Head unit | Humminbird Helix 5 CHIRP DI GPS G3 | OWNED |
-| Transducer | XNT 9 HW DI T | OWNED |
-| Battery | Amped Outdoors 12V 8Ah, 2 lb, 3A charger, 2.5 hr charge time | OWNED |
-| Battery disconnects | 2, 22-18 AWG female heat-shrink | OWNED / installation state needs confirmation |
-| Inline fuse | 3A, 18 AWG | OWNED / installation state needs confirmation |
-| Waterproof panel connector | 2-pin, IP68 | OWNED / exact brand and installation state needs confirmation |
+| Head unit | [Humminbird Helix 5 CHIRP DI GPS G3](https://humminbird.johnsonoutdoors.com/us/shop/fish-finders/helix/helix-5-chirp-di-gps-g3) | OWNED |
+| Transducer | [XNT 9 HW DI T](https://humminbird.johnsonoutdoors.com/us/shop/accessories/transducers/xnt-9-hw-di-t-down-imaging-dual-spectrum-chirp-w-temp-transom) | OWNED |
+| Battery | [Amped Outdoors 12V 8Ah](https://ampedoutdoors.com/products/8ah-lithium-battery-lifepo4?_pos=1&_psq=8ah&_ss=e&_v=1.0), 2 lb, 3A charger, 2.5 hr charge time; [Eco Fishing source](https://ecofishingshop.com/products/8ah-lithium-battery-lifepo4) | OWNED |
+| Battery disconnects | [2, 22-18 AWG female heat-shrink](https://a.co/d/05LPczBP) | OWNED / installation state needs confirmation |
+| Inline fuse | [3A, 18 AWG](https://a.co/d/00QrdI02) | OWNED / installation state needs confirmation |
+| Waterproof panel connector | [2-pin, IP68](https://a.co/d/0avzFYdU) | OWNED / exact brand and installation state needs confirmation |
 
 Earlier historical-chat seed also mentioned Weipu SP13, M12 gland, SAE quick disconnect, 18 AWG stranded wire, 3:1 5/16" heat shrink, F2 spades, 0.250" female heat-shrink connectors, butt connectors, solder cups, and transducer hardware. These remain historical-chat audit items unless confirmed by OneNote or user.
 
 ## Software update
 
-OneNote references: HELIX 5 CHIRP DI GPS G3 Software Update – Humminbird. Actual URL was not preserved in the PDF export.
+OneNote references the [HELIX 5 CHIRP DI GPS G3 Software Update – Humminbird](https://humminbird-help.johnsonoutdoors.com/hc/en-us/articles/25950149299351-HELIX-5-CHIRP-DI-GPS-G3-Software-Update?_gl=1%2A4grday%2A_gcl_dc%2AR0NMLjE3Nzk4MjUwOTYuOGMxYTA0NTJhMmQ5MTQ5NzIwZDE2ZTU5YTlhZmQ3YzU.%2A_gcl_au%2AMjAzNjc3ODc3LjE3NzkxMzE5NjI.%2AFPAU%2AMjAzNjc3ODc3LjE3NzkxMzE5NjI.%2A_ga%2AOTU3MzA1MjA2LjE3NzkxMzE5NjI.%2A_ga_JE4T2LF5XP%2AczE3Nzk4MjUwODAkbzQkZzEkdDE3Nzk4MjYzNjckajUwJGwwJGgxNDExNzkyMTQw%2A_fplc%2AdDZJOURaamM0Mjc3UHUycjF5eHZHM2JjdUZvJTJCZnNGWjhLSGJCa05GZERWJTJCRTgwUk1yNDB0VHUyWEpmTVIlMkJUVVd6bzFBU2h3WUEzQ3hmdWxMJTJGY1ZLQmw5bFN0TkRIQ014ZDhqWjQ4N2FXd3duQWdKQlRDQiUyRmlvOGFiTVMwdyUzRCUzRA..).
 
 ## Researched/candidate electronics and motor notes
 
 These belong in `Researched_Candidate_Gear.md`, not current registry:
 
 - Garmin ClearVu, SideVu, LiveScope concepts.
-- Garmin EchoMap Ultra 2 106sv LiveScope Plus + Navionics Vision+ bundle.
-- Garmin GT56UHD transom mount transducer.
-- Garmin Force Current motor with wireless foot pedals.
+- [Garmin EchoMap Ultra 2 106sv LiveScope Plus + Navionics Vision+ bundle](https://www.thegpsstore.com/Brands/Garmin-GPS-Marine-Electronics/Garmin-LiveScope/Garmin-ECHOMAP-Ultra-2-106sv-10-LiveScope-Plus-and-Navionics-Vision-Bundle), with OneNote purchasing source [TheGPSstore.com](https://www.thegpsstore.com).
+- [Garmin GT56UHD transom mount transducer](https://www.garmin.com/en-US/p/736677/pn/010-13073-00/); OneNote also linked a [TheGPSstore listing](https://www.thegpsstore.com/Marine-Electronics/Transducers/Garmin-GT-56-UHD-Transom-Mount-Transducer).
+- [Garmin Force Current motor](https://www.garmin.com/en-US/p/1059449/) with wireless foot pedals; OneNote also included an [installation video](https://youtu.be/_GyqVaE71fk?si=DluDw8wcH8fPw5er) and a [quick-connect / fuse-breaker video](https://youtu.be/f6zm8hRho-M?si=XQqJvTW1_Lli4VHq&t=365).
+- [Bonafide Stern Motor Mount](https://bonafidefishing.com/products/stern-motoranchor-mount-rvr?pr_prod_strat=e5_desc&pr_rec_id=1f1321c75&pr_rec_pid=7522817736894&pr_ref_pid=7906896937150&pr_seq=uniform) required for motor path.
 - 12V vs 24V motor note: 12V = 40 lb thrust, 24V = 50 lb thrust; top speed noted as same in OneNote, difference framed as low-end torque and runtime/amperage.
 - 24-to-12V DC-DC converter concept for powering electronics from a motor battery.
 - Bluetooth battery candidate brands: Amped Outdoors, Power Queen, Li Time, Dakota, Newport.
@@ -115,7 +116,6 @@ These belong in `Researched_Candidate_Gear.md`, not current registry:
 - Verify actual installed wiring/fuse/battery layout.
 - Verify exact panel connector brand/model and whether historical Weipu SP13 note matches installed part.
 - Verify transducer installation hardware and final position/orientation.
-- Recover actual manufacturer/video URLs from a richer OneNote export if needed.
 
 ## Cross-references
 
