@@ -1,15 +1,15 @@
 # Fishing TODO
 
-**Status:** Migration complete; OneNote PDF migrated; OneNote MHT links embedded inline; migration audit closed 2026-08-29.
+**Status:** Active backlog. OneNote migration and link restoration completed 2026-08-29.
 
 When resolving a TODO, update the authoritative topic/registry file first, then mark the TODO complete.
 
 | ID | Priority | Status | Area | Work item | Next action / notes | Source |
 |---|---|---|---|---|---|---|
-| FISH-TODO-001 | High | DONE | Migration | Import OneNote fishing/kayak notebook PDF | Initial OneNote PDF migration completed; exceptions recorded separately | OneNote PDF |
-| FISH-TODO-002 | High | DONE | Migration | Perform historical-chat reconciliation audit | Closed 2026-08-29 by user scope decision: OneNote was the most up-to-date historical source of truth; exhaustive transcript-by-transcript reconciliation is not required. Historical chats remain supplemental evidence. | User decision 2026-08-29 |
-| FISH-TODO-003 | High | DONE | Migration | Create final new-chat bootstrap prompt | Final bootstrap completed 2026-08-29 after audit closure | User bootstrap request + audit closure |
-| FISH-TODO-004 | High | DONE | Migration | Restore OneNote hyperlinks from richer export | User provided Single File Web Page/MHT export; recovered links were embedded inline in relevant Markdown files for GitHub Preview usability; temporary `Fishing_Reference_Links.md` was deleted | OneNote MHT |
+| FISH-TODO-001 | High | DONE | Migration | Import OneNote fishing/kayak notebook PDF | OneNote content migrated into the durable Markdown knowledge base | OneNote PDF |
+| FISH-TODO-002 | High | DONE | Migration | Perform migration audit / reconciliation | Closed 2026-08-29 by user scope decision: OneNote was the most up-to-date historical source of truth; exhaustive transcript-by-transcript reconciliation was not required. Dedicated audit/reconciliation files were retired after closure. | User decision 2026-08-29 |
+| FISH-TODO-003 | High | DONE | Migration | Create final new-chat bootstrap prompt | Final bootstrap completed 2026-08-29 | User bootstrap request + migration closure |
+| FISH-TODO-004 | High | DONE | Migration | Restore OneNote hyperlinks from richer export | Single File Web Page/MHT export used to restore links inline for GitHub Preview; temporary link-index file deleted afterward | OneNote MHT |
 | FISH-TODO-005 | Medium | OPEN | Gear registry | Verify exact fish-finder power system installed state | OneNote has parts: Amped Outdoors 12V 8Ah battery, 3A inline fuse, 2-pin IP68 connector, disconnects; confirm what is actually installed | OneNote PDF + historical chat seed |
 | FISH-TODO-006 | Medium | OPEN | Kayak | Verify Bonafide RVR119 brass insert bolt/thread sizes | Recover source details from historical chats/OneNote or user measurement | Historical chat seed |
 | FISH-TODO-007 | Medium | OPEN | Kayak rigging | Decide whether/how to modify rear flush rod-holder angle | Preserve installed Pelican rod-holder details; evaluate alternatives to heat-bending | Historical chat seed |
