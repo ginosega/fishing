@@ -1,6 +1,6 @@
 # Safety, Regulations, and Fish Handling
 
-**Status:** OneNote PDF migrated. Historical-chat audit still in progress.
+**Status:** OneNote PDF + MHT links migrated. Historical-chat audit still in progress.
 
 Regulations and access rules are time-sensitive. Recheck current authoritative sources before relying on any rule.
 
@@ -25,15 +25,16 @@ Historical discussions covered Washington fishing license age and freshwater fis
 
 | Item | Details | Status / notes |
 |---|---|---|
-| Landing net | KastKing Brutus Silicone Foldable Extendable Net, Large, 19" x 18" x 17" | OWNED / OneNote source |
-| Hook remover | KastKing hook remover | OWNED / OneNote source |
-| Fish gripper | KastKing fish gripper, 44 lb capacity | OWNED / OneNote source |
-| Pliers | KastKing Cutthroat 7" Stainless Steel Pliers | OWNED / OneNote source |
-| Gloves | Palmyth Flexible Fishing Gloves, black/grey, large | OWNED / OneNote source |
+| Landing net | [KastKing Brutus Silicone Foldable Extendable Net](https://kastking.com/products/kastking-brutus-fishing-net), Large, 19" x 18" x 17"; [Amazon listing](https://a.co/d/eo75o73) | OWNED / OneNote source |
+| Hook remover | KastKing hook remover | OWNED / OneNote source; came from net/tool package note |
+| Fish gripper | KastKing fish gripper, 44 lb capacity | OWNED / OneNote source; came from net/tool package note |
+| Pliers | [KastKing Cutthroat 7" Stainless Steel Pliers](https://kastking.com/products/kastking-cutthroat-7-fishing-pliers); [Amazon listing](https://a.co/d/02K8XIhY) | OWNED / OneNote source |
+| Gloves | [Palmyth Flexible Fishing Gloves](https://a.co/d/fzt6w2A), black/grey, large | OWNED / OneNote source |
 | Bow hatch item | Bilge pump | OWNED / OneNote source; tie-off unresolved |
 | Backpack safety items | Polarized glasses, extra clothes, first-aid kit, sunscreen, Pelican case | ONENOTE LOADING CHECKLIST |
 | Food/water bag | Yeti bag with food, water, ice | ONENOTE LOADING CHECKLIST |
-| Footwear | Water shoes; NRS ATB Wetshoe size 11 is buy candidate | ONENOTE SOURCE |
+| Footwear | Water shoes; [NRS ATB Wetshoe size 11](https://www.nrs.com/nrs-atb-wetshoes/pqhc) is buy candidate | ONENOTE SOURCE |
+| Weather clothing candidate | [NRS Champion Jacket](https://www.nrs.com/nrs-champion-jacket/pqjk) and [NRS Champion Bib](https://www.nrs.com/nrs-champion-bib/ps79) | BUY / CANDIDATE; not owned unless user confirms |
 
 ## Keeping fish from a kayak
 
