@@ -1,8 +1,8 @@
 # Maintenance, Repairs, and Procedures
 
-**Status:** Initial seed from historical Fishing project conversations. Not yet fully reconciled with OneNote or audited against all historical sources.
+**Status:** OneNote PDF migrated. Historical-chat audit still in progress.
 
-This file owns maintenance/repair procedures. Gear-specific facts belong in registry/topic files; this file should link to them when needed.
+This file owns maintenance/repair/procedure notes. Gear-specific facts belong in registry/topic files; this file links to them when needed.
 
 ## Daiwa Exceler LT spinning reel maintenance
 
@@ -27,7 +27,7 @@ Historical notes from translated Japanese manual/discussion:
 - Longer handle or heavy knobs may make clutch return during casting more likely.
 - Cast with handle side oriented up or down rather than sticking sideways when relevant to prevent accidental handle rotation/clutch return.
 
-Need audit:
+Need historical audit:
 
 - Recover translated manual files/details from historical source.
 - Store manual-derived maintenance points and warnings with evidence classification.
@@ -48,11 +48,34 @@ Recommended basic service after years of no maintenance:
 10. Optional: open gear side only if comfortable; remove dried grease and apply a small amount of reel grease to gear teeth.
 11. Re-spool with 6 lb monofilament, not overfilled; stop about 1/8 inch below spool lip.
 
+## Line and spooling procedure notes
+
+OneNote includes line-spooling video references, but the actual URLs were not preserved in the PDF export. Tools owned for line work:
+
+- KastKing Line Stripper.
+- KastKing Radius Line Spooler.
+- KastKing Cutthroat pliers with line stripper/spooler package note.
+
+General rules:
+
+- Replace old spincast mono before use.
+- Check braid-to-leader knots for wear before each trip.
+- Inspect leaders after catching fish, snagging, or fishing rocks/wood.
+- Retie vibration lures often because spinnerbait/chatterbait/crankbait/inline-spinner vibration stresses knots.
+
+## Hook and lure maintenance
+
+- Hook sharpener owned per OneNote.
+- Check treble hooks for sharpness and rust.
+- Rinse and dry lures/hooks after use, especially if used in brackish/saltwater.
+- Replace damaged split rings/hooks as needed; OneNote candidate kit mentions size 2-3 stainless split rings.
+- Use hook covers/keepers in kayak storage to protect hands and rods.
+
 ## Kayak hull finish / sanding
 
 Historical discussion included sanding a Bonafide kayak hull area and restoring smooth/shiny finish.
 
-Needs migration/audit:
+Needs historical migration/audit:
 
 - Exact grit progression.
 - Wet vs dry sanding notes.
@@ -68,15 +91,11 @@ Historical discussions included:
 - accessory mounting hardware;
 - transducer mounting screws/washers/lock nuts.
 
-Need migration/audit before relying on exact values.
+Need historical migration/audit before relying on exact values.
 
-## Line and tackle maintenance
+## Loading procedure
 
-- Replace old spincast mono before use.
-- Check braid-to-leader knots for wear before each trip.
-- Inspect leaders after catching fish, snagging, or fishing rocks/wood.
-- Rinse and dry lures/hooks after use, especially if used in brackish/saltwater.
-- Check treble hooks for sharpness and rust.
+The detailed Bonafide RVR119 loading checklist is stored in `Kayak_Rigging_Accessories_Storage.md`.
 
 ## Lubricants / products mentioned historically
 
@@ -88,5 +107,6 @@ Need migration/audit before relying on exact values.
 
 - Rods/reels/line: `Rods_Reels_Line_Knots.md`
 - Kayak: `Bonafide_RVR119_Kayak.md`
+- Rigging/accessories/storage: `Kayak_Rigging_Accessories_Storage.md`
 - Electronics/wiring: `Fish_Finder_Electronics_Wiring.md`
 - TODO: `../Fishing_TODO.md`
