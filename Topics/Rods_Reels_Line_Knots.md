@@ -1,6 +1,6 @@
 # Rods, Reels, Line, and Knots
 
-**Status:** OneNote PDF migrated. Historical-chat audit still in progress.
+**Status:** OneNote PDF + MHT links migrated. Historical-chat audit still in progress.
 
 ## Current two-rod kayak system
 
@@ -8,10 +8,10 @@
 
 | Component | Details | Status / Evidence |
 |---|---|---|
-| Rod | Daiwa Tatula XT 7' Medium Fast Spinning, part `TATULAXT702MFS` | OWNED / OneNote source |
-| Reel | Daiwa Exceler LT, 6.2:1, part `EXELT2500D-XH` | OWNED / OneNote source |
-| Main line | Sufix 832 15 lb Hi-Vis Yellow braid, 300 yd, part `660-115Y` | CURRENT SETUP / OneNote source |
-| Leader | Seaguar InvizX 8 lb fluorocarbon, 200 yd | CURRENT SETUP / OneNote source |
+| Rod | [Daiwa Tatula XT](https://daiwa.us/collections/freshwater-rods/products/tatula-xt) 7' Medium Fast Spinning, part `TATULAXT702MFS`; [Tackle Warehouse listing](https://www.tacklewarehouse.com/Daiwa_Tatula_XT_Spinning_Rods_2-Piece/descpage-NTXT2S.html) | OWNED / OneNote source |
+| Reel | [Daiwa Exceler LT](https://daiwa.us/collections/spin-reels/products/23-exceler-lt), 6.2:1, part `EXELT2500D-XH`; [Amazon listing](https://a.co/d/2c33nHU) | OWNED / OneNote source |
+| Main line | [Sufix 832 15 lb Hi-Vis Yellow braid](https://www.rapala.com/us_en/832-advanced-superline?childSku=us-660-115Y), 300 yd, part `660-115Y`; [Amazon listing](https://a.co/d/8mHWdqM) | CURRENT SETUP / OneNote source |
+| Leader | [Seaguar InvizX 8 lb fluorocarbon](https://seaguar.com/products/invizx?variant=42982422544603), 200 yd; [Amazon listing](https://a.co/d/4UVnkVc) | CURRENT SETUP / OneNote source |
 
 Primary use:
 
@@ -29,10 +29,10 @@ Primary use:
 
 | Component | Details | Status / Evidence |
 |---|---|---|
-| Rod | Shimano Zodias `ZDC72MHB`, 7'2", medium-heavy, fast | OWNED / OneNote source |
-| Reel | Shimano 22 SLX DC XT 71HG | OWNED / OneNote source |
-| Main line | PowerPro Super8 Slick V2 Moss Green braid, 30 lb, 150 yd | CURRENT SETUP / OneNote source |
-| Leader | Seaguar InvizX 12 lb fluorocarbon, 200 yd | CURRENT SETUP / OneNote source |
+| Rod | [Shimano Zodias](https://fish.shimano.com/en-US/product/rods/bass/a075f000049ncdzqau_c.html) `ZDC72MHB`, 7'2", medium-heavy, fast; [Amazon listing](https://a.co/d/07UzjAvv) | OWNED / OneNote source |
+| Reel | [Shimano 22 SLX DC XT 71HG](https://fish.shimano.com/ja-JP/product/reel/baitlurecasting/a075f00003ihbqcqay.html); [JDM Tackle Heaven listing](https://jdmtackleheaven.com/products/shimano-22-slx-dc-xt-71hg-left?_pos=1&_psq=22+SLX+DC+XT&_ss=e&_v=1.0); [video](https://youtu.be/mIcaRiMC_-k?si=-07JzU0Tlcns1zB1) | OWNED / OneNote source |
+| Main line | [PowerPro Super8 Slick V2 Moss Green braid](https://www.tacklewarehouse.com/Power_Pro_Super8Slick_V2_Braided_Line_Moss_Green/descpage-PVMG.html), 30 lb, 150 yd | CURRENT SETUP / OneNote source |
+| Leader | [Seaguar InvizX 12 lb fluorocarbon](https://www.tacklewarehouse.com/Seaguar_InvizX_Fluorocarbon_Line/descpage-SIF.html), 200 yd | CURRENT SETUP / OneNote source |
 
 Primary use:
 
@@ -48,7 +48,7 @@ Primary use:
 
 ### Heavy topwater setup — candidate only
 
-OneNote buy/research note: heavy topwater/frog/swimbait/big jig setup would be 7'2"+ heavy power fast-action rod, extra-high 8:1 gear-ratio reel, and 65 lb braid such as PowerPro Spectra Moss Green 65 lb 150 yd.
+OneNote buy/research note: heavy topwater/frog/swimbait/big jig setup would be 7'2"+ heavy power fast-action rod, extra-high 8:1 gear-ratio reel, and [PowerPro Spectra Moss Green 65 lb braid](https://www.tacklewarehouse.com/Power_Pro_Spectra_Braided_Line_Moss_Green/descpage-PPSL.html), 150 yd.
 
 **Status:** candidate/research, not current owned setup.
 
@@ -96,6 +96,7 @@ Use baitcasting gear when:
 
 For Shimano SLX DC XT:
 
+- OneNote linked a [Baitcaster Reel Setup & Casting](https://youtu.be/YDlL1rP7FdU?si=VFgCGySj94xqgCwU) video.
 - Internal line-type dial: mono (`M`), fluoro (`F`), braid (`P`). This defines braking range; it does not have to match line type exactly and effectively provides 15 brake ranges/settings.
 - Spool tension/cast-control knob: with lure attached, hold rod tip up and press clutch. Lure should drop with medium controlled speed.
 - External brake dial: `W`/4 for lightweight lures or wind; 3 or lower for heavier lures and calm conditions.
@@ -105,6 +106,7 @@ For Shimano SLX DC XT:
 
 ### Braid
 
+- OneNote linked a [braided-line video](https://youtu.be/Vd2qcWQBW54?si=RHgL76r3M1T-LaUy).
 - Use with fluorocarbon leader for most clear-water/finesse/general-purpose work.
 - Braid cuts vegetation, lasts longer, and transmits feel; leader adds invisibility and abrasion resistance.
 - Bright braid is useful when a leader is used because it improves strike visibility.
@@ -127,6 +129,16 @@ For Shimano SLX DC XT:
 - Less ideal for deep lures where stretch reduces sensitivity and floating line reduces depth.
 - Brands noted: Trilene XL, Sufix Elite.
 
+## Spooling resources
+
+OneNote linked:
+
+- [Spooling video 1](https://youtu.be/BeWguvKDSjQ?si=biLIqQlmMzirw42m)
+- [Spooling video 2](https://youtu.be/Vd2qcWQBW54?si=sbNIKVS--qvf3k7L&t=699)
+- [Spooling video 3](https://youtu.be/eygAOYgdxt0?si=zARTKGXRB_CgPwcP)
+- [KastKing Radius Line Spooler page](https://kastking.com/products/kastking-radius-line-spooler?_pos=3&_psq=radius&_ss=e&_v=1.0)
+- Baitcaster spooling videos: [video 1](https://youtu.be/x92E7ATKJqQ?si=5b2aiNCU0CeI0fze), [video 2](https://youtu.be/cgdQDtvvaLw?si=j6Dz1mbcPrpLyyRN)
+
 ## Line and leader reference from OneNote
 
 | Material | Pound test | Use |
@@ -147,18 +159,18 @@ Double Uni works but is bulkier. OneNote prefers FG over Double Uni for braid-to
 
 ## Knots from OneNote
 
-| Knot | OneNote guidance |
+| Knot | OneNote guidance / source link |
 |---|---|
-| Palomar | Strong, easy; works with braid, fluorocarbon, and mono; good for small hooks/light line; ensure loop cinches evenly above eye |
-| FG | Preferred braid-to-fluoro leader knot |
-| Albright | Easier on-the-water braid-to-fluoro alternative |
-| Trilene | Good for tying fluorocarbon to swivels/snaps; wet before tightening |
-| Improved Clinch | Good with mono/fluoro on small hooks/jigheads; 6-7 wraps with 6-10 lb line, 5 wraps with heavier line |
-| Modified Uni | Marked very strong in OneNote |
-| Double Uni | Used to connect two lines, but FG preferred for braid-to-leader |
-| Loop / non-slip loop | Conflict: OneNote knot page says don't use because weak, but technique pages still mention loop knots for action. Treat as unresolved. |
-| Single Uni | OneNote says don't use / weak |
-| Arbor | Use for spooling line |
+| [Palomar](https://youtube.com/shorts/IlQDI4bi694?is=zoKRljv9K4l7K5yp) | Strong, easy; works with braid, fluorocarbon, and mono; good for small hooks/light line; ensure loop cinches evenly above eye |
+| FG | Preferred braid-to-fluoro leader knot; OneNote links: [video 1](https://youtu.be/tPa6R-Eb53I?si=O-MzBM7vrUBwWg2I), [video 2](https://youtu.be/Xt2wB7H_9Zw?si=_QBbHYU1_s0qEsl3), [video 3](https://youtube.com/shorts/8DujEeH2Hqg?si=Iy1CHaCRRgOfYu4h) |
+| [Albright](https://youtube.com/shorts/v6tp_hG3y1w?is=ck6NxtZj4Sik3nuP) | Easier on-the-water braid-to-fluoro alternative |
+| [Trilene](https://youtu.be/MQ9sCXQNGMI?si=iax_MRbQzznHMF4j) | Good for tying fluorocarbon to swivels/snaps; wet before tightening |
+| [Improved Clinch](https://youtu.be/2YO7JWNdVC0?si=D_t6qUeE_IKGOQN-) | Good with mono/fluoro on small hooks/jigheads; 6-7 wraps with 6-10 lb line, 5 wraps with heavier line |
+| [Modified Uni](https://youtu.be/uIaXE9izLzo?si=hjocVKitzd5tE2m_) | Marked very strong in OneNote |
+| [Double Uni](https://youtu.be/DfM-iF_vYUk?si=p-ipEFuXsEt5iMA9) | Used to connect two lines, but FG preferred for braid-to-leader |
+| [Loop / non-slip loop](https://youtu.be/yT5kC35LVIk?si=svwuICDg_A04AAkw) | Conflict: OneNote knot page says don't use because weak, but technique pages still mention loop knots for action. Treat as unresolved. |
+| [Single Uni](https://youtu.be/IOv8vJqK1H0?si=Sqot5ADL0pRVXond) | OneNote says don't use / weak |
+| [Arbor](https://youtube.com/shorts/DSlZnvkWKoU?si=qtzxVQ4BVY8jC5FQ) | Use for spooling line |
 
 ## Direct tie / snap / swivel guidance
 
@@ -178,7 +190,7 @@ Double Uni works but is bulkier. OneNote prefers FG over Double Uni for braid-to
 
 ### PowerBait bottom rig
 
-OneNote still-fishing rig:
+OneNote still-fishing rig; see also [Slip sinker rig](https://www.wired2fish.com/tackle-tips/how-to-tie-a-slip-sinker-rig):
 
 `main line -> 1/2 oz egg sinker -> bead -> swivel -> leader -> #4 hook with dough or nugget`
 
@@ -202,6 +214,8 @@ If using braid + leader:
 
 ### Kayak trolling weight rig
 
+OneNote linked [Trout trolling rigs](https://sportfishingbuddy.com/trout-trolling-rigs/).
+
 Inline rig:
 
 `main line -> torpedo weight with swivels at each end -> 3-4' leader -> Wedding Ring / hoochie / small spinner, with Power Egg`
@@ -212,4 +226,4 @@ Flasher/dodger rig:
 
 ## Maintenance cross-reference
 
-Reel cleaning/lubrication procedures belong in `Maintenance_Repairs_Procedures.md`.
+Reel cleaning/lubrication procedures belong in `Maintenance_Repairs_Procedures.md`. OneNote also linked [Greasing and Oiling Your Spinning Reel](https://youtu.be/vkCUgxwUtqU?si=cZehY_eKmqr9HXdn).
