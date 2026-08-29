@@ -1,40 +1,46 @@
 # Fishing Migration Audit
 
-**Status:** ONENOTE PDF MIGRATED / ONENOTE LINKS EMBEDDED INLINE / OVERALL HISTORICAL MIGRATION NOT COMPLETE
+**Status:** COMPLETE / ONENOTE PDF MIGRATED / ONENOTE LINKS EMBEDDED INLINE / AUDIT CLOSED 2026-08-29
 
-This file tracks migration and reconciliation. Do not declare the entire Fishing knowledge base complete until historical chats and OneNote have been inventoried, reconciled, and independently checked against the destination files.
+This file records the Fishing knowledge-base migration and reconciliation. The migration is considered complete under the source-of-truth scope decision below.
 
-## Migration rules
+## Audit scope decision
+
+On 2026-08-29, the user designated the OneNote fishing notebook as the **most up-to-date historical source of truth** for this project. Because that notebook had already incorporated the user's current gear, procedures, observations, research, and prior-chat learnings, exhaustive line-by-line reconciliation of every earlier ChatGPT conversation is **not required** for migration completion.
+
+Historical Fishing chats remain useful supplemental evidence and decision history. Material recovered from them may still be added later if useful, but their lack of transcript-by-transcript reconciliation does not make the migration incomplete and does not require reopening this audit.
+
+## Migration rules retained for future maintenance
 
 1. Preserve material facts before compressing them.
-2. Record source-to-destination disposition for material items.
-3. Do an independent completeness audit against the original sources.
-4. Distinguish owned/installed from researched/candidate/superseded items.
-5. Treat regulations, product availability, stocking, and access as time-sensitive.
+2. Record source-to-destination disposition for material imported from structured source documents.
+3. Distinguish owned/installed from researched/candidate/superseded items.
+4. Treat regulations, product availability, stocking, and access as time-sensitive.
+5. When a later correction or recovered historical detail conflicts with current durable state, update the canonical owner file and preserve meaningful decision history.
 
-## Sources reviewed so far
+## Sources reviewed
 
 | Source | Status | Notes |
 |---|---|---|
-| Historical Fishing project conversation context available to current ChatGPT session | PARTIAL / INITIAL SCAN | Used to identify domains and seed initial files. This is not yet a line-by-line or source-to-destination reconciliation of all historical conversations. |
-| Current Fishing project conversation after bootstrap | SEEDED | Recent gear additions and corrections were added to inventory and decision log. |
-| OneNote fishing/kayak notebook PDF export: `Fishing.pdf` | MIGRATED FROM PDF | 73 pages reviewed from parsed text and rendered page images. Core content migrated into Markdown. Link targets were not preserved by PDF export. |
+| OneNote fishing/kayak notebook PDF export: `Fishing.pdf` | MIGRATED / AUTHORITATIVE HISTORICAL SOURCE | 73 pages reviewed from parsed text and rendered page images. Core content migrated into Markdown. User designated this notebook as the most up-to-date historical source of truth. |
 | OneNote Single File Web Page export: `Fishing OneNote Export.mht` | LINKS RESTORED AND EMBEDDED INLINE | Used to recover external hyperlink targets. Links were embedded in the relevant Markdown pages for GitHub Preview usability. Temporary link-index file was deleted after embedding. |
-| Original individual historical chat transcripts | NOT YET FULLY AUDITED | Need systematic reconciliation after OneNote migration. |
+| Historical Fishing project conversation context available to ChatGPT | SUPPLEMENTAL / SEEDED | Used to identify domains, seed initial files, preserve decisions, and resolve some details. Not exhaustively reconciled line-by-line by design after the 2026-08-29 scope decision. |
+| Current Fishing project conversation after bootstrap | ACTIVE PROJECT SOURCE | Recent gear additions, corrections, and project decisions are written directly into the durable Markdown knowledge base. |
+| Original individual historical chat transcripts | NOT REQUIRED FOR AUDIT CLOSURE | May be consulted later when useful, but exhaustive transcript reconciliation is outside the completed migration scope. |
 
 ## Files updated/created in OneNote migration
 
 | File | Status | Purpose |
 |---|---|---|
-| `README.md` | UPDATED | Project index and migration status |
-| `Fishing_Context.md` | UPDATED | Compact current-state summary/router |
+| `README.md` | UPDATED / FINAL MIGRATION STATUS | Project index and migration status |
+| `Fishing_Context.md` | UPDATED / ACTIVE | Compact current-state summary/router |
 | `Fishing_Gear_Registry.md` | UPDATED WITH INLINE LINKS | Owned/installed gear registry |
 | `Fishing_Tackle_Inventory.md` | UPDATED WITH INLINE LINKS | Owned tackle, terminal tackle, bait inventory |
-| `Fishing_TODO.md` | UPDATED | Canonical backlog with OneNote TODOs |
-| `Fishing_Decision_Log.md` | UPDATED | Major decisions, corrections, and rationale |
-| `Fishing_Migration_Audit.md` | UPDATED | Migration tracking and audit status |
+| `Fishing_TODO.md` | UPDATED | Canonical backlog with migration tasks closed |
+| `Fishing_Decision_Log.md` | UPDATED | Major decisions, corrections, rationale, and audit-scope decision |
+| `Fishing_Migration_Audit.md` | COMPLETE | Migration tracking, source inventory, scope decision, and closure record |
 | `Fishing_Source_Reconciliation_Exceptions.md` | UPDATED | Items not imported or imported with limitations/conflicts |
-| `Fishing_New_Chat_Bootstrap_Prompt.md` | UPDATED DRAFT | Still not final until historical-chat audit passes |
+| `Fishing_New_Chat_Bootstrap_Prompt.md` | FINAL | New-chat bootstrap for normal ongoing project use |
 | `Fishing_Reference_Links.md` | DELETED | Temporary MHT link index removed after inline embedding |
 | `Topics/Bonafide_RVR119_Kayak.md` | UPDATED WITH INLINE LINKS | Kayak specs, serial, accessories, loading refs |
 | `Topics/Kayak_Rigging_Accessories_Storage.md` | UPDATED WITH INLINE LINKS | Rigging, storage, loading checklist, candidates |
@@ -71,7 +77,7 @@ This file tracks migration and reconciliation. Do not declare the entire Fishing
 | 29 | Finesse Lures title page | INTENTIONALLY EXCLUDED AS EMPTY | No details beyond section title. |
 | 30 | Wacky Worm | IMPORTED | `Topics/Fishing_Techniques.md`; inventory cross-links; link embedded. |
 | 31 | Ned Rig | IMPORTED | `Topics/Fishing_Techniques.md`; loop-knot caveat; links embedded. |
-| 32 | Drop Shot | IMPORTED | `Topics/Fishing_Techniques.md`; inventory cross-links; links embedded. |
+| 32 | Drop Shot | IMPORTED | `Topics/Fishing_Techniques.md`; inventory cross-links; link embedded. |
 | 33 | TODO: Texas Rig | IMPORTED AS TODO ONLY | No technique content to migrate. |
 | 34 | TODO: Alabama Rig | IMPORTED AS TODO ONLY | No technique content to migrate. |
 | 35 | TODO: Neko Rig | PARTIAL / TODO | Seed gear/bait notes imported; full technique remains TODO; links embedded. |
@@ -117,26 +123,28 @@ This file tracks migration and reconciliation. Do not declare the entire Fishing
 | Clothing buy items | Imported as candidates | TODO; researched gear | Gloves owned; NRS items candidates. |
 | MHT hyperlink targets | Restored and embedded inline | Relevant Markdown pages | `Fishing_Reference_Links.md` was temporary and deleted after embedding. |
 
-## Known unresolved/conflict items
+## Known unresolved/conflict items after migration
+
+These are ordinary project TODOs or source conflicts; they do **not** keep the migration audit open.
 
 | Item | Status | Notes |
 |---|---|---|
-| Historical chat audit | OPEN | OneNote was migrated; full historical chat reconciliation still required. |
 | Fish-finder installed wiring state | UNRESOLVED | OneNote parts imported; final physical installed state still needs confirmation. |
-| Bonafide RVR119 insert bolt/thread sizes | UNRESOLVED | Need source recovery or user verification. |
+| Bonafide RVR119 insert bolt/thread sizes | UNRESOLVED | Need source recovery, manufacturer documentation, or user verification. |
 | Under-seat tackle storage purchase status | UNRESOLVED | OneNote lists as buy item; product searched; purchase unknown. |
 | YakAttack fish cooler bag purchase status | UNRESOLVED | Product searched; purchase unknown. |
 | PowerBait hook size | CONFLICT / OPEN | OneNote uses #4; prior chat often recommended #8. |
 | Loop knot guidance | CONFLICT / OPEN | OneNote knot page says don't use; some technique pages recommend loop knots. |
 | Color-vision/color-selection note | IMPORTED AS NEEDS VERIFICATION | Preserved source note but not treated as verified science. |
-| Final bootstrap prompt | DEFERRED | Draft placeholder exists; final should not be used until historical-chat source audit passes. |
 
 ## Completeness audit status
 
-**OneNote PDF migration pass:** complete with exceptions.
+**OneNote PDF migration pass:** COMPLETE WITH DOCUMENTED EXCEPTIONS.
 
-**OneNote hyperlink restoration:** complete to the extent supported by the MHT export; links embedded inline where practical.
+**OneNote hyperlink restoration:** COMPLETE to the extent supported by the MHT export; links embedded inline where practical.
 
-**Overall historical migration:** not complete.
+**Historical-chat transcript reconciliation:** NOT EXHAUSTIVELY PERFORMED AND NOT REQUIRED under the 2026-08-29 user scope decision because OneNote was the most up-to-date source of truth.
 
-Reason: OneNote was reviewed page-by-page and migrated, but original historical chats have not yet been independently reconciled against the destination Markdown files. The source reconciliation exceptions report documents remaining limitations and unresolved conflicts.
+**Overall migration:** **COMPLETE / AUDIT CLOSED.**
+
+The GitHub repository is the active durable knowledge base. Future discoveries from old chats, user recollection, manufacturer documentation, or new fishing experience should be incorporated through normal canonical-file maintenance rather than treated as unfinished migration work.
