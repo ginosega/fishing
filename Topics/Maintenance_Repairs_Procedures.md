@@ -1,10 +1,12 @@
 # Maintenance, Repairs, and Procedures
 
-**Status:** OneNote PDF migrated. Historical-chat audit still in progress.
+**Status:** OneNote PDF + MHT links migrated. Historical-chat audit still in progress.
 
 This file owns maintenance/repair/procedure notes. Gear-specific facts belong in registry/topic files; this file links to them when needed.
 
 ## Daiwa Exceler LT spinning reel maintenance
+
+OneNote linked [Greasing and Oiling Your Spinning Reel](https://youtu.be/vkCUgxwUtqU?si=cZehY_eKmqr9HXdn).
 
 Historical routine guidance:
 
@@ -50,11 +52,19 @@ Recommended basic service after years of no maintenance:
 
 ## Line and spooling procedure notes
 
-OneNote includes line-spooling video references, but the actual URLs were not preserved in the PDF export. Tools owned for line work:
+OneNote line/spooling links:
 
-- KastKing Line Stripper.
-- KastKing Radius Line Spooler.
-- KastKing Cutthroat pliers with line stripper/spooler package note.
+- [Spooling video 1](https://youtu.be/BeWguvKDSjQ?si=biLIqQlmMzirw42m)
+- [Spooling video 2](https://youtu.be/Vd2qcWQBW54?si=sbNIKVS--qvf3k7L&t=699)
+- [Spooling video 3](https://youtu.be/eygAOYgdxt0?si=zARTKGXRB_CgPwcP)
+- [KastKing Radius Line Spooler page](https://kastking.com/products/kastking-radius-line-spooler?_pos=3&_psq=radius&_ss=e&_v=1.0)
+- Baitcaster spooling videos: [video 1](https://youtu.be/x92E7ATKJqQ?si=5b2aiNCU0CeI0fze), [video 2](https://youtu.be/cgdQDtvvaLw?si=j6Dz1mbcPrpLyyRN)
+
+Tools owned for line work:
+
+- [KastKing Line Stripper](https://kastking.com/products/kastking-line-stripper-for-cordless-drill?_pos=1&_sid=f599404a4&_ss=r).
+- [KastKing Radius Line Spooler](https://kastking.com/products/kastking-radius-line-spooler?_pos=3&_psq=radius&_ss=e&_v=1.0) and [video](https://youtu.be/5uoIVEFOHa0?si=QsFTalqNbq_h3xWt).
+- [KastKing Cutthroat 7" pliers](https://kastking.com/products/kastking-cutthroat-7-fishing-pliers) with line stripper/spooler package note; [Amazon listing](https://a.co/d/02K8XIhY).
 
 General rules:
 
@@ -65,7 +75,7 @@ General rules:
 
 ## Hook and lure maintenance
 
-- Hook sharpener owned per OneNote.
+- [Hook sharpener](https://a.co/d/04J8axAa) owned per OneNote.
 - Check treble hooks for sharpness and rust.
 - Rinse and dry lures/hooks after use, especially if used in brackish/saltwater.
 - Replace damaged split rings/hooks as needed; OneNote candidate kit mentions size 2-3 stainless split rings.
