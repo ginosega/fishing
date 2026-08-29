@@ -1,6 +1,6 @@
 # Fishing Context
 
-**Status:** Active working context after completed OneNote PDF migration, OneNote MHT inline-link restoration, and migration-audit closure.
+**Status:** Active working context. OneNote migration and link restoration completed 2026-08-29.
 
 This is a compact router/current-state summary. Do not use it as the detailed owner for procedures, inventories, or specifications.
 
@@ -87,8 +87,8 @@ See `Fishing_TODO.md`. Current important items include:
 - Decide whether/how to modify the rear flush rod-holder angle.
 - Spot-check restored inline links in GitHub Preview during normal use.
 
-## Migration and handoff note
+## Migration record
 
-The uploaded OneNote PDF was migrated, and the later OneNote Single File Web Page/MHT export was used to recover hyperlinks. Those links are embedded inline in the relevant Markdown files so they are clickable in GitHub Preview. The temporary `Fishing_Reference_Links.md` file was deleted after inline link restoration.
+The OneNote PDF was migrated and the later OneNote Single File Web Page/MHT export was used to recover hyperlinks, which are embedded inline in the relevant Markdown files. On 2026-08-29, the migration audit and reconciliation were closed with OneNote designated as the most up-to-date historical source of truth. Historical chat material remains supplemental evidence and decision history.
 
-On 2026-08-29, the user designated OneNote as the most up-to-date historical source of truth and closed the migration audit without requiring exhaustive line-by-line reconciliation of earlier ChatGPT transcripts. Historical chat material remains supplemental evidence and decision history. If something later seems missing or conflicts with recollection, check `Fishing_Migration_Audit.md` and `Fishing_Source_Reconciliation_Exceptions.md`, then correct the durable files as ordinary project maintenance.
+The temporary migration audit, reconciliation-exceptions, and link-index files were removed after closure. If something later seems missing or conflicts with recollection, use `Fishing_Decision_Log.md`, `Fishing_TODO.md`, user confirmation, manufacturer documentation, or historical-source recovery as appropriate, then update the canonical durable file.
