@@ -1,12 +1,14 @@
 # Fishing New Chat Bootstrap Prompt
 
-**Status:** DRAFT PLACEHOLDER — DO NOT TREAT AS FINAL
+**Status:** DRAFT — ONENOTE PDF MIGRATED, HISTORICAL CHAT AUDIT NOT COMPLETE
 
-This file should become the compact bootstrap prompt for future Fishing chats only after the OneNote and historical-chat migration has been reconciled and audited.
+Use this prompt to start a future Fishing chat during the migration period. Do not remove this warning until `Fishing_Migration_Audit.md` says the overall source-to-destination audit has passed.
 
-## Current instruction for future chats during migration
+---
 
-Read these files first:
+You are helping with my persistent Fishing project. The durable Markdown knowledge base is in the GitHub repo `ginosega/fishing`.
+
+First read these files:
 
 1. `README.md`
 2. `Fishing_Context.md`
@@ -14,21 +16,48 @@ Read these files first:
 4. `Fishing_Tackle_Inventory.md`
 5. `Fishing_TODO.md`
 6. `Fishing_Migration_Audit.md`
+7. `Fishing_Source_Reconciliation_Exceptions.md`
 
-Important: this repository is currently initialized but **not fully migrated**. Historical chats and OneNote have not yet been completely reconciled. Do not assume absence from the Markdown files means the information does not exist.
+Then use topic files only as needed:
 
-## Final bootstrap requirements
+- `Topics/Bonafide_RVR119_Kayak.md`
+- `Topics/Kayak_Rigging_Accessories_Storage.md`
+- `Topics/Fish_Finder_Electronics_Wiring.md`
+- `Topics/Rods_Reels_Line_Knots.md`
+- `Topics/Fishing_Techniques.md`
+- `Topics/Local_Waters_Locations.md`
+- `Topics/Trip_Logs_Field_Observations.md`
+- `Topics/Safety_Regulations_Fish_Handling.md`
+- `Topics/Maintenance_Repairs_Procedures.md`
+- `Topics/Researched_Candidate_Gear.md`
 
-When migration is complete, this file should tell future chats:
+The OneNote PDF export has been migrated into these Markdown files, with exceptions recorded in `Fishing_Source_Reconciliation_Exceptions.md`. Historical ChatGPT conversations have been seeded but not yet independently reconciled line-by-line against the Markdown.
 
-- the Markdown repository is the canonical active project state;
-- which files to read first;
-- where detailed information lives;
-- how evidence/status classifications work;
-- not to resurrect superseded research as current equipment;
-- how to update TODOs and durable state;
-- that historical OneNote/chat material has already been reconciled and normally should not be needed unless explicitly requested.
+Use the Markdown files as the active working state, but if something important seems missing or conflicts with my recollection, do not assume it never existed. Check `Fishing_Migration_Audit.md` and the exceptions report, then ask or audit the historical source.
 
-## Completion gate
+Evidence/status labels matter:
 
-Do not remove this draft warning until `Fishing_Migration_Audit.md` shows that the source-to-destination completeness audit passed.
+- OWNED / INSTALLED
+- USER VERIFIED
+- USER OBSERVED
+- MANUFACTURER DOCUMENTED
+- ONENOTE SOURCE
+- HISTORICAL CHAT SEED
+- RESEARCHED / CANDIDATE
+- REJECTED / SUPERSEDED
+- PROBABLE
+- UNKNOWN / UNRESOLVED
+
+Do not convert researched/candidate gear into owned gear unless I confirm ownership or the registry already shows it as owned. Do not resurrect rejected or superseded ideas as recommendations without acknowledging why they were rejected.
+
+For current regulations, stocking, launch rules, product availability, prices, or access questions, recheck current authoritative sources.
+
+For durable updates:
+
+1. Update the authoritative topic/registry/inventory file first.
+2. Then update `Fishing_TODO.md` or `Fishing_Decision_Log.md` if needed.
+3. Preserve exact model numbers, sizes, colors, weights, dimensions, part numbers, and user observations.
+
+---
+
+Final version of this file should be rewritten after the historical-chat reconciliation audit passes.
