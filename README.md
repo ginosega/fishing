@@ -6,11 +6,11 @@ This repository is the durable Markdown knowledge base for fishing, kayak fishin
 
 **Status: ONENOTE PDF MIGRATED / ONENOTE LINKS EMBEDDED INLINE / HISTORICAL CHAT AUDIT STILL IN PROGRESS**
 
-The initial structure has been created and the uploaded OneNote PDF export (`Fishing.pdf`, 73 pages, exported 2026-08-29 in this chat) has been migrated into the Markdown files. The migration preserved current owned equipment, researched/candidate items, technique notes, location notes, catch logs, TODOs, and known conflicts.
+The initial structure has been created and the uploaded OneNote PDF export (`Fishing.pdf`, 73 pages, exported 2026-08-29 in ChatGPT) has been migrated into the Markdown files. The migration preserved current owned equipment, researched/candidate items, technique notes, location notes, catch logs, TODOs, and known conflicts.
 
 The later OneNote Single File Web Page export (`Fishing OneNote Export.mht`) was used to restore external hyperlink targets. Those links are now embedded inline in the relevant Markdown pages so they are clickable in GitHub Preview. The temporary `Fishing_Reference_Links.md` index was removed after inline restoration.
 
-This repository should now be treated as the active working knowledge base, but not yet as a fully audited final migration of every historical ChatGPT conversation. Do not declare the entire historical migration complete until `Fishing_Migration_Audit.md` shows that the historical-chat source-to-destination audit has passed.
+This repository should now be treated as the active working knowledge base and OneNote-replacement-in-progress, but not yet as a fully audited final migration of every historical ChatGPT conversation. Do not declare the entire historical migration complete until `Fishing_Migration_Audit.md` shows that the historical-chat source-to-destination audit has passed.
 
 ## Start here
 
@@ -20,6 +20,7 @@ This repository should now be treated as the active working knowledge base, but 
 4. `Fishing_TODO.md` — canonical backlog.
 5. `Fishing_Migration_Audit.md` — migration source inventory and reconciliation status.
 6. `Fishing_Source_Reconciliation_Exceptions.md` — material that was not imported or was imported with limitations/conflicts.
+7. `Fishing_New_Chat_Bootstrap_Prompt.md` — continuation-ready bootstrap prompt for starting a new Fishing chat during the audit period.
 
 Detailed topic files live in `Topics/`.
 
