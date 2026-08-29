@@ -1,6 +1,6 @@
 # Fishing Tackle Inventory
 
-**Status:** OneNote PDF + MHT links migrated. Historical-chat audit still in progress.
+**Status:** OneNote PDF + MHT links migrated; migration audit closed 2026-08-29.
 
 This file is for **owned lures, bait, hooks, weights, snaps, swivels, and terminal tackle**. Gear such as rods/reels/kayak/electronics/tools belongs in `Fishing_Gear_Registry.md`.
 
