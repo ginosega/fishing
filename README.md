@@ -4,13 +4,15 @@ This repository is the durable Markdown knowledge base for fishing, kayak fishin
 
 ## Migration status
 
-**Status: ONENOTE PDF MIGRATED / ONENOTE LINKS EMBEDDED INLINE / HISTORICAL CHAT AUDIT STILL IN PROGRESS**
+**Status: MIGRATION COMPLETE / ONENOTE PDF MIGRATED / ONENOTE LINKS EMBEDDED INLINE / AUDIT CLOSED**
 
-The initial structure has been created and the uploaded OneNote PDF export (`Fishing.pdf`, 73 pages, exported 2026-08-29 in ChatGPT) has been migrated into the Markdown files. The migration preserved current owned equipment, researched/candidate items, technique notes, location notes, catch logs, TODOs, and known conflicts.
+The OneNote PDF export (`Fishing.pdf`, 73 pages, exported 2026-08-29 in ChatGPT) was migrated into the Markdown files. The migration preserved current owned equipment, researched/candidate items, technique notes, location notes, catch logs, TODOs, and known conflicts.
 
-The later OneNote Single File Web Page export (`Fishing OneNote Export.mht`) was used to restore external hyperlink targets. Those links are now embedded inline in the relevant Markdown pages so they are clickable in GitHub Preview. The temporary `Fishing_Reference_Links.md` index was removed after inline restoration.
+The later OneNote Single File Web Page export (`Fishing OneNote Export.mht`) was used to restore external hyperlink targets. Those links are embedded inline in the relevant Markdown pages so they are clickable in GitHub Preview. The temporary `Fishing_Reference_Links.md` index was removed after inline restoration.
 
-This repository should now be treated as the active working knowledge base and OneNote-replacement-in-progress, but not yet as a fully audited final migration of every historical ChatGPT conversation. Do not declare the entire historical migration complete until `Fishing_Migration_Audit.md` shows that the historical-chat source-to-destination audit has passed.
+On 2026-08-29, the user designated the OneNote notebook as the most up-to-date historical source of truth and closed the migration audit without requiring a line-by-line reconciliation of every earlier ChatGPT transcript. Historical Fishing chats remain useful supplemental evidence and decision history, but they are not a completeness gate for the knowledge base.
+
+This repository is now the active working knowledge base and OneNote replacement. Future corrections, recovered historical details, or conflicts should be handled as ordinary updates rather than automatically reopening the migration audit.
 
 ## Start here
 
@@ -18,9 +20,9 @@ This repository should now be treated as the active working knowledge base and O
 2. `Fishing_Gear_Registry.md` — owned/installed gear and current configurations.
 3. `Fishing_Tackle_Inventory.md` — lure, bait, hook, sinker, and terminal-tackle inventory.
 4. `Fishing_TODO.md` — canonical backlog.
-5. `Fishing_Migration_Audit.md` — migration source inventory and reconciliation status.
+5. `Fishing_Migration_Audit.md` — migration source inventory, scope decision, and completed audit record.
 6. `Fishing_Source_Reconciliation_Exceptions.md` — material that was not imported or was imported with limitations/conflicts.
-7. `Fishing_New_Chat_Bootstrap_Prompt.md` — continuation-ready bootstrap prompt for starting a new Fishing chat during the audit period.
+7. `Fishing_New_Chat_Bootstrap_Prompt.md` — final bootstrap prompt for starting a new Fishing chat.
 
 Detailed topic files live in `Topics/`.
 
@@ -34,7 +36,7 @@ Use these labels consistently:
 - **MANUFACTURER DOCUMENTED** — supported by manufacturer documentation.
 - **ONENOTE SOURCE** — imported from the OneNote PDF export.
 - **ONENOTE LINK RESTORED** — external URL restored from the Single File Web Page export and embedded inline where practical.
-- **HISTORICAL CHAT SEED** — imported from prior Fishing chat context but not yet fully audited against source transcripts.
+- **HISTORICAL CHAT SEED** — imported from prior Fishing chat context as supplemental historical evidence; not necessarily reconciled line-by-line against the original transcript.
 - **RESEARCHED / CANDIDATE** — considered but not purchased or installed.
 - **REJECTED / SUPERSEDED** — no longer current, but preserved for decision history.
 - **PROBABLE** — strong inference but not verified.
