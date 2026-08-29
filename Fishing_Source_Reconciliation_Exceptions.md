@@ -2,9 +2,13 @@
 
 **Scope:** OneNote PDF export (`Fishing.pdf`, 73 pages) plus hyperlink recovery from OneNote Single File Web Page export (`Fishing OneNote Export.mht`) performed 2026-08-29.
 
-**Status:** OneNote PDF migration pass complete with exceptions; OneNote hyperlink targets restored and embedded inline in the relevant Markdown pages. Overall historical-chat migration is not complete.
+**Status:** OneNote PDF migration pass complete with exceptions; OneNote hyperlink targets restored and embedded inline in the relevant Markdown pages; migration audit closed 2026-08-29.
 
 This report lists material that did not import, imported only partially, or imported with unresolved conflicts/limitations.
+
+## Audit-scope note
+
+On 2026-08-29, the user designated OneNote as the most up-to-date historical source of truth. Exhaustive line-by-line reconciliation of all earlier ChatGPT transcripts is therefore not required for migration completion. Historical chats remain supplemental evidence and may still surface useful details later, but that possibility is treated as normal future maintenance rather than an open migration exception.
 
 ## Format limitations
 
@@ -12,7 +16,7 @@ This report lists material that did not import, imported only partially, or impo
 |---|---|---|
 | Actual hyperlink targets behind labels such as `mfr`, `Amazon`, `video`, `link`, and some resource titles | RESTORED INLINE WHERE PRACTICAL | The PDF preserved visible link labels but not reliable destination URLs. The Single File Web Page export preserved the targets, and those links were embedded inline in the relevant Markdown pages so they are clickable in GitHub Preview. The temporary `Fishing_Reference_Links.md` index was deleted after inline restoration. |
 | Embedded link context for videos/playlists/resources | MOSTLY RESTORED INLINE | The MHT export preserved URL targets. Generic labels remain generic where OneNote used generic labels, but the surrounding Markdown text was updated where practical so links are understandable in context. |
-| Possible embedded attachments from OneNote | UNKNOWN | The PDF/MHT did not show separate embedded attachment files. If OneNote contains attachments beyond rendered page content, provide another export or the attachments separately. |
+| Possible embedded attachments from OneNote | UNKNOWN | The PDF/MHT did not show separate embedded attachment files. If OneNote contains attachments beyond rendered page content and they later matter, import them as ordinary project maintenance. |
 | Tables/diagrams rendered as images | IMPORTED WHERE TEXT WAS PARSED OR VISUALLY CLEAR | Rendered page images were available. Text was generally sufficient. The trout flasher rig diagram on page 4 and several tables were reflected in rigging/technique files. |
 
 ## Intentionally excluded as empty/header-only
@@ -74,6 +78,6 @@ These items were deliberately **not** added as owned gear because the source fra
 | Stocking/species assumptions | Species lists and stocking info should be checked from current authoritative sources when needed. |
 | Warranty text | OneNote warranty note imported, but current manufacturer terms should be checked before any claim. |
 
-## Not yet covered by this exceptions report
+## Historical-chat coverage
 
-This report covers the **OneNote PDF migration and OneNote MHT hyperlink restoration**. A separate historical-chat reconciliation may uncover additional conflicts, corrections, or omitted details from earlier project conversations.
+Historical chats were used as supplemental seeds and decision history during the migration. They were **not exhaustively reconciled transcript-by-transcript**, and under the 2026-08-29 source-of-truth decision they do not need to be. If a useful older detail is recovered later, incorporate it into the canonical Markdown files and preserve conflicts or superseded decisions where appropriate.
