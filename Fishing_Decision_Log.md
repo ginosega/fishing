@@ -1,6 +1,6 @@
 # Fishing Decision Log
 
-**Status:** OneNote PDF migrated. Historical-chat audit still in progress.
+**Status:** OneNote PDF migrated; OneNote MHT links embedded inline. Historical-chat audit still in progress.
 
 This file preserves **why** decisions were made so rejected or superseded ideas do not keep resurfacing.
 
@@ -20,6 +20,8 @@ This file preserves **why** decisions were made so rejected or superseded ideas 
 | 2026-08 | Trout trolling | Added trout/kokanee trolling and bait-fishing system | Lure-only casting/trolling | 1/2 oz torpedo weights, dodger, hoochie, spoons, bait, hooks, egg sinkers and beads improve trout odds from kayak/bank | CURRENT / RECENT PURCHASES | `Fishing_Tackle_Inventory.md` |
 | 2026-08 | Hook correction | Corrected #3 trout/bait hooks to #4 | Earlier note said #3 | User correction supersedes prior note: hooks are #4, #6, #8 in standard and Aberdeen | CORRECTED | `Fishing_Tackle_Inventory.md` |
 | 2026-08 | Migration | Proceeded with PDF-based OneNote migration | Single File Web Page export also possible | PDF contained useful text and rendered page images, enough for content migration; actual hyperlink targets were not preserved | MIGRATED WITH EXCEPTIONS | `Fishing_Migration_Audit.md`; `Fishing_Source_Reconciliation_Exceptions.md` |
+| 2026-08 | Migration / GitHub usability | Embedded restored OneNote links inline in topic files and deleted temporary link-index file | Keeping a separate `Fishing_Reference_Links.md` index vs. embedding links directly where used | User wants GitHub Preview to replace basic OneNote usability; inline links are necessary while reading individual Markdown pages | CURRENT / COMPLETED | `README.md`; `Fishing_Migration_Audit.md`; `Fishing_Source_Reconciliation_Exceptions.md` |
+| 2026-08 | New chat handoff | Revised continuation-ready bootstrap prompt | Continue in long chat vs. start clean chat with repo state | Chat performance was degrading; durable state should be restored from GitHub Markdown in the next chat | CURRENT / COMPLETED DRAFT | `Fishing_New_Chat_Bootstrap_Prompt.md` |
 
 ## Preserved research/candidate decisions
 
