@@ -1,6 +1,6 @@
 # Fishing Migration Audit
 
-**Status:** ONENOTE PDF MIGRATED / OVERALL HISTORICAL MIGRATION NOT COMPLETE
+**Status:** ONENOTE PDF MIGRATED / ONENOTE LINKS EMBEDDED INLINE / OVERALL HISTORICAL MIGRATION NOT COMPLETE
 
 This file tracks migration and reconciliation. Do not declare the entire Fishing knowledge base complete until historical chats and OneNote have been inventoried, reconciled, and independently checked against the destination files.
 
@@ -19,6 +19,7 @@ This file tracks migration and reconciliation. Do not declare the entire Fishing
 | Historical Fishing project conversation context available to current ChatGPT session | PARTIAL / INITIAL SCAN | Used to identify domains and seed initial files. This is not yet a line-by-line or source-to-destination reconciliation of all historical conversations. |
 | Current Fishing project conversation after bootstrap | SEEDED | Recent gear additions and corrections were added to inventory and decision log. |
 | OneNote fishing/kayak notebook PDF export: `Fishing.pdf` | MIGRATED FROM PDF | 73 pages reviewed from parsed text and rendered page images. Core content migrated into Markdown. Link targets were not preserved by PDF export. |
+| OneNote Single File Web Page export: `Fishing OneNote Export.mht` | LINKS RESTORED AND EMBEDDED INLINE | Used to recover external hyperlink targets. Links were embedded in the relevant Markdown pages for GitHub Preview usability. Temporary link-index file was deleted after embedding. |
 | Original individual historical chat transcripts | NOT YET FULLY AUDITED | Need systematic reconciliation after OneNote migration. |
 
 ## Files updated/created in OneNote migration
@@ -27,67 +28,68 @@ This file tracks migration and reconciliation. Do not declare the entire Fishing
 |---|---|---|
 | `README.md` | UPDATED | Project index and migration status |
 | `Fishing_Context.md` | UPDATED | Compact current-state summary/router |
-| `Fishing_Gear_Registry.md` | UPDATED | Owned/installed gear registry |
-| `Fishing_Tackle_Inventory.md` | UPDATED | Owned tackle, terminal tackle, bait inventory |
+| `Fishing_Gear_Registry.md` | UPDATED WITH INLINE LINKS | Owned/installed gear registry |
+| `Fishing_Tackle_Inventory.md` | UPDATED WITH INLINE LINKS | Owned tackle, terminal tackle, bait inventory |
 | `Fishing_TODO.md` | UPDATED | Canonical backlog with OneNote TODOs |
 | `Fishing_Decision_Log.md` | UPDATED | Major decisions, corrections, and rationale |
 | `Fishing_Migration_Audit.md` | UPDATED | Migration tracking and audit status |
-| `Fishing_Source_Reconciliation_Exceptions.md` | CREATED | Items not imported or imported with limitations/conflicts |
+| `Fishing_Source_Reconciliation_Exceptions.md` | UPDATED | Items not imported or imported with limitations/conflicts |
 | `Fishing_New_Chat_Bootstrap_Prompt.md` | UPDATED DRAFT | Still not final until historical-chat audit passes |
-| `Topics/Bonafide_RVR119_Kayak.md` | UPDATED | Kayak specs, serial, accessories, loading refs |
-| `Topics/Kayak_Rigging_Accessories_Storage.md` | UPDATED | Rigging, storage, loading checklist, candidates |
-| `Topics/Fish_Finder_Electronics_Wiring.md` | UPDATED | Helix operation, sonar setup, wiring parts, candidates |
-| `Topics/Rods_Reels_Line_Knots.md` | UPDATED | Rod/reel/line configs, knots, rigging rules |
-| `Topics/Fishing_Techniques.md` | UPDATED | Trout, bass finesse, power, topwater, seasonal notes |
+| `Fishing_Reference_Links.md` | DELETED | Temporary MHT link index removed after inline embedding |
+| `Topics/Bonafide_RVR119_Kayak.md` | UPDATED WITH INLINE LINKS | Kayak specs, serial, accessories, loading refs |
+| `Topics/Kayak_Rigging_Accessories_Storage.md` | UPDATED WITH INLINE LINKS | Rigging, storage, loading checklist, candidates |
+| `Topics/Fish_Finder_Electronics_Wiring.md` | UPDATED WITH INLINE LINKS | Helix operation, sonar setup, wiring parts, candidates |
+| `Topics/Rods_Reels_Line_Knots.md` | UPDATED WITH INLINE LINKS | Rod/reel/line configs, knots, rigging rules |
+| `Topics/Fishing_Techniques.md` | UPDATED WITH INLINE LINKS | Trout, bass finesse, power, topwater, seasonal notes |
 | `Topics/Local_Waters_Locations.md` | UPDATED | Lake-specific knowledge and trip plans |
 | `Topics/Trip_Logs_Field_Observations.md` | UPDATED | OneNote catch log and historical observations |
-| `Topics/Safety_Regulations_Fish_Handling.md` | UPDATED | Fish-handling tools and safety notes |
-| `Topics/Maintenance_Repairs_Procedures.md` | UPDATED | Reel/tackle/kayak procedure notes |
-| `Topics/Researched_Candidate_Gear.md` | UPDATED | Candidate/researched gear, clothing, electronics, motor, tackle |
+| `Topics/Safety_Regulations_Fish_Handling.md` | UPDATED WITH INLINE LINKS | Fish-handling tools and safety notes |
+| `Topics/Maintenance_Repairs_Procedures.md` | UPDATED WITH INLINE LINKS | Reel/tackle/kayak procedure notes |
+| `Topics/Researched_Candidate_Gear.md` | UPDATED WITH INLINE LINKS | Candidate/researched gear, clothing, electronics, motor, tackle |
 
 ## OneNote page/section inventory and disposition
 
 | Pages | Section / content | Disposition | Destination / notes |
 |---|---|---|---|
-| 1 | Listen/Go/Buy/Clothing/Tackle Management/TODO page | IMPORTED / SPLIT | TODO, candidate gear, researched resources. Link targets not preserved. |
+| 1 | Listen/Go/Buy/Clothing/Tackle Management/TODO page | IMPORTED / SPLIT | TODO, candidate gear, researched resources; MHT links embedded where relevant. |
 | 2 | Catch Log | IMPORTED | `Topics/Trip_Logs_Field_Observations.md`; location files updated. |
-| 3-5 | Trout Fishing | IMPORTED WITH CONFLICTS | Trout rigs, dodger/trolling/bobber/bottom-rig notes imported. Hook-size conflict recorded. |
-| 6-7 | Kayak and electronics/motor research | IMPORTED / SPLIT | Current owned items to registry/kayak/electronics; Garmin/motor/battery candidates to researched gear; TODOs created. |
+| 3-5 | Trout Fishing | IMPORTED WITH CONFLICTS | Trout rigs, dodger/trolling/bobber/bottom-rig notes imported. Hook-size conflict recorded. Links embedded in technique/rigging pages. |
+| 6-7 | Kayak and electronics/motor research | IMPORTED / SPLIT | Current owned items to registry/kayak/electronics; Garmin/motor/battery candidates to researched gear; links embedded. |
 | 8 | Loading Checklist | IMPORTED | `Topics/Kayak_Rigging_Accessories_Storage.md`; summarized in kayak file. |
-| 9-12 | Fish Finder controls/setup/installation/parts | IMPORTED | `Topics/Fish_Finder_Electronics_Wiring.md`; gear registry updated. |
+| 9-12 | Fish Finder controls/setup/installation/parts | IMPORTED | `Topics/Fish_Finder_Electronics_Wiring.md`; gear registry updated; links embedded. |
 | 13 | Gear section title page | INTENTIONALLY EXCLUDED AS EMPTY | No substantive content beyond section title. |
-| 14-15 | Rods & Reels | IMPORTED | `Fishing_Gear_Registry.md`; `Topics/Rods_Reels_Line_Knots.md`; decision log. |
-| 16-17 | Line | IMPORTED | `Topics/Rods_Reels_Line_Knots.md`; gear registry. |
+| 14-15 | Rods & Reels | IMPORTED | `Fishing_Gear_Registry.md`; `Topics/Rods_Reels_Line_Knots.md`; decision log; links embedded. |
+| 16-17 | Line | IMPORTED | `Topics/Rods_Reels_Line_Knots.md`; gear registry; links embedded. |
 | 18 | Weights | IMPORTED | `Fishing_Tackle_Inventory.md`; techniques; TODOs. |
-| 19 | Snaps, Swivels, etc. | IMPORTED | `Fishing_Tackle_Inventory.md`; rods/rigging guidance. |
-| 20 | Hooks | IMPORTED | `Fishing_Tackle_Inventory.md`; hook correction preserved. |
-| 21-22 | Knots | IMPORTED WITH CONFLICT | `Topics/Rods_Reels_Line_Knots.md`; loop-knot conflict recorded. |
-| 23 | Tools & Storage | IMPORTED | Gear registry; rigging/storage; safety/maintenance. |
-| 24 | Clothing | IMPORTED / SPLIT | Owned gloves to registry/safety; buy candidates to TODO/researched gear. |
-| 25 | Lures resources page | PARTIAL | Resource titles preserved as research notes only where useful; link targets lost. |
-| 26-28 | My Lures / Research | IMPORTED | Tackle inventory, techniques, TODOs; questionable color-theory note imported as needs-verification. |
+| 19 | Snaps, Swivels, etc. | IMPORTED | `Fishing_Tackle_Inventory.md`; rods/rigging guidance; links embedded. |
+| 20 | Hooks | IMPORTED | `Fishing_Tackle_Inventory.md`; hook correction preserved; links embedded. |
+| 21-22 | Knots | IMPORTED WITH CONFLICT | `Topics/Rods_Reels_Line_Knots.md`; loop-knot conflict recorded; links embedded. |
+| 23 | Tools & Storage | IMPORTED | Gear registry; rigging/storage; safety/maintenance; links embedded. |
+| 24 | Clothing | IMPORTED / SPLIT | Owned gloves to registry/safety; buy candidates to TODO/researched gear; links embedded. |
+| 25 | Lures resources page | PARTIAL | Resource links embedded into relevant technique pages where useful; no detailed notes beyond titles/links. |
+| 26-28 | My Lures / Research | IMPORTED | Tackle inventory, techniques, TODOs; questionable color-theory note imported as needs-verification; links embedded. |
 | 29 | Finesse Lures title page | INTENTIONALLY EXCLUDED AS EMPTY | No details beyond section title. |
-| 30 | Wacky Worm | IMPORTED | `Topics/Fishing_Techniques.md`; inventory cross-links. |
-| 31 | Ned Rig | IMPORTED | `Topics/Fishing_Techniques.md`; loop-knot caveat. |
-| 32 | Drop Shot | IMPORTED | `Topics/Fishing_Techniques.md`; inventory cross-links. |
+| 30 | Wacky Worm | IMPORTED | `Topics/Fishing_Techniques.md`; inventory cross-links; link embedded. |
+| 31 | Ned Rig | IMPORTED | `Topics/Fishing_Techniques.md`; loop-knot caveat; links embedded. |
+| 32 | Drop Shot | IMPORTED | `Topics/Fishing_Techniques.md`; inventory cross-links; links embedded. |
 | 33 | TODO: Texas Rig | IMPORTED AS TODO ONLY | No technique content to migrate. |
 | 34 | TODO: Alabama Rig | IMPORTED AS TODO ONLY | No technique content to migrate. |
-| 35 | TODO: Neko Rig | PARTIAL / TODO | Seed gear/bait notes imported; full technique remains TODO. |
+| 35 | TODO: Neko Rig | PARTIAL / TODO | Seed gear/bait notes imported; full technique remains TODO; links embedded. |
 | 36 | TODO: Carolina Rig | IMPORTED AS TODO ONLY | No technique content to migrate. |
 | 37 | Power Lures title page | INTENTIONALLY EXCLUDED AS EMPTY | No details beyond section title. |
-| 38 | Jigs | IMPORTED | `Topics/Fishing_Techniques.md`; inventory. |
+| 38 | Jigs | IMPORTED | `Topics/Fishing_Techniques.md`; inventory; link embedded. |
 | 39-40 | Inline Spinners | IMPORTED | `Topics/Fishing_Techniques.md`; inventory. |
 | 41 | TODO: Spoons | IMPORTED AS TODO ONLY | Spoon inventory/usage captured elsewhere; this page has no detailed spoon technique. |
-| 42-44 | Spinnerbait | IMPORTED | `Topics/Fishing_Techniques.md`; inventory. |
-| 45-46 | Chatterbait | IMPORTED | `Topics/Fishing_Techniques.md`; inventory. |
-| 47-49 | Crankbait | IMPORTED | `Topics/Fishing_Techniques.md`; inventory. |
-| 50-51 | Jerkbait | IMPORTED | `Topics/Fishing_Techniques.md`; inventory. |
-| 52-53 | Swimbait | IMPORTED | `Topics/Fishing_Techniques.md`; inventory. |
-| 54 | Topwater Lures videos page | PARTIAL | Resource title preserved only as research note; link target lost. |
-| 55 | Frogs | IMPORTED | `Topics/Fishing_Techniques.md`; current gear caveat. |
-| 56 | Whopper Plopper | IMPORTED | `Topics/Fishing_Techniques.md`; inventory. |
-| 57 | Popper | IMPORTED | `Topics/Fishing_Techniques.md`; inventory. |
-| 58 | Buzzbait | IMPORTED AS TECHNIQUE / NOT OWNED | Technique preserved; no current buzzbait listed in inventory. |
+| 42-44 | Spinnerbait | IMPORTED | `Topics/Fishing_Techniques.md`; inventory; link embedded. |
+| 45-46 | Chatterbait | IMPORTED | `Topics/Fishing_Techniques.md`; inventory; links embedded. |
+| 47-49 | Crankbait | IMPORTED | `Topics/Fishing_Techniques.md`; inventory; resource links embedded. |
+| 50-51 | Jerkbait | IMPORTED | `Topics/Fishing_Techniques.md`; inventory; links embedded. |
+| 52-53 | Swimbait | IMPORTED | `Topics/Fishing_Techniques.md`; inventory; links embedded. |
+| 54 | Topwater Lures videos page | PARTIAL | Resource link embedded into topwater section. |
+| 55 | Frogs | IMPORTED | `Topics/Fishing_Techniques.md`; current gear caveat; link embedded. |
+| 56 | Whopper Plopper | IMPORTED | `Topics/Fishing_Techniques.md`; inventory; link embedded. |
+| 57 | Popper | IMPORTED | `Topics/Fishing_Techniques.md`; inventory; link embedded. |
+| 58 | Buzzbait | IMPORTED AS TECHNIQUE / NOT OWNED | Technique preserved; no current buzzbait listed in inventory; links embedded. |
 | 59 | Blank page | INTENTIONALLY EXCLUDED | No substantive content. |
 | 60 | Walking Bait | IMPORTED AS TECHNIQUE / NOT OWNED | Technique preserved; no current walking bait listed in inventory. |
 | 61 | Locations title page | INTENTIONALLY EXCLUDED AS EMPTY | No details beyond section title. |
@@ -97,8 +99,8 @@ This file tracks migration and reconciliation. Do not declare the entire Fishing
 | 68 | Lake Chelan | IMPORTED | Location file updated. |
 | 69 | Lake Bosworth - bass | IMPORTED AS TODO ONLY | No details beyond `Go` item. |
 | 70-71 | Spring Fishing | IMPORTED | Techniques and Lake Washington/Sammamish files updated. |
-| 72 | Fall Fishing | IMPORTED | Techniques file updated. |
-| 73 | Fish Species resources | PARTIAL | Resource titles only; link target/content not preserved. |
+| 72 | Fall Fishing | IMPORTED | Techniques file updated; links embedded. |
+| 73 | Fish Species resources | PARTIAL | Resource links embedded into technique/species-reference section; no additional text content. |
 
 ## Source-to-destination disposition highlights
 
@@ -113,13 +115,12 @@ This file tracks migration and reconciliation. Do not declare the entire Fishing
 | Loading checklist | Imported | Rigging/accessories/storage | Procedure preserved. |
 | Garmin/FFS/motor research | Imported as researched/candidate | Researched candidate gear | Not converted into owned gear. |
 | Clothing buy items | Imported as candidates | TODO; researched gear | Gloves owned; NRS items candidates. |
-| Link labels | Exception | Exceptions report | Actual link targets not available in PDF. |
+| MHT hyperlink targets | Restored and embedded inline | Relevant Markdown pages | `Fishing_Reference_Links.md` was temporary and deleted after embedding. |
 
 ## Known unresolved/conflict items
 
 | Item | Status | Notes |
 |---|---|---|
-| Exact hyperlink targets | UNRESOLVED | PDF preserved labels but not actual URLs for many `mfr`, `Amazon`, `video`, and `link` items. |
 | Historical chat audit | OPEN | OneNote was migrated; full historical chat reconciliation still required. |
 | Fish-finder installed wiring state | UNRESOLVED | OneNote parts imported; final physical installed state still needs confirmation. |
 | Bonafide RVR119 insert bolt/thread sizes | UNRESOLVED | Need source recovery or user verification. |
@@ -134,6 +135,8 @@ This file tracks migration and reconciliation. Do not declare the entire Fishing
 
 **OneNote PDF migration pass:** complete with exceptions.
 
+**OneNote hyperlink restoration:** complete to the extent supported by the MHT export; links embedded inline where practical.
+
 **Overall historical migration:** not complete.
 
-Reason: OneNote PDF was reviewed page-by-page and migrated, but original historical chats have not yet been independently reconciled against the destination Markdown files. The source reconciliation exceptions report documents PDF-format limitations and unresolved conflicts.
+Reason: OneNote was reviewed page-by-page and migrated, but original historical chats have not yet been independently reconciled against the destination Markdown files. The source reconciliation exceptions report documents remaining limitations and unresolved conflicts.
