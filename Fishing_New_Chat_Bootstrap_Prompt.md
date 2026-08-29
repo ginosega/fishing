@@ -1,6 +1,6 @@
 # Fishing New Chat Bootstrap Prompt
 
-**Status:** FINAL — MIGRATION COMPLETE / ONENOTE MIGRATED / LINKS EMBEDDED INLINE / AUDIT CLOSED
+**Status:** FINAL — ACTIVE GITHUB KNOWLEDGE BASE
 
 Use this prompt to start a future Fishing chat.
 
@@ -17,8 +17,7 @@ Read these files first, in order:
 3. `Fishing_Gear_Registry.md`
 4. `Fishing_Tackle_Inventory.md`
 5. `Fishing_TODO.md`
-6. `Fishing_Migration_Audit.md`
-7. `Fishing_Source_Reconciliation_Exceptions.md`
+6. `Fishing_Decision_Log.md`
 
 Then read topic files only as needed:
 
@@ -35,11 +34,13 @@ Then read topic files only as needed:
 
 ## Knowledge-base status
 
-The OneNote PDF export was migrated into the Markdown files. The later OneNote Single File Web Page/MHT export was used to restore the OneNote hyperlinks, and those links are embedded inline in the relevant Markdown pages so they are clickable in GitHub Preview. The temporary `Fishing_Reference_Links.md` file was deleted after inline restoration.
+The OneNote PDF export was migrated into the Markdown files. The later OneNote Single File Web Page/MHT export was used to restore OneNote hyperlinks, and those links are embedded inline in the relevant Markdown pages so they are clickable in GitHub Preview.
 
-On 2026-08-29, I designated OneNote as the **most up-to-date historical source of truth** for this project and closed the migration audit without requiring exhaustive line-by-line reconciliation of every earlier ChatGPT conversation. Historical chats remain useful supplemental evidence and decision history, but they are not a completeness gate.
+On 2026-08-29, I designated OneNote as the **most up-to-date historical source of truth** for this project and closed the migration audit/reconciliation without requiring exhaustive line-by-line reconciliation of every earlier ChatGPT conversation. Historical chats remain useful supplemental evidence and decision history, but they are not a completeness gate.
 
-The GitHub repo is now the active durable working knowledge base and OneNote replacement. If something important seems missing or conflicts with my recollection, check `Fishing_Migration_Audit.md` and `Fishing_Source_Reconciliation_Exceptions.md`, then ask me or recover the historical source as useful. Treat such discoveries as normal project maintenance rather than automatically reopening the migration audit.
+The temporary migration audit, reconciliation-exceptions, and link-index Markdown files were removed after closure to keep the repository focused on active durable content. The completion decision is preserved concisely in `README.md`, `Fishing_TODO.md`, and `Fishing_Decision_Log.md`.
+
+The GitHub repo is now the active durable working knowledge base and OneNote replacement. If something important seems missing or conflicts with my recollection, check the current canonical files and decision log, then ask me or recover the historical source as useful. Treat such discoveries as normal project maintenance.
 
 ## Evidence/status labels
 
