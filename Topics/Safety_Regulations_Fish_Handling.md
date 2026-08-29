@@ -1,6 +1,6 @@
 # Safety, Regulations, and Fish Handling
 
-**Status:** Initial seed from historical Fishing project conversations. Not yet fully reconciled with OneNote or audited against all historical sources.
+**Status:** OneNote PDF migrated. Historical-chat audit still in progress.
 
 Regulations and access rules are time-sensitive. Recheck current authoritative sources before relying on any rule.
 
@@ -20,6 +20,20 @@ Do not rely indefinitely on old notes for current regulations.
 ## License reminders
 
 Historical discussions covered Washington fishing license age and freshwater fishing requirements. Exact rules should be checked against current WDFW sources before use.
+
+## Current fish-handling tools / safety gear
+
+| Item | Details | Status / notes |
+|---|---|---|
+| Landing net | KastKing Brutus Silicone Foldable Extendable Net, Large, 19" x 18" x 17" | OWNED / OneNote source |
+| Hook remover | KastKing hook remover | OWNED / OneNote source |
+| Fish gripper | KastKing fish gripper, 44 lb capacity | OWNED / OneNote source |
+| Pliers | KastKing Cutthroat 7" Stainless Steel Pliers | OWNED / OneNote source |
+| Gloves | Palmyth Flexible Fishing Gloves, black/grey, large | OWNED / OneNote source |
+| Bow hatch item | Bilge pump | OWNED / OneNote source; tie-off unresolved |
+| Backpack safety items | Polarized glasses, extra clothes, first-aid kit, sunscreen, Pelican case | ONENOTE LOADING CHECKLIST |
+| Food/water bag | Yeti bag with food, water, ice | ONENOTE LOADING CHECKLIST |
+| Footwear | Water shoes; NRS ATB Wetshoe size 11 is buy candidate | ONENOTE SOURCE |
 
 ## Keeping fish from a kayak
 
@@ -65,7 +79,7 @@ General clues:
 - silvery/olive back and pale sides;
 - yellowish fins.
 
-User caught one at Mayfield trolling Flicker Shad.
+User caught northern pikeminnow at Mayfield trolling Berkley Flicker Shad 5 on 2026-08-19 and 2026-08-20.
 
 ### Bullhead catfish
 
@@ -83,7 +97,7 @@ May be present in Mayfield Lake. Treat as a toothy trophy species requiring care
 - Use a net and pliers/hemostats.
 - Pack out line and bait containers.
 
-## Kayak safety notes to recover during migration
+## Kayak safety notes to recover during historical audit
 
 - Washington requirements for sound-producing device/whistle while kayaking.
 - PFD setup and any user/family PFD notes.
