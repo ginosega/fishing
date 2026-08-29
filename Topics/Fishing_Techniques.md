@@ -1,8 +1,8 @@
 # Fishing Techniques
 
-**Status:** Initial seed from historical Fishing project conversations. Not yet fully reconciled with OneNote or audited against all historical sources.
+**Status:** OneNote PDF migrated. Historical-chat audit still in progress.
 
-This file should own technique guidance. Detailed lure inventory belongs in `../Fishing_Tackle_Inventory.md`; location-specific applications belong in `Local_Waters_Locations.md`.
+This file owns technique guidance. Detailed lure inventory belongs in `../Fishing_Tackle_Inventory.md`; location-specific applications belong in `Local_Waters_Locations.md`.
 
 ## General kayak strategy for current setup
 
@@ -14,116 +14,340 @@ Because the kayak is paddle-only and currently has no anchor/stakeout/drift sock
 - Cast ahead of the kayak before drifting over fish.
 - Avoid plans that require hovering over a single waypoint unless conditions are calm.
 
-## Bass technique summary
+## Trout fishing
 
-### Finesse / spinning-rod techniques
+### Casting
 
-| Technique | Primary use | Current gear |
-|---|---|---|
-| Wacky Senko | Docks, shade, weed edges, calm shallow cover | 5" Senko + #1 wacky/weedless wacky hook + crossover ring |
-| Ned rig | Smallmouth, rock/gravel/hard bottom, tough bite | Z-Man TRD variants + 1/10 or 1/6 oz Finesse ShroomZ |
-| Drop shot | Deeper fish, marked fish, clear water, neutral fish | #1 drop-shot hook + 1/8 to 1/2 oz cylinder weights + Trick ShotZ/Finesse ShadZ/TRD GobyZ |
-| Small hard baits | Trout/smallmouth/perch/bass | Jacob's smaller Rapalas, Kastmasters, Panther Martins |
+Current lures:
 
-### Search / baitcasting techniques
+- Kastmaster 1/8 oz chrome neon blue and 1/4 oz chrome/gold.
+- Dick Nite #2 brass redhead and nickel redhead.
+- Panther Martin 1/8 oz blue/black/silver/yellow.
+- Mepps Aglia #3 / 1/4 oz red.
+- Rapala Original Floating F-3, Husky Jerk, RipStop.
 
-| Technique | Primary use | Current gear |
-|---|---|---|
-| Spinnerbait | Wind, stained water, weed edges, active fish | 3/8 oz Strike King or 6th Sense; Divine Swimbait trailer optional |
-| Chatterbait | Grass, stained water, reaction bites | Z-Man Original/Elite EVO/Jack Hammer |
-| Soft jerk shad | Calm clear water, weed tops, docks, subtle baitfish | Berkley Power Jerk Shad on 4/0 EWG or 5/0 Twistlock |
-| Crankbait | Points, rock, wood, outside weeds | DT06, Money Badger, Rebel Crawfish, Flicker Shad |
-| Jig + craw | Midday shade, wood, docks, harder bottom, bigger bite | Strike King jigs + Rage Craw/YUM Christie Craw |
-| Topwater | Low light, calm/ripple, surface activity | Whopper Plopper 60, Pop-R, frogs |
+OneNote Kastmaster note: 1/4 oz is more important than 1/8 oz because it casts better from a kayak and sinks faster when trout are slightly deeper. Use for cutthroat, stocked rainbows, perch, and occasional smallmouth.
 
-## Trout techniques
+General spoon rig:
 
-### Casting from shore or kayak
+`main line -> leader -> snap -> Kastmaster/Dick Nite`
 
-Useful lures:
+No swivel unless the spoon starts twisting. OneNote also notes spoons can be rigged with split rings top and bottom and a single hook at bottom with hook point toward concave side, and can be fished with a bit of nightcrawler or PowerBait egg on the hook.
 
-- Kastmaster 1/8 oz and 1/4 oz.
-- Dick Nite #2 spoons.
-- Panther Martin 1/8 oz.
-- Mepps Aglia 1/4 oz.
-- Small Rapala Original Floating / Husky Jerk / RipStop.
+### Inline spinners
 
-General approach:
+Use in clear/cold rivers, creeks, and lakes; along the deep edge of cover; over top of cover; or along current seams. Avoid heavy cover because treble hooks snag easily.
 
-- Cast beyond visible rises or along shade/points.
-- Retrieve steadily with occasional pauses.
-- With spoons, retrieve so they wobble rather than spin continuously.
-- Use a swivel with inline spinners to reduce line twist.
+Gear:
 
-### Kayak trolling
+- Best on spinning rod.
+- Trout/panfish line: 4-8 lb mono or 6-10 lb fluorocarbon; bass can use heavier.
+- With braid + leader, insert swivel in leader to reduce twist.
 
-Useful current lures/rigs:
+Technique:
 
-- Berkley Flicker Shad 5.
-- Kastmaster 1/4 oz.
-- Dick Nite #2 spoon.
-- Panther Martin or Mepps.
-- Wedding Ring tipped with worm/Power Egg where legal.
-- 1/2 oz swiveling torpedo sinker for depth control.
+- After casting, pop rod tip to start blade spinning.
+- Retrieve steadily just under surface or a few feet down.
+- Slow retrieve in cold water; faster in warm water.
+- Rivers/streams: cast upstream at 1:00 or 11:00 angle and guide spinner past cover/obstructions.
 
-General approach:
+Colors:
 
-- Let out roughly 70-120 feet of line when trolling plugs/spoons.
-- Make slow S-turns.
-- Repeat passes through productive depth/route.
-- Focus on points, cove mouths, creek influence, drop-offs, and bait marks.
+- Clear water: silver, copper, natural.
+- Stained water: gold, chartreuse, black with bright dots.
+- Low light: glow/fluorescent/UV.
 
-### Still-fishing from bank
+### Still fishing
 
-PowerBait bottom rig:
+Slip-sinker bottom rig from OneNote:
 
-`main line -> 1/2 oz egg sinker -> glass bead -> swivel -> 18-30 inch leader -> #8 hook -> PowerBait / Trout Nugget / Power Eggs`
+`main line -> 1/2 oz egg sinker -> bead -> swivel -> leader -> #4 hook with dough or nugget`
 
-Notes:
+Purpose: weight rests on bottom and floating bait rises above weeds. Leader should clear weed tops. Carolina Keeper can replace bead/swivel in some rigs, but Carolina Keepers are not yet owned.
 
-- Use enough floating bait to float the hook.
-- Start with a 24-inch leader.
-- Let the rig sit 10-15 minutes before checking/recasting.
+**Open conflict:** prior chat guidance often suggested #8 hooks for PowerBait/Power Eggs. OneNote uses #4. Keep both until tested/resolved.
 
 ### Bobber fishing
 
-Basic fixed bobber rig:
+OneNote bobber rig:
 
-`main line -> bobber -> small split shot -> 2-5 ft leader/drop -> #6 or #8 hook -> bait`
+`main line -> bobber -> leader -> split shot -> swivel -> leader -> #4 hook with piece of worm run up hook shank to eye`
 
-Use when fish are shallow, rising, around weeds, or bottom is too weedy/mucky for bottom bait.
+Use when fish are shallow, rising, around weeds, or bottom is too weedy/mucky for bottom bait. Keep bait suspended above bottom/weed tops.
 
-## Species-specific notes
+### Kayak trolling
 
-### Coastal cutthroat
+Inline trolling rig:
 
-Likely trout target in Lake Washington and Lake Sammamish. Often roam and chase baitfish. Trolling/casting small baitfish imitations along contour edges, points, creek influence, and bait marks is more appropriate than classic stocked-trout-only tactics.
+`main line -> torpedo weight with swivels at each end -> 3-4' leader -> Wedding Ring / hoochie / small spinner, with egg`
 
-### Rainbow trout
+Flasher/dodger rig:
 
-Primary stocked-lake trout target at many camping lakes. PowerBait, spoons, spinners, trolling plugs, and still-fishing all apply.
+`main line -> small sliding weight -> bead -> swivel -> 3-4' leader -> dodger -> 18-30" leader -> Wedding Ring / hoochie / small spinner, with egg`
 
-### Kokanee
+Depth guidance:
 
-More specialized trolling target. Typically use small dodger + hoochie/spinner/Wedding Ring + corn/Power Egg/scent where legal. Current gear is enough to experiment but not a dedicated kokanee system.
+- Morning/evening: start with 1/4 to 1/2 oz trolling weight, or no weight with Flicker Shad/Kastmaster/inline spinner if fish are rising.
+- Midday / bright sun / hot water: fish deeper with 1/2 to 1 oz trolling weight and follow contour edges.
+- If the fish finder shows fish/bait deeper at sunset, follow electronics over the general shallow-evening rule.
 
-### Bullhead catfish
+## Bass finesse techniques
 
-Bottom-oriented. Fish worms/nightcrawlers or bait near muddy bottoms, weeds, wood, and low-light/night periods. Sliding sinker rig works.
+### Wacky worm
 
-### Northern pikeminnow
+Soft plastic stickbait hooked through the middle so both ends wiggle. Primarily a finesse/shallow presentation; can be allowed to sink.
 
-Predatory/scavenging native fish. Can hit baitfish lures such as Flicker Shad. User observed/caught one at Mayfield trolling Flicker Shad.
+Use:
 
-### Tiger muskie
+- Finicky/pressured bass.
+- Spring to early fall, especially spawn/postspawn.
+- Clear to lightly stained 2-8 ft water around cover, docks, grass edges, visible fish.
 
-Present in Mayfield Lake per prior research. Treat as incidental unless proper muskie gear/release tools are available. Release unless clearly legal under current regulations.
+Gear/current setup:
 
-## Condition-based lure guide
+- Spinning rod.
+- Size 1 Gamakatsu Octopus or VMC Redline Weedless Wacky Neko.
+- VMC Crossover Rings preferred over standard O-rings.
+- 5" Yamamoto Senko: green pumpkin/black fleck clear water; black/blue for stained/muddy.
+- Tie direct with Palomar.
 
-See location files for water-specific versions. General rule:
+Technique:
 
-- Bright/calm/clear: subtle presentations, soft jerk shad, wacky, Ned, Dick Nite, small jerkbaits.
-- Wind/cloud/stain: spinnerbait, chatterbait, Kastmaster, crankbait, Mepps/Panther Martin.
-- Low light/surface activity: Whopper Plopper 60, Pop-R, frogs, RipStop/Husky Jerk, spoons/spinners for trout.
-- Deeper marked trout: trolling sinker + Flicker Shad/spoon/Wedding Ring.
+- Cast, let fall, twitch lightly, pause.
+- In deeper water pause 5-6 seconds to let it sink.
+- Do not set too early; wait for weight of fish.
+
+### Ned rig
+
+Mushroom jighead with short buoyant TRD-style bait that stands on bottom.
+
+Use:
+
+- Cold, clear, pressured conditions.
+- Bottom-oriented bass on small prey around gravel flats, rocky points, drop-offs.
+- Year-round, especially cold water/post-front.
+
+Gear/current setup:
+
+- Spinning rod.
+- 15 lb braid to 8 lb fluorocarbon leader.
+- Z-Man Ned Rig Kit and Finesse ShroomZ 1/10 or 1/6 oz.
+- Tie direct with Palomar. OneNote mentions loop knot for maximum finesse, but loop-knot guidance is unresolved because the knot page says not to use loop knots.
+
+Techniques, most to least emphasized in OneNote:
+
+1. Pop the bottom.
+2. Swim and glide.
+3. Drag and dead-stick.
+4. Straight retrieve.
+
+### Drop shot
+
+Hook tied 8-18" above weight, keeping bait suspended just off bottom.
+
+Use:
+
+- Deeper water, 8-40+ ft.
+- Suspended/neutral fish.
+- Clear water and sonar-marked fish.
+- Summer through fall around rocks, brush, humps, ledges.
+
+Current gear:
+
+- Spinning rod.
+- #1 Gamakatsu G-Finesse Drop Shot hook.
+- Cylinder drop shot weights from 1/8 to 1/2 oz.
+- Z-Man Trick ShotZ, Finesse ShadZ, TRD GobyZ.
+
+Weight rules:
+
+- 1/8 oz: shallow up to 10 ft and calm.
+- 3/16-1/4 oz: 10-20 ft.
+- 3/8 oz: 20-35 ft.
+- 1/2 oz: 35+ ft / very deep or difficult control.
+
+Leader from hook to weight:
+
+- 12-18" standard.
+- 18-24" over grass.
+- Adjust to sonar target depth.
+
+Technique: let weight hit bottom, gently shake slack line without moving weight, then drag to solid cover and pause. Hookset should be lift-and-reel, not violent.
+
+### TODO finesse pages
+
+- Texas Rig — TODO only in OneNote.
+- Carolina Rig — TODO only in OneNote.
+- Alabama Rig — TODO only in OneNote.
+- Neko Rig — OneNote seed exists: medium-fast spinning, 10-15 lb braid to 8-10 lb fluoro, Ryugi Talisman Brutal Wacky/Neko 1/0 candidate, Berkley PowerBait Maxscent Flux Gill 3.5" candidate; needs full page.
+
+## Bass power/search techniques
+
+### Jigs
+
+General jig: hook with weighted head, skirt, and trailer.
+
+Types:
+
+- Standard/casting/Arky jig: 1/2 oz round/oblong head; shallow/medium under 10 ft around docks, rocks, wood, weed lines. Let sink, hop/drag, pause. Hard hookset.
+- Swim jig: 3/8-1/2 oz pointed head; shallow grass/heavy cover/docks; retrieve immediately and keep suspended.
+- Football jig: heavy oblong head, 10+ ft deep structure; drag slowly over rocks/structure. Hard hookset.
+- Finesse jig: <3/8 oz, round/mushroom head, smaller hook/short skirt; rocks/cold/pressured fish. Gentler hookset.
+
+Trailers:
+
+- Craw or paddletail matched to jig color.
+- Craw trailer horizontal to imitate craw and reduce wood hangups if jig falls over; vertical can work on swim jig.
+- Chunk craw trailer for cold/pressured fish; lower action than Rage Craw.
+
+### Spinnerbait
+
+Subsurface wire bait with blade(s), skirt, and sometimes trailer.
+
+Use:
+
+- Lakes, coves, rocky/wooded areas, clearer water when fish chase baitfish.
+- Good around wood/brush because wire frame deflects.
+- Useful in cold temps due flash.
+
+Rigging: tie direct; avoid snap/swivel because it can affect wire arm balance/vibration.
+
+Technique:
+
+- Cast through sparse cover or along edges.
+- Bounce/deflect off wood, rocks, docks, weed edges.
+- Pop rod tip after cast to start blades.
+- Fast retrieve = shallower; slow = deeper.
+- Trailer can enhance profile, lift, or short-strike appeal.
+
+Color notes:
+
+- Clear: natural shad/white-blue, silver blades.
+- Stained: chartreuse, firetiger, black/blue; gold/brass blades.
+- Very low light/night: black profile with big vibration.
+
+### Chatterbait / bladed jig
+
+Subsurface 1-8 ft blade-in-front jig with hard vibration and minimal flash.
+
+Use:
+
+- Grass, stained/muddy water, shallow cover, docks, channel ledges.
+- Warm water/active fish and reaction bites.
+
+Rigging: tie direct. Avoid snap/swivel because it can disrupt blade vibration/startup.
+
+Technique:
+
+- Retrieve above grass, pop/pause, let sink then pop off bottom.
+- Delayed hookset noted by OneNote: first thump may be fish pulling lure in.
+
+### Crankbait
+
+Hard plug with wobble/rattle and depth zone.
+
+Use:
+
+- Rocks, structure edges, vegetation edges.
+- Avoid heavy vegetation because treble hooks snag.
+- Most effective when bumping rock, wood, ledges, bottom.
+
+Rigging: small snap or direct tie; no swivel. Loop knot mentioned for direct tie action, but loop-knot guidance is unresolved.
+
+Technique:
+
+- Cast past target, crank to depth/contact, pause 1-3 seconds to let floating/slow-rising bait rise.
+- Use rod tip to control depth: tip down deeper, tip up shallower.
+- Vary retrieve and pauses.
+
+### Jerkbait
+
+Long slender hard/soft baitfish imitator for dart/pause action.
+
+Use:
+
+- Cool water 40-60°F, clear water, suspended/roaming fish, points/drops/weed edges.
+- Avoid dirty/muddy water and heavy cover.
+- Not ideal in hot water when fish are deep; use crankbait or soft plastics instead.
+
+Technique:
+
+- Cast, crank to depth, twitch/jerk with slack, pause 1-5 seconds or longer in cold water, repeat.
+- Most strikes on pause.
+- Bait movement should come from rod, not reel.
+
+### Swimbait / soft jerk shad
+
+Lifelike swimming baitfish imitation. Current examples: Berkley Power Jerk Shad, 6th Sense Divine Swimbait, Fin-Sanity Bluegill.
+
+Use:
+
+- Baitfish schools, clear water, points, ledges, weed edges, docks, submerged structure.
+- Slow steady retrieve; adjust speed/weight for depth.
+
+## Topwater techniques
+
+### Frogs
+
+Use summer/early fall, heavy vegetation, mats, pads, slop, low light. Gear ideal is heavy rod and 50-65 lb braid, so current general-purpose baitcaster can fish frogs in moderate cover but is not a full heavy frog setup.
+
+Techniques: walk, straight retrieve, pop-and-pause, burn-and-kill. Wait before hookset on blowup.
+
+### Whopper Plopper
+
+Hard floating prop/plopping bait. Use mornings/evenings, warm surface temps, near cover/vegetation/shoreline, in calm to light chop. Current inventory includes River2Sea Whopper Plopper 60 bluegill.
+
+### Popper
+
+Use calm days, low light/dark water, over submerged vegetation/near wood/docks. Pop, pause, let ripples dissipate, repeat.
+
+### Buzzbait
+
+Warm water 60°F+, low light, wind/chop, shallow cover/murky water. Tie direct; avoid snap/swivel. Current inventory does not list a buzzbait as owned.
+
+### Walking bait
+
+Calm/slightly rippled warm months, low light, docks/weed edges/points. Requires slack-line twitch rhythm. Current inventory does not list a walking bait as owned.
+
+## Seasonal bass notes
+
+### Spring
+
+Water temperature table from OneNote:
+
+| Water temp | Typical bass behavior |
+|---|---|
+| <45°F | Winter mode, deep, sluggish, hard to pattern |
+| 45-50°F | Smallmouth start becoming catchable; slow finesse dominates |
+| 50-55°F | Prespawn movement begins; many still hold on first deeper break/staging structure. Fish slowly 8-20 ft near routes to spawning areas, points, rock-to-sand transitions, emerging weeds. Ned, jerkbait pauses 3-8 sec, drop shot, small swimbaits |
+| 55-60°F | Major improvement; start chatterbaits, spinnerbaits, wacky worms; afternoon better than early morning |
+| 60-65°F | Spawn/postspawn peak activity |
+
+Additional spring factors:
+
+- Multi-day warming trends, overnight lows, wind, sunlight, and clarity matter.
+- Wind-blown banks/points/weed edges can push bait and reduce spookiness.
+- Prespawn: fish the route between winter and spawning water, not just the flat.
+
+### Fall
+
+- Bass fatten on baitfish and move; baitfish imitations become important.
+- Find bait up feeder creeks/coves, windblown banks, shallow beds near drop-offs.
+- September: topwater at first light; lipless cranks through grass; spinnerbaits/chatterbaits on windy points; squarebills around shallow wood/rock.
+- October: bait moves deeper into creeks; use spinnerbaits, medium crankbaits, jerkbaits, buzzbaits, swimbaits.
+- November: bass slow and move deeper; rocky points, creek beds, ledges; slower jerkbaits and Ned rigs.
+
+## Color / scent notes from OneNote
+
+OneNote contains a color-theory note stating bass have red/green receptors and treats red, green, black/blue, and white/yellow as practical color groups. This was migrated as an owner note but should be treated as **needs verification** before being relied on scientifically.
+
+Scent notes:
+
+- Candidate: Bait Pop with red flake.
+- Use water-soluble scent.
+- Use water-soluble, low-salt plastics if soaking; high salt can cause plastics to bloat.
+- Look for shrimp-extract flavor scent.
+
+## Water visibility note
+
+OneNote rule of thumb: lower a lure until you can no longer see it, multiply that depth by four, and avoid fishing deeper than that for bass visibility in that turbidity condition. Treat as heuristic, not hard rule.
