@@ -68,7 +68,7 @@ This file is for gear that was researched, considered, rejected, superseded, or 
 
 | Item | Status | Notes |
 |---|---|---|
-| [Bonafide RVR119 Under Seat Tackle Storage](https://bonafidefishing.com/products/rvr119-under-seat-tackle-stora) | BUY / PURCHASE UNKNOWN | OneNote says holds four 3600 boxes, Bonafide, $90. Recent chat found possible availability; user has not confirmed purchase. |
+| [Bonafide RVR119 Under Seat Tackle Storage](https://bonafidefishing.com/products/rvr119-under-seat-tackle-stora) | BUY | Out of stock everywhere since late 2025; subscribed to notification when back in stock at Bonafide fishing. |
 | YakAttack 38" x 13" Insulated Fish Cooler Bag | RESEARCHED / PURCHASE UNKNOWN | Exact product availability searched in chat; not confirmed purchased. |
 | [YakAttack Drop Shot Anchor Reel](https://www.yakattack.us/dropshot-anchor-reel/) + [6 lb anchor](https://www.anchorwizard.com/6lbs-anchor/) | CANDIDATE | OneNote anchor candidate; included breakaway tie-off method. |
 | [YakAttack BlackPak Pro](https://www.yakattack.us/blackpak-pro-kayak-fishing-crate-13-x-13-battleship-grey/) | CANDIDATE | Grey, depending on size; [orange hinges](https://www.yakattack.us/hinge-latch-kit-for-blackpak-pro-and-shortstak-orange/) candidate. |
