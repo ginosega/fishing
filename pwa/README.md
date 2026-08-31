@@ -42,7 +42,35 @@ Current source files:
 - `Topics/Local_Waters_Locations.md`
 - `Topics/Trip_Logs_Field_Observations.md`
 
-## Build
+## Browser testing
+
+The easiest local test path requires only Node.js 22+ and a local checkout of this repository.
+
+From the repository root:
+
+```bash
+node pwa/serve.mjs
+```
+
+That command rebuilds the app from the current Markdown knowledge base and starts a local HTTP server. Open:
+
+```text
+http://127.0.0.1:4173
+```
+
+Press `Ctrl+C` in the terminal to stop the server.
+
+To test from a phone or tablet on the same local network, run:
+
+```bash
+node pwa/serve.mjs --host 0.0.0.0
+```
+
+Then browse on the other device to `http://<computer-LAN-IP>:4173`. Local firewall rules may need to allow Node.js on the private network.
+
+Do not open `pwa/dist/index.html` directly with `file://`; the app loads Markdown with `fetch()` and uses a service worker, so it requires an HTTP(S) origin.
+
+## Build only
 
 From the repository root:
 
@@ -51,8 +79,6 @@ node pwa/build.mjs
 ```
 
 The deployable site is written to `pwa/dist/`.
-
-For local testing, serve `pwa/dist` over HTTP rather than opening `index.html` directly, because `fetch()` and service workers require an HTTP(S) origin.
 
 ## Hosting
 
