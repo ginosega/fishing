@@ -33,6 +33,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Validate JavaScript syntax
+        run: |
+          node --check pwa/app.js
+          node --check pwa/build.mjs
       - name: Build PWA
         run: node pwa/build.mjs
       - name: Verify bundle
