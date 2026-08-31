@@ -1,7 +1,9 @@
-name: Fishing PWA build check
+name: Fishing PWA build and deploy
 
 on:
   push:
+    branches:
+      - main
     paths:
       - 'pwa/**'
       - 'Fishing_Gear_Registry.md'
@@ -20,10 +22,17 @@ on:
       - 'Topics/Fishing_Techniques.md'
       - 'Topics/Local_Waters_Locations.md'
       - 'Topics/Trip_Logs_Field_Observations.md'
+      - '.github/workflows/fishing-pwa-build.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: fishing-pages
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -46,8 +55,27 @@ jobs:
           test -f pwa/dist/sw.js
           test -f pwa/dist/kb/Fishing_Tackle_Inventory.md
           test -f pwa/dist/kb/Rods_Reels_Line_Knots.md
-      - name: Upload deployable bundle
+          grep -q 'app.js?v=' pwa/dist/index.html
+          grep -q 'styles.css?v=' pwa/dist/index.html
+      - name: Upload CI artifact
         uses: actions/upload-artifact@v4
         with:
           name: fishing-pwa
           path: pwa/dist
+      - name: Upload GitHub Pages artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: pwa/dist
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
