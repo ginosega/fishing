@@ -6,7 +6,7 @@ Fishing Companion is the mobile/offline front end for the Fishing Markdown knowl
 
 The current app is intentionally **single-user and personal**. It is built around one user's own Fishing knowledge base: owned gear/tackle, saved knots, fishing locations, curated techniques, and catch history.
 
-The app does **not** need access control in the current phase. A publicly reachable but non-advertised URL is acceptable; the current product is still designed only for the user's own data and workflows.
+The app does **not** need access control in the current phase. A publicly reachable but non-advertised URL is acceptable; the current product is still designed only for the user's own data and workflows. Privacy/access restriction is a **P3** requirement unless explicitly elevated for a specific reason.
 
 A future generalized version could add per-user:
 
@@ -17,6 +17,16 @@ A future generalized version could add per-user:
 - preferences and other personalized planning inputs.
 
 That multi-user product is explicitly deferred until the personal version is mature.
+
+## Requirement tradeoff rule
+
+Before implementing a requirement that would materially affect architecture, deployment, maintenance burden, performance, or usability, surface the impact and discuss the requirement's priority before allowing it to drive the design.
+
+- **P1** requirements may justify substantial complexity when they protect correctness, safety, or a core user need.
+- **P2** requirements should be balanced against implementation/deployment cost.
+- **P3** requirements should not create significant complexity, friction, or usability loss without an explicit discussion and decision.
+
+This rule applies to Fishing Companion and should also be used for other applications developed with the user, including TowCalc.
 
 ## Product model
 
