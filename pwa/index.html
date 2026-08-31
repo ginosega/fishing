@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b3d3a" />
+  <meta name="description" content="Offline-first front end for the Fishing knowledge base." />
+  <title>Fishing Companion</title>
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <button class="icon-button" id="homeButton" type="button" aria-label="Home">🎣</button>
+    <div>
+      <div class="eyebrow">Fishing knowledge base</div>
+      <h1>Fishing Companion</h1>
+    </div>
+    <div class="status-dot" id="onlineStatus" title="Connection status" aria-label="Connection status"></div>
+  </header>
+
+  <main id="app" class="app-shell" aria-live="polite">
+    <section class="loading-card">
+      <div class="spinner" aria-hidden="true"></div>
+      <p>Loading your fishing knowledge…</p>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <span id="dataStatus">GitHub Markdown is authoritative.</span>
+  </footer>
+
+  <script src="./app.js" type="module"></script>
+</body>
+</html>
