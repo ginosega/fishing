@@ -2,6 +2,22 @@
 
 Fishing Companion is the mobile/offline front end for the Fishing Markdown knowledge base.
 
+## Current product scope
+
+The current app is intentionally **single-user and personal**. It is built around one user's own Fishing knowledge base: owned gear/tackle, saved knots, fishing locations, curated techniques, and catch history.
+
+It is **not intended for public deployment yet**. The goal of the current phase is to make the personal Fishing knowledge base fast and actionable on a phone, especially in the field, without designing onboarding, accounts, data-entry screens, or generalized storage for other users.
+
+A future public version could add per-user:
+
+- gear/tackle inventories;
+- saved knots and preferred setups;
+- fishing locations and personal location notes;
+- catch/trip logs;
+- preferences and other personalized planning inputs.
+
+That multi-user/public product is explicitly deferred until the personal version is mature.
+
 ## Product model
 
 The app has two top-level workflows:
@@ -40,7 +56,9 @@ For local testing, serve `pwa/dist` over HTTP rather than opening `index.html` d
 
 ## Hosting
 
-The repository contains a build-check workflow but does not automatically publish the site. Hosting/privacy should be chosen deliberately because a GitHub Pages deployment may expose the generated site even when the source repository is private, depending on account/Pages configuration.
+The repository contains a build-check workflow but does not automatically publish the site. That is intentional for the current personal/single-user phase.
+
+No public URL is required for the MVP. Testing can use a local HTTP server or another private access method. Public hosting should only be revisited if/when the app is generalized beyond the current user's personal knowledge base.
 
 ## Recommendation provenance
 
