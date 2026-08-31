@@ -49,8 +49,11 @@ This is the temporary working log for mobile-first acceptance testing of Fishing
 
 - **WORKFLOW / IA — ACCEPTED IN PRINCIPLE, ARCHITECTURE REVIEW REQUIRED:** Combine the separate **Rods** and **Reels** categories into one **Rods & Reels** page.
 - **UI/UX — ACCEPTED:** Remove search box and `All Types` filter from this page.
-- **WORKFLOW — ACCEPTED:** Show three setup buttons: **Spinning**, **Baitcasting**, and **Spincasting**.
-- **DATA DISPLAY — ACCEPTED:** Each setup button subtext should show `Rod: [manufacturer model], Reel: [manufacturer model]`.
+- **WORKFLOW — ACCEPTED:** Group all owned setups directly on the **Rods & Reels** page under the headers **Spinning**, **Baitcasting**, and **Spincasting**.
+- **WORKFLOW — ACCEPTED:** Each individual setup is a clickable item on that page; clicking it opens that setup's detail page.
+- **WORKFLOW / IA — IMPORTANT:** Do **not** create intermediary **Spinning**, **Baitcasting**, or **Spincasting** pages. Setup type is a grouping/classification attribute, not a navigation level. This deliberately flattens the visible hierarchy for faster phone use.
+- **SCALABILITY:** If multiple setups of the same type are added later, list all of them directly beneath that type's header on the same **Rods & Reels** page.
+- **DATA DISPLAY — ACCEPTED:** Each setup item subtext should show `Rod: [manufacturer model], Reel: [manufacturer model]`.
 - **DATA QUALITY SIGNAL — ACCEPTED:** If manufacturer/model is not known, display **unknown** rather than hiding the field so gaps are visible during testing.
 
 ### Individual setup page
@@ -74,7 +77,7 @@ This is the temporary working log for mobile-first acceptance testing of Fishing
 - **Spinning:** include `Use spinning gear when:` and all five associated bullets, plus `Typical spinning combo:` and all three associated bullets.
 - **Baitcasting:** include `Use baitcasting gear when:` and its bullets, plus the baitcaster `Technique` / setup-and-casting guidance and bullets.
 - **REUSE REQUIREMENT:** This guidance belongs to the setup **type**, not only one physical setup. If a second baitcasting setup is added later, it should inherit the same baitcasting guidance automatically.
-- **ARCHITECTURE NOTE:** Current PWA model treats rods/reels primarily as independent inventory records and discovers guidance by text mentions. This request points toward first-class **rod/reel setup** records linked to reusable **setup-type guidance**. Discuss architecture before implementation.
+- **ARCHITECTURE NOTE:** Current PWA model treats rods/reels primarily as independent inventory records and discovers guidance by text mentions. This request points toward first-class **rod/reel setup** records linked to reusable **setup-type guidance**. The data model may preserve that relationship internally, but the UI must not expose every data-model level as a separate navigation page.
 
 ### Catch history observation
 
