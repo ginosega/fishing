@@ -22,6 +22,7 @@ This is the temporary working log for mobile-first acceptance testing of Fishing
 - **LINK / DATA QUALITY — ACCEPTED:** Canonical manufacturer link is required where a manufacturer exists. Link text should be the manufacturer company name. If the canonical manufacturer URL is missing, still show the manufacturer name as a visible gap signal; use **Unknown** if manufacturer itself is unknown. Retail and other supplemental links remain optional and should not get `Unknown` placeholders.
 - **UI/UX / CLEANUP — ACCEPTED:** Do not expose source-of-truth bookkeeping fields such as `Status`, `Evidence`, or `Detail File` on user-facing item pages. Remove separate link pills when links have been consolidated into the dedicated Links field. Clean up dead CSS/code associated only with removed UI.
 - **CATCH HISTORY SCOPE — ACCEPTED:** Show **My Catch History** only for rod/reel setups, lures, and baits. Do not show it for line, weights, snaps & swivels, or hooks.
+- **FOOTER — ACCEPTED:** Show the copyright footer on every page. Implement the year dynamically from the current date so it changes automatically each January 1. Current target presentation is `© 2026 Gino Sega` (equivalent to the requested “Copyright 2026 Gino Sega” wording unless later changed).
 
 ---
 
@@ -38,7 +39,7 @@ This is the temporary working log for mobile-first acceptance testing of Fishing
 - **UI/UX — ACCEPTED:** Rename the first home button from **My Gear & Knots** to **My Gear**. Keep its existing subtext unchanged.
 - **UI/UX / WORKFLOW — ACCEPTED:** Rename **Build a Fishing Plan** to **Knowledge Base**.
 - **UI/UX — ACCEPTED:** Replace the Knowledge Base button subtext with: **Build a fishing plan based on your location, gear, and target species.**
-- **UI/UX — ACCEPTED:** Replace the footer with **© 2026 Gino Sega**.
+- **UI/UX — ACCEPTED:** Replace the footer with the site-wide dynamic copyright footer.
 
 ---
 
@@ -145,6 +146,40 @@ This is the temporary working log for mobile-first acceptance testing of Fishing
 ### Architecture implication
 
 - **IA / DATA MODEL:** Like Rods & Reels, Line benefits from separating **owned product records** from **reusable type-level knowledge**. Example: Sufix 832 is a product instance; Braided is a type whose guidance is reusable across all braided products. Markdown remains authoritative; this does not imply a separate database.
+
+---
+
+## Weights — requested workflow/model changes
+
+### Weights list page
+
+- **UI/UX — ACCEPTED:** Remove the subtitle beneath the Weights page header.
+- **DATA MODEL — CORRECT:** Represent owned weights/related rigging pieces as four normalized records/types rather than treating a fishing technique as an item type: **Cylinder weights**, **Egg sinkers**, **Swiveling trolling / torpedo weights**, and **Glass beads**.
+- **DATA MODEL — CORRECT:** `Drop shot` is a fishing technique/rig relationship, not a weight type. It belongs in the Cylinder weights detail page's **How to use it** relationship section.
+- **TITLE NORMALIZATION — ACCEPTED:** Remove `kit` from the Cylinder weights title. Track the owned denominations within the Cylinder weights record.
+- **DISPLAY — ACCEPTED:** Card subtext should be the sizes/weight denominations owned for that type, standardized to ounces for weights.
+- **EXPECTED CYLINDER WEIGHTS:** `1/8 oz, 1/5 oz, 1/4 oz, 3/8 oz, 1/2 oz`.
+- **EXPECTED EGG SINKERS:** `1/4 oz, 1/2 oz`.
+- **EXPECTED SWIVELING TROLLING / TORPEDO WEIGHTS:** current canonical inventory records `1/2 oz`.
+- **EXPECTED GLASS BEADS:** current canonical inventory records `8 mm` (red, Top Brass); size is not an ounce measurement because this record is a bead rather than a sinker.
+
+### Individual weight pages
+
+- **TITLE — ACCEPTED:** H1 should use the normalized type title from the Weights list page, e.g. **Egg sinkers**.
+- **UI/UX — ACCEPTED:** Header subtext follows the consistent leaf-page pattern `Weights · [type]`, e.g. `Weights · Egg sinkers`. The repeated type is intentional for consistency across gear leaf pages.
+- **DATA DISPLAY — REQUIRED:** The only mandatory detail box is **Size / Weight**, listing all owned sizes for that type, matching the list-page card subtext.
+- **DATA DISPLAY — ACCEPTED:** Rename `Brand / Specs` to **Brand**.
+- **DATA DISPLAY — OPTIONAL:** Add a **Links** box. It should render only when there are links. Current Cylinder weights record has an Amazon link; other weight types need no placeholder if links are absent.
+- **UI/UX / CLEANUP — ACCEPTED:** Remove `Status / Notes` from the user-facing page.
+- **KNOTS & CONNECTIONS — OPTIONAL:** Keep this relationship available in the weight model but do not render the section when no content exists. Current weights have no explicit tying/connection guidance, but future techniques may add it.
+- **HOW TO USE IT — OPTIONAL / RELATIONSHIP-DRIVEN:** Render only when relationships exist. Current expected relationships include **Cylinder weights → Drop shot rig** and **Egg sinkers → Slip sinker rig**.
+- **HOW TO USE IT — LINK BEHAVIOR:** The relationship label (e.g. **Drop shot rig**, **Slip sinker rig**) should link to that technique's Knowledge Base page rather than dumping arbitrary mention text into the weight page.
+- **CATCH HISTORY — REMOVE:** Do not show **My Catch History** on weight pages, per site-wide rule.
+
+### Architecture implication
+
+- **RELATIONSHIP MODEL:** Weights reinforce the need for explicit relationships between owned gear/tackle records and Knowledge Base technique records. A weight record should not be renamed/reclassified based on the technique that uses it; instead, the relationship points from the physical item/type to the applicable technique page.
+- **OPTIONAL SECTIONS:** Detail-page sections such as Links, Knots & connections, and How to use it should be data-driven and omitted entirely when empty rather than rendering empty-state boxes unless an empty state itself serves a specific testing/data-quality purpose.
 
 ---
 
