@@ -1,0 +1,19 @@
+{
+  "name": "Fishing Companion",
+  "short_name": "Fishing",
+  "description": "Browse owned fishing gear and build fishing plans from the Fishing knowledge base.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#071817",
+  "theme_color": "#0b3d3a",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
