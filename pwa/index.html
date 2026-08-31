@@ -32,5 +32,21 @@
   </footer>
 
   <script src="./app.js" type="module"></script>
+  <script>
+    document.addEventListener('click', event => {
+      const route = event.target.closest('[data-route]');
+      if (route) {
+        event.preventDefault();
+        location.hash = route.dataset.route;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      const item = event.target.closest('[data-item-open]');
+      if (item) {
+        event.preventDefault();
+        location.hash = '#/inventory/item/' + encodeURIComponent(item.dataset.itemOpen);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    });
+  </script>
 </body>
 </html>
