@@ -6,8 +6,9 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, '..');
 const out = path.join(here, 'dist');
 const kbOut = path.join(out, 'kb');
+const buildVersion = (process.env.GITHUB_SHA || new Date().toISOString()).replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 24);
 
-const shellFiles = ['index.html', 'styles.css', 'app.js', 'manifest.webmanifest', 'icon.svg'];
+const shellFiles = ['styles.css', 'app.js', 'manifest.webmanifest', 'icon.svg'];
 const kbFiles = [
   ['Fishing_Gear_Registry.md', 'Fishing_Gear_Registry.md'],
   ['Fishing_Tackle_Inventory.md', 'Fishing_Tackle_Inventory.md'],
@@ -24,11 +25,16 @@ for (const file of shellFiles) {
   await fs.copyFile(path.join(here, file), path.join(out, file));
 }
 
+const indexSource = await fs.readFile(path.join(here, 'index.html'), 'utf8');
+const versionedIndex = indexSource
+  .replace('./styles.css', `./styles.css?v=${buildVersion}`)
+  .replace('./app.js', `./app.js?v=${buildVersion}`);
+await fs.writeFile(path.join(out, 'index.html'), versionedIndex);
+
 for (const [src, dest] of kbFiles) {
   await fs.copyFile(path.join(repoRoot, src), path.join(kbOut, dest));
 }
 
-const buildVersion = (process.env.GITHUB_SHA || new Date().toISOString()).replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 24);
 const sw = await fs.readFile(path.join(here, 'sw.js'), 'utf8');
 await fs.writeFile(path.join(out, 'sw.js'), sw.replaceAll('__BUILD_VERSION__', buildVersion));
 await fs.writeFile(path.join(out, 'build.json'), JSON.stringify({
