@@ -22,7 +22,10 @@ This is the temporary working log for mobile-first acceptance testing of Fishing
 - **LINK / DATA QUALITY — ACCEPTED:** Canonical manufacturer link is required where a manufacturer exists. Link text should be the manufacturer company name. If the canonical manufacturer URL is missing, still show the manufacturer name as a visible gap signal; use **Unknown** if manufacturer itself is unknown. Retail and other supplemental links remain optional and should not get `Unknown` placeholders.
 - **UI/UX / CLEANUP — ACCEPTED:** Do not expose source-of-truth bookkeeping fields such as `Status`, `Evidence`, or `Detail File` on user-facing item pages. Remove separate link pills when links have been consolidated into the dedicated Links field. Clean up dead CSS/code associated only with removed UI.
 - **CATCH HISTORY SCOPE — ACCEPTED:** Show **My Catch History** only for rod/reel setups, lures, and baits. Do not show it for line, weights, snaps & swivels, or hooks.
-- **FOOTER — ACCEPTED:** Show the copyright footer on every page. Implement the year dynamically from the current date so it changes automatically each January 1. Current target presentation is `© 2026 Gino Sega` (equivalent to the requested “Copyright 2026 Gino Sega” wording unless later changed).
+- **FOOTER — ACCEPTED:** Show the copyright footer on every page. Implement the year dynamically from the current date so it changes automatically each January 1. Current target presentation is `© 2026 Gino Sega`.
+- **LEAF-PAGE SUBTITLE — ACCEPTED / SUPERSEDES EARLIER PUNCTUATION:** Use `[gear category] - [type]` beneath the H1 on applicable My Gear leaf pages. Examples: `Line - Braided`, `Weights - Egg sinkers`, `Snaps & swivels - Snaps`, `Rods & Reels - Spinning`.
+- **LEAF-PAGE CORE FIELDS — ACCEPTED / SUPERSEDES EARLIER FIELD-LABEL DETAILS:** Standardize applicable My Gear leaf-page identity/detail boxes on **Manufacturer / Model**, **Specifications**, and **Links**. For Rods & Reels, the Rod and Reel H2 sections each use this trio. For Weights, size/weight belongs in Specifications and Brand/Manufacturer belongs in Manufacturer / Model. For Line, test/length/color belong in Specifications. **Specifications** (plural) supersedes the earlier singular `Specification` label.
+- **OPTIONAL LINKS RENDERING — ACCEPTED:** The Links field exists in the data model, but the box should be omitted when there are no links rather than rendering an empty box. Required manufacturer-link gaps may still be surfaced through the Manufacturer / Model/Links data-quality behavior described above.
 
 ---
 
@@ -75,10 +78,9 @@ This is the temporary working log for mobile-first acceptance testing of Fishing
 ### Individual setup page
 
 - **UI/UX — ACCEPTED:** Page header should be the combined setup identity: `Rod: [manufacturer model], Reel: [manufacturer model]`, using **unknown** for missing required identity data.
-- **UI/UX — ACCEPTED:** Header subtext should read `Rods & Reels · Spinning`, `Rods & Reels · Baitcasting`, or `Rods & Reels · Spincasting` as applicable.
+- **UI/UX — SUPERSEDED FORMAT:** Header subtext uses the site-wide leaf-page pattern, e.g. `Rods & Reels - Spinning`.
 - **WORKFLOW / DATA DISPLAY — ACCEPTED:** Replace the generic metadata grid with two H2 sections: **Rod** and **Reel**.
-- **DATA DISPLAY — ACCEPTED:** Each Rod/Reel section should contain only three fields/boxes: **Manufacturer / Model**, **Specification**, and **Links**.
-- **UI/UX — ACCEPTED:** Rename `Important specifications` to **Specification**.
+- **DATA DISPLAY — SUPERSEDED STANDARD:** Each Rod/Reel section contains **Manufacturer / Model**, **Specifications**, and **Links**.
 - **DATA/CONTENT — ACCEPTED:** Preserve and display any additional Rods & Reels links from the original OneNote page. Specific verified example: the Daiwa Exceler LT reel should include the **Maintenance** link to `Greasing and Oiling Your Spinning Reel`.
 - **UI/UX / WORKFLOW — ACCEPTED:** Remove **Knots & connections** from Rods & Reels setup pages.
 
@@ -118,11 +120,10 @@ This is the temporary working log for mobile-first acceptance testing of Fishing
 ### Individual line page
 
 - **LINE TITLE RULE — ACCEPTED:** Apply the same normalized product-title rule to the H1.
-- **UI/UX — ACCEPTED:** Header subtext should be `Line · Braided`, `Line · Fluorocarbon`, or `Line · Monofilament`.
+- **UI/UX — SUPERSEDED FORMAT:** Header subtext uses the site-wide leaf-page pattern, e.g. `Line - Braided`.
 - **DATA MODEL — ACCEPTED:** Do not show a separate `Category` field; type is already represented in the header.
 - **DATA MODEL — ACCEPTED:** Remove `Component` from the line model/display. Preferred line fields are **Type, Manufacturer, Model, Test, Color, Length**.
-- **DATA DISPLAY — ACCEPTED:** Use the site-wide Manufacturer / Model + Links rules.
-- **DATA DISPLAY — ACCEPTED:** **Specification** should include line test, length, and color where applicable. Color is optional and primarily applicable to braided line; missing optional color must not display `Unknown`.
+- **DATA DISPLAY — SUPERSEDED STANDARD:** User-facing core boxes are **Manufacturer / Model**, **Specifications**, and **Links**. Specifications include line test, length, and color where applicable. Color is optional and primarily applicable to braided line; missing optional color must not display `Unknown`.
 - **UI/UX / CLEANUP — ACCEPTED:** Apply site-wide removal of Status, Evidence, Detail File, and standalone link pills.
 
 ### Knots & connections on line pages
@@ -166,10 +167,9 @@ This is the temporary working log for mobile-first acceptance testing of Fishing
 ### Individual weight pages
 
 - **TITLE — ACCEPTED:** H1 should use the normalized type title from the Weights list page, e.g. **Egg sinkers**.
-- **UI/UX — ACCEPTED:** Header subtext follows the consistent leaf-page pattern `Weights · [type]`, e.g. `Weights · Egg sinkers`. The repeated type is intentional for consistency across gear leaf pages.
-- **DATA DISPLAY — REQUIRED:** The only mandatory detail box is **Size / Weight**, listing all owned sizes for that type, matching the list-page card subtext.
-- **DATA DISPLAY — ACCEPTED:** Rename `Brand / Specs` to **Brand**.
-- **DATA DISPLAY — OPTIONAL:** Add a **Links** box. It should render only when there are links. Current Cylinder weights record has an Amazon link; other weight types need no placeholder if links are absent.
+- **UI/UX — SUPERSEDED FORMAT:** Header subtext uses the site-wide leaf-page pattern, e.g. `Weights - Egg sinkers`.
+- **DATA DISPLAY — SUPERSEDED STANDARD:** User-facing core boxes are **Manufacturer / Model**, **Specifications**, and **Links**. Owned size/weight denominations go in Specifications; brand/manufacturer belongs in Manufacturer / Model. This supersedes the earlier separate `Size / Weight` and `Brand` boxes.
+- **DATA DISPLAY — OPTIONAL LINKS:** The Links box is omitted when empty. Current Cylinder weights record has an Amazon link; other weight types need no empty Links placeholder.
 - **UI/UX / CLEANUP — ACCEPTED:** Remove `Status / Notes` from the user-facing page.
 - **KNOTS & CONNECTIONS — OPTIONAL:** Keep this relationship available in the weight model but do not render the section when no content exists. Current weights have no explicit tying/connection guidance, but future techniques may add it.
 - **HOW TO USE IT — OPTIONAL / RELATIONSHIP-DRIVEN:** Render only when relationships exist. Current expected relationships include **Cylinder weights → Drop shot rig** and **Egg sinkers → Slip sinker rig**.
@@ -180,6 +180,35 @@ This is the temporary working log for mobile-first acceptance testing of Fishing
 
 - **RELATIONSHIP MODEL:** Weights reinforce the need for explicit relationships between owned gear/tackle records and Knowledge Base technique records. A weight record should not be renamed/reclassified based on the technique that uses it; instead, the relationship points from the physical item/type to the applicable technique page.
 - **OPTIONAL SECTIONS:** Detail-page sections such as Links, Knots & connections, and How to use it should be data-driven and omitted entirely when empty rather than rendering empty-state boxes unless an empty state itself serves a specific testing/data-quality purpose.
+
+---
+
+## Snaps & Swivels — requested workflow/model changes
+
+### Snaps & Swivels list page
+
+- **UI/UX — ACCEPTED:** No subtitle beneath the page header.
+- **UI/UX — ACCEPTED:** Remove the Search box on this page.
+- **DATA MODEL — ACCEPTED:** Three types for this gear category: **Snaps**, **Swivels**, and **Snap swivels**.
+- **TITLE DISPLAY — ACCEPTED:** Keep the existing product/card titles even when they include the type because that wording is necessary for clear identification in this category.
+- **CARD SUBTEXT — ACCEPTED:** Use `[type] - [known specification data]`. Example target: **VMC CRS Crankbait Snaps** with subtext `Snaps - Size 0, 50 lb`.
+
+### Individual Snaps & Swivels pages
+
+- **LEAF SUBTITLE — ACCEPTED / GENERALIZED:** Use the site-wide `[gear category] - [type]` pattern. Example: `Snaps & swivels - Snaps`.
+- **CORE BOXES — ACCEPTED / GENERALIZED:** Use **Manufacturer / Model**, **Specifications**, and **Links**, following the site-wide manufacturer/link rules.
+- **KNOTS & CONNECTIONS — REQUIRED WHEN APPLICABLE:** Surface explicit line/knot/terminal-tackle relationships rather than generic text matches. Example: for a swivel used with fluorocarbon, show guidance such as `Use a Trilene knot when using a swivel on a fluorocarbon line`, with **Trilene knot** linked to the Trilene knot leaf page.
+- **HOW TO USE IT — TYPE-LEVEL KNOWLEDGE:** Use the substantive OneNote Snaps & Swivels guidance for the current type. The OneNote source has separate **Snaps**, **Swivels**, and **Snap Swivels** sections with multiple bullets; each owned product should inherit the relevant type-level guidance.
+
+### Source verification
+
+- Original OneNote/PDF verified on 2026-08-31: owned terminal items include **VMC CRS Crankbait Snaps, size 0, 50 lb**, **Tsuridamashii ball-bearing swivels, size 0, 55 lb**, and **Tsuridamashii ball-bearing snap swivels, size 0, 55 lb**.
+- OneNote Snaps & Swivels guidance includes when to use/avoid snaps, when to use swivels to prevent twist, ball-bearing vs barrel-swivel guidance, and cautions about attaching snap swivels directly to lures.
+- OneNote Knots guidance explicitly maps **fluorocarbon → swivel = Trilene** and **fluorocarbon → snap = Trilene**.
+
+### Architecture implication
+
+- **TYPE-LEVEL KNOWLEDGE + EXPLICIT RELATIONSHIPS:** Snaps & Swivels reinforce the emerging model: owned product records carry manufacturer/spec/link data; reusable type records carry general usage guidance; explicit relationships connect line types, knot records, terminal tackle, and techniques. Avoid relying on broad arbitrary mention-search output for these curated relationships.
 
 ---
 
