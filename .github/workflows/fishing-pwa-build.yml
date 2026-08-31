@@ -1,0 +1,48 @@
+name: Fishing PWA build check
+
+on:
+  push:
+    paths:
+      - 'pwa/**'
+      - 'Fishing_Gear_Registry.md'
+      - 'Fishing_Tackle_Inventory.md'
+      - 'Topics/Rods_Reels_Line_Knots.md'
+      - 'Topics/Fishing_Techniques.md'
+      - 'Topics/Local_Waters_Locations.md'
+      - 'Topics/Trip_Logs_Field_Observations.md'
+      - '.github/workflows/fishing-pwa-build.yml'
+  pull_request:
+    paths:
+      - 'pwa/**'
+      - 'Fishing_Gear_Registry.md'
+      - 'Fishing_Tackle_Inventory.md'
+      - 'Topics/Rods_Reels_Line_Knots.md'
+      - 'Topics/Fishing_Techniques.md'
+      - 'Topics/Local_Waters_Locations.md'
+      - 'Topics/Trip_Logs_Field_Observations.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build PWA
+        run: node pwa/build.mjs
+      - name: Verify bundle
+        run: |
+          test -f pwa/dist/index.html
+          test -f pwa/dist/sw.js
+          test -f pwa/dist/kb/Fishing_Tackle_Inventory.md
+          test -f pwa/dist/kb/Rods_Reels_Line_Knots.md
+      - name: Upload deployable bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: fishing-pwa
+          path: pwa/dist
