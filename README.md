@@ -21,7 +21,13 @@ The two primary workflows are:
 1. **My Gear & Knots** — browse owned rods, reels, line, weights, snaps/swivels, hooks, lures, bait, and saved knots. Item views combine inventory data with relevant instructions, links, knot/connection guidance, and catch history.
 2. **Build a Fishing Plan** — start with any combination of location, date/time, target species, current setup, or lure/bait and assemble relevant structure targets, owned gear, techniques, knots/connections, and similar historical catches.
 
-The PWA build copies selected canonical Markdown files into its deploy bundle and parses them at runtime. Those copies are generated artifacts only; **the Markdown files in this repository remain authoritative**. Core content is cached for offline use after first load. Hosting/publication is intentionally not enabled yet pending a deliberate privacy/deployment decision.
+The PWA build copies selected canonical Markdown files into its deploy bundle and parses them at runtime. Those copies are generated artifacts only; **the Markdown files in this repository remain authoritative**. Core content is cached for offline use after first load.
+
+Fishing Companion is deployed automatically through GitHub Actions to GitHub Pages at:
+
+`https://ginosega.github.io/fishing/`
+
+The app remains a single-user/personal product even though the deployment URL is publicly reachable. Access control is not a current requirement.
 
 See `pwa/README.md` and the PWA items in `Fishing_TODO.md` for current implementation status.
 
