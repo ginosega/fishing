@@ -32,7 +32,7 @@ self.addEventListener('fetch', event => {
   if (url.origin !== self.location.origin) return;
 
   if (url.pathname.includes('/kb/')) {
-    event.respondWith(staleWhileRevalidate(event.request));
+    event.respondWith(networkFirst(event.request));
     return;
   }
 
@@ -52,22 +52,12 @@ async function cacheFirst(request) {
   return response;
 }
 
-async function staleWhileRevalidate(request) {
-  const cache = await caches.open(CACHE_NAME);
-  const cached = await cache.match(request);
-  const network = fetch(request).then(response => {
-    if (response.ok) cache.put(request, response.clone());
-    return response;
-  }).catch(() => null);
-  return cached || network || new Response('Offline and not cached', { status: 503 });
-}
-
 async function networkFirst(request, fallbackPath) {
   try {
     const response = await fetch(request);
     if (response.ok) (await caches.open(CACHE_NAME)).put(request, response.clone());
     return response;
   } catch {
-    return (await caches.match(request)) || (await caches.match(fallbackPath));
+    return (await caches.match(request)) || (fallbackPath ? await caches.match(fallbackPath) : undefined) || new Response('Offline and not cached', { status: 503 });
   }
 }
