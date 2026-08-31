@@ -15,6 +15,16 @@ This is the temporary working log for mobile-first acceptance testing of Fishing
 
 ---
 
+## Site-wide rules discovered during testing
+
+- **UI/UX / CLEANUP — ACCEPTED:** Remove dynamic `NNN owned...` / record-count text everywhere. Remove dead code, styles, selectors, variables, or other implementation remnants used only by that removed text.
+- **LINK / DATA DISPLAY — ACCEPTED:** For product/item detail pages, Manufacturer / Model should be plain text rather than a hyperlink. Put links in a dedicated **Links** field/box.
+- **LINK / DATA QUALITY — ACCEPTED:** Canonical manufacturer link is required where a manufacturer exists. Link text should be the manufacturer company name. If the canonical manufacturer URL is missing, still show the manufacturer name as a visible gap signal; use **Unknown** if manufacturer itself is unknown. Retail and other supplemental links remain optional and should not get `Unknown` placeholders.
+- **UI/UX / CLEANUP — ACCEPTED:** Do not expose source-of-truth bookkeeping fields such as `Status`, `Evidence`, or `Detail File` on user-facing item pages. Remove separate link pills when links have been consolidated into the dedicated Links field. Clean up dead CSS/code associated only with removed UI.
+- **CATCH HISTORY SCOPE — ACCEPTED:** Show **My Catch History** only for rod/reel setups, lures, and baits. Do not show it for line, weights, snaps & swivels, or hooks.
+
+---
+
 ## Home page — initial mobile impressions
 
 ### Positive feedback
@@ -28,7 +38,6 @@ This is the temporary working log for mobile-first acceptance testing of Fishing
 - **UI/UX — ACCEPTED:** Rename the first home button from **My Gear & Knots** to **My Gear**. Keep its existing subtext unchanged.
 - **UI/UX / WORKFLOW — ACCEPTED:** Rename **Build a Fishing Plan** to **Knowledge Base**.
 - **UI/UX — ACCEPTED:** Replace the Knowledge Base button subtext with: **Build a fishing plan based on your location, gear, and target species.**
-- **UI/UX — ACCEPTED:** Remove the dynamic footer text showing the number of owned gear/tackle/knot records.
 - **UI/UX — ACCEPTED:** Replace the footer with **© 2026 Gino Sega**.
 
 ---
@@ -39,11 +48,17 @@ This is the temporary working log for mobile-first acceptance testing of Fishing
 
 - **UI/UX — ACCEPTED:** Rename page header from **My Gear & Knots** to **My Gear**.
 - **UI/UX — ACCEPTED:** Change page subtext to: **Browse your inventory of equipment, tackle, bait, and your knot library**.
-- **UI/UX / CLEANUP — ACCEPTED, SITE-WIDE:** Remove the dynamic `NNN owned...` / record-count text everywhere in the site. Remove dead code, styles, selectors, variables, or other implementation remnants used only by that removed text rather than leaving unused debris behind.
 
 ---
 
 ## Rods & Reels — requested workflow/model change
+
+### Duplicate-record bug / current data issue
+
+- **BUG — CONFIRMED:** Daiwa Tatula XT and Shimano Zodias rods appear twice on the current Rods page; Daiwa Exceler LT and Shimano SLX DC XT reels appear twice on the current Reels page.
+- **ROOT CAUSE:** Current PWA model imports rod/reel/line records from the gear registry and then imports setup components again from the setup tables. The current dedupe logic does not reliably collapse those two representations.
+- **WORKFLOW / MODEL:** The `Short rod` and `Pflueger President` representations are components of the same spincast setup, not separate setups. The future setup-centric Rods & Reels UI should represent that as one setup. Exact spincast rod make/model remains missing and should be supplied by the user later.
+- **EXPECTED OWNED SETUP COUNT:** Three total setups: one Spinning, one Baitcasting, one Spincasting.
 
 ### Category/list page
 
@@ -63,12 +78,7 @@ This is the temporary working log for mobile-first acceptance testing of Fishing
 - **WORKFLOW / DATA DISPLAY — ACCEPTED:** Replace the generic metadata grid with two H2 sections: **Rod** and **Reel**.
 - **DATA DISPLAY — ACCEPTED:** Each Rod/Reel section should contain only three fields/boxes: **Manufacturer / Model**, **Specification**, and **Links**.
 - **UI/UX — ACCEPTED:** Rename `Important specifications` to **Specification**.
-- **LINK MODEL — ACCEPTED:** Remove hyperlinks from Manufacturer / Model text and move them into the **Links** box.
-- **LINK MODEL — ACCEPTED:** The canonical manufacturer link is required. Link text should be the manufacturer company name (for example, Daiwa or Shimano). If its URL is missing, still show the manufacturer name (or **Unknown**) as a visible data-gap signal.
-- **LINK MODEL — ACCEPTED:** Retail/other links remain optional. Do not show `Unknown` placeholders for missing optional links.
 - **DATA/CONTENT — ACCEPTED:** Preserve and display any additional Rods & Reels links from the original OneNote page. Specific verified example: the Daiwa Exceler LT reel should include the **Maintenance** link to `Greasing and Oiling Your Spinning Reel`.
-- **UI/UX — ACCEPTED:** Remove `Status`, `Evidence`, and `Detail File` boxes from the setup page.
-- **UI/UX — ACCEPTED:** Remove the separate link pills because links are being consolidated into the Links box.
 - **UI/UX / WORKFLOW — ACCEPTED:** Remove **Knots & connections** from Rods & Reels setup pages.
 
 ### Setup guidance / How to use it
@@ -89,6 +99,55 @@ This is the temporary working log for mobile-first acceptance testing of Fishing
 - Original OneNote/PDF page verified on 2026-08-31. It contains the expected spinning guidance, baitcasting guidance, Daiwa Exceler LT maintenance link, baitcaster setup/casting notes, `Why Use Both`, and `Three Rod Quiver` content.
 - Current canonical `Topics/Rods_Reels_Line_Knots.md` preserves most of this research, but the PWA presentation/model does not currently surface it in the setup-centric way requested.
 
-### Implementation status
+---
 
-**QUEUED / DO NOT DEPLOY DURING FIRST PASS.** Straightforward text/UI changes are accepted. The Rods & Reels setup-centric model change requires a brief architecture decision before implementation.
+## Line — requested workflow/model changes
+
+### Line list page
+
+- **UI/UX — ACCEPTED:** Remove the `N owned/saved records...` subtitle beneath the page header.
+- **UI/UX — ACCEPTED, LINE-SPECIFIC:** Remove the Search box and `All Types` dropdown on the Line page. Do **not** generalize this removal to every category; Lures is an example where search/filtering may still be useful.
+- **DATA MODEL — CORRECT:** Replace current `Leader`, `Line`, and `Main Line` pseudo-types with the actual fishing-line type taxonomy: **Braided**, **Fluorocarbon**, and **Monofilament**.
+- **WORKFLOW / DISPLAY — ACCEPTED:** Organize the Line page into H2 sections **Braided**, **Fluorocarbon**, and **Monofilament**, and place line products beneath the correct section.
+- **OWNED INVENTORY — EXPECTED:** Four owned line products currently: Sufix 832 braid, PowerPro Super8 Slick V2 braid, Seaguar InvizX 8 lb fluorocarbon, and Seaguar InvizX 12 lb fluorocarbon. Current page shows each twice; eliminate duplicate imports.
+- **LINE TITLE RULE — ACCEPTED:** Product title must not include line type (`braid`, `braided`, `fluorocarbon`, etc.). Type is structured data and grouping context.
+- **LINE TITLE RULE — ACCEPTED:** Product title must not include color. Color is specification data.
+- **EXAMPLE TARGET DISPLAY:** Under **Braided**, first card title should be **Sufix 832** with subtext **15 lb., Hi-Vis Yellow, 300 yd.**
+
+### Individual line page
+
+- **LINE TITLE RULE — ACCEPTED:** Apply the same normalized product-title rule to the H1.
+- **UI/UX — ACCEPTED:** Header subtext should be `Line · Braided`, `Line · Fluorocarbon`, or `Line · Monofilament`.
+- **DATA MODEL — ACCEPTED:** Do not show a separate `Category` field; type is already represented in the header.
+- **DATA MODEL — ACCEPTED:** Remove `Component` from the line model/display. Preferred line fields are **Type, Manufacturer, Model, Test, Color, Length**.
+- **DATA DISPLAY — ACCEPTED:** Use the site-wide Manufacturer / Model + Links rules.
+- **DATA DISPLAY — ACCEPTED:** **Specification** should include line test, length, and color where applicable. Color is optional and primarily applicable to braided line; missing optional color must not display `Unknown`.
+- **UI/UX / CLEANUP — ACCEPTED:** Apply site-wide removal of Status, Evidence, Detail File, and standalone link pills.
+
+### Knots & connections on line pages
+
+- **WORKFLOW / CONTENT — KEEP:** Line detail pages should retain **Knots & connections**.
+- **CONTENT SOURCE — REQUIRED:** Include relevant knot material from the former OneNote Line page for the current line type.
+- **CONTENT SOURCE — REQUIRED:** Include relevant material from the Knots page's **Braided**, **Fluorocarbon**, or **Monofilament** subsection for the current type.
+- **CONTENT SOURCE — REQUIRED:** Include relevant line-type mentions from lure/technique pages where those mentions express connection/rigging guidance. Examples supplied by user: fluorocarbon mentions on Drop Shot, Wacky Worm, Inline Spinners, and Swimbait pages.
+- **INFORMATION PLACEMENT:** Lure/technique applicability belongs here when it is about how the line is connected/used in a rig; do not clutter the general **How to use it** section with a list of lure types.
+
+### How to use it on line pages
+
+- **CONTENT MODEL — CHANGE:** Current arbitrary mention-search output is not useful enough.
+- **DATA/CONTENT — REQUIRED:** Replace it with the substantive OneNote Line-page guidance under the matching **Braided**, **Fluorocarbon**, or **Monofilament** heading, substantially preserving its bullets.
+- **REUSE REQUIREMENT:** This guidance belongs to the line **type**. Every product of the same type should inherit the same type-level guidance automatically.
+
+### Catch history on line pages
+
+- **UI/UX — REMOVE:** Do not show **My Catch History** on line pages, per the site-wide catch-history scope rule.
+
+### Architecture implication
+
+- **IA / DATA MODEL:** Like Rods & Reels, Line benefits from separating **owned product records** from **reusable type-level knowledge**. Example: Sufix 832 is a product instance; Braided is a type whose guidance is reusable across all braided products. Markdown remains authoritative; this does not imply a separate database.
+
+---
+
+## Implementation status
+
+**QUEUED / DO NOT DEPLOY DURING FIRST PASS.** Continue reviewing remaining My Gear categories on the current stable build. Consolidate repeated patterns into reusable page/data-model rules before implementing the My Gear batch.
