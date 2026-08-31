@@ -6,9 +6,9 @@ Fishing Companion is the mobile/offline front end for the Fishing Markdown knowl
 
 The current app is intentionally **single-user and personal**. It is built around one user's own Fishing knowledge base: owned gear/tackle, saved knots, fishing locations, curated techniques, and catch history.
 
-It is **not intended for public deployment yet**. The goal of the current phase is to make the personal Fishing knowledge base fast and actionable on a phone, especially in the field, without designing onboarding, accounts, data-entry screens, or generalized storage for other users.
+The app does **not** need access control in the current phase. A publicly reachable but non-advertised URL is acceptable; the current product is still designed only for the user's own data and workflows.
 
-A future public version could add per-user:
+A future generalized version could add per-user:
 
 - gear/tackle inventories;
 - saved knots and preferred setups;
@@ -16,7 +16,7 @@ A future public version could add per-user:
 - catch/trip logs;
 - preferences and other personalized planning inputs.
 
-That multi-user/public product is explicitly deferred until the personal version is mature.
+That multi-user product is explicitly deferred until the personal version is mature.
 
 ## Product model
 
@@ -44,31 +44,21 @@ Current source files:
 
 ## Browser testing
 
-The easiest local test path requires only Node.js 22+ and a local checkout of this repository.
+The normal testing/use path is the deployed GitHub Pages URL. Changes to the PWA or its canonical Markdown inputs trigger the GitHub Actions build/deploy workflow automatically.
 
-From the repository root:
+For local development only, from the repository root:
 
 ```bash
 node pwa/serve.mjs
 ```
 
-That command rebuilds the app from the current Markdown knowledge base and starts a local HTTP server. Open:
+That command rebuilds the app from the current Markdown knowledge base and serves it at:
 
 ```text
 http://127.0.0.1:4173
 ```
 
-Press `Ctrl+C` in the terminal to stop the server.
-
-To test from a phone or tablet on the same local network, run:
-
-```bash
-node pwa/serve.mjs --host 0.0.0.0
-```
-
-Then browse on the other device to `http://<computer-LAN-IP>:4173`. Local firewall rules may need to allow Node.js on the private network.
-
-Do not open `pwa/dist/index.html` directly with `file://`; the app loads Markdown with `fetch()` and uses a service worker, so it requires an HTTP(S) origin.
+Local testing is optional and is not required for normal app use.
 
 ## Build only
 
@@ -80,11 +70,13 @@ node pwa/build.mjs
 
 The deployable site is written to `pwa/dist/`.
 
-## Hosting
+## Hosting and updates
 
-The repository contains a build-check workflow but does not automatically publish the site. That is intentional for the current personal/single-user phase.
+Fishing Companion uses GitHub Pages, matching the simple URL-based usage model used by TowCalc. Because Fishing Companion has a build step, GitHub Actions builds `pwa/dist/` and deploys that artifact to Pages whenever relevant files change on `main`.
 
-No public URL is required for the MVP. Testing can use a local HTTP server or another private access method. Public hosting should only be revisited if/when the app is generalized beyond the current user's personal knowledge base.
+The deployed HTML version-stamps `app.js` and `styles.css`, and the knowledge-base Markdown uses network-first loading with offline cache fallback. A normal reload should usually pick up the latest deployment; `Shift+F5` / hard refresh is the fallback when testing a new build.
+
+The GitHub Pages site must be enabled once in repository settings with **Settings → Pages → Build and deployment → Source: GitHub Actions**.
 
 ## Recommendation provenance
 
