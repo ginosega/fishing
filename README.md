@@ -12,6 +12,19 @@ On 2026-08-29, the migration audit and reconciliation work were closed. OneNote 
 
 This repository is now the active working knowledge base and OneNote replacement. Future corrections, recovered historical details, or conflicts should be handled as ordinary project updates.
 
+## Fishing Companion PWA
+
+A mobile/offline front end is under active development in `pwa/`. Its purpose is to make the Markdown knowledge base fast and actionable in the field without creating a second source of truth.
+
+The two primary workflows are:
+
+1. **My Gear & Knots** — browse owned rods, reels, line, weights, snaps/swivels, hooks, lures, bait, and saved knots. Item views combine inventory data with relevant instructions, links, knot/connection guidance, and catch history.
+2. **Build a Fishing Plan** — start with any combination of location, date/time, target species, current setup, or lure/bait and assemble relevant structure targets, owned gear, techniques, knots/connections, and similar historical catches.
+
+The PWA build copies selected canonical Markdown files into its deploy bundle and parses them at runtime. Those copies are generated artifacts only; **the Markdown files in this repository remain authoritative**. Core content is cached for offline use after first load. Hosting/publication is intentionally not enabled yet pending a deliberate privacy/deployment decision.
+
+See `pwa/README.md` and the PWA items in `Fishing_TODO.md` for current implementation status.
+
 ## Start here
 
 1. `Fishing_Context.md` — compact current-state summary and routing guide.
