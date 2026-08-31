@@ -56,6 +56,9 @@ GitHub Markdown is the sole active project knowledge base. The legacy OneNote/PD
 | FISH-TODO-032 | P3 | OPEN | Trip logs | Continue adding catch/no-bite reports. | OneNote catch log migrated; future trips should be appended. |
 | FISH-TODO-033 | P3 | OPEN | Safety/regulations | Create regulation recheck checklist. | Include Fish Washington app, lake-specific rules, species ID, bait/retention implications. |
 | FISH-TODO-034 | P3 | OPEN | Markdown usability | Spot-check inline links in GitHub Preview. | Links were embedded from MHT; spot-check during normal use and fix any link placement/context issues that affect OneNote-replacement usability. |
+| FISH-TODO-035 | P1 | IN PROGRESS | Fishing Companion PWA | Build and acceptance-test the mobile/offline front end for the Fishing knowledge base. | MVP source is under `pwa/`: two workflows (`My Gear & Knots` and `Build a Fishing Plan`), runtime Markdown parsing, offline service worker, inventory/item pages, knot/connection guidance, deterministic plan ranking, catch-history matching, and CI build artifact. Next: complete browser/device acceptance testing and refine parser/ranking issues found in real use. |
+| FISH-TODO-036 | P2 | OPEN | PWA / data model | Add lightweight stable IDs/metadata to Markdown only where the PWA parser needs stronger relationships. | Preserve Markdown as source of truth; do not create a separately maintained application database. Prioritize ambiguous links such as lure ↔ technique ↔ species ↔ structure ↔ knot ↔ catch. |
+| FISH-TODO-037 | P1 | WAITING ON USER | PWA / hosting | Choose the PWA hosting/privacy model and install path. | Build-check workflow intentionally does not publish. Decide whether/how the private knowledge base can be deployed without exposing information unintentionally; then add deployment and install on phone/desktop. |
 
 ---
 
