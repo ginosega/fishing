@@ -1,6 +1,7 @@
 const MEDIA_DATA_URL = './gear-media.json';
 const VIDEO_TITLES_URL = './video-titles.json';
 const MAX_VIDEO_TITLE = 76;
+const VIEWER_MARGIN = 0.94;
 
 const mediaUiState = {
   media: [],
@@ -31,6 +32,9 @@ if (mediaUiApp) {
   new MutationObserver(queueEnhance).observe(mediaUiApp, { childList: true, subtree: true });
 }
 window.addEventListener('hashchange', queueEnhance);
+window.addEventListener('resize', () => {
+  if (mediaUiState.viewer?.classList.contains('open')) fitViewerImage();
+});
 
 document.addEventListener('keydown', event => {
   if (event.key === 'Escape' && mediaUiState.viewer?.classList.contains('open')) closeViewer();
@@ -200,15 +204,22 @@ function openViewer(media) {
   const title = viewer.querySelector('.media-viewer-title');
   const product = viewer.querySelector('.media-product-link');
 
-  image.src = media.asset;
-  image.alt = media.alt || 'Gear image';
   title.textContent = media.alt || 'Gear image';
   product.href = media.destination || media.sourcePage || '#';
   product.hidden = !(media.destination || media.sourcePage);
-  resetViewerTransform();
+
   viewer.classList.add('open');
   viewer.setAttribute('aria-hidden', 'false');
   document.body.classList.add('media-viewer-open');
+  resetViewerTransform();
+
+  image.onload = () => requestAnimationFrame(fitViewerImage);
+  image.src = media.asset;
+  image.alt = media.alt || 'Gear image';
+  if (image.complete && image.naturalWidth && image.naturalHeight) {
+    requestAnimationFrame(fitViewerImage);
+  }
+
   viewer.querySelector('.media-close-button').focus({ preventScroll: true });
 }
 
@@ -270,6 +281,24 @@ function ensureViewer() {
   });
 
   return viewer;
+}
+
+function fitViewerImage() {
+  const viewer = mediaUiState.viewer;
+  if (!viewer?.classList.contains('open')) return;
+  const stage = viewer.querySelector('.media-stage');
+  const image = viewer.querySelector('.media-viewer-image');
+  if (!stage || !image?.naturalWidth || !image?.naturalHeight) return;
+
+  const maxWidth = Math.max(1, stage.clientWidth * VIEWER_MARGIN);
+  const maxHeight = Math.max(1, stage.clientHeight * VIEWER_MARGIN);
+  const fitRatio = Math.min(maxWidth / image.naturalWidth, maxHeight / image.naturalHeight);
+
+  image.style.width = `${Math.max(1, Math.floor(image.naturalWidth * fitRatio))}px`;
+  image.style.height = `${Math.max(1, Math.floor(image.naturalHeight * fitRatio))}px`;
+  image.style.maxWidth = 'none';
+  image.style.maxHeight = 'none';
+  resetViewerTransform();
 }
 
 function pointerDown(event) {
@@ -344,11 +373,15 @@ function resetViewerTransform() {
 }
 
 function applyViewerTransform() {
-  const image = mediaUiState.viewer?.querySelector('.media-viewer-image');
+  const viewer = mediaUiState.viewer;
+  const image = viewer?.querySelector('.media-viewer-image');
   if (!image) return;
   image.style.transform = `translate(${mediaUiState.translateX}px, ${mediaUiState.translateY}px) scale(${mediaUiState.scale})`;
-  const reset = mediaUiState.viewer.querySelector('[data-media-reset]');
-  reset.textContent = mediaUiState.scale === 1 ? 'Reset' : `${Math.round(mediaUiState.scale * 100)}%`;
+
+  const reset = viewer.querySelector('[data-media-reset]');
+  const zoomOut = viewer.querySelector('[data-media-zoom-out]');
+  if (reset) reset.textContent = mediaUiState.scale === 1 ? 'Reset' : `${Math.round(mediaUiState.scale * 100)}%`;
+  if (zoomOut) zoomOut.disabled = mediaUiState.scale <= 1.001;
 }
 
 function youtubeId(url) {
