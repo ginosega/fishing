@@ -9,6 +9,36 @@
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="icon" href="./icon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="./styles.css" />
+  <style>
+    /* Keep the image viewer inside the actually visible mobile browser viewport. */
+    @media (max-width: 720px) {
+      .media-modal {
+        inset: auto;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        width: 100dvw;
+        height: 100vh;
+        height: 100dvh;
+        padding:
+          max(6px, env(safe-area-inset-top))
+          max(6px, env(safe-area-inset-right))
+          max(6px, env(safe-area-inset-bottom))
+          max(6px, env(safe-area-inset-left));
+        align-items: stretch;
+        justify-content: stretch;
+        overflow: hidden;
+      }
+      .media-dialog {
+        width: 100%;
+        height: 100%;
+        max-width: none;
+        max-height: none;
+        min-height: 0;
+        border-radius: 14px;
+      }
+    }
+  </style>
 </head>
 <body>
   <header class="app-header">
