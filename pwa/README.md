@@ -32,16 +32,30 @@ This rule applies to Fishing Companion and should also be used for other applica
 
 The app has two top-level workflows:
 
-1. **My Gear & Knots** — browse owned rods, reels, line, weights, snaps/swivels, hooks, lures, bait, and saved knots. Item pages combine the structured inventory record with instructional mentions, connection/knot guidance, source links, and matching catch-log entries.
-2. **Build a Fishing Plan** — start from any combination of water, date/time, target species, current rod/reel setup, or lure/bait. The app ranks relevant location notes, techniques, owned tackle, knot/connection guidance, and similar catch history into a field-oriented plan.
+1. **My Gear** — browse owned rod/reel setups, line, weights, snaps/swivels, hooks, lures, bait, and saved knots. The first mobile acceptance pass established normalized category and leaf-page behavior rather than exposing source-table bookkeeping directly.
+2. **Knowledge Base** — build a fishing plan from any combination of water, date/time, target species, current rod/reel setup, or lure/bait. The app ranks relevant location notes, techniques, owned tackle, knot/connection guidance, and similar catch history into a field-oriented plan.
 
-Knots are first-class records. They are browseable in the inventory workflow and are also attached to plan rigging chains such as main line → leader and leader → terminal tackle.
+Knots remain first-class browseable records and plan components.
+
+### My Gear information architecture
+
+The visible mobile hierarchy is intentionally flatter than the underlying data model:
+
+- **Rods & Reels** uses first-class owned setup records grouped directly under Spinning, Baitcasting, and Spincasting. Setup type is a reusable classification/guidance attribute, not an intermediate navigation page.
+- **Line** separates owned products from reusable Braided, Fluorocarbon, and Monofilament type knowledge.
+- **Lures** can aggregate multiple owned size/color/weight variants into one product-family card while retaining variant-level inventory data for planning and catch history.
+- **Weights**, **Snaps & Swivels**, and other terminal tackle use physical item/type records rather than naming the item after a technique that happens to use it.
+- Explicit relationships connect gear to techniques, rigs, knots, and other gear. Where a dedicated Knowledge Base page owns the detailed procedure, My Gear usually summarizes the relationship and links to it rather than duplicating the procedure.
+
+Applicable My Gear leaf pages standardize on **Manufacturer / Model**, **Specifications**, and **Links**. Source bookkeeping such as Status, Evidence, and Detail File is not exposed in the field UI.
+
+Search and type filters use progressive disclosure. Search is normally omitted below roughly 12 normalized cards unless direct lookup is unusually useful; type filters appear only when they materially reduce a non-trivial list. Category-specific usability can override those heuristics.
 
 ## Source-of-truth rule
 
 **GitHub Markdown remains authoritative.** The PWA does not maintain a second fishing database.
 
-`build.mjs` copies the selected canonical Markdown files into the deploy bundle under `kb/`. `app.js` parses those Markdown files in the browser and builds transient inventory, technique, location, knot, setup, and catch-history models. The service worker caches both the app shell and the copied Markdown so the core experience works offline after the first load.
+`build.mjs` copies the selected canonical Markdown files into the deploy bundle under `kb/`. `app.js` parses those Markdown files in the browser and builds transient inventory, technique, location, knot, setup, relationship, and catch-history models. The service worker caches both the app shell and the copied Markdown so the core experience works offline after the first load.
 
 Current source files:
 
@@ -51,6 +65,12 @@ Current source files:
 - `Topics/Fishing_Techniques.md`
 - `Topics/Local_Waters_Locations.md`
 - `Topics/Trip_Logs_Field_Observations.md`
+
+## Acceptance testing
+
+Testing is phone-first, with desktop/tablet secondary. Ordinary feedback is batched so the deployed UI remains stable during an active pass; blocking defects may be fixed immediately.
+
+The first **My Gear** acceptance pass was completed on 2026-08-31. The consolidated My Gear refactor is now the build under second-pass acceptance testing. Detailed temporary observations are tracked in `TESTING_FEEDBACK.md` until they are either implemented or migrated into durable documentation/TODO/decision records.
 
 ## Browser testing
 
@@ -98,4 +118,4 @@ The UI distinguishes:
 
 ## Future data-model improvements
 
-The current parser intentionally works against the human-readable Markdown that already exists. As the app matures, selected records can gain lightweight stable IDs/metadata in Markdown to make relationships (lure ↔ technique ↔ species ↔ structure ↔ knot ↔ catch) more explicit without moving the source of truth into JSON or application code.
+Markdown remains human-readable and authoritative, but selected records may gain lightweight stable IDs/metadata as the app matures. The goal is to make relationships such as lure ↔ technique ↔ species ↔ structure ↔ knot ↔ setup ↔ catch more explicit without moving the source of truth into a separately maintained JSON/database layer.
