@@ -318,6 +318,36 @@ This is the temporary working log for mobile-first acceptance testing of Fishing
 
 ---
 
+## Knots — requested workflow/model changes
+
+### Knots list page
+
+- **UI/UX — ACCEPTED:** Remove Search because the current normalized knot list is below the general 12-card search threshold.
+- **CARD DISPLAY — ACCEPTED:** Show only the knot name as the card title; no card subtext is needed.
+
+### Individual Knot pages
+
+- **LEAF SUBTITLE — ACCEPTED EXCEPTION:** Knot leaf pages show only `Knots` beneath the H1. Do not show `Saved knots` and do not force the general `[gear category] - [type]` pattern where no useful knot type exists.
+- **CORE DISPLAY — KNOT-SPECIFIC:** Replace the generic Knot / OneNote Guidance region and separate link with two cards: **Description** and **Links**.
+- **DESCRIPTION:** Use the already distilled knot description. Include cautions when the source indicates a knot may be a poor choice in some situations; the Loop knot weakness/conflict is the key example.
+- **LINKS — HIGH VALUE:** Preserve all knot links. Improve generic labels such as `video` or `link` to useful destination/video titles where practical. The first OneNote link for a knot is generally the canonical how-to video and should have a descriptive title.
+- **REMOVE:** Do not show a separate **Knots & connections** section on knot pages.
+- **HOW TO USE IT — RELATIONSHIP-DRIVEN:** List the important rigs, terminal tackle, lures, bait, and techniques that use the knot, with links to their pages. Keep these summaries concise; detailed technique instructions belong on the linked KB pages.
+
+### Rods & Reels icon
+
+- **UI/UX — ACCEPTED:** With Rods and Reels merged, use a single icon that clearly represents a fishing rod with a reel attached. Current implementation target is the `🎣` icon.
+
+---
+
+## First My Gear acceptance pass — checkpoint
+
+- **STATUS:** First-pass review of Home + all My Gear categories is complete.
+- **IMPLEMENTATION DECISION:** Implement the consolidated My Gear batch now, including normalized product/setup models, type-level reusable guidance, explicit linked relationships, duplicate-record fixes, search/filter heuristics, site-wide field/display rules, and dead-code cleanup.
+- **NEXT:** Deploy the rebuilt PWA and perform a second My Gear acceptance pass before moving deeper into the Knowledge Base workflow.
+
+---
+
 ## Implementation status
 
-**QUEUED / DO NOT DEPLOY DURING FIRST PASS.** Continue reviewing remaining My Gear categories on the current stable build. Consolidate repeated patterns into reusable page/data-model rules before implementing the My Gear batch.
+**IMPLEMENTED / SECOND-PASS RETEST NEXT.** The first My Gear acceptance pass is complete and the consolidated refactor has been implemented. Next: deploy/verify the rebuilt PWA, then perform a second My Gear acceptance pass before deeper Knowledge Base testing.
