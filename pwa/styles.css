@@ -151,7 +151,7 @@ body.media-viewer-open { overflow: hidden; }
 }
 .media-stage:active { cursor: grabbing; }
 .media-viewer-image {
-  display: block; max-width: 94%; max-height: 94%; width: auto; height: auto; object-fit: contain;
+  display: block; width: 94%; height: 94%; max-width: none; max-height: none; object-fit: contain;
   transform-origin: center center; will-change: transform; user-select: none; -webkit-user-drag: none;
 }
 .media-toolbar { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-top: 1px solid var(--border); flex-wrap: wrap; }
