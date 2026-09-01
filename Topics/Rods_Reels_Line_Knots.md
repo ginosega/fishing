@@ -30,7 +30,7 @@ Primary use:
 | Component | Details | Status / Evidence |
 |---|---|---|
 | Rod | [Shimano Zodias](https://fish.shimano.com/en-US/product/rods/bass/a075f000049ncdzqau_c.html) `ZDC72MHB`, 7'2", medium-heavy, fast; [Amazon listing](https://a.co/d/07UzjAvv) | OWNED / OneNote source |
-| Reel | [Shimano 22 SLX DC XT 71HG](https://fish.shimano.com/ja-JP/product/reel/baitlurecasting/a075f00003ihbqcqay.html); [JDM Tackle Heaven listing](https://jdmtackleheaven.com/products/shimano-22-slx-dc-xt-71hg-left?_pos=1&_psq=22+SLX+DC+XT&_ss=e&_v=1.0); [video](https://youtu.be/mIcaRiMC_-k?si=-07JzU0Tlcns1zB1) | OWNED / OneNote source |
+| Reel | [Shimano 22 SLX DC XT 71HG](https://fish.shimano.com/ja-JP/product/reel/baitlurecasting/a075f00003ihbqcqay.html); [JDM Tackle Heaven listing](https://jdmtackleheaven.com/products/shimano-22-slx-dc-xt-71hg-left?_pos=1&_psq=22+SLX+DC+XT&_ss=e&_v=1.0); [video](https://youtu.be/mIcaRiMC_-k?si=-07JzU0Tlcns1zB1) | OWNED / OneNote source + historical chat seed |
 | Main line | [PowerPro Super8 Slick V2 Moss Green braid](https://www.tacklewarehouse.com/Power_Pro_Super8Slick_V2_Braided_Line_Moss_Green/descpage-PVMG.html), 30 lb, 150 yd | CURRENT SETUP / OneNote source |
 | Leader | [Seaguar InvizX 12 lb fluorocarbon](https://www.tacklewarehouse.com/Seaguar_InvizX_Fluorocarbon_Line/descpage-SIF.html), 200 yd | CURRENT SETUP / OneNote source |
 
@@ -112,7 +112,7 @@ For Shimano SLX DC XT:
 
 ### Braid
 
-- OneNote linked a [braided-line video](https://youtu.be/Vd2qcWQBW54?si=RHgL76r3M1T-LaUy).
+- [Braided-line setup and spooling video](https://youtu.be/Vd2qcWQBW54?si=RHgL76r3M1T-LaUy).
 - Use with fluorocarbon leader for most clear-water/finesse/general-purpose work.
 - Braid cuts vegetation, lasts longer, and transmits feel; leader adds invisibility and abrasion resistance.
 - Bright braid is useful when a leader is used because it improves strike visibility.
@@ -142,7 +142,7 @@ OneNote linked:
 - [Spooling video 1](https://youtu.be/BeWguvKDSjQ?si=biLIqQlmMzirw42m)
 - [Spooling video 2](https://youtu.be/Vd2qcWQBW54?si=sbNIKVS--qvf3k7L&t=699)
 - [Spooling video 3](https://youtu.be/eygAOYgdxt0?si=zARTKGXRB_CgPwcP)
-- [KastKing Radius Line Spooler page](https://kastking.com/products/kastking-radius-line-spooler?_pos=3&_psq=radius&_ss=e&_v=1.0)
+- [KastKing Radius Line Spooler page](https://kastking.com/products/kastking-radius-line-spooler?_pos=3&_psq=radius&_ss=r)
 - Baitcaster spooling videos: [video 1](https://youtu.be/x92E7ATKJqQ?si=5b2aiNCU0CeI0fze), [video 2](https://youtu.be/cgdQDtvvaLw?si=j6Dz1mbcPrpLyyRN)
 
 ## Line and leader reference from OneNote

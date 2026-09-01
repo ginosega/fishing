@@ -1,0 +1,502 @@
+{
+  "version": 1,
+  "notes": "Presentation metadata for Fishing Companion gear imagery. Images are fetched into the deploy bundle at build time; sourcePage records provenance and destination is the useful page opened from the image viewer.",
+  "items": [
+    {
+      "id": "daiwa-tatula-xt",
+      "aliases": ["Daiwa Tatula XT", "TATULAXT702MFS"],
+      "sourcePage": "https://anglersden.com/products/daiwa-tatula-xt-702mfs",
+      "imageSource": "https://anglersden.com/cdn/shop/files/0001-1604875638851785879.png?v=1749498897",
+      "destination": "https://daiwa.us/collections/freshwater-rods/products/tatula-xt",
+      "alt": "Daiwa Tatula XT TATULAXT702MFS spinning rod"
+    },
+    {
+      "id": "daiwa-exceler-lt",
+      "aliases": ["Daiwa Exceler LT", "EXELT2500D-XH"],
+      "sourcePage": "https://www.fishusa.com/Daiwa-Exceler-LT-Spinning-Reel/",
+      "imageSource": "https://cdn11.bigcommerce.com/s-s2ydjd5yv9/images/stencil/original/products/14239/45573/2500__18994.1698934857.png?c=1",
+      "destination": "https://daiwa.us/collections/spin-reels/products/23-exceler-lt",
+      "alt": "Daiwa Exceler LT EXELT2500D-XH spinning reel"
+    },
+    {
+      "id": "shimano-zodias",
+      "aliases": ["Shimano Zodias", "ZDC72MHB"],
+      "sourcePage": "https://www.sportsmans.com/fishing-gear-supplies/fishing-rods/casting-rods/shimano-zodias-casting-rod/p/1682089",
+      "imageSource": "https://www.sportsmans.com/medias/shimano-zodias-casting-rod-7ft-2in-medium-heavy-fast-1pc-1682089-2.jpg?context=bWFzdGVyfGltYWdlc3wxNzUyMXxpbWFnZS9qcGVnfGFEbGxMMmczWXk4eE1qZ3dOREF6TnpJM09UYzNOQzh4TWpBd0xXTnZiblpsY25OcGIyNUdiM0p0WVhSZlltRnpaUzFqYjI1MlpYSnphVzl1Um05eWJXRjBYM050ZHkweE5qZ3lNRGc1TFRJdWFuQm58NGRkMGU2NDg5NzljZmJkNjNkMWVhOWEwNTU3MDQxNzcyNzU0ODJjMTNlNzAxMDliODQzYzU1NTExMTMxZDRkYQ",
+      "destination": "https://fish.shimano.com/en-US/product/rods/bass/a075f000049ncdzqau_c.html",
+      "alt": "Shimano Zodias ZDC72MHB casting rod"
+    },
+    {
+      "id": "shimano-slx-dc-xt-71hg",
+      "aliases": ["Shimano 22 SLX DC XT 71HG", "22 SLX DC XT 71HG"],
+      "sourcePage": "https://asianportal-fishing.com/products/4969363046987",
+      "imageSource": "https://cdn.shopify.com/s/files/1/0690/7566/5152/files/4969363046987.jpg?v=1721443463",
+      "destination": "https://fish.shimano.com/ja-JP/product/reel/baitlurecasting/a075f00003ihbqcqay.html",
+      "alt": "Shimano 22 SLX DC XT 71HG baitcasting reel"
+    },
+    {
+      "id": "pflueger-president-spincast",
+      "aliases": ["Pflueger President"],
+      "sourcePage": "https://www.sportsmansguide.com/product/index/pflueger-president-spincast-reel?a=2301270",
+      "imageSource": "https://image.sportsmansguide.com/adimgs/l/7/737274_ts.jpg",
+      "destination": "https://www.sportsmansguide.com/product/index/pflueger-president-spincast-reel?a=2301270",
+      "alt": "Pflueger President spincast reel"
+    },
+    {
+      "id": "sufix-832",
+      "aliases": ["Sufix 832", "Sufix 832 15 lb Hi-Vis Yellow braid"],
+      "sourcePage": "https://www.rapala.com/us_en/832-advanced-superline?childSku=us-660-115Y",
+      "destination": "https://www.rapala.com/us_en/832-advanced-superline?childSku=us-660-115Y",
+      "alt": "Sufix 832 Advanced Superline Hi-Vis Yellow braided fishing line"
+    },
+    {
+      "id": "powerpro-super8-slick-v2",
+      "aliases": ["PowerPro Super8 Slick V2", "PowerPro Super8 Slick V2 Moss Green"],
+      "sourcePage": "https://copperstatetackle.com/products/power-pro-super-8-slick-v2-braided-line-moss-green",
+      "imageSource": "https://copperstatetackle.com/cdn/shop/products/power-pro-super-8-slick-v2-braided-line-moss-green.jpg?v=1643319623&width=900",
+      "destination": "https://www.tacklewarehouse.com/Power_Pro_Super8Slick_V2_Braided_Line_Moss_Green/descpage-PVMG.html",
+      "alt": "PowerPro Super8 Slick V2 Moss Green braided fishing line"
+    },
+    {
+      "id": "seaguar-invizx",
+      "aliases": ["Seaguar InvizX", "Seaguar InvizX 8 lb fluorocarbon", "Seaguar InvizX 12 lb fluorocarbon"],
+      "sourcePage": "https://southernreeloutfitters.com/products/seaguar-invizx-fluorocarbon-line",
+      "imageSource": "https://cdn.shopify.com/s/files/1/1228/3222/products/SeaguarInvizxFluorocarbonLineClear.png?v=1671065346",
+      "destination": "https://seaguar.com/products/invizx-fluorocarbon",
+      "alt": "Seaguar InvizX fluorocarbon fishing line"
+    },
+    {
+      "id": "thkfish-cylinder-weights",
+      "aliases": ["Cylinder weights", "Drop-shot cylinder weight kit", "THKFISH 28 pcs sinkers set"],
+      "sourcePage": "https://www.ebay.com/itm/304986165277",
+      "imageSource": "https://i.ebayimg.com/images/g/U8UAAOSweqZkwI2m/s-l960.jpg",
+      "destination": "https://thkfish.net/products/thkfish-fishing-weights-fishing-sinker-drop-shot-weights-fishing-weights-kit-drop-shot-rig-wacky-hooks-offset-hooks-fishing-tackle-28pcs",
+      "alt": "THKFISH 28-piece drop-shot cylinder sinker set"
+    },
+    {
+      "id": "eagle-claw-egg-sinkers",
+      "aliases": ["Egg sinkers", "Eagle Claw"],
+      "sourcePage": "https://fishermenssource.com/products/eagle-claw-egg-sinkers",
+      "imageSource": "https://fishermenssource.com/cdn/shop/files/screenshot_202026-03-19_20at_2011.31.36_e2_80_afam.png?v=1773955589&width=664",
+      "destination": "https://www.eagleclaw.com/",
+      "alt": "Eagle Claw egg sinkers"
+    },
+    {
+      "id": "eagle-claw-trolling-sinker",
+      "aliases": ["Swiveling trolling / torpedo weights", "Swiveling trolling sinkers", "torpedo weights"],
+      "sourcePage": "https://www.westmarine.com/eagle-claw-trolling-sinker-11305083.html",
+      "imageSource": "https://www.westmarine.com/on/demandware.static/-/Sites-wm-master-catalog/default/dwc70b6358/images/orig/11305083_LRG.jpg",
+      "destination": "https://www.eagleclaw.com/",
+      "alt": "Eagle Claw swiveling trolling sinker"
+    },
+    {
+      "id": "top-brass-glass-beads",
+      "aliases": ["Glass beads", "Top Brass"],
+      "sourcePage": "https://fishermanscentral.com/products/top-brass-precision-glass-beads",
+      "imageSource": "https://fishermanscentral.com/cdn/shop/files/Top-Brass-Precision-Glass-Beads-red.jpg?v=1744303068",
+      "destination": "https://www.topbrasstackle.com/products/top-brass-tackle/",
+      "alt": "Top Brass red glass fishing beads"
+    },
+    {
+      "id": "vmc-crankbait-snaps",
+      "aliases": ["VMC CRS Crankbait Snaps", "Crankbait Snaps"],
+      "sourcePage": "https://www.fischefischen.ch/products/vmc-crank-bait-snaps-karabiner",
+      "imageSource": "https://www.fischefischen.ch/cdn/shop/products/montagematerial_karabiner-snaps_vmc_crank-bait_snaps_karabiner_3538_fischefischen_1024x1024%402x.jpg?v=1655305318",
+      "destination": "https://www.rapala.com/us_en/crs-crankbait-snap?childSku=us-CRS#1",
+      "alt": "VMC CRS crankbait snaps"
+    },
+    {
+      "id": "tsuridamashii-ball-bearing-swivels",
+      "aliases": ["Tsuridamashii ball-bearing swivels"],
+      "sourcePage": "https://a.co/d/12yVweL",
+      "destination": "https://a.co/d/12yVweL",
+      "alt": "Tsuridamashii ball-bearing fishing swivels"
+    },
+    {
+      "id": "tsuridamashii-snap-swivels",
+      "aliases": ["Tsuridamashii ball-bearing snap swivels"],
+      "sourcePage": "https://a.co/d/apPLB6U",
+      "destination": "https://a.co/d/apPLB6U",
+      "alt": "Tsuridamashii ball-bearing snap swivels"
+    },
+    {
+      "id": "gamakatsu-octopus-hook",
+      "aliases": ["Gamakatsu Octopus Hook", "02210"],
+      "sourcePage": "https://gamakatsu.com/product/octopus-hooks/",
+      "destination": "https://gamakatsu.com/product/octopus-hooks/",
+      "alt": "Gamakatsu Octopus Hook size 1"
+    },
+    {
+      "id": "vmc-redline-weedless-wacky-neko",
+      "aliases": ["VMC Redline Weedless Wacky Neko", "RSWWNK#1NTPP"],
+      "sourcePage": "https://www.lurenet.com/vmc-redline-series-weedless-wacky-neko-hook",
+      "imageSource": "https://cdn11.bigcommerce.com/s-dlp5xwiggc/images/stencil/1280x1280/products/186936/389658/043193155195__05083.1767213759.jpg?c=2",
+      "destination": "https://www.rapala.com/us_en/rswwnk-redline-series-weedless-wacky-neko?childSku=us-RSWWNK#1NTPP",
+      "alt": "VMC RedLine Weedless Wacky Neko hook"
+    },
+    {
+      "id": "vmc-crossover-rings",
+      "aliases": ["VMC Crossover Rings", "CRSRC7"],
+      "sourcePage": "https://threeriverstackle.com/products/vmc-crossover-rings",
+      "imageSource": "https://threeriverstackle.com/cdn/shop/files/Photoroom_20250128_082509.jpg?v=1738081658&width=1946",
+      "destination": "https://www.rapala.com/us_en/crossover-ring?childSku=us-CRSRC7",
+      "alt": "VMC Crossover Rings"
+    },
+    {
+      "id": "zman-finesse-shroomz",
+      "aliases": ["Z-Man Finesse ShroomZ"],
+      "sourcePage": "https://www.anglingdirect.de/z-man-finesse-shroomz",
+      "imageSource": "https://www.anglingdirect.de/media/catalog/product/cache/156e35662bf6573edc2598d5a50b1445/Z/-/Z-Man_Finesse_Shroomz_2.jpg",
+      "destination": "https://zmanfishing.com/products/ned-rig-kit",
+      "alt": "Z-Man Finesse ShroomZ jigheads"
+    },
+    {
+      "id": "gamakatsu-g-finesse-drop-shot",
+      "aliases": ["Gamakatsu G-Finesse Drop Shot Hook", "338210"],
+      "sourcePage": "https://gamakatsu.com/product/tgw-drop-shot-hook/",
+      "destination": "https://gamakatsu.com/product/tgw-drop-shot-hook/",
+      "alt": "Gamakatsu G-Finesse Drop Shot Hook"
+    },
+    {
+      "id": "owner-twistlock",
+      "aliases": ["Owner Twistlock Black Chrome Centering Pin Hook"],
+      "sourcePage": "https://www.tacklewarehouse.com/Owner_TwistLock_Hooks/descpage-OTH.html",
+      "imageSource": "https://cdn.shoplightspeed.com/shops/608250/files/43376883/1000x1000x2/file.jpg",
+      "destination": "https://a.co/d/0bzT7MOX",
+      "alt": "Owner Twistlock Centering Pin Hook"
+    },
+    {
+      "id": "gamakatsu-ewg-worm-hook",
+      "aliases": ["Gamakatsu EWG Worm Offset Hook, NS Black"],
+      "sourcePage": "https://gamakatsu.com/product/worm-hooks-offset-shank-ewg/",
+      "destination": "https://gamakatsu.com/product/worm-hooks-offset-shank-ewg/",
+      "alt": "Gamakatsu EWG Worm Offset Hook"
+    },
+    {
+      "id": "vmc-swimbait-jig",
+      "aliases": ["VMC Swimbait Jig"],
+      "sourcePage": "https://www.rapala.com/us_en/sbj-swimbait-jig?childSku=us-SBJ14-W",
+      "destination": "https://www.rapala.com/us_en/sbj-swimbait-jig?childSku=us-SBJ14-W",
+      "alt": "VMC Swimbait Jig white jighead"
+    },
+    {
+      "id": "zman-original-chatterbait",
+      "aliases": ["Z-Man Original ChatterBait"],
+      "sourcePage": "https://www.harpethriveroutfitters.com/products/z-man-original-chatterbait",
+      "imageSource": "https://www.harpethriveroutfitters.com/cdn/shop/products/zman-chatterbait-fire-craw_720x.jpg?v=1607470278",
+      "destination": "https://www.dickssportinggoods.com/p/z-man-original-chatterbait-bladed-jig-15zmauzmnchtbt38blur/15zmauzmnchtbt38blur?color=Bayou%20Craw",
+      "alt": "Z-Man Original ChatterBait Fire Craw"
+    },
+    {
+      "id": "zman-elite-evo",
+      "aliases": ["Z-Man Elite EVO"],
+      "sourcePage": "https://www.sporting.se/",
+      "imageSource": "https://www.sporting.se/bilder/artiklar/CBEV12-02.jpg?m=1771184283",
+      "destination": "https://www.dickssportinggoods.com/p/z-man-chatterbait-elite-evo-23zmaucbltv38zlvclur/23zmaucbltv38blur",
+      "alt": "Z-Man ChatterBait Elite EVO"
+    },
+    {
+      "id": "zman-jack-hammer",
+      "aliases": ["Z-Man Jack Hammer"],
+      "sourcePage": "https://zmanfishing.com/products/evergreen-chatterbait-jack-hammer",
+      "destination": "https://zmanfishing.com/products/evergreen-chatterbait-jack-hammer",
+      "alt": "Z-Man Evergreen ChatterBait Jack Hammer"
+    },
+    {
+      "id": "strike-king-red-eyed-special",
+      "aliases": ["Strike King Red Eyed Special"],
+      "sourcePage": "https://www.strikeking.com/en/learn/spinnerbaits/red-eyed-special",
+      "destination": "https://www.strikeking.com/en/learn/spinnerbaits/red-eyed-special",
+      "alt": "Strike King Red Eyed Special spinnerbait"
+    },
+    {
+      "id": "sixth-sense-divine-spinnerbait",
+      "aliases": ["6th Sense Divine Spinnerbait"],
+      "sourcePage": "https://georgialure.com/products/6th-sense-divine-spinnerbait",
+      "imageSource": "https://georgialure.com/cdn/shop/files/808081187-1.jpg?v=1759435381",
+      "destination": "https://6thsensefishing.com/collections/divine-spinnerbaits",
+      "alt": "6th Sense Divine Spinnerbait Shad Ice"
+    },
+    {
+      "id": "rebel-crawfish",
+      "aliases": ["Rebel Crawfish"],
+      "sourcePage": "https://www.cabelas.com/p/rebel-crawfish",
+      "imageSource": "https://cdn11.bigcommerce.com/s-s2ydjd5yv9/images/stencil/400w/attribute_rule_images/8205_source_1667170068.jpg",
+      "destination": "https://www.cabelas.com/p/rebel-crawfish",
+      "alt": "Rebel Crawfish crankbait"
+    },
+    {
+      "id": "berkley-flicker-shad-5",
+      "aliases": ["Berkley Flicker Shad 5"],
+      "sourcePage": "https://www.berkley-fishing.com/products/flicker-shad",
+      "destination": "https://www.berkley-fishing.com/products/flicker-shad",
+      "alt": "Berkley Flicker Shad size 5 crankbait"
+    },
+    {
+      "id": "strike-king-kvd-square-bill-1",
+      "aliases": ["Strike King KVD Square Bill 1.0"],
+      "sourcePage": "https://www.walmart.com/ip/Strike-King-KVD-Square-Bill-1-0-Crankbait-Sexy-Shad-Hard-Bait-Lure/20552266",
+      "imageSource": "https://i5.walmartimages.com/asr/dfa2e902-5aab-4411-9b76-3192c348c65e_1.105cb7aa866bfcb691893eb247589124.jpeg?odnBg=FFFFFF&odnHeight=768&odnWidth=768",
+      "destination": "https://www.walmart.com/ip/Strike-King-KVD-Square-Bill-1-0-Crankbait-Sexy-Shad-Hard-Bait-Lure/20552266",
+      "alt": "Strike King KVD Square Bill 1.0 Sexy Shad crankbait"
+    },
+    {
+      "id": "berkley-money-badger",
+      "aliases": ["Berkley Money Badger"],
+      "sourcePage": "https://www.cabelas.com/p/berkley-money-badger-crankbait",
+      "imageSource": "https://i5.walmartimages.com/seo/Berkley-Money-Badger-Fishing-Lure-Firetiger-1-4-oz_fc43f134-8746-4e5f-95c7-cd03f1f08e7d.b630937b841ccde7d2a77477d9bfaddb.jpeg",
+      "destination": "https://www.cabelas.com/p/berkley-money-badger-crankbait",
+      "alt": "Berkley Money Badger Firetiger crankbait"
+    },
+    {
+      "id": "berkley-stunna",
+      "aliases": ["Berkley Stunna"],
+      "sourcePage": "https://www.berkley-fishing.com/products/stunna",
+      "destination": "https://www.berkley-fishing.com/products/stunna",
+      "alt": "Berkley Stunna jerkbait"
+    },
+    {
+      "id": "rapala-original-floating-f3",
+      "aliases": ["Rapala Original Floating F-3"],
+      "sourcePage": "https://www.rapala.com/us_en/original-floating?childSku=us-F03S",
+      "destination": "https://www.rapala.com/us_en/original-floating?childSku=us-F03S",
+      "alt": "Rapala Original Floating F-3 Silver lure"
+    },
+    {
+      "id": "rapala-dt06",
+      "aliases": ["Rapala DT06"],
+      "sourcePage": "https://www.rapala.com/us_en/dt-dives-to-series?childSku=us-DT06DMN",
+      "imageSource": "https://cdn.shoplightspeed.com/shops/624772/files/16818429/650x750x2/rapala-dt-6.jpg",
+      "destination": "https://www.rapala.com/us_en/dt-dives-to-series?childSku=us-DT06DMN",
+      "alt": "Rapala DT06 Demon crankbait"
+    },
+    {
+      "id": "rapala-ripstop",
+      "aliases": ["Rapala RipStop"],
+      "sourcePage": "https://www.rapala.com/us_en/ripstop?childSku=us-RPS09MBS",
+      "imageSource": "https://i5.walmartimages.com/seo/Rapala-Rip-Stop-09-Jerkbait-Fishing-Lure-3-5-1-4oz-Mossback-Shiner_c03154bc-b864-4c6e-9916-dfe22118a924_1.f38ca9c63eaec594d3a6d5ee3afb066e.jpeg",
+      "destination": "https://www.rapala.com/us_en/ripstop?childSku=us-RPS09MBS",
+      "alt": "Rapala RipStop Moss Back Shiner jerkbait"
+    },
+    {
+      "id": "rapala-husky-jerk",
+      "aliases": ["Rapala Husky Jerk"],
+      "sourcePage": "https://www.rapala.com/us_en/husky-jerk?childSku=us-HJ06YP",
+      "imageSource": "https://products.blains.com/600/135/1359190.jpg",
+      "destination": "https://www.rapala.com/us_en/husky-jerk?childSku=us-HJ06YP",
+      "alt": "Rapala Husky Jerk Yellow Perch lure"
+    },
+    {
+      "id": "panther-martin",
+      "aliases": ["Panther Martin"],
+      "sourcePage": "https://www.panthermartin.com/",
+      "imageSource": "https://i5.walmartimages.com/asr/c81e467d-72b2-4f09-aba4-eae1ce0d7782.ad200efc4e13ceaa4d946b907c1a5345.jpeg",
+      "destination": "https://www.panthermartin.com/",
+      "alt": "Panther Martin inline spinners"
+    },
+    {
+      "id": "mepps-aglia-3",
+      "aliases": ["Mepps Aglia #3"],
+      "sourcePage": "https://www.mepps.com/information/aglia-dressed-undressed/121#description",
+      "imageSource": "https://img.pecheur.com/cuiller-tournante-mepps-aglia-platinium-argent-rouge-p-3357-335791.jpg",
+      "destination": "https://www.mepps.com/information/aglia-dressed-undressed/121#description",
+      "alt": "Mepps Aglia size 3 red inline spinner"
+    },
+    {
+      "id": "macks-wedding-ring",
+      "aliases": ["Mack's Wedding Ring"],
+      "sourcePage": "https://mackslure.com/collections/wedding-ring",
+      "destination": "https://mackslure.com/collections/wedding-ring",
+      "alt": "Mack's Wedding Ring trolling spinner"
+    },
+    {
+      "id": "kastmaster",
+      "aliases": ["Kastmaster", "Kastmaster SW-105"],
+      "sourcePage": "https://www.acmetackle.com/products/kastmaster",
+      "destination": "https://www.acmetackle.com/products/kastmaster",
+      "alt": "Acme Kastmaster casting spoon"
+    },
+    {
+      "id": "dick-nite-spoon",
+      "aliases": ["Dick Nite spoon"],
+      "sourcePage": "https://gibbsfishing.com/products/dick-nite-spoon",
+      "imageSource": "https://gibbsfishing.com/cdn/shop/files/DN-023BrassHotHead_700x700.jpg?v=1720024159",
+      "destination": "https://gibbsfishing.com/products/dick-nite-spoon",
+      "alt": "Dick Nite size 2 spoon"
+    },
+    {
+      "id": "luhr-jensen-dodger",
+      "aliases": ["Luhr Jensen Trout/Kokanee Dodger"],
+      "sourcePage": "https://www.rapala.com/us_en/dodger",
+      "destination": "https://www.rapala.com/us_en/dodger",
+      "alt": "Luhr Jensen trout and kokanee dodger"
+    },
+    {
+      "id": "macks-pee-wee-hoochie",
+      "aliases": ["Mack's Pee Wee Hoochie"],
+      "sourcePage": "https://mackslure.com/products/pee-wee-wiggle-hoochie",
+      "imageSource": "https://mackslure.com/cdn/shop/products/macks-lure-pee-wee-wiggle-hoochie-spinner-40555_800x600.jpg?v=1728950536",
+      "destination": "https://mackslure.com/products/pee-wee-wiggle-hoochie",
+      "alt": "Mack's Pee Wee Hoochie pink trolling lure"
+    },
+    {
+      "id": "booyah-pad-crasher-assortment",
+      "aliases": ["Booyah Pad Crasher / Pad Crasher Jr. assortment"],
+      "sourcePage": "https://www.dickssportinggoods.com/p/booyah-pad-crasher-frog-assortment-3-pack-20byhupdcrshr3pkklur/20byhupdcrshr3pkklur",
+      "destination": "https://www.dickssportinggoods.com/p/booyah-pad-crasher-frog-assortment-3-pack-20byhupdcrshr3pkklur/20byhupdcrshr3pkklur",
+      "alt": "Booyah Pad Crasher frog assortment"
+    },
+    {
+      "id": "booyah-pad-crasher-jr",
+      "aliases": ["Booyah Pad Crasher Jr."],
+      "sourcePage": "https://www.booyahbaits.com/products/pad-crasher-jr",
+      "destination": "https://www.booyahbaits.com/products/pad-crasher-jr",
+      "alt": "Booyah Pad Crasher Jr hollow-body frog"
+    },
+    {
+      "id": "booyah-poppin-pad-crasher",
+      "aliases": ["Booyah Poppin' Pad Crasher"],
+      "sourcePage": "https://www.tacklewarehouse.com/Booyah_Poppin_Pad_Crasher/descpage-BYPPC.html",
+      "imageSource": "https://img.tacklewarehouse.com/watermark/rs.php?path=BYPPC-914-1.jpg",
+      "destination": "https://www.tacklewarehouse.com/Booyah_Poppin_Pad_Crasher/descpage-BYPPC.html",
+      "alt": "Booyah Poppin Pad Crasher frog"
+    },
+    {
+      "id": "rebel-pop-r",
+      "aliases": ["Rebel Pop-R"],
+      "sourcePage": "https://www.lurenet.com/rebel-pop-r",
+      "destination": "https://www.lurenet.com/rebel-pop-r",
+      "alt": "Rebel Pop-R topwater lure"
+    },
+    {
+      "id": "river2sea-whopper-plopper-60",
+      "aliases": ["River2Sea Whopper Plopper 60"],
+      "sourcePage": "https://www.river2seausa.com/product/whopper-plopper-60/",
+      "destination": "https://www.river2seausa.com/product/whopper-plopper-60/",
+      "alt": "River2Sea Whopper Plopper 60 Bluegill topwater lure"
+    },
+    {
+      "id": "strike-king-premier-pro-model-jig",
+      "aliases": ["Strike King Premier Pro-Model Jig"],
+      "sourcePage": "https://www.fishingonline.com/products/strike-king-denny-brauers-premier-pro-model-jig",
+      "imageSource": "https://www.fishingonline.com/cdn/shop/products/strike-king-denny-brauer-premier-pro-model-jig-black-and-blue.jpg?v=1573067626",
+      "destination": "https://www.dickssportinggoods.com/p/strike-king-denny-bauers-premier-pro-model-jig-15skiuppmjg12zsxylur/15skiuppmjg12zsxylur",
+      "alt": "Strike King Premier Pro-Model Jig"
+    },
+    {
+      "id": "strike-king-tour-grade-football-jig",
+      "aliases": ["Strike King Tour Grade Football Jig"],
+      "sourcePage": "https://discounttackle.com/products/strike-king-tour-grade-football-jig",
+      "imageSource": "https://discounttackle.com/cdn/shop/products/TDJ12-2_TourGradeFootballJig_BlackBlue_SIdeRight.jpg?v=1689901501",
+      "destination": "https://www.dickssportinggoods.com/p/strike-king-tour-grade-football-jig-15skiutrgdftblljglur/15skiutrgdftblljglur",
+      "alt": "Strike King Tour Grade Football Jig"
+    },
+    {
+      "id": "yum-christie-craw",
+      "aliases": ["YUM Christie Craw"],
+      "sourcePage": "https://www.lurenet.com/yum-christie-craw",
+      "destination": "https://www.dickssportinggoods.com/p/yum-christie-craw-soft-bait-15yumuym35chrcrwwlur/15yumuym35chrcrwwlur?color=Black%2FBlue%20Flake",
+      "alt": "YUM Christie Craw soft-plastic bait"
+    },
+    {
+      "id": "strike-king-rage-craw",
+      "aliases": ["Strike King Rage Craw"],
+      "sourcePage": "https://www.strikeking.com/en/learn/soft-plastics/rage-craw",
+      "imageSource": "https://www.strikeking.com/globalassets/media---strike-king-catalog/rgcrw-51/rgcrw-51_ragecraw_californiacraw_glamleft2.png",
+      "destination": "https://www.strikeking.com/en/learn/soft-plastics/rage-craw",
+      "alt": "Strike King Rage Craw California Craw soft plastic"
+    },
+    {
+      "id": "sixth-sense-divine-swimbait",
+      "aliases": ["6th Sense Divine Swimbait"],
+      "sourcePage": "https://www.justfishn.com/products/6th-sense-divine-swimbait",
+      "imageSource": "https://www.justfishn.com/cdn/shop/files/ProShad_62e2c1f9-ec51-4a07-8084-cbcbdaf8e596.png?v=1707789991&width=2040",
+      "destination": "https://6thsensefishing.com/collections/divine-swimbaits",
+      "alt": "6th Sense Divine Swimbait Pro Shad"
+    },
+    {
+      "id": "berkley-power-jerk-shad",
+      "aliases": ["Berkley Power Jerk Shad"],
+      "sourcePage": "https://www.cabelas.com/p/berkley-powerbait-jerk-shad",
+      "destination": "https://www.cabelas.com/p/berkley-powerbait-jerk-shad",
+      "alt": "Berkley PowerBait Jerk Shad soft plastic"
+    },
+    {
+      "id": "fin-sanity-bluegill",
+      "aliases": ["Fin-Sanity Bluegill"],
+      "sourcePage": "https://tacklingthewater.com/products/fin-sanity-bluegill-lineup",
+      "imageSource": "https://tacklingthewater.com/cdn/shop/files/86EFADBD-E7E5-4B27-A069-FBE276BE3FFC.jpg?v=1714786195&width=990",
+      "destination": "https://tacklingthewater.com/products/fin-sanity-bluegill-lineup?variant=41352103624778",
+      "alt": "Fin-Sanity Bluegill swimbait"
+    },
+    {
+      "id": "yamamoto-senko",
+      "aliases": ["Yamamoto Senko"],
+      "sourcePage": "https://lltackle.com/products/gary-yamamoto-5-senko",
+      "imageSource": "https://lltackle.com/cdn/shop/files/64cce8b282297.jpg",
+      "destination": "https://www.tacklewarehouse.com/Yamamoto_Senko/descpage-YAS.html",
+      "alt": "Yamamoto Senko stickbait"
+    },
+    {
+      "id": "zman-ned-rig-kit",
+      "aliases": ["Z-Man Ned Rig Kit"],
+      "sourcePage": "https://zmanfishing.com/products/ned-rig-kit",
+      "imageSource": "https://shopkarls.com/media/catalog/product/cache/1/image/9df78eab33525d08d6e5fb8d27136e95/1/5/15-99-zma-10000a.jpg",
+      "destination": "https://zmanfishing.com/products/ned-rig-kit",
+      "alt": "Z-Man Ned Rig Kit"
+    },
+    {
+      "id": "zman-trick-shotz",
+      "aliases": ["Z-Man Trick ShotZ"],
+      "sourcePage": "https://discounttackle.com/products/z-man-trick-shotz",
+      "imageSource": "https://discounttackle.com/cdn/shop/products/TS-316PK.jpg?v=1660773108",
+      "destination": "https://www.tacklewarehouse.com/search-tackle.html?start=0&count=20&searchtext=trick+shotz",
+      "alt": "Z-Man Trick ShotZ soft plastic"
+    },
+    {
+      "id": "zman-finesse-shadz",
+      "aliases": ["Z-Man Finesse ShadZ"],
+      "sourcePage": "https://www.anglingdirect.de/z-man-finesse-shadz",
+      "imageSource": "https://www.anglingdirect.de/media/catalog/product/Z/-/Z-Man_Finesse_ShadZ_1.jpg",
+      "destination": "https://www.tacklewarehouse.com/Z-Man_Finesse_Shadz_8pk/descpage-ZMANFNS.html",
+      "alt": "Z-Man Finesse ShadZ soft plastic"
+    },
+    {
+      "id": "zman-trd-gobyz",
+      "aliases": ["Z-Man TRD GobyZ"],
+      "sourcePage": "https://copperstatetackle.com/products/z-man-trd-gobyz",
+      "imageSource": "https://copperstatetackle.com/cdn/shop/products/rs_7749fd7d-f288-4ae0-9d71-cb7d15c20cbb.webp?v=1694106533&width=2400",
+      "destination": "https://www.tacklewarehouse.com/search-tackle.html?start=0&count=20&searchtext=gobyz",
+      "alt": "Z-Man TRD GobyZ soft plastic"
+    },
+    {
+      "id": "berkley-gulp-minnow",
+      "aliases": ["Berkley Gulp! Minnow"],
+      "sourcePage": "https://www.berkley-fishing.com/products/gulp-minnow",
+      "destination": "https://www.berkley-fishing.com/products/gulp-minnow",
+      "alt": "Berkley Gulp Minnow soft bait"
+    },
+    {
+      "id": "berkley-powerbait-trout-dough",
+      "aliases": ["Berkley PowerBait Trout Dough"],
+      "sourcePage": "https://www.berkley-fishing.com/products/powerbait-trout-bait",
+      "destination": "https://www.berkley-fishing.com/products/powerbait-trout-bait",
+      "alt": "Berkley PowerBait Trout Dough Rainbow"
+    },
+    {
+      "id": "berkley-powerbait-trout-nuggets",
+      "aliases": ["Berkley PowerBait Trout Nuggets Dough Baits"],
+      "sourcePage": "https://www.berkley-fishing.com/products/powerbait-trout-nuggets",
+      "destination": "https://www.berkley-fishing.com/products/powerbait-trout-nuggets",
+      "alt": "Berkley PowerBait Trout Nuggets Sherbert"
+    },
+    {
+      "id": "berkley-magnum-power-eggs",
+      "aliases": ["Berkley PowerBait Magnum Floating Power Eggs"],
+      "sourcePage": "https://duohook.ie/products/berkley-powerbait-magnum-floating-power-eggs",
+      "imageSource": "https://duohook.ie/cdn/shop/products/028632030325__94528.jpg?v=1580072516",
+      "destination": "https://www.berkley-fishing.com/collections/trout/products/powerbait-power-eggs-floating-magnum",
+      "alt": "Berkley PowerBait Magnum Floating Power Eggs Fluorescent Orange"
+    }
+  ]
+}

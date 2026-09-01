@@ -142,11 +142,11 @@ This file is for **owned lures, bait, hooks, weights, snaps, swivels, and termin
 
 | Item | Size / weight | Brand / specs | Status / notes |
 |---|---:|---|---|
-| [Drop-shot cylinder weight kit](https://a.co/d/0onGDfA) | 3.5 g / 1/8 oz | Kit, Amazon note | OWNED |
-| [Drop-shot cylinder weight kit](https://a.co/d/0onGDfA) | 5 g / 1/5 oz | Kit, Amazon note | OWNED |
-| [Drop-shot cylinder weight kit](https://a.co/d/0onGDfA) | 7 g / 1/4 oz | Kit, Amazon note | OWNED |
-| [Drop-shot cylinder weight kit](https://a.co/d/0onGDfA) | 10 g / 3/8 oz | Kit, Amazon note | OWNED |
-| [Drop-shot cylinder weight kit](https://a.co/d/0onGDfA) | 14 g / 1/2 oz | Kit, Amazon note | OWNED |
+| [Drop-shot cylinder weight kit](https://thkfish.net/products/thkfish-fishing-weights-fishing-sinker-drop-shot-weights-fishing-weights-kit-drop-shot-rig-wacky-hooks-offset-hooks-fishing-tackle-28pcs) | 3.5 g / 1/8 oz | THKFISH; model: 28 pcs sinkers set; [Amazon listing](https://a.co/d/0onGDfA) | OWNED |
+| [Drop-shot cylinder weight kit](https://thkfish.net/products/thkfish-fishing-weights-fishing-sinker-drop-shot-weights-fishing-weights-kit-drop-shot-rig-wacky-hooks-offset-hooks-fishing-tackle-28pcs) | 5 g / 1/5 oz | THKFISH; model: 28 pcs sinkers set; [Amazon listing](https://a.co/d/0onGDfA) | OWNED |
+| [Drop-shot cylinder weight kit](https://thkfish.net/products/thkfish-fishing-weights-fishing-sinker-drop-shot-weights-fishing-weights-kit-drop-shot-rig-wacky-hooks-offset-hooks-fishing-tackle-28pcs) | 7 g / 1/4 oz | THKFISH; model: 28 pcs sinkers set; [Amazon listing](https://a.co/d/0onGDfA) | OWNED |
+| [Drop-shot cylinder weight kit](https://thkfish.net/products/thkfish-fishing-weights-fishing-sinker-drop-shot-weights-fishing-weights-kit-drop-shot-rig-wacky-hooks-offset-hooks-fishing-tackle-28pcs) | 10 g / 3/8 oz | THKFISH; model: 28 pcs sinkers set; [Amazon listing](https://a.co/d/0onGDfA) | OWNED |
+| [Drop-shot cylinder weight kit](https://thkfish.net/products/thkfish-fishing-weights-fishing-sinker-drop-shot-weights-fishing-weights-kit-drop-shot-rig-wacky-hooks-offset-hooks-fishing-tackle-28pcs) | 14 g / 1/2 oz | THKFISH; model: 28 pcs sinkers set; [Amazon listing](https://a.co/d/0onGDfA) | OWNED |
 | Egg sinkers | 1/2 oz | Eagle Claw | OWNED; trout still-fishing sliding sinker rig |
 | Egg sinkers | 1/4 oz | Eagle Claw | OWNED / OneNote source; added during OneNote migration |
 | Swiveling trolling sinkers / torpedo weights | 1/2 oz | Eagle Claw | OWNED; kayak trolling depth control |

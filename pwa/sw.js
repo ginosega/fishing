@@ -4,6 +4,9 @@ const CORE = [
   './index.html',
   './styles.css',
   './app.js',
+  './media-ui.js',
+  './gear-media.json',
+  './video-titles.json',
   './manifest.webmanifest',
   './icon.svg',
   './kb/Fishing_Gear_Registry.md',
@@ -15,7 +18,18 @@ const CORE = [
 ];
 
 self.addEventListener('install', event => {
-  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(CORE)).then(() => self.skipWaiting()));
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE_NAME);
+    await cache.addAll(CORE);
+    try {
+      const response = await cache.match('./gear-media.json');
+      const media = response ? await response.json() : [];
+      await Promise.allSettled((media || []).map(item => item.asset ? cache.add(item.asset) : Promise.resolve()));
+    } catch (error) {
+      console.warn('Optional gear media precache incomplete', error);
+    }
+    await self.skipWaiting();
+  })());
 });
 
 self.addEventListener('activate', event => {
