@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - '.github/workflows/temp-assemble-fishing-app.yml'
+  workflow_dispatch:
 
 permissions:
   contents: write
