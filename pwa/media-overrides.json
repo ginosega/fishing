@@ -10,8 +10,9 @@
     "imageSource": "https://i.ebayimg.com/images/g/MKoAAeSwO1hpsd4D/s-l500.png"
   },
   "strike-king-red-eyed-special": {
-    "sourcePage": "https://fishermanscentral.com/products/strike-king-red-eyed-special-spinnerbait_chartreuse-white",
-    "imageSource": "https://fishermanscentral.com/cdn/shop/products/reye38cw-3.jpg?v=1678386525"
+    "sourcePage": "https://www.strikeking.com/en/shop/wire-baits/reyespb",
+    "imageSource": "https://www.strikeking.com/globalassets/media---strike-king-catalog/reye316cw-3/reye316cw-3_redeyespecial_chartwhite_sideleft.png",
+    "destination": "https://www.strikeking.com/en/shop/wire-baits/reyespb"
   },
   "kastmaster": {
     "sourcePage": "https://www.walmart.com/ip/17047893",
