@@ -61,6 +61,7 @@ GitHub Markdown is the sole active project knowledge base. The legacy OneNote/PD
 | FISH-TODO-037 | P3 | DEFERRED | PWA / multi-user product | Generalize Fishing Companion for multiple users. | Current app remains intentionally single-user/personal even though its deployment URL may be publicly reachable. Future product concept: users maintain their own inventories, fishing locations, and catch logs while sharing the generic planner/knowledge architecture. Revisit only after the personal version is mature. |
 | FISH-TODO-039 | P2 | OPEN | PWA / catch history | Add rod/reel setup to future catch-log records. | Setup-specific catch history cannot be reliable until catches record the setup used. Do not invent historical setup attribution unless recoverable or user-confirmed. |
 | FISH-TODO-040 | P3 | WAITING ON USER | Gear registry | Identify the exact rod on the owned spincast setup. | Current setup is a Pflueger President push-button/spincast reel on a short rod; user will provide the rod make/model when available. |
+| FISH-TODO-041 | P3 | OPEN | PWA / catch history UI | Extend the standardized empty catch-history message to Rods & Reels leaf pages. | For a rod/reel setup with no matching catches, display exactly: `No catches have been recorded with this rod & reel.` Implement with the existing lure/bait empty-state rule in the next build. |
 
 ---
 
