@@ -1,6 +1,6 @@
 # Rods, Reels, Line, and Knots
 
-**Status:** OneNote PDF + MHT links migrated. Historical-chat audit still in progress.
+**Status:** OneNote PDF + MHT links migrated; migration audit closed 2026-08-29.
 
 ## Current two-rod kayak system
 
@@ -81,6 +81,12 @@ Use spinning gear when:
 - fishing clear water with 6-10 lb fluorocarbon leader;
 - fishing windy conditions where avoiding backlash matters;
 - vertical jigging or kayak fishing where easy one-handed control helps.
+
+Typical spinning combo:
+
+- Rod: Medium-light to medium power, fast action, 6'6"-7'2".
+- Reel: 2500-3000 size spinning reel.
+- Line: 10-15 lb braid + 6-10 lb fluorocarbon leader.
 
 ### Baitcasting
 
@@ -172,6 +178,31 @@ Double Uni works but is bulkier. OneNote prefers FG over Double Uni for braid-to
 | [Single Uni](https://youtu.be/IOv8vJqK1H0?si=Sqot5ADL0pRVXond) | OneNote says don't use / weak |
 | [Arbor](https://youtube.com/shorts/DSlZnvkWKoU?si=qtzxVQ4BVY8jC5FQ) | Use for spooling line |
 
+## Line-type knot reference
+
+### Braided
+
+- To leader: FG knot, or Albright when on the water.
+- To swivel: N/A; the swivel is in the leader.
+- To snap: Palomar.
+- To hook: N/A; use a leader.
+- To lure: Palomar or Modified Uni for direct topwater fishing; otherwise use a leader.
+
+### Fluorocarbon
+
+- To swivel: Trilene.
+- To snap: Trilene.
+- To hook: Improved Clinch or Palomar for heavier tackle.
+- To lure: use a snap for more action; otherwise Palomar.
+- Moisten before tightening to prevent friction from weakening the line.
+
+### Monofilament
+
+- To swivel: Improved Clinch.
+- To snap: Improved Clinch.
+- To hook: Improved Clinch or Palomar for heavier tackle.
+- To lure: use a snap for more action; otherwise Palomar.
+
 ## Direct tie / snap / swivel guidance
 
 | Lure type | Connection | Swivel use |
@@ -185,6 +216,28 @@ Double Uni works but is bulkier. OneNote prefers FG over Double Uni for braid-to
 | Chatterbait | Direct tie | No snap/swivel; can disrupt blade startup/vibration |
 | Wacky/Ned/drop shot | Direct tie | No snap/swivel except drop-shot rig hardware if desired |
 | Topwater | Usually direct tie or small snap depending lure | Avoid fluorocarbon leader for floating topwater if it pulls bait down |
+
+## Snaps and swivels
+
+### Snaps
+
+- Snaps have a weight rating; use the right weight snap for the line.
+- Use a snap to enable switching between multiple lures, or when the bait has a tie point with edges.
+- Use a snap with fast-moving lures that you will be retrieving quickly or trolling with.
+- Do not use a snap with live or jig bait that you work slowly, because this can make the presentation look unnatural. Tie the line directly to these lures instead.
+- Do not use a snap with a weedless presentation because it can snag on weeds. Tie the line directly to the hook instead.
+- Do not use snaps or swivels with floating/topwater bait when the extra weight could cause it to sink.
+
+### Swivels
+
+- Use a swivel to prevent line twist when using a spinning lure such as a spoon, spinner, or flasher, or a vertical jigging lure that swims in a circle.
+- Ball-bearing swivels are much better than barrel swivels; use them for connecting lures and leaders when using monofilament and when spinning or trolling.
+- A barrel swivel is okay for sinker rigs or when connecting a monofilament leader to braided line, although a direct line-to-line knot such as an FG is preferable when practical so the swivel cannot damage the guides.
+
+### Snap swivels
+
+- Avoid connecting snap swivels directly to the lure because they add extra weight and can look unnatural.
+- They may be acceptable with spinners and spoons that you will change frequently because those lures already have substantial hardware on them.
 
 ## Trout rigging examples
 
