@@ -17,7 +17,9 @@ jobs:
 
       - name: Assemble and validate app.js
         run: |
-          cat .app-assembly/part-*.js > pwa/app.js
+          cat .app-assembly/part-01.js > pwa/app.js
+          tail -n +2 .app-assembly/part-02.js >> pwa/app.js
+          cat .app-assembly/part-03.js .app-assembly/part-04.js .app-assembly/part-05.js .app-assembly/part-06.js .app-assembly/part-07.js .app-assembly/part-08.js >> pwa/app.js
           python - <<'PY'
           from pathlib import Path
           p = Path('pwa/app.js')
