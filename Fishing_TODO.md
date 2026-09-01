@@ -62,6 +62,9 @@ GitHub Markdown is the sole active project knowledge base. The legacy OneNote/PD
 | FISH-TODO-039 | P2 | OPEN | PWA / catch history | Add rod/reel setup to future catch-log records. | Setup-specific catch history cannot be reliable until catches record the setup used. Do not invent historical setup attribution unless recoverable or user-confirmed. |
 | FISH-TODO-040 | P3 | WAITING ON USER | Gear registry | Identify the exact rod on the owned spincast setup. | Current setup is a Pflueger President push-button/spincast reel on a short rod; user will provide the rod make/model when available. |
 | FISH-TODO-041 | P3 | OPEN | PWA / catch history UI | Extend the standardized empty catch-history message to Rods & Reels leaf pages. | For a rod/reel setup with no matching catches, display exactly: `No catches have been recorded with this rod & reel.` Implement with the existing lure/bait empty-state rule in the next build. |
+| FISH-TODO-042 | P3 | OPEN | PWA / Line content | Replace the OneNote-framed braided-line resource sentence with normal user-facing wording. | Current braided-line page shows `OneNote linked a [braided-line video]...`; in the next build, remove the OneNote provenance wording and present the resource/link naturally as current guidance. |
+| FISH-TODO-043 | P3 | OPEN | PWA / Knot content | Clean up the Trilene knot leaf-page links. | In `Used to connect fluorocarbon to snaps and swivels`, make `snaps and swivels` plain text rather than a link because that reverse navigation path is not useful. Change the canonical video link text to **How to tie the Trilene knot**. |
+| FISH-TODO-044 | P2 | OPEN | Tackle / PWA data | Correct the owned cylinder-weight product identity. | Manufacturer is **THKFISH** and model is **28 pcs sinkers set**. Update the authoritative tackle Markdown and the resulting Manufacturer / Model display in the next build. |
 
 ---
 
