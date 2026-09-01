@@ -43,7 +43,12 @@ for (const [src, dest] of kbFiles) {
 }
 
 const mediaManifest = JSON.parse(await fs.readFile(path.join(here, 'media-sources.json'), 'utf8'));
-const mediaResults = await mapLimit(mediaManifest.items || [], 6, buildGearMedia);
+let mediaOverrides = {};
+try {
+  mediaOverrides = JSON.parse(await fs.readFile(path.join(here, 'media-overrides.json'), 'utf8'));
+} catch {}
+const mediaItems = (mediaManifest.items || []).map(item => ({ ...item, ...(mediaOverrides[item.id] || {}) }));
+const mediaResults = await mapLimit(mediaItems, 6, buildGearMedia);
 const successfulMedia = mediaResults.filter(Boolean);
 await fs.writeFile(path.join(out, 'gear-media.json'), JSON.stringify(successfulMedia, null, 2));
 
@@ -59,13 +64,13 @@ await fs.writeFile(path.join(out, 'build.json'), JSON.stringify({
   builtAt: new Date().toISOString(),
   source: 'GitHub Markdown knowledge base',
   gearImages: successfulMedia.length,
-  requestedGearImages: mediaManifest.items?.length || 0,
+  requestedGearImages: mediaItems.length,
   videoTitles: Object.keys(videoTitles).length
 }, null, 2));
 
-const missingMedia = (mediaManifest.items || []).filter(item => !successfulMedia.some(result => result.id === item.id));
+const missingMedia = mediaItems.filter(item => !successfulMedia.some(result => result.id === item.id));
 console.log(`Fishing Companion built at ${out}`);
-console.log(`Gear media: ${successfulMedia.length}/${mediaManifest.items?.length || 0} cached locally.`);
+console.log(`Gear media: ${successfulMedia.length}/${mediaItems.length} cached locally.`);
 if (missingMedia.length) console.warn(`Gear media unavailable this build: ${missingMedia.map(item => item.id).join(', ')}`);
 console.log(`Video titles: ${Object.keys(videoTitles).length}/${youtubeIds.length} resolved.`);
 
