@@ -18,6 +18,7 @@ This is the temporary working log for mobile-first acceptance testing of Fishing
 ## Site-wide rules discovered during testing
 
 - **UI/UX / CLEANUP — ACCEPTED:** Remove dynamic `NNN owned...` / record-count text everywhere. Remove dead code, styles, selectors, variables, or other implementation remnants used only by that removed text.
+- **CATEGORY-PAGE SUBTITLE — ACCEPTED:** My Gear category/list pages do not need explanatory subtitle text beneath the H1 unless a specific category later demonstrates a real need for it. This is separate from the leaf-page subtitle rule below.
 - **LINK / DATA DISPLAY — ACCEPTED:** For product/item detail pages, Manufacturer / Model should be plain text rather than a hyperlink. Put links in a dedicated **Links** field/box.
 - **LINK / DATA QUALITY — ACCEPTED:** Canonical manufacturer link is required where a manufacturer exists. Link text should be the manufacturer company name. If the canonical manufacturer URL is missing, still show the manufacturer name as a visible gap signal; use **Unknown** if manufacturer itself is unknown. Retail and other supplemental links remain optional and should not get `Unknown` placeholders.
 - **UI/UX / CLEANUP — ACCEPTED:** Do not expose source-of-truth bookkeeping fields such as `Status`, `Evidence`, or `Detail File` on user-facing item pages. Remove separate link pills when links have been consolidated into the dedicated Links field. Clean up dead CSS/code associated only with removed UI.
@@ -26,6 +27,7 @@ This is the temporary working log for mobile-first acceptance testing of Fishing
 - **LEAF-PAGE SUBTITLE — ACCEPTED / SUPERSEDES EARLIER PUNCTUATION:** Use `[gear category] - [type]` beneath the H1 on applicable My Gear leaf pages. Examples: `Line - Braided`, `Weights - Egg sinkers`, `Snaps & swivels - Snaps`, `Rods & Reels - Spinning`.
 - **LEAF-PAGE CORE FIELDS — ACCEPTED / SUPERSEDES EARLIER FIELD-LABEL DETAILS:** Standardize applicable My Gear leaf-page identity/detail boxes on **Manufacturer / Model**, **Specifications**, and **Links**. For Rods & Reels, the Rod and Reel H2 sections each use this trio. For Weights, size/weight belongs in Specifications and Brand/Manufacturer belongs in Manufacturer / Model. For Line, test/length/color belong in Specifications. **Specifications** (plural) supersedes the earlier singular `Specification` label.
 - **OPTIONAL LINKS RENDERING — ACCEPTED:** The Links field exists in the data model, but the box should be omitted when there are no links rather than rendering an empty box. Required manufacturer-link gaps may still be surfaced through the Manufacturer / Model/Links data-quality behavior described above.
+- **RELATIONSHIP PRESENTATION — ACCEPTED:** Where detailed technique/rig content exists on its own Knowledge Base page, gear pages should generally summarize the relationship and link to that page rather than reproducing the full technique. Exceptions are gear categories whose substantive knowledge genuinely belongs to the gear/type itself, including Rods & Reels, Line, and Snaps & Swivels.
 
 ---
 
@@ -209,6 +211,71 @@ This is the temporary working log for mobile-first acceptance testing of Fishing
 ### Architecture implication
 
 - **TYPE-LEVEL KNOWLEDGE + EXPLICIT RELATIONSHIPS:** Snaps & Swivels reinforce the emerging model: owned product records carry manufacturer/spec/link data; reusable type records carry general usage guidance; explicit relationships connect line types, knot records, terminal tackle, and techniques. Avoid relying on broad arbitrary mention-search output for these curated relationships.
+
+---
+
+## Hooks — requested workflow/model changes
+
+### Hooks list page
+
+- **UI/UX — ACCEPTED:** No subtitle beneath the H1 and no Search box.
+- **UI/UX — KEEP:** Retain the type dropdown because it is useful for Hooks.
+- **DATA NORMALIZATION — ACCEPTED:** Change **VMC Crossover Rings** from type `Wacky rigging` to **Wacky** and remove the separate `Wacky rigging` type.
+
+### Individual Hook pages
+
+- **GENERAL RULES — APPLY:** Use the site-wide leaf subtitle, core fields, links, bookkeeping-field cleanup, and catch-history rules.
+- **DATA NORMALIZATION — GAMAKATSU OCTOPUS:** `Part 02210, 8-pack` belongs in **Model**; `#1` belongs in **Specifications**.
+- **KNOTS & CONNECTIONS — CURATED RELATIONSHIP WORDING:** Prefer the clearest technique-specific source wording rather than generic connection-table text when available. Example target for Gamakatsu Octopus Hook: `When using with a Wacky Worm, tie directly to a leader with a Palomar knot`, with **Wacky Worm** and **Palomar knot** linked to their respective KB leaf pages.
+- **HOW TO USE IT — RELATIONSHIP-DRIVEN:** Do not repeat full technique instructions. Express concise relationships and link to the technique. Example: `This hook is commonly used with a Ned rig`, with **Ned rig** linked to the technique page.
+- **CONTENT MODEL:** Where multiple techniques mention a hook, do not mechanically dump every mention. Curate the meaningful relationships and let the technique pages own detailed instructions.
+
+### Source verification
+
+- Canonical Fishing Techniques content explicitly associates the size-1 **Gamakatsu Octopus Hook** and **VMC Redline Weedless Wacky Neko** with the **Wacky worm** technique and says `Tie direct with Palomar`.
+- Canonical Fishing Techniques content explicitly associates **Z-Man Finesse ShroomZ** with the **Ned rig** and includes direct-tie/Palomar guidance.
+- Canonical knot content identifies the **Palomar** as strong/easy and suitable for small hooks/light line; use the knot page for the reusable knot details rather than repeating them on every hook page.
+
+---
+
+## Lures — requested workflow/model changes
+
+### Lures list page
+
+- **UI/UX — ACCEPTED:** No subtitle beneath the H1, following the My Gear category-page rule.
+- **UI/UX — KEEP:** Retain both Search and the type dropdown on Lures; they are useful here.
+- **UI/UX / TAXONOMY — KEEP:** Current lure types, card titles, and card subtext are generally good.
+- **VARIANT GROUPING — ACCEPTED:** Group multiple owned variants of the same lure/product family into one card when the distinction is only owned size/weight/color variants, analogous to normalized grouping on Weights.
+- **EXAMPLE — KASTMASTER:** Replace separate Kastmaster variant cards with one **Kastmaster** record/card. Specifications should aggregate the owned variants: `1/8 oz, 1/4 oz, Chrome, Gold, Neon Blue`.
+- **EXAMPLE — PANTHER MARTIN:** Replace four Panther Martin cards with one **Panther Martin** record/card. Specifications should aggregate: `1/8 oz, Blue, Black, Silver, Yellow`.
+- **MODEL NOTE:** Preserve the individual owned variants as structured inventory data even when the list UI aggregates them into a product-family card; do not lose variant-level data needed later for planning or catch history.
+
+### Individual Lure pages
+
+- **GENERAL RULES — APPLY:** No generic `Item` field. Use **Manufacturer / Model**, **Specifications**, and **Links**; combine size/weight/color in Specifications; remove Status / Notes and redundant link pills.
+- **CATCH HISTORY — KEEP:** Lures remain one of the categories where My Catch History is relevant.
+
+### Knots & connections
+
+- **CONTENT MODEL — CHANGE:** Current generic connection summaries are often directionally correct but too lossy. Prefer the definitive lure-type/technique source and retain important knot, hardware, caveat, and maintenance details.
+- **CHATTERBAIT TARGET:** Use guidance substantially equivalent to: `Tie line directly to lure using a Palomar knot. No snap/swivel; can disrupt blade startup/vibration. Use a loop knot in cold water or finesse situations to let the blade swing more freely. Retie often, as vibrations stress the knot.` Link **Palomar knot** and **Loop knot** to their knot leaf pages.
+- **LOOP-KNOT CONFLICT — PRESERVE:** The KB currently contains an unresolved conflict: lure/technique guidance sometimes recommends a loop knot for action while the knot page says not to use loop knots because they are weak. Do not silently erase either source. The Chatterbait page may present the technique-specific caveat and link to the Loop knot page, while the Loop knot page retains the unresolved warning until the user resolves it.
+- **INLINE SPINNER TARGET — USER-PROVIDED DEFINITIVE TEXT:** Use the following as the single Knots & connections entry for Inline Spinners:
+  - `Tackle: If using only fluoro or mono line, use a swivel about 12–18 inches ahead of the lure and don't add a dressing. Add a snap if changing lures. Mainline → swivel → 12–18” leader → snap (optional) → lure. If using braided line and a leader, insert a swivel in the leader. Mainline → 12-18" leader → swivel → 12-18" leader → snap (optional) → lure.`
+  - `Knot: Improved Clinch. Retie often, as vibrations stress the knot over time.`
+- **LINK BEHAVIOR:** Link named knot records such as Palomar, Loop, and Improved Clinch to their knot leaf pages when rendered.
+
+### How to use it
+
+- **CONTENT MODEL — CHANGE:** Current arbitrary mention/excerpt behavior is not sufficient for lure pages.
+- **INLINE SPINNER DEFINITIVE CONTENT:** Pull in the substantive OneNote **Use**, **Technique**, and **Color** sections for Inline Spinners. Preserve the useful bullet structure substantially as written.
+- **DEFER TABLES:** Do not bring in the two Inline Spinner OneNote tables yet, even though they contain useful information; defer until a later refinement pass.
+- **PATTERN TO GENERALIZE CAREFULLY:** For other lure types, identify the definitive lure-type page/section and surface the actual type-specific **Use / Technique / Color (or equivalent)** guidance rather than arbitrary text mentions. Do not invent a generic template when the source structure differs; preserve the best source organization for each lure type.
+
+### Architecture implication
+
+- **PRODUCT FAMILY + VARIANTS:** Lures need a product-family layer that can aggregate multiple owned variants for browsing while preserving each size/color/weight variant underneath for planning and catch-log precision.
+- **TYPE-LEVEL CURATED KNOWLEDGE:** Knots & connections and How to use it should be driven from curated lure-type/source sections and explicit relationships, not broad mention search.
 
 ---
 
