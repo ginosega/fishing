@@ -23,11 +23,13 @@ This is the temporary working log for mobile-first acceptance testing of Fishing
 - **LINK / DATA QUALITY — ACCEPTED:** Canonical manufacturer link is required where a manufacturer exists. Link text should be the manufacturer company name. If the canonical manufacturer URL is missing, still show the manufacturer name as a visible gap signal; use **Unknown** if manufacturer itself is unknown. Retail and other supplemental links remain optional and should not get `Unknown` placeholders.
 - **UI/UX / CLEANUP — ACCEPTED:** Do not expose source-of-truth bookkeeping fields such as `Status`, `Evidence`, or `Detail File` on user-facing item pages. Remove separate link pills when links have been consolidated into the dedicated Links field. Clean up dead CSS/code associated only with removed UI.
 - **CATCH HISTORY SCOPE — ACCEPTED:** Show **My Catch History** only for rod/reel setups, lures, and baits. Do not show it for line, weights, snaps & swivels, or hooks.
+- **CATCH HISTORY EMPTY STATE — ACCEPTED:** On lure and bait leaf pages with no matching catch-log entries, say `No catches have been recorded with this lure.` or `No catches have been recorded with this bait.` rather than showing a generic empty section.
 - **FOOTER — ACCEPTED:** Show the copyright footer on every page. Implement the year dynamically from the current date so it changes automatically each January 1. Current target presentation is `© 2026 Gino Sega`.
 - **LEAF-PAGE SUBTITLE — ACCEPTED / SUPERSEDES EARLIER PUNCTUATION:** Use `[gear category] - [type]` beneath the H1 on applicable My Gear leaf pages. Examples: `Line - Braided`, `Weights - Egg sinkers`, `Snaps & swivels - Snaps`, `Rods & Reels - Spinning`.
 - **LEAF-PAGE CORE FIELDS — ACCEPTED / SUPERSEDES EARLIER FIELD-LABEL DETAILS:** Standardize applicable My Gear leaf-page identity/detail boxes on **Manufacturer / Model**, **Specifications**, and **Links**. For Rods & Reels, the Rod and Reel H2 sections each use this trio. For Weights, size/weight belongs in Specifications and Brand/Manufacturer belongs in Manufacturer / Model. For Line, test/length/color belong in Specifications. **Specifications** (plural) supersedes the earlier singular `Specification` label.
 - **OPTIONAL LINKS RENDERING — ACCEPTED:** The Links field exists in the data model, but the box should be omitted when there are no links rather than rendering an empty box. Required manufacturer-link gaps may still be surfaced through the Manufacturer / Model/Links data-quality behavior described above.
 - **RELATIONSHIP PRESENTATION — ACCEPTED:** Where detailed technique/rig content exists on its own Knowledge Base page, gear pages should generally summarize the relationship and link to that page rather than reproducing the full technique. Exceptions are gear categories whose substantive knowledge genuinely belongs to the gear/type itself, including Rods & Reels, Line, and Snaps & Swivels.
+- **SEARCH / FILTER VISIBILITY — ACCEPTED AS HEURISTIC, NOT A HARD LIMIT:** Keep controls progressive rather than showing them on every category. Default search behavior: 0–7 normalized cards = no search; 8–11 = usually no search unless names are similar/direct lookup is materially useful or the category is expected to grow; 12+ = show search. Default type-filter behavior: do not show for one or two types; for 3+ types, show it when filtering materially reduces a non-trivial list (roughly 8+ normalized cards, or multiple types contain several entries). Small categories with one/few items per type should prefer a flat/grouped list. Explicit category-level usability decisions override these heuristics; Hooks and Lures currently keep the type dropdown, and Lures keeps search.
 
 ---
 
@@ -276,6 +278,43 @@ This is the temporary working log for mobile-first acceptance testing of Fishing
 
 - **PRODUCT FAMILY + VARIANTS:** Lures need a product-family layer that can aggregate multiple owned variants for browsing while preserving each size/color/weight variant underneath for planning and catch-log precision.
 - **TYPE-LEVEL CURATED KNOWLEDGE:** Knots & connections and How to use it should be driven from curated lure-type/source sections and explicit relationships, not broad mention search.
+
+---
+
+## Bait — requested workflow/model changes
+
+### Bait list page
+
+- **UI/UX — ACCEPTED:** Remove Search from the current Bait page; the list is too small for search to provide value.
+- **SEARCH/FILTER GENERALIZATION:** Apply the site-wide progressive search/filter heuristic above rather than hard-coding search/dropdown controls onto every category.
+- **TYPE — KEEP:** Current type **Trout bait** is appropriate.
+
+### Bait inventory data
+
+- **CANONICAL DATA — VERIFIED ALREADY PRESENT:** `Fishing_Tackle_Inventory.md` already contains the user-confirmed manufacturer/model/color data, so no redundant canonical edit is required:
+  - Manufacturer **Berkley**, model **PowerBait Trout Dough**, color **Rainbow**.
+  - Manufacturer **Berkley**, model **PowerBait Trout Nuggets Dough Baits**, color **Sherbert**.
+  - Manufacturer **Berkley**, model **PowerBait Magnum Floating Power Eggs**, color **Fluorescent Orange**.
+- **PWA MODEL/PRESENTATION ISSUE:** The problem is not missing source data; the future leaf-page parser/model must place manufacturer, model, and color into the site-wide **Manufacturer / Model** and **Specifications** fields correctly.
+
+### Individual Bait pages
+
+- **GENERAL RULES — APPLY:** Use the site-wide `[gear category] - [type]` subtitle, Manufacturer / Model, Specifications, Links, bookkeeping-field cleanup, and dynamic footer rules.
+- **KNOTS & CONNECTIONS — OMIT FOR CURRENT BAITS:** No Knots & connections section is needed for the currently owned trout baits. Keep the section data-driven so it could appear in the future if a bait genuinely has connection-specific guidance.
+- **CATCH HISTORY — KEEP:** Baits are one of the categories where My Catch History is relevant. If no catches match the current bait, use the exact empty-state wording `No catches have been recorded with this bait.`
+
+### How to use it / Knowledge Base relationships
+
+- **RELATIONSHIP-DRIVEN:** Bait pages should summarize the rig/technique relationships and link to their dedicated Knowledge Base pages rather than reproduce full rig instructions.
+- **POWERBAIT TROUT DOUGH / TROUT NUGGETS:** Used with the **Slip sinker rig** for trout still-fishing. Link **Slip sinker rig** to its KB leaf page.
+- **POWER EGGS — TROLLING:** Used in trout trolling rigs; link to the appropriate **Trout fishing** / trout-trolling KB content once normalized into dedicated pages/records.
+- **POWER EGGS — SPOONS:** Also used when trout fishing with spoons. Surface this as a concise relationship with **Trout fishing** linked to its KB page and **spoons / Dick Nite spoon** linked to the relevant lure page rather than copying the spoon technique into the bait page.
+
+### Knowledge Base structure discovered
+
+- **KB PAGE REQUIREMENT:** Fishing Companion needs a first-class **Trout fishing** KB page/record.
+- **KB PAGE REQUIREMENT:** Fishing Companion needs a first-class **Slip sinker rig** KB page/record. **Trout fishing** should reference/link to **Slip sinker rig** rather than forcing the rig to exist only as an embedded subsection.
+- **SOURCE AVAILABILITY:** The canonical `Topics/Fishing_Techniques.md` already preserves substantive Trout fishing, Still fishing/slip-sinker, inline-trolling, and spoon guidance. This is primarily a KB information-architecture/presentation change, not missing research.
 
 ---
 
