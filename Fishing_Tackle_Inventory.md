@@ -15,8 +15,8 @@ This file is for **owned lures, bait, hooks, weights, snaps, swivels, and termin
 | Item | Size / weight | Color | Status / notes |
 |---|---:|---|---|
 | [Z-Man Original ChatterBait](https://www.dickssportinggoods.com/p/z-man-original-chatterbait-bladed-jig-15zmauzmnchtbt38blur/15zmauzmnchtbt38blur?color=Bayou%20Craw) | 3/8 oz | Fire Craw | OWNED / OneNote source |
-| [Z-Man Elite EVO](https://www.dickssportinggoods.com/p/z-man-chatterbait-elite-evo-23zmaucbltv38zlvclur/23zmaucbltv38zlvclur?Product=ProductSuggest) | 3/8 oz | Chartreuse/White | OWNED / OneNote source |
-| [Z-Man Elite EVO](https://www.dickssportinggoods.com/p/z-man-chatterbait-elite-evo-23zmaucbltv38zlvclur/23zmaucbltv38zlvclur?Product=ProductSuggest) | 3/8 oz | The Deal | OWNED / OneNote source |
+| [Z-Man Elite EVO](https://www.dickssportinggoods.com/p/z-man-chatterbait-elite-evo-23zmaucbltv38zlvclur/23zmaucbltv38blur?Product=ProductSuggest) | 3/8 oz | Chartreuse/White | OWNED / OneNote source |
+| [Z-Man Elite EVO](https://www.dickssportinggoods.com/p/z-man-chatterbait-elite-evo-23zmaucbltv38zlvclur/23zmaucbltv38blur?Product=ProductSuggest) | 3/8 oz | The Deal | OWNED / OneNote source |
 | [Z-Man Jack Hammer](https://www.dickssportinggoods.com/p/z-man-jackhammer-chatterbait-17zmauchttrjckhm3lur/17zmauchttrjckhm3lur?recid=PageElement:product2_rr_v1e8mm3:61611:&sku=17951168&recToken=rt.2.WyJwcm9kdWN0IiwgNTUyMjk0MCwgbnVsbCwgIjE3OTUxMTY4IiwgIjE3Wk1BVUNIVFRSSkNLSE0zTFVSIiwgNjE2MTEsIDAsICIyMDI2LTAzLTAzVDEzOjE4OjMzLjI3NzA1OVoiXQ) | 3/8 oz | Green Pumpkin | OWNED / OneNote source |
 
 ## Spinnerbaits
@@ -164,9 +164,9 @@ This file is for **owned lures, bait, hooks, weights, snaps, swivels, and termin
 
 | Item | Status / notes |
 |---|---|
-| Berkley PowerBait Trout Bait dough | OWNED; still-fishing/floating bait |
-| Berkley PowerBait Trout Nuggets | OWNED; still-fishing/floating bait |
-| Berkley Power Eggs | OWNED; still-fishing or tipping trolling lures/spoons/spinners |
+| [Berkley PowerBait Trout Dough](https://www.berkley-fishing.com/products/powerbait-trout-bait) | OWNED; color: Rainbow; still-fishing/floating bait |
+| [Berkley PowerBait Trout Nuggets Dough Baits](https://www.berkley-fishing.com/products/powerbait-trout-nuggets) | OWNED; color: Sherbert; still-fishing/floating bait |
+| [Berkley PowerBait Magnum Floating Power Eggs](https://www.berkley-fishing.com/collections/trout/products/powerbait-power-eggs-floating-magnum) | OWNED; color: Fluorescent Orange; still-fishing or tipping trolling lures/spoons/spinners |
 
 ## Known tackle gaps / buy-list candidates
 
