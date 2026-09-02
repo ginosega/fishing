@@ -201,14 +201,16 @@ For meaningful changes, use a feature/fix branch and pull request. PR CI is buil
 
 ## Current production baseline
 
-The last production state before the unified KB feature was:
+The current verified application release is:
 
 - PR #9 — structured My Gear refactor
-- PR #10 — routing/layout fix
-- commit `8af0c654168cdefad37f79368719ac66a69c98b1`
-- workflow #70 / `33590304599`
+- PR #10 — routing/layout fix and accepted My Gear v1 behavior
+- PR #13 — unified Knowledge Base, structured Catch Log, retired Planner/parser, and title-only site header
+- merge commit `1c61cb0b001bb9f543904a2328178632ac0efed1`
+- production workflow #77 / `33644412492`
+- build and GitHub Pages deployment: success
 
-The user accepted that My Gear flow on 2026-09-02. The unified KB/Catch Log implementation follows through the normal branch/PR/deploy workflow.
+The live build marker was verified on 2026-09-02 with 61 My Gear records, 41 KB entities, 5 catches, 41 offline KB assets, 62 available My Gear images out of 65 requested, and 36 resolved video titles.
 
 ## Future work
 

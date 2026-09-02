@@ -2,6 +2,10 @@
 
 This repository is the durable working home for the Fishing project: fishing and kayak knowledge, owned gear/tackle data, local-water notes, catch observations, and the **Fishing Companion** PWA.
 
+## Operating mode
+
+This project uses **Chat mode by default**. Recommend a temporary switch to Work only when a specific task requires a Work-only capability, explain that specific need, and obtain the user's approval first. Complexity, length, file volume, analysis, or artifact creation alone are not reasons to recommend Work.
+
 ## Migration status
 
 **Status: ONENOTE MIGRATION COMPLETE / LINKS RESTORED / NORMAL PROJECT MAINTENANCE**
@@ -64,21 +68,20 @@ The two top-level workflows are:
 
 ### Current production state
 
-The structured local-first My Gear refactor was merged in PR #9. A subsequent Sev 1 routing/layout regression was fixed in PR #10.
+The structured local-first My Gear refactor was merged in PR #9, and its Sev 1 routing/layout regression was fixed in PR #10. The unified Knowledge Base and structured Catch Log were implemented in **PR #13**.
 
-Current verified production commit:
+Current verified application release commit:
 
-`8af0c654168cdefad37f79368719ac66a69c98b1`
+`1c61cb0b001bb9f543904a2328178632ac0efed1`
 
 Production workflow:
 
-- GitHub Actions run **#70 / 33590304599**
-- structured My Gear model tests: success
-- My Gear routing/layout regression tests: success
-- PWA build and bundle verification: success
+- GitHub Actions run **#77 / 33644412492**
+- JavaScript, My Gear, Knowledge Base, routing, and bundle validation: success
+- PWA build and GitHub Pages artifact: success
 - GitHub Pages deployment: success
 
-PR #10 also restored the accepted UI behavior:
+The live build marker was verified on 2026-09-02 with 61 My Gear records, 41 Knowledge Base entities, 5 catches, 41 offline KB assets, and 62 of 65 requested My Gear images available. Current accepted behavior includes:
 
 - Home My Gear subtext: `Browse your inventory of equipment, tackle, and bait`
 - My Gear page title/subtitle aligned left with Back button on the right
@@ -94,9 +97,9 @@ Do not add current-version Add/Edit/Delete forms or expose JSON import/export co
 
 ## Start here
 
-For a new chat or project handoff, read:
+For a new chat or project handoff, copy `Fishing_New_Chat_Bootstrap_Prompt.md` into a new Chat-mode conversation. Its required repository read order is:
 
-1. `Fishing_New_Chat_Bootstrap_Prompt.md`
+1. `README.md`
 2. `Fishing_Context.md`
 3. `Fishing_TODO.md`
 4. `Fishing_Decision_Log.md`

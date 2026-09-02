@@ -4,6 +4,8 @@
 
 **Updated:** 2026-09-02
 
+**Implementation verification:** Implemented in PR #13, merge commit `1c61cb0b001bb9f543904a2328178632ac0efed1`. Production GitHub Actions run #77 / `33644412492` completed both build and GitHub Pages deployment successfully. The live 2026-09-02 build contains 41 KB entities and 5 structured catches.
+
 ## 1. Product direction
 
 Fishing Companion has two separate data domains:
