@@ -30,7 +30,7 @@ The project now has two application-data domains: My Gear uses structured JSON/I
 | FISH-TODO-006 | P2 | OPEN | Kayak | Verify Bonafide RVR119 brass insert bolt/thread sizes. | Recover source details from historical chats/OneNote, manufacturer documentation, or user measurement. |
 | FISH-TODO-007 | P2 | OPEN | Kayak rigging | Decide whether/how to modify rear flush rod-holder angle. | Preserve installed Pelican rod-holder details; evaluate alternatives to heat-bending. |
 | FISH-TODO-008 | P2 | WAITING ON USER | Kayak accessories | Confirm whether Bonafide RVR119 Under Seat Tackle Storage was purchased. | OneNote still lists as buy/research item, not owned. |
-| FISH-TODO-009 | P2 | WAITING ON USER | Kayak accessories | Confirm whether YakAttack 38 x 13 fish cooler bag was purchased. | If purchased, add exact SKU/status to gear registry. |
+| FISH-TODO-009 | P2 | WAITING ON USER | Kayak accessories | Confirm whether YakAttack 38 x 13 fish cooler bag was purchased. | If purchased, add exact SKU/status to gear registry/reference data. |
 | FISH-TODO-010 | P2 | OPEN | Tackle | Buy/consider tubes and internal tube jigheads. | Useful for Lake Washington/Sammamish smallmouth. |
 | FISH-TODO-011 | P2 | OPEN | Tackle | Buy/consider bullet weights for Texas rigs. | Needed for Rage Craw / soft plastics Texas-rig use. |
 | FISH-TODO-012 | P2 | OPEN | Tackle | Buy/consider 1/8 oz weighted EWG hooks. | Useful for Berkley Power Jerk Shad and soft jerkbait depth control. |
@@ -39,7 +39,7 @@ The project now has two application-data domains: My Gear uses structured JSON/I
 | FISH-TODO-015 | P3 | OPEN | Tackle | Buy/consider Berkley Warpig. | OneNote buy item: 1/2 oz, 3\", Blue Shad. |
 | FISH-TODO-016 | P3 | OPEN | Tackle | Buy/consider Bait Pop with red flake. | OneNote scent TODO; prefer water-soluble scent, shrimp-extract flavor noted. |
 | FISH-TODO-017 | P2 | OPEN | Techniques | Resolve hook-size guidance for PowerBait still rigs. | OneNote rig uses #4 hook; prior guidance often used #8 for PowerBait/Power Eggs. Keep both until tested/decided. |
-| FISH-TODO-018 | P2 | OPEN | Techniques | Resolve loop-knot guidance conflict. | OneNote knots page says loop knot is weak/don't use; some technique notes still recommend loop knots for finesse/jerkbait action. |
+| FISH-TODO-018 | P2 | OPEN | Techniques / knots | Resolve loop-knot guidance conflict. | OneNote knot page says loop knot is weak/don't use; some technique notes still recommend loop knots for finesse/jerkbait action. Address during Knowledge Base/knot redesign. |
 | FISH-TODO-019 | P2 | OPEN | Techniques | Build Texas Rig page. | OneNote page is TODO only. |
 | FISH-TODO-020 | P3 | OPEN | Techniques | Build Carolina Rig page. | OneNote page is TODO only. |
 | FISH-TODO-021 | P3 | OPEN | Techniques | Build Alabama Rig page. | OneNote page is TODO only. |
@@ -56,11 +56,11 @@ The project now has two application-data domains: My Gear uses structured JSON/I
 | FISH-TODO-032 | P3 | OPEN | Trip logs | Continue adding catch/no-bite reports. | Current catch log is still Markdown-backed during the transition; future structured-catch work is tracked separately. |
 | FISH-TODO-033 | P3 | OPEN | Safety/regulations | Create regulation recheck checklist. | Include Fish Washington app, lake-specific rules, species ID, bait/retention implications. |
 | FISH-TODO-034 | P3 | OPEN | Markdown usability | Spot-check inline links in GitHub Preview. | Applies to the remaining Knowledge Base Markdown while it remains active. |
-| FISH-TODO-035 | P1 | IN PROGRESS | Fishing Companion PWA | Build and acceptance-test the mobile/offline Fishing Companion. | My Gear has been refactored to a structured JSON/IndexedDB local-first model with JSON export/import and Knots removed. Next: acceptance-test the new My Gear architecture; then redesign the Knowledge Base data model before deeper KB work. Live URL: `https://ginosega.github.io/fishing/`. |
+| FISH-TODO-035 | P1 | IN PROGRESS | Fishing Companion PWA | Finish acceptance testing the mobile/offline Fishing Companion. | Structured My Gear is live. PR #10 fixed the Sev 1 routing/layout regression and production run #70 succeeded. Next action: user retest Home → My Gear → category → leaf pages, then proceed to Knowledge Base architecture design if accepted. Live URL: `https://ginosega.github.io/fishing/`. |
 | FISH-TODO-037 | P3 | DEFERRED | PWA / multi-user product | Generalize Fishing Companion for multiple users. | Current app remains intentionally single-user/personal even though its deployment URL may be publicly reachable. Revisit only after the personal version is mature. |
 | FISH-TODO-039 | P2 | OPEN | PWA / catch history | Add rod/reel setup to future catch-log records. | Setup-specific catch history cannot be reliable until catches record the setup used. Do not invent historical setup attribution unless recoverable or user-confirmed. |
-| FISH-TODO-045 | P2 | DEFERRED | PWA / My Gear CRUD | Add normal Add/Edit/Delete forms for My Gear. | Repository layer and IndexedDB now support writable records, but user intentionally deferred forms. Current manual workflow is Export JSON → edit externally → Import JSON. |
-| FISH-TODO-046 | P1 | OPEN | PWA / Knowledge Base architecture | Redesign the Knowledge Base data model before deeper KB development. | Reconsider Markdown vs structured/hybrid storage; move Knots explicitly into the KB domain; preserve stable relationships from gear to knots/techniques/locations/species. Do this after My Gear refactor acceptance. |
+| FISH-TODO-045 | P2 | DEFERRED | PWA / My Gear v2 editing | Add normal Add/Edit/Delete forms and expose JSON import/export when v2 work resumes. | IndexedDB/repository layers are writable, but current v1 UI intentionally exposes neither CRUD forms nor the temporary My Gear data import/export card. Future bulk-edit preference is Export JSON → edit externally → Import JSON; no raw JSON editor. |
+| FISH-TODO-046 | P1 | OPEN | PWA / Knowledge Base architecture | Redesign the Knowledge Base data model before deeper KB development. | Reconsider Markdown vs structured/hybrid storage; move Knots explicitly into the KB domain; preserve stable relationships from gear to knots/techniques/locations/species. Begin after post-PR #10 My Gear acceptance. |
 | FISH-TODO-047 | P2 | OPEN | PWA / catch data model | Move catch history to structured records with stable references. | Design after KB model decisions. Catch records should eventually reference gear item IDs, setup IDs, locations, species, and observations rather than depend on text matching. |
 
 ---
@@ -71,12 +71,13 @@ The project now has two application-data domains: My Gear uses structured JSON/I
 |---|---|---|---|
 | FISH-TODO-001 | 2026-08-29 | Project migration | OneNote fishing/kayak notebook content migrated into the durable GitHub Markdown knowledge base. |
 | FISH-TODO-002 | 2026-08-29 | Project migration | Migration audit/reconciliation closed by user scope decision: OneNote was the most up-to-date historical source of truth; exhaustive transcript-by-transcript historical-chat reconciliation was not required. Dedicated audit/reconciliation files were retired after closure. |
-| FISH-TODO-003 | 2026-08-29 | Project architecture | Final GitHub-based new-chat bootstrap prompt completed for normal ongoing project use. |
+| FISH-TODO-003 | 2026-08-29 | Project architecture | GitHub-based new-chat bootstrap prompt completed for normal ongoing project use. |
 | FISH-TODO-004 | 2026-08-29 | Project migration / links | OneNote Single File Web Page/MHT export used to restore external links inline for GitHub Preview; temporary link-index file deleted afterward. |
 | FISH-TODO-036 | 2026-09-01 | PWA / data model | Superseded the Markdown-parser metadata approach for My Gear. My Gear now has explicit stable IDs and structured JSON/IndexedDB records; the Knowledge Base will receive its own separate data-model design. |
-| FISH-TODO-038 | 2026-08-31 | PWA / GitHub Pages | GitHub Pages enabled with Source = GitHub Actions; deployment rerun succeeded and Fishing Companion is live at `https://ginosega.github.io/fishing/`. |
+| FISH-TODO-038 | 2026-08-31 | PWA / GitHub Pages | GitHub Pages enabled with Source = GitHub Actions; Fishing Companion is live at `https://ginosega.github.io/fishing/`. |
 | FISH-TODO-040 | 2026-09-01 | Gear registry | Exact shore/spincast setup identified as the Pflueger President Spincast Combo; rod and reel specs and part `PRESSC-606L2CBO` recorded. |
 | FISH-TODO-041 | 2026-09-01 | PWA / catch history UI | Rods & Reels empty catch-history state standardized to `No catches have been recorded with this rod & reel.` |
-| FISH-TODO-042 | 2026-09-01 | PWA / Line content | Braided-line resources are now presented as normal user-facing Video/Article resources rather than OneNote-framed prose. |
+| FISH-TODO-042 | 2026-09-01 | PWA / Line content | Braided-line resources are presented as normal user-facing Video/Article resources rather than OneNote-framed prose. |
 | FISH-TODO-043 | 2026-09-01 | PWA / Knot content | Trilene reverse link to Snaps & Swivels removed and video link normalized to `How to tie the Trilene knot`. |
 | FISH-TODO-044 | 2026-09-01 | Tackle / PWA data | Cylinder weights corrected to manufacturer THKFISH, model `28 pcs sinkers set`. |
+| FISH-TODO-048 | 2026-09-01 | PWA / My Gear routing | Sev 1 post-refactor routing/layout regression fixed in PR #10. Structured My Gear now owns all `#/inventory` routes; accepted header layout and Home subtext restored; temporary My Gear data import/export card removed; routing/layout regression tests added. Production commit `8af0c654168cdefad37f79368719ac66a69c98b1`, run #70 / `33590304599`, build and Pages deploy successful. |
