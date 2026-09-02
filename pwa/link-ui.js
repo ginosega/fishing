@@ -73,15 +73,18 @@ const MANUFACTURER_HOSTS = new Map(Object.entries({
 }));
 
 const KNOWN_MANUFACTURERS = [...MANUFACTURER_HOSTS.keys()].sort((a, b) => b.length - a.length);
-const linkUiApp = document.querySelector('#app');
+const hasDom = typeof document !== 'undefined' && typeof window !== 'undefined';
+const linkUiApp = hasDom ? document.querySelector('#app') : null;
 let linkUiQueued = false;
 
-if (linkUiApp) new MutationObserver(queueLinkUi).observe(linkUiApp, { childList: true, subtree: true });
-window.addEventListener('hashchange', queueLinkUi);
-queueLinkUi();
+if (linkUiApp && typeof MutationObserver !== 'undefined') new MutationObserver(queueLinkUi).observe(linkUiApp, { childList: true, subtree: true });
+if (hasDom) {
+  window.addEventListener('hashchange', queueLinkUi);
+  queueLinkUi();
+}
 
 function queueLinkUi() {
-  if (linkUiQueued) return;
+  if (!hasDom || linkUiQueued) return;
   linkUiQueued = true;
   requestAnimationFrame(() => {
     linkUiQueued = false;
@@ -90,7 +93,7 @@ function queueLinkUi() {
 }
 
 function normalizeRenderedGearLinks() {
-  if (!location.hash.startsWith('#/inventory/item/')) return;
+  if (!hasDom || !location.hash.startsWith('#/inventory/item/')) return;
   const title = document.querySelector('.section-title h2')?.textContent?.trim() || '';
   if (!title) return;
 
@@ -175,25 +178,28 @@ function isManufacturerUrl(url, manufacturer) {
 
 function retailerFor(url) {
   const hostname = host(url);
-  if (hostname === 'a.co' || hostname.endsWith('.amazon.com') || hostname === 'amazon.com') return { id: 'amazon', label: 'Amazon' };
-  if (hostname.includes('tacklewarehouse.com')) return { id: 'tackle-warehouse', label: 'Tackle Warehouse' };
-  if (hostname.includes('cabelas.com')) return { id: 'cabelas', label: "Cabela's" };
-  if (hostname.includes('dickssportinggoods.com')) return { id: 'dicks', label: "Dick's Sporting Goods" };
-  if (hostname.includes('walmart.com')) return { id: 'walmart', label: 'Walmart' };
-  if (hostname.includes('jdmtackleheaven.com')) return { id: 'jdm-tackle-heaven', label: 'JDM Tackle Heaven' };
-  if (hostname.includes('basspro.com')) return { id: 'bass-pro', label: 'Bass Pro Shops' };
+  if (hostname === 'a.co' || hostname === 'amazon.com' || hostname.endsWith('.amazon.com')) return { id: 'amazon', label: 'Amazon' };
+  if (hostname === 'tacklewarehouse.com' || hostname.endsWith('.tacklewarehouse.com')) return { id: 'tackle-warehouse', label: 'Tackle Warehouse' };
+  if (hostname === 'cabelas.com' || hostname.endsWith('.cabelas.com')) return { id: 'cabelas', label: "Cabela's" };
+  if (hostname === 'dickssportinggoods.com' || hostname.endsWith('.dickssportinggoods.com')) return { id: 'dicks', label: "Dick's Sporting Goods" };
+  if (hostname === 'walmart.com' || hostname.endsWith('.walmart.com')) return { id: 'walmart', label: 'Walmart' };
+  if (hostname === 'jdmtackleheaven.com' || hostname.endsWith('.jdmtackleheaven.com')) return { id: 'jdm-tackle-heaven', label: 'JDM Tackle Heaven' };
+  if (hostname === 'basspro.com' || hostname.endsWith('.basspro.com')) return { id: 'bass-pro', label: 'Bass Pro Shops' };
   return null;
 }
 
 function host(url) {
-  try { return new URL(url, location.href).hostname.toLowerCase().replace(/^www\./, ''); }
-  catch { return ''; }
+  try {
+    const base = hasDom ? location.href : 'https://example.invalid/';
+    return new URL(url, base).hostname.toLowerCase().replace(/^www\./, '');
+  } catch { return ''; }
 }
 
 function sameUrl(a, b) {
   if (!a || !b) return false;
   try {
-    const left = new URL(a, location.href), right = new URL(b, location.href);
+    const base = hasDom ? location.href : 'https://example.invalid/';
+    const left = new URL(a, base), right = new URL(b, base);
     left.hash = ''; right.hash = '';
     return left.href === right.href;
   } catch { return a === b; }
@@ -224,3 +230,5 @@ function escapeHtml(value = '') {
 function escapeAttr(value = '') {
   return escapeHtml(value).replace(/'/g, '&#39;');
 }
+
+export { LINK_RULES, retailerFor, isManufacturerUrl, inferKnownManufacturer };
