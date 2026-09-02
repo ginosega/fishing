@@ -4,6 +4,10 @@
 
 This is a compact router/current-state summary. Do not use it as the detailed owner for procedures or long-form knowledge.
 
+## Operating mode
+
+Use **Chat mode by default**. A temporary switch to Work should be proposed only for a specific Work-only capability, with that need explained and user approval obtained first. Project complexity, length, file volume, analysis, and artifact creation do not by themselves justify Work.
+
 ## User fishing profile
 
 - Primary geography: Western Washington, especially Kirkland / Lake Washington / Lake Sammamish, plus camping trips to regional lakes.
@@ -110,20 +114,21 @@ Live URL:
 
 `https://ginosega.github.io/fishing/`
 
-Current production commit:
+Current verified application release commit:
 
-`8af0c654168cdefad37f79368719ac66a69c98b1`
+`1c61cb0b001bb9f543904a2328178632ac0efed1`
 
 Current production workflow:
 
-- GitHub Actions run **#70 / 33590304599**
+- GitHub Actions run **#77 / 33644412492**
 - build: success
 - structured My Gear model tests: success
 - My Gear routing/layout regression tests: success
+- unified Knowledge Base/Catch Log validation and routing tests: success
 - bundle verification: success
 - GitHub Pages deployment: success
 
-The structured My Gear refactor was merged in PR #9. PR #10 then fixed a Sev 1 routing/layout regression introduced by the refactor.
+The structured My Gear refactor was merged in PR #9. PR #10 fixed its Sev 1 routing/layout regression. PR #13 implemented the unified Knowledge Base and structured Catch Log, removed the legacy parser/Planner code, and removed the site-header kicker.
 
 Current accepted behavior after PR #10:
 
@@ -134,7 +139,7 @@ Current accepted behavior after PR #10:
 - structured My Gear owns all `#/inventory/...` routes, including leaf pages
 - `pwa/kb-app.js` owns Home and all `#/kb/...` routes
 
-The user accepted the post-PR #10 My Gear flow on 2026-09-02. The unified Knowledge Base implementation then proceeded on a normal feature branch.
+The user accepted the post-PR #10 My Gear flow on 2026-09-02. The PR #13 production deployment was then verified with 61 My Gear records, 41 Knowledge Base entities, 5 catches, 41 offline KB assets, and 62 of 65 requested My Gear images available. The live header shows only the Fishing Companion title.
 
 ## Deferred v2 behavior
 

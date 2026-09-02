@@ -1,12 +1,16 @@
 # Fishing New Chat Bootstrap Prompt
 
-**Status:** ACTIVE HANDOFF — STRUCTURED MY GEAR / UNIFIED KB + CATCH LOG
+**Status:** ACTIVE HANDOFF — PRODUCTION VERIFIED 2026-09-02
 
 Copy the prompt below into a new Fishing chat.
 
 ---
 
 You are helping with my persistent **Fishing** project. The durable project repository is `ginosega/fishing` on GitHub. Do not rely on assumptions from an old chat; restore current state from the repository first.
+
+## Operating mode
+
+Operating mode: This project uses Chat mode by default. Do not recommend Work unless a task specifically requires a Work-only capability. Never recommend Work merely because the project or task is complex, lengthy, file-heavy, analytical, or involves creating artifacts. Explain the specific need and obtain my approval before recommending a temporary switch.
 
 ## First actions in this new chat
 
@@ -105,32 +109,44 @@ Live site:
 
 `https://ginosega.github.io/fishing/`
 
-Structured My Gear refactor:
+Release history:
 
-- PR #9
-- merge commit `972dca92812d4e129ab7311e64a0915e3f158c69`
+- PR #9 — structured My Gear refactor, merge commit `972dca92812d4e129ab7311e64a0915e3f158c69`
+- PR #10 — Sev 1 My Gear routing/layout fix and removal of the temporary data card
+- PR #13 — unified Knowledge Base, structured Catch Log, retired Planner/parser, and title-only site header
 
 A Sev 1 regression was found immediately afterward: gear category cards could not open leaf pages because the legacy router and structured My Gear router both reacted to `#/inventory/...` hashes; the My Gear header layout also regressed and a temporary My Gear import/export card was unwanted.
 
-That was fixed in **PR #10**.
+That My Gear regression was fixed in **PR #10**, and the complete My Gear flow was accepted on 2026-09-02.
 
-Current verified production commit:
+Current verified application release commit:
 
-`8af0c654168cdefad37f79368719ac66a69c98b1`
+`1c61cb0b001bb9f543904a2328178632ac0efed1`
 
 Production GitHub Actions run:
 
-**#70 / 33590304599**
+**#77 / 33644412492**
 
 Verified successful:
 
 - JavaScript validation
 - structured My Gear model tests
 - My Gear routing/layout regression tests
+- unified Knowledge Base and Catch Log model tests
+- Knowledge Base routing and retired-Planner regression tests
 - PWA build
 - bundle verification
 - GitHub Pages artifact
 - GitHub Pages deployment
+
+The live build marker was verified on 2026-09-02 with:
+
+- 61 My Gear records
+- 41 Knowledge Base entities
+- 5 structured catches
+- 41 offline Knowledge Base assets
+- 62 available My Gear images out of 65 requested
+- 36 resolved video titles
 
 The route ownership is explicit:
 
@@ -319,7 +335,7 @@ If I give a requirement that would materially affect architecture, deployment, m
 
 ## Immediate continuation instruction
 
-Start by confirming the current repository state and latest production deployment. Treat the unified KB Entity model, structured Catch Log, retired Planner scope, and accepted My Gear v1 behavior as durable decisions unless I explicitly reopen them.
+Start in Chat mode and confirm the current repository state and latest production deployment. Treat the unified KB Entity model, structured Catch Log, retired Planner scope, title-only site header, and accepted My Gear v1 behavior as durable decisions unless I explicitly reopen them. Select any next work from `Fishing_TODO.md` or my new request; do not restart My Gear acceptance or Knowledge Base architecture design.
 
 ---
 
