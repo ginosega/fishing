@@ -5,6 +5,7 @@ const CORE = [
   './styles.css',
   './app.js',
   './gear-app.js',
+  './legacy-app-loader.js',
   './gear-store.js',
   './gear-model.js',
   './media-ui.js',
