@@ -46,6 +46,7 @@ jobs:
         run: |
           node --check pwa/app.js
           node --check pwa/media-ui.js
+          node --check pwa/link-ui.js
           node --check pwa/build.mjs
           node --check pwa/serve.mjs
       - name: Build PWA
@@ -55,12 +56,14 @@ jobs:
           test -f pwa/dist/index.html
           test -f pwa/dist/sw.js
           test -f pwa/dist/media-ui.js
+          test -f pwa/dist/link-ui.js
           test -f pwa/dist/gear-media.json
           test -f pwa/dist/video-titles.json
           test -f pwa/dist/kb/Fishing_Tackle_Inventory.md
           test -f pwa/dist/kb/Rods_Reels_Line_Knots.md
           grep -q 'app.js?v=' pwa/dist/index.html
           grep -q 'media-ui.js?v=' pwa/dist/index.html
+          grep -q 'link-ui.js?v=' pwa/dist/index.html
           grep -q 'styles.css?v=' pwa/dist/index.html
       - name: Upload CI artifact
         uses: actions/upload-artifact@v4
