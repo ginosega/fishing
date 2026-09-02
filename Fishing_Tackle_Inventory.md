@@ -73,7 +73,7 @@ This file is for **owned lures, bait, hooks, weights, snaps, swivels, and termin
 |---|---:|---|---|
 | [Booyah Pad Crasher](https://shopbooyah.shop/products/booyah-pad-crasher-3-pack-topwater-bass-fishing-hollow-body-b076bjp2z9?v_id=variant_01KPRYK0WCMWG8ZE6EH2B0R0BK) | Pad Crasher, Pad Crasher Jr. | Assortment | OWNED; three-pack assortment |
 | [Rebel Pop-R](https://therebellures.com/) |  | Silver/Black | OWNED |
-| [River2Sea Whopper Plopper 60](https://www.river2seausa.com/product/whopper-plopper-60/) | #60 | Bluegill | OWNED; compact topwater for spinning rod or baitcaster in calm low light around weed edges, points, shoreline shade |
+| River2Sea Whopper Plopper 60 | #60 | Bluegill | OWNED; manufacturer: [River2Sea](https://www.river2seausa.com/product/whopper-plopper-60/); compact topwater for spinning rod or baitcaster in calm low light around weed edges, points, shoreline shade |
 
 ## Jigs
 
