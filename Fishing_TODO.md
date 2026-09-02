@@ -1,6 +1,6 @@
 # Fishing TODO
 
-_Last updated: 2026-08-31_
+_Last updated: 2026-09-01_
 
 This file is the canonical backlog for unresolved Fishing-project verification items, research tasks, equipment questions, technique work, and owner follow-ups.
 
@@ -48,7 +48,7 @@ GitHub Markdown is the sole active project knowledge base. The legacy OneNote/PD
 | FISH-TODO-024 | P3 | OPEN | Locations | Research Lake Bosworth bass. | OneNote `Go` item only. |
 | FISH-TODO-025 | P3 | OPEN | Shopping/local | Visit/check Holiday Sports in Burlington. | OneNote `Go` item. |
 | FISH-TODO-026 | P3 | OPEN | Community | Research/join fish club. | OneNote buy/listen page note. |
-| FISH-TODO-027 | P2 | OPEN | Clothing | Buy/consider NRS ATB Wetshoe size 11. | OneNote clothing buy item. |
+| FISH-TODO-027 | P2 | OPEN | Clothing | Buy/consider NRS ATB Wetshoe size 11. | OneNote clothing buy item, not owned unless user confirms. |
 | FISH-TODO-028 | P2 | OPEN | Clothing | Buy/consider NRS Champion Jacket and Bib. | Jacket must have neoprene cuffs, waterproof zipper, articulated hood; Champion Jacket and Bib listed as candidates. |
 | FISH-TODO-029 | P2 | OPEN | Kayak safety/storage | Determine how to tie off bow-hatch items. | Tool bag/bilge pump tie-off question in OneNote. |
 | FISH-TODO-030 | P3 | DEFERRED | Power/electronics | Evaluate whether trailer battery could work for kayak motor/electronics scenario. | OneNote motor/battery research item; resume only if the kayak-motor project returns. |
@@ -56,15 +56,10 @@ GitHub Markdown is the sole active project knowledge base. The legacy OneNote/PD
 | FISH-TODO-032 | P3 | OPEN | Trip logs | Continue adding catch/no-bite reports. | OneNote catch log migrated; future trips should be appended. |
 | FISH-TODO-033 | P3 | OPEN | Safety/regulations | Create regulation recheck checklist. | Include Fish Washington app, lake-specific rules, species ID, bait/retention implications. |
 | FISH-TODO-034 | P3 | OPEN | Markdown usability | Spot-check inline links in GitHub Preview. | Links were embedded from MHT; spot-check during normal use and fix any link placement/context issues that affect OneNote-replacement usability. |
-| FISH-TODO-035 | P1 | IN PROGRESS | Fishing Companion PWA | Build and acceptance-test the mobile/offline front end for the Fishing knowledge base. | First My Gear acceptance pass completed and consolidated refactor implemented: Home now routes to **My Gear** and **Knowledge Base**; Rods & Reels are setup-centric; duplicate gear/line imports are removed; type/product-family grouping and reusable type-level knowledge are supported; gear leaf pages use normalized fields and explicit KB relationships. Live URL: `https://ginosega.github.io/fishing/`. Next: second My Gear acceptance pass, then deeper Knowledge Base/planner testing. |
+| FISH-TODO-035 | P1 | IN PROGRESS | Fishing Companion PWA | Build and acceptance-test the mobile/offline front end for the Fishing knowledge base. | First My Gear pass and deep second-pass content scrub are implemented. Current build normalizes setup details, lure/soft-plastic types, product links/images, resource presentation, and knot content. Next: final My Gear acceptance retest, then Knowledge Base/planner testing. Live URL: `https://ginosega.github.io/fishing/`. |
 | FISH-TODO-036 | P2 | OPEN | PWA / data model | Add lightweight stable IDs/metadata to Markdown only where the PWA parser needs stronger relationships. | Preserve Markdown as source of truth; do not create a separately maintained application database. Prioritize ambiguous links such as lure ↔ technique ↔ species ↔ structure ↔ knot ↔ catch. |
 | FISH-TODO-037 | P3 | DEFERRED | PWA / multi-user product | Generalize Fishing Companion for multiple users. | Current app remains intentionally single-user/personal even though its deployment URL may be publicly reachable. Future product concept: users maintain their own inventories, fishing locations, and catch logs while sharing the generic planner/knowledge architecture. Revisit only after the personal version is mature. |
 | FISH-TODO-039 | P2 | OPEN | PWA / catch history | Add rod/reel setup to future catch-log records. | Setup-specific catch history cannot be reliable until catches record the setup used. Do not invent historical setup attribution unless recoverable or user-confirmed. |
-| FISH-TODO-040 | P3 | WAITING ON USER | Gear registry | Identify the exact rod on the owned spincast setup. | Current setup is a Pflueger President push-button/spincast reel on a short rod; user will provide the rod make/model when available. |
-| FISH-TODO-041 | P3 | OPEN | PWA / catch history UI | Extend the standardized empty catch-history message to Rods & Reels leaf pages. | For a rod/reel setup with no matching catches, display exactly: `No catches have been recorded with this rod & reel.` Implement with the existing lure/bait empty-state rule in the next build. |
-| FISH-TODO-042 | P3 | OPEN | PWA / Line content | Replace the OneNote-framed braided-line resource sentence with normal user-facing wording. | Current braided-line page shows `OneNote linked a [braided-line video]...`; in the next build, remove the OneNote provenance wording and present the resource/link naturally as current guidance. |
-| FISH-TODO-043 | P3 | OPEN | PWA / Knot content | Clean up the Trilene knot leaf-page links. | In `Used to connect fluorocarbon to snaps and swivels`, make `snaps and swivels` plain text rather than a link because that reverse navigation path is not useful. Change the canonical video link text to **How to tie the Trilene knot**. |
-| FISH-TODO-044 | P2 | OPEN | Tackle / PWA data | Correct the owned cylinder-weight product identity. | Manufacturer is **THKFISH** and model is **28 pcs sinkers set**. Update the authoritative tackle Markdown and the resulting Manufacturer / Model display in the next build. |
 
 ---
 
@@ -77,3 +72,8 @@ GitHub Markdown is the sole active project knowledge base. The legacy OneNote/PD
 | FISH-TODO-003 | 2026-08-29 | Project architecture | Final GitHub-based new-chat bootstrap prompt completed for normal ongoing project use. |
 | FISH-TODO-004 | 2026-08-29 | Project migration / links | OneNote Single File Web Page/MHT export used to restore external links inline for GitHub Preview; temporary link-index file deleted afterward. |
 | FISH-TODO-038 | 2026-08-31 | PWA / GitHub Pages | GitHub Pages enabled with Source = GitHub Actions; deployment rerun succeeded and Fishing Companion is live at `https://ginosega.github.io/fishing/`. |
+| FISH-TODO-040 | 2026-09-01 | Gear registry | Exact shore/spincast setup identified as the Pflueger President Spincast Combo; rod and reel specs and part `PRESSC-606L2CBO` recorded. |
+| FISH-TODO-041 | 2026-09-01 | PWA / catch history UI | Rods & Reels empty catch-history state standardized to `No catches have been recorded with this rod & reel.` |
+| FISH-TODO-042 | 2026-09-01 | PWA / Line content | Braided-line resources are now presented as normal user-facing Video/Article resources rather than OneNote-framed prose. |
+| FISH-TODO-043 | 2026-09-01 | PWA / Knot content | Trilene reverse link to Snaps & Swivels removed and video link normalized to `How to tie the Trilene knot`. |
+| FISH-TODO-044 | 2026-09-01 | Tackle / PWA data | Cylinder weights corrected to manufacturer THKFISH, model `28 pcs sinkers set`. |
