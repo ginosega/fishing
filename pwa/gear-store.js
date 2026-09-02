@@ -14,17 +14,33 @@ export class GearRepository {
   }
 
   async initialize() {
+    const seed = await this.loadSeed();
     const db = await this.open();
-    const count = await requestResult(db.transaction(ITEM_STORE, 'readonly').objectStore(ITEM_STORE).count());
-    if (count > 0) return this.exportBundle();
+    const tx = db.transaction([ITEM_STORE, META_STORE], 'readonly');
+    const [count, meta] = await Promise.all([
+      requestResult(tx.objectStore(ITEM_STORE).count()),
+      requestResult(tx.objectStore(META_STORE).get(META_KEY))
+    ]);
 
+    if (count === 0) {
+      await this.replace(seed, { source:'seed' });
+      return this.exportBundle();
+    }
+
+    const localIsSeedManaged = !meta?.source || meta.source === 'seed';
+    if (localIsSeedManaged && meta?.dataVersion !== seed.dataVersion) {
+      await this.replace(seed, { source:'seed' });
+    }
+    return this.exportBundle();
+  }
+
+  async loadSeed() {
     const response = await fetch(this.seedUrl, { cache:'no-cache' });
     if (!response.ok) throw new Error(`Failed to load ${this.seedUrl} (${response.status})`);
     const seed = await response.json();
     const validation = validateGearBundle(seed);
     if (!validation.valid) throw new Error(`Invalid My Gear seed: ${validation.errors.join(' ')}`);
-    await this.replace(seed, { source:'seed' });
-    return this.exportBundle();
+    return seed;
   }
 
   async getAll() {
