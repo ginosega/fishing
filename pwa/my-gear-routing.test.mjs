@@ -5,7 +5,7 @@ const gearApp = fs.readFileSync(new URL('./gear-app.js', import.meta.url), 'utf8
 const index = fs.readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 
 assert.match(gearApp, /window\.addEventListener\('hashchange',[\s\S]*event\.stopImmediatePropagation\(\);[\s\S]*}, true\);/,
-  'Structured My Gear must capture inventory hash changes before the legacy router.');
+  'Structured My Gear must capture inventory hash changes before other route handlers.');
 assert.match(gearApp, /data-gear-item=.*?navigate\(`#\/inventory\/item\//s,
   'Gear cards must navigate to structured item routes.');
 assert.match(gearApp, /Browse your inventory of equipment, tackle, and bait/,
@@ -16,10 +16,12 @@ assert.match(gearApp, /class=\"section-title\"><div><h2>[\s\S]*?<\/div>\$\{back 
   'Page header must keep title/subtitle on the left and Back on the right.');
 
 const gearIndex = index.indexOf('./gear-app.js');
-const loaderIndex = index.indexOf('./legacy-app-loader.js');
-assert.ok(gearIndex >= 0 && loaderIndex > gearIndex,
-  'Structured My Gear must load before the legacy app loader.');
+const kbIndex = index.indexOf('./kb-app.js');
+assert.ok(gearIndex >= 0 && kbIndex > gearIndex,
+  'Structured My Gear must load before the Knowledge Base route owner.');
 assert.equal(index.includes('<script src="./app.js"'), false,
-  'Legacy app must be loaded through the route-isolating loader, not directly.');
+  'The retired legacy Markdown/planner app must not load.');
+assert.equal(index.includes('legacy-app-loader.js'), false,
+  'The retired legacy route loader must not load.');
 
 console.log('My Gear routing/layout regression tests passed.');

@@ -24,9 +24,8 @@ let rendering = false;
 
 const ready = initialize();
 
-// My Gear owns every #/inventory route. Capture these hash changes before the
-// legacy Markdown router can see them; that router remains active only for the
-// Home/Knowledge Base/planner routes during the transition to structured data.
+// My Gear owns every #/inventory route. Capture these hash changes before any
+// non-inventory route handler so this boundary remains explicit.
 window.addEventListener('hashchange', event => {
   if (!isGearRoute()) return;
   event.stopImmediatePropagation();
@@ -138,7 +137,7 @@ function renderSetup(item) {
     ${componentPanel('Rod',item.rod)}
     ${componentPanel('Reel',item.reel)}
     ${usage.length ? `<section class="panel"><h3>How to use it</h3>${guidanceHtml(usage)}</section>` : ''}
-    <section class="panel"><h3>My catch history</h3><div class="empty">No catches have been recorded with this rod & reel.</div></section>`;
+    ${renderCatchHistory(item)}`;
   bindGearRoutes();
 }
 
@@ -154,11 +153,12 @@ function componentPanel(title,component) {
 }
 
 function renderCatchHistory(item) {
-  const terms = [item.name, ...(item.aliases || [])].map(normalize).filter(Boolean);
-  const matches = catchRows.filter(row => terms.some(term => normalize(row['Gear used'] || '').includes(term)));
-  const noun = item.category === 'bait' ? 'bait' : 'lure';
+  const matches = catchRows.filter(record => item.category === 'rods-reels'
+    ? record.rodReelSetupId === item.id
+    : record.lureOrBait?.itemId === item.id);
+  const noun = item.category === 'bait' ? 'bait' : item.category === 'rods-reels' ? 'rod & reel' : 'lure';
   if (!matches.length) return `<section class="panel"><h3>My catch history</h3><div class="empty">No catches have been recorded with this ${noun}.</div></section>`;
-  return `<section class="panel"><h3>My catch history</h3>${matches.map(row => `<div class="recommendation"><h4>${escapeHtml([row.Date,row.Water].filter(Boolean).join(' · '))}</h4><p><strong>Conditions:</strong> ${escapeHtml(row.Conditions || '')}</p><p><strong>Gear:</strong> ${escapeHtml(row['Gear used'] || '')}</p><p><strong>Results:</strong> ${escapeHtml(row.Results || '')}</p>${row.Observations ? `<p><strong>Observations:</strong> ${escapeHtml(row.Observations)}</p>` : ''}</div>`).join('')}</section>`;
+  return `<section class="panel"><h3>My catch history</h3>${matches.map(record => `<a class="catch-backlink" href="#/kb/catch/${escapeAttr(record.id)}"><strong>${escapeHtml(record.lureOrBait?.nameSnapshot || 'Recorded catch')}</strong><span>${escapeHtml(formatCatchDate(record.date,record.time))} · ${escapeHtml(formatCatchSize(record.size))}</span></a>`).join('')}</section>`;
 }
 
 function itemCard(item) {
@@ -198,23 +198,11 @@ function navigate(hash) {
 
 async function loadCatchRows() {
   try {
-    const response = await fetch('./kb/Trip_Logs_Field_Observations.md', {cache:'no-cache'});
+    const response = await fetch('./data/catches.seed.json', {cache:'no-cache'});
     if (!response.ok) return [];
-    const markdown = await response.text();
-    const section = /## OneNote catch log\s*\n([\s\S]*?)(?=\n## |$)/i.exec(markdown)?.[1] || '';
-    return parseFirstTable(section);
+    const data = await response.json();
+    return Array.isArray(data.catches) ? data.catches : [];
   } catch { return []; }
-}
-
-function parseFirstTable(markdown) {
-  const lines = markdown.split('\n').map(line => line.trim()).filter(line => line.startsWith('|'));
-  if (lines.length < 3) return [];
-  const headers = splitRow(lines[0]);
-  return lines.slice(2).map(line => splitRow(line)).filter(cells => cells.length === headers.length).map(cells => Object.fromEntries(headers.map((header,index) => [header,cells[index]])));
-}
-
-function splitRow(line) {
-  return line.replace(/^\||\|$/g,'').split('|').map(cell => cell.trim());
 }
 
 function sanitizeGuidanceHtml(html) {
@@ -240,6 +228,8 @@ function sanitizeGuidanceHtml(html) {
 function searchableText(item) {
   return normalize([item.name,item.type,item.manufacturer?.name,item.model,gearSpecificationText(item)].filter(Boolean).join(' '));
 }
+function formatCatchDate(date,time) { return [date,time].filter(Boolean).join(' '); }
+function formatCatchSize(size) { const parts=[]; if(size?.length)parts.push(`${size.length.value} ${size.length.unit}`); if(size?.weight)parts.push(`${size.weight.value} ${size.weight.unit}`); if(size?.display)parts.push(size.display); return parts.join(' · ') || 'Size not recorded'; }
 function dedupeLinks(links) { const seen=new Set(); return links.filter(link => link?.url && !seen.has(link.url) && seen.add(link.url)); }
 function normalize(value='') { return String(value).toLowerCase().replace(/&/g,' and ').replace(/[^a-z0-9]+/g,' ').replace(/\s+/g,' ').trim(); }
 function escapeHtml(value='') { return String(value).replace(/[&<>\"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[char])); }

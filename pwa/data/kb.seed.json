@@ -1,0 +1,334 @@
+{
+  "schemaVersion": 1,
+  "dataVersion": "2026-09-02-kb-v1",
+  "entities": [
+    {
+      "id": "location-lake-washington",
+      "type": "location",
+      "name": "Lake Washington",
+      "description": "Local bass and coastal cutthroat water with distinct north-end, Juanita Bay, Kirkland, and Mercer Island patterns.",
+      "picture": null,
+      "content": "./kb-content/locations/lake-washington.md"
+    },
+    {
+      "id": "location-lake-sammamish",
+      "type": "location",
+      "name": "Lake Sammamish",
+      "description": "Local bass and trout water with distinct north-end, south-end, and east-shore patterns.",
+      "picture": null,
+      "content": "./kb-content/locations/lake-sammamish.md"
+    },
+    {
+      "id": "location-silver-lake-whatcom",
+      "type": "location",
+      "name": "Silver Lake, Whatcom County",
+      "description": "Camping and kayak fishing water near Bellingham with trout and bass opportunities.",
+      "picture": null,
+      "content": "./kb-content/locations/silver-lake-whatcom.md"
+    },
+    {
+      "id": "location-cranberry-lake-deception-pass",
+      "type": "location",
+      "name": "Cranberry Lake, Deception Pass State Park",
+      "description": "Freshwater fishing at Deception Pass State Park.",
+      "picture": null,
+      "content": "./kb-content/locations/cranberry-lake-deception-pass.md"
+    },
+    {
+      "id": "location-mayfield-lake",
+      "type": "location",
+      "name": "Mayfield Lake",
+      "description": "Regional camping and kayak water for trout, kokanee, bass, and northern pikeminnow.",
+      "picture": null,
+      "content": "./kb-content/locations/mayfield-lake.md"
+    },
+    {
+      "id": "location-lake-chelan",
+      "type": "location",
+      "name": "Lake Chelan",
+      "description": "Deep clear lake with smallmouth and trout opportunities from shore, dock, or kayak.",
+      "picture": null,
+      "content": "./kb-content/locations/lake-chelan.md"
+    },
+    {
+      "id": "location-lake-cle-elum",
+      "type": "location",
+      "name": "Lake Cle Elum",
+      "description": "Cold-water reservoir treated as a trout and salmonid destination rather than a bass target.",
+      "picture": null,
+      "content": "./kb-content/locations/lake-cle-elum.md"
+    },
+    {
+      "id": "location-lake-bosworth",
+      "type": "location",
+      "name": "Lake Bosworth",
+      "description": "Candidate bass location that still needs research.",
+      "picture": null,
+      "content": "./kb-content/locations/lake-bosworth.md"
+    },
+    {
+      "id": "technique-bass-power-search-overview",
+      "type": "technique",
+      "name": "Bass Power and Search Overview",
+      "description": "General resources for bass moving-bait and power-fishing techniques.",
+      "picture": null,
+      "content": "./kb-content/techniques/bass-power-search-overview.md"
+    },
+    {
+      "id": "technique-paddle-only-kayak-strategy",
+      "type": "technique",
+      "name": "Paddle-only Kayak Strategy",
+      "description": "Route, drift, trolling, electronics, and casting strategy for the current paddle-only RVR119.",
+      "picture": null,
+      "content": "./kb-content/techniques/paddle-only-kayak-strategy.md"
+    },
+    {
+      "id": "technique-trout-fishing",
+      "type": "technique",
+      "name": "Trout Fishing",
+      "description": "Casting, inline-spinning, still-fishing, bobber, and kayak-trolling guidance for trout.",
+      "picture": null,
+      "content": "./kb-content/techniques/trout-fishing.md"
+    },
+    {
+      "id": "technique-wacky-worm",
+      "type": "technique",
+      "name": "Wacky Worm",
+      "description": "A finesse stickbait presentation with both ends free to move.",
+      "picture": null,
+      "content": "./kb-content/techniques/wacky-worm.md"
+    },
+    {
+      "id": "technique-ned-rig",
+      "type": "technique",
+      "name": "Ned Rig",
+      "description": "A finesse mushroom-jighead presentation with a short buoyant bait that stands on bottom.",
+      "picture": null,
+      "content": "./kb-content/techniques/ned-rig.md"
+    },
+    {
+      "id": "technique-drop-shot",
+      "type": "technique",
+      "name": "Drop Shot",
+      "description": "A suspended finesse presentation with the hook above the weight.",
+      "picture": null,
+      "content": "./kb-content/techniques/drop-shot.md"
+    },
+    {
+      "id": "technique-jigs",
+      "type": "technique",
+      "name": "Jigs",
+      "description": "Casting, swimming, football, and finesse jig guidance.",
+      "picture": null,
+      "content": "./kb-content/techniques/jigs.md"
+    },
+    {
+      "id": "technique-spinnerbait",
+      "type": "technique",
+      "name": "Spinnerbait",
+      "description": "A wire-frame moving bait for cover, flash, and vibration.",
+      "picture": null,
+      "content": "./kb-content/techniques/spinnerbait.md"
+    },
+    {
+      "id": "technique-chatterbait-bladed-jig",
+      "type": "technique",
+      "name": "Chatterbait / Bladed Jig",
+      "description": "A vibrating bladed-jig presentation for grass, stained water, and reaction bites.",
+      "picture": null,
+      "content": "./kb-content/techniques/chatterbait-bladed-jig.md"
+    },
+    {
+      "id": "technique-crankbait",
+      "type": "technique",
+      "name": "Crankbait",
+      "description": "A hard-plug presentation built around depth, deflection, and retrieve changes.",
+      "picture": null,
+      "content": "./kb-content/techniques/crankbait.md"
+    },
+    {
+      "id": "technique-jerkbait",
+      "type": "technique",
+      "name": "Jerkbait",
+      "description": "A baitfish presentation using darting movement and pauses.",
+      "picture": null,
+      "content": "./kb-content/techniques/jerkbait.md"
+    },
+    {
+      "id": "technique-swimbait-soft-jerk-shad",
+      "type": "technique",
+      "name": "Swimbait / Soft Jerk Shad",
+      "description": "A lifelike baitfish presentation for points, ledges, weed edges, docks, and structure.",
+      "picture": null,
+      "content": "./kb-content/techniques/swimbait-soft-jerk-shad.md"
+    },
+    {
+      "id": "technique-topwater-fishing",
+      "type": "technique",
+      "name": "Topwater Fishing",
+      "description": "Frog, plopper, popper, buzzbait, and walking-bait guidance.",
+      "picture": null,
+      "content": "./kb-content/techniques/topwater-fishing.md"
+    },
+    {
+      "id": "technique-seasonal-bass-guidance",
+      "type": "technique",
+      "name": "Seasonal Bass Guidance",
+      "description": "Spring temperature patterns and fall bass movement notes.",
+      "picture": null,
+      "content": "./kb-content/techniques/seasonal-bass-guidance.md"
+    },
+    {
+      "id": "technique-color-and-scent",
+      "type": "technique",
+      "name": "Color and Scent",
+      "description": "Practical lure-color and scent notes, including items that still need verification.",
+      "picture": null,
+      "content": "./kb-content/techniques/color-and-scent.md"
+    },
+    {
+      "id": "technique-water-visibility",
+      "type": "technique",
+      "name": "Water Visibility",
+      "description": "A preserved visibility heuristic with an explicit caution against treating it as a hard rule.",
+      "picture": null,
+      "content": "./kb-content/techniques/water-visibility.md"
+    },
+    {
+      "id": "species-largemouth-bass",
+      "type": "species",
+      "name": "Largemouth Bass",
+      "description": "Primary local warmwater target with catches recorded at Silver Lake and Lake Sammamish.",
+      "picture": null,
+      "content": "./kb-content/species/largemouth-bass.md"
+    },
+    {
+      "id": "species-perch",
+      "type": "species",
+      "name": "Perch",
+      "description": "Catch-log species label; the exact perch species was not recorded and must not be inferred.",
+      "picture": null,
+      "content": "./kb-content/species/perch.md"
+    },
+    {
+      "id": "species-northern-pikeminnow",
+      "type": "species",
+      "name": "Northern Pikeminnow",
+      "description": "Predatory native minnow recorded twice at Mayfield Lake.",
+      "picture": null,
+      "content": "./kb-content/species/northern-pikeminnow.md"
+    },
+    {
+      "id": "species-smallmouth-bass",
+      "type": "species",
+      "name": "Smallmouth Bass",
+      "description": "Important Lake Washington, Lake Sammamish, and Lake Chelan structure-oriented target.",
+      "picture": null,
+      "content": "./kb-content/species/smallmouth-bass.md"
+    },
+    {
+      "id": "species-rainbow-trout",
+      "type": "species",
+      "name": "Rainbow Trout",
+      "description": "Common regional trout target for casting, trolling, bobber, and still-fishing presentations.",
+      "picture": null,
+      "content": "./kb-content/species/rainbow-trout.md"
+    },
+    {
+      "id": "species-coastal-cutthroat-trout",
+      "type": "species",
+      "name": "Coastal Cutthroat Trout",
+      "description": "A Lake Washington trout target requiring current regulation checks.",
+      "picture": null,
+      "content": "./kb-content/species/coastal-cutthroat-trout.md"
+    },
+    {
+      "id": "species-kokanee",
+      "type": "species",
+      "name": "Kokanee",
+      "description": "A specialized regional trolling target mentioned for Lake Washington and Mayfield Lake.",
+      "picture": null,
+      "content": "./kb-content/species/kokanee.md"
+    },
+    {
+      "id": "knot-palomar",
+      "type": "knot",
+      "name": "Palomar Knot",
+      "description": "Strong, easy; works with braid, fluorocarbon, and mono; good for small hooks/light line; ensure loop cinches evenly above eye",
+      "picture": null,
+      "content": "./kb-content/knots/palomar.md"
+    },
+    {
+      "id": "knot-fg",
+      "type": "knot",
+      "name": "FG Knot",
+      "description": "Preferred braid-to-fluoro leader knot",
+      "picture": null,
+      "content": "./kb-content/knots/fg.md"
+    },
+    {
+      "id": "knot-albright",
+      "type": "knot",
+      "name": "Albright Knot",
+      "description": "Easier on-the-water braid-to-fluoro alternative",
+      "picture": null,
+      "content": "./kb-content/knots/albright.md"
+    },
+    {
+      "id": "knot-trilene",
+      "type": "knot",
+      "name": "Trilene Knot",
+      "description": "Good for tying fluorocarbon to swivels/snaps; wet before tightening",
+      "picture": null,
+      "content": "./kb-content/knots/trilene.md"
+    },
+    {
+      "id": "knot-improved-clinch",
+      "type": "knot",
+      "name": "Improved Clinch Knot",
+      "description": "Good with mono/fluoro on small hooks/jigheads; 6-7 wraps with 6-10 lb line, 5 wraps with heavier line",
+      "picture": null,
+      "content": "./kb-content/knots/improved-clinch.md"
+    },
+    {
+      "id": "knot-modified-uni",
+      "type": "knot",
+      "name": "Modified Uni Knot",
+      "description": "Marked very strong in OneNote",
+      "picture": null,
+      "content": "./kb-content/knots/modified-uni.md"
+    },
+    {
+      "id": "knot-double-uni",
+      "type": "knot",
+      "name": "Double Uni Knot",
+      "description": "Used to connect two lines, but FG preferred for braid-to-leader",
+      "picture": null,
+      "content": "./kb-content/knots/double-uni.md"
+    },
+    {
+      "id": "knot-loop-non-slip-loop",
+      "type": "knot",
+      "name": "Loop / Non-slip Loop Knot",
+      "description": "Conflict: OneNote knot page says don't use because weak, but technique pages still mention loop knots for action. Treat as unresolved.",
+      "picture": null,
+      "content": "./kb-content/knots/loop-non-slip-loop.md"
+    },
+    {
+      "id": "knot-single-uni",
+      "type": "knot",
+      "name": "Single Uni Knot",
+      "description": "OneNote says don't use / weak",
+      "picture": null,
+      "content": "./kb-content/knots/single-uni.md"
+    },
+    {
+      "id": "knot-arbor",
+      "type": "knot",
+      "name": "Arbor Knot",
+      "description": "Use for spooling line",
+      "picture": null,
+      "content": "./kb-content/knots/arbor.md"
+    }
+  ]
+}

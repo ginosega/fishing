@@ -3,23 +3,21 @@ const CORE = [
   './',
   './index.html',
   './styles.css',
-  './app.js',
   './gear-app.js',
-  './legacy-app-loader.js',
+  './kb-app.js',
   './gear-store.js',
   './gear-model.js',
+  './kb-model.js',
+  './markdown-render.js',
   './media-ui.js',
   './data/gear.seed.json',
+  './data/kb.seed.json',
+  './data/catches.seed.json',
   './gear-media.json',
+  './kb-assets.json',
   './video-titles.json',
   './manifest.webmanifest',
-  './icon.svg',
-  './kb/Fishing_Gear_Registry.md',
-  './kb/Fishing_Tackle_Inventory.md',
-  './kb/Rods_Reels_Line_Knots.md',
-  './kb/Fishing_Techniques.md',
-  './kb/Local_Waters_Locations.md',
-  './kb/Trip_Logs_Field_Observations.md'
+  './icon.svg'
 ];
 
 self.addEventListener('install', event => {
@@ -33,6 +31,9 @@ self.addEventListener('install', event => {
     } catch (error) {
       console.warn('Optional gear media precache incomplete', error);
     }
+    const kbResponse = await cache.match('./kb-assets.json');
+    const kbAssets = kbResponse ? await kbResponse.json() : [];
+    await cache.addAll(kbAssets || []);
     await self.skipWaiting();
   })());
 });
@@ -49,11 +50,6 @@ self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
-
-  if (url.pathname.includes('/kb/')) {
-    event.respondWith(networkFirst(event.request));
-    return;
-  }
 
   if (event.request.mode === 'navigate') {
     event.respondWith(networkFirst(event.request, './index.html'));

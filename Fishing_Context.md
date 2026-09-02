@@ -1,6 +1,6 @@
 # Fishing Context
 
-**Status:** Active working context. OneNote migration/link restoration completed 2026-08-29; Fishing Companion My Gear architecture refactored 2026-09-01.
+**Status:** Active working context. OneNote migration/link restoration completed 2026-08-29; My Gear refactored 2026-09-01; unified Knowledge Base and structured Catch Log implemented 2026-09-02.
 
 This is a compact router/current-state summary. Do not use it as the detailed owner for procedures or long-form knowledge.
 
@@ -78,23 +78,31 @@ Current My Gear categories:
 - Lures
 - Bait
 
-**Knots are intentionally not in My Gear.** They belong in the Knowledge Base domain and will be reconsidered as part of the KB redesign.
+**Knots are intentionally not in My Gear.** They are Knowledge Base entities.
 
-`Fishing_Gear_Registry.md` and `Fishing_Tackle_Inventory.md` remain useful migrated/reference material and transitional legacy-planner inputs, but they are no longer the My Gear application's canonical runtime inventory source.
+`Fishing_Gear_Registry.md` and `Fishing_Tackle_Inventory.md` remain useful migrated/reference material, but they are not application data sources.
 
-### Knowledge Base / planner
+### Knowledge Base and Catch Log
 
-The current Knowledge Base/planner still uses migrated Markdown during the transition:
+Knowledge Base entities use one unified schema:
 
-- `Topics/Rods_Reels_Line_Knots.md`
-- `Topics/Fishing_Techniques.md`
-- `Topics/Local_Waters_Locations.md`
-- `Topics/Trip_Logs_Field_Observations.md`
-- plus legacy registry/inventory inputs still consumed by the old planner code.
+- `id`
+- `type`: `location`, `species`, `technique`, or `knot`
+- `name`
+- optional `description`
+- optional `picture`
+- `content`: path to one complete Markdown document
 
-The KB architecture is **not final**. Redesign its data model before deeper development; do not simply extend the old Markdown parsing pattern by default.
+Runtime owners:
 
-Catch history is still Markdown-backed and currently matched to gear by text. Future structured catch records should reference stable gear/setup/location IDs.
+- `pwa/data/kb.seed.json`
+- `pwa/kb-content/`
+- `pwa/data/catches.seed.json`
+- `pwa/kb-model.js`
+- `pwa/kb-app.js`
+- `pwa/markdown-render.js`
+
+The Knowledge Base is browsable only. Planner, Planner Attributes, fishing sessions, session IDs, and trip history were retired. Catch records are structured and link by stable IDs; exact-spot Markdown owns depth, structure, conditions, and relevant links. Historical setup and technique values are not inferred.
 
 ## Fishing Companion current production state
 
@@ -124,9 +132,9 @@ Current accepted behavior after PR #10:
 - My Gear contains no Knots category
 - My Gear contains no visible **My Gear data** import/export card
 - structured My Gear owns all `#/inventory/...` routes, including leaf pages
-- the legacy Markdown router is isolated to Home/Knowledge Base/planner routes
+- `pwa/kb-app.js` owns Home and all `#/kb/...` routes
 
-The current build needs a quick user acceptance retest after PR #10 before the project moves into Knowledge Base architecture work.
+The user accepted the post-PR #10 My Gear flow on 2026-09-02. The unified Knowledge Base implementation then proceeded on a normal feature branch.
 
 ## Deferred v2 behavior
 
@@ -153,10 +161,8 @@ The current build needs a quick user acceptance retest after PR #10 before the p
 
 See `Fishing_TODO.md`. Current important items include:
 
-- Finish acceptance testing the post-refactor My Gear UI, starting with the PR #10 routing/layout fix.
-- Redesign the Knowledge Base data model before deeper KB work; Knots belong there.
 - Preserve and resolve source conflicts, especially hook-size guidance for PowerBait and loop-knot guidance.
-- Move catch history to structured records later, with stable gear/setup/location references.
+- Continue curating complete Knowledge Base Markdown documents and structured catches without reintroducing parser-derived facts.
 - Verify purchase status for Bonafide RVR119 Under Seat Tackle Storage and YakAttack fish cooler bag.
 - Verify actual installed state of fish-finder wiring/fuse/connector details.
 - Verify Bonafide RVR119 insert bolt/thread sizes.
