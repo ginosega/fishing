@@ -43,12 +43,33 @@ function queueEnhance() {
 
 function enhancePage() {
   enhanceVideoLinks(document);
+  enhanceKbImages();
   if (!location.hash.startsWith('#/inventory/item/')) return;
   const subtitle = document.querySelector('.section-title p')?.textContent?.trim() || '';
   if (/^Rods & Reels\s*-/i.test(subtitle)) enhanceRodReelSections();
   else {
     const title = document.querySelector('.section-title h2')?.textContent?.trim() || '';
     if (title) enhanceStandardGearLeaf(title);
+  }
+}
+
+function enhanceKbImages() {
+  for (const button of document.querySelectorAll('[data-media-source]:not([data-media-ready])')) {
+    button.dataset.mediaReady = 'true';
+    button.addEventListener('click', () => openViewer({
+      asset:button.dataset.mediaSource,
+      alt:button.dataset.mediaAlt || button.querySelector('img')?.alt || 'Knowledge Base image'
+    }));
+  }
+  for (const image of document.querySelectorAll('.kb-content img:not([data-media-ready])')) {
+    image.dataset.mediaReady = 'true';
+    image.classList.add('kb-zoomable-image');
+    image.tabIndex = 0;
+    image.setAttribute('role', 'button');
+    image.setAttribute('aria-label', `Enlarge image: ${image.alt || 'Knowledge Base image'}`);
+    const open = () => openViewer({ asset:image.currentSrc || image.src, alt:image.alt || 'Knowledge Base image' });
+    image.addEventListener('click', open);
+    image.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); open(); } });
   }
 }
 
@@ -127,7 +148,7 @@ function enhanceVideoLinks(root) {
 function openViewer(media) {
   const viewer=ensureViewer();
   const image=viewer.querySelector('.media-viewer-image');
-  viewer.querySelector('.media-viewer-title').textContent=media.alt || 'Gear image';
+  viewer.querySelector('.media-viewer-title').textContent=media.alt || 'Image';
   const product=viewer.querySelector('.media-product-link');
   product.href=media.destination || media.sourcePage || '#';
   product.hidden=!(media.destination || media.sourcePage);
@@ -137,7 +158,7 @@ function openViewer(media) {
   resetViewerTransform();
   image.onload=()=>requestAnimationFrame(fitViewerImage);
   image.src=media.asset;
-  image.alt=media.alt || 'Gear image';
+  image.alt=media.alt || 'Image';
   if (image.complete && image.naturalWidth && image.naturalHeight) requestAnimationFrame(fitViewerImage);
   viewer.querySelector('.media-close-button').focus({preventScroll:true});
 }
@@ -156,7 +177,7 @@ function ensureViewer() {
   viewer.className='media-modal'; viewer.setAttribute('role','dialog'); viewer.setAttribute('aria-modal','true'); viewer.setAttribute('aria-hidden','true');
   viewer.innerHTML=`<div class="media-dialog">
     <div class="media-viewer-header"><div class="media-viewer-title"></div><button class="media-icon-button media-close-button" type="button" aria-label="Close image viewer">✕</button></div>
-    <div class="media-stage" aria-label="Zoomable gear image"><img class="media-viewer-image" alt="" draggable="false" /></div>
+    <div class="media-stage" aria-label="Zoomable image"><img class="media-viewer-image" alt="" draggable="false" /></div>
     <div class="media-toolbar" aria-label="Image controls"><button class="media-icon-button" type="button" data-media-zoom-out aria-label="Zoom out">−</button><button class="media-reset-button" type="button" data-media-reset>Reset</button><button class="media-icon-button" type="button" data-media-zoom-in aria-label="Zoom in">+</button><a class="media-product-link" target="_blank" rel="noopener">🌐 Product page ↗</a></div>
   </div>`;
   document.body.append(viewer); state.viewer=viewer;

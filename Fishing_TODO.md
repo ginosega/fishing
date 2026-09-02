@@ -1,10 +1,10 @@
 # Fishing TODO
 
-_Last updated: 2026-09-01_
+_Last updated: 2026-09-02_
 
 This file is the canonical backlog for unresolved Fishing-project verification items, research tasks, equipment questions, technique work, and owner follow-ups.
 
-The project now has two application-data domains: My Gear uses structured JSON/IndexedDB, while the Knowledge Base remains in GitHub Markdown pending its own architecture review. The legacy OneNote/PDF may be consulted as a historical migration source, but it is not a parallel active source of truth.
+The project has two application-data domains: My Gear uses structured JSON/IndexedDB, while the Knowledge Base uses a unified structured entity index over complete Markdown documents plus a separate structured Catch Log. The legacy OneNote/PDF and migrated topic files may be consulted as historical/reference sources, but they are not parallel runtime sources of truth.
 
 ## Status convention
 
@@ -39,7 +39,7 @@ The project now has two application-data domains: My Gear uses structured JSON/I
 | FISH-TODO-015 | P3 | OPEN | Tackle | Buy/consider Berkley Warpig. | OneNote buy item: 1/2 oz, 3\", Blue Shad. |
 | FISH-TODO-016 | P3 | OPEN | Tackle | Buy/consider Bait Pop with red flake. | OneNote scent TODO; prefer water-soluble scent, shrimp-extract flavor noted. |
 | FISH-TODO-017 | P2 | OPEN | Techniques | Resolve hook-size guidance for PowerBait still rigs. | OneNote rig uses #4 hook; prior guidance often used #8 for PowerBait/Power Eggs. Keep both until tested/decided. |
-| FISH-TODO-018 | P2 | OPEN | Techniques / knots | Resolve loop-knot guidance conflict. | OneNote knot page says loop knot is weak/don't use; some technique notes still recommend loop knots for finesse/jerkbait action. Address during Knowledge Base/knot redesign. |
+| FISH-TODO-018 | P2 | OPEN | Techniques / knots | Resolve loop-knot guidance conflict. | The unified Knot content preserves the conflict: OneNote says loop knot is weak/don't use; some Technique content still recommends loop knots for action. Resolve through content review/user decision. |
 | FISH-TODO-019 | P2 | OPEN | Techniques | Build Texas Rig page. | OneNote page is TODO only. |
 | FISH-TODO-020 | P3 | OPEN | Techniques | Build Carolina Rig page. | OneNote page is TODO only. |
 | FISH-TODO-021 | P3 | OPEN | Techniques | Build Alabama Rig page. | OneNote page is TODO only. |
@@ -53,15 +53,12 @@ The project now has two application-data domains: My Gear uses structured JSON/I
 | FISH-TODO-029 | P2 | OPEN | Kayak safety/storage | Determine how to tie off bow-hatch items. | Tool bag/bilge pump tie-off question in OneNote. |
 | FISH-TODO-030 | P3 | DEFERRED | Power/electronics | Evaluate whether trailer battery could work for kayak motor/electronics scenario. | OneNote motor/battery research item; resume only if the kayak-motor project returns. |
 | FISH-TODO-031 | P3 | OPEN | Learning | Listen/watch Science of the Strike episodes 8 and 16. | Dissolved oxygen and turbidity noted. |
-| FISH-TODO-032 | P3 | OPEN | Trip logs | Continue adding catch/no-bite reports. | Current catch log is still Markdown-backed during the transition; future structured-catch work is tracked separately. |
+| FISH-TODO-032 | P3 | OPEN | Catch Log | Continue adding structured catch records. | Track catches only, not trips or no-bite sessions. Use stable species/location/gear references and do not infer setup or technique. |
 | FISH-TODO-033 | P3 | OPEN | Safety/regulations | Create regulation recheck checklist. | Include Fish Washington app, lake-specific rules, species ID, bait/retention implications. |
 | FISH-TODO-034 | P3 | OPEN | Markdown usability | Spot-check inline links in GitHub Preview. | Applies to the remaining Knowledge Base Markdown while it remains active. |
-| FISH-TODO-035 | P1 | IN PROGRESS | Fishing Companion PWA | Finish acceptance testing the mobile/offline Fishing Companion. | Structured My Gear is live. PR #10 fixed the Sev 1 routing/layout regression and production run #70 succeeded. Next action: user retest Home → My Gear → category → leaf pages, then proceed to Knowledge Base architecture design if accepted. Live URL: `https://ginosega.github.io/fishing/`. |
 | FISH-TODO-037 | P3 | DEFERRED | PWA / multi-user product | Generalize Fishing Companion for multiple users. | Current app remains intentionally single-user/personal even though its deployment URL may be publicly reachable. Revisit only after the personal version is mature. |
-| FISH-TODO-039 | P2 | OPEN | PWA / catch history | Add rod/reel setup to future catch-log records. | Setup-specific catch history cannot be reliable until catches record the setup used. Do not invent historical setup attribution unless recoverable or user-confirmed. |
+| FISH-TODO-039 | P2 | OPEN | PWA / catch history | Record rod/reel setup on new catches when known. | The structured field exists. Existing historical catches remain null because setup attribution was not recorded and must not be invented. |
 | FISH-TODO-045 | P2 | DEFERRED | PWA / My Gear v2 editing | Add normal Add/Edit/Delete forms and expose JSON import/export when v2 work resumes. | IndexedDB/repository layers are writable, but current v1 UI intentionally exposes neither CRUD forms nor the temporary My Gear data import/export card. Future bulk-edit preference is Export JSON → edit externally → Import JSON; no raw JSON editor. |
-| FISH-TODO-046 | P1 | OPEN | PWA / Knowledge Base architecture | Redesign the Knowledge Base data model before deeper KB development. | Reconsider Markdown vs structured/hybrid storage; move Knots explicitly into the KB domain; preserve stable relationships from gear to knots/techniques/locations/species. Begin after post-PR #10 My Gear acceptance. |
-| FISH-TODO-047 | P2 | OPEN | PWA / catch data model | Move catch history to structured records with stable references. | Design after KB model decisions. Catch records should eventually reference gear item IDs, setup IDs, locations, species, and observations rather than depend on text matching. |
 
 ---
 
@@ -81,3 +78,6 @@ The project now has two application-data domains: My Gear uses structured JSON/I
 | FISH-TODO-043 | 2026-09-01 | PWA / Knot content | Trilene reverse link to Snaps & Swivels removed and video link normalized to `How to tie the Trilene knot`. |
 | FISH-TODO-044 | 2026-09-01 | Tackle / PWA data | Cylinder weights corrected to manufacturer THKFISH, model `28 pcs sinkers set`. |
 | FISH-TODO-048 | 2026-09-01 | PWA / My Gear routing | Sev 1 post-refactor routing/layout regression fixed in PR #10. Structured My Gear now owns all `#/inventory` routes; accepted header layout and Home subtext restored; temporary My Gear data import/export card removed; routing/layout regression tests added. Production commit `8af0c654168cdefad37f79368719ac66a69c98b1`, run #70 / `33590304599`, build and Pages deploy successful. |
+| FISH-TODO-035 | 2026-09-02 | Fishing Companion PWA | User accepted the complete post-PR #10 My Gear flow as working correctly. |
+| FISH-TODO-046 | 2026-09-02 | PWA / Knowledge Base architecture | Adopted and implemented one unified KB Entity schema for Location, Species, Technique, and Knot: ID, Type, Name, optional Description, optional Picture, and one complete Markdown Content document. Planner/session/trip-history concepts were retired. |
+| FISH-TODO-047 | 2026-09-02 | PWA / Catch Log | Migrated five historical catches to structured records with stable species, location, and lure IDs; optional setup/technique fields remain null where not historically recorded. Catch backlinks now use exact IDs rather than text matching. |

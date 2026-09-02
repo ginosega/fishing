@@ -29,23 +29,25 @@ My Gear no longer derives its application records from Markdown tables.
 
 Manufacturer, model, specifications, manufacturer links, retailer links, usage guidance, and connection guidance are explicit fields rather than facts inferred from prose.
 
-**Knots are not My Gear records.** They belong in the Knowledge Base domain and are intentionally absent from My Gear pending the Knowledge Base redesign.
+**Knots are not My Gear records.** They are unified Knowledge Base entities and remain intentionally absent from My Gear.
 
-The old Markdown inventories (`Fishing_Gear_Registry.md` and `Fishing_Tackle_Inventory.md`) remain useful migrated project/reference material and are still bundled temporarily for the legacy Knowledge Base/planner, but they are **not the My Gear PWA data source**.
+The old Markdown inventories (`Fishing_Gear_Registry.md` and `Fishing_Tackle_Inventory.md`) remain useful migrated/reference material, but they are **not application data sources**.
 
-### Knowledge Base / planner
+### Knowledge Base and Catch Log
 
-The Knowledge Base and planner have **not yet been refactored**. They still use selected migrated Markdown files during this transition, especially:
+The Knowledge Base uses a small structured index over complete Markdown documents:
 
-- `Topics/Rods_Reels_Line_Knots.md`
-- `Topics/Fishing_Techniques.md`
-- `Topics/Local_Waters_Locations.md`
-- `Topics/Trip_Logs_Field_Observations.md`
-- plus transitional registry/inventory inputs used by the legacy planner.
+- Bundled entity index: `pwa/data/kb.seed.json`
+- Entity schema/validation: `pwa/kb-model.js`
+- Complete authored documents: `pwa/kb-content/`
+- UI and route owner: `pwa/kb-app.js`
+- Safe presentation renderer: `pwa/markdown-render.js`
 
-Before deeper Knowledge Base development, its data model will be reconsidered separately. A structured or hybrid model is expected to be evaluated rather than automatically extending the old Markdown-parser architecture.
+Every Location, Species, Technique, and Knot uses the same six fields: stable ID, Type, Name, optional Description, optional Picture, and one complete Markdown Content document. Type is only the top-level discriminator; Technique has no grouping subtype. Use, Rigging, Notes, Resources, tables, links, and embedded pictures remain normal Markdown content rather than atomic data fields.
 
-Catch history is also still Markdown-backed during this phase and should eventually become structured records with stable references to gear/setup/location entities.
+Catch Log is separate structured data in `pwa/data/catches.seed.json`. Catch records use stable species, location, optional technique, optional rod/reel setup, and lure-or-bait IDs. Historical setup and technique values remain null unless actually recorded. Catch backlinks on KB and My Gear pages are computed from these records.
+
+The unsuccessful Planner and session/trip-history concepts were retired. The Knowledge Base is a browsable information repository and does not assemble plans from parsed prose.
 
 ## Fishing Companion PWA
 
@@ -58,7 +60,7 @@ Current product scope is **single-user and personal**. A publicly reachable but 
 The two top-level workflows are:
 
 1. **My Gear** — browse owned rod/reel setups, line, weights, snaps/swivels, hooks, lures, and bait.
-2. **Knowledge Base** — currently exposes the existing planner plus technique/location knowledge while its long-term architecture is redesigned.
+2. **Knowledge Base** — browse Locations, Species, Techniques, Knots, and the structured Catch Log.
 
 ### Current production state
 
@@ -81,7 +83,7 @@ PR #10 also restored the accepted UI behavior:
 - Home My Gear subtext: `Browse your inventory of equipment, tackle, and bait`
 - My Gear page title/subtitle aligned left with Back button on the right
 - all `#/inventory/...` routes are owned by the structured My Gear app so category cards can open leaf pages reliably
-- the legacy Markdown router is isolated to Home/Knowledge Base/planner routes
+- `pwa/kb-app.js` owns Home and all `#/kb/...` routes; the retired legacy parser/planner is not bundled
 - the temporary **My Gear data** import/export card was removed from the current UI
 
 ### Deferred v2 editing features
@@ -100,9 +102,9 @@ For a new chat or project handoff, read:
 4. `Fishing_Decision_Log.md`
 5. `pwa/README.md`
 
-For My Gear data/content work, inspect `pwa/data/gear.seed.json` and the structured model/repository files. Read the legacy gear/tackle Markdown only when historical/migrated context or the transitional Knowledge Base needs it.
+For My Gear data/content work, inspect `pwa/data/gear.seed.json` and the structured model/repository files. Read the legacy gear/tackle Markdown only for historical/migrated context.
 
-For Knowledge Base work, read the relevant `Topics/` Markdown files and first address the open Knowledge Base architecture decision in `Fishing_TODO.md`.
+For Knowledge Base work, inspect `pwa/data/kb.seed.json`, `pwa/data/catches.seed.json`, and the relevant complete documents under `pwa/kb-content/`. The `Topics/` files remain migrated/reference sources, not runtime inputs.
 
 ## Evidence / status labels
 

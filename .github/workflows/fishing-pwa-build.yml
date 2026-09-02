@@ -44,11 +44,12 @@ jobs:
           node-version: '22'
       - name: Validate JavaScript syntax
         run: |
-          node --check pwa/app.js
           node --check pwa/gear-app.js
-          node --check pwa/legacy-app-loader.js
+          node --check pwa/kb-app.js
           node --check pwa/gear-store.js
           node --check pwa/gear-model.js
+          node --check pwa/kb-model.js
+          node --check pwa/markdown-render.js
           node --check pwa/media-ui.js
           node --check pwa/build.mjs
           node --check pwa/serve.mjs
@@ -56,6 +57,10 @@ jobs:
         run: node pwa/gear-model.test.mjs
       - name: Test My Gear routing and layout
         run: node pwa/my-gear-routing.test.mjs
+      - name: Test unified Knowledge Base model
+        run: node pwa/kb-model.test.mjs
+      - name: Test Knowledge Base routing and Markdown
+        run: node pwa/kb-routing.test.mjs
       - name: Build PWA
         run: node pwa/build.mjs
       - name: Verify bundle
@@ -63,20 +68,26 @@ jobs:
           test -f pwa/dist/index.html
           test -f pwa/dist/sw.js
           test -f pwa/dist/gear-app.js
-          test -f pwa/dist/legacy-app-loader.js
+          test -f pwa/dist/kb-app.js
           test -f pwa/dist/gear-store.js
           test -f pwa/dist/gear-model.js
+          test -f pwa/dist/kb-model.js
+          test -f pwa/dist/markdown-render.js
           test -f pwa/dist/data/gear.seed.json
+          test -f pwa/dist/data/kb.seed.json
+          test -f pwa/dist/data/catches.seed.json
           test -f pwa/dist/media-ui.js
           test -f pwa/dist/gear-media.json
+          test -f pwa/dist/kb-assets.json
           test -f pwa/dist/video-titles.json
-          test -f pwa/dist/kb/Fishing_Tackle_Inventory.md
-          test -f pwa/dist/kb/Rods_Reels_Line_Knots.md
+          test -f pwa/dist/kb-content/locations/lake-sammamish.md
+          test -f pwa/dist/kb-content/techniques/ned-rig.md
+          test -f pwa/dist/kb-content/knots/palomar.md
           grep -q 'gear-app.js?v=' pwa/dist/index.html
-          grep -q 'legacy-app-loader.js?v=' pwa/dist/index.html
+          grep -q 'kb-app.js?v=' pwa/dist/index.html
           grep -q 'media-ui.js?v=' pwa/dist/index.html
           grep -q 'styles.css?v=' pwa/dist/index.html
-          grep -q 'Structured IndexedDB-backed My Gear' pwa/dist/build.json
+          grep -q 'unified Markdown-content Knowledge Base' pwa/dist/build.json
       - name: Upload CI artifact
         uses: actions/upload-artifact@v4
         with:

@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0b3d3a" />
-  <meta name="description" content="Offline-first front end for the Fishing knowledge base." />
+  <meta name="description" content="Offline-first fishing gear, knowledge, and catch companion." />
   <title>Fishing Companion</title>
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="icon" href="./icon.svg" type="image/svg+xml" />
@@ -43,7 +43,6 @@
   <header class="app-header">
     <button class="icon-button" id="homeButton" type="button" aria-label="Home">🎣</button>
     <div>
-      <div class="eyebrow">Fishing knowledge base</div>
       <h1>Fishing Companion</h1>
     </div>
     <div class="status-dot" id="onlineStatus" title="Connection status" aria-label="Connection status"></div>
@@ -61,7 +60,7 @@
   </footer>
 
   <script src="./gear-app.js" type="module"></script>
-  <script src="./legacy-app-loader.js" type="module"></script>
+  <script src="./kb-app.js" type="module"></script>
   <script src="./media-ui.js" type="module"></script>
   <script>
     document.addEventListener('click', event => {

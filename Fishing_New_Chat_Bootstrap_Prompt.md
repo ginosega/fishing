@@ -1,6 +1,6 @@
 # Fishing New Chat Bootstrap Prompt
 
-**Status:** ACTIVE HANDOFF — STRUCTURED MY GEAR / KB REDESIGN NEXT
+**Status:** ACTIVE HANDOFF — STRUCTURED MY GEAR / UNIFIED KB + CATCH LOG
 
 Copy the prompt below into a new Fishing chat.
 
@@ -21,8 +21,8 @@ Read these files first, in order:
 Then, depending on the task:
 
 - For **My Gear data/content**, inspect `pwa/data/gear.seed.json`, `pwa/gear-model.js`, `pwa/gear-store.js`, and `pwa/gear-app.js`.
-- For **Knowledge Base/planner work**, read the relevant Markdown topic files, especially `Topics/Rods_Reels_Line_Knots.md`, `Topics/Fishing_Techniques.md`, `Topics/Local_Waters_Locations.md`, and `Topics/Trip_Logs_Field_Observations.md`.
-- Use `Fishing_Gear_Registry.md` and `Fishing_Tackle_Inventory.md` as migrated/reference/transitional material when useful, but **do not treat them as the My Gear PWA data source**.
+- For **Knowledge Base/Catch Log work**, inspect `pwa/data/kb.seed.json`, `pwa/data/catches.seed.json`, `pwa/kb-model.js`, `pwa/kb-app.js`, `pwa/markdown-render.js`, and the relevant complete documents under `pwa/kb-content/`.
+- Use the `Topics/*.md`, `Fishing_Gear_Registry.md`, and `Fishing_Tackle_Inventory.md` files as migrated/reference material when useful, but do **not** treat them as PWA runtime data sources.
 
 Other topic files:
 
@@ -82,22 +82,22 @@ Current My Gear categories:
 
 The structured model explicitly stores category, type, manufacturer, model, optional specifications, typed links, optional connection guidance, optional usage guidance, and stable IDs. Do not reintroduce parsing heuristics to infer manufacturer/model/link types from Markdown.
 
-### 2. Knowledge Base / planner — transitional Markdown
+### 2. Knowledge Base and Catch Log — unified indexed documents
 
-The Knowledge Base/planner has **not yet been redesigned**. The legacy application still consumes selected migrated Markdown for techniques, locations, current catch history, and planner behavior.
+Locations, Species, Techniques, and Knots all use one KB Entity schema:
 
-This is deliberately transitional. Before deeper KB work, we need to decide whether the Knowledge Base should use a structured or hybrid model and how to represent:
+- ID
+- Type (`location`, `species`, `technique`, or `knot`)
+- Name
+- Description (optional)
+- Picture (optional)
+- Content (one complete Markdown document)
 
-- Knots
-- techniques and rigs
-- species
-- season/depth/structure relationships
-- locations
-- narrative knowledge
-- stable relationships to My Gear
-- catch history/provenance
+Type is only the four-way discriminator; Techniques do not have grouping subtypes. Use, Rigging, Notes, Resources, links, tables, and any number of embedded pictures belong inside Content as ordinary Markdown.
 
-Do not automatically extend the old Markdown-parser architecture merely because it exists.
+Catch Log is separate structured data with stable Species, Location, optional Technique, optional rod/reel setup, and exactly one Lure or Bait relationship. Exact-spot Markdown owns depth/structure/conditions. Do not infer historical setup or technique.
+
+The Planner, Planner Attributes, fishing sessions, Session ID, and trip history were intentionally retired. Do not reintroduce the old parser/planner architecture.
 
 ## Current Fishing Companion production state
 
@@ -132,11 +132,11 @@ Verified successful:
 - GitHub Pages artifact
 - GitHub Pages deployment
 
-The routing boundary is now explicit:
+The route ownership is explicit:
 
 - `pwa/gear-app.js` owns all `#/inventory/...` routes.
-- `pwa/legacy-app-loader.js` loads the legacy `app.js` only for Home/Knowledge Base/planner routes.
-- `pwa/my-gear-routing.test.mjs` guards this boundary.
+- `pwa/kb-app.js` owns Home and all `#/kb/...` routes.
+- `pwa/my-gear-routing.test.mjs` and `pwa/kb-routing.test.mjs` guard this boundary.
 
 ## Current accepted My Gear UI requirements
 
@@ -156,7 +156,7 @@ After PR #10, current intended behavior is:
 - catch history appears only where appropriate (rod/reel setups, lures, bait)
 - images/media viewer remain presentation-only
 
-The immediate next action is to **retest this post-PR #10 My Gear flow**. If it looks correct, move on to the Knowledge Base architecture discussion rather than adding v2 My Gear editing features.
+The user accepted this complete My Gear flow on 2026-09-02. Do not reopen acceptance or add v2 editing unless a new defect or explicit request requires it.
 
 ## v2 editing scope — deferred
 
@@ -271,16 +271,14 @@ Do not convert candidate gear into owned gear unless I confirm it or current dur
 
 Use `Fishing_TODO.md` as canonical. Especially important now:
 
-1. Finish post-PR #10 My Gear acceptance testing.
-2. Redesign the **Knowledge Base** data model before deeper KB work; Knots belong there.
-3. Later move catch history to structured records with stable gear/setup/location references.
-4. Defer My Gear CRUD forms and JSON import/export UI until v2.
-5. Resolve PowerBait hook-size conflict (#4 in OneNote rig vs prior #8 guidance).
-6. Resolve loop-knot conflict during the KB/knot redesign.
-7. Verify actual fish-finder power/wiring installed state.
-8. Verify Bonafide RVR119 brass insert/thread sizes.
-9. Resolve rear flush rod-holder angle modification.
-10. Confirm purchase status of Bonafide under-seat tackle storage and YakAttack fish cooler bag.
+1. Defer My Gear CRUD forms and JSON import/export UI until v2.
+2. Resolve PowerBait hook-size conflict (#4 in OneNote rig vs prior #8 guidance).
+3. Resolve the preserved loop-knot conflict.
+4. Continue curating complete KB documents and structured catches.
+5. Verify actual fish-finder power/wiring installed state.
+6. Verify Bonafide RVR119 brass insert/thread sizes.
+7. Resolve rear flush rod-holder angle modification.
+8. Confirm purchase status of Bonafide under-seat tackle storage and YakAttack fish cooler bag.
 
 ## Durable update rules
 
@@ -295,9 +293,11 @@ Use the correct owner for the data domain:
 
 ### Knowledge Base / general fishing reference
 
-- Update the appropriate `Topics/*.md` file and cross-reference rather than duplicating long content.
+- Update `pwa/data/kb.seed.json` for the unified entity index and the registered full document under `pwa/kb-content/` for authored KB content.
+- Update `pwa/data/catches.seed.json` for structured catch records.
+- Keep schema/stable IDs valid and do not infer domain facts by parsing Markdown headings/prose.
 - Update `Fishing_TODO.md` and/or `Fishing_Decision_Log.md` for unresolved work or durable decisions.
-- `Fishing_Gear_Registry.md` and `Fishing_Tackle_Inventory.md` remain useful migrated/reference material during the transition, but are not the My Gear application's source.
+- `Topics/*.md`, `Fishing_Gear_Registry.md`, and `Fishing_Tackle_Inventory.md` remain useful migrated/reference material, but are not application data sources.
 
 For current regulations, stocking, access, prices, availability, or conditions, recheck authoritative current sources.
 
@@ -319,7 +319,7 @@ If I give a requirement that would materially affect architecture, deployment, m
 
 ## Immediate continuation instruction
 
-Start by confirming the repository state and the PR #10 production deployment above. Then ask me to retest—or, if I already provide retest results, continue directly from them. Do **not** start Knowledge Base implementation until My Gear is accepted. Once My Gear is accepted, begin with a design discussion for the KB data model rather than coding immediately.
+Start by confirming the current repository state and latest production deployment. Treat the unified KB Entity model, structured Catch Log, retired Planner scope, and accepted My Gear v1 behavior as durable decisions unless I explicitly reopen them.
 
 ---
 
