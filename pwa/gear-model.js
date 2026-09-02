@@ -6,11 +6,15 @@ export function validateGearBundle(bundle) {
   if (!bundle || typeof bundle !== 'object' || Array.isArray(bundle)) return { valid:false, errors:['Root value must be an object.'] };
   if (bundle.schemaVersion !== GEAR_SCHEMA_VERSION) errors.push(`schemaVersion must be ${GEAR_SCHEMA_VERSION}.`);
   if (!Array.isArray(bundle.items)) errors.push('items must be an array.');
+  validateProfiles(bundle.profiles, errors);
+  const connectionProfiles = new Set(Object.keys(bundle.profiles?.connections || {}));
+  const usageProfiles = new Set(Object.keys(bundle.profiles?.usage || {}));
   const ids = new Set();
   for (const [index,item] of (bundle.items || []).entries()) {
     const at = `items[${index}]`;
     if (!item || typeof item !== 'object' || Array.isArray(item)) { errors.push(`${at} must be an object.`); continue; }
     if (!isText(item.id)) errors.push(`${at}.id is required.`);
+    else if (!/^[a-z0-9][a-z0-9-]*$/.test(item.id)) errors.push(`${at}.id must use lowercase letters, numbers, and hyphens only.`);
     else if (ids.has(item.id)) errors.push(`${at}.id duplicates ${item.id}.`);
     else ids.add(item.id);
     if (!GEAR_CATEGORIES.includes(item.category)) errors.push(`${at}.category must be one of ${GEAR_CATEGORIES.join(', ')}.`);
@@ -26,12 +30,17 @@ export function validateGearBundle(bundle) {
     }
     validateSpecifications(item.specifications, `${at}.specifications`, errors);
     validateLinks(item.links, `${at}.links`, errors);
-    if (item.connectionProfileId != null && !isText(item.connectionProfileId)) errors.push(`${at}.connectionProfileId must be text.`);
-    if (item.usageProfileId != null && !isText(item.usageProfileId)) errors.push(`${at}.usageProfileId must be text.`);
+    if (item.connectionProfileId != null) {
+      if (!isText(item.connectionProfileId)) errors.push(`${at}.connectionProfileId must be text.`);
+      else if (!connectionProfiles.has(item.connectionProfileId)) errors.push(`${at}.connectionProfileId references unknown profile ${item.connectionProfileId}.`);
+    }
+    if (item.usageProfileId != null) {
+      if (!isText(item.usageProfileId)) errors.push(`${at}.usageProfileId must be text.`);
+      else if (!usageProfiles.has(item.usageProfileId)) errors.push(`${at}.usageProfileId references unknown profile ${item.usageProfileId}.`);
+    }
     validateGuidance(item.connections, `${at}.connections`, errors);
     validateGuidance(item.usage, `${at}.usage`, errors);
   }
-  validateProfiles(bundle.profiles, errors);
   return { valid: errors.length === 0, errors };
 }
 
@@ -108,6 +117,7 @@ function validateGuidance(sections, at, errors) {
     if (section.title != null && !isText(section.title)) errors.push(`${at}[${index}].title must be text.`);
     if (section.html != null && !isText(section.html)) errors.push(`${at}[${index}].html must be text.`);
     if (section.text != null && !isText(section.text)) errors.push(`${at}[${index}].text must be text.`);
+    if (section.html == null && section.text == null) errors.push(`${at}[${index}] must contain html or text.`);
   });
 }
 
