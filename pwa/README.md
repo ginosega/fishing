@@ -1,22 +1,17 @@
 # Fishing Companion PWA
 
-Fishing Companion is the mobile/offline front end for the Fishing Markdown knowledge base.
+Fishing Companion is a single-user, offline-capable fishing application. The application is being developed in two deliberately different data domains:
+
+- **My Gear** uses a structured local-first data model.
+- **Knowledge Base / planner** still uses the migrated GitHub Markdown knowledge base while its long-term model is reconsidered separately.
 
 ## Current product scope
 
-The current app is intentionally **single-user and personal**. It is built around one user's own Fishing knowledge base: owned gear/tackle, saved knots, fishing locations, curated techniques, and catch history.
+The current app is intentionally **single-user and personal**. It is designed around the user's own gear/tackle, locations, techniques, catch history, and field-planning workflows.
 
-The app does **not** need access control in the current phase. A publicly reachable but non-advertised URL is acceptable; the current product is still designed only for the user's own data and workflows. Privacy/access restriction is a **P3** requirement unless explicitly elevated for a specific reason.
+The app does **not** need access control in the current phase. A publicly reachable but non-advertised URL is acceptable. Privacy/access restriction remains a **P3** requirement unless explicitly elevated.
 
-A future generalized version could add per-user:
-
-- gear/tackle inventories;
-- saved knots and preferred setups;
-- fishing locations and personal location notes;
-- catch/trip logs;
-- preferences and other personalized planning inputs.
-
-That multi-user product is explicitly deferred until the personal version is mature.
+A future generalized version may add per-user inventories, catch logs, locations, preferences, synchronization, and other personalized planning inputs. That multi-user product is deferred until the personal version is mature.
 
 ## Requirement tradeoff rule
 
@@ -26,38 +21,94 @@ Before implementing a requirement that would materially affect architecture, dep
 - **P2** requirements should be balanced against implementation/deployment cost.
 - **P3** requirements should not create significant complexity, friction, or usability loss without an explicit discussion and decision.
 
-This rule applies to Fishing Companion and should also be used for other applications developed with the user, including TowCalc.
+This rule also applies to other applications developed with the user, including TowCalc.
 
 ## Product model
 
 The app has two top-level workflows:
 
-1. **My Gear** — browse owned rod/reel setups, line, weights, snaps/swivels, hooks, lures, bait, and saved knots. The first mobile acceptance pass established normalized category and leaf-page behavior rather than exposing source-table bookkeeping directly.
-2. **Knowledge Base** — build a fishing plan from any combination of water, date/time, target species, current rod/reel setup, or lure/bait. The app ranks relevant location notes, techniques, owned tackle, knot/connection guidance, and similar catch history into a field-oriented plan.
+1. **My Gear** — browse owned rod/reel setups, line, weights, snaps/swivels, hooks, lures, and bait.
+2. **Knowledge Base** — currently provides the existing fishing planner and technique/location knowledge. Its architecture will be reconsidered before deeper development.
 
-Knots remain first-class browseable records and plan components.
+**Knots are not My Gear records.** They belong in the Knowledge Base domain and are intentionally absent from My Gear until the Knowledge Base redesign is completed. Gear records may later reference Knowledge Base knots through stable IDs.
 
-### My Gear information architecture
+## My Gear architecture
 
-The visible mobile hierarchy is intentionally flatter than the underlying data model:
+My Gear no longer derives its application records from Markdown tables.
 
-- **Rods & Reels** uses first-class owned setup records grouped directly under Spinning, Baitcasting, and Spincasting. Setup type is a reusable classification/guidance attribute, not an intermediate navigation page.
-- **Line** separates owned products from reusable Braided, Fluorocarbon, and Monofilament type knowledge.
-- **Lures** can aggregate multiple owned size/color/weight variants into one product-family card while retaining variant-level inventory data for planning and catch history.
-- **Weights**, **Snaps & Swivels**, and other terminal tackle use physical item/type records rather than naming the item after a technique that happens to use it.
-- Explicit relationships connect gear to techniques, rigs, knots, and other gear. Where a dedicated Knowledge Base page owns the detailed procedure, My Gear usually summarizes the relationship and links to it rather than duplicating the procedure.
+The model is:
 
-Applicable My Gear leaf pages standardize on **Manufacturer / Model**, **Specifications**, and **Links**. Source bookkeeping such as Status, Evidence, and Detail File is not exposed in the field UI.
+```text
+Bundled structured JSON seed
+          ↓
+   schema validation
+          ↓
+      IndexedDB
+   live local store
+          ↓
+   Gear Repository
+          ↓
+      My Gear UI
+```
 
-Search and type filters use progressive disclosure. Search is normally omitted below roughly 12 normalized cards unless direct lookup is unusually useful; type filters appear only when they materially reduce a non-trivial list. Category-specific usability can override those heuristics.
+### Structured data
 
-## Source-of-truth rule
+`pwa/data/gear.seed.json` is the bundled initial dataset and portable interchange representation. Each item has explicit fields rather than fields inferred from prose, including:
 
-**GitHub Markdown remains authoritative.** The PWA does not maintain a second fishing database.
+- stable `id`;
+- `category` and `type`;
+- `manufacturer.name` and optional manufacturer URL;
+- `model`;
+- optional structured specifications;
+- optional typed retailer/resource links;
+- optional connection and usage profiles or item-specific guidance.
 
-`build.mjs` copies the selected canonical Markdown files into the deploy bundle under `kb/`. `app.js` parses those Markdown files in the browser and builds transient inventory, technique, location, knot, setup, relationship, and catch-history models. The service worker caches both the app shell and the copied Markdown so the core experience works offline after the first load.
+Rod/reel setups use structured rod and reel component objects.
 
-Current source files:
+This prevents presentation code from having to infer whether a URL is a manufacturer link or retailer link, where the manufacturer ends and model begins, or whether a part number is a model.
+
+### Live local storage
+
+The browser's **IndexedDB** database is the live My Gear store. It is available offline and is accessed through `GearRepository`; My Gear UI code does not directly manipulate IndexedDB.
+
+On first use, the validated bundled JSON seed initializes IndexedDB. While the database is still seed-managed, a newer bundled `dataVersion` automatically advances the local database. Once the user imports a manually edited JSON file, that local database becomes user-managed and future seed revisions do not silently overwrite it.
+
+### JSON export/import
+
+The My Gear root includes:
+
+- **Export My Gear JSON** — downloads the current local database in the same schema used by the application.
+- **Import My Gear JSON** — validates an edited file and previews added, modified, omitted, and unchanged stable IDs before any change is applied.
+- **Merge** — adds/updates imported stable IDs while preserving local records omitted from the file.
+- **Replace** — makes the imported file the complete local My Gear database, so omissions act as deletions.
+
+There is intentionally **no raw JSON editor inside the PWA**.
+
+There are also intentionally **no Add/Edit/Delete forms yet**. Until those are developed, export → edit externally → import is the supported manual editing path.
+
+## My Gear information architecture
+
+The current categories are:
+
+- Rods & Reels
+- Line
+- Weights
+- Snaps & Swivels
+- Hooks
+- Lures
+- Bait
+
+Rods & Reels are grouped by Spinning, Baitcasting, and Spincasting. Line is grouped by Braided, Fluorocarbon, and Monofilament. Lures use search and a type filter; Hooks use a type filter.
+
+Applicable leaf pages render structured **Manufacturer / Model**, **Specifications**, and **Links** fields. Optional **Knots & connections**, **How to use it**, and catch-history panels render only when the item model supplies them.
+
+Manufacturer links are generated from the explicit manufacturer object and therefore display only the manufacturer's name. Retailer links are separate typed records.
+
+## Knowledge Base transitional architecture
+
+The Knowledge Base/planner has **not** yet been refactored. The existing `app.js` still loads selected migrated Markdown files because planner, location, technique, and current catch-log behavior depend on them.
+
+Current transitional Markdown inputs include:
 
 - `Fishing_Gear_Registry.md`
 - `Fishing_Tackle_Inventory.md`
@@ -66,29 +117,42 @@ Current source files:
 - `Topics/Local_Waters_Locations.md`
 - `Topics/Trip_Logs_Field_Observations.md`
 
+The first two files are retained during this transition even though **My Gear itself no longer consumes Markdown-derived inventory records**. Do not treat the present Knowledge Base implementation as the final architecture; its data model will be reconsidered before deeper KB development.
+
+Catch history is also still read from the migrated trip-log Markdown during this phase. A future structured catch model should reference gear/setup/location records by stable ID.
+
+## Offline behavior
+
+Two mechanisms are used deliberately:
+
+- **Service Worker cache** — application shell, bundled seed JSON, Knowledge Base files, and cached product media.
+- **IndexedDB** — live My Gear user data.
+
+This allows the PWA to browse My Gear and use its local inventory without a network connection after installation/initialization.
+
 ## Acceptance testing
 
-Testing is phone-first, with desktop/tablet secondary. Ordinary feedback is batched so the deployed UI remains stable during an active pass; blocking defects may be fixed immediately.
+Testing is phone-first, with desktop/tablet secondary. The previous Markdown-derived My Gear implementation completed its content scrub before this local-first refactor so the structured seed could be created from reviewed data rather than from an unreviewed migration snapshot.
 
-The first **My Gear** acceptance pass was completed on 2026-08-31. The consolidated My Gear refactor is now the build under second-pass acceptance testing. Detailed temporary observations are tracked in `TESTING_FEEDBACK.md` until they are either implemented or migrated into durable documentation/TODO/decision records.
+The structured My Gear build must be acceptance-tested before work moves into the Knowledge Base redesign. Key checks include category/list/leaf content, images and viewer behavior, manufacturer/retailer links, catch histories, JSON export/import validation and preview, and offline behavior.
 
 ## Browser testing
 
-The normal testing/use path is the deployed GitHub Pages URL. Changes to the PWA or its canonical Markdown inputs trigger the GitHub Actions build/deploy workflow automatically.
+The normal testing/use path is the deployed GitHub Pages URL.
 
-For local development only, from the repository root:
+For local development, from the repository root:
 
 ```bash
 node pwa/serve.mjs
 ```
 
-That command rebuilds the app from the current Markdown knowledge base and serves it at:
+The app is served at:
 
 ```text
 http://127.0.0.1:4173
 ```
 
-Local testing is optional and is not required for normal app use.
+Local testing is optional and is not required for normal use.
 
 ## Build only
 
@@ -98,24 +162,32 @@ From the repository root:
 node pwa/build.mjs
 ```
 
-The deployable site is written to `pwa/dist/`.
+The build validates the structured My Gear seed before creating the deployable site in `pwa/dist/`.
+
+CI also validates stable IDs, profile references, critical manufacturer/model mappings, and bundle contents before deployment.
 
 ## Hosting and updates
 
-Fishing Companion uses GitHub Pages, matching the simple URL-based usage model used by TowCalc. Because Fishing Companion has a build step, GitHub Actions builds `pwa/dist/` and deploys that artifact to Pages whenever relevant files change on `main`.
+Fishing Companion uses GitHub Pages. GitHub Actions builds `pwa/dist/` and deploys the artifact whenever relevant files change on `main`.
 
-The deployed HTML version-stamps `app.js` and `styles.css`, and the knowledge-base Markdown uses network-first loading with offline cache fallback. A normal reload should usually pick up the latest deployment; `Shift+F5` / hard refresh is the fallback when testing a new build.
-
-The GitHub Pages site must be enabled once in repository settings with **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+The deployed HTML version-stamps the primary JavaScript/CSS entry points, and the service worker uses a build-versioned cache. A normal reload should usually pick up a new deployment; fully closing/reopening an installed PWA or a hard refresh remains the fallback during testing.
 
 ## Recommendation provenance
 
-The UI distinguishes:
+The existing planner distinguishes:
 
-- **Curated KB** — directly sourced from Markdown.
-- **User observed** — trip/catch log evidence.
+- **Curated KB** — directly sourced from current Knowledge Base content.
+- **User observed** — trip/catch-log evidence.
 - **App inference** — deterministic ranking/combination of existing knowledge, not a newly asserted historical fact.
 
-## Future data-model improvements
+This provenance model should be preserved or improved when the Knowledge Base architecture is redesigned.
 
-Markdown remains human-readable and authoritative, but selected records may gain lightweight stable IDs/metadata as the app matures. The goal is to make relationships such as lure ↔ technique ↔ species ↔ structure ↔ knot ↔ setup ↔ catch more explicit without moving the source of truth into a separately maintained JSON/database layer.
+## Future work
+
+Near-term architectural work after My Gear acceptance:
+
+1. Design the Knowledge Base domain model, including moving Knots there explicitly.
+2. Decide which Knowledge Base content should be structured fields versus narrative content.
+3. Move catch history to structured records with stable references to gear/setup/location entities.
+4. Later add normal My Gear Add/Edit/Delete forms on top of the existing repository layer.
+5. Consider synchronization/backups only after the single-device local-first model is stable.
