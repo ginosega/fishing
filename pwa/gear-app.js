@@ -1,5 +1,5 @@
 import { GearRepository } from './gear-store.js';
-import { validateGearBundle, gearDisplayModel, gearSpecificationText, gearLinks, resolveGuidance, diffGearBundles } from './gear-model.js';
+import { gearDisplayModel, gearSpecificationText, gearLinks, resolveGuidance } from './gear-model.js';
 
 const CATEGORY_META = {
   'rods-reels': { label:'Rods & Reels', icon:'🎣' },
@@ -20,11 +20,19 @@ const app = document.querySelector('#app');
 const repo = new GearRepository();
 let bundle = null;
 let catchRows = [];
-let pendingImport = null;
 let rendering = false;
 
 const ready = initialize();
-window.addEventListener('hashchange', () => { ready.then(renderIfGearRoute); });
+
+// My Gear owns every #/inventory route. Capture these hash changes before the
+// legacy Markdown router can see them; that router remains active only for the
+// Home/Knowledge Base/planner routes during the transition to structured data.
+window.addEventListener('hashchange', event => {
+  if (!isGearRoute()) return;
+  event.stopImmediatePropagation();
+  ready.then(renderIfGearRoute);
+}, true);
+
 if (app) new MutationObserver(() => {
   if (rendering) return;
   if (isGearRoute() && app.dataset.gearV2Root !== 'true') ready.then(renderIfGearRoute);
@@ -60,7 +68,7 @@ function renderIfGearRoute() {
 function patchHomeCopy() {
   const button = [...document.querySelectorAll('.choice-card')].find(el => /my gear/i.test(el.textContent));
   const p = button?.querySelector('p');
-  if (p) p.textContent = 'Rods, reels, line, terminal tackle, lures, bait, instructions, links, and catch history.';
+  if (p) p.textContent = 'Browse your inventory of equipment, tackle, and bait';
 }
 
 function renderCategories() {
@@ -68,22 +76,8 @@ function renderCategories() {
     <section class="category-grid">${CATEGORY_ORDER.map(key => {
       const meta = CATEGORY_META[key];
       return `<button class="category-card" data-gear-route="#/inventory/${key}"><span>${meta.icon}</span><strong>${escapeHtml(meta.label)}</strong></button>`;
-    }).join('')}</section>
-    <section class="panel">
-      <h3>My Gear data</h3>
-      <p class="muted">Your live inventory is stored locally in this browser for offline use. Export a JSON backup before making external edits, then import it back here.</p>
-      <div class="plan-actions">
-        <button class="secondary-button" id="gearExportButton" type="button">Export My Gear JSON</button>
-        <button class="secondary-button" id="gearImportButton" type="button">Import My Gear JSON</button>
-        <input id="gearImportFile" type="file" accept="application/json,.json" hidden />
-      </div>
-      <div id="gearImportPreview"></div>
-    </section>`;
+    }).join('')}</section>`;
   bindGearRoutes();
-  document.querySelector('#gearExportButton')?.addEventListener('click', exportGear);
-  document.querySelector('#gearImportButton')?.addEventListener('click', () => document.querySelector('#gearImportFile')?.click());
-  document.querySelector('#gearImportFile')?.addEventListener('change', importFileSelected);
-  if (pendingImport) renderImportPreview();
 }
 
 function renderList(category) {
@@ -174,7 +168,7 @@ function itemCard(item) {
 }
 
 function pageHeader(title,subtitle,back) {
-  return `<div class="section-title">${back ? `<button class="back-button" data-gear-route="${escapeAttr(back)}">← Back</button>` : ''}<h2>${escapeHtml(title)}</h2>${subtitle ? `<p>${escapeHtml(subtitle)}</p>` : ''}</div>`;
+  return `<div class="section-title"><div><h2>${escapeHtml(title)}</h2>${subtitle ? `<p>${escapeHtml(subtitle)}</p>` : ''}</div>${back ? `<button class="back-button" data-gear-route="${escapeAttr(back)}">← Back</button>` : ''}</div>`;
 }
 
 function detailCell(label,value) {
@@ -200,54 +194,6 @@ function navigate(hash) {
   if (location.hash === hash) { renderIfGearRoute(); return; }
   location.hash = hash;
   window.scrollTo({top:0,behavior:'smooth'});
-}
-
-async function exportGear() {
-  const current = await repo.exportBundle();
-  const exported = { ...current, exportedAt:new Date().toISOString() };
-  const blob = new Blob([JSON.stringify(exported,null,2)], {type:'application/json'});
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement('a');
-  anchor.href = url;
-  anchor.download = `fishing-my-gear-${new Date().toISOString().slice(0,10)}.json`;
-  document.body.append(anchor); anchor.click(); anchor.remove(); URL.revokeObjectURL(url);
-}
-
-async function importFileSelected(event) {
-  const file = event.target.files?.[0];
-  if (!file) return;
-  try {
-    const imported = JSON.parse(await file.text());
-    const validation = validateGearBundle(imported);
-    if (!validation.valid) throw new Error(validation.errors.join('\n'));
-    pendingImport = { bundle:imported, diff:diffGearBundles(bundle,imported), filename:file.name };
-    renderImportPreview();
-  } catch (error) {
-    pendingImport = null;
-    const target = document.querySelector('#gearImportPreview');
-    if (target) target.innerHTML = `<div class="panel error"><strong>Import rejected.</strong><pre>${escapeHtml(error.message)}</pre></div>`;
-  } finally {
-    event.target.value = '';
-  }
-}
-
-function renderImportPreview() {
-  const target = document.querySelector('#gearImportPreview');
-  if (!target || !pendingImport) return;
-  const d = pendingImport.diff;
-  target.innerHTML = `<div class="recommendation"><h4>Import preview · ${escapeHtml(pendingImport.filename)}</h4><p>${d.added.length} added · ${d.modified.length} modified · ${d.deleted.length} missing from imported file · ${d.unchanged.length} unchanged</p><p class="muted"><strong>Merge</strong> adds/updates by stable ID and preserves local records omitted from the file. <strong>Replace</strong> makes the imported file the complete My Gear database, including deletions.</p><div class="plan-actions"><button class="secondary-button" id="gearImportMerge">Merge</button><button class="primary-button" id="gearImportReplace">Replace</button><button class="secondary-button" id="gearImportCancel">Cancel</button></div></div>`;
-  document.querySelector('#gearImportMerge')?.addEventListener('click', () => commitImport('merge'));
-  document.querySelector('#gearImportReplace')?.addEventListener('click', () => commitImport('replace'));
-  document.querySelector('#gearImportCancel')?.addEventListener('click', () => { pendingImport = null; target.innerHTML=''; });
-}
-
-async function commitImport(mode) {
-  if (!pendingImport) return;
-  bundle = mode === 'replace' ? await repo.replace(pendingImport.bundle) : await repo.merge(pendingImport.bundle);
-  pendingImport = null;
-  renderCategories();
-  const target = document.querySelector('#gearImportPreview');
-  if (target) target.innerHTML = `<div class="recommendation"><strong>Import complete.</strong> My Gear is now using the updated local database.</div>`;
 }
 
 async function loadCatchRows() {
