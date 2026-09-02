@@ -61,9 +61,11 @@ function enhanceStandardGearLeaf(title) {
 }
 
 function enhanceRodReelSections() {
+  const isSpincast = /Rods & Reels\s*-\s*Spincasting/i.test(document.querySelector('.section-title p')?.textContent || '');
   for (const panel of document.querySelectorAll('.panel')) {
     const heading = panel.querySelector('h2.subsection-heading');
     if (!heading || !/^(Rod|Reel)$/i.test(heading.textContent.trim()) || panel.querySelector('.gear-media-button')) continue;
+    if (isSpincast && /^Reel$/i.test(heading.textContent.trim())) continue;
     const cell = [...panel.querySelectorAll('.detail-cell')].find(detail => normalize(detail.querySelector('.label')?.textContent) === 'manufacturer model');
     const identity = cell?.querySelector('.value')?.textContent?.trim() || '';
     const media = findMedia(identity);
