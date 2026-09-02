@@ -35,6 +35,9 @@ window.addEventListener('hashchange', queueEnhance);
 window.addEventListener('resize', () => {
   if (mediaUiState.viewer?.classList.contains('open')) fitViewerImage();
 });
+window.visualViewport?.addEventListener('resize', () => {
+  if (mediaUiState.viewer?.classList.contains('open')) fitViewerImage();
+});
 
 document.addEventListener('keydown', event => {
   if (event.key === 'Escape' && mediaUiState.viewer?.classList.contains('open')) closeViewer();
@@ -61,6 +64,8 @@ function queueEnhance() {
 
 function enhanceRenderedPage() {
   enhanceVideoLinks(document);
+  enhanceInventoryLists();
+
   if (!location.hash.startsWith('#/inventory/item/')) return;
 
   const title = document.querySelector('.section-title h2')?.textContent?.trim() || '';
@@ -68,41 +73,361 @@ function enhanceRenderedPage() {
   if (!title) return;
 
   applyAcceptanceCorrections(title, subtitle);
+  applyCuratedLureGuidance(title, subtitle);
+  formatHowToResources(title, subtitle);
+  enhanceVideoLinks(document);
+
   if (/^knots$/i.test(subtitle)) return;
 
   if (/^rods & reels\s*-/i.test(subtitle)) {
     enhanceRodReelSections();
     return;
   }
-  enhanceStandardGearLeaf(title);
+  enhanceStandardGearLeaf(document.querySelector('.section-title h2')?.textContent?.trim() || title);
+}
+
+function enhanceInventoryLists() {
+  if (location.hash === '#/inventory/rods-reels') {
+    const group = [...document.querySelectorAll('.item-group')].find(section =>
+      normalize(section.querySelector('h2')?.textContent) === 'spincasting'
+    );
+    const card = group?.querySelector('.item-card');
+    if (card) {
+      setText(card.querySelector('h3'), 'Pflueger President Spincast Combo');
+      setText(card.querySelector('.item-meta span'), 'Rod: Pflueger President Spincast Combo, Reel: Pflueger President Spincast Combo');
+    }
+  }
+
+  if (location.hash === '#/inventory/weights') {
+    for (const card of document.querySelectorAll('.item-card')) {
+      const heading = card.querySelector('h3');
+      if (normalize(heading?.textContent) === 'swiveling trolling torpedo weights') {
+        setText(heading, 'Swiveling trolling sinkers');
+      }
+    }
+  }
 }
 
 function applyAcceptanceCorrections(title, subtitle) {
-  if (/^rods & reels\s*-/i.test(subtitle)) {
+  const normalizedTitle = normalize(title);
+  const normalizedSubtitle = normalize(subtitle);
+
+  if (normalizedSubtitle.startsWith('rods and reels')) {
     for (const panel of document.querySelectorAll('.panel')) {
       if (normalize(panel.querySelector('h3')?.textContent) !== 'my catch history') continue;
       const empty = panel.querySelector('.empty');
-      if (empty && empty.textContent.trim() !== 'No catches have been recorded with this rod & reel.') {
-        empty.textContent = 'No catches have been recorded with this rod & reel.';
+      setText(empty, 'No catches have been recorded with this rod & reel.');
+    }
+
+    if (normalizedSubtitle === 'rods and reels spinning') {
+      const rod = componentPanel('Rod');
+      const reel = componentPanel('Reel');
+      setDetailValueIn(rod, 'Specifications', `7', medium power, fast action, 2-piece, part TATULAXT702MFS`);
+      setDetailValueIn(reel, 'Specifications', '6.2:1 gear ratio, part EXELT2500D-XH');
+    }
+
+    if (normalizedSubtitle === 'rods and reels baitcasting') {
+      const reel = componentPanel('Reel');
+      const cell = findDetailCellIn(reel, 'Specifications');
+      const current = cell?.querySelector('.value')?.textContent?.trim() || '';
+      if (!/7\.4\s*:\s*1\s*gear ratio/i.test(current)) {
+        setDetailValueIn(reel, 'Specifications', current ? `${current.replace(/[;,.\s]+$/, '')}; 7.4:1 gear ratio` : '7.4:1 gear ratio');
+      }
+    }
+
+    if (normalizedSubtitle === 'rods and reels spincasting') {
+      const pageTitle = document.querySelector('.section-title h2');
+      setText(pageTitle, 'Rod: Pflueger President Spincast Combo, Reel: Pflueger President Spincast Combo');
+      const rod = componentPanel('Rod');
+      const reel = componentPanel('Reel');
+      setDetailValueIn(rod, 'Manufacturer / Model', 'Pflueger President Spincast Combo');
+      setDetailValueIn(reel, 'Manufacturer / Model', 'Pflueger President Spincast Combo');
+      setDetailValueIn(rod, 'Specifications', `6'6", medium power, 2-piece, part PRESSC-606L2CBO`);
+      setDetailValueIn(reel, 'Specifications', '8-14 lb line weight, 3.8:1 gear ratio, part PRESSC-606L2CBO');
+      setLinksIn(rod, [{ label: 'Pflueger', url: 'https://pfluegerfishing.com/products/president-spincast-combo-1595561' }]);
+      setLinksIn(reel, [{ label: 'Pflueger', url: 'https://pfluegerfishing.com/products/president-spincast-combo-1595561' }]);
+      for (const heading of document.querySelectorAll('.panel h4')) {
+        if (normalize(heading.textContent) === 'best use') heading.remove();
       }
     }
   }
 
-  if (normalize(title) === 'cylinder weights') {
-    const manufacturerCell = findDetailCell('Manufacturer / Model');
-    const value = manufacturerCell?.querySelector('.value');
-    if (value && value.textContent.trim() !== 'THKFISH / 28 pcs sinkers set') {
-      value.textContent = 'THKFISH / 28 pcs sinkers set';
+  if (normalizedTitle === 'cylinder weights') {
+    setDetailValue('Manufacturer / Model', 'THKFISH / 28 pcs sinkers set');
+  }
+
+  if (normalizedTitle === 'swiveling trolling torpedo weights' || normalizedTitle === 'swiveling trolling sinkers') {
+    setText(document.querySelector('.section-title h2'), 'Swiveling trolling sinkers');
+    const subtitleEl = document.querySelector('.section-title p');
+    if (subtitleEl) setText(subtitleEl, 'Weights - Swiveling trolling sinkers');
+    const how = panelByHeading('How to use it');
+    if (how) {
+      const body = how.querySelector('.guidance-body') || how;
+      const desired = `<p>Used for <a href="#/kb/kb-kayak-trolling">kayak trolling</a> in <a href="#/kb/kb-trout-fishing">trout fishing</a>.</p>`;
+      if (body.innerHTML !== desired) body.innerHTML = desired;
     }
   }
 
-  if (normalize(title) === 'trilene') {
+  if (normalizedTitle === 'glass beads') {
+    setDetailValue('Manufacturer / Model', 'Top Brass / Czechoslovakian Glass Beads');
+  }
+
+  if (normalizedTitle === 'kastmaster') {
+    setDetailValue('Manufacturer / Model', 'Acme / Kastmaster');
+  }
+
+  if (normalizedTitle === 'generic 0 inline spinner assortment') {
+    setDetailValue('Manufacturer / Model', 'Generic / #0 inline spinner assortment');
+  }
+  if (normalizedTitle === 'generic 1 inline spinner') {
+    setDetailValue('Manufacturer / Model', 'Generic / #1 inline spinner');
+  }
+
+  if (normalizedTitle === 'mepps aglia 3') {
+    setDetailValue('Manufacturer / Model', 'Mepps / Aglia #3');
+    const specs = findDetailCell('Specifications')?.querySelector('.value');
+    if (specs) setText(specs, '1/4 oz, Gold/Red Dot Blade, Plain');
+  }
+
+  if (normalizedTitle === 'south bend hook assortment') {
+    setDetailValue('Manufacturer / Model', 'South Bend / Hook Assortment');
+    setDetailValue('Specifications', '#4, #6, #8 standard and Aberdeen/long-shank');
+  }
+
+  if (normalizedTitle === 'booyah pad crasher') {
+    setDetailValue('Manufacturer / Model', 'Booyah / Pad Crasher');
+    setDetailValue('Specifications', 'Pad Crasher, Pad Crasher Jr.');
+  }
+
+  if (normalizedTitle === 'z man ned rig kit') {
+    setDetailValue('Specifications', '3.5", Green Pumpkin, Trick ShotZ, Finesse ShadZ, GobyZ');
+  }
+
+  if (normalizedTitle === 'tsuridamashii ball bearing swivels' || normalizedTitle === 'tsuridamashii ball bearing snap swivels') {
+    removeUnlinkedManufacturer('Tsuridamashii');
+  }
+
+  if (normalizedTitle === 'yum christie craw') {
+    removeUnlinkedManufacturer('YUM');
+  }
+
+  if (normalizedTitle === 'fg' && normalizedSubtitle === 'knots') {
+    setDetailValue('Description', 'Preferred braid-to-fluorocarbon leader knot.');
+  }
+
+  if (normalizedTitle === 'trilene' && normalizedSubtitle === 'knots') {
     for (const anchor of document.querySelectorAll('a[href*="#/inventory/snaps-swivels"]')) {
       if (normalize(anchor.textContent) === 'snaps and swivels') {
         anchor.replaceWith(document.createTextNode(anchor.textContent));
       }
     }
   }
+}
+
+function applyCuratedLureGuidance(title, subtitle) {
+  if (!normalize(subtitle).startsWith('lures')) return;
+  const n = normalize(title);
+
+  if (n === '6th sense divine swimbait' || n === 'berkley gulp minnow') {
+    replaceGuidancePanel('Knots & connections', `
+      <div class="recommendation">
+        <h4>Hook</h4>
+        <div class="guidance-body">
+          <p>Use a 4/0 EWG worm offset hook.</p>
+          <p>Video: <a href="https://youtu.be/dOgX9l18DQk" target="_blank" rel="noopener">How to rig a soft jerkbait ↗</a></p>
+        </div>
+      </div>`);
+    replaceGuidancePanel('How to use it', `
+      <div class="recommendation"><h4>Use</h4><div class="guidance-body"><ul>
+        <li>Target big fish.</li>
+        <li>Use in clear water and around baitfish schools, especially post-spawn and in fall.</li>
+        <li>Gear: 7'–8' heavy or extra-heavy rod, 6.2:1-or-slower baitcaster, and 15–25 lb fluorocarbon or 65 lb braid with an optional fluorocarbon leader.</li>
+      </ul></div></div>
+      <div class="recommendation"><h4>Technique</h4><div class="guidance-body"><ul>
+        <li>Target points, ledges, weed edges, docks, and submerged structure.</li>
+        <li>Retrieve slow and steady.</li>
+        <li>Adjust retrieve speed or weight to control depth.</li>
+        <li>For glide baits, add half-turn pauses or gentle twitches to trigger following fish.</li>
+      </ul></div></div>`);
+  }
+
+  if (n === 'yamamoto senko') {
+    replaceGuidancePanel('Knots & connections', `
+      <div class="recommendation"><div class="guidance-body"><p>Tie directly to the hook with a <a href="#/inventory/item/palomar">Palomar knot</a>.</p></div></div>`);
+    const panel = replaceGuidancePanel('How to use it', `
+      <div class="recommendation"><h4>Use</h4><div class="guidance-body"><ul>
+        <li>Use for finicky or pressured bass from spring through early fall, especially around the spawn and post-spawn.</li>
+        <li>Best in clear to lightly stained shallow water, roughly 2–8 ft, around cover, docks, grass edges, and visible fish.</li>
+        <li>If fish are not responding or you need to work deeper, try a Ned rig.</li>
+      </ul></div></div>
+      <div class="recommendation"><h4>Technique</h4><div class="guidance-body"><ul>
+        <li>Cast, let the Senko fall, twitch lightly, and pause.</li>
+        <li>In water deeper than about 5 ft, pause 5–6 seconds so it can sink and wiggle.</li>
+        <li>Do not set the hook too early; wait until you feel the fish's weight.</li>
+      </ul></div></div>
+      <div class="recommendation"><h4>Resources</h4><div class="guidance-body"><p>Video: <a href="https://youtu.be/FBWjutCCV9Q?si=Z9Ng67D-LSa7umtT" target="_blank" rel="noopener">Wacky Rig - Wendell Fishing ↗</a></p></div></div>`);
+    if (panel) panel.dataset.resourcesFormatted = '1';
+  }
+
+  if (n === 'fin sanity bluegill') {
+    const how = panelByHeading('How to use it');
+    if (how) {
+      for (const anchor of [...how.querySelectorAll('a[href]')]) {
+        if (youtubeId(anchor.href)) removeResourceAnchor(anchor);
+      }
+    }
+  }
+}
+
+function formatHowToResources(title, subtitle) {
+  const panel = panelByHeading('How to use it');
+  if (!panel || panel.dataset.resourcesFormatted === '1') return;
+
+  const isLure = normalize(subtitle).startsWith('lures');
+  if (isLure) {
+    for (const node of [...panel.querySelectorAll('p, li')]) {
+      const text = normalize(node.textContent);
+      if (text.includes('onenote linked') || text.includes('onenote source resources') || text.startsWith('rigging ')) {
+        const links = [...node.querySelectorAll('a[href]')].filter(isExternalResourceLink);
+        links.forEach(anchor => stashResource(panel, anchor));
+        node.remove();
+      }
+    }
+  }
+
+  for (const anchor of [...panel.querySelectorAll('a[href]')]) {
+    if (!isExternalResourceLink(anchor)) continue;
+    stashResource(panel, anchor);
+    removeResourceAnchor(anchor);
+  }
+
+  const resources = readStashedResources(panel);
+  if (resources.length && !panel.querySelector('[data-resource-block]')) {
+    const block = document.createElement('div');
+    block.className = 'recommendation';
+    block.dataset.resourceBlock = '1';
+    const lines = resources.map(resource => {
+      const kind = isVideoUrl(resource.url) ? 'Video' : 'Article';
+      return `<p>${kind}: <a href="${escapeAttr(resource.url)}" target="_blank" rel="noopener">${escapeHtml(resource.label)} ↗</a></p>`;
+    }).join('');
+    block.innerHTML = `<h4>Resources</h4><div class="guidance-body">${lines}</div>`;
+    panel.append(block);
+  }
+
+  panel.dataset.resourcesFormatted = '1';
+}
+
+function stashResource(panel, anchor) {
+  const url = anchor.href;
+  if (!url) return;
+  const resources = readStashedResources(panel);
+  if (resources.some(item => item.url === url)) return;
+  const label = anchor.title || anchor.textContent.replace(/\s*↗\s*$/, '').trim() || (isVideoUrl(url) ? 'Video' : 'Article');
+  resources.push({ url, label });
+  panel.dataset.resources = JSON.stringify(resources);
+}
+
+function readStashedResources(panel) {
+  try { return JSON.parse(panel.dataset.resources || '[]'); } catch { return []; }
+}
+
+function removeResourceAnchor(anchor) {
+  const li = anchor.closest('li');
+  if (li && li.querySelectorAll('a').length === 1 && normalize(li.textContent) === normalize(anchor.textContent)) {
+    li.remove();
+    return;
+  }
+  const parent = anchor.parentElement;
+  anchor.remove();
+  if (parent && !normalize(parent.textContent)) parent.remove();
+}
+
+function isExternalResourceLink(anchor) {
+  try {
+    const url = new URL(anchor.href, location.href);
+    return /^https?:$/.test(url.protocol) && url.origin !== location.origin;
+  } catch { return false; }
+}
+
+function isVideoUrl(url) {
+  try {
+    const host = new URL(url, location.href).hostname.replace(/^www\./, '');
+    return host === 'youtu.be' || host.endsWith('youtube.com') || host.includes('vimeo.com');
+  } catch { return false; }
+}
+
+function replaceGuidancePanel(heading, bodyHtml) {
+  let panel = panelByHeading(heading);
+  if (!panel) {
+    const firstCatch = [...document.querySelectorAll('.panel')].find(p => normalize(p.querySelector('h3')?.textContent) === 'my catch history');
+    panel = document.createElement('section');
+    panel.className = 'panel';
+    if (firstCatch) firstCatch.before(panel); else document.querySelector('#app')?.append(panel);
+  }
+  const desired = `<h3>${escapeHtml(heading)}</h3>${bodyHtml}`;
+  if (panel.innerHTML !== desired) panel.innerHTML = desired;
+  panel.dataset.curatedGuidance = '1';
+  return panel;
+}
+
+function panelByHeading(heading) {
+  const wanted = normalize(heading);
+  return [...document.querySelectorAll('.panel')].find(panel => normalize(panel.querySelector('h3')?.textContent) === wanted) || null;
+}
+
+function componentPanel(name) {
+  const wanted = normalize(name);
+  return [...document.querySelectorAll('.panel')].find(panel => normalize(panel.querySelector('h2.subsection-heading')?.textContent) === wanted) || null;
+}
+
+function findDetailCellIn(root, label) {
+  if (!root) return null;
+  const wanted = normalize(label);
+  return [...root.querySelectorAll('.detail-cell')].find(cell => normalize(cell.querySelector('.label')?.textContent) === wanted) || null;
+}
+
+function findDetailCell(label) {
+  return findDetailCellIn(document, label);
+}
+
+function setDetailValue(label, value) {
+  const cell = findDetailCell(label);
+  setText(cell?.querySelector('.value'), value);
+}
+
+function setDetailValueIn(root, label, value) {
+  const cell = findDetailCellIn(root, label);
+  setText(cell?.querySelector('.value'), value);
+}
+
+function setLinksIn(panel, links) {
+  if (!panel) return;
+  let cell = findDetailCellIn(panel, 'Links');
+  const grid = panel.querySelector('.detail-grid');
+  if (!cell && grid) {
+    cell = document.createElement('div');
+    cell.className = 'detail-cell';
+    cell.innerHTML = '<div class="label">Links</div><div class="value"></div>';
+    grid.append(cell);
+  }
+  const value = cell?.querySelector('.value');
+  if (!value) return;
+  const html = `<div class="detail-links">${links.map(link => `<a href="${escapeAttr(link.url)}" target="_blank" rel="noopener">${escapeHtml(link.label)} ↗</a>`).join('<br>')}</div>`;
+  if (value.innerHTML !== html) value.innerHTML = html;
+}
+
+function removeUnlinkedManufacturer(label) {
+  const cell = findDetailCell('Links');
+  const value = cell?.querySelector('.value');
+  if (!value) return;
+  const muted = [...value.querySelectorAll('.muted')].filter(el => normalize(el.textContent) === normalize(label));
+  if (!muted.length) return;
+  const anchors = [...value.querySelectorAll('a[href]')].map(anchor => anchor.outerHTML);
+  value.innerHTML = anchors.length ? `<div class="detail-links">${anchors.join('<br>')}</div>` : '<span class="muted">No links recorded.</span>';
+}
+
+function setText(element, value) {
+  if (element && element.textContent !== value) element.textContent = value;
 }
 
 function enhanceVideoLinks(root) {
@@ -130,9 +455,11 @@ function enhanceStandardGearLeaf(title) {
 }
 
 function enhanceRodReelSections() {
+  const spincast = normalize(document.querySelector('.section-title p')?.textContent) === 'rods and reels spincasting';
   for (const panel of document.querySelectorAll('.panel')) {
     const heading = panel.querySelector('h2.subsection-heading');
     if (!heading || !/^(rod|reel)$/i.test(heading.textContent.trim())) continue;
+    if (spincast && normalize(heading.textContent) === 'reel') continue;
     if (panel.querySelector('.gear-media-button')) continue;
     const manufacturerCell = [...panel.querySelectorAll('.detail-cell')].find(cell =>
       normalize(cell.querySelector('.label')?.textContent) === 'manufacturer model'
@@ -191,13 +518,6 @@ function findMedia(text) {
   return candidates[0]?.item || null;
 }
 
-function findDetailCell(label) {
-  const wanted = normalize(label);
-  return [...document.querySelectorAll('.detail-cell')].find(cell =>
-    normalize(cell.querySelector('.label')?.textContent) === wanted
-  );
-}
-
 function openViewer(media) {
   const viewer = ensureViewer();
   const image = viewer.querySelector('.media-viewer-image');
@@ -216,9 +536,7 @@ function openViewer(media) {
   image.onload = () => requestAnimationFrame(fitViewerImage);
   image.src = media.asset;
   image.alt = media.alt || 'Gear image';
-  if (image.complete && image.naturalWidth && image.naturalHeight) {
-    requestAnimationFrame(fitViewerImage);
-  }
+  if (image.complete && image.naturalWidth && image.naturalHeight) requestAnimationFrame(fitViewerImage);
 
   viewer.querySelector('.media-close-button').focus({ preventScroll: true });
 }
@@ -411,4 +729,12 @@ function normalize(value = '') {
     .replace(/[^a-z0-9]+/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+function escapeHtml(value = '') {
+  return String(value).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+}
+
+function escapeAttr(value = '') {
+  return escapeHtml(value).replace(/'/g, '&#39;');
 }
