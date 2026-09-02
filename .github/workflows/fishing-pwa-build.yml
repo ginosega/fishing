@@ -45,28 +45,34 @@ jobs:
       - name: Validate JavaScript syntax
         run: |
           node --check pwa/app.js
+          node --check pwa/gear-app.js
+          node --check pwa/gear-store.js
+          node --check pwa/gear-model.js
           node --check pwa/media-ui.js
-          node --check pwa/link-ui.js
           node --check pwa/build.mjs
           node --check pwa/serve.mjs
-      - name: Test manufacturer link normalization
-        run: node pwa/link-ui.test.mjs
+      - name: Test structured My Gear model
+        run: node pwa/gear-model.test.mjs
       - name: Build PWA
         run: node pwa/build.mjs
       - name: Verify bundle
         run: |
           test -f pwa/dist/index.html
           test -f pwa/dist/sw.js
+          test -f pwa/dist/gear-app.js
+          test -f pwa/dist/gear-store.js
+          test -f pwa/dist/gear-model.js
+          test -f pwa/dist/data/gear.seed.json
           test -f pwa/dist/media-ui.js
-          test -f pwa/dist/link-ui.js
           test -f pwa/dist/gear-media.json
           test -f pwa/dist/video-titles.json
           test -f pwa/dist/kb/Fishing_Tackle_Inventory.md
           test -f pwa/dist/kb/Rods_Reels_Line_Knots.md
           grep -q 'app.js?v=' pwa/dist/index.html
+          grep -q 'gear-app.js?v=' pwa/dist/index.html
           grep -q 'media-ui.js?v=' pwa/dist/index.html
-          grep -q 'link-ui.js?v=' pwa/dist/index.html
           grep -q 'styles.css?v=' pwa/dist/index.html
+          grep -q 'Structured IndexedDB-backed My Gear' pwa/dist/build.json
       - name: Upload CI artifact
         uses: actions/upload-artifact@v4
         with:

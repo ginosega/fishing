@@ -4,7 +4,7 @@ _Last updated: 2026-09-01_
 
 This file is the canonical backlog for unresolved Fishing-project verification items, research tasks, equipment questions, technique work, and owner follow-ups.
 
-GitHub Markdown is the sole active project knowledge base. The legacy OneNote/PDF may be consulted as a historical migration source, but it is not a parallel active source of truth.
+The project now has two application-data domains: My Gear uses structured JSON/IndexedDB, while the Knowledge Base remains in GitHub Markdown pending its own architecture review. The legacy OneNote/PDF may be consulted as a historical migration source, but it is not a parallel active source of truth.
 
 ## Status convention
 
@@ -12,7 +12,7 @@ GitHub Markdown is the sole active project knowledge base. The legacy OneNote/PD
 - **WAITING ON USER** — requires information, photos, documents, measurements, purchase confirmation, or a decision from the user.
 - **IN PROGRESS** — actively being worked.
 - **DEFERRED** — intentionally postponed.
-- **DONE** — resolved; update the authoritative topic/registry/inventory file before moving the item to Completed Items.
+- **DONE** — resolved; update the authoritative source for that data domain before moving the item to Completed Items.
 
 ## Priority convention
 
@@ -53,13 +53,15 @@ GitHub Markdown is the sole active project knowledge base. The legacy OneNote/PD
 | FISH-TODO-029 | P2 | OPEN | Kayak safety/storage | Determine how to tie off bow-hatch items. | Tool bag/bilge pump tie-off question in OneNote. |
 | FISH-TODO-030 | P3 | DEFERRED | Power/electronics | Evaluate whether trailer battery could work for kayak motor/electronics scenario. | OneNote motor/battery research item; resume only if the kayak-motor project returns. |
 | FISH-TODO-031 | P3 | OPEN | Learning | Listen/watch Science of the Strike episodes 8 and 16. | Dissolved oxygen and turbidity noted. |
-| FISH-TODO-032 | P3 | OPEN | Trip logs | Continue adding catch/no-bite reports. | OneNote catch log migrated; future trips should be appended. |
+| FISH-TODO-032 | P3 | OPEN | Trip logs | Continue adding catch/no-bite reports. | Current catch log is still Markdown-backed during the transition; future structured-catch work is tracked separately. |
 | FISH-TODO-033 | P3 | OPEN | Safety/regulations | Create regulation recheck checklist. | Include Fish Washington app, lake-specific rules, species ID, bait/retention implications. |
-| FISH-TODO-034 | P3 | OPEN | Markdown usability | Spot-check inline links in GitHub Preview. | Links were embedded from MHT; spot-check during normal use and fix any link placement/context issues that affect OneNote-replacement usability. |
-| FISH-TODO-035 | P1 | IN PROGRESS | Fishing Companion PWA | Build and acceptance-test the mobile/offline front end for the Fishing knowledge base. | First My Gear pass and deep second-pass content scrub are implemented. Current build normalizes setup details, lure/soft-plastic types, product links/images, resource presentation, and knot content. Next: final My Gear acceptance retest, then Knowledge Base/planner testing. Live URL: `https://ginosega.github.io/fishing/`. |
-| FISH-TODO-036 | P2 | OPEN | PWA / data model | Add lightweight stable IDs/metadata to Markdown only where the PWA parser needs stronger relationships. | Preserve Markdown as source of truth; do not create a separately maintained application database. Prioritize ambiguous links such as lure ↔ technique ↔ species ↔ structure ↔ knot ↔ catch. |
-| FISH-TODO-037 | P3 | DEFERRED | PWA / multi-user product | Generalize Fishing Companion for multiple users. | Current app remains intentionally single-user/personal even though its deployment URL may be publicly reachable. Future product concept: users maintain their own inventories, fishing locations, and catch logs while sharing the generic planner/knowledge architecture. Revisit only after the personal version is mature. |
+| FISH-TODO-034 | P3 | OPEN | Markdown usability | Spot-check inline links in GitHub Preview. | Applies to the remaining Knowledge Base Markdown while it remains active. |
+| FISH-TODO-035 | P1 | IN PROGRESS | Fishing Companion PWA | Build and acceptance-test the mobile/offline Fishing Companion. | My Gear has been refactored to a structured JSON/IndexedDB local-first model with JSON export/import and Knots removed. Next: acceptance-test the new My Gear architecture; then redesign the Knowledge Base data model before deeper KB work. Live URL: `https://ginosega.github.io/fishing/`. |
+| FISH-TODO-037 | P3 | DEFERRED | PWA / multi-user product | Generalize Fishing Companion for multiple users. | Current app remains intentionally single-user/personal even though its deployment URL may be publicly reachable. Revisit only after the personal version is mature. |
 | FISH-TODO-039 | P2 | OPEN | PWA / catch history | Add rod/reel setup to future catch-log records. | Setup-specific catch history cannot be reliable until catches record the setup used. Do not invent historical setup attribution unless recoverable or user-confirmed. |
+| FISH-TODO-045 | P2 | DEFERRED | PWA / My Gear CRUD | Add normal Add/Edit/Delete forms for My Gear. | Repository layer and IndexedDB now support writable records, but user intentionally deferred forms. Current manual workflow is Export JSON → edit externally → Import JSON. |
+| FISH-TODO-046 | P1 | OPEN | PWA / Knowledge Base architecture | Redesign the Knowledge Base data model before deeper KB development. | Reconsider Markdown vs structured/hybrid storage; move Knots explicitly into the KB domain; preserve stable relationships from gear to knots/techniques/locations/species. Do this after My Gear refactor acceptance. |
+| FISH-TODO-047 | P2 | OPEN | PWA / catch data model | Move catch history to structured records with stable references. | Design after KB model decisions. Catch records should eventually reference gear item IDs, setup IDs, locations, species, and observations rather than depend on text matching. |
 
 ---
 
@@ -71,6 +73,7 @@ GitHub Markdown is the sole active project knowledge base. The legacy OneNote/PD
 | FISH-TODO-002 | 2026-08-29 | Project migration | Migration audit/reconciliation closed by user scope decision: OneNote was the most up-to-date historical source of truth; exhaustive transcript-by-transcript historical-chat reconciliation was not required. Dedicated audit/reconciliation files were retired after closure. |
 | FISH-TODO-003 | 2026-08-29 | Project architecture | Final GitHub-based new-chat bootstrap prompt completed for normal ongoing project use. |
 | FISH-TODO-004 | 2026-08-29 | Project migration / links | OneNote Single File Web Page/MHT export used to restore external links inline for GitHub Preview; temporary link-index file deleted afterward. |
+| FISH-TODO-036 | 2026-09-01 | PWA / data model | Superseded the Markdown-parser metadata approach for My Gear. My Gear now has explicit stable IDs and structured JSON/IndexedDB records; the Knowledge Base will receive its own separate data-model design. |
 | FISH-TODO-038 | 2026-08-31 | PWA / GitHub Pages | GitHub Pages enabled with Source = GitHub Actions; deployment rerun succeeded and Fishing Companion is live at `https://ginosega.github.io/fishing/`. |
 | FISH-TODO-040 | 2026-09-01 | Gear registry | Exact shore/spincast setup identified as the Pflueger President Spincast Combo; rod and reel specs and part `PRESSC-606L2CBO` recorded. |
 | FISH-TODO-041 | 2026-09-01 | PWA / catch history UI | Rods & Reels empty catch-history state standardized to `No catches have been recorded with this rod & reel.` |
