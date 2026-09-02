@@ -11,7 +11,7 @@ const dataOut = path.join(out, 'data');
 const gearOut = path.join(out, 'assets', 'gear');
 const buildVersion = (process.env.GITHUB_SHA || new Date().toISOString()).replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 24);
 
-const shellFiles = ['styles.css', 'app.js', 'gear-app.js', 'gear-store.js', 'gear-model.js', 'media-ui.js', 'manifest.webmanifest', 'icon.svg'];
+const shellFiles = ['styles.css', 'app.js', 'gear-app.js', 'legacy-app-loader.js', 'gear-store.js', 'gear-model.js', 'media-ui.js', 'manifest.webmanifest', 'icon.svg'];
 const kbFiles = [
   ['Fishing_Gear_Registry.md', 'Fishing_Gear_Registry.md'],
   ['Fishing_Tackle_Inventory.md', 'Fishing_Tackle_Inventory.md'],
@@ -36,8 +36,8 @@ await fs.writeFile(path.join(dataOut, 'gear.seed.json'), JSON.stringify(gearSeed
 const indexSource = await fs.readFile(path.join(here, 'index.html'), 'utf8');
 const versionedIndex = indexSource
   .replace('./styles.css', `./styles.css?v=${buildVersion}`)
-  .replace('./app.js', `./app.js?v=${buildVersion}`)
   .replace('./gear-app.js', `./gear-app.js?v=${buildVersion}`)
+  .replace('./legacy-app-loader.js', `./legacy-app-loader.js?v=${buildVersion}`)
   .replace('./media-ui.js', `./media-ui.js?v=${buildVersion}`);
 await fs.writeFile(path.join(out, 'index.html'), versionedIndex);
 
