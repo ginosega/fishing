@@ -9,7 +9,7 @@ const kbOut = path.join(out, 'kb');
 const gearOut = path.join(out, 'assets', 'gear');
 const buildVersion = (process.env.GITHUB_SHA || new Date().toISOString()).replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 24);
 
-const shellFiles = ['styles.css', 'app.js', 'media-ui.js', 'manifest.webmanifest', 'icon.svg'];
+const shellFiles = ['styles.css', 'app.js', 'media-ui.js', 'link-ui.js', 'manifest.webmanifest', 'icon.svg'];
 const kbFiles = [
   ['Fishing_Gear_Registry.md', 'Fishing_Gear_Registry.md'],
   ['Fishing_Tackle_Inventory.md', 'Fishing_Tackle_Inventory.md'],
@@ -31,7 +31,8 @@ const indexSource = await fs.readFile(path.join(here, 'index.html'), 'utf8');
 const versionedIndex = indexSource
   .replace('./styles.css', `./styles.css?v=${buildVersion}`)
   .replace('./app.js', `./app.js?v=${buildVersion}`)
-  .replace('./media-ui.js', `./media-ui.js?v=${buildVersion}`);
+  .replace('./media-ui.js', `./media-ui.js?v=${buildVersion}`)
+  .replace('./link-ui.js', `./link-ui.js?v=${buildVersion}`);
 await fs.writeFile(path.join(out, 'index.html'), versionedIndex);
 
 const kbMarkdown = [];

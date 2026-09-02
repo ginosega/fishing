@@ -5,6 +5,7 @@ const CORE = [
   './styles.css',
   './app.js',
   './media-ui.js',
+  './link-ui.js',
   './gear-media.json',
   './video-titles.json',
   './manifest.webmanifest',

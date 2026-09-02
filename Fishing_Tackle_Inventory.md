@@ -116,15 +116,15 @@ This file is for **owned lures, bait, hooks, weights, snaps, swivels, and termin
 
 | Item | Size / weight | Brand / specs | Status / notes |
 |---|---:|---|---|
-| [Drop-shot cylinder weight kit](https://thkfish.net/products/thkfish-fishing-weights-fishing-sinker-drop-shot-weights-fishing-weights-kit-drop-shot-rig-wacky-hooks-offset-hooks-fishing-tackle-28pcs) | 3.5 g / 1/8 oz | THKFISH; model: 28 pcs sinkers set; [Amazon listing](https://a.co/d/0onGDfA) | OWNED |
-| [Drop-shot cylinder weight kit](https://thkfish.net/products/thkfish-fishing-weights-fishing-sinker-drop-shot-weights-fishing-weights-kit-drop-shot-rig-wacky-hooks-offset-hooks-fishing-tackle-28pcs) | 5 g / 1/5 oz | THKFISH; model: 28 pcs sinkers set; [Amazon listing](https://a.co/d/0onGDfA) | OWNED |
-| [Drop-shot cylinder weight kit](https://thkfish.net/products/thkfish-fishing-weights-fishing-sinker-drop-shot-weights-fishing-weights-kit-drop-shot-rig-wacky-hooks-offset-hooks-fishing-tackle-28pcs) | 7 g / 1/4 oz | THKFISH; model: 28 pcs sinkers set; [Amazon listing](https://a.co/d/0onGDfA) | OWNED |
-| [Drop-shot cylinder weight kit](https://thkfish.net/products/thkfish-fishing-weights-fishing-sinker-drop-shot-weights-fishing-weights-kit-drop-shot-rig-wacky-hooks-offset-hooks-fishing-tackle-28pcs) | 10 g / 3/8 oz | THKFISH; model: 28 pcs sinkers set; [Amazon listing](https://a.co/d/0onGDfA) | OWNED |
-| [Drop-shot cylinder weight kit](https://thkfish.net/products/thkfish-fishing-weights-fishing-sinker-drop-shot-weights-fishing-weights-kit-drop-shot-rig-wacky-hooks-offset-hooks-fishing-tackle-28pcs) | 14 g / 1/2 oz | THKFISH; model: 28 pcs sinkers set; [Amazon listing](https://a.co/d/0onGDfA) | OWNED |
-| Egg sinkers | 1/2 oz | Eagle Claw | OWNED; trout still-fishing sliding sinker rig |
-| Egg sinkers | 1/4 oz | Eagle Claw | OWNED / OneNote source |
-| [Eagle Claw swiveling trolling sinkers](https://eagleclaw.com/products/eagle-claw-swiveling-trolling-sinkers) | 1/2 oz | Eagle Claw | OWNED; kayak trolling depth control |
-| [Glass beads](https://www.topbrasstackle.com/products/top-brass-tackle/#:~:text=These%20handcrafted%2C%20jewelry-grade%20glass%20beads%20are%20fire%20polished,chartreuse%2C%20crawfish%2C%20orange%2C%20red%20flash%2C%20and%20crystal%20flash) | 8 mm | Red; Top Brass; model: Czechoslovakian Glass Beads | OWNED; used between egg sinker and swivel in bait rigs |
+| Drop-shot cylinder weight kit | 3.5 g / 1/8 oz | [THKFISH](https://thkfish.net/products/thkfish-fishing-weights-fishing-sinker-drop-shot-weights-fishing-weights-kit-drop-shot-rig-wacky-hooks-offset-hooks-fishing-tackle-28pcs); model: 28 pcs sinkers set; [Amazon listing](https://a.co/d/0onGDfA) | OWNED |
+| Drop-shot cylinder weight kit | 5 g / 1/5 oz | [THKFISH](https://thkfish.net/products/thkfish-fishing-weights-fishing-sinker-drop-shot-weights-fishing-weights-kit-drop-shot-rig-wacky-hooks-offset-hooks-fishing-tackle-28pcs); model: 28 pcs sinkers set; [Amazon listing](https://a.co/d/0onGDfA) | OWNED |
+| Drop-shot cylinder weight kit | 7 g / 1/4 oz | [THKFISH](https://thkfish.net/products/thkfish-fishing-weights-fishing-sinker-drop-shot-weights-fishing-weights-kit-drop-shot-rig-wacky-hooks-offset-hooks-fishing-tackle-28pcs); model: 28 pcs sinkers set; [Amazon listing](https://a.co/d/0onGDfA) | OWNED |
+| Drop-shot cylinder weight kit | 10 g / 3/8 oz | [THKFISH](https://thkfish.net/products/thkfish-fishing-weights-fishing-sinker-drop-shot-weights-fishing-weights-kit-drop-shot-rig-wacky-hooks-offset-hooks-fishing-tackle-28pcs); model: 28 pcs sinkers set; [Amazon listing](https://a.co/d/0onGDfA) | OWNED |
+| Drop-shot cylinder weight kit | 14 g / 1/2 oz | [THKFISH](https://thkfish.net/products/thkfish-fishing-weights-fishing-sinker-drop-shot-weights-fishing-weights-kit-drop-shot-rig-wacky-hooks-offset-hooks-fishing-tackle-28pcs); model: 28 pcs sinkers set; [Amazon listing](https://a.co/d/0onGDfA) | OWNED |
+| Egg sinkers | 1/2 oz | [Eagle Claw](https://eagleclaw.com/products/eagle-claw-egg-sinkers) | OWNED; trout still-fishing sliding sinker rig |
+| Egg sinkers | 1/4 oz | [Eagle Claw](https://eagleclaw.com/products/eagle-claw-egg-sinkers) | OWNED / OneNote source |
+| Swiveling trolling sinkers | 1/2 oz | [Eagle Claw](https://eagleclaw.com/products/eagle-claw-swiveling-trolling-sinkers) | OWNED; kayak trolling depth control |
+| Glass beads | 8 mm | Red; [Top Brass](https://www.topbrasstackle.com/products/top-brass-tackle/#:~:text=These%20handcrafted%2C%20jewelry-grade%20glass%20beads%20are%20fire%20polished,chartreuse%2C%20crawfish%2C%20orange%2C%20red%20flash%2C%20and%20crystal%20flash); model: Czechoslovakian Glass Beads | OWNED; used between egg sinker and swivel in bait rigs |
 
 ## Snaps and swivels
 
