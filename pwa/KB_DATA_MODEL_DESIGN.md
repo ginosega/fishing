@@ -215,11 +215,12 @@ Species identity must not be inferred beyond the source record. The existing Lak
 
 ### 7.3 Technique
 
+Techniques are presented as one browsable list. The model has no `type`, category, or grouping field because the current product has no need to group them.
+
 | Field | Required | Type | Rule |
 |---|---:|---|---|
 | `id` | Yes | string | Unique immutable `technique-...` ID. |
 | `name` | Yes | string | User-facing technique name. |
-| `type` | Yes | string | User-facing grouping label; named `type`, not `kind`. |
 | `picture` | No | media object | Optional representative image. |
 | `description` | Yes | plain text | Brief list/card summary. |
 | `use` | Conditional | Markdown string | Short authored Use section. |
@@ -234,8 +235,6 @@ A Technique uses one of two presentation forms:
 2. **Complete-document form:** one `content` reference plus optional resource `links`.
 
 When `content` is present, the UI opens/renders that complete document. It does not extract headings or combine the document with atomic `use`/`rigging` sections. `description` remains available for the browse card.
-
-The initial schema treats `type` as an explicit non-empty user-facing string instead of prematurely freezing a complex taxonomy. Likely initial values include `Rig`, `Method`, `Lure technique`, and `Strategy`.
 
 `catches` is a computed view and is not stored.
 
@@ -352,7 +351,6 @@ The complete page retains the north end, south end, east shoreline, Tibbetts-are
 {
   "id": "technique-ned-rig",
   "name": "Ned Rig",
-  "type": "Rig",
   "picture": null,
   "description": "A finesse mushroom-jighead presentation with a short buoyant bait that stands on bottom.",
   "use": "Use in cold, clear, pressured conditions and around gravel flats, rocky points, and drop-offs.",
@@ -469,15 +467,15 @@ Create Technique records or complete Technique/Reference pages for the current m
 
 | Current content | Proposed target |
 |---|---|
-| General paddle-only kayak strategy | Complete Technique page, type `Strategy`. |
+| General paddle-only kayak strategy | Complete Technique page. |
 | Trout casting/spoons | Complete Technique page or linked guide. |
 | Inline spinners | Technique record. |
 | Still fishing / slip-sinker rig | Technique record. |
 | Bobber fishing | Technique record. |
-| Kayak trolling | Complete Technique page, type `Method`. |
-| Wacky worm | Technique record, type `Rig`. |
-| Ned rig | Technique record, type `Rig`. |
-| Drop shot | Technique record, type `Rig`. |
+| Kayak trolling | Complete Technique page. |
+| Wacky worm | Technique record. |
+| Ned rig | Technique record. |
+| Drop shot | Technique record. |
 | Jigs | Complete Technique page or linked guide. |
 | Spinnerbait | Technique record. |
 | Chatterbait / bladed jig | Technique record. |
