@@ -49,6 +49,8 @@ jobs:
           node --check pwa/link-ui.js
           node --check pwa/build.mjs
           node --check pwa/serve.mjs
+      - name: Test manufacturer link normalization
+        run: node pwa/link-ui.test.mjs
       - name: Build PWA
         run: node pwa/build.mjs
       - name: Verify bundle
