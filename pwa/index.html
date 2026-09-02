@@ -64,6 +64,101 @@
   <script src="./app.js" type="module"></script>
   <script src="./media-ui.js" type="module"></script>
   <script src="./link-ui.js" type="module"></script>
+  <script type="module">
+    const MODEL_OVERRIDES = new Map([
+      ['VMC Redline Weedless Wacky Neko', 'VMC / Redline Weedless Wacky Neko'],
+      ['VMC Crossover Rings', 'VMC / Crossover rings'],
+      ['Gamakatsu G-Finesse Drop Shot Hook', 'Gamakatsu / G-Finesse Drop Shot Hook'],
+      ['Gamakatsu EWG Worm Offset Hook, NS Black', 'Gamakatsu / EWG Worm Offset Hook'],
+      ['South Bend Hook Assortment', 'South Bend / Hook Assortment'],
+      ['Cylinder weights', 'THKFISH / 28 pcs sinkers set'],
+      ['Egg sinkers', 'Eagle Claw / Egg sinkers'],
+      ['Swiveling trolling / torpedo weights', 'Eagle Claw / Swiveling trolling sinkers'],
+      ['Swiveling trolling sinkers', 'Eagle Claw / Swiveling trolling sinkers'],
+      ['Glass beads', 'Top Brass / Czechoslovakian Glass Beads'],
+      ['Generic #0 inline spinner assortment', 'Generic / #0 inline spinner assortment'],
+      ['Generic #1 inline spinner', 'Generic / #1 inline spinner'],
+      ['Kastmaster', 'Acme / Kastmaster']
+    ]);
+
+    const companionApp = document.querySelector('#app');
+    let companionFixQueued = false;
+
+    if (companionApp) {
+      new MutationObserver(queueCompanionFixes).observe(companionApp, { childList: true, subtree: true });
+      window.addEventListener('hashchange', queueCompanionFixes);
+      queueCompanionFixes();
+    }
+
+    function queueCompanionFixes() {
+      if (companionFixQueued) return;
+      companionFixQueued = true;
+      requestAnimationFrame(() => {
+        companionFixQueued = false;
+        applyModelOverride();
+        applyDickNiteGuidance();
+      });
+    }
+
+    function applyModelOverride() {
+      if (!location.hash.startsWith('#/inventory/item/')) return;
+      const title = document.querySelector('.section-title h2')?.textContent?.trim() || '';
+      const replacement = MODEL_OVERRIDES.get(title);
+      if (!replacement) return;
+      const cell = findDetailCell('Manufacturer / Model');
+      const value = cell?.querySelector('.value');
+      if (value && value.textContent.trim() !== replacement) value.textContent = replacement;
+    }
+
+    function applyDickNiteGuidance() {
+      if (!location.hash.startsWith('#/inventory/item/')) return;
+      const title = document.querySelector('.section-title h2')?.textContent?.trim() || '';
+      if (title !== 'Dick Nite spoon') return;
+
+      const knotPanel = findPanel('Knots & connections');
+      if (knotPanel && !knotPanel.querySelector('[data-dick-nite-rigging]')) {
+        const note = document.createElement('div');
+        note.className = 'recommendation';
+        note.dataset.dickNiteRigging = 'true';
+        note.innerHTML = '<div class="guidance-body"><p>Rig with split rings at top and bottom, and single hook at bottom with point toward the concave side of the spoon.</p></div>';
+        knotPanel.append(note);
+      }
+
+      let usePanel = findPanel('How to use it');
+      if (!usePanel) {
+        usePanel = document.createElement('section');
+        usePanel.className = 'panel';
+        usePanel.innerHTML = '<h3>How to use it</h3>';
+        const catchPanel = findPanel('My catch history');
+        if (catchPanel) catchPanel.before(usePanel);
+        else document.querySelector('#app')?.append(usePanel);
+      }
+      if (!usePanel.querySelector('[data-dick-nite-use]')) {
+        const note = document.createElement('div');
+        note.className = 'recommendation';
+        note.dataset.dickNiteUse = 'true';
+        note.innerHTML = '<h4>Use</h4><div class="guidance-body"><p>Fish it with a bit of nightcrawler or PowerBait egg on the hook.</p></div>';
+        usePanel.append(note);
+      }
+    }
+
+    function findDetailCell(label) {
+      const wanted = normalizeLabel(label);
+      return [...document.querySelectorAll('.detail-cell')].find(cell => normalizeLabel(cell.querySelector('.label')?.textContent) === wanted) || null;
+    }
+
+    function findPanel(heading) {
+      const wanted = normalizeLabel(heading);
+      return [...document.querySelectorAll('.panel')].find(panel => {
+        const h = panel.querySelector(':scope > h2, :scope > h3');
+        return normalizeLabel(h?.textContent) === wanted;
+      }) || null;
+    }
+
+    function normalizeLabel(value = '') {
+      return String(value).toLowerCase().replace(/[^a-z0-9]+/g, ' ').replace(/\s+/g, ' ').trim();
+    }
+  </script>
   <script>
     document.addEventListener('click', event => {
       const route = event.target.closest('[data-route]');
