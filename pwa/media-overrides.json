@@ -4,43 +4,145 @@
     "imageSource": "https://forzasports.com/cdn/shop/files/dwatatulaxt702mfs-new01.jpg?v=1751174967",
     "destination": "https://daiwa.us/collections/freshwater-rods/products/tatula-xt"
   },
+  "pflueger-president-spincast": {
+    "aliases": ["Pflueger President", "Pflueger President Spincast Combo", "PRESSC-606L2CBO"],
+    "sourcePage": "https://pfluegerfishing.com/products/president-spincast-combo-1595561",
+    "imageSource": "",
+    "destination": "https://pfluegerfishing.com/products/president-spincast-combo-1595561",
+    "alt": "Pflueger President Spincast Combo"
+  },
+  "sufix-832": {
+    "sourcePage": "https://www.walmart.com/ip/182577747",
+    "imageSource": "",
+    "destination": "https://www.rapala.com/us_en/832-advanced-superline?childSku=us-660-115Y",
+    "alt": "Sufix 832 Advanced Superline 15 lb Hi-Vis Yellow 300 yd"
+  },
+  "powerpro-super8-slick-v2": {
+    "destination": "https://fishshop.shimano.com/products/powerprosuper8slick-v2?variant=61578323624306"
+  },
+  "eagle-claw-trolling-sinker": {
+    "destination": "https://eagleclaw.com/products/eagle-claw-swiveling-trolling-sinkers"
+  },
+  "top-brass-glass-beads": {
+    "destination": "https://www.topbrasstackle.com/products/top-brass-tackle/#:~:text=These%20handcrafted%2C%20jewelry-grade%20glass%20beads%20are%20fire%20polished,chartreuse%2C%20crawfish%2C%20orange%2C%20red%20flash%2C%20and%20crystal%20flash"
+  },
   "tsuridamashii-ball-bearing-swivels": {
-    "sourcePage": "https://tiendamia.com.uy/p/amz/b0djrlf5yz/ball-bearing-swivels-fishing-swivel-6bb-made-in-japan"
+    "sourcePage": "https://www.amazon.com/dp/B0DJRLF5YZ",
+    "imageSource": "",
+    "destination": "https://a.co/d/12yVweL"
   },
   "tsuridamashii-snap-swivels": {
-    "sourcePage": "https://www.coupang.com/vp/products/9144159249"
+    "sourcePage": "https://a.co/d/apPLB6U",
+    "imageSource": "",
+    "destination": "https://a.co/d/apPLB6U"
+  },
+  "vmc-crossover-rings": {
+    "sourcePage": "https://www.rapala.com/us_en/crossover-ring?childSku=us-CRSRC7",
+    "imageSource": "",
+    "destination": "https://www.rapala.com/us_en/crossover-ring?childSku=us-CRSRC7",
+    "alt": "VMC Crossover Rings 7 mm Clear"
+  },
+  "owner-twistlock": {
+    "destination": "https://www.ownerhooks.com/product/twistlock-3x/"
+  },
+  "zman-original-chatterbait": {
+    "destination": "https://zmanfishing.com/products/original-chatterbait-r"
+  },
+  "zman-elite-evo": {
+    "destination": "https://zmanfishing.com/products/chatterbait-elite-evo#"
   },
   "zman-jack-hammer": {
     "sourcePage": "https://www.ebay.com/itm/336474453546",
-    "imageSource": "https://i.ebayimg.com/images/g/MKoAAeSwO1hpsd4D/s-l500.png"
+    "imageSource": "https://i.ebayimg.com/images/g/MKoAAeSwO1hpsd4D/s-l500.png",
+    "destination": "https://zmanfishing.com/products/chatterbait-r-jackhammer#"
   },
   "strike-king-red-eyed-special": {
     "sourcePage": "https://www.strikeking.com/en/shop/wire-baits/reyespb",
     "imageSource": "https://www.strikeking.com/globalassets/media---strike-king-catalog/reye316cw-3/reye316cw-3_redeyespecial_chartwhite_sideleft.png",
     "destination": "https://www.strikeking.com/en/shop/wire-baits/reyespb"
   },
+  "berkley-flicker-shad-5": {
+    "sourcePage": "https://www.walmart.com/ip/32174374",
+    "imageSource": "",
+    "destination": "https://www.berkley-fishing.com/products/flicker-shad",
+    "alt": "Berkley Flicker Shad 5 Pearl White crankbait"
+  },
+  "strike-king-kvd-square-bill-1": {
+    "destination": "https://www.strikeking.com/en/shop/hard-baits/hckvds1.0"
+  },
+  "berkley-money-badger": {
+    "destination": "https://www.berkley-fishing.com/products/money-badger"
+  },
+  "berkley-stunna": {
+    "destination": "https://www.berkley-fishing.com/products/stunna?_pos=1&_psq=stunna&_psid=70e54b51b&_ss=e&variant=42291054903435"
+  },
+  "rapala-original-floating-f3": {
+    "aliases": ["Rapala Original Floating", "Rapala Original Floating F-3", "F03"],
+    "destination": "https://www.rapala.com/us_en/original-floating?childSku=us-F03S"
+  },
+  "rapala-dt06": {
+    "aliases": ["Rapala DT", "Rapala DT06", "Part 06"],
+    "destination": "https://www.rapala.com/us_en/dt-dives-to-series?childSku=us-DT04DMN"
+  },
+  "mepps-aglia-3": {
+    "sourcePage": "https://store.mepps.com/goldred-dot-blade-3-14-oz-plain-aglia",
+    "imageSource": "",
+    "destination": "https://store.mepps.com/goldred-dot-blade-3-14-oz-plain-aglia",
+    "alt": "Mepps Aglia #3 Gold Red Dot Blade 1/4 oz Plain inline spinner"
+  },
+  "macks-wedding-ring": {
+    "sourcePage": "https://mackslure.com/collections/wedding-ring-lures/products/wedding-ring-classic-original?variant=41890371731702",
+    "imageSource": "",
+    "destination": "https://mackslure.com/collections/wedding-ring-lures/products/wedding-ring-classic-original?variant=41890371731702"
+  },
   "kastmaster": {
-    "sourcePage": "https://www.walmart.com/ip/17047893",
-    "imageSource": "https://i5.walmartimages.com/asr/14472a19-4a08-4aff-9807-74ba5001f898.9f494633f0006f2ba2199b0de3ef0aad.jpeg?odnBg=FFFFFF&odnHeight=768&odnWidth=768"
+    "sourcePage": "https://www.acmetackle.com/products/kastmaster-plain-treble-hook-solid?variant=46771792582",
+    "imageSource": "",
+    "destination": "https://www.acmetackle.com/products/kastmaster-plain-treble-hook-solid?variant=46771792582",
+    "alt": "Acme Kastmaster spoon"
+  },
+  "dick-nite-spoon": {
+    "destination": "https://gibbsfishing.com/products/dick-nite?variant=48781415973159"
   },
   "luhr-jensen-dodger": {
+    "aliases": ["Luhr Jensen Trout & Kokanee Dodger", "Luhr Jensen Trout/Kokanee Dodger"],
     "sourcePage": "https://www.sportsmans.com/fishing-gear-supplies/hard-baits/luhr-jensen-dodger/p/p6712",
-    "imageSource": "https://www.sportsmans.com/medias/luhr-jensen-dodger-chromesilver-prism-4-58in-404333-1.jpg?context=bWFzdGVyfGltYWdlc3w3MTY1OHxpbWFnZS9qcGVnfGFXMWhaMlZ6TDJoaU1pOW9aVE12T1RVME56UTBOelF3TWpVeU5pNXFjR2N8NDM1MjA3ZjIxZmI1NjM0Mjc4MDgxYWVhZmU5NjBkZWE2MmZjYjMxOWQ4MGVlYjI0MDJkNmU1YTMxODZjODc2OA"
+    "imageSource": "https://www.sportsmans.com/medias/luhr-jensen-dodger-chromesilver-prism-4-58in-404333-1.jpg?context=bWFzdGVyfGltYWdlc3w3MTY1OHxpbWFnZS9qcGVnfGFXMWhaMlZ6TDJoaU1pOW9aVE12T1RVME56UTBOelF3TWpVeU5pNXFjR2N8NDM1MjA3ZjIxZmI1NjM0Mjc4MDgxYWVhZmU5NjBkZWE2MmZjYjMxOWQ4MGVlYjI0MDJkNmU1YTMxODZjODc2OA",
+    "destination": "https://www.rapala.com/us_en/jensen-trout-kokanee-dodger?childSku=us-5100-040-0150"
+  },
+  "macks-pee-wee-hoochie": {
+    "sourcePage": "https://www.walmart.com/ip/35259522",
+    "imageSource": "",
+    "destination": "https://mackslure.com/products/pee-wee-hoochie?variant=41955516317942",
+    "alt": "Mack's Pee Wee Hoochie Hot Pink Glow"
   },
   "booyah-pad-crasher-assortment": {
-    "sourcePage": "https://www.midwayusa.com/product/1021789798",
-    "imageSource": "https://media.mwstatic.com/product-images/src/primary/282/282002.jpg"
-  },
-  "booyah-pad-crasher-jr": {
-    "sourcePage": "https://www.leurredelapeche.fr/gb/14142-frog-booyah-pad-crasher-jr.html",
-    "imageSource": "https://www.leurredelapeche.fr/58131/frog-booyah-pad-crasher-jr.jpg"
+    "aliases": ["Booyah Pad Crasher", "Booyah Pad Crasher / Pad Crasher Jr. assortment"],
+    "sourcePage": "https://shopbooyah.shop/products/booyah-pad-crasher-3-pack-topwater-bass-fishing-hollow-body-b076bjp2z9?v_id=variant_01KPRYK0WCMWG8ZE6EH2B0R0BK",
+    "imageSource": "",
+    "destination": "https://shopbooyah.shop/products/booyah-pad-crasher-3-pack-topwater-bass-fishing-hollow-body-b076bjp2z9?v_id=variant_01KPRYK0WCMWG8ZE6EH2B0R0BK"
   },
   "river2sea-whopper-plopper-60": {
     "sourcePage": "https://www.midwayusa.com/product/1022032019",
-    "imageSource": "https://media.mwstatic.com/product-images/src/primary/847/847202.jpg"
+    "imageSource": "https://media.mwstatic.com/product-images/src/primary/847/847202.jpg",
+    "destination": "https://www.river2seausa.com/product/whopper-plopper-60/"
+  },
+  "strike-king-premier-pro-model-jig": {
+    "destination": "https://www.strikeking.com/en/shop/jigs--spoons/ppmj"
+  },
+  "strike-king-tour-grade-football-jig": {
+    "destination": "https://www.strikeking.com/en/shop/jigs--spoons/tgfbj"
+  },
+  "strike-king-rage-craw": {
+    "destination": "https://www.strikeking.com/en/shop/soft-baits/rgcrw"
+  },
+  "sixth-sense-divine-swimbait": {
+    "destination": "https://6thsensefishing.com/products/divine-swimbait?variant=46868751679627"
   },
   "berkley-power-jerk-shad": {
+    "aliases": ["Berkley Power Jerk Shad", "Berkley PowerBait Power Jerk Shad", "PowerBait Power Jerk Shad"],
     "sourcePage": "https://fishermanscentral.com/collections/pos-collection/products/berkley-powerbait-power-jerk-shad",
-    "imageSource": "https://fishermanscentral.com/cdn/shop/files/PB-Power-Jerk-Shad_Albino_f18576ed-f66b-4861-b0eb-791c7691a61e.jpg?v=1737568294"
+    "imageSource": "https://fishermanscentral.com/cdn/shop/files/PB-Power-Jerk-Shad_Albino_f18576ed-f66b-4861-b0eb-791c7691a61e.jpg?v=1737568294",
+    "destination": "https://www.berkley-fishing.com/products/powerbait-power-jerk-shad"
   }
 }
