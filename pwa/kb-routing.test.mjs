@@ -15,7 +15,7 @@ assert.doesNotMatch(gearApp, /Trip_Logs_Field_Observations|Gear used/, 'My Gear 
 assert.doesNotMatch(index, /class="eyebrow"|>\s*Fishing knowledge base\s*</i, 'Site header must display only the site title.');
 
 const contentMap = new Map([['./kb-content/knots/palomar.md', { id:'knot-palomar' }]]);
-const html = renderMarkdown('## Rigging\n\n![Rig](../../assets/kb/rig.png)\n\n[Palomar](../knots/palomar.md) [Gear](gear://sample-hook) [Site](https://example.com)\n\n| A | B |\n|---|---|\n| 1 | 2 |', {
+const html = renderMarkdown('## Rigging\n\n![Rig](../../assets/kb/rig.png)\n\n[Palomar](../knots/palomar.md) [Gear](gear://sample-hook) [KB](kb://technique-ned-rig) [Site](https://example.com)\n\n| A | B |\n|---|---|\n| 1 | 2 |', {
   contentPath:'./kb-content/techniques/example.md',
   entityByContentPath:contentMap
 });
@@ -23,6 +23,7 @@ assert.match(html, /<h3>Rigging<\/h3>/);
 assert.match(html, /src="\.\/assets\/kb\/rig\.png"/);
 assert.match(html, /href="#\/kb\/entity\/knot-palomar"/);
 assert.match(html, /href="#\/inventory\/item\/sample-hook"/);
+assert.match(html, /href="#\/kb\/entity\/technique-ned-rig"/);
 assert.match(html, /target="_blank" rel="noopener"/);
 assert.match(html, /<table>/);
 assert.doesNotMatch(renderMarkdown('[bad](javascript:alert(1))'), /href=/);
