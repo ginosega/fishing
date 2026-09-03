@@ -1,7 +1,6 @@
 import { GearRepository } from './gear-store.js';
 import { validateKbBundle, validateCatchBundle, groupEntitiesByType, catchesForEntity } from './kb-model.js';
-import { renderMarkdown } from './markdown-render.js';
-import { renderCatchCard, formatCatchDate, formatCatchSize } from './catch-ui.js';
+import { renderMarkdown, renderCatchCard, formatCatchDate, formatCatchSize } from './markdown-render.js';
 
 const TYPE_META = {
   location: { label:'Locations', icon:'📍', description:'Waters, access, seasonal patterns, and local observations' },
