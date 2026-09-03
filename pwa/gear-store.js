@@ -4,7 +4,7 @@ const DB_NAME = 'fishing-companion';
 const DB_VERSION = 1;
 const ITEM_STORE = 'gear-items';
 const META_STORE = 'gear-meta';
-const PROFILE_KEY = 'profiles';
+const LEGACY_PROFILE_KEY = 'profiles';
 const META_KEY = 'meta';
 
 export class GearRepository {
@@ -28,7 +28,7 @@ export class GearRepository {
     }
 
     const localIsSeedManaged = !meta?.source || meta.source === 'seed';
-    if (localIsSeedManaged && meta?.dataVersion !== seed.dataVersion) {
+    if (localIsSeedManaged && (meta?.schemaVersion !== GEAR_SCHEMA_VERSION || meta?.dataVersion !== seed.dataVersion)) {
       await this.replace(seed, { source:'seed' });
     }
     return this.exportBundle();
@@ -57,16 +57,14 @@ export class GearRepository {
   async exportBundle() {
     const db = await this.open();
     const tx = db.transaction([ITEM_STORE, META_STORE], 'readonly');
-    const [items, profileRecord, metaRecord] = await Promise.all([
+    const [items, metaRecord] = await Promise.all([
       requestResult(tx.objectStore(ITEM_STORE).getAll()),
-      requestResult(tx.objectStore(META_STORE).get(PROFILE_KEY)),
       requestResult(tx.objectStore(META_STORE).get(META_KEY))
     ]);
     return {
       schemaVersion: GEAR_SCHEMA_VERSION,
       dataVersion: metaRecord?.dataVersion || 'local',
-      items: items.sort(sortItems),
-      profiles: profileRecord?.value || { connections:{}, usage:{} }
+      items: items.sort(sortItems)
     };
   }
 
@@ -76,8 +74,8 @@ export class GearRepository {
     const db = await this.open();
     const tx = db.transaction([ITEM_STORE, META_STORE], 'readwrite');
     for (const item of bundle.items) tx.objectStore(ITEM_STORE).put(item);
-    if (bundle.profiles) tx.objectStore(META_STORE).put({ key:PROFILE_KEY, value:bundle.profiles });
-    tx.objectStore(META_STORE).put({ key:META_KEY, schemaVersion:GEAR_SCHEMA_VERSION, dataVersion:bundle.dataVersion || 'imported', updatedAt:new Date().toISOString(), source:'import-merge' });
+    tx.objectStore(META_STORE).delete(LEGACY_PROFILE_KEY);
+    tx.objectStore(META_STORE).put({ key:META_KEY, schemaVersion:GEAR_SCHEMA_VERSION, dataVersion:bundle.dataVersion, updatedAt:new Date().toISOString(), source:'import-merge' });
     await transactionDone(tx);
     return this.exportBundle();
   }
@@ -90,8 +88,8 @@ export class GearRepository {
     const items = tx.objectStore(ITEM_STORE);
     items.clear();
     for (const item of bundle.items) items.put(item);
-    tx.objectStore(META_STORE).put({ key:PROFILE_KEY, value:bundle.profiles || { connections:{}, usage:{} } });
-    tx.objectStore(META_STORE).put({ key:META_KEY, schemaVersion:GEAR_SCHEMA_VERSION, dataVersion:bundle.dataVersion || 'imported', updatedAt:new Date().toISOString(), source:options.source || 'import-replace' });
+    tx.objectStore(META_STORE).delete(LEGACY_PROFILE_KEY);
+    tx.objectStore(META_STORE).put({ key:META_KEY, schemaVersion:GEAR_SCHEMA_VERSION, dataVersion:bundle.dataVersion, updatedAt:new Date().toISOString(), source:options.source || 'import-replace' });
     await transactionDone(tx);
     return this.exportBundle();
   }

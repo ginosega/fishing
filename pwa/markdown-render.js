@@ -103,6 +103,7 @@ function resolveLink(target, options) {
   const value = decodeEntities(String(target || '').trim());
   if (/^https?:\/\//i.test(value)) return { href:value, external:true };
   if (/^gear:\/\/[a-z0-9][a-z0-9-]*$/i.test(value)) return { href:`#/inventory/item/${encodeURIComponent(value.slice(7))}`, external:false };
+  if (/^kb:\/\/[a-z0-9][a-z0-9-]*$/i.test(value)) return { href:`#/kb/entity/${encodeURIComponent(value.slice(5))}`, external:false };
   if (/^#\//.test(value)) return { href:value, external:false };
   if (/^(?:javascript|data|vbscript):/i.test(value)) return null;
   const resolved = resolveRelative(value, options.contentPath);

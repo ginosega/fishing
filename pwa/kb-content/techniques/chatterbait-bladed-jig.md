@@ -7,6 +7,8 @@ Use:
 
 Rigging: tie direct. Avoid snap/swivel because it can disrupt blade vibration/startup.
 
+Knot note: Palomar is the current direct-tie default. A loop knot has also been suggested for added freedom, but that guidance remains unresolved; do not treat it as settled. Retie often because vibration can stress the knot.
+
 Technique:
 
 - Retrieve above grass, pop/pause, let sink then pop off bottom.

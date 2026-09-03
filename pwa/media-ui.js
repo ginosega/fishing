@@ -44,13 +44,12 @@ function queueEnhance() {
 function enhancePage() {
   enhanceVideoLinks(document);
   enhanceKbImages();
-  if (!location.hash.startsWith('#/inventory/item/')) return;
+  const match = /^#\/inventory\/item\/(.+)$/.exec(location.hash || '');
+  if (!match) return;
+  const gearItemId = decodeURIComponent(match[1]);
   const subtitle = document.querySelector('.section-title p')?.textContent?.trim() || '';
-  if (/^Rods & Reels\s*-/i.test(subtitle)) enhanceRodReelSections();
-  else {
-    const title = document.querySelector('.section-title h2')?.textContent?.trim() || '';
-    if (title) enhanceStandardGearLeaf(title);
-  }
+  if (/^Rods & Reels\s*-/i.test(subtitle)) enhanceRodReelSections(gearItemId);
+  else enhanceStandardGearLeaf(gearItemId);
 }
 
 function enhanceKbImages() {
@@ -73,25 +72,31 @@ function enhanceKbImages() {
   }
 }
 
-function enhanceStandardGearLeaf(title) {
-  const media = findMedia(title);
+function enhanceStandardGearLeaf(gearItemId) {
+  const media = findMediaByOwner(gearItemId);
   if (!media?.asset) return;
   const panel = [...document.querySelectorAll('.panel')].find(section => section.querySelector('.detail-grid'));
   if (!panel || panel.querySelector('.gear-media-button')) return;
-  attachMedia(panel,media,title);
+  const label = document.querySelector('.section-title h2')?.textContent?.trim() || gearItemId;
+  attachMedia(panel,media,label);
 }
 
-function enhanceRodReelSections() {
-  const isSpincast = /Rods & Reels\s*-\s*Spincasting/i.test(document.querySelector('.section-title p')?.textContent || '');
+function enhanceRodReelSections(gearItemId) {
   for (const panel of document.querySelectorAll('.panel')) {
     const heading = panel.querySelector('h2.subsection-heading');
-    if (!heading || !/^(Rod|Reel)$/i.test(heading.textContent.trim()) || panel.querySelector('.gear-media-button')) continue;
-    if (isSpincast && /^Reel$/i.test(heading.textContent.trim())) continue;
-    const cell = [...panel.querySelectorAll('.detail-cell')].find(detail => normalize(detail.querySelector('.label')?.textContent) === 'manufacturer model');
-    const identity = cell?.querySelector('.value')?.textContent?.trim() || '';
-    const media = findMedia(identity);
-    if (media?.asset) attachMedia(panel,media,identity);
+    const component = heading?.textContent?.trim().toLowerCase();
+    if (!['rod','reel'].includes(component) || panel.querySelector('.gear-media-button')) continue;
+    const media = findMediaByOwner(gearItemId, component);
+    if (!media?.asset) continue;
+    const label = panel.querySelector('.detail-cell .value')?.textContent?.trim() || `${gearItemId} ${component}`;
+    attachMedia(panel,media,label);
   }
+}
+
+function findMediaByOwner(gearItemId, component = null) {
+  return state.media.find(item => (item.owners || []).some(owner =>
+    owner?.gearItemId === gearItemId && (owner.component || null) === (component || null)
+  )) || null;
 }
 
 function attachMedia(panel,media,label) {
@@ -114,22 +119,6 @@ function createMediaButton(media,label) {
   button.append(image,hint);
   button.addEventListener('click',()=>openViewer(media));
   return button;
-}
-
-function findMedia(text) {
-  const target=normalize(text);
-  if (!target) return null;
-  const matches=state.media.map(item => {
-    let score=0;
-    for (const alias of item.aliases || []) {
-      const a=normalize(alias);
-      if (!a) continue;
-      if (target===a) score=Math.max(score,1000+a.length);
-      else if (target.includes(a) || a.includes(target)) score=Math.max(score,500+Math.min(a.length,target.length));
-    }
-    return {item,score};
-  }).filter(match=>match.score>0).sort((a,b)=>b.score-a.score);
-  return matches[0]?.item || null;
 }
 
 function enhanceVideoLinks(root) {
@@ -254,5 +243,4 @@ function youtubeId(url) {
   } catch {}
   return '';
 }
-function normalize(value=''){return String(value).toLowerCase().replace(/&/g,' and ').replace(/[^a-z0-9]+/g,' ').replace(/\s+/g,' ').trim();}
 function truncate(value,max){const text=String(value||'').trim();return text.length<=max?text:`${text.slice(0,max-1).trimEnd()}…`;}

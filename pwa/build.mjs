@@ -34,6 +34,10 @@ const catchValidation = validateCatchBundle(catchSeed, kbSeed, gearSeed);
 if (!catchValidation.valid) throw new Error(`Invalid structured Catch Log seed:\n${catchValidation.errors.join('\n')}`);
 await fs.writeFile(path.join(dataOut, 'catches.seed.json'), JSON.stringify(catchSeed, null, 2));
 
+const gearIds = new Set(gearSeed.items.map(item => item.id));
+const kbIds = new Set(kbSeed.entities.map(entity => entity.id));
+for (const item of gearSeed.items) validateGearNotesLinks(item.notes, item.id, gearIds, kbIds);
+
 const indexSource = await fs.readFile(path.join(here, 'index.html'), 'utf8');
 const versionedIndex = indexSource
   .replace('./styles.css', `./styles.css?v=${buildVersion}`)
@@ -52,7 +56,7 @@ for (const entity of kbSeed.entities) {
   kbMarkdown.push(markdown);
   await copyBuildFile(sourcePath, contentPath);
   kbAssets.add(`./${contentPath}`);
-  validateContentLinks(markdown, entity, knownContentPaths, gearSeed);
+  validateContentLinks(markdown, entity, knownContentPaths, gearIds, kbIds);
   for (const imageTarget of extractMarkdownImages(markdown)) {
     if (/^https?:\/\//i.test(imageTarget)) continue;
     const imagePath = normalizeBuildPath(path.posix.join(path.posix.dirname(contentPath), imageTarget));
@@ -76,9 +80,13 @@ for (const record of catchSeed.catches) if (record.picture?.src && !/^https?:\/\
 await fs.writeFile(path.join(out, 'kb-assets.json'), JSON.stringify([...kbAssets].sort(), null, 2));
 
 const mediaManifest = JSON.parse(await fs.readFile(path.join(here, 'media-sources.json'), 'utf8'));
+const mediaOwnershipManifest = JSON.parse(await fs.readFile(path.join(here, 'media-owners.json'), 'utf8'));
 let mediaOverrides = {};
 try { mediaOverrides = JSON.parse(await fs.readFile(path.join(here, 'media-overrides.json'), 'utf8')); } catch {}
-const mediaItems = (mediaManifest.items || []).map(item => ({ ...item, ...(mediaOverrides[item.id] || {}) }));
+const mediaOwners = validateMediaOwnership(mediaManifest, mediaOwnershipManifest, gearSeed);
+const mediaItems = (mediaManifest.items || [])
+  .filter(item => mediaOwners.has(item.id))
+  .map(item => ({ ...item, ...(mediaOverrides[item.id] || {}), owners:mediaOwners.get(item.id) }));
 const mediaResults = await mapLimit(mediaItems, 6, buildGearMedia);
 const successfulMedia = mediaResults.filter(Boolean);
 await fs.writeFile(path.join(out, 'gear-media.json'), JSON.stringify(successfulMedia, null, 2));
@@ -139,9 +147,9 @@ async function buildGearMedia(item) {
     await fs.writeFile(path.join(gearOut, filename), bytes);
     return {
       id: item.id,
-      aliases: item.aliases || [],
+      owners: item.owners,
       asset: `./assets/gear/${filename}`,
-      alt: item.alt || item.aliases?.[0] || item.id,
+      alt: item.alt || item.id,
       destination: item.destination || item.sourcePage || '',
       sourcePage: item.sourcePage || '',
       imageSource: imageUrl,
@@ -242,13 +250,37 @@ function extractMarkdownImages(markdown) {
   return [...String(markdown || '').matchAll(/!\[[^\]]*\]\((\S+?)(?:\s+["'][^"']*["'])?\)/g)].map(match => match[1].replaceAll('&amp;', '&'));
 }
 
-function validateContentLinks(markdown, entity, knownContentPaths, gearBundle) {
-  const gearIds = new Set(gearBundle.items.map(item => item.id));
-  for (const match of String(markdown || '').matchAll(/(?<!!)\[[^\]]+\]\(([^)\s]+)(?:\s+["'][^"']*["'])?\)/g)) {
-    const target = match[1].replaceAll('&amp;', '&');
+function extractMarkdownLinks(markdown) {
+  return [...String(markdown || '').matchAll(/(?<!!)\[[^\]]+\]\(([^)\s]+)(?:\s+["'][^"']*["'])?\)/g)].map(match => match[1].replaceAll('&amp;', '&'));
+}
+
+function validateGearNotesLinks(markdown, itemId, gearIds, kbIds) {
+  if (!markdown) return;
+  for (const target of extractMarkdownLinks(markdown)) {
+    if (/^gear:\/\//i.test(target)) {
+      const id = target.slice(7);
+      if (!gearIds.has(id)) throw new Error(`My Gear ${itemId} notes reference unknown My Gear ID ${id}.`);
+      continue;
+    }
+    if (/^kb:\/\//i.test(target)) {
+      const id = target.slice(5);
+      if (!kbIds.has(id)) throw new Error(`My Gear ${itemId} notes reference unknown KB ID ${id}.`);
+      continue;
+    }
+    if (/^#\/(?:inventory|kb)(?:\/|$)/i.test(target)) throw new Error(`My Gear ${itemId} notes store a raw application route; use gear:// or kb:// instead: ${target}`);
+  }
+}
+
+function validateContentLinks(markdown, entity, knownContentPaths, gearIds, kbIds) {
+  for (const target of extractMarkdownLinks(markdown)) {
     if (/^gear:\/\//i.test(target)) {
       const id = target.slice(7);
       if (!gearIds.has(id)) throw new Error(`${entity.content} references unknown My Gear ID ${id}.`);
+      continue;
+    }
+    if (/^kb:\/\//i.test(target)) {
+      const id = target.slice(5);
+      if (!kbIds.has(id)) throw new Error(`${entity.content} references unknown KB ID ${id}.`);
       continue;
     }
     if (/^(?:https?:\/\/|#)/i.test(target)) continue;
@@ -256,4 +288,48 @@ function validateContentLinks(markdown, entity, knownContentPaths, gearBundle) {
     const resolved = normalizeBuildPath(path.posix.join(path.posix.dirname(contentPath), target.split(/[?#]/)[0]));
     if (/\.md$/i.test(resolved) && !knownContentPaths.has(resolved)) throw new Error(`${entity.content} links to unregistered KB Markdown ${target}.`);
   }
+}
+
+function validateMediaOwnership(mediaManifest, ownershipManifest, gearBundle) {
+  if (!ownershipManifest || typeof ownershipManifest !== 'object' || Array.isArray(ownershipManifest)) throw new Error('media-owners.json must contain an object.');
+  if (ownershipManifest.version !== 1) throw new Error('media-owners.json version must be 1.');
+  if (!Array.isArray(ownershipManifest.items)) throw new Error('media-owners.json items must be an array.');
+
+  const sourceIds = new Set();
+  for (const item of mediaManifest.items || []) {
+    if (!item?.id) throw new Error('media-sources.json contains an item without id.');
+    if (sourceIds.has(item.id)) throw new Error(`media-sources.json duplicates media ID ${item.id}.`);
+    sourceIds.add(item.id);
+  }
+
+  const gearById = new Map(gearBundle.items.map(item => [item.id,item]));
+  const ownersByMedia = new Map();
+  for (const [index,record] of ownershipManifest.items.entries()) {
+    const at = `media-owners.items[${index}]`;
+    if (!record || typeof record !== 'object' || Array.isArray(record)) throw new Error(`${at} must be an object.`);
+    const fields = Object.keys(record);
+    if (fields.some(field => !['mediaId','owners'].includes(field))) throw new Error(`${at} contains an unknown field.`);
+    if (typeof record.mediaId !== 'string' || !record.mediaId) throw new Error(`${at}.mediaId is required.`);
+    if (!sourceIds.has(record.mediaId)) throw new Error(`${at}.mediaId references unknown media source ${record.mediaId}.`);
+    if (ownersByMedia.has(record.mediaId)) throw new Error(`${at}.mediaId duplicates ${record.mediaId}.`);
+    if (!Array.isArray(record.owners) || !record.owners.length) throw new Error(`${at}.owners must be a non-empty array.`);
+
+    const normalizedOwners = [];
+    for (const [ownerIndex,owner] of record.owners.entries()) {
+      const ownerAt = `${at}.owners[${ownerIndex}]`;
+      if (!owner || typeof owner !== 'object' || Array.isArray(owner)) throw new Error(`${ownerAt} must be an object.`);
+      if (Object.keys(owner).some(field => !['gearItemId','component'].includes(field))) throw new Error(`${ownerAt} contains an unknown field.`);
+      const gearItem = gearById.get(owner.gearItemId);
+      if (!gearItem) throw new Error(`${ownerAt}.gearItemId references unknown Gear ID ${owner.gearItemId}.`);
+      if (owner.component != null) {
+        if (!['rod','reel'].includes(owner.component)) throw new Error(`${ownerAt}.component must be rod or reel.`);
+        if (gearItem.category !== 'rods-reels') throw new Error(`${ownerAt}.component is only valid for a Rods & Reels setup.`);
+      } else if (gearItem.category === 'rods-reels') {
+        throw new Error(`${ownerAt} must specify component for a Rods & Reels setup.`);
+      }
+      normalizedOwners.push({ gearItemId:owner.gearItemId, ...(owner.component ? {component:owner.component} : {}) });
+    }
+    ownersByMedia.set(record.mediaId, normalizedOwners);
+  }
+  return ownersByMedia;
 }

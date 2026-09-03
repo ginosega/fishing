@@ -1,45 +1,42 @@
-export const GEAR_SCHEMA_VERSION = 1;
+export const GEAR_SCHEMA_VERSION = 2;
 export const GEAR_CATEGORIES = ['rods-reels','line','weights','snaps-swivels','hooks','lures','bait'];
+
+const ROOT_FIELDS = ['schemaVersion','dataVersion','items'];
+const PRODUCT_FIELDS = ['id','category','type','name','manufacturer','model','specifications','links','notes'];
+const SETUP_FIELDS = ['id','category','type','name','rod','reel','notes'];
+const COMPONENT_FIELDS = ['manufacturer','model','specifications','links'];
+const MANUFACTURER_FIELDS = ['name','url'];
+const SPECIFICATION_FIELDS = ['label','value'];
+const LINK_FIELDS = ['kind','label','url'];
 
 export function validateGearBundle(bundle) {
   const errors = [];
-  if (!bundle || typeof bundle !== 'object' || Array.isArray(bundle)) return { valid:false, errors:['Root value must be an object.'] };
+  if (!isObject(bundle)) return { valid:false, errors:['Root value must be an object.'] };
+  validateExactFields(bundle, ROOT_FIELDS, 'root', errors);
   if (bundle.schemaVersion !== GEAR_SCHEMA_VERSION) errors.push(`schemaVersion must be ${GEAR_SCHEMA_VERSION}.`);
+  if (!isText(bundle.dataVersion)) errors.push('dataVersion is required.');
   if (!Array.isArray(bundle.items)) errors.push('items must be an array.');
-  validateProfiles(bundle.profiles, errors);
-  const connectionProfiles = new Set(Object.keys(bundle.profiles?.connections || {}));
-  const usageProfiles = new Set(Object.keys(bundle.profiles?.usage || {}));
+
   const ids = new Set();
   for (const [index,item] of (bundle.items || []).entries()) {
     const at = `items[${index}]`;
-    if (!item || typeof item !== 'object' || Array.isArray(item)) { errors.push(`${at} must be an object.`); continue; }
-    if (!isText(item.id)) errors.push(`${at}.id is required.`);
-    else if (!/^[a-z0-9][a-z0-9-]*$/.test(item.id)) errors.push(`${at}.id must use lowercase letters, numbers, and hyphens only.`);
-    else if (ids.has(item.id)) errors.push(`${at}.id duplicates ${item.id}.`);
-    else ids.add(item.id);
-    if (!GEAR_CATEGORIES.includes(item.category)) errors.push(`${at}.category must be one of ${GEAR_CATEGORIES.join(', ')}.`);
-    if (!isText(item.type)) errors.push(`${at}.type is required.`);
-    if (!isText(item.name)) errors.push(`${at}.name is required.`);
-    if (item.category === 'rods-reels') {
+    if (!isObject(item)) { errors.push(`${at} must be an object.`); continue; }
+
+    const isSetup = item.category === 'rods-reels';
+    validateExactFields(item, isSetup ? SETUP_FIELDS : PRODUCT_FIELDS, at, errors);
+    validateIdentity(item, at, ids, errors);
+
+    if (isSetup) {
       validateComponent(item.rod, `${at}.rod`, errors);
       validateComponent(item.reel, `${at}.reel`, errors);
     } else {
-      if (!item.manufacturer || !isText(item.manufacturer.name)) errors.push(`${at}.manufacturer.name is required.`);
+      validateManufacturer(item.manufacturer, `${at}.manufacturer`, errors);
       if (!isText(item.model)) errors.push(`${at}.model is required.`);
-      validateUrl(item.manufacturer?.url, `${at}.manufacturer.url`, errors);
+      validateSpecifications(item.specifications, `${at}.specifications`, errors, true);
+      validateLinks(item.links, `${at}.links`, errors, true);
     }
-    validateSpecifications(item.specifications, `${at}.specifications`, errors);
-    validateLinks(item.links, `${at}.links`, errors);
-    if (item.connectionProfileId != null) {
-      if (!isText(item.connectionProfileId)) errors.push(`${at}.connectionProfileId must be text.`);
-      else if (!connectionProfiles.has(item.connectionProfileId)) errors.push(`${at}.connectionProfileId references unknown profile ${item.connectionProfileId}.`);
-    }
-    if (item.usageProfileId != null) {
-      if (!isText(item.usageProfileId)) errors.push(`${at}.usageProfileId must be text.`);
-      else if (!usageProfiles.has(item.usageProfileId)) errors.push(`${at}.usageProfileId references unknown profile ${item.usageProfileId}.`);
-    }
-    validateGuidance(item.connections, `${at}.connections`, errors);
-    validateGuidance(item.usage, `${at}.usage`, errors);
+
+    validateNotes(item.notes, `${at}.notes`, errors);
   }
   return { valid: errors.length === 0, errors };
 }
@@ -60,13 +57,6 @@ export function gearLinks(item) {
   return dedupeLinks(links);
 }
 
-export function resolveGuidance(bundle, item, kind) {
-  const direct = Array.isArray(item?.[kind]) ? item[kind] : [];
-  const profileId = kind === 'connections' ? item?.connectionProfileId : item?.usageProfileId;
-  const profile = profileId ? bundle?.profiles?.[kind]?.[profileId] : null;
-  return direct.length ? direct : (Array.isArray(profile) ? profile : []);
-}
-
 export function diffGearBundles(currentBundle, importedBundle) {
   const current = new Map((currentBundle.items || []).map(item => [item.id,item]));
   const incoming = new Map((importedBundle.items || []).map(item => [item.id,item]));
@@ -80,55 +70,66 @@ export function diffGearBundles(currentBundle, importedBundle) {
   return { added, modified, deleted, unchanged };
 }
 
-function validateComponent(component, at, errors) {
-  if (!component || typeof component !== 'object') { errors.push(`${at} is required.`); return; }
-  if (!component.manufacturer || !isText(component.manufacturer.name)) errors.push(`${at}.manufacturer.name is required.`);
-  if (!isText(component.model)) errors.push(`${at}.model is required.`);
-  validateUrl(component.manufacturer?.url, `${at}.manufacturer.url`, errors);
-  validateSpecifications(component.specifications, `${at}.specifications`, errors);
-  validateLinks(component.links, `${at}.links`, errors);
+function validateIdentity(item, at, ids, errors) {
+  if (!isText(item.id)) errors.push(`${at}.id is required.`);
+  else if (!/^[a-z0-9][a-z0-9-]*$/.test(item.id)) errors.push(`${at}.id must use lowercase letters, numbers, and hyphens only.`);
+  else if (ids.has(item.id)) errors.push(`${at}.id duplicates ${item.id}.`);
+  else ids.add(item.id);
+  if (!GEAR_CATEGORIES.includes(item.category)) errors.push(`${at}.category must be one of ${GEAR_CATEGORIES.join(', ')}.`);
+  if (!isText(item.type)) errors.push(`${at}.type is required.`);
+  if (!isText(item.name)) errors.push(`${at}.name is required.`);
 }
 
-function validateSpecifications(specs, at, errors) {
-  if (specs == null) return;
+function validateComponent(component, at, errors) {
+  if (!isObject(component)) { errors.push(`${at} is required.`); return; }
+  validateExactFields(component, COMPONENT_FIELDS, at, errors);
+  validateManufacturer(component.manufacturer, `${at}.manufacturer`, errors);
+  if (!isText(component.model)) errors.push(`${at}.model is required.`);
+  validateSpecifications(component.specifications, `${at}.specifications`, errors, true);
+  validateLinks(component.links, `${at}.links`, errors, true);
+}
+
+function validateManufacturer(manufacturer, at, errors) {
+  if (!isObject(manufacturer)) { errors.push(`${at} is required.`); return; }
+  validateExactFields(manufacturer, MANUFACTURER_FIELDS, at, errors);
+  if (!isText(manufacturer.name)) errors.push(`${at}.name is required.`);
+  validateUrl(manufacturer.url, `${at}.url`, errors);
+}
+
+function validateSpecifications(specs, at, errors, required=false) {
+  if (specs == null) { if (required) errors.push(`${at} is required.`); return; }
   if (!Array.isArray(specs)) { errors.push(`${at} must be an array.`); return; }
   specs.forEach((spec,index) => {
-    if (!spec || typeof spec !== 'object' || !isText(spec.value)) errors.push(`${at}[${index}].value is required.`);
-    if (spec?.label != null && !isText(spec.label)) errors.push(`${at}[${index}].label must be text.`);
+    const row = `${at}[${index}]`;
+    if (!isObject(spec)) { errors.push(`${row} must be an object.`); return; }
+    validateExactFields(spec, SPECIFICATION_FIELDS, row, errors);
+    if (!isText(spec.value)) errors.push(`${row}.value is required.`);
+    if (spec.label != null && !isText(spec.label)) errors.push(`${row}.label must be text.`);
   });
 }
 
-function validateLinks(links, at, errors) {
-  if (links == null) return;
+function validateLinks(links, at, errors, required=false) {
+  if (links == null) { if (required) errors.push(`${at} is required.`); return; }
   if (!Array.isArray(links)) { errors.push(`${at} must be an array.`); return; }
   links.forEach((link,index) => {
-    if (!link || typeof link !== 'object') { errors.push(`${at}[${index}] must be an object.`); return; }
-    if (!isText(link.label)) errors.push(`${at}[${index}].label is required.`);
-    if (!['retailer','resource','other'].includes(link.kind || 'other')) errors.push(`${at}[${index}].kind is invalid.`);
-    validateUrl(link.url, `${at}[${index}].url`, errors, true);
+    const row = `${at}[${index}]`;
+    if (!isObject(link)) { errors.push(`${row} must be an object.`); return; }
+    validateExactFields(link, LINK_FIELDS, row, errors);
+    if (!isText(link.label)) errors.push(`${row}.label is required.`);
+    if (!['retailer','resource','other'].includes(link.kind || 'other')) errors.push(`${row}.kind is invalid.`);
+    validateUrl(link.url, `${row}.url`, errors, true);
   });
 }
 
-function validateGuidance(sections, at, errors) {
-  if (sections == null) return;
-  if (!Array.isArray(sections)) { errors.push(`${at} must be an array.`); return; }
-  sections.forEach((section,index) => {
-    if (!section || typeof section !== 'object') { errors.push(`${at}[${index}] must be an object.`); return; }
-    if (section.title != null && !isText(section.title)) errors.push(`${at}[${index}].title must be text.`);
-    if (section.html != null && !isText(section.html)) errors.push(`${at}[${index}].html must be text.`);
-    if (section.text != null && !isText(section.text)) errors.push(`${at}[${index}].text must be text.`);
-    if (section.html == null && section.text == null) errors.push(`${at}[${index}] must contain html or text.`);
-  });
+function validateNotes(notes, at, errors) {
+  if (notes == null) return;
+  if (typeof notes !== 'string') errors.push(`${at} must be Markdown text or null.`);
 }
 
-function validateProfiles(profiles, errors) {
-  if (profiles == null) return;
-  if (typeof profiles !== 'object' || Array.isArray(profiles)) { errors.push('profiles must be an object.'); return; }
-  for (const kind of ['connections','usage']) {
-    const group = profiles[kind] || {};
-    if (typeof group !== 'object' || Array.isArray(group)) { errors.push(`profiles.${kind} must be an object.`); continue; }
-    for (const [id,sections] of Object.entries(group)) validateGuidance(sections, `profiles.${kind}.${id}`, errors);
-  }
+function validateExactFields(value, allowed, at, errors) {
+  if (!isObject(value)) return;
+  const allowedSet = new Set(allowed);
+  for (const key of Object.keys(value)) if (!allowedSet.has(key)) errors.push(`${at}.${key} is not an allowed field.`);
 }
 
 function validateUrl(value, at, errors, required=false) {
@@ -151,4 +152,5 @@ function stableJson(value) {
   return JSON.stringify(value);
 }
 
+function isObject(value) { return !!value && typeof value === 'object' && !Array.isArray(value); }
 function isText(value) { return typeof value === 'string' && value.trim().length > 0; }
