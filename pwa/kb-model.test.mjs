@@ -37,7 +37,6 @@ for (const [entityId, gearItemId] of [
 const yellowPerch = kb.entities.find(record => record.id === 'species-perch');
 assert.equal(yellowPerch?.name, 'Yellow Perch');
 assert.ok(yellowPerch?.picture?.src, 'Yellow Perch must have a representative picture.');
-assert.equal(catches.find?.(record => record.id === 'catch-2026-08-04-lake-sammamish-perch-01'), undefined);
 const perchCatch = catches.catches.find(record => record.id === 'catch-2026-08-04-lake-sammamish-perch-01');
 assert.equal(perchCatch?.speciesId, 'species-perch', 'Existing perch catch must retain its stable species reference.');
 assert.match(perchCatch?.notes || '', /Yellow Perch/, 'Existing perch catch must document the Yellow Perch convention.');
