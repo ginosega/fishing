@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "dataVersion": "2026-09-02-kb-v1",
+  "dataVersion": "2026-09-02-kb-v1-fishing-line-1",
   "entities": [
     {
       "id": "location-lake-washington",
@@ -89,6 +89,14 @@
       "description": "Casting, inline-spinning, still-fishing, bobber, and kayak-trolling guidance for trout.",
       "picture": null,
       "content": "./kb-content/techniques/trout-fishing.md"
+    },
+    {
+      "id": "technique-fishing-line",
+      "type": "technique",
+      "name": "Fishing Line",
+      "description": "Braid, fluorocarbon, and monofilament selection, leader pairing, line-weight reference, knot care, and spooling resources.",
+      "picture": null,
+      "content": "./kb-content/techniques/fishing-line.md"
     },
     {
       "id": "technique-wacky-worm",
