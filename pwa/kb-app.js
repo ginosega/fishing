@@ -9,6 +9,7 @@ const TYPE_META = {
   technique: { label:'Techniques', icon:'🧭', description:'Strategy, conditions, and species reference.' },
   knot: { label:'Knots', icon:'🪢', description:'Connection guidance, cautions, and learning resources' }
 };
+const SEARCH_THRESHOLD = 10;
 
 const app = document.querySelector('#app');
 const homeButton = document.querySelector('#homeButton');
@@ -93,9 +94,9 @@ function renderEntityList(type) {
   const meta = TYPE_META[type];
   if (!meta) return navigate('#/kb');
   const entities = state.kb.entities.filter(entity => entity.type === type).sort((a, b) => a.name.localeCompare(b.name));
-  const searchable = type === 'technique';
+  const searchable = entities.length >= SEARCH_THRESHOLD;
   app.innerHTML = `${pageHeader(meta.label, meta.description, '#/kb')}
-    ${searchable ? '<div class="toolbar"><input class="search" id="kbEntitySearch" type="search" placeholder="Search techniques…" /></div>' : ''}
+    ${searchable ? `<div class="toolbar"><input class="search" id="kbEntitySearch" type="search" placeholder="Search ${escapeAttr(meta.label.toLowerCase())}…" /></div>` : ''}
     <section class="item-list" id="kbEntityList"></section>`;
   const draw = () => {
     const q = normalize(document.querySelector('#kbEntitySearch')?.value || '');
@@ -128,6 +129,7 @@ function renderCatchList() {
   const records = [...state.catches.catches].sort((a, b) => `${b.date} ${b.time || ''}`.localeCompare(`${a.date} ${a.time || ''}`));
   app.innerHTML = `${pageHeader('Catch Log', 'Recorded catches with exact structured relationships.', '#/kb')}
     <section class="panel">${records.length ? records.map(record => catchCard(record)).join('') : '<div class="empty">No catches have been recorded.</div>'}</section>`;
+  bindRoutes();
 }
 
 function renderCatch(id) {
@@ -138,8 +140,9 @@ function renderCatch(id) {
   const method = entity(record.techniqueId);
   const setup = gear(record.rodReelSetupId);
   const lureOrBait = gear(record.lureOrBait.itemId);
+  const catchPicture = record.picture || species?.picture || null;
   app.innerHTML = `${pageHeader(species?.name || 'Catch', formatCatchDate(record.date, record.time), '#/kb/catches')}
-    ${representativePicture(record.picture, `${species?.name || 'Catch'} on ${record.date}`)}
+    ${representativePicture(catchPicture, `${species?.name || 'Catch'} on ${record.date}`)}
     <section class="panel"><div class="detail-grid">
       ${detailLink('Species', species?.name, species ? `#/kb/entity/${species.id}` : '')}
       ${detailLink('Location', location?.name, location ? `#/kb/entity/${location.id}` : '')}
@@ -155,10 +158,14 @@ function renderCatch(id) {
 }
 
 function catchCard(record) {
+  const species = entity(record.speciesId);
+  const picture = record.picture || species?.picture || null;
   return renderCatchCard(record, {
-    speciesName: entity(record.speciesId)?.name || 'Catch',
+    speciesName: species?.name || 'Catch',
     locationName: entity(record.locationId)?.name || '',
-    href: `#/kb/catch/${encodeURIComponent(record.id)}`
+    href: `#/kb/catch/${encodeURIComponent(record.id)}`,
+    pictureSrc: picture?.src || '',
+    pictureAlt: picture?.alt || species?.name || 'Catch'
   });
 }
 
@@ -173,6 +180,10 @@ function markdownPanel(title, markdown) {
 
 function representativePicture(picture, fallbackAlt) {
   if (!picture) return '';
+  const ownedItem = picture.gearItemId ? gear(picture.gearItemId) : null;
+  if (ownedItem) {
+    return `<figure class="panel kb-hero-picture"><button type="button" class="kb-picture-button" data-media-source="${escapeAttr(picture.src)}" data-media-alt="${escapeAttr(picture.alt || fallbackAlt)}"><img src="${escapeAttr(picture.src)}" alt="${escapeAttr(picture.alt || fallbackAlt)}"></button><figcaption><a href="#/inventory/item/${encodeURIComponent(ownedItem.id)}">${escapeHtml(ownedItem.name)}</a> · Tap to enlarge</figcaption></figure>`;
+  }
   const caption = [picture.caption, picture.credit].filter(Boolean).map(escapeHtml).join(' · ');
   const source = picture.sourceUrl ? ` · <a href="${escapeAttr(picture.sourceUrl)}" target="_blank" rel="noopener">Source ↗</a>` : '';
   return `<figure class="panel kb-hero-picture"><button type="button" class="kb-picture-button" data-media-source="${escapeAttr(picture.src)}" data-media-alt="${escapeAttr(picture.alt || fallbackAlt)}"><img src="${escapeAttr(picture.src)}" alt="${escapeAttr(picture.alt || fallbackAlt)}"></button><figcaption>${caption ? `${caption} · ` : ''}Tap to enlarge${source}</figcaption></figure>`;

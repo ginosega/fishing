@@ -102,11 +102,15 @@ function validateMeasurement(value, at, errors, units) {
 function validatePicture(value, at, errors) {
   if (value == null) return;
   if (!isObject(value)) { errors.push(`${at} must be an object or null.`); return; }
-  validateExactFields(value, ['src', 'alt', 'caption', 'credit', 'sourceUrl'], at, errors);
+  const allowed = new Set(['src', 'alt', 'caption', 'credit', 'sourceUrl', 'gearItemId']);
+  for (const key of Object.keys(value)) if (!allowed.has(key)) errors.push(`${at}.${key} is not part of the picture schema.`);
+  if (!('src' in value)) errors.push(`${at}.src must be present.`);
+  if (!('alt' in value)) errors.push(`${at}.alt must be present.`);
   if (!isText(value.src) || !isSafeAssetSource(value.src)) errors.push(`${at}.src must be a safe local path or http(s) URL.`);
   if (!isText(value.alt)) errors.push(`${at}.alt is required.`);
   for (const field of ['caption', 'credit']) if (value[field] != null && !isText(value[field])) errors.push(`${at}.${field} must be text or null.`);
   if (value.sourceUrl != null && !isHttpUrl(value.sourceUrl)) errors.push(`${at}.sourceUrl must be an http(s) URL or null.`);
+  if (value.gearItemId != null && (!isText(value.gearItemId) || !/^[a-z0-9][a-z0-9-]*$/.test(value.gearItemId))) errors.push(`${at}.gearItemId must be a stable Gear ID or null.`);
 }
 
 function validateEntityReference(id, type, at, entities, errors, required) {

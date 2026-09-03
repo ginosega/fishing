@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "dataVersion": "2026-09-03-kb-v1-equipment-pictures-search-1",
+  "dataVersion": "2026-09-03-kb-v1-catch-media-1",
   "entities": [
     {
       "id": "location-lake-washington",
@@ -196,7 +196,8 @@
         "alt": "Booyah Pad Crasher hollow-body frogs",
         "caption": "Representative owned hollow-body frogs",
         "credit": "Booyah product photo",
-        "sourceUrl": "https://www.booyahbaits.com/products/pad-crasher"
+        "sourceUrl": "https://www.booyahbaits.com/products/pad-crasher",
+        "gearItemId": "booyah-pad-crasher"
       },
       "content": "./kb-content/techniques/frogs.md"
     },
@@ -210,7 +211,8 @@
         "alt": "Rebel Pop-R topwater popper",
         "caption": "Representative owned popper",
         "credit": "Rebel product photo",
-        "sourceUrl": "https://www.lurenet.com/rebel-pop-r"
+        "sourceUrl": "https://www.lurenet.com/rebel-pop-r",
+        "gearItemId": "rebel-pop-r"
       },
       "content": "./kb-content/techniques/popper.md"
     },
@@ -232,7 +234,8 @@
         "alt": "River2Sea Whopper Plopper 60",
         "caption": "Representative owned plopper",
         "credit": "River2Sea product photo",
-        "sourceUrl": "https://www.river2seausa.com/product/whopper-plopper-60/"
+        "sourceUrl": "https://www.river2seausa.com/product/whopper-plopper-60/",
+        "gearItemId": "river2sea-whopper-plopper-60"
       },
       "content": "./kb-content/techniques/whopper-plopper.md"
     },
@@ -277,9 +280,15 @@
     {
       "id": "species-perch",
       "type": "species",
-      "name": "Perch",
-      "description": "Catch-log label; exact perch species was not recorded and must not be inferred.",
-      "picture": null,
+      "name": "Yellow Perch",
+      "description": "Yellow Perch is the default for perch catches unless later corrected.",
+      "picture": {
+        "src": "https://upload.wikimedia.org/wikipedia/commons/7/71/Yellow_perch_fish_perca_flavescens.jpg",
+        "alt": "Illustration of a Yellow Perch",
+        "caption": "Yellow perch",
+        "credit": "Duane Raver / U.S. Fish & Wildlife Service · Public domain",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Yellow_perch_fish_perca_flavescens.jpg"
+      },
       "content": "./kb-content/species/perch.md"
     },
     {
@@ -344,11 +353,11 @@
       "name": "Kokanee",
       "description": "Specialized regional trolling target in Lake Washington and Mayfield Lake.",
       "picture": {
-        "src": "https://www.fws.gov/sites/default/files/styles/max_650x650/public/2023-08/kokanee%20salmon%20landlocked%20version%20of%20sockeye%20salmon%20PNW%20%20tom%20koerner%20usfws.jpg?itok=0yalP-Wq",
-        "alt": "Kokanee salmon",
-        "caption": "Kokanee salmon",
-        "credit": "Tom Koerner / U.S. Fish & Wildlife Service · Public domain",
-        "sourceUrl": "https://www.fws.gov/media/kokanee-salmon-non-anadromous-form-sockeye-salmon-pacific-northwest"
+        "src": "./assets/kb/species/kokanee-phases.webp",
+        "alt": "Kokanee shown in silver non-spawning and red spawning phases",
+        "caption": "Kokanee shown in non-spawning (silver) and spawning (red) phases",
+        "credit": null,
+        "sourceUrl": null
       },
       "content": "./kb-content/species/kokanee.md"
     },

@@ -16,17 +16,29 @@ assert.match(gearApp, /function itemCard\(item\) \{\s*const meta = item\.type \|
   'Second-level My Gear cards must show only the item type as subtext.');
 assert.doesNotMatch(gearApp, /function itemCard\(item\)[\s\S]{0,260}gearSpecificationText\(item\)/,
   'Second-level My Gear cards must not include Specifications content.');
+assert.match(gearApp, /const SEARCH_THRESHOLD = 10;/,
+  'My Gear lists must use the durable 10-entry Search threshold.');
+assert.match(gearApp, /const search = items\.length >= SEARCH_THRESHOLD;/,
+  'My Gear Search must be based on list size rather than a hard-coded category.');
+assert.doesNotMatch(gearApp, /const search = category === 'lures'/,
+  'Lures must not be a special-case Search rule.');
 assert.doesNotMatch(gearApp, /My Gear data|gearExportButton|gearImportButton/,
   'v2 import/export controls must not appear in the current My Gear UI.');
 assert.match(gearApp, /class="section-title"><div><h2>[\s\S]*?<\/div>\$\{back \? `<button class="back-button"/,
   'Page header must keep title/subtitle on the left and Back on the right.');
 assert.match(gearApp, /<h3>Notes<\/h3>/, 'Gear leaf narrative section must be titled Notes.');
 assert.match(gearApp, /renderMarkdown\(notes\)/, 'Gear Notes must use the shared safe Markdown renderer.');
+assert.match(gearApp, /const picture = record\.picture \|\| species\?\.picture \|\| null;/,
+  'Gear catch cards must prefer an exact catch picture and otherwise use the Species picture.');
 assert.doesNotMatch(gearApp, /How to use it|Knots & connections|resolveGuidance|sanitizeGuidanceHtml/,
   'Legacy guidance/profile rendering must be retired.');
 
 assert.match(mediaUi, /findMediaByOwner\(gearItemId/, 'Gear media must resolve by stable Gear owner identity.');
 assert.match(mediaUi, /owner\?\.gearItemId === gearItemId/, 'Gear media lookup must compare exact owner IDs.');
+assert.match(mediaUi, /enhanceGearCardImages\(\)/, 'Gear media enhancer must add thumbnails to second-level Gear cards.');
+assert.match(mediaUi, /className = 'gear-card-picture'/, 'Gear list thumbnails must use the dedicated thumbnail style.');
+assert.match(mediaUi, /findAnyMediaByOwner\(gearItemId\)/,
+  'Gear list thumbnails must resolve by exact stable owner ID, including Rod/Reel component media.');
 assert.doesNotMatch(mediaUi, /item\.aliases|target\.includes\(a\)|findMedia\(text\)/,
   'Gear media must not infer identity from aliases or rendered text.');
 
