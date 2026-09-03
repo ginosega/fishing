@@ -16,6 +16,7 @@ const TYPE_ORDER = {
   'rods-reels':['Spinning','Baitcasting','Spincasting'],
   line:['Braided','Fluorocarbon','Monofilament']
 };
+const SEARCH_THRESHOLD = 10;
 
 const app = document.querySelector('#app');
 const repo = new GearRepository();
@@ -100,7 +101,7 @@ function renderList(category) {
   }
 
   const types = [...new Set(items.map(item => item.type).filter(Boolean))].sort();
-  const search = category === 'lures';
+  const search = items.length >= SEARCH_THRESHOLD;
   const filter = category === 'lures' || category === 'hooks';
   app.innerHTML = `${pageHeader(meta.label,'','#/inventory')}
     ${search || filter ? `<div class="toolbar">${search ? `<input class="search" id="gearSearch" type="search" placeholder="Search ${escapeAttr(meta.label.toLowerCase())}…" />` : ''}${filter ? `<select class="select" id="gearTypeFilter"><option value="">All types</option>${types.map(type => `<option value="${escapeAttr(type)}">${escapeHtml(type)}</option>`).join('')}</select>` : ''}</div>` : ''}
