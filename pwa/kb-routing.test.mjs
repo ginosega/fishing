@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { renderMarkdown } from './markdown-render.js';
+import { renderMarkdown, renderCatchCard } from './markdown-render.js';
 
 const kbApp = fs.readFileSync(new URL('./kb-app.js', import.meta.url), 'utf8');
 const gearApp = fs.readFileSync(new URL('./gear-app.js', import.meta.url), 'utf8');
@@ -14,7 +14,18 @@ assert.match(kbApp, /equipment: \{ label:'Equipment', icon:'🧰', description:'
   'Equipment card must use the approved description.');
 assert.match(kbApp, /technique: \{ label:'Techniques', icon:'🧭', description:'Strategy, conditions, and species reference\.' \}/,
   'Techniques card must use the approved description.');
-assert.match(kbApp, /type === 'technique'/, 'Techniques list must expose its Search box.');
+assert.match(kbApp, /const SEARCH_THRESHOLD = 10;/, 'Browsable KB lists must use the durable 10-entry Search threshold.');
+assert.match(kbApp, /const searchable = entities\.length >= SEARCH_THRESHOLD;/,
+  'KB Search must be based on list size rather than special-casing a type.');
+assert.doesNotMatch(kbApp, /type === 'technique'/, 'Techniques must not receive a special-case Search control.');
+assert.match(kbApp, /function renderCatchList\(\)[\s\S]*?bindRoutes\(\);\s*\}/,
+  'Catch Log must bind its Back button after rendering.');
+assert.match(kbApp, /const catchPicture = record\.picture \|\| species\?\.picture \|\| null;/,
+  'Catch leaf pages must prefer an exact catch picture and fall back to the species picture.');
+assert.match(kbApp, /const picture = record\.picture \|\| species\?\.picture \|\| null;/,
+  'Catch cards must prefer an exact catch picture and fall back to the species picture.');
+assert.match(kbApp, /picture\.gearItemId[\s\S]*?#\/inventory\/item\//,
+  'Owned-item KB pictures must caption-link to the exact Gear leaf page.');
 assert.match(kbApp, /My catch history/, 'Location and Species KB pages must retain catch-history backlinks.');
 assert.match(kbApp, /function catchField\(type\) \{ return \(\{ location:'locationId', species:'speciesId' \}\)\[type\] \|\| ''; \}/, 'Catch-history backlinks must be limited to Location and Species KB pages.');
 assert.doesNotMatch(kbApp, /technique:'techniqueId'|equipment:'[^']*Id'|knot:'[^']*Id'/, 'Equipment, Technique, and Knot KB pages must not render catch-history backlinks.');
@@ -25,6 +36,16 @@ assert.doesNotMatch(kbApp, /planner|sessionId|Planner Attributes/i, 'Planner and
 assert.match(gearApp, /\.\/data\/catches\.seed\.json/, 'My Gear catch backlinks must use structured catches.');
 assert.doesNotMatch(gearApp, /Trip_Logs_Field_Observations|Gear used/, 'My Gear must not parse legacy catch Markdown.');
 assert.doesNotMatch(index, /class="eyebrow"|>\s*Fishing knowledge base\s*</i, 'Site header must display only the site title.');
+
+const catchHtml = renderCatchCard({ id:'catch-test', date:'2026-09-03', time:null, size:{ length:{value:12,unit:'in'}, weight:null, display:null } }, {
+  speciesName:'Yellow Perch',
+  locationName:'Lake Sammamish',
+  pictureSrc:'./assets/kb/yellow-perch.jpg',
+  pictureAlt:'Yellow Perch'
+});
+assert.match(catchHtml, /class="catch-card-picture"/);
+assert.match(catchHtml, /<strong>Yellow Perch<\/strong>/);
+assert.match(catchHtml, /href="#\/kb\/catch\/catch-test"/);
 
 const contentMap = new Map([['./kb-content/knots/palomar.md', { id:'knot-palomar' }]]);
 const html = renderMarkdown('## Rigging\n\n![Rig](../../assets/kb/rig.png)\n\n[Palomar](../knots/palomar.md) [Gear](gear://sample-hook) [KB](kb://technique-ned-rig) [Site](https://example.com)\n\n| A | B |\n|---|---|\n| 1 | 2 |', {
