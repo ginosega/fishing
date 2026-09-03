@@ -1,5 +1,6 @@
 import { GearRepository } from './gear-store.js';
-import { gearDisplayModel, gearSpecificationText, gearLinks, resolveGuidance } from './gear-model.js';
+import { gearDisplayModel, gearSpecificationText, gearLinks } from './gear-model.js';
+import { renderMarkdown } from './markdown-render.js';
 
 const CATEGORY_META = {
   'rods-reels': { label:'Rods & Reels', icon:'🎣' },
@@ -115,28 +116,24 @@ function renderItem(id) {
   if (item.category === 'rods-reels') return renderSetup(item);
   const meta = CATEGORY_META[item.category];
   const links = gearLinks(item);
-  const connections = resolveGuidance(bundle,item,'connections');
-  const usage = resolveGuidance(bundle,item,'usage');
   app.innerHTML = `${pageHeader(item.name,`${meta.label} - ${item.type}`,`#/inventory/${item.category}`)}
     <section class="panel"><div class="detail-grid">
       ${detailCell('Manufacturer / Model', escapeHtml(gearDisplayModel(item)))}
       ${item.specifications?.length ? detailCell('Specifications', escapeHtml(gearSpecificationText(item))) : ''}
       ${links.length ? detailCell('Links', linksHtml(links)) : ''}
     </div></section>
-    ${connections.length ? `<section class="panel"><h3>Knots & connections</h3>${guidanceHtml(connections)}</section>` : ''}
-    ${usage.length ? `<section class="panel"><h3>How to use it</h3>${guidanceHtml(usage)}</section>` : ''}
+    ${notesPanel(item.notes)}
     ${['lures','bait'].includes(item.category) ? renderCatchHistory(item) : ''}`;
   bindGearRoutes();
 }
 
 function renderSetup(item) {
-  const usage = resolveGuidance(bundle,item,'usage');
   const rodName = `${item.rod.manufacturer.name} ${item.rod.model}`;
   const reelName = `${item.reel.manufacturer.name} ${item.reel.model}`;
   app.innerHTML = `${pageHeader(`Rod: ${rodName}, Reel: ${reelName}`,`Rods & Reels - ${item.type}`,'#/inventory/rods-reels')}
     ${componentPanel('Rod',item.rod)}
     ${componentPanel('Reel',item.reel)}
-    ${usage.length ? `<section class="panel"><h3>How to use it</h3>${guidanceHtml(usage)}</section>` : ''}
+    ${notesPanel(item.notes)}
     ${renderCatchHistory(item)}`;
   bindGearRoutes();
 }
@@ -150,6 +147,11 @@ function componentPanel(title,component) {
     ${component.specifications?.length ? detailCell('Specifications',escapeHtml(component.specifications.map(spec => spec.label ? `${spec.label}: ${spec.value}` : spec.value).join(', '))) : ''}
     ${links.length ? detailCell('Links',linksHtml(links)) : ''}
   </div></section>`;
+}
+
+function notesPanel(notes) {
+  if (typeof notes !== 'string' || !notes.trim()) return '';
+  return `<section class="panel"><h3>Notes</h3><div class="kb-content gear-notes">${renderMarkdown(notes)}</div></section>`;
 }
 
 function renderCatchHistory(item) {
@@ -179,10 +181,6 @@ function linksHtml(links) {
   return `<div class="detail-links">${dedupeLinks(links).map(link => `<a href="${escapeAttr(link.url)}" target="_blank" rel="noopener">${escapeHtml(link.label)} ↗</a>`).join('<br>')}</div>`;
 }
 
-function guidanceHtml(sections) {
-  return sections.map(section => `<div class="recommendation">${section.title ? `<h4>${escapeHtml(section.title)}</h4>` : ''}<div class="guidance-body">${section.html ? sanitizeGuidanceHtml(section.html) : `<p>${escapeHtml(section.text || '')}</p>`}</div></div>`).join('');
-}
-
 function bindGearRoutes() {
   document.querySelectorAll('[data-gear-route]').forEach(button => button.addEventListener('click', event => {
     event.preventDefault(); navigate(button.dataset.gearRoute);
@@ -203,26 +201,6 @@ async function loadCatchRows() {
     const data = await response.json();
     return Array.isArray(data.catches) ? data.catches : [];
   } catch { return []; }
-}
-
-function sanitizeGuidanceHtml(html) {
-  const template = document.createElement('template');
-  template.innerHTML = String(html || '');
-  const allowed = new Set(['P','UL','OL','LI','STRONG','EM','CODE','BR','A']);
-  for (const element of [...template.content.querySelectorAll('*')]) {
-    if (!allowed.has(element.tagName)) { element.replaceWith(...element.childNodes); continue; }
-    for (const attr of [...element.attributes]) {
-      const name = attr.name.toLowerCase();
-      if (element.tagName === 'A' && ['href','target','rel'].includes(name)) continue;
-      element.removeAttribute(attr.name);
-    }
-    if (element.tagName === 'A') {
-      const href = element.getAttribute('href') || '';
-      if (!(href.startsWith('#/') || /^https?:\/\//i.test(href))) element.removeAttribute('href');
-      if (/^https?:\/\//i.test(href)) { element.target='_blank'; element.rel='noopener'; }
-    }
-  }
-  return template.innerHTML;
 }
 
 function searchableText(item) {
