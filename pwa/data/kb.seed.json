@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "dataVersion": "2026-09-02-kb-v1-fishing-line-1",
+  "dataVersion": "2026-09-02-kb-v1-rods-reels-1",
   "entities": [
     {
       "id": "location-lake-washington",
@@ -97,6 +97,14 @@
       "description": "Braid, fluorocarbon, and monofilament selection, leader pairing, line-weight reference, knot care, and spooling resources.",
       "picture": null,
       "content": "./kb-content/techniques/fishing-line.md"
+    },
+    {
+      "id": "technique-rods-reels",
+      "type": "technique",
+      "name": "Rods & Reels",
+      "description": "Spinning-vs-baitcasting selection, typical setups, baitcaster adjustment and casting guidance, and a three-rod situational reference.",
+      "picture": null,
+      "content": "./kb-content/techniques/rods-reels.md"
     },
     {
       "id": "technique-wacky-worm",
