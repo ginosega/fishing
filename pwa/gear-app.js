@@ -1,6 +1,7 @@
 import { GearRepository } from './gear-store.js';
 import { gearDisplayModel, gearSpecificationText, gearLinks } from './gear-model.js';
 import { renderMarkdown } from './markdown-render.js';
+import { renderCatchCard } from './catch-ui.js';
 
 const CATEGORY_META = {
   'rods-reels': { label:'Rods & Reels', icon:'🎣' },
@@ -21,6 +22,7 @@ const app = document.querySelector('#app');
 const repo = new GearRepository();
 let bundle = null;
 let catchRows = [];
+let kbEntities = new Map();
 let rendering = false;
 
 const ready = initialize();
@@ -40,8 +42,14 @@ if (app) new MutationObserver(() => {
 }).observe(app, { childList:true, subtree:false });
 
 async function initialize() {
-  bundle = await repo.initialize();
-  catchRows = await loadCatchRows();
+  const [gearBundle, catches, kb] = await Promise.all([
+    repo.initialize(),
+    loadJson('./data/catches.seed.json', { catches:[] }),
+    loadJson('./data/kb.seed.json', { entities:[] })
+  ]);
+  bundle = gearBundle;
+  catchRows = Array.isArray(catches.catches) ? catches.catches : [];
+  kbEntities = new Map((kb.entities || []).map(entity => [entity.id, entity]));
   renderIfGearRoute();
   patchHomeCopy();
 }
@@ -160,12 +168,15 @@ function renderCatchHistory(item) {
     : record.lureOrBait?.itemId === item.id);
   const noun = item.category === 'bait' ? 'bait' : item.category === 'rods-reels' ? 'rod & reel' : 'lure';
   if (!matches.length) return `<section class="panel"><h3>My catch history</h3><div class="empty">No catches have been recorded with this ${noun}.</div></section>`;
-  return `<section class="panel"><h3>My catch history</h3>${matches.map(record => `<a class="catch-backlink" href="#/kb/catch/${escapeAttr(record.id)}"><strong>${escapeHtml(record.lureOrBait?.nameSnapshot || 'Recorded catch')}</strong><span>${escapeHtml(formatCatchDate(record.date,record.time))} · ${escapeHtml(formatCatchSize(record.size))}</span></a>`).join('')}</section>`;
+  return `<section class="panel"><h3>My catch history</h3>${matches.map(record => renderCatchCard(record, {
+    speciesName: kbEntities.get(record.speciesId)?.name || 'Catch',
+    locationName: kbEntities.get(record.locationId)?.name || '',
+    href: `#/kb/catch/${encodeURIComponent(record.id)}`
+  })).join('')}</section>`;
 }
 
 function itemCard(item) {
-  const specs = item.category === 'rods-reels' ? '' : gearSpecificationText(item);
-  const meta = [item.type,specs].filter(Boolean).join(' · ');
+  const meta = item.type || '';
   return `<article class="item-card" data-gear-item="${escapeAttr(item.id)}"><h3>${escapeHtml(item.name)}</h3>${meta ? `<div class="item-meta"><span>${escapeHtml(meta)}</span></div>` : ''}</article>`;
 }
 
@@ -194,20 +205,16 @@ function navigate(hash) {
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
-async function loadCatchRows() {
+async function loadJson(path, fallback) {
   try {
-    const response = await fetch('./data/catches.seed.json', {cache:'no-cache'});
-    if (!response.ok) return [];
-    const data = await response.json();
-    return Array.isArray(data.catches) ? data.catches : [];
-  } catch { return []; }
+    const response = await fetch(path, {cache:'no-cache'});
+    return response.ok ? await response.json() : fallback;
+  } catch { return fallback; }
 }
 
 function searchableText(item) {
   return normalize([item.name,item.type,item.manufacturer?.name,item.model,gearSpecificationText(item)].filter(Boolean).join(' '));
 }
-function formatCatchDate(date,time) { return [date,time].filter(Boolean).join(' '); }
-function formatCatchSize(size) { const parts=[]; if(size?.length)parts.push(`${size.length.value} ${size.length.unit}`); if(size?.weight)parts.push(`${size.weight.value} ${size.weight.unit}`); if(size?.display)parts.push(size.display); return parts.join(' · ') || 'Size not recorded'; }
 function dedupeLinks(links) { const seen=new Set(); return links.filter(link => link?.url && !seen.has(link.url) && seen.add(link.url)); }
 function normalize(value='') { return String(value).toLowerCase().replace(/&/g,' and ').replace(/[^a-z0-9]+/g,' ').replace(/\s+/g,' ').trim(); }
 function escapeHtml(value='') { return String(value).replace(/[&<>\"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[char])); }
