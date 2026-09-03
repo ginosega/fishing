@@ -167,11 +167,17 @@ function renderCatchHistory(item) {
     : record.lureOrBait?.itemId === item.id);
   const noun = item.category === 'bait' ? 'bait' : item.category === 'rods-reels' ? 'rod & reel' : 'lure';
   if (!matches.length) return `<section class="panel"><h3>My catch history</h3><div class="empty">No catches have been recorded with this ${noun}.</div></section>`;
-  return `<section class="panel"><h3>My catch history</h3>${matches.map(record => renderCatchCard(record, {
-    speciesName: kbEntities.get(record.speciesId)?.name || 'Catch',
-    locationName: kbEntities.get(record.locationId)?.name || '',
-    href: `#/kb/catch/${encodeURIComponent(record.id)}`
-  })).join('')}</section>`;
+  return `<section class="panel"><h3>My catch history</h3>${matches.map(record => {
+    const species = kbEntities.get(record.speciesId);
+    const picture = record.picture || species?.picture || null;
+    return renderCatchCard(record, {
+      speciesName: species?.name || 'Catch',
+      locationName: kbEntities.get(record.locationId)?.name || '',
+      href: `#/kb/catch/${encodeURIComponent(record.id)}`,
+      pictureSrc: picture?.src || '',
+      pictureAlt: picture?.alt || species?.name || 'Catch'
+    });
+  }).join('')}</section>`;
 }
 
 function itemCard(item) {
