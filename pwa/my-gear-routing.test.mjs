@@ -11,6 +11,10 @@ assert.match(gearApp, /data-gear-item=.*?navigate\(`#\/inventory\/item\//s,
   'Gear cards must navigate to structured item routes.');
 assert.match(gearApp, /Browse your inventory of equipment, tackle, and bait/,
   'Home/My Gear copy must use the accepted inventory description.');
+assert.match(gearApp, /function itemCard\(item\) \{\s*const meta = item\.type \|\| '';/,
+  'Second-level My Gear cards must show only the item type as subtext.');
+assert.doesNotMatch(gearApp, /function itemCard\(item\)[\s\S]{0,260}gearSpecificationText\(item\)/,
+  'Second-level My Gear cards must not include Specifications content.');
 assert.doesNotMatch(gearApp, /My Gear data|gearExportButton|gearImportButton/,
   'v2 import/export controls must not appear in the current My Gear UI.');
 assert.match(gearApp, /class="section-title"><div><h2>[\s\S]*?<\/div>\$\{back \? `<button class="back-button"/,
