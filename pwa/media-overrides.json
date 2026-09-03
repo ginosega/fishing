@@ -33,14 +33,16 @@
     "destination": "https://www.topbrasstackle.com/products/top-brass-tackle/#:~:text=These%20handcrafted%2C%20jewelry-grade%20glass%20beads%20are%20fire%20polished,chartreuse%2C%20crawfish%2C%20orange%2C%20red%20flash%2C%20and%20crystal%20flash"
   },
   "tsuridamashii-ball-bearing-swivels": {
-    "sourcePage": "https://tiendamia.com.uy/p/amz/b0djrlf5yz/ball-bearing-swivels-fishing-swivel-6bb-made-in-japan",
-    "imageSource": "",
-    "destination": "https://a.co/d/12yVweL"
+    "sourcePage": "https://a.co/d/12yVweL",
+    "imageSource": "https://raw.githubusercontent.com/ginosega/fishing/887b4459e1924a8d7d38f170b855f65fcd5dab9c/pwa/assets/gear-source/tsuridamashii-ball-bearing-swivels.webp",
+    "destination": "https://a.co/d/12yVweL",
+    "alt": "Tsuridamashii ball-bearing fishing swivels"
   },
   "tsuridamashii-snap-swivels": {
-    "sourcePage": "https://www.coupang.com/vp/products/9144159249",
-    "imageSource": "",
-    "destination": "https://a.co/d/apPLB6U"
+    "sourcePage": "https://a.co/d/apPLB6U",
+    "imageSource": "https://raw.githubusercontent.com/ginosega/fishing/887b4459e1924a8d7d38f170b855f65fcd5dab9c/pwa/assets/gear-source/tsuridamashii-snap-swivels.webp",
+    "destination": "https://a.co/d/apPLB6U",
+    "alt": "Tsuridamashii ball-bearing snap swivels"
   },
   "vmc-crossover-rings": {
     "sourcePage": "https://www.rapala.com/us_en/crossover-ring?childSku=us-CRSRC7",
