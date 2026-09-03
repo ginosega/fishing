@@ -1,7 +1,7 @@
 export const KB_SCHEMA_VERSION = 1;
 export const CATCH_SCHEMA_VERSION = 1;
 export const KB_DESCRIPTION_MAX_LENGTH = 80;
-export const KB_TYPES = ['location', 'species', 'technique', 'knot'];
+export const KB_TYPES = ['location', 'species', 'equipment', 'technique', 'knot'];
 
 const ENTITY_FIELDS = ['id', 'type', 'name', 'description', 'picture', 'content'];
 const CATCH_FIELDS = ['id', 'date', 'time', 'size', 'speciesId', 'locationId', 'exactSpotNotes', 'rodReelSetupId', 'techniqueId', 'lureOrBait', 'picture', 'notes', 'source'];
@@ -21,7 +21,7 @@ export function validateKbBundle(bundle) {
     validateExactFields(entity, ENTITY_FIELDS, at, errors);
     validateStableId(entity.id, at, errors, ids);
     if (!KB_TYPES.includes(entity.type)) errors.push(`${at}.type must be one of ${KB_TYPES.join(', ')}.`);
-    if (KB_TYPES.includes(entity.type) && isText(entity.id) && !entity.id.startsWith(`${entity.type}-`)) errors.push(`${at}.id must start with ${entity.type}-.`);
+    if (KB_TYPES.includes(entity.type) && isText(entity.id) && !validEntityIdPrefix(entity)) errors.push(`${at}.id prefix is not valid for ${entity.type}.`);
     if (!isText(entity.name)) errors.push(`${at}.name is required.`);
     if (entity.description != null && !isText(entity.description)) errors.push(`${at}.description must be text or null.`);
     else if (entity.description?.length > KB_DESCRIPTION_MAX_LENGTH) errors.push(`${at}.description must be ${KB_DESCRIPTION_MAX_LENGTH} characters or fewer.`);
@@ -55,7 +55,7 @@ export function validateCatchBundle(bundle, kbBundle, gearBundle) {
     validateEntityReference(record.locationId, 'location', `${at}.locationId`, entities, errors, true);
     if (record.exactSpotNotes != null && !isText(record.exactSpotNotes)) errors.push(`${at}.exactSpotNotes must be Markdown text or null.`);
     validateGearReference(record.rodReelSetupId, 'rods-reels', `${at}.rodReelSetupId`, gear, errors, false);
-    validateEntityReference(record.techniqueId, 'technique', `${at}.techniqueId`, entities, errors, false);
+    validateEntityReferenceTypes(record.techniqueId, ['technique', 'equipment'], `${at}.techniqueId`, entities, errors, false);
     validateLureOrBait(record.lureOrBait, `${at}.lureOrBait`, gear, errors);
     validatePicture(record.picture, `${at}.picture`, errors);
     if (record.notes != null && !isText(record.notes)) errors.push(`${at}.notes must be Markdown text or null.`);
@@ -110,11 +110,15 @@ function validatePicture(value, at, errors) {
 }
 
 function validateEntityReference(id, type, at, entities, errors, required) {
+  validateEntityReferenceTypes(id, [type], at, entities, errors, required);
+}
+
+function validateEntityReferenceTypes(id, types, at, entities, errors, required) {
   if (id == null) { if (required) errors.push(`${at} is required.`); return; }
   if (!isText(id)) { errors.push(`${at} must be text${required ? '' : ' or null'}.`); return; }
   const entity = entities.get(id);
   if (!entity) errors.push(`${at} references unknown entity ${id}.`);
-  else if (entity.type !== type) errors.push(`${at} must reference a ${type} entity.`);
+  else if (!types.includes(entity.type)) errors.push(`${at} must reference ${types.map(type => `a ${type}`).join(' or ')} entity.`);
 }
 
 function validateGearReference(id, category, at, gear, errors, required) {
@@ -123,6 +127,13 @@ function validateGearReference(id, category, at, gear, errors, required) {
   const item = gear.get(id);
   if (!item) errors.push(`${at} references unknown My Gear record ${id}.`);
   else if (item.category !== category) errors.push(`${at} must reference My Gear category ${category}.`);
+}
+
+function validEntityIdPrefix(entity) {
+  if (entity.id.startsWith(`${entity.type}-`)) return true;
+  // Equipment was split from the original Technique type in 2026. Preserve
+  // those stable public IDs rather than renaming kb:// links during taxonomy changes.
+  return entity.type === 'equipment' && entity.id.startsWith('technique-');
 }
 
 function validateStableId(id, at, errors, ids, prefix = '') {
