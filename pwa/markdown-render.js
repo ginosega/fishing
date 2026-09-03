@@ -103,8 +103,11 @@ export function renderCatchCard(record, options = {}) {
   const speciesName = options.speciesName || 'Catch';
   const locationName = options.locationName || '';
   const href = options.href || `#/kb/catch/${encodeURIComponent(record?.id || '')}`;
+  const pictureSrc = options.pictureSrc || '';
+  const pictureAlt = options.pictureAlt || speciesName;
   const meta = [formatCatchDate(record?.date, record?.time), locationName, formatCatchSize(record?.size)].filter(Boolean).join(' · ');
-  return `<a class="catch-backlink" href="${escapeAttr(href)}"><strong>${escapeHtml(speciesName)}</strong>${meta ? `<span>${escapeHtml(meta)}</span>` : ''}</a>`;
+  const picture = pictureSrc ? `<img class="catch-card-picture" src="${escapeAttr(pictureSrc)}" alt="${escapeAttr(pictureAlt)}" loading="lazy" decoding="async">` : '';
+  return `<a class="catch-backlink${picture ? ' has-picture' : ''}" href="${escapeAttr(href)}">${picture}<div class="catch-card-body"><strong>${escapeHtml(speciesName)}</strong>${meta ? `<span class="catch-card-meta">${escapeHtml(meta)}</span>` : ''}</div></a>`;
 }
 
 export function formatCatchDate(date, time) {
