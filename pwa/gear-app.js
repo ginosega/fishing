@@ -1,7 +1,6 @@
 import { GearRepository } from './gear-store.js';
 import { gearDisplayModel, gearSpecificationText, gearLinks } from './gear-model.js';
-import { renderMarkdown } from './markdown-render.js';
-import { renderCatchCard } from './catch-ui.js';
+import { renderMarkdown, renderCatchCard } from './markdown-render.js';
 
 const CATEGORY_META = {
   'rods-reels': { label:'Rods & Reels', icon:'🎣' },
