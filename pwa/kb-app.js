@@ -1,5 +1,5 @@
 import { GearRepository } from './gear-store.js';
-import { validateKbBundle, validateCatchBundle, groupEntitiesByType } from './kb-model.js';
+import { validateKbBundle, validateCatchBundle, groupEntitiesByType, catchesForEntity } from './kb-model.js';
 import { renderMarkdown } from './markdown-render.js';
 
 const TYPE_META = {
@@ -105,9 +105,12 @@ async function renderEntity(id) {
   app.innerHTML = `${pageHeader(entity.name, entity.description || '', `#/kb/${plural(entity.type)}`)}<section class="loading-card compact"><div class="spinner" aria-hidden="true"></div><p>Loading content…</p></section>`;
   bindRoutes();
   const content = await loadContent(entity.content);
+  const catchFieldName = catchField(entity.type);
+  const catches = catchFieldName ? catchesForEntity(state.catches, catchFieldName, entity.id) : [];
   app.innerHTML = `${pageHeader(entity.name, entity.description || '', `#/kb/${plural(entity.type)}`)}
     ${representativePicture(entity.picture, entity.name)}
-    <article class="panel kb-content">${renderMarkdown(content, { contentPath:entity.content, entityByContentPath:state.entityByContentPath })}</article>`;
+    <article class="panel kb-content">${renderMarkdown(content, { contentPath:entity.content, entityByContentPath:state.entityByContentPath })}</article>
+    ${catchFieldName ? catchBacklinks(catches) : ''}`;
   bindRoutes();
 }
 
@@ -144,6 +147,14 @@ function renderCatch(id) {
     ${markdownPanel('Notes', record.notes)}
     <section class="panel"><div class="detail-cell"><div class="label">Provenance</div><div class="value">${escapeHtml(record.source)}</div></div></section>`;
   bindRoutes();
+}
+
+function catchBacklinks(records) {
+  return `<section class="panel"><h3>My catch history</h3>${records.length ? records.map(record => {
+    const species = entity(record.speciesId);
+    const location = entity(record.locationId);
+    return `<button class="catch-backlink" data-kb-route="#/kb/catch/${escapeAttr(record.id)}"><strong>${escapeHtml(species?.name || 'Catch')}</strong><span>${escapeHtml(formatDate(record.date, record.time))} · ${escapeHtml(location?.name || '')} · ${escapeHtml(formatSize(record.size))}</span></button>`;
+  }).join('') : '<div class="empty">No catches have been recorded here.</div>'}</section>`;
 }
 
 function markdownPanel(title, markdown) {
@@ -223,6 +234,7 @@ async function registerServiceWorker() {
 
 function entity(id) { return id ? state.kb.entities.find(record => record.id === id) : null; }
 function gear(id) { return id ? state.gear.items.find(record => record.id === id) : null; }
+function catchField(type) { return ({ location:'locationId', species:'speciesId' })[type] || ''; }
 function singular(value) { return ({ locations:'location', species:'species', techniques:'technique', knots:'knot' })[value] || value; }
 function plural(value) { return ({ location:'locations', species:'species', technique:'techniques', knot:'knots' })[value] || value; }
 function formatDate(date, time) { const parsed = new Date(`${date}T12:00:00Z`); const label = Number.isNaN(parsed.valueOf()) ? date : new Intl.DateTimeFormat(undefined, { year:'numeric', month:'short', day:'numeric', timeZone:'UTC' }).format(parsed); return time ? `${label} at ${time}` : label; }
