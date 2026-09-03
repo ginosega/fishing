@@ -1,5 +1,6 @@
 export const KB_SCHEMA_VERSION = 1;
 export const CATCH_SCHEMA_VERSION = 1;
+export const KB_DESCRIPTION_MAX_LENGTH = 80;
 export const KB_TYPES = ['location', 'species', 'technique', 'knot'];
 
 const ENTITY_FIELDS = ['id', 'type', 'name', 'description', 'picture', 'content'];
@@ -23,6 +24,7 @@ export function validateKbBundle(bundle) {
     if (KB_TYPES.includes(entity.type) && isText(entity.id) && !entity.id.startsWith(`${entity.type}-`)) errors.push(`${at}.id must start with ${entity.type}-.`);
     if (!isText(entity.name)) errors.push(`${at}.name is required.`);
     if (entity.description != null && !isText(entity.description)) errors.push(`${at}.description must be text or null.`);
+    else if (entity.description?.length > KB_DESCRIPTION_MAX_LENGTH) errors.push(`${at}.description must be ${KB_DESCRIPTION_MAX_LENGTH} characters or fewer.`);
     validatePicture(entity.picture, `${at}.picture`, errors);
     if (!isText(entity.content) || !/^\.\/kb-content\/[a-z0-9/_-]+\.md$/.test(entity.content)) errors.push(`${at}.content must be a repository-relative ./kb-content/... Markdown path.`);
     else if (contentPaths.has(entity.content)) errors.push(`${at}.content duplicates ${entity.content}.`);
