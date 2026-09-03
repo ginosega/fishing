@@ -1,11 +1,12 @@
 import { GearRepository } from './gear-store.js';
 import { validateKbBundle, validateCatchBundle, groupEntitiesByType, catchesForEntity } from './kb-model.js';
-import { renderMarkdown } from './markdown-render.js';
+import { renderMarkdown, renderCatchCard, formatCatchDate, formatCatchSize } from './markdown-render.js';
 
 const TYPE_META = {
   location: { label:'Locations', icon:'📍', description:'Waters, access, seasonal patterns, and local observations' },
   species: { label:'Species', icon:'🐟', description:'Fish identification, behavior, habitat, and targeting notes' },
-  technique: { label:'Techniques', icon:'🧭', description:'Presentations, rigging, use, and supporting resources' },
+  equipment: { label:'Equipment', icon:'🧰', description:'Rigs, presentations, and gear guides.' },
+  technique: { label:'Techniques', icon:'🧭', description:'Strategy, conditions, and species reference.' },
   knot: { label:'Knots', icon:'🪢', description:'Connection guidance, cautions, and learning resources' }
 };
 
@@ -74,7 +75,7 @@ function renderHome() {
   app.innerHTML = `<section class="hero"><h2>Fishing Companion</h2><p class="muted">Your local-first gear inventory and browsable fishing reference.</p></section>
     <section class="choice-grid">
       <button class="choice-card" data-kb-route="#/inventory"><span class="choice-icon">🎒</span><div><strong>My Gear</strong><p>Browse your inventory of equipment, tackle, and bait</p></div></button>
-      <button class="choice-card" data-kb-route="#/kb"><span class="choice-icon">📚</span><div><strong>Knowledge Base</strong><p>Browse locations, species, techniques, knots, and catches</p></div></button>
+      <button class="choice-card" data-kb-route="#/kb"><span class="choice-icon">📚</span><div><strong>Knowledge Base</strong><p>Browse locations, species, equipment, techniques, knots, and catches</p></div></button>
     </section>`;
   bindRoutes();
 }
@@ -92,11 +93,20 @@ function renderEntityList(type) {
   const meta = TYPE_META[type];
   if (!meta) return navigate('#/kb');
   const entities = state.kb.entities.filter(entity => entity.type === type).sort((a, b) => a.name.localeCompare(b.name));
+  const searchable = type === 'technique';
   app.innerHTML = `${pageHeader(meta.label, meta.description, '#/kb')}
-    <section class="item-list">${entities.map(entity => `<button type="button" class="item-card kb-entity-card" data-kb-route="#/kb/entity/${escapeAttr(entity.id)}">
+    ${searchable ? '<div class="toolbar"><input class="search" id="kbEntitySearch" type="search" placeholder="Search techniques…" /></div>' : ''}
+    <section class="item-list" id="kbEntityList"></section>`;
+  const draw = () => {
+    const q = normalize(document.querySelector('#kbEntitySearch')?.value || '');
+    const filtered = entities.filter(entity => !q || normalize(`${entity.name} ${entity.description || ''}`).includes(q));
+    document.querySelector('#kbEntityList').innerHTML = filtered.length ? filtered.map(entity => `<button type="button" class="item-card kb-entity-card" data-kb-route="#/kb/entity/${escapeAttr(entity.id)}">
       ${pictureThumb(entity.picture, entity.name)}<div><h3>${escapeHtml(entity.name)}</h3>${entity.description ? `<div class="item-meta">${escapeHtml(entity.description)}</div>` : ''}</div>
-    </button>`).join('')}</section>`;
-  bindRoutes();
+    </button>`).join('') : '<div class="empty">No matching entries.</div>';
+    bindRoutes();
+  };
+  document.querySelector('#kbEntitySearch')?.addEventListener('input', draw);
+  draw();
 }
 
 async function renderEntity(id) {
@@ -117,12 +127,7 @@ async function renderEntity(id) {
 function renderCatchList() {
   const records = [...state.catches.catches].sort((a, b) => `${b.date} ${b.time || ''}`.localeCompare(`${a.date} ${a.time || ''}`));
   app.innerHTML = `${pageHeader('Catch Log', 'Recorded catches with exact structured relationships.', '#/kb')}
-    <section class="item-list">${records.map(record => {
-      const species = entity(record.speciesId);
-      const location = entity(record.locationId);
-      return `<button type="button" class="item-card" data-kb-route="#/kb/catch/${escapeAttr(record.id)}"><h3>${escapeHtml(species?.name || 'Unknown species')}</h3><div class="item-meta">${escapeHtml(formatDate(record.date, record.time))} · ${escapeHtml(location?.name || 'Unknown location')} · ${escapeHtml(formatSize(record.size))}</div></button>`;
-    }).join('')}</section>`;
-  bindRoutes();
+    <section class="panel">${records.length ? records.map(record => catchCard(record)).join('') : '<div class="empty">No catches have been recorded.</div>'}</section>`;
 }
 
 function renderCatch(id) {
@@ -130,17 +135,17 @@ function renderCatch(id) {
   if (!record) return navigate('#/kb/catches');
   const species = entity(record.speciesId);
   const location = entity(record.locationId);
-  const technique = entity(record.techniqueId);
+  const method = entity(record.techniqueId);
   const setup = gear(record.rodReelSetupId);
   const lureOrBait = gear(record.lureOrBait.itemId);
-  app.innerHTML = `${pageHeader(species?.name || 'Catch', formatDate(record.date, record.time), '#/kb/catches')}
+  app.innerHTML = `${pageHeader(species?.name || 'Catch', formatCatchDate(record.date, record.time), '#/kb/catches')}
     ${representativePicture(record.picture, `${species?.name || 'Catch'} on ${record.date}`)}
     <section class="panel"><div class="detail-grid">
       ${detailLink('Species', species?.name, species ? `#/kb/entity/${species.id}` : '')}
       ${detailLink('Location', location?.name, location ? `#/kb/entity/${location.id}` : '')}
-      ${detailCell('Size', formatSize(record.size))}
+      ${detailCell('Size', formatCatchSize(record.size))}
       ${detailLink('Rod & reel', setup?.name || 'Not recorded', setup ? `#/inventory/item/${setup.id}` : '')}
-      ${detailLink('Technique', technique?.name || 'Not recorded', technique ? `#/kb/entity/${technique.id}` : '')}
+      ${detailLink('Technique / presentation', method?.name || 'Not recorded', method ? `#/kb/entity/${method.id}` : '')}
       ${detailLink(record.lureOrBait.type === 'bait' ? 'Bait' : 'Lure', lureOrBait?.name || record.lureOrBait.nameSnapshot, `#/inventory/item/${record.lureOrBait.itemId}`)}
     </div></section>
     ${markdownPanel('Exact spot notes', record.exactSpotNotes)}
@@ -149,12 +154,16 @@ function renderCatch(id) {
   bindRoutes();
 }
 
+function catchCard(record) {
+  return renderCatchCard(record, {
+    speciesName: entity(record.speciesId)?.name || 'Catch',
+    locationName: entity(record.locationId)?.name || '',
+    href: `#/kb/catch/${encodeURIComponent(record.id)}`
+  });
+}
+
 function catchBacklinks(records) {
-  return `<section class="panel"><h3>My catch history</h3>${records.length ? records.map(record => {
-    const species = entity(record.speciesId);
-    const location = entity(record.locationId);
-    return `<button class="catch-backlink" data-kb-route="#/kb/catch/${escapeAttr(record.id)}"><strong>${escapeHtml(species?.name || 'Catch')}</strong><span>${escapeHtml(formatDate(record.date, record.time))} · ${escapeHtml(location?.name || '')} · ${escapeHtml(formatSize(record.size))}</span></button>`;
-  }).join('') : '<div class="empty">No catches have been recorded here.</div>'}</section>`;
+  return `<section class="panel"><h3>My catch history</h3>${records.length ? records.map(catchCard).join('') : '<div class="empty">No catches have been recorded here.</div>'}</section>`;
 }
 
 function markdownPanel(title, markdown) {
@@ -164,7 +173,9 @@ function markdownPanel(title, markdown) {
 
 function representativePicture(picture, fallbackAlt) {
   if (!picture) return '';
-  return `<figure class="panel kb-hero-picture"><button type="button" class="kb-picture-button" data-media-source="${escapeAttr(picture.src)}" data-media-alt="${escapeAttr(picture.alt || fallbackAlt)}"><img src="${escapeAttr(picture.src)}" alt="${escapeAttr(picture.alt || fallbackAlt)}"></button>${picture.caption ? `<figcaption>${escapeHtml(picture.caption)}</figcaption>` : ''}</figure>`;
+  const caption = [picture.caption, picture.credit].filter(Boolean).map(escapeHtml).join(' · ');
+  const source = picture.sourceUrl ? ` · <a href="${escapeAttr(picture.sourceUrl)}" target="_blank" rel="noopener">Source ↗</a>` : '';
+  return `<figure class="panel kb-hero-picture"><button type="button" class="kb-picture-button" data-media-source="${escapeAttr(picture.src)}" data-media-alt="${escapeAttr(picture.alt || fallbackAlt)}"><img src="${escapeAttr(picture.src)}" alt="${escapeAttr(picture.alt || fallbackAlt)}"></button><figcaption>${caption ? `${caption} · ` : ''}Tap to enlarge${source}</figcaption></figure>`;
 }
 
 function pictureThumb(picture, fallbackAlt) {
@@ -235,10 +246,9 @@ async function registerServiceWorker() {
 function entity(id) { return id ? state.kb.entities.find(record => record.id === id) : null; }
 function gear(id) { return id ? state.gear.items.find(record => record.id === id) : null; }
 function catchField(type) { return ({ location:'locationId', species:'speciesId' })[type] || ''; }
-function singular(value) { return ({ locations:'location', species:'species', techniques:'technique', knots:'knot' })[value] || value; }
-function plural(value) { return ({ location:'locations', species:'species', technique:'techniques', knot:'knots' })[value] || value; }
-function formatDate(date, time) { const parsed = new Date(`${date}T12:00:00Z`); const label = Number.isNaN(parsed.valueOf()) ? date : new Intl.DateTimeFormat(undefined, { year:'numeric', month:'short', day:'numeric', timeZone:'UTC' }).format(parsed); return time ? `${label} at ${time}` : label; }
-function formatSize(size) { if (!size) return 'Not recorded'; const parts = []; if (size.length) parts.push(`${size.length.value} ${size.length.unit}`); if (size.weight) parts.push(`${size.weight.value} ${size.weight.unit}`); if (size.display) parts.push(size.display); return parts.join(' · ') || 'Not recorded'; }
+function singular(value) { return ({ locations:'location', species:'species', equipment:'equipment', techniques:'technique', knots:'knot' })[value] || value; }
+function plural(value) { return ({ location:'locations', species:'species', equipment:'equipment', technique:'techniques', knot:'knots' })[value] || value; }
+function normalize(value = '') { return String(value).toLowerCase().replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, ' ').replace(/\s+/g, ' ').trim(); }
 function escapeHtml(value = '') { return String(value).replace(/[&<>"']/g, char => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[char]); }
 function escapeAttr(value = '') { return escapeHtml(value); }
 

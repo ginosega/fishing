@@ -4,6 +4,7 @@ import fs from 'node:fs';
 const gearApp = fs.readFileSync(new URL('./gear-app.js', import.meta.url), 'utf8');
 const mediaUi = fs.readFileSync(new URL('./media-ui.js', import.meta.url), 'utf8');
 const index = fs.readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+const mediaOverrides = JSON.parse(fs.readFileSync(new URL('./media-overrides.json', import.meta.url), 'utf8'));
 
 assert.match(gearApp, /window\.addEventListener\('hashchange',[\s\S]*event\.stopImmediatePropagation\(\);[\s\S]*}, true\);/,
   'Structured My Gear must capture inventory hash changes before other route handlers.');
@@ -11,6 +12,10 @@ assert.match(gearApp, /data-gear-item=.*?navigate\(`#\/inventory\/item\//s,
   'Gear cards must navigate to structured item routes.');
 assert.match(gearApp, /Browse your inventory of equipment, tackle, and bait/,
   'Home/My Gear copy must use the accepted inventory description.');
+assert.match(gearApp, /function itemCard\(item\) \{\s*const meta = item\.type \|\| '';/,
+  'Second-level My Gear cards must show only the item type as subtext.');
+assert.doesNotMatch(gearApp, /function itemCard\(item\)[\s\S]{0,260}gearSpecificationText\(item\)/,
+  'Second-level My Gear cards must not include Specifications content.');
 assert.doesNotMatch(gearApp, /My Gear data|gearExportButton|gearImportButton/,
   'v2 import/export controls must not appear in the current My Gear UI.');
 assert.match(gearApp, /class="section-title"><div><h2>[\s\S]*?<\/div>\$\{back \? `<button class="back-button"/,
@@ -24,6 +29,17 @@ assert.match(mediaUi, /findMediaByOwner\(gearItemId/, 'Gear media must resolve b
 assert.match(mediaUi, /owner\?\.gearItemId === gearItemId/, 'Gear media lookup must compare exact owner IDs.');
 assert.doesNotMatch(mediaUi, /item\.aliases|target\.includes\(a\)|findMedia\(text\)/,
   'Gear media must not infer identity from aliases or rendered text.');
+
+for (const [mediaId, assetName] of [
+  ['tsuridamashii-ball-bearing-swivels', 'tsuridamashii-ball-bearing-swivels.webp'],
+  ['tsuridamashii-snap-swivels', 'tsuridamashii-snap-swivels.webp']
+]) {
+  const override = mediaOverrides[mediaId];
+  assert.match(override.imageSource, /raw\.githubusercontent\.com\/ginosega\/fishing\/[a-f0-9]{40}\/pwa\/assets\/gear-source\//,
+    `${mediaId} must build from the immutable repository copy supplied by the user.`);
+  assert.equal(fs.existsSync(new URL(`./assets/gear-source/${assetName}`, import.meta.url)), true,
+    `${mediaId} repository source image must exist.`);
+}
 
 const gearIndex = index.indexOf('./gear-app.js');
 const kbIndex = index.indexOf('./kb-app.js');

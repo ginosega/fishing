@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "dataVersion": "2026-09-02-kb-v1-topwater-split-1",
+  "dataVersion": "2026-09-03-kb-v1-equipment-pictures-search-1",
   "entities": [
     {
       "id": "location-lake-washington",
       "type": "location",
       "name": "Lake Washington",
-      "description": "Local bass and coastal cutthroat water with distinct north-end, Juanita Bay, Kirkland, and Mercer Island patterns.",
+      "description": "Local bass and cutthroat water with distinct north-end and Kirkland patterns.",
       "picture": null,
       "content": "./kb-content/locations/lake-washington.md"
     },
@@ -14,7 +14,7 @@
       "id": "location-lake-sammamish",
       "type": "location",
       "name": "Lake Sammamish",
-      "description": "Local bass and trout water with distinct north-end, south-end, and east-shore patterns.",
+      "description": "Bass and trout water with distinct north-, south-, and east-shore patterns.",
       "picture": null,
       "content": "./kb-content/locations/lake-sammamish.md"
     },
@@ -22,7 +22,7 @@
       "id": "location-silver-lake-whatcom",
       "type": "location",
       "name": "Silver Lake, Whatcom County",
-      "description": "Camping and kayak fishing water near Bellingham with trout and bass opportunities.",
+      "description": "Camping and kayak water near Bellingham with trout and bass opportunities.",
       "picture": null,
       "content": "./kb-content/locations/silver-lake-whatcom.md"
     },
@@ -38,7 +38,7 @@
       "id": "location-mayfield-lake",
       "type": "location",
       "name": "Mayfield Lake",
-      "description": "Regional camping and kayak water for trout, kokanee, bass, and northern pikeminnow.",
+      "description": "Regional camping and kayak water for trout, kokanee, bass, and pikeminnow.",
       "picture": null,
       "content": "./kb-content/locations/mayfield-lake.md"
     },
@@ -46,7 +46,7 @@
       "id": "location-lake-chelan",
       "type": "location",
       "name": "Lake Chelan",
-      "description": "Deep clear lake with smallmouth and trout opportunities from shore, dock, or kayak.",
+      "description": "Deep clear lake for smallmouth and trout from shore, dock, or kayak.",
       "picture": null,
       "content": "./kb-content/locations/lake-chelan.md"
     },
@@ -54,7 +54,7 @@
       "id": "location-lake-cle-elum",
       "type": "location",
       "name": "Lake Cle Elum",
-      "description": "Cold-water reservoir treated as a trout and salmonid destination rather than a bass target.",
+      "description": "Cold-water reservoir treated as a trout and salmonid destination.",
       "picture": null,
       "content": "./kb-content/locations/lake-cle-elum.md"
     },
@@ -78,7 +78,7 @@
       "id": "technique-paddle-only-kayak-strategy",
       "type": "technique",
       "name": "Paddle-only Kayak Strategy",
-      "description": "Route, drift, trolling, electronics, and casting strategy for the current paddle-only RVR119.",
+      "description": "Route, drift, trolling, electronics, and casting for a paddle-only RVR119.",
       "picture": null,
       "content": "./kb-content/techniques/paddle-only-kayak-strategy.md"
     },
@@ -86,29 +86,29 @@
       "id": "technique-trout-fishing",
       "type": "technique",
       "name": "Trout Fishing",
-      "description": "Casting, inline-spinning, still-fishing, bobber, and kayak-trolling guidance for trout.",
+      "description": "Casting, spinner, still-fishing, bobber, and kayak-trolling guidance for trout.",
       "picture": null,
       "content": "./kb-content/techniques/trout-fishing.md"
     },
     {
       "id": "technique-fishing-line",
-      "type": "technique",
+      "type": "equipment",
       "name": "Fishing Line",
-      "description": "Braid, fluorocarbon, and monofilament selection, leader pairing, line-weight reference, knot care, and spooling resources.",
+      "description": "Braid, fluorocarbon, mono, leader, knot, and spooling guidance.",
       "picture": null,
       "content": "./kb-content/techniques/fishing-line.md"
     },
     {
       "id": "technique-rods-reels",
-      "type": "technique",
+      "type": "equipment",
       "name": "Rods & Reels",
-      "description": "Spinning-vs-baitcasting selection, typical setups, baitcaster adjustment and casting guidance, and a three-rod situational reference.",
+      "description": "Spinning and baitcasting selection, setup, adjustment, and casting guidance.",
       "picture": null,
       "content": "./kb-content/techniques/rods-reels.md"
     },
     {
       "id": "technique-wacky-worm",
-      "type": "technique",
+      "type": "equipment",
       "name": "Wacky Worm",
       "description": "A finesse stickbait presentation with both ends free to move.",
       "picture": null,
@@ -116,15 +116,15 @@
     },
     {
       "id": "technique-ned-rig",
-      "type": "technique",
+      "type": "equipment",
       "name": "Ned Rig",
-      "description": "A finesse mushroom-jighead presentation with a short buoyant bait that stands on bottom.",
+      "description": "A finesse mushroom-jighead presentation with a short buoyant bottom bait.",
       "picture": null,
       "content": "./kb-content/techniques/ned-rig.md"
     },
     {
       "id": "technique-drop-shot",
-      "type": "technique",
+      "type": "equipment",
       "name": "Drop Shot",
       "description": "A suspended finesse presentation with the hook above the weight.",
       "picture": null,
@@ -132,7 +132,7 @@
     },
     {
       "id": "technique-jigs",
-      "type": "technique",
+      "type": "equipment",
       "name": "Jigs",
       "description": "Casting, swimming, football, and finesse jig guidance.",
       "picture": null,
@@ -140,7 +140,7 @@
     },
     {
       "id": "technique-spinnerbait",
-      "type": "technique",
+      "type": "equipment",
       "name": "Spinnerbait",
       "description": "A wire-frame moving bait for cover, flash, and vibration.",
       "picture": null,
@@ -148,15 +148,15 @@
     },
     {
       "id": "technique-chatterbait-bladed-jig",
-      "type": "technique",
+      "type": "equipment",
       "name": "Chatterbait / Bladed Jig",
-      "description": "A vibrating bladed-jig presentation for grass, stained water, and reaction bites.",
+      "description": "Bladed-jig presentation for grass, stained water, and reaction bites.",
       "picture": null,
       "content": "./kb-content/techniques/chatterbait-bladed-jig.md"
     },
     {
       "id": "technique-crankbait",
-      "type": "technique",
+      "type": "equipment",
       "name": "Crankbait",
       "description": "A hard-plug presentation built around depth, deflection, and retrieve changes.",
       "picture": null,
@@ -164,7 +164,7 @@
     },
     {
       "id": "technique-jerkbait",
-      "type": "technique",
+      "type": "equipment",
       "name": "Jerkbait",
       "description": "A baitfish presentation using darting movement and pauses.",
       "picture": null,
@@ -172,50 +172,68 @@
     },
     {
       "id": "technique-swimbait-soft-jerk-shad",
-      "type": "technique",
+      "type": "equipment",
       "name": "Swimbait / Soft Jerk Shad",
-      "description": "A lifelike baitfish presentation for points, ledges, weed edges, docks, and structure.",
+      "description": "A lifelike baitfish presentation for points, weed edges, docks, and structure.",
       "picture": null,
       "content": "./kb-content/techniques/swimbait-soft-jerk-shad.md"
     },
     {
       "id": "technique-buzzbait",
-      "type": "technique",
+      "type": "equipment",
       "name": "Buzzbait",
-      "description": "Surface buzzbait conditions, tackle, direct-tie rigging, retrieve variations, color guidance, trailers, and bait examples.",
+      "description": "Buzzbait tackle, rigging, retrieves, color, trailers, and bait examples.",
       "picture": null,
       "content": "./kb-content/techniques/buzzbait.md"
     },
     {
       "id": "technique-frogs",
-      "type": "technique",
+      "type": "equipment",
       "name": "Frogs",
-      "description": "Frog-fishing conditions, heavy-cover tackle, walking and pause retrieves, hook-set timing, frog types, and common modifications.",
-      "picture": null,
+      "description": "Frog tackle, retrieves, hook-set timing, lure types, and common modifications.",
+      "picture": {
+        "src": "https://d2dz5gposoi2o6.cloudfront.net/ecom/prod/item_images/c/2/0/5/c205d2254bb2fe0375d3dbeed8933c47b5a27a7b_2026000833.jpg",
+        "alt": "Booyah Pad Crasher hollow-body frogs",
+        "caption": "Representative owned hollow-body frogs",
+        "credit": "Booyah product photo",
+        "sourceUrl": "https://www.booyahbaits.com/products/pad-crasher"
+      },
       "content": "./kb-content/techniques/frogs.md"
     },
     {
       "id": "technique-popper",
-      "type": "technique",
+      "type": "equipment",
       "name": "Popper",
-      "description": "Popper conditions, spinning tackle, knot guidance, and the pop-pause-retrieve technique for shallow bass.",
-      "picture": null,
+      "description": "Popper conditions, tackle, knot guidance, and pop-pause retrieves.",
+      "picture": {
+        "src": "https://img.tacklewarehouse.com/watermark/rs.php?path=RPR-PBK-1.jpg",
+        "alt": "Rebel Pop-R topwater popper",
+        "caption": "Representative owned popper",
+        "credit": "Rebel product photo",
+        "sourceUrl": "https://www.lurenet.com/rebel-pop-r"
+      },
       "content": "./kb-content/techniques/popper.md"
     },
     {
       "id": "technique-walking-bait",
-      "type": "technique",
+      "type": "equipment",
       "name": "Walking Bait",
-      "description": "Walk-the-dog topwater conditions, tackle, floating-line guidance, slack-line cadence, color guidance, and bait examples.",
+      "description": "Walk-the-dog tackle, line, cadence, color guidance, and bait examples.",
       "picture": null,
       "content": "./kb-content/techniques/walking-bait.md"
     },
     {
       "id": "technique-whopper-plopper",
-      "type": "technique",
+      "type": "equipment",
       "name": "Whopper Plopper",
-      "description": "Plopper conditions, baitcasting tackle, steady and variable retrieves, and lure-size guidance for aggressive surface fishing.",
-      "picture": null,
+      "description": "Plopper tackle, retrieve styles, and lure-size guidance for surface fishing.",
+      "picture": {
+        "src": "https://media.mwstatic.com/product-images/src/primary/847/847202.jpg",
+        "alt": "River2Sea Whopper Plopper 60",
+        "caption": "Representative owned plopper",
+        "credit": "River2Sea product photo",
+        "sourceUrl": "https://www.river2seausa.com/product/whopper-plopper-60/"
+      },
       "content": "./kb-content/techniques/whopper-plopper.md"
     },
     {
@@ -230,7 +248,7 @@
       "id": "technique-color-and-scent",
       "type": "technique",
       "name": "Color and Scent",
-      "description": "Practical lure-color and scent notes, including items that still need verification.",
+      "description": "Practical lure-color and scent notes, including items needing verification.",
       "picture": null,
       "content": "./kb-content/techniques/color-and-scent.md"
     },
@@ -238,7 +256,7 @@
       "id": "technique-water-visibility",
       "type": "technique",
       "name": "Water Visibility",
-      "description": "A preserved visibility heuristic with an explicit caution against treating it as a hard rule.",
+      "description": "A visibility heuristic with a caution against treating it as a hard rule.",
       "picture": null,
       "content": "./kb-content/techniques/water-visibility.md"
     },
@@ -246,15 +264,21 @@
       "id": "species-largemouth-bass",
       "type": "species",
       "name": "Largemouth Bass",
-      "description": "Primary local warmwater target with catches recorded at Silver Lake and Lake Sammamish.",
-      "picture": null,
+      "description": "Primary local warmwater target with catches at Silver Lake and Lake Sammamish.",
+      "picture": {
+        "src": "https://upload.wikimedia.org/wikipedia/commons/e/e4/Micropterus_salmoides.jpg",
+        "alt": "Illustration of a largemouth bass",
+        "caption": "Largemouth bass",
+        "credit": "Duane Raver / U.S. Fish & Wildlife Service · Public domain",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Micropterus_salmoides.jpg"
+      },
       "content": "./kb-content/species/largemouth-bass.md"
     },
     {
       "id": "species-perch",
       "type": "species",
       "name": "Perch",
-      "description": "Catch-log species label; the exact perch species was not recorded and must not be inferred.",
+      "description": "Catch-log label; exact perch species was not recorded and must not be inferred.",
       "picture": null,
       "content": "./kb-content/species/perch.md"
     },
@@ -263,46 +287,76 @@
       "type": "species",
       "name": "Northern Pikeminnow",
       "description": "Predatory native minnow recorded twice at Mayfield Lake.",
-      "picture": null,
+      "picture": {
+        "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Northern_pikeminnow.jpg/960px-Northern_pikeminnow.jpg",
+        "alt": "Northern pikeminnow",
+        "caption": "Northern pikeminnow",
+        "credit": "Tim Loh · CC BY 3.0",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Northern_pikeminnow.jpg"
+      },
       "content": "./kb-content/species/northern-pikeminnow.md"
     },
     {
       "id": "species-smallmouth-bass",
       "type": "species",
       "name": "Smallmouth Bass",
-      "description": "Important Lake Washington, Lake Sammamish, and Lake Chelan structure-oriented target.",
-      "picture": null,
+      "description": "Structure-oriented target in Lake Washington, Sammamish, and Chelan.",
+      "picture": {
+        "src": "https://upload.wikimedia.org/wikipedia/commons/b/b7/Smallmouth_bass.jpg",
+        "alt": "Illustration of a smallmouth bass",
+        "caption": "Smallmouth bass",
+        "credit": "Duane Raver / U.S. Fish & Wildlife Service · Public domain",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Smallmouth_bass.jpg"
+      },
       "content": "./kb-content/species/smallmouth-bass.md"
     },
     {
       "id": "species-rainbow-trout",
       "type": "species",
       "name": "Rainbow Trout",
-      "description": "Common regional trout target for casting, trolling, bobber, and still-fishing presentations.",
-      "picture": null,
+      "description": "Regional trout target for casting, trolling, bobber, and still-fishing methods.",
+      "picture": {
+        "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Oncorhynchus_mykiss_mid_res_150dpi.jpg/960px-Oncorhynchus_mykiss_mid_res_150dpi.jpg",
+        "alt": "Illustration of a rainbow trout",
+        "caption": "Rainbow trout",
+        "credit": "Duane Raver / U.S. Fish & Wildlife Service · Public domain",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Oncorhynchus_mykiss_mid_res_150dpi.jpg"
+      },
       "content": "./kb-content/species/rainbow-trout.md"
     },
     {
       "id": "species-coastal-cutthroat-trout",
       "type": "species",
       "name": "Coastal Cutthroat Trout",
-      "description": "A Lake Washington trout target requiring current regulation checks.",
-      "picture": null,
+      "description": "Lake Washington trout target requiring current regulation checks.",
+      "picture": {
+        "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Trout_cutthroat_fish_oncorhynchus_clarkii_clarkii.jpg/960px-Trout_cutthroat_fish_oncorhynchus_clarkii_clarkii.jpg",
+        "alt": "Coastal cutthroat trout",
+        "caption": "Coastal cutthroat trout",
+        "credit": "Timothy Knepp / U.S. Fish & Wildlife Service · Public domain",
+        "sourceUrl": "https://commons.wikimedia.org/wiki/File:Trout_cutthroat_fish_oncorhynchus_clarkii_clarkii.jpg"
+      },
       "content": "./kb-content/species/coastal-cutthroat-trout.md"
     },
     {
       "id": "species-kokanee",
       "type": "species",
       "name": "Kokanee",
-      "description": "A specialized regional trolling target mentioned for Lake Washington and Mayfield Lake.",
-      "picture": null,
+      "description": "Specialized regional trolling target in Lake Washington and Mayfield Lake.",
+      "picture": {
+        "src": "https://www.fws.gov/sites/default/files/styles/max_650x650/public/2023-08/kokanee%20salmon%20landlocked%20version%20of%20sockeye%20salmon%20PNW%20%20tom%20koerner%20usfws.jpg?itok=0yalP-Wq",
+        "alt": "Kokanee salmon",
+        "caption": "Kokanee salmon",
+        "credit": "Tom Koerner / U.S. Fish & Wildlife Service · Public domain",
+        "sourceUrl": "https://www.fws.gov/media/kokanee-salmon-non-anadromous-form-sockeye-salmon-pacific-northwest"
+      },
       "content": "./kb-content/species/kokanee.md"
     },
     {
       "id": "knot-palomar",
       "type": "knot",
       "name": "Palomar Knot",
-      "description": "Strong, easy; works with braid, fluorocarbon, and mono; good for small hooks/light line; ensure loop cinches evenly above eye",
+      "description": "Strong, simple knot for braid, fluoro, or mono; cinch evenly above the eye.",
       "picture": null,
       "content": "./kb-content/knots/palomar.md"
     },
@@ -334,7 +388,7 @@
       "id": "knot-improved-clinch",
       "type": "knot",
       "name": "Improved Clinch Knot",
-      "description": "Good with mono/fluoro on small hooks/jigheads; 6-7 wraps with 6-10 lb line, 5 wraps with heavier line",
+      "description": "Mono/fluoro terminal knot; use more wraps with lighter line and wet first.",
       "picture": null,
       "content": "./kb-content/knots/improved-clinch.md"
     },
@@ -358,7 +412,7 @@
       "id": "knot-loop-non-slip-loop",
       "type": "knot",
       "name": "Loop / Non-slip Loop Knot",
-      "description": "Conflict: OneNote knot page says don't use because weak, but technique pages still mention loop knots for action. Treat as unresolved.",
+      "description": "Conflict: technique pages recommend loop knots; knot note warns against them.",
       "picture": null,
       "content": "./kb-content/knots/loop-non-slip-loop.md"
     },
