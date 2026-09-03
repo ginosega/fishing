@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "dataVersion": "2026-09-02-kb-v1-rods-reels-1",
+  "dataVersion": "2026-09-02-kb-v1-topwater-split-1",
   "entities": [
     {
       "id": "location-lake-washington",
@@ -179,12 +179,44 @@
       "content": "./kb-content/techniques/swimbait-soft-jerk-shad.md"
     },
     {
-      "id": "technique-topwater-fishing",
+      "id": "technique-buzzbait",
       "type": "technique",
-      "name": "Topwater Fishing",
-      "description": "Frog, plopper, popper, buzzbait, and walking-bait guidance.",
+      "name": "Buzzbait",
+      "description": "Surface buzzbait conditions, tackle, direct-tie rigging, retrieve variations, color guidance, trailers, and bait examples.",
       "picture": null,
-      "content": "./kb-content/techniques/topwater-fishing.md"
+      "content": "./kb-content/techniques/buzzbait.md"
+    },
+    {
+      "id": "technique-frogs",
+      "type": "technique",
+      "name": "Frogs",
+      "description": "Frog-fishing conditions, heavy-cover tackle, walking and pause retrieves, hook-set timing, frog types, and common modifications.",
+      "picture": null,
+      "content": "./kb-content/techniques/frogs.md"
+    },
+    {
+      "id": "technique-popper",
+      "type": "technique",
+      "name": "Popper",
+      "description": "Popper conditions, spinning tackle, knot guidance, and the pop-pause-retrieve technique for shallow bass.",
+      "picture": null,
+      "content": "./kb-content/techniques/popper.md"
+    },
+    {
+      "id": "technique-walking-bait",
+      "type": "technique",
+      "name": "Walking Bait",
+      "description": "Walk-the-dog topwater conditions, tackle, floating-line guidance, slack-line cadence, color guidance, and bait examples.",
+      "picture": null,
+      "content": "./kb-content/techniques/walking-bait.md"
+    },
+    {
+      "id": "technique-whopper-plopper",
+      "type": "technique",
+      "name": "Whopper Plopper",
+      "description": "Plopper conditions, baitcasting tackle, steady and variable retrieves, and lure-size guidance for aggressive surface fishing.",
+      "picture": null,
+      "content": "./kb-content/techniques/whopper-plopper.md"
     },
     {
       "id": "technique-seasonal-bass-guidance",
