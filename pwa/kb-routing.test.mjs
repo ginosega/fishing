@@ -9,6 +9,7 @@ const index = fs.readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 for (const type of ['location', 'species', 'technique', 'knot']) assert.ok(kbApp.includes(`${type}:`), `Knowledge Base app must expose the ${type} type.`);
 for (const route of ['#/kb/catches', '#/kb/catch/', '#/kb/entity/']) assert.ok(kbApp.includes(route), `Knowledge Base app must expose ${route}.`);
 assert.match(kbApp, /`#\/kb\/\$\{plural\(type\)\}`/, 'Entity categories must route from the unified type discriminator.');
+assert.doesNotMatch(kbApp, /My catch history|catchBacklinks|catchesForEntity|catchField/, 'Knowledge Base article pages must not render catch-history backlinks.');
 assert.doesNotMatch(kbApp, /planner|sessionId|Planner Attributes/i, 'Planner and session concepts must stay retired.');
 assert.match(gearApp, /\.\/data\/catches\.seed\.json/, 'My Gear catch backlinks must use structured catches.');
 assert.doesNotMatch(gearApp, /Trip_Logs_Field_Observations|Gear used/, 'My Gear must not parse legacy catch Markdown.');
@@ -28,4 +29,4 @@ assert.match(html, /target="_blank" rel="noopener"/);
 assert.match(html, /<table>/);
 assert.doesNotMatch(renderMarkdown('[bad](javascript:alert(1))'), /href=/);
 
-console.log('Knowledge Base routing, Markdown, and retired Planner regression tests passed.');
+console.log('Knowledge Base routing, Markdown, article layout, and retired Planner regression tests passed.');
