@@ -44,6 +44,7 @@ function queueEnhance() {
 function enhancePage() {
   enhanceVideoLinks(document);
   enhanceKbImages();
+  enhanceGearCardImages();
   const match = /^#\/inventory\/item\/(.+)$/.exec(location.hash || '');
   if (!match) return;
   const gearItemId = decodeURIComponent(match[1]);
@@ -72,6 +73,23 @@ function enhanceKbImages() {
   }
 }
 
+function enhanceGearCardImages() {
+  for (const card of document.querySelectorAll('[data-gear-item]:not([data-gear-media-ready])')) {
+    const gearItemId = card.dataset.gearItem || '';
+    const media = findAnyMediaByOwner(gearItemId);
+    if (!media?.asset) continue;
+    card.dataset.gearMediaReady = 'true';
+    card.classList.add('gear-item-card-with-picture');
+    const image = document.createElement('img');
+    image.className = 'gear-card-picture';
+    image.src = media.asset;
+    image.alt = media.alt || card.querySelector('h3')?.textContent?.trim() || gearItemId;
+    image.loading = 'lazy';
+    image.decoding = 'async';
+    card.prepend(image);
+  }
+}
+
 function enhanceStandardGearLeaf(gearItemId) {
   const media = findMediaByOwner(gearItemId);
   if (!media?.asset) return;
@@ -97,6 +115,10 @@ function findMediaByOwner(gearItemId, component = null) {
   return state.media.find(item => (item.owners || []).some(owner =>
     owner?.gearItemId === gearItemId && (owner.component || null) === (component || null)
   )) || null;
+}
+
+function findAnyMediaByOwner(gearItemId) {
+  return state.media.find(item => (item.owners || []).some(owner => owner?.gearItemId === gearItemId)) || null;
 }
 
 function attachMedia(panel,media,label) {
