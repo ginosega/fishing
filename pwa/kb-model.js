@@ -1,10 +1,10 @@
 export const KB_SCHEMA_VERSION = 1;
-export const CATCH_SCHEMA_VERSION = 1;
+export const CATCH_SCHEMA_VERSION = 2;
 export const KB_DESCRIPTION_MAX_LENGTH = 80;
 export const KB_TYPES = ['location', 'species', 'equipment', 'technique', 'knot'];
 
 const ENTITY_FIELDS = ['id', 'type', 'name', 'description', 'picture', 'content'];
-const CATCH_FIELDS = ['id', 'date', 'time', 'size', 'speciesId', 'locationId', 'exactSpotNotes', 'rodReelSetupId', 'techniqueId', 'lureOrBait', 'picture', 'notes', 'source'];
+const CATCH_FIELDS = ['id', 'date', 'time', 'size', 'speciesId', 'locationId', 'rodReelSetupId', 'techniqueId', 'lureOrBait', 'picture'];
 
 export function validateKbBundle(bundle) {
   const errors = [];
@@ -53,13 +53,10 @@ export function validateCatchBundle(bundle, kbBundle, gearBundle) {
     validateSize(record.size, `${at}.size`, errors);
     validateEntityReference(record.speciesId, 'species', `${at}.speciesId`, entities, errors, true);
     validateEntityReference(record.locationId, 'location', `${at}.locationId`, entities, errors, true);
-    if (record.exactSpotNotes != null && !isText(record.exactSpotNotes)) errors.push(`${at}.exactSpotNotes must be Markdown text or null.`);
     validateGearReference(record.rodReelSetupId, 'rods-reels', `${at}.rodReelSetupId`, gear, errors, false);
     validateEntityReferenceTypes(record.techniqueId, ['technique', 'equipment'], `${at}.techniqueId`, entities, errors, false);
     validateLureOrBait(record.lureOrBait, `${at}.lureOrBait`, gear, errors);
     validatePicture(record.picture, `${at}.picture`, errors);
-    if (record.notes != null && !isText(record.notes)) errors.push(`${at}.notes must be Markdown text or null.`);
-    if (!isText(record.source)) errors.push(`${at}.source is required.`);
   }
   return { valid: errors.length === 0, errors };
 }

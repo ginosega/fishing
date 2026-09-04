@@ -52,7 +52,7 @@ jobs:
           node --check pwa/markdown-render.js
           node --check pwa/media-ui.js
           node --check pwa/build.mjs
-          node --check pwa/apply-gear-notes.mjs
+          node --check pwa/apply-authored-notes.mjs
           node --check pwa/apply-local-media.mjs
           node --check pwa/final-content.test.mjs
           node --check pwa/serve.mjs
@@ -68,8 +68,8 @@ jobs:
         run: node pwa/final-content.test.mjs
       - name: Build PWA
         run: node pwa/build.mjs
-      - name: Apply and validate external Gear Notes
-        run: node pwa/apply-gear-notes.mjs
+      - name: Apply and validate authored Notes
+        run: node pwa/apply-authored-notes.mjs
       - name: Apply and validate local media
         run: node pwa/apply-local-media.mjs
       - name: Verify bundle
@@ -88,6 +88,7 @@ jobs:
           test -f pwa/dist/media-ui.js
           test -f pwa/dist/gear-media.json
           test -f pwa/dist/gear-notes-assets.json
+          test -f pwa/dist/catch-notes-assets.json
           test -f pwa/dist/kb-assets.json
           test -f pwa/dist/video-titles.json
           test -f pwa/dist/gear-content/setup-spinning.md
@@ -96,6 +97,14 @@ jobs:
           grep -q 'gear://sufix-832-15' pwa/dist/gear-content/setup-spinning.md
           grep -q 'kb://technique-jerkbait' pwa/dist/gear-content/berkley-stunna.md
           grep -q './gear-content/setup-spinning.md' pwa/dist/gear-notes-assets.json
+          test -f pwa/dist/catch-content/catch-2026-07-27-silver-lake-largemouth-01.md
+          test -f pwa/dist/catch-content/catch-2026-08-04-lake-sammamish-perch-01.md
+          test -f pwa/dist/catch-content/catch-2026-08-04-lake-sammamish-largemouth-01.md
+          test -f pwa/dist/catch-content/catch-2026-08-19-mayfield-pikeminnow-01.md
+          test -f pwa/dist/catch-content/catch-2026-08-20-mayfield-pikeminnow-01.md
+          grep -q 'Shore fishing from the beach north of the county park office' pwa/dist/catch-content/catch-2026-07-27-silver-lake-largemouth-01.md
+          grep -q 'Kayak fishing over a bench west of Tibbetts Beach' pwa/dist/catch-content/catch-2026-08-04-lake-sammamish-perch-01.md
+          grep -q './catch-content/catch-2026-08-04-lake-sammamish-perch-01.md' pwa/dist/catch-notes-assets.json
           test -f pwa/dist/kb-content/locations/lake-sammamish.md
           test -f pwa/dist/kb-content/techniques/ned-rig.md
           test -f pwa/dist/kb-content/techniques/inline-spinner.md
@@ -142,8 +151,13 @@ jobs:
           grep -q 'largemouth-bass.png' pwa/dist/data/kb.seed.json
           grep -q 'booyah-pad-crasher.jpg' pwa/dist/data/kb.seed.json
           ! grep -q 'kokanee-phases.webp' pwa/dist/data/kb.seed.json
-          grep -q '2026-09-04-my-gear-v2-final-content-1' pwa/dist/data/gear.seed.json
+          grep -q '2026-09-04-my-gear-v3-external-notes-1' pwa/dist/data/gear.seed.json
           grep -q '2026-09-04-kb-v1-final-content-1' pwa/dist/data/kb.seed.json
+          grep -q '2026-09-04-catches-v2-external-notes-1' pwa/dist/data/catches.seed.json
+          ! grep -q '"notes":' pwa/dist/data/gear.seed.json
+          ! grep -q '"exactSpotNotes":' pwa/dist/data/catches.seed.json
+          ! grep -q '"notes":' pwa/dist/data/catches.seed.json
+          ! grep -q '"source":' pwa/dist/data/catches.seed.json
           grep -q 'technique-inline-spinner' pwa/dist/data/kb.seed.json
           grep -q 'technique-snaps-swivels' pwa/dist/data/kb.seed.json
           grep -q 'technique-flasher-rig' pwa/dist/data/kb.seed.json

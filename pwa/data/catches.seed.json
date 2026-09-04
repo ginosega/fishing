@@ -1,6 +1,6 @@
 {
-  "schemaVersion": 1,
-  "dataVersion": "2026-09-03-catches-v1-yellow-perch-1",
+  "schemaVersion": 2,
+  "dataVersion": "2026-09-04-catches-v2-external-notes-1",
   "catches": [
     {
       "id": "catch-2026-07-27-silver-lake-largemouth-01",
@@ -16,7 +16,6 @@
       },
       "speciesId": "species-largemouth-bass",
       "locationId": "location-silver-lake-whatcom",
-      "exactSpotNotes": "Shore fishing from the beach north of the county park office; 3–5 ft over gravel bottom.",
       "rodReelSetupId": null,
       "techniqueId": null,
       "lureOrBait": {
@@ -24,9 +23,7 @@
         "itemId": "berkley-flicker-shad-5",
         "nameSnapshot": "Berkley Flicker Shad 5"
       },
-      "picture": null,
-      "notes": "Bass was shallow over gravel near evening. The Flicker Shad proved viable for bass as well as trout/pikeminnow-oriented use.",
-      "source": "ONENOTE SOURCE"
+      "picture": null
     },
     {
       "id": "catch-2026-08-04-lake-sammamish-perch-01",
@@ -42,7 +39,6 @@
       },
       "speciesId": "species-perch",
       "locationId": "location-lake-sammamish",
-      "exactSpotNotes": "Kayak fishing over a bench west of Tibbetts Beach on the south end; less than 10 ft along the edge of cover.",
       "rodReelSetupId": null,
       "techniqueId": null,
       "lureOrBait": {
@@ -50,9 +46,7 @@
         "itemId": "strike-king-kvd-square-bill-1",
         "nameSnapshot": "Strike King KVD Square Bill 1.0"
       },
-      "picture": null,
-      "notes": "Bench and cover edge produced mixed species. Per project convention, this catch is treated as Yellow Perch unless later corrected.",
-      "source": "ONENOTE SOURCE"
+      "picture": null
     },
     {
       "id": "catch-2026-08-04-lake-sammamish-largemouth-01",
@@ -68,7 +62,6 @@
       },
       "speciesId": "species-largemouth-bass",
       "locationId": "location-lake-sammamish",
-      "exactSpotNotes": "Kayak fishing over a bench west of Tibbetts Beach on the south end; less than 10 ft along the edge of cover.",
       "rodReelSetupId": null,
       "techniqueId": null,
       "lureOrBait": {
@@ -76,9 +69,7 @@
         "itemId": "strike-king-kvd-square-bill-1",
         "nameSnapshot": "Strike King KVD Square Bill 1.0"
       },
-      "picture": null,
-      "notes": "Bench and cover edge produced mixed species. The squarebill is proven Lake Sammamish edge/cover bait.",
-      "source": "ONENOTE SOURCE"
+      "picture": null
     },
     {
       "id": "catch-2026-08-19-mayfield-pikeminnow-01",
@@ -94,7 +85,6 @@
       },
       "speciesId": "species-northern-pikeminnow",
       "locationId": "location-mayfield-lake",
-      "exactSpotNotes": "Kayak fishing off the point at the southern end of Ike Kinswa State Park; 20 ft along a drop-off.",
       "rodReelSetupId": null,
       "techniqueId": null,
       "lureOrBait": {
@@ -102,9 +92,7 @@
         "itemId": "berkley-flicker-shad-5",
         "nameSnapshot": "Berkley Flicker Shad 5"
       },
-      "picture": null,
-      "notes": "Predator/forage fish was active along the drop-off. If targeting trout, adjust depth/speed or presentation if pikeminnow dominate.",
-      "source": "ONENOTE SOURCE"
+      "picture": null
     },
     {
       "id": "catch-2026-08-20-mayfield-pikeminnow-01",
@@ -120,7 +108,6 @@
       },
       "speciesId": "species-northern-pikeminnow",
       "locationId": "location-mayfield-lake",
-      "exactSpotNotes": "Kayak trolling off the west shore of Ike Kinswa State Park; 25 ft over a shelf.",
       "rodReelSetupId": null,
       "techniqueId": null,
       "lureOrBait": {
@@ -128,9 +115,7 @@
         "itemId": "berkley-flicker-shad-5",
         "nameSnapshot": "Berkley Flicker Shad 5"
       },
-      "picture": null,
-      "notes": "The Flicker Shad again produced pikeminnow on a deeper shelf. Repeat for mixed predator action or change presentation for a trout focus.",
-      "source": "ONENOTE SOURCE"
+      "picture": null
     }
   ]
 }

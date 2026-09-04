@@ -15,7 +15,7 @@ const app = document.querySelector('#app');
 const homeButton = document.querySelector('#homeButton');
 const statusDot = document.querySelector('#onlineStatus');
 const gearRepository = new GearRepository();
-const state = { kb:null, catches:null, gear:null, content:new Map(), entityByContentPath:new Map() };
+const state = { kb:null, catches:null, gear:null, content:new Map(), entityByContentPath:new Map(), catchNoteAssets:null, catchNotes:new Map() };
 
 const ready = initialize();
 
@@ -28,10 +28,11 @@ window.addEventListener('offline', updateOnlineStatus);
 homeButton?.addEventListener('click', () => navigate('#/home'));
 
 async function initialize() {
-  const [kb, catches, gear] = await Promise.all([
+  const [kb, catches, gear, catchNoteAssets] = await Promise.all([
     fetchJson('./data/kb.seed.json'),
     fetchJson('./data/catches.seed.json'),
-    gearRepository.initialize()
+    gearRepository.initialize(),
+    fetchJson('./catch-notes-assets.json', null)
   ]);
   const kbValidation = validateKbBundle(kb);
   if (!kbValidation.valid) throw new Error(`Invalid Knowledge Base data: ${kbValidation.errors.join(' ')}`);
@@ -40,6 +41,7 @@ async function initialize() {
   state.kb = kb;
   state.catches = catches;
   state.gear = gear;
+  state.catchNoteAssets = Array.isArray(catchNoteAssets) ? new Set(catchNoteAssets) : null;
   state.entityByContentPath = new Map(kb.entities.map(entity => [entity.content, entity]));
   updateOnlineStatus();
   updateFooter();
@@ -151,7 +153,7 @@ function renderCatchList() {
   bindRoutes();
 }
 
-function renderCatch(id) {
+async function renderCatch(id) {
   const record = state.catches.catches.find(item => item.id === id);
   if (!record) return navigate('#/kb/catches');
   const species = entity(record.speciesId);
@@ -170,10 +172,45 @@ function renderCatch(id) {
       ${detailLink('Technique / presentation', method?.name || 'Not recorded', method ? `#/kb/entity/${method.id}` : '')}
       ${detailLink(record.lureOrBait.type === 'bait' ? 'Bait' : 'Lure', lureOrBait?.name || record.lureOrBait.nameSnapshot, `#/inventory/item/${record.lureOrBait.itemId}`)}
     </div></section>
-    ${markdownPanel('Exact spot notes', record.exactSpotNotes)}
-    ${markdownPanel('Notes', record.notes)}
-    <section class="panel"><div class="detail-cell"><div class="label">Provenance</div><div class="value">${escapeHtml(record.source)}</div></div></section>`;
+    ${catchNotesPanelShell()}`;
   bindRoutes();
+  await loadCatchNotesIntoPanel(record);
+}
+
+function catchNotesPanelShell() {
+  return '<section class="panel" id="catchNotesPanel" hidden><h3>Notes</h3><div class="kb-content compact-content" id="catchNotesBody"></div></section>';
+}
+
+async function loadCatchNotesIntoPanel(record) {
+  const result = await loadCatchNotes(record);
+  if (location.hash !== `#/kb/catch/${encodeURIComponent(record.id)}`) return;
+  const panel = document.querySelector('#catchNotesPanel');
+  const body = document.querySelector('#catchNotesBody');
+  if (!panel || !body) return;
+  if (!result.markdown.trim()) { panel.remove(); return; }
+  body.innerHTML = renderMarkdown(result.markdown, { contentPath:result.contentPath, entityByContentPath:state.entityByContentPath });
+  panel.hidden = false;
+}
+
+async function loadCatchNotes(record) {
+  if (state.catchNotes.has(record.id)) return state.catchNotes.get(record.id);
+  const contentPath = `./catch-content/${record.id}.md`;
+  if (state.catchNoteAssets && !state.catchNoteAssets.has(contentPath)) {
+    const empty = { markdown:'', contentPath };
+    state.catchNotes.set(record.id, empty);
+    return empty;
+  }
+  try {
+    const response = await fetch(contentPath, { cache:'no-cache' });
+    if (response.ok) {
+      const loaded = { markdown:await response.text(), contentPath };
+      state.catchNotes.set(record.id, loaded);
+      return loaded;
+    }
+  } catch {}
+  const empty = { markdown:'', contentPath };
+  state.catchNotes.set(record.id, empty);
+  return empty;
 }
 
 function catchCard(record) {
@@ -192,10 +229,6 @@ function catchBacklinks(records) {
   return `<section class="panel"><h3>My catch history</h3>${records.length ? records.map(catchCard).join('') : '<div class="empty">No catches have been recorded here.</div>'}</section>`;
 }
 
-function markdownPanel(title, markdown) {
-  if (!markdown) return '';
-  return `<section class="panel"><h3>${escapeHtml(title)}</h3><div class="kb-content compact-content">${renderMarkdown(markdown)}</div></section>`;
-}
 
 function representativePicture(picture, fallbackAlt) {
   if (!picture) return '';
@@ -259,10 +292,18 @@ async function loadContent(path) {
   return markdown;
 }
 
-async function fetchJson(path) {
-  const response = await fetch(path, { cache:'no-cache' });
-  if (!response.ok) throw new Error(`Could not load ${path}.`);
-  return response.json();
+async function fetchJson(path, fallback) {
+  try {
+    const response = await fetch(path, { cache:'no-cache' });
+    if (!response.ok) {
+      if (arguments.length > 1) return fallback;
+      throw new Error(`Could not load ${path}.`);
+    }
+    return response.json();
+  } catch (error) {
+    if (arguments.length > 1) return fallback;
+    throw error;
+  }
 }
 
 function updateOnlineStatus() {

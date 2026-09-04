@@ -1,6 +1,6 @@
 {
-  "schemaVersion": 2,
-  "dataVersion": "2026-09-04-my-gear-v2-final-content-1",
+  "schemaVersion": 3,
+  "dataVersion": "2026-09-04-my-gear-v3-external-notes-1",
   "items": [
     {
       "id": "setup-spinning",
@@ -66,8 +66,7 @@
             "url": "https://youtu.be/vkCUgxwUtqU?si=cZehY_eKmqr9HXdn"
           }
         ]
-      },
-      "notes": "Primary finesse / trout / Jacob-friendly setup.\n\nCurrent line: [Sufix 832 15 lb Hi-Vis Yellow](gear://sufix-832-15) braid with [Seaguar InvizX 8 lb](gear://seaguar-invizx-8) fluorocarbon leader.\n\nBest suited to lighter presentations such as wacky worms, drop shots, Ned rigs, small jerkbaits, inline spinners, and spoons. Also preferred when easy casting, light-line control, or clear-water finesse is more important than power.\n\nSee [Rods & Reels](kb://technique-rods-reels) for general spinning-vs-baitcasting guidance and typical spinning setup recommendations."
+      }
     },
     {
       "id": "setup-baitcasting",
@@ -121,8 +120,7 @@
             "url": "https://jdmtackleheaven.com/products/shimano-22-slx-dc-xt-71hg-left?_pos=1&_psq=22+SLX+DC+XT&_ss=e&_v=1.0"
           }
         ]
-      },
-      "notes": "Primary general-purpose bass setup for heavier lures, stronger hooksets, and more accurate target casting.\n\nCurrent line: [PowerPro Super8 Slick V2 30 lb Moss Green](gear://powerpro-super8-slick-v2-30) braid with [Seaguar InvizX 12 lb](gear://seaguar-invizx-12) fluorocarbon leader.\n\nBest suited to spinnerbaits, chatterbaits, crankbaits, jigs, swimbaits, topwater, and other presentations where the spinning setup is lighter than ideal.\n\nFor the SLX DC XT, set the internal line-type dial for the line being used and adjust braking for lure weight, wind, and casting conditions. Thumb the spool at splashdown to help prevent backlash.\n\nSLX DC XT setup video: [https://youtu.be/mIcaRiMC_-k?si=-07JzU0Tlcns1zB1](https://youtu.be/mIcaRiMC_-k?si=-07JzU0Tlcns1zB1)\n\nSee [Rods & Reels](kb://technique-rods-reels) for general spinning-vs-baitcasting guidance and baitcaster setup/casting recommendations."
+      }
     },
     {
       "id": "setup-spincasting",
@@ -176,8 +174,7 @@
           }
         ],
         "links": []
-      },
-      "notes": "Simple, easy-to-use shore-fishing setup intended primarily for trout, kids, guests, and situations where uncomplicated casting is more important than maximum sensitivity or casting performance.\n\nA 6 lb monofilament main line is recommended for this setup. Avoid switching to braid or straight fluorocarbon main line unless actual testing shows that the reel handles it well.\n\nWell suited to PowerBait bottom rigs, bobber-and-worm rigs, and small spoons or inline spinners if they cast adequately on the reel.\n\nSee [Trout Fishing](kb://technique-trout-fishing) for general trout techniques and rigging."
+      }
     },
     {
       "id": "sufix-832-15",
@@ -207,8 +204,7 @@
           "value": "660-115Y"
         }
       ],
-      "links": [],
-      "notes": "See [Fishing Line](kb://technique-fishing-line) for braid selection, leader pairing, knot, hook-set, and spooling guidance."
+      "links": []
     },
     {
       "id": "powerpro-super8-slick-v2-30",
@@ -240,8 +236,7 @@
           "label": "Tackle Warehouse",
           "url": "https://www.tacklewarehouse.com/Power_Pro_Super8Slick_V2_Braided_Line_Moss_Green/descpage-PVMG.html"
         }
-      ],
-      "notes": "See [Fishing Line](kb://technique-fishing-line) for braid selection, leader pairing, knot, hook-set, and spooling guidance."
+      ]
     },
     {
       "id": "seaguar-invizx-8",
@@ -269,8 +264,7 @@
           "label": "Amazon",
           "url": "https://a.co/d/4UVnkVc"
         }
-      ],
-      "notes": "See [Fishing Line](kb://technique-fishing-line) for fluorocarbon visibility and sinking behavior, line-weight selection, knot care, leader use, and spooling guidance."
+      ]
     },
     {
       "id": "seaguar-invizx-12",
@@ -298,8 +292,7 @@
           "label": "Tackle Warehouse",
           "url": "https://www.tacklewarehouse.com/Seaguar_InvizX_Fluorocarbon_Line/descpage-SIF.html"
         }
-      ],
-      "notes": "See [Fishing Line](kb://technique-fishing-line) for fluorocarbon visibility and sinking behavior, line-weight selection, knot care, leader use, and spooling guidance."
+      ]
     },
     {
       "id": "cylinder-weights",
@@ -359,8 +352,7 @@
           "value": "1/2 oz"
         }
       ],
-      "links": [],
-      "notes": "Used for [paddle-only kayak strategy](kb://technique-paddle-only-kayak-strategy), including [trout fishing](kb://technique-trout-fishing)."
+      "links": []
     },
     {
       "id": "glass-beads",
@@ -439,8 +431,7 @@
           "label": "Tackle Warehouse",
           "url": "https://www.tacklewarehouse.com/VMC_Crankbait_Snaps/descpage-VMCCS.html?from=bshop"
         }
-      ],
-      "notes": "See [Snaps & Swivels](kb://technique-snaps-swivels) for usage and technique."
+      ]
     },
     {
       "id": "tsuridamashii-ball-bearing-swivels",
@@ -471,8 +462,7 @@
           "label": "Amazon",
           "url": "https://a.co/d/12yVweL"
         }
-      ],
-      "notes": "See [Snaps & Swivels](kb://technique-snaps-swivels) for usage and technique."
+      ]
     },
     {
       "id": "tsuridamashii-ball-bearing-snap-swivels",
@@ -503,8 +493,7 @@
           "label": "Amazon",
           "url": "https://a.co/d/apPLB6U"
         }
-      ],
-      "notes": "See [Snaps & Swivels](kb://technique-snaps-swivels) for usage and technique."
+      ]
     },
     {
       "id": "south-bend-assorted-brass-swivels",
@@ -524,8 +513,7 @@
           "value": "5, 7, 10, 12"
         }
       ],
-      "links": [],
-      "notes": "See [Snaps & Swivels](kb://technique-snaps-swivels) for usage and technique."
+      "links": []
     },
     {
       "id": "gamakatsu-octopus-hook",
@@ -801,8 +789,7 @@
           "label": "Dick's Sporting Goods",
           "url": "https://www.dickssportinggoods.com/p/z-man-original-chatterbait-bladed-jig-15zmauzmnchtbt38blur/15zmauzmnchtbt38blur?color=Bayou%20Craw"
         }
-      ],
-      "notes": "See [Chatterbait](kb://technique-chatterbait-bladed-jig) for usage and technique."
+      ]
     },
     {
       "id": "zman-elite-evo",
@@ -830,8 +817,7 @@
           "label": "Dick's Sporting Goods",
           "url": "https://www.dickssportinggoods.com/p/z-man-chatterbait-elite-evo-23zmaucbltv38zlvclur/23zmaucbltv38blur"
         }
-      ],
-      "notes": "See [Chatterbait](kb://technique-chatterbait-bladed-jig) for usage and technique."
+      ]
     },
     {
       "id": "zman-jack-hammer",
@@ -859,8 +845,7 @@
           "label": "Dick's Sporting Goods",
           "url": "https://www.dickssportinggoods.com/p/z-man-jackhammer-chatterbait-17zmauchttrjckhm3lur/17zmauchttrjckhm3lur"
         }
-      ],
-      "notes": "See [Chatterbait](kb://technique-chatterbait-bladed-jig) for usage and technique."
+      ]
     },
     {
       "id": "strike-king-red-eyed-special",
@@ -888,8 +873,7 @@
           "label": "Dick's Sporting Goods",
           "url": "https://www.dickssportinggoods.com/p/strike-king-red-eyed-spinnerbait-23skiurssb12chrtxlur/23skiurssb12chrtxlur?color=Firecraw"
         }
-      ],
-      "notes": "See [Spinnerbait](kb://technique-spinnerbait) for usage and technique."
+      ]
     },
     {
       "id": "sixth-sense-divine-spinnerbait",
@@ -917,8 +901,7 @@
           "label": "Dick's Sporting Goods",
           "url": "https://www.dickssportinggoods.com/p/6th-sense-divine-spinnerbait-236thudvnspnnrbt1lur/236thudvnspnnrbt1lur?color=Shad"
         }
-      ],
-      "notes": "See [Spinnerbait](kb://technique-spinnerbait) for usage and technique."
+      ]
     },
     {
       "id": "rebel-crawfish",
@@ -942,8 +925,7 @@
           "label": "Cabela's",
           "url": "https://www.cabelas.com/p/rebel-crawfish"
         }
-      ],
-      "notes": "See [Crankbait](kb://technique-crankbait) for usage and technique."
+      ]
     },
     {
       "id": "berkley-flicker-shad-5",
@@ -973,8 +955,7 @@
           "value": "Slow rise"
         }
       ],
-      "links": [],
-      "notes": "See [Crankbait](kb://technique-crankbait) for usage and technique."
+      "links": []
     },
     {
       "id": "strike-king-kvd-square-bill-1",
@@ -1002,8 +983,7 @@
           "label": "Walmart",
           "url": "https://www.walmart.com/ip/Strike-King-KVD-Square-Bill-1-0-Crankbait-Sexy-Shad-Hard-Bait-Lure/20552266"
         }
-      ],
-      "notes": "See [Crankbait](kb://technique-crankbait) for usage and technique."
+      ]
     },
     {
       "id": "berkley-money-badger",
@@ -1039,8 +1019,7 @@
           "label": "Cabela's",
           "url": "https://www.cabelas.com/p/berkley-money-badger-crankbait"
         }
-      ],
-      "notes": "See [Crankbait](kb://technique-crankbait) for usage and technique."
+      ]
     },
     {
       "id": "berkley-stunna",
@@ -1080,8 +1059,7 @@
           "label": "Amazon",
           "url": "https://a.co/d/5ZkCU1O"
         }
-      ],
-      "notes": "See [Jerkbait](kb://technique-jerkbait) for usage and technique."
+      ]
     },
     {
       "id": "rapala-original-floating",
@@ -1119,8 +1097,7 @@
           "value": "Floating"
         }
       ],
-      "links": [],
-      "notes": "See [Jerkbait](kb://technique-jerkbait) for usage and technique."
+      "links": []
     },
     {
       "id": "rapala-dt",
@@ -1158,8 +1135,7 @@
           "value": "Floating"
         }
       ],
-      "links": [],
-      "notes": "See [Crankbait](kb://technique-crankbait) for usage and technique."
+      "links": []
     },
     {
       "id": "rapala-ripstop",
@@ -1197,8 +1173,7 @@
           "value": "Slow-rise / suspending style"
         }
       ],
-      "links": [],
-      "notes": "See [Jerkbait](kb://technique-jerkbait) for usage and technique."
+      "links": []
     },
     {
       "id": "rapala-husky-jerk",
@@ -1236,8 +1211,7 @@
           "value": "Suspending"
         }
       ],
-      "links": [],
-      "notes": "See [Jerkbait](kb://technique-jerkbait) for usage and technique."
+      "links": []
     },
     {
       "id": "mepps-aglia-3",
@@ -1263,8 +1237,7 @@
           "value": "Plain"
         }
       ],
-      "links": [],
-      "notes": "See [Inline Spinner](kb://technique-inline-spinner) for usage and technique."
+      "links": []
     },
     {
       "id": "generic-0-inline-spinner-assortment",
@@ -1289,8 +1262,7 @@
           "value": "Black/Yellow, Blue/Yellow, Chrome, Yellow Holographic"
         }
       ],
-      "links": [],
-      "notes": "See [Inline Spinner](kb://technique-inline-spinner) for usage and technique."
+      "links": []
     },
     {
       "id": "generic-1-inline-spinner",
@@ -1311,8 +1283,7 @@
           "value": "Green Holo"
         }
       ],
-      "links": [],
-      "notes": "See [Inline Spinner](kb://technique-inline-spinner) for usage and technique."
+      "links": []
     },
     {
       "id": "macks-wedding-ring",
@@ -1334,8 +1305,7 @@
           "value": "Nickel/Orange"
         }
       ],
-      "links": [],
-      "notes": "See [Inline Spinner](kb://technique-inline-spinner) for usage and technique."
+      "links": []
     },
     {
       "id": "kastmaster",
@@ -1375,8 +1345,7 @@
           "value": "Brass Redhead, Nickel Redhead"
         }
       ],
-      "links": [],
-      "notes": "Rig with split rings at top and bottom and the single hook at the bottom with the point toward the concave side of the spoon."
+      "links": []
     },
     {
       "id": "luhr-jensen-trout-kokanee-dodger",
@@ -1443,8 +1412,7 @@
           "label": "Dick's Sporting Goods",
           "url": "https://www.dickssportinggoods.com/p/booyah-pad-crasher-frog-assortment-3-pack-20byhupdcrshr3pkklur/20byhupdcrshr3pkklur"
         }
-      ],
-      "notes": "See [Frog](kb://technique-frogs) for frog-fishing conditions, tackle, retrieve techniques, hook-set timing, frog types, and common modifications."
+      ]
     },
     {
       "id": "rebel-pop-r",
@@ -1462,8 +1430,7 @@
           "value": "Silver/Black"
         }
       ],
-      "links": [],
-      "notes": "See [Popper](kb://technique-popper) for when to fish poppers, recommended tackle, knot guidance, and pop-and-pause retrieve technique."
+      "links": []
     },
     {
       "id": "river2sea-whopper-plopper-60",
@@ -1485,8 +1452,7 @@
           "value": "Bluegill"
         }
       ],
-      "links": [],
-      "notes": "See [Whopper Plopper](kb://technique-whopper-plopper) for conditions, tackle, retrieve variations, and lure-size guidance."
+      "links": []
     },
     {
       "id": "strike-king-premier-pro-model-jig",
@@ -1510,8 +1476,7 @@
           "label": "Dick's Sporting Goods",
           "url": "https://www.dickssportinggoods.com/p/strike-king-denny-bauers-premier-pro-model-jig-15skiuppmjg12zsxylur/15skiuppmjg12zsxylur"
         }
-      ],
-      "notes": "See [Jig](kb://technique-jigs) for usage and technique."
+      ]
     },
     {
       "id": "strike-king-tour-grade-football-jig",
@@ -1539,8 +1504,7 @@
           "label": "Dick's Sporting Goods",
           "url": "https://www.dickssportinggoods.com/p/strike-king-tour-grade-football-jig-15skiutrgdftblljglur/15skiutrgdftblljglur"
         }
-      ],
-      "notes": "See [Jig](kb://technique-jigs) for usage and technique."
+      ]
     },
     {
       "id": "yum-christie-craw",
@@ -1617,8 +1581,7 @@
           "label": "Dick's Sporting Goods",
           "url": "https://www.dickssportinggoods.com/p/6th-sense-divine-swimbait-226thudvnswmbt32plur/226thudvnswmbt32plur?color=Pro%20Shad"
         }
-      ],
-      "notes": "See [Swimbait](kb://technique-swimbait-soft-jerk-shad) for usage and technique."
+      ]
     },
     {
       "id": "berkley-powerbait-power-jerk-shad",
@@ -1646,8 +1609,7 @@
           "label": "Cabela's",
           "url": "https://www.cabelas.com/p/berkley-powerbait-jerk-shad"
         }
-      ],
-      "notes": "See [Swimbait](kb://technique-swimbait-soft-jerk-shad) for usage and technique."
+      ]
     },
     {
       "id": "fin-sanity-bluegill",
@@ -1677,8 +1639,7 @@
           "value": "Hard-jointed swimbait"
         }
       ],
-      "links": [],
-      "notes": "Fish as a hard-jointed bluegill-profile swimbait. Do not apply soft-plastic rigging videos or hook guidance to this lure.\n\nSee [Swimbait](kb://technique-swimbait-soft-jerk-shad) for usage and technique."
+      "links": []
     },
     {
       "id": "yamamoto-senko",
@@ -1700,8 +1661,7 @@
           "value": "Green Pumpkin Pepper, Black w/Large Blue Flake, Watermelon w/Black Flake"
         }
       ],
-      "links": [],
-      "notes": "See [Wacky Worm](kb://technique-wacky-worm) for usage and technique."
+      "links": []
     },
     {
       "id": "zman-ned-rig-kit",
@@ -1727,8 +1687,7 @@
           "value": "Trick ShotZ, Finesse ShadZ, GobyZ"
         }
       ],
-      "links": [],
-      "notes": "See [Ned Rig](kb://technique-ned-rig) for usage and technique."
+      "links": []
     },
     {
       "id": "berkley-gulp-minnow",

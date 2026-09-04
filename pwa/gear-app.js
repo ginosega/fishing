@@ -216,13 +216,9 @@ async function loadGearNotes(item) {
       return loaded;
     }
   } catch {}
-  // Direct source-tree development may not have the generated asset manifest yet.
-  // Retain legacy inline Notes only as a development/migration fallback; production
-  // builds register and precache the external Markdown files.
-  const fallback = !gearNoteAssets && typeof item.notes === 'string' ? item.notes : '';
-  const loaded = { markdown:fallback, contentPath };
-  gearNoteCache.set(item.id, loaded);
-  return loaded;
+  const empty = { markdown:'', contentPath };
+  gearNoteCache.set(item.id, empty);
+  return empty;
 }
 
 function renderCatchHistory(item) {
