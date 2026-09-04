@@ -1,5 +1,5 @@
 # Rigging
-Main line → small sliding weight → bead → swivel → 3-4' leader → dodger → 18-30" leader → lure
+`Main line → small sliding weight → bead → swivel → 3-4' leader → dodger → 18-30" leader → lure`
 
 A dodger adds flash and side-to-side action, which helps when you are kayak trolling. It also makes your lure more effective. Good starting colors:
 - silver
