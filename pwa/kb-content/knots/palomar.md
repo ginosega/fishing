@@ -5,4 +5,4 @@
 - Make sure the loop cinches evenly and completely above the eye — don’t cross lines, and don't leave any of the line caught below the eye
 
 # Links
-- [video](https://youtube.com/shorts/IlQDI4bi694?is=zoKRljv9K4l7K5yp)
+- [Video: ](https://youtube.com/shorts/IlQDI4bi694?is=zoKRljv9K4l7K5yp)
