@@ -36,13 +36,13 @@ Fishing Companion has three durable application-data domains that share identity
 ### 1. My Gear — structured local-first
 
 - source/baseline: `pwa/data/gear.seed.json`
-- schema version `2`
-- data version `2026-09-04-my-gear-v2-final-content-1`
+- schema version `3`
+- data version `2026-09-04-my-gear-v3-external-notes-1`
 - **63 records** across Rods & Reels, Line, Weights, Snaps & Swivels, Hooks, Lures, and Bait
 - live browser store: IndexedDB via `pwa/gear-store.js`
 - all `#/inventory/...` routes: `pwa/gear-app.js`
 
-My Gear owns structured owned facts such as manufacturer, model, specifications, typed external links, and stable identity. Optional `notes` is Markdown narrative.
+My Gear owns structured owned facts such as manufacturer, model, specifications, typed external links, and stable identity. Optional Notes are external Markdown at `pwa/gear-content/<gear-id>.md`; inline structured `notes` are retired.
 
 Do **not** reintroduce the retired v1 concepts: profiles, structured usage/connections, setup `mainLine`/`leader`, speculative configuration/knowledgeRefs, raw HTML guidance, or inference from Markdown/display text.
 
@@ -79,9 +79,9 @@ Markdown list indentation is semantic. `pwa/markdown-render.js` must preserve ne
 
 ### 3. Catch Log — structured historical relationships
 
-`pwa/data/catches.seed.json` currently contains **5 catches**.
+`pwa/data/catches.seed.json` currently contains **5 catches** (schema `2`, data version `2026-09-04-catches-v2-external-notes-1`). Optional authored Notes live at `pwa/catch-content/<catch-id>.md`.
 
-Catch Log owns exact structured relationships required by current behavior: Species, Location, exactly one Lure/Bait, and optional setup/presentation references when actually recorded. Historical setup/technique is never inferred. Backlinks are computed rather than stored redundantly. Exact catch pictures override Species-picture fallback.
+Catch Log owns exact structured relationships required by current behavior: Species, Location, exactly one Lure/Bait, and optional setup/presentation references when actually recorded. Historical setup/technique is never inferred. Backlinks are computed rather than stored redundantly. Exact catch pictures override Species-picture fallback. Narrative/provenance fields are not stored in Catch JSON; Catch pages render one optional Markdown-backed **Notes** card.
 
 ## Retired product concepts
 
@@ -102,22 +102,20 @@ Live site: `https://ginosega.github.io/fishing/`
 
 ### Latest verified runtime release
 
-**PR #36 — Polish Gear labels, thumbnails, and root search UX**
+**PR #39 — Unify authored Gear and Catch Notes as Markdown**
 
-- exact tested PR head: `30c8fb265b66d9287efe7fe3c34f732f98f9f7ca`
-- PR CI: **#176 / 33893140327** — success
-- merge commit: `15c5ac6f8f3d37ad8b884436c6312083b1939921`
-- production workflow: **#177 / 33893200789** — success
-- all tests/build/transformed-local-media validation/bundle verification: success
-- GitHub Pages artifact + actual deployment: success
+- exact tested PR head: `77ec40db223b275366a73091974ecd4d421a2c90`
+- PR CI: **#196 / 33907218850** — success
+- merge commit: `e997492b995f7e7cb8fa4af21ef1f2953df63a78`
+- production workflow: **#197 / 33907284576** — success
+- all structured-model/routing/Markdown/final-content tests: success
+- PWA build + unified authored-Notes validation + transformed/local-media validation: success
+- bundle verification and GitHub Pages artifact upload: success
+- **Deploy to GitHub Pages: success**
 
-PR #36 implemented these durable presentation behaviors:
+PR #39 completed the authored-content architecture cleanup begun in PR #38: My Gear schema v3 contains only structured owned facts while optional Notes live in `pwa/gear-content/<gear-id>.md`; Catch Log schema v2 contains only structured catch facts/relationships while optional Notes live in `pwa/catch-content/<catch-id>.md`. The five existing user-authored Exact Spot Notes were preserved verbatim as Catch Markdown. The prior generated Catch Notes and Provenance/source card were retired, so Catch leaves now render one optional Markdown-backed **Notes** card. Gear and Catch Notes use the same renderer, stable-ID navigation conventions, build validation, asset-manifest pattern, and offline caching.
 
-- My Gear displays `Trolling lures` as **Trolling** without changing the stored seed value.
-- Gear, KB, and Catch card thumbnails use square white frames and `object-fit: contain`; full wide/tall images remain visible with white letterboxing instead of cropping.
-- On root My Gear and Knowledge Base pages, entering a Search query hides the category cards and shows matching result cards immediately below the page controls. A global `[hidden] { display: none !important; }` rule protects this behavior from grid/list display declarations.
-
-PR #34 remains the earlier renderer fix for nested Markdown lists.
+PR #36 remains the prior UX-polish release for the **Trolling** display alias, square non-cropping thumbnails, and root-search replacement behavior.
 
 ### Current authored-content lineage
 
@@ -139,7 +137,8 @@ No separate post-PR #29 hidden/unmerged application build was found. PR #34 and 
 - On pages with both Search and a dropdown/filter, the filter is right-aligned.
 - Line is intentionally flat; Rods & Reels retains grouping.
 - My Gear contains no Knots category and remains browse-only: no Add/Edit/Delete forms and no visible import/export UI.
-- Gear leaf pages use structured Manufacturer / Model, Specifications, Links, and optional Markdown Notes.
+- Gear leaf pages use structured Manufacturer / Model, Specifications, Links, and optional external Markdown Notes.
+- Catch leaves use structured facts/relationships plus one optional external Markdown Notes card; Provenance is retired.
 - KB representative pictures that depict a specific owned item may store explicit `gearItemId` and link the caption to that My Gear leaf.
 - Authored stable-ID links are heading-independent.
 - Nested lists must preserve Markdown indentation in Fishing Companion.

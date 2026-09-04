@@ -4,7 +4,7 @@
 
 **Accepted:** 2026-09-02
 
-**Reconciled through:** 2026-09-04 / PR #34 / production content checkpoint `955d37bf675f3163fe610324809a972916c98ef0`
+**Reconciled through:** 2026-09-04 / PR #39 / production `e997492b995f7e7cb8fa4af21ef1f2953df63a78` / run #197
 
 **Purpose:** Keep My Gear, Knowledge Base, and Catch Log architecturally consistent without forcing identical schemas, identical persistence, or speculative relationship maintenance.
 
@@ -42,7 +42,7 @@ Current consequence:
 ```text
 pwa/data/gear.seed.json
         ↓
-strict schema-v2 validation
+strict schema-v3 validation
         ↓
 IndexedDB local store
         ↓
@@ -51,9 +51,9 @@ GearRepository
 My Gear UI
 ```
 
-Current production seed: schema version `2`, data version `2026-09-04-my-gear-v2-final-content-1`, **63 records**.
+Current production seed: schema version `3`, data version `2026-09-04-my-gear-v3-external-notes-1`, **63 records**.
 
-My Gear owns owned identity and product/setup facts: manufacturer, model, specifications, typed external links, and item/setup-specific Notes.
+My Gear owns owned identity and product/setup facts: manufacturer, model, specifications, and typed external links. Item/setup-specific Notes are authored separately at `pwa/gear-content/<gear-id>.md` and are not duplicated in structured Gear records.
 
 ### Knowledge Base
 
@@ -105,7 +105,7 @@ Stable IDs deliberately survive taxonomy changes. An entity may retain a `techni
 - manufacturer/model/part facts;
 - product specifications;
 - typed external links;
-- item/setup-specific Markdown Notes;
+- item/setup-specific authored Markdown Notes keyed by stable ID under `pwa/gear-content/`;
 - exact stable association of media to Gear identity through the media ownership layer.
 
 ### Knowledge Base owns
@@ -124,7 +124,7 @@ Stable IDs deliberately survive taxonomy changes. An entity may retain a `techni
 - required Species and Location relationships;
 - exactly one lure/bait relationship;
 - optional setup/presentation relationships when actually recorded;
-- catch-specific narrative and provenance.
+- catch-specific authored Markdown Notes keyed by stable ID under `pwa/catch-content/`; provenance is not a current Catch UI/data field.
 
 Presentation/media helpers do not own product facts.
 
@@ -157,21 +157,21 @@ Authored stable-ID navigation is independent of section labeling: `# Links`, `##
 
 There is no requirement to maintain reverse links or exhaustive associations merely because an authored link exists.
 
-## 7. My Gear schema v2
+## 7. My Gear schema v3
 
 Dataset envelope:
 
 ```json
 {
-  "schemaVersion": 2,
-  "dataVersion": "YYYY-MM-DD-my-gear-v2",
+  "schemaVersion": 3,
+  "dataVersion": "YYYY-MM-DD-my-gear-v3",
   "items": []
 }
 ```
 
-Ordinary items contain accepted structured fields for stable ID, category, type, name, manufacturer, model, specifications, links, and optional Markdown `notes`. Rods & Reels remain first-class setup records with embedded rod/reel product value objects and optional Notes.
+Ordinary items contain accepted structured fields for stable ID, category, type, name, manufacturer, model, specifications, and links. Rods & Reels remain first-class setup records with embedded rod/reel product value objects. Optional Notes are external Markdown at `pwa/gear-content/<stable-id>.md`; `notes` is not an accepted structured field.
 
-Retired/rejected from schema v2: top-level profiles, usage/connections and profile IDs, setup `mainLine`/`leader`, configuration relationship objects, `knowledgeRefs`, raw HTML guidance, and unknown structural fields.
+Retired/rejected from schema v3: top-level profiles, usage/connections and profile IDs, setup `mainLine`/`leader`, configuration relationship objects, `knowledgeRefs`, raw HTML guidance, and unknown structural fields.
 
 ## 8. Unified Knowledge Base envelope
 
@@ -199,7 +199,7 @@ Historical rules:
 - do not infer setup;
 - do not infer technique/presentation solely from lure identity;
 - do not invent session/trip relationships;
-- exact spot/depth/structure/conditions belong in catch Markdown narrative;
+- exact spot/depth/structure/conditions belong in optional `pwa/catch-content/<catch-id>.md` authored Notes;
 - a multi-species source row becomes separate catches when appropriate.
 
 Backlinks are computed from Catch forward references rather than stored redundantly. Exact Catch image overrides linked Species art; Species art is presentation fallback only.
@@ -222,7 +222,7 @@ Structured data and authored internal links store stable IDs, not hash routes.
 
 - My Gear uses JSON seed + IndexedDB because it is local-first and intended for future editing.
 - KB uses JSON catalog + Markdown because it is document-oriented and browse-only.
-- Catch Log remains structured JSON until an editing feature justifies a writable repository/store.
+- Catch Log keeps structured facts/relationships in JSON and optional authored Notes in stable-ID Markdown until an editing feature justifies a writable repository/store.
 
 Storage should not be changed merely to make domains look alike.
 
@@ -264,11 +264,12 @@ ChatGPT specifies the exact branch/path/filename; the user uploads the binary di
 
 Current build/test validation includes:
 
-- strict exact Gear record shapes and legacy-field rejection;
+- strict exact Gear schema-v3 record shapes, including rejection of inline `notes` and legacy fields;
 - required non-empty data versions;
 - five-type KB enum and exact entity shapes;
 - stable unique IDs and one registered Markdown Content path per KB entity;
-- Catch type/category relationships and exactly one lure/bait per Catch;
+- Catch schema-v2 exact fields/type/category relationships and exactly one lure/bait per Catch;
+- one-to-one stable-ID validation/materialization for external Gear and Catch Notes;
 - `gear://`, `kb://`, and registered relative-link target validation;
 - authored stable-ID navigation independent of section-heading label;
 - exact Gear media owner IDs/component selectors;
@@ -306,14 +307,16 @@ Reconciliation design was accepted in PR #15 and implemented in PR #16. Subseque
 - PR #32 — final PR #28 authored-content acceptance and heading-independent link regression
 - PR #33 — state reconciliation after final acceptance
 - PR #34 — indentation-aware nested Markdown list rendering
+- PR #36 — root-search/thumbnail/Trolling presentation polish
+- PR #38 — external Gear Notes pipeline introduced
+- PR #39 — Gear schema v3 removed inline Notes; Catch schema v2 externalized authored Notes and retired Provenance
 
 Latest verified runtime release:
 
-- PR #34 exact tested head `4c94156416e7bfddfb912991c86bc3e5af66b91c`
-- CI #158 / `33850003616` success
-- merge `82601038f0e931f6ef1bee4c8f5e062a73c793c5`
-- production #159 / `33850049987` tests + build + transformed/local-media validation + bundle verification + Pages deploy success
-- user confirmed the live nested-list fix
+- PR #39 exact tested head `77ec40db223b275366a73091974ecd4d421a2c90`
+- CI #196 / `33907218850` success
+- merge `e997492b995f7e7cb8fa4af21ef1f2953df63a78`
+- production #197 / `33907284576` tests + build + authored-Notes/local-media validation + bundle verification + Pages deploy success
 
 Latest audited production content checkpoint before nightly reconciliation:
 
