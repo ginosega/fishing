@@ -35,7 +35,7 @@ assert.match(gearApp, /const TYPE_ORDER = \{\s*'rods-reels':\['Spinning','Baitca
 assert.doesNotMatch(gearApp, /['"]line['"]\s*:\s*\[/,
   'Line must render as one flat list without Braided/Fluorocarbon section headings.');
 assert.doesNotMatch(gearApp, /My Gear data|gearExportButton|gearImportButton/,
-  'v2 import/export controls must not appear in the current My Gear UI.');
+  'v2/v3 import/export controls must not appear in the current My Gear UI.');
 assert.match(gearApp, /const searchControl = search \? `<input class="search section-search"/,
   'Page header must render the compact Search control when requested.');
 assert.match(gearApp, /section-title-actions">\$\{searchControl\}\$\{back \? `<button class="back-button"/,
@@ -48,9 +48,9 @@ assert.match(gearApp, /`\.\/gear-content\/\$\{item\.id\}\.md`/,
 assert.match(gearApp, /renderMarkdown\(result\.markdown, \{ contentPath:result\.contentPath \}\)/,
   'External Gear Notes must use the shared safe Markdown renderer with their source content path.');
 assert.match(gearApp, /gearNoteAssets && !gearNoteAssets\.has\(contentPath\)/,
-  'Production Gear pages must avoid requesting Notes files that are absent from the validated asset manifest.');
-assert.match(gearApp, /!gearNoteAssets && typeof item\.notes === 'string'/,
-  'Legacy inline Notes may only be used as a source-tree development/migration fallback when the generated manifest is unavailable.');
+  'Gear pages must avoid requesting Notes files absent from the validated asset manifest.');
+assert.doesNotMatch(gearApp, /item\.notes/,
+  'My Gear runtime must not retain a fallback to retired inline JSON Notes.');
 assert.equal(fs.existsSync(new URL('./gear-content/setup-spinning.md', import.meta.url)), true,
   'External Gear Notes should exist as ordinary Markdown files keyed by stable Gear ID.');
 
@@ -88,4 +88,4 @@ assert.equal(index.includes('<script src="./app.js"'), false,
 assert.equal(index.includes('legacy-app-loader.js'), false,
   'The retired legacy route loader must not load.');
 
-console.log('My Gear routing/layout/media/Notes regression tests passed.');
+console.log('My Gear routing/layout/media/external-Notes regression tests passed.');
