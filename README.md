@@ -8,7 +8,7 @@ This repository is the durable working home for the Fishing project: fishing and
 
 ## Project status
 
-**Status: NORMAL PROJECT MAINTENANCE / FISHING COMPANION PRODUCTION HEALTHY AFTER PR #30 HOTFIX / PR #28 MARKDOWN ACCEPTANCE CLEANUP IN PROGRESS**
+**Status: NORMAL PROJECT MAINTENANCE / FISHING COMPANION PRODUCTION VERIFIED THROUGH PR #32 / PR #28 CONTENT ACCEPTANCE CLOSED**
 
 The OneNote migration and hyperlink restoration were completed on 2026-08-29. OneNote was designated the most up-to-date historical source of truth for migration closure; historical Fishing chats remain supplemental evidence and decision history. Temporary migration audit/reconciliation files were removed after closure.
 
@@ -65,7 +65,7 @@ Every KB entity uses the same envelope: stable `id`, `type`, `name`, optional `d
 
 Equipment and Technique article files currently share the physical directory `pwa/kb-content/techniques/`; the entity's `type` determines where it appears in the app. Content-only edits are safe. Renaming or moving a file requires updating its registered `content` path in `pwa/data/kb.seed.json`.
 
-Authored navigation may use `gear://stable-id` or `kb://stable-id`; these links are navigation, not a maintained relationship graph.
+Authored navigation may use `gear://stable-id` or `kb://stable-id`; these links are navigation, not a maintained relationship graph. The links may live under `# Links`, `## Related`, or another sensible Markdown section; stable target identity matters, not the heading label.
 
 ### Catch Log
 
@@ -86,19 +86,20 @@ Current product scope is **single-user, personal, offline-capable, and browse-fo
 
 ### Current verified production release
 
-Latest release: **PR #30 — Fix KB validation for Gear-backed pictures**
+Latest release: **PR #32 — Complete final KB Markdown acceptance cleanup**
 
-- exact tested PR head: `ffa4c500f2bf23be8d883736aed235a1e1011677`
-- PR CI: run **#124 / 33843072806** — success
-- merge commit: `f64217485df024ebebf15af5adfb9bbd7018be5d`
-- production workflow: run **#125 / 33843111957** — success
+- exact tested PR head: `973b8cb0294cfbab789b2f9dde69830199c5b83a`
+- PR CI: run **#151 / 33848718142** — success
+- merge commit: `356174e1376d591e9b33bef06e52e9fdb5c3d31c`
+- production workflow: run **#152 / 33848766888** — success
 - production build: success
 - transformed/local-media KB validation: success
+- replacement Largemouth/Smallmouth Bass image validation: success
+- bundle verification: success
 - GitHub Pages artifact upload: success
 - **Deploy to GitHub Pages: success**
-- user confirmed the live site healthy after deployment in both normal and InPrivate browser sessions
 
-PR #30 fixed a production-only validation mismatch exposed by PR #28's intentional reuse of exact owned-Gear images on six KB Equipment pages. `apply-local-media.mjs` rewrote those built KB `picture.src` values to `./assets/gear/...`; runtime KB validation previously allowed local pictures only under `./assets/kb/...`. The validator now allows safe local pictures under either root, and the local-media step revalidates the **fully transformed built KB bundle** before it can be deployed.
+PR #32 completed the PR #28 authored-content acceptance pass. It fixed residual list/wrapping artifacts in Chatterbait, Jerkbait, Inline Trolling Rig, and Spring Fishing and updated `final-content.test.mjs` to validate actual authored `gear://` / `kb://` navigation rather than a specific `## Related` heading.
 
 Recent stabilization sequence:
 
@@ -108,12 +109,14 @@ Recent stabilization sequence:
 - **PR #28** — final KB content and imagery batch; merge `093139e5314af55691e608277b68b79b2d369166`; production run #121 / `33840208952`
 - **PR #29** — documentation/state reconciliation after PR #28; merge `b3e1b4735cbdc26c41a0bf96b8f4a19bcb09d3ca`
 - **PR #30** — Gear-backed KB picture validation hotfix and post-transform validation guard; merge `f64217485df024ebebf15af5adfb9bbd7018be5d`; production run #125 / `33843111957`
+- **PR #31** — durable state reconciliation after recovery; merge `e5458b789e3098536ff685799bb1135c9e407392`; production run #128 / `33844993323`
+- **PR #32** — final PR #28 Markdown acceptance cleanup; merge `356174e1376d591e9b33bef06e52e9fdb5c3d31c`; production run #152 / `33848766888`
 
 ## Current acceptance state
 
-The PR #28 feature/content batch is deployed and the application runtime is healthy, but the user's acceptance pass found **formatting errors in many newly created/refreshed Equipment and Technique Markdown pages**. The user is correcting those authored documents directly in GitHub under `pwa/kb-content/techniques/`.
+The PR #28 feature/content batch is **accepted and closed**. The user completed the broad manual Equipment/Technique Markdown cleanup; final review covered all 15 modified article files, fixed four remaining structural artifacts, and production-validated the replacement Largemouth/Smallmouth Bass pictures through the local-media pipeline.
 
-After that cleanup, run the normal validation/build/deploy path and complete the PR #28 visual/content acceptance pass. `Fishing_TODO.md` item FISH-TODO-052 owns this work.
+Future article edits are ordinary Knowledge Base maintenance rather than continuation of the PR #28 recovery/acceptance sequence.
 
 ## Current UI conventions
 
@@ -138,11 +141,11 @@ The repeated 2026-09-03 image failures were isolated to transporting binary imag
 3. ChatGPT verifies the GitHub file and updates text manifests/data/tests.
 4. Do **not** base64-encode or transport user image binaries through ChatGPT/GitHub tool calls.
 
-Repository-local images are validated by `pwa/apply-local-media.mjs` for supported format/extension/structure before entering the production bundle. The same step now also validates the transformed KB bundle after media substitutions.
+Repository-local images are validated by `pwa/apply-local-media.mjs` for supported format/extension/structure before entering the production bundle. The same step also validates the transformed KB bundle after media substitutions.
 
 ## Interrupted-chat recovery result
 
-The recent interrupted thread has been reconstructed from repository history and recoverable prior context. The substantive build sequence was PR #24 taxonomy → PR #25 catch/media polish → PR #26 local-media hardening → PR #27 Recovery B → PR #28 final MHT content/images → PR #29 state reconciliation. No separate post-PR #29 feature branch, commit, PR, or recoverable unmerged application change was found. The correct resume point is therefore the current PR #28 authored-content cleanup/acceptance work, followed by the canonical open backlog. See `Fishing_Context.md` for the detailed reconstruction.
+The interrupted thread has been fully reconstructed and closed. The substantive sequence was PR #24 taxonomy → PR #25 catch/media polish → PR #26 local-media hardening → PR #27 Recovery B → PR #28 final MHT content/images → PR #29 state reconciliation → PR #30 production recovery → PR #31 state reconciliation → PR #32 final content acceptance. No separate post-PR #29 hidden/unmerged application build was found.
 
 ## Deferred v2 editing features
 
