@@ -10,15 +10,17 @@ permissions:
 
 jobs:
   reconcile:
-    if: ${{ hashFiles('pwa/reconcile-authored-notes-once.mjs') != '' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Apply final authored Notes reconciliation
-        run: node pwa/reconcile-authored-notes-once.mjs
+      - name: Apply final authored Notes reconciliation if present
+        run: |
+          if [ -f pwa/reconcile-authored-notes-once.mjs ]; then
+            node pwa/reconcile-authored-notes-once.mjs
+          fi
       - name: Commit reconciled source
         run: |
           git config user.name "github-actions[bot]"
