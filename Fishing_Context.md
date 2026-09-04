@@ -1,6 +1,6 @@
 # Fishing Context
 
-**Status:** Active authoritative current-state summary. OneNote migration/link restoration completed 2026-08-29; My Gear schema-v2/data-model reconciliation completed 2026-09-02; repository-local media recovery completed 2026-09-03; PR #28 content acceptance completed 2026-09-04; nested Markdown list rendering fixed and production-confirmed in PR #34 on 2026-09-04. Project is in normal maintenance state.
+**Status:** Active authoritative current-state summary. OneNote migration/link restoration completed 2026-08-29; My Gear schema-v2/data-model reconciliation completed 2026-09-02; repository-local media recovery completed 2026-09-03; PR #28 content acceptance completed 2026-09-04; nested Markdown list rendering fixed in PR #34; PR #36 UX polish production-deployed on 2026-09-04. Project is in normal maintenance state.
 
 This file is a compact router/current-state summary. Detailed procedures and long-form fishing knowledge belong in their domain owners.
 
@@ -76,6 +76,8 @@ Current seed:
 
 My Gear owns structured product/setup facts. Optional `notes` is Markdown. `gear://` and `kb://` links inside Notes are authored navigation, not maintained domain relationships. Knots are intentionally not in My Gear.
 
+The current user-facing lure labels include **Soft plastics and swimbaits**, **Topwater**, and **Trolling**. The seed still contains the internal value `Trolling lures`; PR #36 maps that stored value to the user-facing `Trolling` label in `gear-app.js`, avoiding a seed/IndexedDB migration for a wording-only change.
+
 `Fishing_Gear_Registry.md` and `Fishing_Tackle_Inventory.md` remain migrated/reference sources, not runtime sources.
 
 ### Knowledge Base
@@ -103,7 +105,7 @@ The Equipment and Technique article bodies currently remain physically stored to
 
 PR #28 added Inline Spinner, Snaps & Swivels, Flasher Rig, Inline Trolling Rig, Bobber Rig, Slip Sinker Rig, and Spring Fishing and refreshed Swimbait, Jerkbait, Crankbait, Chatterbait, Spinnerbait, Jig, Frog, Drop Shot, Wacky Worm, Ned Rig, and Trout Fishing. The 2026-09-04 acceptance pass cleaned the imported Markdown formatting and replaced the Largemouth/Smallmouth Bass pictures supplied by the user.
 
-Late-night ordinary content maintenance surrounding and after PR #34 updated **Buzzbait, Fishing Line, Rods & Reels, Walking Bait, Slip Sinker Rig, Bobber Rig, Flasher Rig, Inline Spinner, and Inline Trolling Rig**. These are current production content and are not a reopened PR #28 cleanup batch.
+Subsequent ordinary content maintenance remains part of current production and does not reopen PR #28 acceptance.
 
 ### Catch Log
 
@@ -124,36 +126,33 @@ Live URL: `https://ginosega.github.io/fishing/`
 
 ### Latest verified runtime release
 
-**PR #34 — Render nested Markdown lists correctly**
+**PR #36 — Polish Gear labels, thumbnails, and root search UX**
 
-- exact tested PR head: `4c94156416e7bfddfb912991c86bc3e5af66b91c`
-- PR CI: **#158 / 33850003616**, success
-- merge commit: `82601038f0e931f6ef1bee4c8f5e062a73c793c5`
-- production workflow: **#159 / 33850049987**, success
-- production build: success
+- exact tested PR head: `30c8fb265b66d9287efe7fe3c34f732f98f9f7ca`
+- PR CI: **#176 / 33893140327**, success
+- merge commit: `15c5ac6f8f3d37ad8b884436c6312083b1939921`
+- production workflow: **#177 / 33893200789**, success
 - all structured-model/routing/Markdown/final-content tests: success
-- transformed/local-media KB validation: success
-- bundle verification and GitHub Pages artifact: success
+- PWA build: success
+- transformed/local-media validation: success
+- bundle verification and GitHub Pages artifact upload: success
 - **Deploy to GitHub Pages: success**
-- user confirmed Chatterbait and Jerkbait nested lists render correctly on the live site.
 
-PR #34 fixed a presentation-layer defect: correctly indented nested Markdown lists were flattened by the custom renderer even though GitHub Preview displayed the source correctly. `pwa/markdown-render.js` now preserves indentation-based nested unordered and ordered lists, and `pwa/kb-routing.test.mjs` contains regression coverage.
+PR #36 made three presentation-layer improvements without changing My Gear/KB/Catch schemas:
 
-### Latest verified production content checkpoint
+- user-facing `Trolling lures` is now displayed as **Trolling** throughout My Gear;
+- Gear, KB, and Catch card thumbnails use square white frames plus `object-fit: contain`, preserving full wide/tall source images instead of cropping them;
+- root My Gear/KB searches now actually replace the category-card grid while a query is present, so results appear immediately beneath the page controls on phones and desktop.
 
-The final audited pre-reconciliation `main` is **`955d37bf675f3163fe610324809a972916c98ef0`**. It includes all late-night authored-content maintenance through Inline Trolling Rig. Production workflow **#166 / 33851195203** completed successfully on that exact commit, including all tests, build, transformed/local-media validation, bundle verification, GitHub Pages artifact upload, and Pages deployment.
+The root-search defect was caused by explicit CSS grid/list `display` declarations overriding the browser's default rendering of the HTML `hidden` attribute. PR #36 added a global `[hidden] { display: none !important; }` invariant and regression coverage.
 
-Relevant late-night direct content commits include:
+PR #34 remains the prior renderer release that made correctly indented nested Markdown lists render as nested unordered/ordered lists.
 
-- `5b1eda316a4672ac2f111c2fc9344786ba01d0bb` — Buzzbait
-- `2d4ce6d574007c403de617228bc50a27ff49ea97` — Fishing Line
-- `481fe29c22638c52614f438a43ae4b1fb1f28622` — Rods & Reels
-- `0b89ebc20de049fe5d072e93edcdcaa7b13d01b2` — Walking Bait
-- `d7c2b9f7aea756919efa02ae7a07155eb1ccc606` — Slip Sinker Rig
-- `46a37f88fe59c808f06d8697aa628cb7699fa724` — Bobber Rig
-- `cf8df8c2855d9b6caf0135cb2c2902b70c148694` — Flasher Rig
-- `59a9b1a7e88798f5b5e793bc6301ef196bc73826` — Inline Spinner
-- `955d37bf675f3163fe610324809a972916c98ef0` — Inline Trolling Rig
+### Current production lineage
+
+PR #36 was branched from exact `main` `97857fb947603c9e27a683b8c1f646fd540b1a1a`, preserving the user's direct authored Markdown work through `trilene.md`. It merged on top of that state as `15c5ac6f8f3d37ad8b884436c6312083b1939921`; no direct content edits were overwritten.
+
+The earlier night-end audit checkpoint `955d37bf675f3163fe610324809a972916c98ef0` / production #166 remains historical evidence rather than current production.
 
 ### Recent stabilization/recovery sequence
 
@@ -167,10 +166,13 @@ Relevant late-night direct content commits include:
 - PR #32: final PR #28 Markdown acceptance cleanup
 - PR #33: state reconciliation after final acceptance
 - PR #34: nested Markdown list renderer fix
+- PR #35: night-end project-state reconciliation
+- PR #36: Gear label / thumbnail / root-search UX polish
 
 ### Current accepted behavior
 
 - Root My Gear and root Knowledge Base have Search.
+- A non-empty root Search hides the category-card grid and shows matching result cards directly below the title/back/search controls.
 - Browse-list Search appears at **10+ entries**.
 - When Search and a dropdown/filter coexist, the filter control is right-aligned.
 - Line is flat; Rods & Reels remains grouped by setup type.
@@ -178,7 +180,8 @@ Relevant late-night direct content commits include:
 - Gear leaf pages show structured facts plus optional Markdown **Notes**.
 - Applicable Gear Notes link to KB articles with stable `kb://` IDs.
 - KB pictures for specific owned items may explicitly reference a stable Gear ID.
-- Lure type labels include **Soft plastics and swimbaits**, **Topwater**, and **Trolling lures**.
+- User-facing lure labels include **Soft plastics and swimbaits**, **Topwater**, and **Trolling**.
+- All Gear/KB/Catch card thumbnails use square white frames and `object-fit: contain`; full image width/height must remain visible, with white letterboxing when necessary.
 - South Bend hook/swivel records retain requested size information without a separate `Material` specification row.
 - Authored KB/Gear navigation links may live under `# Links`, `## Related`, or another sensible Markdown section; stable-ID target validity matters, not the section label.
 - Markdown list indentation is semantic: the PWA renderer must preserve nested unordered/ordered list structure rather than flattening it.
@@ -193,7 +196,7 @@ No further PR #28 formatting-cleanup work is pending. Future content changes are
 
 The interrupted-work sequence is fully reconstructed and closed: PR #24 taxonomy → PR #25 catch/media polish → PR #26 local-media hardening → PR #27 Recovery B → PR #28 final MHT content/images → PR #29 state reconciliation → PR #30 production recovery → PR #31 reconciliation → PR #32 final content acceptance → PR #33 reconciliation. No separate hidden/unmerged post-PR #29 application build was found.
 
-PR #34 was a later renderer defect discovered during live acceptance, not recovered hidden work.
+PR #34 and later work are subsequent normal application maintenance, not recovered hidden work.
 
 ## Media handling convention
 
@@ -207,6 +210,8 @@ Standing workflow for user-supplied images:
 4. Do **not** encode or push image binaries through ChatGPT tool calls.
 
 `pwa/apply-local-media.mjs` validates repository-local image size, format signatures/structure, and extension consistency, copies active local assets into the build, updates built metadata, verifies built bytes, and revalidates the transformed KB bundle before deployment.
+
+The thumbnail containment rule is presentation-only; source images do not need to be rewritten to square files.
 
 ## Deferred v2 behavior
 
@@ -236,11 +241,9 @@ Use `Fishing_TODO.md` as canonical. Important unresolved items include:
 - confirm purchase status of Bonafide under-seat tackle storage and YakAttack fish cooler bag;
 - complete remaining candidate KB articles such as Texas, Carolina, Alabama, Neko rigs, and Spoons.
 
-## Night-end audit checkpoint — 2026-09-04
+## Historical night-end audit checkpoint — 2026-09-04
 
-The project-state audit found no unresolved data-model migration, hidden feature branch, pending PR #28 acceptance work, or known production outage. My Gear remains **63 records**, KB remains **54 entities**, Catch Log remains **5 catches**, and the canonical active backlog above remains unchanged except that the nested-list renderer defect is completed as FISH-TODO-055.
-
-The final audited repository/production baseline before this documentation reconciliation is `main` **`955d37bf675f3163fe610324809a972916c98ef0`**, production run **#166 / 33851195203**, success through GitHub Pages deployment.
+The night-end audit found no unresolved data-model migration, hidden feature branch, pending PR #28 acceptance work, or known production outage. My Gear remained **63 records**, KB **54 entities**, and Catch Log **5 catches**. Its final pre-reconciliation baseline was `955d37bf675f3163fe610324809a972916c98ef0`, production #166 / `33851195203`. Current production is PR #36 merge `15c5ac6f8f3d37ad8b884436c6312083b1939921`, production #177 / `33893200789`.
 
 ## Migration record
 
