@@ -52,7 +52,5 @@ A long, slender hard or soft plastic lure designed to imitate an injured or dart
 # Links
 - Video: [Stop Fishing a Jerkbait Like THIS (5 Common Mistakes)](https://www.youtube.com/watch?v=PpV9-aHjlDU)
 - Article: [JERKBAIT Archives - Megabass](https://megabassusa.com/category/application-specific-fishing-tips/jerkbait-fishing-tips/)
-
-## Related
 - My Gear: [Berkley Stunna](gear://berkley-stunna), [Rapala Original Floating](gear://rapala-original-floating), [Rapala RipStop](gear://rapala-ripstop), [Rapala Husky Jerk](gear://rapala-husky-jerk), [Berkley Power Jerk Shad](gear://berkley-powerbait-power-jerk-shad)
 - KB: [Crankbait](kb://technique-crankbait), [Swimbait](kb://technique-swimbait-soft-jerk-shad)
