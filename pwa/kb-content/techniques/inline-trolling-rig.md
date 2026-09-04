@@ -1,5 +1,5 @@
 # Rigging
-Main line → torpedo weight with swivels at each end → 3-4' leader → lure
+`Main line → torpedo weight with swivels at each end → 3-4' leader → lure`
 
 # Weight
 Use 1/2 oz. generally, 1/4 oz. to keep lure shallower in mornings & evenings, and 3/4 or 1 oz. to keep lure deeper.
