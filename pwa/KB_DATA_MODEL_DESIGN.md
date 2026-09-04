@@ -4,7 +4,7 @@
 
 **Updated:** 2026-09-04
 
-**Current implementation verification:** The unified KB/Catch architecture originated in PR #13, was extended with flat Equipment taxonomy in PR #24, and is current through PR #28. Latest verified production merge is `093139e5314af55691e608277b68b79b2d369166`; production run #121 / `33840208952` completed build and GitHub Pages deployment successfully.
+**Current implementation verification:** The unified KB/Catch architecture originated in PR #13, was extended with flat Equipment taxonomy in PR #24, received the final content/image batch in PR #28, and is current through production hotfix PR #30. Latest verified production merge is `f64217485df024ebebf15af5adfb9bbd7018be5d`; production run #125 / `33843111957` completed build, transformed-data validation, GitHub Pages artifact upload, and deployment successfully. The user then verified the live site healthy.
 
 Current production data contains **54 KB entities** (8 Locations, 7 Species, 22 Equipment, 7 Techniques, 10 Knots) and **5 structured catches**.
 
@@ -30,6 +30,7 @@ User-facing KB sections are Locations, Species, Equipment, Techniques, Knots, an
 - Validate explicit relationships rather than infer them from prose/display text.
 - Keep My Gear, KB, and Catch Log as separate fact owners.
 - Preserve offline browsing after content/assets are cached.
+- Validate the **final deployable form** whenever the build transforms already-validated KB data.
 
 ## 3. Non-goals
 
@@ -52,16 +53,19 @@ pwa/data/catches.seed.json       # Structured Catch Log
 pwa/kb-content/                  # Complete authored Markdown documents
   locations/
   species/
-  techniques/
+  techniques/                    # Physical home for both Equipment + Technique articles
   knots/
-pwa/assets/kb/                   # Repository-local KB images
+pwa/assets/kb/                   # Repository-local KB-specific images
+pwa/assets/gear/                 # Built Gear image assets; may be reused by KB pictures
 pwa/local-media.json             # Active repository-local media configuration
-pwa/apply-local-media.mjs        # Local image validation/materialization
+pwa/apply-local-media.mjs        # Local image validation/materialization + final KB revalidation
 ```
 
 `kb.seed.json` contains one `entities` array. Every entity uses the same six logical fields: ID, Type, Name, Description, Picture, Content.
 
 `Content` is represented by a path to one complete Markdown file. The build validates every registered document and internal application link.
+
+Equipment and Technique articles currently share the physical `kb-content/techniques/` directory. The `type` field controls user-facing taxonomy; the directory name does not.
 
 ## 5. Unified KB Entity schema
 
@@ -127,9 +131,29 @@ Representative picture shape:
 
 When `gearItemId` is present, it must resolve to an existing My Gear record. This is used when the representative image depicts a specific owned item; the UI may link the caption to that exact My Gear leaf.
 
+### Allowed picture sources
+
+A KB `picture.src` may be:
+
+- an `http(s)` URL;
+- a safe repository-local path under `./assets/kb/...`; or
+- a safe repository-local path under `./assets/gear/...` when the KB page intentionally reuses a built owned-Gear image.
+
+No arbitrary local roots are allowed.
+
+The `./assets/gear/...` case is deliberate and required by the PR #28 image-reuse design for Swimbait, Jerkbait, Crankbait, Chatterbait, Spinnerbait, and Jig. It avoids duplicating exact owned-item media simply to satisfy directory separation.
+
 Repository-local media is configured in `local-media.json` and validated/materialized by `apply-local-media.mjs`. Validation checks image size, supported format structure/signatures, and extension consistency. Built KB bytes are checked against repository source bytes.
 
 Separate thumbnail files are not required; one source asset is scaled by presentation CSS.
+
+### Final-form validation rule
+
+The build first validates the source `kb.seed.json`, but `apply-local-media.mjs` is allowed to replace picture metadata in the **built** KB bundle. Therefore it must re-run `validateKbBundle()` after all local-media substitutions and before writing/deploying the transformed `dist/data/kb.seed.json`.
+
+This rule was added in PR #30 after PR #28 exposed a gap: the source KB seed was valid, but the local-media step rewrote six pictures to `./assets/gear/...`; the old validator did not accept that path family, so the browser rejected the deployed bundle even though source-data CI had passed.
+
+General rule: whenever a build stage mutates already-validated structured data, validate the **final deployable transformed form**, not just the source.
 
 ### User-supplied binary convention
 
@@ -142,6 +166,8 @@ This is a reliability/process rule, not a KB schema rule.
 The complete Markdown document may contain any useful headings and narrative structure, including Use / When to Use, Rigging / Setup, Technique / Retrieve, Gear / Tackle, Notes / Warnings, Resources, tables, external links, `gear://stable-id`, `kb://stable-id`, registered relative KB-document links, and embedded local/external images.
 
 The app does **not** parse headings or prose to infer structured facts or relationships.
+
+Content-only Markdown edits are valid. Renaming or moving a document requires updating the entity's `content` path in `kb.seed.json`.
 
 ## 9. Link rules
 
@@ -229,6 +255,8 @@ PR #28 added: Inline Spinner, Snaps & Swivels, Flasher Rig, Inline Trolling Rig,
 
 The current local-media set also contains the requested rig illustrations and replacement Rainbow Trout, Coastal Cutthroat Trout, Smallmouth Bass, and Largemouth Bass images. Requested owned-Gear images are reused by exact stable Gear identity where appropriate.
 
+The user is currently correcting Markdown formatting errors found during the PR #28 acceptance pass. Those fixes are authored-content cleanup, not a schema/model change.
+
 ## 15. Validation invariants
 
 Build/tests verify at least:
@@ -238,13 +266,15 @@ Build/tests verify at least:
 - unique stable IDs and one-to-one Content paths;
 - registered Markdown documents exist;
 - description length convention;
+- local picture paths are restricted to accepted http(s), `./assets/kb/...`, or `./assets/gear/...` forms;
 - local image paths/format integrity;
 - `gearItemId`, `gear://`, and `kb://` targets resolve;
 - registered relative KB links resolve;
 - Catch Species/Location/Gear/presentation references resolve to valid targets/categories;
 - exactly one lure-or-bait per Catch;
 - no historical inference/fuzzy fallback;
-- route ownership and retired Planner behavior remain guarded by tests.
+- route ownership and retired Planner behavior remain guarded by tests;
+- **the fully transformed built KB bundle is valid after local-media substitution**.
 
 ## 16. Editing/storage direction
 
