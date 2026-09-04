@@ -23,7 +23,7 @@ If there is a light to moderate wind, check wind-blown banks, points, and weed e
 | Light stain | Jerkbait, chatterbait, spinnerbait, wacky worm |
 | Muddy/stained | Chatterbait, spinnerbait, darker colors, more vibration |
 
-## Depth 
+## Depth
 In prespawn, fish the route between winter water and spawning water — not just the spawning flat itself. Focus on the first break, outside weed edge, dock line, point, or rock transition adjacent to shallow flats.
 
 # Gear
@@ -47,8 +47,7 @@ Use jerkbaits/swimbaits for suspended smallmouth, Ned/drop shot for bottom-orien
 Swimbait: Use a 2.8"–3.8" paddle-tail swimbait on:
 - 1/8 oz jig head in shallow water
 - 3/16 oz jighead for 6–12 ft
-- 1/4 oz jighead for deeper edges or wind ## Related
+- 1/4 oz jighead for deeper edges or wind
 
 # Links
 - KB: [Ned Rig](kb://technique-ned-rig), [Drop Shot](kb://technique-drop-shot), [Wacky Worm](kb://technique-wacky-worm), [Jerkbait](kb://technique-jerkbait), [Swimbait](kb://technique-swimbait-soft-jerk-shad), [Chatterbait](kb://technique-chatterbait-bladed-jig), [Spinnerbait](kb://technique-spinnerbait)
-/technique-wacky-worm), [Jerkbait](kb://technique-jerkbait), [Swimbait](kb://technique-swimbait-soft-jerk-shad), [Chatterbait](kb://technique-chatterbait-bladed-jig), [Spinnerbait](kb://technique-spinnerbait)
