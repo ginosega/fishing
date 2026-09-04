@@ -58,6 +58,22 @@ const invalidGearPictureId = structuredClone(kb);
 invalidGearPictureId.entities.find(record => record.id === 'technique-frogs').picture.gearItemId = 'INVALID ID';
 assert.equal(validateKbBundle(invalidGearPictureId).valid, false);
 
+const gearBackedPicture = structuredClone(kb);
+gearBackedPicture.entities[0].picture = {
+  src:'./assets/gear/example-owned-lure.jpg',
+  alt:'Example owned lure'
+};
+assert.equal(validateKbBundle(gearBackedPicture).valid, true,
+  'KB representative pictures may reuse safe repository-local Gear assets.');
+
+const unsafeLocalPicture = structuredClone(kb);
+unsafeLocalPicture.entities[0].picture = {
+  src:'./assets/other/example.jpg',
+  alt:'Unsafe local picture'
+};
+assert.equal(validateKbBundle(unsafeLocalPicture).valid, false,
+  'KB picture paths outside the approved KB/Gear asset roots must remain invalid.');
+
 const equipmentCatch = structuredClone(catches);
 equipmentCatch.catches[0].techniqueId = 'technique-ned-rig';
 assert.equal(validateCatchBundle(equipmentCatch, kb, gear).valid, true,

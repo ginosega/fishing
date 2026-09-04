@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { validateKbBundle } from './kb-model.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const dist = path.join(here, 'dist');
@@ -95,6 +96,11 @@ for (const item of config.kb) {
 for (const item of config.staged) {
   const source = localSource(item.source, 'assets/gear-source/');
   await readValidatedImage(source);
+}
+
+const transformedKbValidation = validateKbBundle(kbSeed);
+if (!transformedKbValidation.valid) {
+  throw new Error(`Local-media transform produced invalid Knowledge Base data:\n${transformedKbValidation.errors.join('\n')}`);
 }
 
 await fs.writeFile(gearMediaPath, JSON.stringify([...byMediaId.values()], null, 2));

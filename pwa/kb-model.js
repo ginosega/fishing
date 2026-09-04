@@ -154,7 +154,7 @@ function validateExactFields(value, fields, at, errors) {
   for (const key of fields) if (!(key in value)) errors.push(`${at}.${key} must be present.`);
 }
 
-function isSafeAssetSource(value) { return /^https?:\/\//i.test(value) || /^\.\/assets\/kb\/[a-z0-9/_.-]+$/i.test(value); }
+function isSafeAssetSource(value) { return /^https?:\/\//i.test(value) || /^\.\/assets\/(?:kb|gear)\/[a-z0-9/_.-]+$/i.test(value); }
 function isIsoDate(value) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value || '')) return false;
   const date = new Date(`${value}T00:00:00Z`);
