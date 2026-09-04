@@ -155,7 +155,7 @@ PR #28 refreshed Swimbait, Jerkbait, Crankbait, Chatterbait / Bladed Jig, Spinne
 
 The user completed a broad formatting cleanup of those imported pages on 2026-09-04. Final acceptance inspected the modified Equipment/Technique documents, fixed remaining structure/wrapping artifacts, and validated replacement Largemouth/Smallmouth Bass images. PR #32 production-verified the final state. The PR #28 content acceptance is therefore **closed**.
 
-Subsequent direct content maintenance updated Buzzbait, Fishing Line, Rods & Reels, and Walking Bait. These are ordinary current KB maintenance, not continuation of PR #28 acceptance.
+Late-night ordinary content maintenance surrounding and after PR #34 updated Buzzbait, Fishing Line, Rods & Reels, Walking Bait, Slip Sinker Rig, Bobber Rig, Flasher Rig, Inline Spinner, and Inline Trolling Rig. These are ordinary current KB maintenance, not continuation of PR #28 acceptance.
 
 ## Structured Catch Log
 
@@ -250,7 +250,7 @@ CI additionally runs structured-model, routing, KB Markdown, nested-list, final-
 
 ### Latest verified production content checkpoint
 
-The audited pre-reconciliation `main` is `0b89ebc20de049fe5d072e93edcdcaa7b13d01b2`, including subsequent Buzzbait, Fishing Line, Rods & Reels, and Walking Bait content maintenance. Production #161 / `33850346865` succeeded on that exact commit through Pages deployment.
+The final audited pre-reconciliation `main` is **`955d37bf675f3163fe610324809a972916c98ef0`**. Production **#166 / 33851195203** succeeded on that exact commit through all tests, build, transformed/local-media validation, bundle verification, Pages artifact upload, and deployment.
 
 Recent sequence: PR #25 catch/media polish → PR #26 local-media hardening → PR #27 Recovery B → PR #28 final content/image batch → PR #29 reconciliation → PR #30 transformed-picture validation hotfix → PR #31 reconciliation → PR #32 final content acceptance → PR #33 reconciliation → PR #34 nested-list renderer fix.
 
