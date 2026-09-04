@@ -4,7 +4,7 @@
 
 **Updated:** 2026-09-04
 
-**Current implementation verification:** The unified KB/Catch architecture originated in PR #13, was extended with flat Equipment taxonomy in PR #24, received the final content/image batch in PR #28, was hardened for transformed Gear-backed pictures in PR #30, completed authored-content acceptance in PR #32, and gained indentation-aware nested Markdown list rendering in PR #34. Latest verified runtime merge is `82601038f0e931f6ef1bee4c8f5e062a73c793c5`; production run #159 / `33850049987` completed tests, build, transformed/local-media validation, bundle verification, GitHub Pages artifact upload, and deployment successfully. The user confirmed the nested-list fix live. The latest audited production content checkpoint before nightly reconciliation is `0b89ebc20de049fe5d072e93edcdcaa7b13d01b2`, production run #161 / `33850346865`, success.
+**Current implementation verification:** The unified KB/Catch architecture originated in PR #13, was extended with flat Equipment taxonomy in PR #24, received the final content/image batch in PR #28, was hardened for transformed Gear-backed pictures in PR #30, completed authored-content acceptance in PR #32, and gained indentation-aware nested Markdown list rendering in PR #34. Latest verified runtime merge is `82601038f0e931f6ef1bee4c8f5e062a73c793c5`; production run #159 / `33850049987` completed tests, build, transformed/local-media validation, bundle verification, GitHub Pages artifact upload, and deployment successfully. The user confirmed the nested-list fix live. The final audited production content checkpoint before nightly reconciliation is `955d37bf675f3163fe610324809a972916c98ef0`, production run #166 / `33851195203`, success through Pages deployment.
 
 Current production data contains **54 KB entities** (8 Locations, 7 Species, 22 Equipment, 7 Techniques, 10 Knots) and **5 structured catches**.
 
@@ -239,7 +239,7 @@ The user completed a broad manual formatting cleanup of the imported pages on 20
 
 **PR #28 content acceptance is closed.** Future changes to these articles are ordinary KB maintenance.
 
-After PR #34, the user performed ordinary content-maintenance edits to Buzzbait, Fishing Line, Rods & Reels, and Walking Bait. The audited production content checkpoint is `0b89ebc20de049fe5d072e93edcdcaa7b13d01b2`, run #161 / `33850346865`, success.
+Late-night ordinary content maintenance surrounding and after PR #34 updated Buzzbait, Fishing Line, Rods & Reels, Walking Bait, Slip Sinker Rig, Bobber Rig, Flasher Rig, Inline Spinner, and Inline Trolling Rig. The final audited production content checkpoint is `955d37bf675f3163fe610324809a972916c98ef0`, run #166 / `33851195203`, success.
 
 ## 15. Validation invariants
 
@@ -278,7 +278,7 @@ Latest verified runtime release:
 - production #159 / `33850049987` — tests, build, transformed/local-media validation, bundle verification, Pages artifact, and Deploy to GitHub Pages all succeeded
 - user confirmed nested Chatterbait/Jerkbait lists display correctly in production
 
-Latest verified production content checkpoint: `0b89ebc20de049fe5d072e93edcdcaa7b13d01b2`; production #161 / `33850346865` succeeded through Pages deployment.
+Latest verified production content checkpoint: `955d37bf675f3163fe610324809a972916c98ef0`; production #166 / `33851195203` succeeded through all tests and Pages deployment.
 
 ## 18. Durable conflicts still unresolved
 
