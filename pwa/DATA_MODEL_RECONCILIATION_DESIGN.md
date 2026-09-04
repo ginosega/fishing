@@ -4,7 +4,7 @@
 
 **Accepted:** 2026-09-02
 
-**Reconciled through:** 2026-09-04 / PR #28
+**Reconciled through:** 2026-09-04 / PR #30
 
 **Purpose:** Keep My Gear, Knowledge Base, and Catch Log architecturally consistent without forcing identical schemas, identical persistence, or speculative relationship maintenance.
 
@@ -21,7 +21,8 @@ The three domains must agree on:
 - no inference of identity/relationships from prose or presentation text;
 - route generation from stable IDs rather than routes stored as data;
 - computed backlinks rather than duplicated reverse references;
-- deliberate separation of structured facts from authored narrative.
+- deliberate separation of structured facts from authored narrative;
+- final-form validation whenever build-time transformation changes already-validated structured data.
 
 Central rule:
 
@@ -77,6 +78,8 @@ Current production seed:
 - 54 entities: 8 Location, 7 Species, 22 Equipment, 7 Technique, 10 Knot
 
 KB owns reusable fishing knowledge. One complete Markdown document owns headings, narrative, tables, links, warnings, resources, and embedded pictures.
+
+Equipment and Technique entities currently share the physical `pwa/kb-content/techniques/` directory; `type` controls taxonomy. That directory layout is not itself a domain discriminator.
 
 ### Catch Log
 
@@ -208,7 +211,7 @@ Every Location, Species, Equipment, Technique, and Knot uses:
 id
 name
 type
-description? 
+description?
 picture?
 content
 ```
@@ -301,6 +304,24 @@ PR #26 added:
 
 Repository-local images are validated for size, supported format structure/signature, and extension consistency, then copied into the production bundle. This was added after a malformed Kokanee WebP passed the earlier pipeline yet rendered blank.
 
+KB `picture.src` accepts only:
+
+- `http(s)` URLs;
+- safe local `./assets/kb/...` paths; or
+- safe local `./assets/gear/...` paths when intentionally reusing built owned-Gear media.
+
+The Gear-backed local path family is narrow and explicit; arbitrary local roots remain invalid.
+
+### Final transformed-data validation
+
+PR #30 established a cross-build rule:
+
+> **If a build step mutates already-validated structured data, validate the final deployable transformed data after the mutation.**
+
+The motivating defect was PR #28's valid source KB seed: `apply-local-media.mjs` later substituted six KB picture sources with `./assets/gear/...` paths, but the old runtime validator accepted only `./assets/kb/...`. CI therefore passed source validation while the deployed browser rejected the transformed KB bundle at startup.
+
+`apply-local-media.mjs` now revalidates the transformed built KB bundle after all media substitutions and before deployment.
+
 ### User-supplied binary transport rule
 
 A separate reliability decision was made after repeated 2026-09-03 failures:
@@ -331,9 +352,11 @@ Current build/test validation includes:
 - `gear://` and `kb://` target validation;
 - registered relative KB links;
 - exact Gear media owner IDs/component selectors;
+- KB picture-source allow-list for http(s), `./assets/kb/...`, and `./assets/gear/...`;
 - repository-local image validation;
 - route ownership and retired-Planner regression tests;
-- final-content regression tests for the 2026-09-04 batch.
+- final-content regression tests for the 2026-09-04 batch;
+- final transformed KB-bundle validation after local-media substitution.
 
 ## 15. Search/filter and UI principles
 
@@ -350,16 +373,20 @@ These are presentation conventions, not data-model changes:
 Reconciliation design was accepted in PR #15 and implemented in PR #16. Subsequent production work preserved the same principles:
 
 - PR #24 — flat Equipment peer type
+- PR #25 — Catch/media polish and browse conventions
 - PR #26 — repository-local media hardening
 - PR #27 — Recovery B Gear/browse/content updates
 - PR #28 — final KB content/image batch and authored cross-links
+- PR #29 — project-state reconciliation
+- PR #30 — Gear-backed KB picture validation + final transformed-data guard
 
 Latest verified release:
 
-- PR #28 exact tested head `c397985e99532b0ea572afd9910c0d131469a439`
-- CI #120 / `33840154633` success
-- merge `093139e5314af55691e608277b68b79b2d369166`
-- production #121 / `33840208952` build + Pages deploy success
+- PR #30 exact tested head `ffa4c500f2bf23be8d883736aed235a1e1011677`
+- CI #124 / `33843072806` success
+- merge `f64217485df024ebebf15af5adfb9bbd7018be5d`
+- production #125 / `33843111957` build + transformed-data validation + Pages deploy success
+- user verified the live site healthy after deployment
 
 No current production requirement justifies reopening the core data-model architecture.
 
