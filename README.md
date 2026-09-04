@@ -4,100 +4,142 @@ This repository is the durable working home for the Fishing project: fishing and
 
 ## Operating mode
 
-This project uses **Chat mode by default**. Recommend a temporary switch to Work only when a specific task requires a Work-only capability, explain that specific need, and obtain the user's approval first. Complexity, length, file volume, analysis, or artifact creation alone are not reasons to recommend Work.
+**Operating mode: This project uses Chat mode by default. Do not recommend Work unless a task specifically requires a Work-only capability. Never recommend Work merely because the project or task is complex, lengthy, file-heavy, analytical, or involves creating artifacts. Explain the specific need and obtain the user's approval before recommending a temporary switch.**
 
-## Migration status
+## Project status
 
-**Status: ONENOTE MIGRATION COMPLETE / LINKS RESTORED / NORMAL PROJECT MAINTENANCE**
+**Status: NORMAL PROJECT MAINTENANCE / FISHING COMPANION CURRENT PRODUCTION VERIFIED 2026-09-04**
 
-The OneNote PDF export (`Fishing.pdf`, 73 pages, exported 2026-08-29 in ChatGPT) was migrated into the Markdown files. The later OneNote Single File Web Page export (`Fishing OneNote Export.mht`) was used to restore external hyperlink targets, which are embedded inline in the relevant Markdown pages for GitHub Preview.
+The OneNote migration and hyperlink restoration were completed on 2026-08-29. OneNote was designated the most up-to-date historical source of truth for migration closure; historical Fishing chats remain supplemental evidence and decision history. Temporary migration audit/reconciliation files were removed after closure.
 
-On 2026-08-29, the migration audit and reconciliation work were closed. OneNote was designated as the most up-to-date historical source of truth, so exhaustive line-by-line reconciliation of every earlier ChatGPT transcript was not required. Historical Fishing chats remain useful supplemental evidence and decision history. The temporary migration audit, reconciliation-exceptions, and link-index files were removed after closure.
+Fishing Companion has since been refactored into three durable application-data domains with shared architectural principles but deliberately different storage models:
 
-Future corrections or recovered historical details are ordinary project maintenance rather than a reopened migration project.
+1. **My Gear** — structured owned inventory in JSON + IndexedDB, with optional Markdown Notes.
+2. **Knowledge Base** — a strict structured entity index over complete authored Markdown documents.
+3. **Catch Log** — separate structured historical records that own the exact cross-entity relationships required by current application behavior.
 
-## Current data architecture
+The Planner, Planner Attributes, fishing sessions, session IDs, trip history, Markdown-derived identity inference, and fuzzy media-to-Gear matching are retired.
 
-The project now has **two deliberately different data domains**.
+## Current application data architecture
 
 ### My Gear
 
-My Gear no longer derives its application records from Markdown tables.
+Runtime/source owners:
 
-- Bundled baseline / portable representation: `pwa/data/gear.seed.json`
-- Schema and validation: `pwa/gear-model.js`
-- Live local/offline store: browser **IndexedDB** through `pwa/gear-store.js`
-- My Gear UI: `pwa/gear-app.js`
-- Current seed: schema version `1`, data version `2026-09-01-my-gear-v1`
-- Current seed contains structured records for Rods & Reels, Line, Weights, Snaps & Swivels, Hooks, Lures, and Bait.
+- `pwa/data/gear.seed.json` — bundled baseline / portable representation
+- `pwa/gear-model.js` — strict schema-v2 validation and display helpers
+- `pwa/gear-store.js` — IndexedDB repository and seed migration
+- `pwa/gear-app.js` — all `#/inventory/...` routes
+- `pwa/media-owners.json`, `pwa/media-sources.json`, `pwa/local-media.json` — exact stable-ID media ownership/source configuration
+- `pwa/apply-local-media.mjs` — validates and materializes repository-local media into the production bundle
 
-Manufacturer, model, specifications, manufacturer links, retailer links, usage guidance, and connection guidance are explicit fields rather than facts inferred from prose.
+Current seed:
 
-**Knots are not My Gear records.** They are unified Knowledge Base entities and remain intentionally absent from My Gear.
+- schema version `2`
+- data version `2026-09-04-my-gear-v2-final-content-1`
+- **63 records** across Rods & Reels, Line, Weights, Snaps & Swivels, Hooks, Lures, and Bait
 
-The old Markdown inventories (`Fishing_Gear_Registry.md` and `Fishing_Tackle_Inventory.md`) remain useful migrated/reference material, but they are **not application data sources**.
+Manufacturer, model, specifications, and typed links are structured facts. `notes` is optional Markdown narrative. Do not reintroduce `profiles`, structured usage/connection guidance, `knowledgeRefs`, setup `mainLine`/`leader`, or inference from display text/Markdown.
 
-### Knowledge Base and Catch Log
+**Knots are not My Gear records.** They are Knowledge Base entities.
 
-The Knowledge Base uses a small structured index over complete Markdown documents:
+### Knowledge Base
 
-- Bundled entity index: `pwa/data/kb.seed.json`
-- Entity schema/validation: `pwa/kb-model.js`
-- Complete authored documents: `pwa/kb-content/`
-- UI and route owner: `pwa/kb-app.js`
-- Safe presentation renderer: `pwa/markdown-render.js`
+Runtime/source owners:
 
-Every Location, Species, Technique, and Knot uses the same six fields: stable ID, Type, Name, optional Description, optional Picture, and one complete Markdown Content document. Type is only the top-level discriminator; Technique has no grouping subtype. Use, Rigging, Notes, Resources, tables, links, and embedded pictures remain normal Markdown content rather than atomic data fields.
+- `pwa/data/kb.seed.json` — unified entity catalog
+- `pwa/kb-content/` — one complete Markdown document per entity
+- `pwa/kb-model.js` — KB/Catch validation
+- `pwa/kb-app.js` — Home and all `#/kb/...` routes
+- `pwa/markdown-render.js` — safe Markdown rendering and `gear://` / `kb://` navigation
 
-Catch Log is separate structured data in `pwa/data/catches.seed.json`. Catch records use stable species, location, optional technique, optional rod/reel setup, and lure-or-bait IDs. Historical setup and technique values remain null unless actually recorded. Catch backlinks on KB and My Gear pages are computed from these records.
+Current KB seed:
 
-The unsuccessful Planner and session/trip-history concepts were retired. The Knowledge Base is a browsable information repository and does not assemble plans from parsed prose.
+- schema version `1`
+- data version `2026-09-04-kb-v1-final-content-1`
+- **54 entities**: 8 Locations, 7 Species, 22 Equipment, 7 Techniques, 10 Knots
+
+Every KB entity uses the same envelope: stable `id`, `type`, `name`, optional `description`, optional `picture`, and one complete Markdown `content` document. Valid types are `location`, `species`, `equipment`, `technique`, and `knot`.
+
+**Equipment** is a flat peer type for rigs, presentations, lure/gear guides, and related equipment knowledge. **Techniques** is for strategy, seasonal/condition guidance, species tactics, and other non-equipment fishing methods. Existing stable `technique-*` IDs may remain unchanged when an article belongs to Equipment.
+
+Authored navigation may use `gear://stable-id` or `kb://stable-id`; these links are navigation, not a maintained relationship graph.
+
+### Catch Log
+
+- source: `pwa/data/catches.seed.json`
+- **5 structured catches** remain in the current seed
+- catches store required Species/Location IDs, exactly one Lure or Bait relationship, and optional setup/technique IDs when actually known
+- historical setup/technique values are never inferred
+- backlinks are computed from Catch-owned forward references rather than duplicated on KB/Gear records
+- optional exact catch pictures override the default Species-picture fallback
 
 ## Fishing Companion PWA
 
-Fishing Companion is deployed at:
+Live site:
 
 `https://ginosega.github.io/fishing/`
 
-Current product scope is **single-user and personal**. A publicly reachable but non-advertised URL is acceptable; access control remains a P3 requirement unless explicitly elevated.
+Current product scope is **single-user, personal, offline-capable, and browse-focused**. Access control/multi-user generalization remains deferred unless explicitly elevated.
 
-The two top-level workflows are:
+### Current verified production release
 
-1. **My Gear** — browse owned rod/reel setups, line, weights, snaps/swivels, hooks, lures, and bait.
-2. **Knowledge Base** — browse Locations, Species, Techniques, Knots, and the structured Catch Log.
+Latest release: **PR #28 — Add final Fishing KB content and imagery batch**
 
-### Current production state
+- exact tested PR head: `c397985e99532b0ea572afd9910c0d131469a439`
+- PR CI: run **#120 / 33840154633** — success
+- merge commit: `093139e5314af55691e608277b68b79b2d369166`
+- production workflow: run **#121 / 33840208952** — success
+- production build: success
+- GitHub Pages artifact upload: success
+- **Deploy to GitHub Pages: success**
 
-The structured local-first My Gear refactor was merged in PR #9, and its Sev 1 routing/layout regression was fixed in PR #10. The unified Knowledge Base and structured Catch Log were implemented in **PR #13**.
+The current production release includes the final 2026-09-04 content/UI batch: expanded Equipment/Technique KB content, direct repository-local rig/species imagery, authored KB↔My Gear links, Inline Spinner and Snaps & Swivels Gear Notes links, revised lure-type labels, filter/dropdown placement correction, and the requested South Bend specification cleanup.
 
-Current verified application release commit:
+Recent stabilization sequence:
 
-`1c61cb0b001bb9f543904a2328178632ac0efed1`
+- **PR #26** — repository-local media hardening and image validation; merge `9af96810cb02c81da2a0e3f5463071e020ae6cfc`; production run #113 / `33833494282`
+- **PR #27** — Recovery B Gear/browse/content updates; merge `2635d9eb5cb80d446050090ba3f5a2736cac0c84`; production run #117 / `33834793404`
+- **PR #28** — final KB content and imagery batch; merge `093139e5314af55691e608277b68b79b2d369166`; production run #121 / `33840208952`
 
-Production workflow:
+## Current UI conventions
 
-- GitHub Actions run **#77 / 33644412492**
-- JavaScript, My Gear, Knowledge Base, routing, and bundle validation: success
-- PWA build and GitHub Pages artifact: success
-- GitHub Pages deployment: success
+- Root My Gear and root Knowledge Base each have Search.
+- Browse-list Search appears when a list has **10 or more entries**; smaller lists omit it.
+- When a page has both Search and a dropdown/filter, the filter control is right-aligned.
+- Line is intentionally a flat list; Rods & Reels retains setup grouping.
+- My Gear remains browse-only: no Add/Edit/Delete forms and no visible JSON import/export UI.
+- Gear leaf pages use structured product facts plus optional Markdown **Notes**.
+- KB representative pictures may link to a specific owned Gear record by explicit stable ID.
 
-The live build marker was verified on 2026-09-02 with 61 My Gear records, 41 Knowledge Base entities, 5 catches, 41 offline KB assets, and 62 of 65 requested My Gear images available. Current accepted behavior includes:
+Current lure type labels include **Soft plastics and swimbaits**, **Topwater**, and **Trolling lures**.
 
-- Home My Gear subtext: `Browse your inventory of equipment, tackle, and bait`
-- My Gear page title/subtitle aligned left with Back button on the right
-- all `#/inventory/...` routes are owned by the structured My Gear app so category cards can open leaf pages reliably
-- `pwa/kb-app.js` owns Home and all `#/kb/...` routes; the retired legacy parser/planner is not bundled
-- the temporary **My Gear data** import/export card was removed from the current UI
+## Media workflow — important
 
-### Deferred v2 editing features
+The repeated 2026-09-03 image failures were isolated to transporting binary image bytes through the ChatGPT→GitHub connector, not to the PWA or GitHub Actions.
 
-The underlying IndexedDB/repository architecture is writable, but **v2 editing UI is intentionally deferred**.
+**Standing convention for new user-supplied images:**
 
-Do not add current-version Add/Edit/Delete forms or expose JSON import/export controls unless the user explicitly resumes that v2 work. The preferred future manual bulk-edit pattern remains export → edit JSON externally → import, rather than an in-app raw JSON editor.
+1. ChatGPT chooses the exact repository branch/path/filename.
+2. The user uploads the binary image directly to GitHub on that feature branch.
+3. ChatGPT verifies the GitHub file and updates text manifests/data/tests.
+4. Do **not** base64-encode or transport user image binaries through ChatGPT/GitHub tool calls.
 
-## Start here
+Repository-local images are validated by `pwa/apply-local-media.mjs` for supported format/extension/structure before entering the production bundle. The build verifies required local assets.
 
-For a new chat or project handoff, copy `Fishing_New_Chat_Bootstrap_Prompt.md` into a new Chat-mode conversation. Its required repository read order is:
+## Deferred v2 editing features
+
+The My Gear repository/IndexedDB architecture is writable, but editing UI is intentionally deferred.
+
+When resumed:
+
+- normal forms are the everyday Add/Edit/Delete path;
+- validated JSON export/import may be a backup/bulk-edit path;
+- do **not** add an in-app raw JSON editor.
+
+## Start here in a new chat
+
+Copy `Fishing_New_Chat_Bootstrap_Prompt.md` into a new **Chat-mode** conversation. Required read order:
 
 1. `README.md`
 2. `Fishing_Context.md`
@@ -105,25 +147,25 @@ For a new chat or project handoff, copy `Fishing_New_Chat_Bootstrap_Prompt.md` i
 4. `Fishing_Decision_Log.md`
 5. `pwa/README.md`
 
-For My Gear data/content work, inspect `pwa/data/gear.seed.json` and the structured model/repository files. Read the legacy gear/tackle Markdown only for historical/migrated context.
-
-For Knowledge Base work, inspect `pwa/data/kb.seed.json`, `pwa/data/catches.seed.json`, and the relevant complete documents under `pwa/kb-content/`. The `Topics/` files remain migrated/reference sources, not runtime inputs.
+Then inspect the current runtime source files for the task at hand. Legacy `Topics/*.md`, `Fishing_Gear_Registry.md`, and `Fishing_Tackle_Inventory.md` remain useful migrated/reference material but are **not runtime application data sources**.
 
 ## Evidence / status labels
 
 Use these labels consistently in Markdown knowledge/reference material:
 
-- **OWNED / INSTALLED** — equipment actually owned or installed.
-- **USER VERIFIED** — physically measured, inspected, or explicitly confirmed by the user.
-- **USER OBSERVED** — behavior personally observed by the user.
-- **MANUFACTURER DOCUMENTED** — supported by manufacturer documentation.
-- **ONENOTE SOURCE** — imported from the OneNote PDF export.
-- **ONENOTE LINK RESTORED** — external URL restored from the Single File Web Page export and embedded inline where practical.
-- **HISTORICAL CHAT SEED** — imported from prior Fishing chat context as supplemental historical evidence.
-- **RESEARCHED / CANDIDATE** — considered but not purchased or installed.
-- **REJECTED / SUPERSEDED** — no longer current, but preserved for decision history.
-- **PROBABLE** — strong inference but not verified.
-- **UNKNOWN / UNRESOLVED** — not established.
+- **OWNED / INSTALLED**
+- **USER VERIFIED**
+- **USER OBSERVED**
+- **MANUFACTURER DOCUMENTED**
+- **ONENOTE SOURCE**
+- **ONENOTE LINK RESTORED**
+- **HISTORICAL CHAT SEED**
+- **RESEARCHED / CANDIDATE**
+- **REJECTED / SUPERSEDED**
+- **PROBABLE**
+- **UNKNOWN / UNRESOLVED**
+
+Do not promote candidate gear to owned status without user confirmation or current durable data establishing ownership.
 
 ## Time-sensitive information
 
@@ -131,19 +173,6 @@ Fishing regulations, stocking, product availability, launch/access rules, weathe
 
 ## Development / deployment rule
 
-For meaningful PWA changes, use a normal feature/fix branch and pull request. Let PR CI perform build-only validation, then merge and verify **both** the production build job and GitHub Pages deploy job before calling the change live. Avoid disposable workflows and direct-to-main editing that creates unnecessary Actions notification noise.
+For meaningful PWA changes, use a normal feature/fix branch and PR. Merge only after the **exact final head** passes PR CI. After merge, verify the production workflow on the exact merge commit and confirm both the build and actual **Deploy to GitHub Pages** job succeeded before calling the release live.
 
-Before implementing a requirement with substantial architecture, deployment, maintenance, performance, or usability impact, surface the tradeoff and confirm its priority. Privacy/access control is P3 unless explicitly elevated.
-
-## Topic files
-
-- `Topics/Bonafide_RVR119_Kayak.md`
-- `Topics/Kayak_Rigging_Accessories_Storage.md`
-- `Topics/Fish_Finder_Electronics_Wiring.md`
-- `Topics/Rods_Reels_Line_Knots.md`
-- `Topics/Fishing_Techniques.md`
-- `Topics/Local_Waters_Locations.md`
-- `Topics/Trip_Logs_Field_Observations.md`
-- `Topics/Safety_Regulations_Fish_Handling.md`
-- `Topics/Maintenance_Repairs_Procedures.md`
-- `Topics/Researched_Candidate_Gear.md`
+For requirements with substantial architecture, deployment, maintenance, performance, or usability impact, surface the tradeoff and confirm priority before implementation. Privacy/access control remains P3 unless explicitly elevated.
