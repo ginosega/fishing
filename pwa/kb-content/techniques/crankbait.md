@@ -70,7 +70,7 @@ Variable depth (2-20+ ft) hyper realistic lures that wobble and sometimes rattle
 | Panfish / Bluegill / Crappie | Ultra shallow or small crankbaits | ⅛-⅜ oz | Smaller profile, light tackle. |
 | Pike / Pickerel / Large Predators | Bigger deep divers or lipless with strong vibration | ¾ oz + | Big profile, more aggressive action. |
 | Cold-water bass / pre-spawn / post-spawn | Mid-depth, tight wobble, perhaps flat-sided crankbait | ⅜-½ oz | Fish may be less active; subtle action wins |
-## Related
 
+# Links
 - My Gear: [Strike King KVD Square Bill 1.0](gear://strike-king-kvd-square-bill-1), [Berkley Flicker Shad 5](gear://berkley-flicker-shad-5), [Rebel Crawfish](gear://rebel-crawfish), [Rapala Original Floating](gear://rapala-original-floating), [Berkley Money Badger](gear://berkley-money-badger), [Rapala DT](gear://rapala-dt)
 - KB: [Snaps & Swivels](kb://technique-snaps-swivels), [Palomar Knot](kb://knot-palomar), [Loop / Non-slip Loop Knot](kb://knot-loop-non-slip-loop)
