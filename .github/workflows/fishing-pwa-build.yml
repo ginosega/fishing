@@ -52,6 +52,7 @@ jobs:
           node --check pwa/markdown-render.js
           node --check pwa/media-ui.js
           node --check pwa/build.mjs
+          node --check pwa/apply-local-media.mjs
           node --check pwa/serve.mjs
       - name: Test structured My Gear model
         run: node pwa/gear-model.test.mjs
@@ -63,6 +64,8 @@ jobs:
         run: node pwa/kb-routing.test.mjs
       - name: Build PWA
         run: node pwa/build.mjs
+      - name: Apply and validate local media
+        run: node pwa/apply-local-media.mjs
       - name: Verify bundle
         run: |
           test -f pwa/dist/index.html
