@@ -4,7 +4,7 @@
 
 **Updated:** 2026-09-04
 
-**Current implementation verification:** The unified KB/Catch architecture originated in PR #13, was extended with flat Equipment taxonomy in PR #24, received the final content/image batch in PR #28, and is current through production hotfix PR #30. Latest verified production merge is `f64217485df024ebebf15af5adfb9bbd7018be5d`; production run #125 / `33843111957` completed build, transformed-data validation, GitHub Pages artifact upload, and deployment successfully. The user then verified the live site healthy.
+**Current implementation verification:** The unified KB/Catch architecture originated in PR #13, was extended with flat Equipment taxonomy in PR #24, received the final content/image batch in PR #28, was hardened for transformed Gear-backed pictures in PR #30, and completed authored-content acceptance in PR #32. Latest verified application merge is `356174e1376d591e9b33bef06e52e9fdb5c3d31c`; production run #152 / `33848766888` completed build, transformed/local-media validation, bundle verification, GitHub Pages artifact upload, and deployment successfully.
 
 Current production data contains **54 KB entities** (8 Locations, 7 Species, 22 Equipment, 7 Techniques, 10 Knots) and **5 structured catches**.
 
@@ -88,17 +88,15 @@ Current production data version: `2026-09-04-kb-v1-final-content-1`.
 | `id` | Yes | string | Unique immutable lowercase kebab-case ID. |
 | `type` | Yes | enum | Exactly `location`, `species`, `equipment`, `technique`, or `knot`. |
 | `name` | Yes | string | User-facing entity name. |
-| `description` | No | plain text or null | Optional card/page-header subtext; obeys the current description-length validation. |
+| `description` | No | plain text or null | Optional card/page-header subtext; obeys current description validation. |
 | `picture` | No | picture object or null | Optional representative card/header image. |
 | `content` | Yes | string | Repository-relative path to one complete Markdown document. |
 
-Stable ID is identity. Names, taxonomy, descriptions, picture source, and Markdown paths may change without changing an ID.
-
-Existing `technique-*` IDs may therefore remain unchanged even when an article is now `type: equipment`.
+Stable ID is identity. Names, taxonomy, descriptions, picture source, and Markdown paths may change without changing an ID. Existing `technique-*` IDs may therefore remain unchanged even when an article is now `type: equipment`.
 
 ## 6. Equipment vs. Technique
 
-The flat five-type taxonomy was adopted to improve semantic clarity without adding nested navigation.
+The flat five-type taxonomy improves semantic clarity without adding nested navigation.
 
 ### Equipment
 
@@ -112,7 +110,7 @@ Use for strategy, seasonal/condition guidance, species-oriented fishing methods,
 
 Examples include Trout Fishing, Spring Fishing, paddle-only kayak strategy, seasonal bass guidance, color/scent, and water visibility.
 
-There is no nested taxonomy or subtype field. The user reaches the article from one flat peer category.
+There is no nested taxonomy or subtype field.
 
 ## 7. Picture object and local media
 
@@ -133,33 +131,23 @@ When `gearItemId` is present, it must resolve to an existing My Gear record. Thi
 
 ### Allowed picture sources
 
-A KB `picture.src` may be:
+A KB `picture.src` may be an `http(s)` URL, a safe repository-local path under `./assets/kb/...`, or a safe repository-local path under `./assets/gear/...` when intentionally reusing a built owned-Gear image. Arbitrary local roots are invalid.
 
-- an `http(s)` URL;
-- a safe repository-local path under `./assets/kb/...`; or
-- a safe repository-local path under `./assets/gear/...` when the KB page intentionally reuses a built owned-Gear image.
+The Gear-backed case is deliberate and required by PR #28's image-reuse design for Swimbait, Jerkbait, Crankbait, Chatterbait, Spinnerbait, and Jig.
 
-No arbitrary local roots are allowed.
-
-The `./assets/gear/...` case is deliberate and required by the PR #28 image-reuse design for Swimbait, Jerkbait, Crankbait, Chatterbait, Spinnerbait, and Jig. It avoids duplicating exact owned-item media simply to satisfy directory separation.
-
-Repository-local media is configured in `local-media.json` and validated/materialized by `apply-local-media.mjs`. Validation checks image size, supported format structure/signatures, and extension consistency. Built KB bytes are checked against repository source bytes.
+Repository-local media is configured in `local-media.json` and validated/materialized by `apply-local-media.mjs`. Validation checks image size, supported format structure/signatures, and extension consistency. PR #32 confirmed the user's replacement Largemouth/Smallmouth Bass images through this same pipeline.
 
 Separate thumbnail files are not required; one source asset is scaled by presentation CSS.
 
 ### Final-form validation rule
 
-The build first validates the source `kb.seed.json`, but `apply-local-media.mjs` is allowed to replace picture metadata in the **built** KB bundle. Therefore it must re-run `validateKbBundle()` after all local-media substitutions and before writing/deploying the transformed `dist/data/kb.seed.json`.
+The build first validates source `kb.seed.json`, but `apply-local-media.mjs` may replace picture metadata in the **built** KB bundle. It therefore re-runs `validateKbBundle()` after all local-media substitutions and before deployment.
 
-This rule was added in PR #30 after PR #28 exposed a gap: the source KB seed was valid, but the local-media step rewrote six pictures to `./assets/gear/...`; the old validator did not accept that path family, so the browser rejected the deployed bundle even though source-data CI had passed.
-
-General rule: whenever a build stage mutates already-validated structured data, validate the **final deployable transformed form**, not just the source.
+This rule was added in PR #30 after PR #28 exposed a gap: source data was valid, but six transformed picture paths were rejected by the old runtime validator. General rule: whenever a build stage mutates already-validated structured data, validate the **final deployable transformed form**, not just the source.
 
 ### User-supplied binary convention
 
 ChatGPT must **not** upload/base64-transport user image binaries through connector tool calls. The user uploads the binary directly to the specified GitHub feature branch/path; ChatGPT verifies it and handles text/config/tests/release work.
-
-This is a reliability/process rule, not a KB schema rule.
 
 ## 8. Content rules
 
@@ -169,6 +157,8 @@ The app does **not** parse headings or prose to infer structured facts or relati
 
 Content-only Markdown edits are valid. Renaming or moving a document requires updating the entity's `content` path in `kb.seed.json`.
 
+Authored stable-ID navigation is semantically independent of the heading it appears under. `# Links`, `## Related`, or another sensible section is acceptable; the durable requirement is that the `gear://` / `kb://` target exists. PR #32 changed the final-content regression accordingly.
+
 ## 9. Link rules
 
 - External websites use ordinary Markdown links.
@@ -177,6 +167,7 @@ Content-only Markdown edits are valid. Renaming or moving a document requires up
 - KB navigation uses `kb://stable-kb-id`.
 - Build validation requires internal IDs/registered paths to exist.
 - Authored links are navigation, not automatically maintained reverse relationships.
+- Tests validate stable-ID link presence/targets, not a particular Markdown heading label.
 - Catch relationships always store stable IDs directly.
 - No fuzzy relationship creation is permitted.
 
@@ -194,32 +185,25 @@ Catch Log remains separate because catches are structured historical records wit
 }
 ```
 
-### Current core fields
+Current core rules:
 
-| Field | Rule |
-|---|---|
-| `id` | Immutable catch stable ID. |
-| `date` / optional `time` | Historical date/time. |
-| `size` | Structured length/weight or authored display value. |
-| `speciesId` | Must resolve to Species. |
-| `locationId` | Must resolve to Location. |
-| `exactSpotNotes` | Markdown exact spot/depth/structure/conditions/access narrative. |
-| `rodReelSetupId` | Optional; must resolve to a Rods & Reels setup when known. |
-| `techniqueId` | Optional; may resolve to the accepted presentation/technique KB entity when explicitly recorded. Existing IDs remain valid across taxonomy moves. |
-| `lureOrBait` | Exactly one My Gear Lure or Bait ID plus name snapshot. |
-| `picture` | Optional exact-catch image. |
-| `notes` | Markdown catch-specific narrative. |
-| `source` | Provenance/evidence label. |
+- immutable catch stable ID;
+- historical date/time and size;
+- required `speciesId` and `locationId`;
+- Markdown exact-spot/depth/structure/conditions narrative;
+- optional `rodReelSetupId` only when known;
+- optional presentation/technique reference only when explicitly recorded;
+- exactly one Lure or Bait stable ID plus name snapshot;
+- optional exact catch picture;
+- catch-specific Markdown notes and provenance.
 
 Historical setup/technique is never inferred solely from lure type or general context.
 
 ## 11. Catch backlinks and pictures
 
-Only Catch records own catch relationships. Backlinks are computed at render time for applicable Location, Species, presentation/Technique/Equipment, setup, lure, and bait pages.
+Only Catch records own catch relationships. Backlinks are computed at render time for applicable Location, Species, presentation/Technique/Equipment, setup, lure, and bait pages. KB/Gear records do not store duplicate catch-ID arrays.
 
-KB/Gear records do not store duplicate catch-ID arrays.
-
-Picture rule: if a Catch has an exact `picture`, use it; otherwise, use the linked Species representative picture as the UI fallback. The species fallback is presentation behavior and does not copy species picture data into Catch records.
+If a Catch has an exact `picture`, use it; otherwise, use the linked Species representative picture as the UI fallback. The fallback does not copy Species image data into the Catch record.
 
 ## 12. Routes
 
@@ -235,27 +219,23 @@ Picture rule: if a Catch has an exact `picture`, use it; otherwise, use the link
 #/kb/catch/{stable-id}
 ```
 
-All five entity category lists are filtered views of the same entity collection and use the same general card/leaf rendering model.
-
-My Gear owns all `#/inventory/...` routes; KB owns Home and all `#/kb/...` routes.
+All five entity-category lists are filtered views of the same entity collection. My Gear owns all `#/inventory/...` routes; KB owns Home and all `#/kb/...` routes.
 
 ## 13. Browse/search conventions
 
 - Root Knowledge Base has Search.
 - Entity lists show Search at **10+ entries**.
 - Smaller lists omit Search.
-- Search is a presentation filter; it does not create new stored indexes/relationships.
+- Search is a presentation filter; it does not create stored relationships.
 - Equipment/Technique remain peer categories rather than nested navigation.
 
-## 14. Current production content state
+## 14. Production content state
 
-PR #28 refreshed these existing articles from the user's supplied MHT pages: Swimbait, Jerkbait, Crankbait, Chatterbait / Bladed Jig, Spinnerbait, Jigs, Frogs, Drop Shot, Wacky Worm, Ned Rig, and Trout Fishing.
+PR #28 refreshed Swimbait, Jerkbait, Crankbait, Chatterbait / Bladed Jig, Spinnerbait, Jigs, Frogs, Drop Shot, Wacky Worm, Ned Rig, and Trout Fishing, and added Inline Spinner, Snaps & Swivels, Flasher Rig, Inline Trolling Rig, Bobber Rig, Slip Sinker Rig, and Spring Fishing.
 
-PR #28 added: Inline Spinner, Snaps & Swivels, Flasher Rig, Inline Trolling Rig, Bobber Rig, Slip Sinker Rig, and Spring Fishing.
+The user completed a broad manual formatting cleanup of the imported pages on 2026-09-04. Final acceptance reviewed all 15 modified Equipment/Technique documents, fixed residual structure/wrapping issues in Chatterbait, Jerkbait, Inline Trolling Rig, and Spring Fishing, validated replacement Largemouth/Smallmouth Bass images, and production-deployed PR #32 successfully.
 
-The current local-media set also contains the requested rig illustrations and replacement Rainbow Trout, Coastal Cutthroat Trout, Smallmouth Bass, and Largemouth Bass images. Requested owned-Gear images are reused by exact stable Gear identity where appropriate.
-
-The user is currently correcting Markdown formatting errors found during the PR #28 acceptance pass. Those fixes are authored-content cleanup, not a schema/model change.
+**PR #28 content acceptance is closed.** Future changes to these articles are ordinary KB maintenance.
 
 ## 15. Validation invariants
 
@@ -265,10 +245,11 @@ Build/tests verify at least:
 - valid five-type enum;
 - unique stable IDs and one-to-one Content paths;
 - registered Markdown documents exist;
-- description length convention;
-- local picture paths are restricted to accepted http(s), `./assets/kb/...`, or `./assets/gear/...` forms;
-- local image paths/format integrity;
+- description-length convention;
+- local picture paths restricted to accepted http(s), `./assets/kb/...`, or `./assets/gear/...` forms;
+- local image format/integrity;
 - `gearItemId`, `gear://`, and `kb://` targets resolve;
+- authored stable-ID navigation is retained independent of section heading;
 - registered relative KB links resolve;
 - Catch Species/Location/Gear/presentation references resolve to valid targets/categories;
 - exactly one lure-or-bait per Catch;
@@ -278,11 +259,20 @@ Build/tests verify at least:
 
 ## 16. Editing/storage direction
 
-The current KB is browse-only and does not need IndexedDB simply for symmetry with My Gear. JSON catalog + Markdown documents are appropriate to authored knowledge.
+The current KB is browse-only and does not need IndexedDB merely for symmetry with My Gear. JSON catalog + Markdown documents are appropriate to authored knowledge.
 
 If future KB/Catch editing is requested, add a repository/store layer only when the editing feature justifies it. Do not change storage merely to make all domains physically identical.
 
-## 17. Durable conflicts still unresolved
+## 17. Current release verification
+
+Latest verified application release:
+
+- PR #32 exact head `973b8cb0294cfbab789b2f9dde69830199c5b83a`
+- PR CI #151 / `33848718142` — success
+- merge `356174e1376d591e9b33bef06e52e9fdb5c3d31c`
+- production #152 / `33848766888` — build, transformed/local-media validation, replacement bass-image validation, bundle verification, Pages artifact, and Deploy to GitHub Pages all succeeded
+
+## 18. Durable conflicts still unresolved
 
 - PowerBait still-rig hook size: #4 in OneNote examples vs. prior #8 guidance.
 - Loop-knot guidance: OneNote warning vs. some lure/presentation recommendations.
