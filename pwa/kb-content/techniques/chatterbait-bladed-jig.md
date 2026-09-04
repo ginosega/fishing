@@ -25,7 +25,7 @@ A subsurface (1-8') bait with a flat, hex-shaped blade attached in front of the 
 - In clear water or pressured fish use smaller, quieter lures
 - In murky water or wild fish use larger, more aggressive lures
 - Heavier weight lures allow deep structure fishing; lighter weights or smaller sizes are best for shallow or finesse zones
-  - Trailer:
+- Trailer:
   - Use paddle-tail swimbaits, creature trailers, or craw trailers depending on forage
   - Use a paddle-tail swimbait or craw trailer for bulk and vibration
   - If using a crawfish trailer, rig it vertically unless fishing in wood cover, where this will cause the lure to tip over and catch on the wood. In that case rig it horizontally.
