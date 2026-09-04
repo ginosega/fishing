@@ -90,7 +90,7 @@ a { color: #8ee5c8; }
 .section-title-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-left: auto; flex: 0 1 480px; }
 .section-title-actions .section-search { width: min(340px, 32vw); min-width: 220px; flex: 0 1 340px; }
 .root-search-results { margin-top: 12px; }
-.compact-toolbar { margin-top: -4px; }
+.compact-toolbar { margin-top: -4px; justify-content: flex-end; }
 .back-button, .secondary-button, .primary-button {
   min-height: 44px; border-radius: 13px; padding: 10px 14px; border: 1px solid var(--border); cursor: pointer;
 }

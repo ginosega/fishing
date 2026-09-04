@@ -19,25 +19,41 @@
       "mediaId": "south-bend-classic-dressed-spinners",
       "source": "./assets/gear-source/south-bend-dressed-spinners.jpg",
       "alt": "South Bend 3-Piece Classic Dressed Spinners",
-      "owners": [{ "gearItemId": "generic-0-inline-spinner-assortment" }]
+      "owners": [
+        {
+          "gearItemId": "generic-0-inline-spinner-assortment"
+        }
+      ]
     },
     {
       "mediaId": "south-bend-removable-split-shot-sinkers",
       "source": "./assets/gear-source/south-bend-split-shot.png",
       "alt": "South Bend 125-Piece Removable Split Shot Sinkers",
-      "owners": [{ "gearItemId": "south-bend-removable-split-shot-sinkers" }]
+      "owners": [
+        {
+          "gearItemId": "south-bend-removable-split-shot-sinkers"
+        }
+      ]
     },
     {
       "mediaId": "south-bend-assorted-brass-swivels",
       "source": "./assets/gear-source/south-bend-brass-swivels.png",
       "alt": "South Bend 24-Piece Assorted Brass Swivels",
-      "owners": [{ "gearItemId": "south-bend-assorted-brass-swivels" }]
+      "owners": [
+        {
+          "gearItemId": "south-bend-assorted-brass-swivels"
+        }
+      ]
     },
     {
       "mediaId": "south-bend-hook-assortment",
       "source": "./assets/gear-source/south-bend-hook-assortment.png",
       "alt": "South Bend 120-Piece Hook Assortment",
-      "owners": [{ "gearItemId": "south-bend-hook-assortment" }]
+      "owners": [
+        {
+          "gearItemId": "south-bend-hook-assortment"
+        }
+      ]
     }
   ],
   "kb": [
@@ -65,6 +81,152 @@
       "credit": null,
       "sourceUrl": null,
       "gearItemId": "booyah-pad-crasher"
+    },
+    {
+      "entityId": "technique-swimbait-soft-jerk-shad",
+      "gearMediaId": "fin-sanity-bluegill",
+      "alt": "Fin-Sanity Bluegill swimbait",
+      "caption": "Fin-Sanity Bluegill",
+      "gearItemId": "fin-sanity-bluegill"
+    },
+    {
+      "entityId": "technique-jerkbait",
+      "gearMediaId": "berkley-stunna",
+      "alt": "Berkley Stunna jerkbait",
+      "caption": "Berkley Stunna",
+      "gearItemId": "berkley-stunna"
+    },
+    {
+      "entityId": "technique-crankbait",
+      "gearMediaId": "strike-king-kvd-square-bill-1",
+      "alt": "Strike King KVD Square Bill 1.0 crankbait",
+      "caption": "Strike King KVD Square Bill 1.0",
+      "gearItemId": "strike-king-kvd-square-bill-1"
+    },
+    {
+      "entityId": "technique-chatterbait-bladed-jig",
+      "gearMediaId": "zman-original-chatterbait",
+      "alt": "Z-Man Original ChatterBait",
+      "caption": "Z-Man Original ChatterBait",
+      "gearItemId": "zman-original-chatterbait"
+    },
+    {
+      "entityId": "technique-spinnerbait",
+      "gearMediaId": "strike-king-red-eyed-special",
+      "alt": "Strike King Red Eyed Special spinnerbait",
+      "caption": "Strike King Red Eyed Special",
+      "gearItemId": "strike-king-red-eyed-special"
+    },
+    {
+      "entityId": "technique-jigs",
+      "gearMediaId": "strike-king-tour-grade-football-jig",
+      "alt": "Strike King Tour Grade Football Jig",
+      "caption": "Strike King Tour Grade Football Jig",
+      "gearItemId": "strike-king-tour-grade-football-jig"
+    },
+    {
+      "entityId": "technique-inline-spinner",
+      "source": "./assets/kb/equipment/inline-spinner-rig.png",
+      "alt": "Inline spinner rig",
+      "caption": "Inline spinner rig",
+      "credit": null,
+      "sourceUrl": null
+    },
+    {
+      "entityId": "technique-drop-shot",
+      "source": "./assets/kb/equipment/drop-shot.png",
+      "alt": "Drop shot rig",
+      "caption": "Drop shot rig",
+      "credit": null,
+      "sourceUrl": null
+    },
+    {
+      "entityId": "technique-wacky-worm",
+      "source": "./assets/kb/equipment/wacky-worm.png",
+      "alt": "Wacky worm rig",
+      "caption": "Wacky worm rig",
+      "credit": null,
+      "sourceUrl": null
+    },
+    {
+      "entityId": "technique-ned-rig",
+      "source": "./assets/kb/equipment/ned-rig.png",
+      "alt": "Ned rig",
+      "caption": "Ned rig",
+      "credit": null,
+      "sourceUrl": null
+    },
+    {
+      "entityId": "technique-snaps-swivels",
+      "source": "./assets/kb/equipment/snap-swivel.png",
+      "alt": "Snap swivel",
+      "caption": "Snap swivel",
+      "credit": null,
+      "sourceUrl": null
+    },
+    {
+      "entityId": "technique-flasher-rig",
+      "source": "./assets/kb/equipment/flasher-rig.png",
+      "alt": "Flasher trolling rig",
+      "caption": "Flasher rig",
+      "credit": null,
+      "sourceUrl": null
+    },
+    {
+      "entityId": "technique-inline-trolling-rig",
+      "source": "./assets/kb/equipment/inline-trolling-rig.png",
+      "alt": "Inline trolling rig",
+      "caption": "Inline trolling rig",
+      "credit": null,
+      "sourceUrl": null
+    },
+    {
+      "entityId": "technique-bobber-rig",
+      "source": "./assets/kb/equipment/bobber-rig.png",
+      "alt": "Bobber rig",
+      "caption": "Bobber rig",
+      "credit": null,
+      "sourceUrl": null
+    },
+    {
+      "entityId": "technique-slip-sinker-rig",
+      "source": "./assets/kb/equipment/slip-sinker-rig.png",
+      "alt": "Slip sinker rig",
+      "caption": "Slip sinker rig",
+      "credit": null,
+      "sourceUrl": null
+    },
+    {
+      "entityId": "species-rainbow-trout",
+      "source": "./assets/kb/species/rainbow-trout.png",
+      "alt": "Rainbow trout",
+      "caption": "Rainbow trout",
+      "credit": null,
+      "sourceUrl": null
+    },
+    {
+      "entityId": "species-coastal-cutthroat-trout",
+      "source": "./assets/kb/species/coastal-cutthroat-trout.png",
+      "alt": "Coastal cutthroat trout",
+      "caption": "Coastal cutthroat trout",
+      "credit": null,
+      "sourceUrl": null
+    },
+    {
+      "entityId": "species-smallmouth-bass",
+      "source": "./assets/kb/species/smallmouth-bass.png",
+      "alt": "Smallmouth bass",
+      "caption": "Smallmouth bass",
+      "credit": null,
+      "sourceUrl": null
+    },
+    {
+      "entityId": "species-largemouth-bass",
+      "source": "./assets/kb/species/largemouth-bass.png",
+      "alt": "Largemouth bass",
+      "caption": "Largemouth bass",
+      "credit": null,
+      "sourceUrl": null
     }
   ],
   "staged": []
