@@ -55,7 +55,5 @@ A subsurface (1-8') bait with a flat, hex-shaped blade attached in front of the 
 # Links
 - Article: [The Best Z-Man Chatterbait at Each Price Point](https://barbcatchfishing.com/best-z-man-chatterbait/?utm_source=chatgpt.com)
 - Video: [BEFORE You Fish a Chatterbait Watch THIS!](https://www.youtube.com/watch?v=s28Z9NUaCTg)
-
-## Related
 - My Gear: [Z-Man Original ChatterBait](gear://zman-original-chatterbait), [Z-Man Elite EVO](gear://zman-elite-evo), [Z-Man Jack Hammer](gear://zman-jack-hammer)
 - KB: [Palomar Knot](kb://knot-palomar), [Loop / Non-slip Loop Knot](kb://knot-loop-non-slip-loop)
