@@ -15,6 +15,9 @@ const CATEGORY_ORDER = Object.keys(CATEGORY_META);
 const TYPE_ORDER = {
   'rods-reels':['Spinning','Baitcasting','Spincasting']
 };
+const TYPE_LABELS = {
+  'Trolling lures':'Trolling'
+};
 const SEARCH_THRESHOLD = 10;
 
 const app = document.querySelector('#app');
@@ -111,19 +114,19 @@ function renderList(category) {
   const order = TYPE_ORDER[category];
   if (order) {
     const present = order.filter(type => items.some(item => item.type === type));
-    app.innerHTML = `${pageHeader(meta.label,'','#/inventory')}<div class="grouped-list">${present.map(type => `<section class="item-group"><h2>${escapeHtml(type)}</h2><div class="item-list">${items.filter(item => item.type === type).map(itemCard).join('')}</div></section>`).join('')}</div>`;
+    app.innerHTML = `${pageHeader(meta.label,'','#/inventory')}<div class="grouped-list">${present.map(type => `<section class="item-group"><h2>${escapeHtml(displayGearType(type))}</h2><div class="item-list">${items.filter(item => item.type === type).map(itemCard).join('')}</div></section>`).join('')}</div>`;
     bindGearRoutes();
     return;
   }
 
-  const types = [...new Set(items.map(item => item.type).filter(Boolean))].sort();
+  const types = [...new Set(items.map(item => item.type).filter(Boolean))].sort((a,b) => displayGearType(a).localeCompare(displayGearType(b)));
   const search = items.length >= SEARCH_THRESHOLD;
   const filter = category === 'lures' || category === 'hooks';
   app.innerHTML = `${pageHeader(meta.label,'','#/inventory', search ? {
       id:'gearSearch',
       placeholder:`Search ${meta.label.toLowerCase()}…`
     } : null)}
-    ${filter ? `<div class="toolbar compact-toolbar"><select class="select" id="gearTypeFilter"><option value="">All types</option>${types.map(type => `<option value="${escapeAttr(type)}">${escapeHtml(type)}</option>`).join('')}</select></div>` : ''}
+    ${filter ? `<div class="toolbar compact-toolbar"><select class="select" id="gearTypeFilter"><option value="">All types</option>${types.map(type => `<option value="${escapeAttr(type)}">${escapeHtml(displayGearType(type))}</option>`).join('')}</select></div>` : ''}
     <section class="item-list" id="gearItemList"></section>`;
   const draw = () => {
     const q = normalize(document.querySelector('#gearSearch')?.value || '');
@@ -143,7 +146,7 @@ function renderItem(id) {
   if (item.category === 'rods-reels') return renderSetup(item);
   const meta = CATEGORY_META[item.category];
   const links = gearLinks(item);
-  app.innerHTML = `${pageHeader(item.name,`${meta.label} - ${item.type}`,`#/inventory/${item.category}`)}
+  app.innerHTML = `${pageHeader(item.name,`${meta.label} - ${displayGearType(item.type)}`,`#/inventory/${item.category}`)}
     <section class="panel"><div class="detail-grid">
       ${detailCell('Manufacturer / Model', escapeHtml(gearDisplayModel(item)))}
       ${item.specifications?.length ? detailCell('Specifications', escapeHtml(gearSpecificationText(item))) : ''}
@@ -157,7 +160,7 @@ function renderItem(id) {
 function renderSetup(item) {
   const rodName = `${item.rod.manufacturer.name} ${item.rod.model}`;
   const reelName = `${item.reel.manufacturer.name} ${item.reel.model}`;
-  app.innerHTML = `${pageHeader(`Rod: ${rodName}, Reel: ${reelName}`,`Rods & Reels - ${item.type}`,'#/inventory/rods-reels')}
+  app.innerHTML = `${pageHeader(`Rod: ${rodName}, Reel: ${reelName}`,`Rods & Reels - ${displayGearType(item.type)}`,'#/inventory/rods-reels')}
     ${componentPanel('Rod',item.rod)}
     ${componentPanel('Reel',item.reel)}
     ${notesPanel(item.notes)}
@@ -201,7 +204,7 @@ function renderCatchHistory(item) {
 }
 
 function itemCard(item) {
-  const meta = item.type || '';
+  const meta = displayGearType(item.type);
   return `<article class="item-card" data-gear-item="${escapeAttr(item.id)}"><h3>${escapeHtml(item.name)}</h3>${meta ? `<div class="item-meta"><span>${escapeHtml(meta)}</span></div>` : ''}</article>`;
 }
 
@@ -239,8 +242,9 @@ async function loadJson(path, fallback) {
   } catch { return fallback; }
 }
 
+function displayGearType(type='') { return TYPE_LABELS[type] || type; }
 function searchableText(item) {
-  return normalize([item.name,item.type,item.manufacturer?.name,item.model,gearSpecificationText(item)].filter(Boolean).join(' '));
+  return normalize([item.name,displayGearType(item.type),item.manufacturer?.name,item.model,gearSpecificationText(item)].filter(Boolean).join(' '));
 }
 function dedupeLinks(links) { const seen=new Set(); return links.filter(link => link?.url && !seen.has(link.url) && seen.add(link.url)); }
 function normalize(value='') { return String(value).toLowerCase().replace(/&/g,' and ').replace(/[^a-z0-9]+/g,' ').replace(/\s+/g,' ').trim(); }
