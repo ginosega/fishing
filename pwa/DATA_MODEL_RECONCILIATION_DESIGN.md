@@ -4,7 +4,7 @@
 
 **Accepted:** 2026-09-02
 
-**Reconciled through:** 2026-09-04 / PR #32
+**Reconciled through:** 2026-09-04 / PR #34 / production content checkpoint `0b89ebc20de049fe5d072e93edcdcaa7b13d01b2`
 
 **Purpose:** Keep My Gear, Knowledge Base, and Catch Log architecturally consistent without forcing identical schemas, identical persistence, or speculative relationship maintenance.
 
@@ -69,7 +69,7 @@ KB renderer/routes
 
 Current production seed: schema version `1`, data version `2026-09-04-kb-v1-final-content-1`, **54 entities**: 8 Location, 7 Species, 22 Equipment, 7 Technique, 10 Knot.
 
-KB owns reusable fishing knowledge. One complete Markdown document owns headings, narrative, tables, links, warnings, resources, and embedded pictures.
+KB owns reusable fishing knowledge. One complete Markdown document owns headings, narrative, tables, nested lists, links, warnings, resources, and embedded pictures.
 
 Equipment and Technique entities currently share the physical `pwa/kb-content/techniques/` directory; `type` controls taxonomy. That directory layout is not itself a domain discriminator.
 
@@ -153,7 +153,7 @@ Accepted internal Markdown link schemes:
 
 Registered relative KB Markdown links are also supported. The renderer constructs current routes and build validation ensures targets exist.
 
-Authored stable-ID navigation is independent of section labeling: `# Links`, `## Related`, or another sensible Markdown heading is acceptable. Tests validate the durable stable-ID link/target, **not a particular heading string**. PR #32 made this invariant explicit after the user's valid formatting cleanup removed the old `## Related` headings.
+Authored stable-ID navigation is independent of section labeling: `# Links`, `## Related`, or another sensible Markdown heading is acceptable. Tests validate the durable stable-ID link/target, **not a particular heading string**. PR #32 made this invariant explicit after the user's valid formatting cleanup removed old `## Related` headings.
 
 There is no requirement to maintain reverse links or exhaustive associations merely because an authored link exists.
 
@@ -278,6 +278,8 @@ Current build/test validation includes:
 - final-content regression tests;
 - final transformed KB-bundle validation after local-media substitution.
 
+Nested-list rendering is a presentation invariant rather than a data-model relationship. PR #34 added regression coverage ensuring indentation-based nested unordered/ordered Markdown lists remain nested in rendered HTML. This did **not** alter the KB entity envelope, storage model, or cross-domain relationship rules.
+
 ## 15. Search/filter and UI principles
 
 These are presentation conventions, not data-model changes:
@@ -286,7 +288,8 @@ These are presentation conventions, not data-model changes:
 - browse-list Search appears at **10+ entries**;
 - if a page has Search and dropdown/filter, the filter is right-aligned;
 - Line is a flat list while Rods & Reels remains grouped;
-- My Gear stays browse-only until CRUD is explicitly resumed.
+- My Gear stays browse-only until CRUD is explicitly resumed;
+- correctly indented Markdown lists remain nested in Fishing Companion.
 
 ## 16. Current implementation/release status
 
@@ -301,13 +304,22 @@ Reconciliation design was accepted in PR #15 and implemented in PR #16. Subseque
 - PR #30 — Gear-backed KB picture validation + final transformed-data guard
 - PR #31 — durable state reconciliation after recovery
 - PR #32 — final PR #28 authored-content acceptance and heading-independent link regression
+- PR #33 — state reconciliation after final acceptance
+- PR #34 — indentation-aware nested Markdown list rendering
 
-Latest verified application release:
+Latest verified runtime release:
 
-- PR #32 exact tested head `973b8cb0294cfbab789b2f9dde69830199c5b83a`
-- CI #151 / `33848718142` success
-- merge `356174e1376d591e9b33bef06e52e9fdb5c3d31c`
-- production #152 / `33848766888` build + transformed/local-media validation + replacement bass-image validation + bundle verification + Pages deploy success
+- PR #34 exact tested head `4c94156416e7bfddfb912991c86bc3e5af66b91c`
+- CI #158 / `33850003616` success
+- merge `82601038f0e931f6ef1bee4c8f5e062a73c793c5`
+- production #159 / `33850049987` tests + build + transformed/local-media validation + bundle verification + Pages deploy success
+- user confirmed the live nested-list fix
+
+Latest audited production content checkpoint before nightly reconciliation:
+
+- `main` `0b89ebc20de049fe5d072e93edcdcaa7b13d01b2`
+- production #161 / `33850346865` success through GitHub Pages deployment
+- includes subsequent authored-content maintenance to Buzzbait, Fishing Line, Rods & Reels, and Walking Bait
 
 The PR #28 content-acceptance sequence is closed. No current production requirement justifies reopening the core data-model architecture.
 

@@ -1,6 +1,6 @@
 # Fishing Context
 
-**Status:** Active authoritative current-state summary. OneNote migration/link restoration completed 2026-08-29; My Gear schema-v2/data-model reconciliation completed 2026-09-02; repository-local media recovery completed 2026-09-03; PR #28 content acceptance/cleanup and PR #32 production verification completed 2026-09-04.
+**Status:** Active authoritative current-state summary. OneNote migration/link restoration completed 2026-08-29; My Gear schema-v2/data-model reconciliation completed 2026-09-02; repository-local media recovery completed 2026-09-03; PR #28 content acceptance completed 2026-09-04; nested Markdown list rendering fixed and production-confirmed in PR #34 on 2026-09-04. Project is in normal maintenance state.
 
 This file is a compact router/current-state summary. Detailed procedures and long-form fishing knowledge belong in their domain owners.
 
@@ -101,7 +101,9 @@ Equipment is a flat peer category for rigs, presentations, lure/gear guides, and
 
 The Equipment and Technique article bodies currently remain physically stored together under `pwa/kb-content/techniques/`; the entity `type` in `kb.seed.json` determines the browse category. Do not rename or move an article file without updating its registered `content` path.
 
-PR #28 added Inline Spinner, Snaps & Swivels, Flasher Rig, Inline Trolling Rig, Bobber Rig, Slip Sinker Rig, and Spring Fishing and refreshed Swimbait, Jerkbait, Crankbait, Chatterbait, Spinnerbait, Jig, Frog, Drop Shot, Wacky Worm, Ned Rig, and Trout Fishing. The 2026-09-04 acceptance pass then cleaned the imported Markdown formatting and replaced the Largemouth/Smallmouth Bass pictures supplied by the user.
+PR #28 added Inline Spinner, Snaps & Swivels, Flasher Rig, Inline Trolling Rig, Bobber Rig, Slip Sinker Rig, and Spring Fishing and refreshed Swimbait, Jerkbait, Crankbait, Chatterbait, Spinnerbait, Jig, Frog, Drop Shot, Wacky Worm, Ned Rig, and Trout Fishing. The 2026-09-04 acceptance pass cleaned the imported Markdown formatting and replaced the Largemouth/Smallmouth Bass pictures supplied by the user.
+
+After acceptance closed, the user made ordinary content-maintenance edits to **Buzzbait**, **Fishing Line**, **Rods & Reels**, and **Walking Bait**. These are current production content and are not a reopened PR #28 cleanup batch.
 
 ### Catch Log
 
@@ -120,32 +122,46 @@ Planner, Planner Attributes, fishing sessions, session IDs, and trip history are
 
 Live URL: `https://ginosega.github.io/fishing/`
 
-### Latest verified release
+### Latest verified runtime release
 
-**PR #32 — Complete final KB Markdown acceptance cleanup**
+**PR #34 — Render nested Markdown lists correctly**
 
-- exact tested head: `973b8cb0294cfbab789b2f9dde69830199c5b83a`
-- PR CI: **#151 / 33848718142**, success
-- merge commit: `356174e1376d591e9b33bef06e52e9fdb5c3d31c`
-- production workflow: **#152 / 33848766888**, success
+- exact tested PR head: `4c94156416e7bfddfb912991c86bc3e5af66b91c`
+- PR CI: **#158 / 33850003616**, success
+- merge commit: `82601038f0e931f6ef1bee4c8f5e062a73c793c5`
+- production workflow: **#159 / 33850049987**, success
 - production build: success
+- all structured-model/routing/Markdown/final-content tests: success
 - transformed/local-media KB validation: success
-- replacement Largemouth/Smallmouth Bass image validation: success
-- bundle verification: success
-- GitHub Pages artifact: success
+- bundle verification and GitHub Pages artifact: success
 - **Deploy to GitHub Pages: success**
+- user confirmed Chatterbait and Jerkbait nested lists render correctly on the live site.
 
-PR #32 completed the PR #28 authored-content acceptance pass. It fixed residual Markdown list/wrapping artifacts in Chatterbait, Jerkbait, Inline Trolling Rig, and Spring Fishing and updated the final-content regression test to validate the actual invariant—authored stable-ID `gear://` / `kb://` navigation—rather than requiring a particular `## Related` section heading.
+PR #34 fixed a presentation-layer defect: correctly indented nested Markdown lists were flattened by the custom renderer even though GitHub Preview displayed the source correctly. `pwa/markdown-render.js` now preserves indentation-based nested unordered and ordered lists, and `pwa/kb-routing.test.mjs` contains regression coverage.
 
-Recent releases immediately preceding it:
+### Latest verified production content checkpoint
 
-- PR #25: Catch imagery / browse-list media polish; merge `26aebfe4f428bebd735baf5a1b30ffa26b8a0b33`
-- PR #26: repository-local media hardening; merge `9af96810cb02c81da2a0e3f5463071e020ae6cfc`; production #113 / `33833494282`
-- PR #27: Recovery B Gear/browse/content updates; merge `2635d9eb5cb80d446050090ba3f5a2736cac0c84`; production #117 / `33834793404`
-- PR #28: final KB content and imagery batch; merge `093139e5314af55691e608277b68b79b2d369166`; production #121 / `33840208952`
-- PR #29: documentation/state reconciliation after PR #28; merge `b3e1b4735cbdc26c41a0bf96b8f4a19bcb09d3ca`
-- PR #30: Gear-backed KB-picture validation hotfix; merge `f64217485df024ebebf15af5adfb9bbd7018be5d`; production #125 / `33843111957`
-- PR #31: durable state reconciliation after PR #30; merge `e5458b789e3098536ff685799bb1135c9e407392`; production #128 / `33844993323`
+After PR #34, the user made four direct content-maintenance commits on `main`:
+
+- `5b1eda316a4672ac2f111c2fc9344786ba01d0bb` — Buzzbait formatting/readability
+- `2d4ce6d574007c403de617228bc50a27ff49ea97` — Fishing Line formatting/content cleanup
+- `481fe29c22638c52614f438a43ae4b1fb1f28622` — Rods & Reels Markdown cleanup
+- `0b89ebc20de049fe5d072e93edcdcaa7b13d01b2` — Walking Bait formatting/readability
+
+Current audited `main` baseline is `0b89ebc20de049fe5d072e93edcdcaa7b13d01b2`. Production workflow **#161 / 33850346865** completed successfully on that exact commit, including build, transformed/local-media validation, bundle verification, GitHub Pages artifact upload, and Pages deployment.
+
+### Recent stabilization/recovery sequence
+
+- PR #25: Catch imagery / browse-list media polish
+- PR #26: repository-local media hardening
+- PR #27: Recovery B Gear/browse/content updates
+- PR #28: final KB content and imagery batch
+- PR #29: state reconciliation
+- PR #30: Gear-backed KB-picture validation hotfix
+- PR #31: state reconciliation after recovery
+- PR #32: final PR #28 Markdown acceptance cleanup
+- PR #33: state reconciliation after final acceptance
+- PR #34: nested Markdown list renderer fix
 
 ### Current accepted behavior
 
@@ -160,29 +176,19 @@ Recent releases immediately preceding it:
 - Lure type labels include **Soft plastics and swimbaits**, **Topwater**, and **Trolling lures**.
 - South Bend hook/swivel records retain requested size information without a separate `Material` specification row.
 - Authored KB/Gear navigation links may live under `# Links`, `## Related`, or another sensible Markdown section; stable-ID target validity matters, not the section label.
+- Markdown list indentation is semantic: the PWA renderer must preserve nested unordered/ordered list structure rather than flattening it.
 
 ## Final content acceptance state
 
-The PR #28 Equipment/Technique content and imagery batch is **accepted and closed** as of 2026-09-04. The user completed a broad manual Markdown cleanup directly in GitHub; the final acceptance review inspected all 15 modified Equipment/Technique documents, fixed four remaining structural artifacts, validated the two replacement bass images through the repository-local media pipeline, and deployed PR #32 successfully.
+The PR #28 Equipment/Technique content and imagery batch is **accepted and closed** as of 2026-09-04. The user completed a broad manual Markdown cleanup directly in GitHub; final review inspected the modified Equipment/Technique documents, fixed remaining structural artifacts, validated replacement bass images through the repository-local media pipeline, and production-deployed PR #32.
 
 No further PR #28 formatting-cleanup work is pending. Future content changes are ordinary KB maintenance.
 
 ## Interrupted-chat reconstruction
 
-Repository history plus recovered prior-chat context establish the substantive work sequence that led into the interrupted handoff:
+The interrupted-work sequence is fully reconstructed and closed: PR #24 taxonomy → PR #25 catch/media polish → PR #26 local-media hardening → PR #27 Recovery B → PR #28 final MHT content/images → PR #29 state reconciliation → PR #30 production recovery → PR #31 reconciliation → PR #32 final content acceptance → PR #33 reconciliation. No separate hidden/unmerged post-PR #29 application build was found.
 
-1. **PR #24** established the flat five-type KB taxonomy with Equipment as a peer type.
-2. The user then requested a combined KB/Gear/Catch polish pass: linked owned-item picture captions, replacement Kokanee image, Yellow Perch standing interpretation, Catch picture fallback with future exact overrides, Catch Log Back-button repair, the 10-entry Search rule, and Gear card thumbnails.
-3. **PR #25** implemented that Catch/KB/Gear media-polish batch.
-4. Image-transfer failures then forced the direct-GitHub binary workflow; **PR #26** hardened local-media handling.
-5. **PR #27** completed Recovery B Gear/browse/content cleanup.
-6. **PR #28** imported the supplied final MHT content and imagery batch.
-7. **PR #29** reconciled documentation/state for handoff.
-8. The replacement chat discovered and fixed the PR #28 Gear-backed-picture runtime validation defect in **PR #30**.
-9. **PR #31** reconciled durable state after recovery.
-10. The user then completed the PR #28 Markdown cleanup batch; **PR #32** closed the final acceptance findings and production-verified the result.
-
-No distinct post-PR #29 feature branch, commit, PR, or recoverable user request was found representing additional unmerged application functionality. That interrupted-work recovery is closed.
+PR #34 was a later renderer defect discovered during live acceptance, not recovered hidden work.
 
 ## Media handling convention
 
@@ -224,6 +230,12 @@ Use `Fishing_TODO.md` as canonical. Important unresolved items include:
 - decide whether/how to modify the rear flush rod-holder angle;
 - confirm purchase status of Bonafide under-seat tackle storage and YakAttack fish cooler bag;
 - complete remaining candidate KB articles such as Texas, Carolina, Alabama, Neko rigs, and Spoons.
+
+## Night-end audit checkpoint — 2026-09-04
+
+The project-state audit found no unresolved data-model migration, hidden feature branch, pending PR #28 acceptance work, or known production outage. My Gear remains 63 records, KB remains 54 entities, Catch Log remains 5 catches, and the canonical active backlog above remains unchanged except that the nested-list renderer defect is now completed as FISH-TODO-055.
+
+The audited repository/production baseline before this documentation reconciliation is `main` `0b89ebc20de049fe5d072e93edcdcaa7b13d01b2`, production run #161 / `33850346865`, success.
 
 ## Migration record
 
