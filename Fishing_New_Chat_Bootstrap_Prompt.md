@@ -1,8 +1,8 @@
 # Fishing New Chat Bootstrap Prompt
 
-**Status:** ACTIVE HANDOFF — PRODUCTION VERIFIED 2026-09-02
+**Status:** ACTIVE HANDOFF — PRODUCTION VERIFIED 2026-09-04
 
-Copy the prompt below into a new Fishing chat.
+Copy the prompt below into a new **Chat-mode** Fishing conversation.
 
 ---
 
@@ -24,33 +24,23 @@ Read these files first, in order:
 
 Then, depending on the task:
 
-- For **My Gear data/content**, inspect `pwa/data/gear.seed.json`, `pwa/gear-model.js`, `pwa/gear-store.js`, and `pwa/gear-app.js`.
-- For **Knowledge Base/Catch Log work**, inspect `pwa/data/kb.seed.json`, `pwa/data/catches.seed.json`, `pwa/kb-model.js`, `pwa/kb-app.js`, `pwa/markdown-render.js`, and the relevant complete documents under `pwa/kb-content/`.
-- Use the `Topics/*.md`, `Fishing_Gear_Registry.md`, and `Fishing_Tackle_Inventory.md` files as migrated/reference material when useful, but do **not** treat them as PWA runtime data sources.
+- For **My Gear**, inspect `pwa/data/gear.seed.json`, `pwa/gear-model.js`, `pwa/gear-store.js`, `pwa/gear-app.js`, `pwa/media-owners.json`, `pwa/media-sources.json`, `pwa/local-media.json`, and `pwa/apply-local-media.mjs`.
+- For **Knowledge Base/Catch Log**, inspect `pwa/data/kb.seed.json`, `pwa/data/catches.seed.json`, `pwa/kb-model.js`, `pwa/kb-app.js`, `pwa/markdown-render.js`, and the relevant complete documents under `pwa/kb-content/`.
+- For data-model rationale, inspect `pwa/KB_DATA_MODEL_DESIGN.md` and `pwa/DATA_MODEL_RECONCILIATION_DESIGN.md`.
+- Use `Topics/*.md`, `Fishing_Gear_Registry.md`, and `Fishing_Tackle_Inventory.md` only as migrated/reference history when useful; they are **not runtime application data sources**.
 
-Other topic files:
+## Current architecture — important
 
-- `Topics/Bonafide_RVR119_Kayak.md`
-- `Topics/Kayak_Rigging_Accessories_Storage.md`
-- `Topics/Fish_Finder_Electronics_Wiring.md`
-- `Topics/Safety_Regulations_Fish_Handling.md`
-- `Topics/Maintenance_Repairs_Procedures.md`
-- `Topics/Researched_Candidate_Gear.md`
-
-## Current project architecture — important
-
-The project now has **two data domains**.
+Fishing Companion has three durable application-data domains that share identity/ownership/validation principles without forcing identical storage.
 
 ### 1. My Gear — structured local-first
-
-My Gear was refactored on 2026-09-01 and **no longer parses Markdown tables for inventory records**.
 
 Architecture:
 
 ```text
 pwa/data/gear.seed.json
         ↓
-schema validation
+strict schema-v2 validation
         ↓
 IndexedDB local store
         ↓
@@ -59,49 +49,83 @@ GearRepository
 structured My Gear UI
 ```
 
-Key files:
+Current seed:
 
-- `pwa/data/gear.seed.json` — bundled baseline/portable dataset
-- `pwa/gear-model.js` — schema/validation/display helpers
-- `pwa/gear-store.js` — IndexedDB repository
-- `pwa/gear-app.js` — My Gear routes/rendering
-- `pwa/media-ui.js` — presentation/media only; must not mutate gear facts
+- schema version `2`
+- data version `2026-09-04-my-gear-v2-final-content-1`
+- **63 records**
+- categories: Rods & Reels, Line, Weights, Snaps & Swivels, Hooks, Lures, Bait
 
-Current seed metadata:
+My Gear owns structured owned facts such as manufacturer, model, specifications, typed external links, and stable identity. Optional `notes` is Markdown narrative.
+
+Do **not** reintroduce the retired v1 concepts:
+
+- `profiles`
+- structured `usage` / `connections`
+- `usageProfileId` / `connectionProfileId`
+- setup `mainLine` / `leader`
+- speculative `configuration` or `knowledgeRefs`
+- raw HTML guidance
+- manufacturer/model/link-type inference from Markdown or display text
+
+Authored Notes may use:
+
+- `gear://stable-gear-id`
+- `kb://stable-kb-id`
+
+Those are navigation links, not maintained domain relationships.
+
+**Knots are not My Gear records.**
+
+### 2. Knowledge Base — unified indexed Markdown documents
+
+Every KB entity uses the same envelope:
+
+- stable `id`
+- `type`: `location`, `species`, `equipment`, `technique`, or `knot`
+- `name`
+- optional `description`
+- optional `picture`
+- `content`: one complete Markdown document
+
+Current seed:
 
 - schema version `1`
-- data version `2026-09-01-my-gear-v1`
+- data version `2026-09-04-kb-v1-final-content-1`
+- **54 entities**: 8 Locations, 7 Species, 22 Equipment, 7 Techniques, 10 Knots
 
-Current My Gear categories:
+**Equipment** is a flat peer type for rigs, presentations, lure/gear guides, and equipment-oriented fishing knowledge. **Technique** is for strategy, seasonal/condition guidance, species tactics, and other non-equipment methods. Existing stable `technique-*` IDs may remain unchanged when an article is classified as Equipment.
 
-- Rods & Reels
-- Line
-- Weights
-- Snaps & Swivels
-- Hooks
-- Lures
-- Bait
+Use, Rigging, Notes, Resources, tables, links, warnings, and embedded pictures belong inside complete Markdown Content. Do not add atomic schema fields or parse prose to infer domain facts.
 
-**Knots are not My Gear records.** They belong in the Knowledge Base domain and were intentionally removed from My Gear because they do not fit the gear model (manufacturer/model/etc.). Gear may later reference KB knot IDs.
+### 3. Catch Log — structured historical relationships
 
-The structured model explicitly stores category, type, manufacturer, model, optional specifications, typed links, optional connection guidance, optional usage guidance, and stable IDs. Do not reintroduce parsing heuristics to infer manufacturer/model/link types from Markdown.
+`pwa/data/catches.seed.json` currently contains **5 catches**.
 
-### 2. Knowledge Base and Catch Log — unified indexed documents
+Catch Log owns the exact structured relationships current product behavior needs:
 
-Locations, Species, Techniques, and Knots all use one KB Entity schema:
+- Catch → Species
+- Catch → Location
+- optional Catch → setup
+- optional Catch → Technique/Equipment presentation when explicitly recorded
+- exactly one Catch → Lure or Bait
 
-- ID
-- Type (`location`, `species`, `technique`, or `knot`)
-- Name
-- Description (optional)
-- Picture (optional)
-- Content (one complete Markdown document)
+Historical setup/technique is never inferred. Backlinks are computed rather than stored redundantly.
 
-Type is only the four-way discriminator; Techniques do not have grouping subtypes. Use, Rigging, Notes, Resources, links, tables, and any number of embedded pictures belong inside Content as ordinary Markdown.
+An exact `catch.picture` overrides the fallback image. When absent, Catch cards/pages use the linked Species picture.
 
-Catch Log is separate structured data with stable Species, Location, optional Technique, optional rod/reel setup, and exactly one Lure or Bait relationship. Exact-spot Markdown owns depth/structure/conditions. Do not infer historical setup or technique.
+## Retired product concepts
 
-The Planner, Planner Attributes, fishing sessions, Session ID, and trip history were intentionally retired. Do not reintroduce the old parser/planner architecture.
+Do not reintroduce unless I explicitly reopen them:
+
+- Planner / Planner Attributes
+- fishing sessions / Session ID
+- trip history or no-catch session model
+- legacy Markdown fact parser/router
+- fuzzy Gear identity matching
+- fuzzy media-to-Gear matching
+
+The current application is browse-focused and personal.
 
 ## Current Fishing Companion production state
 
@@ -109,82 +133,96 @@ Live site:
 
 `https://ginosega.github.io/fishing/`
 
-Release history:
+### Latest verified release
 
-- PR #9 — structured My Gear refactor, merge commit `972dca92812d4e129ab7311e64a0915e3f158c69`
-- PR #10 — Sev 1 My Gear routing/layout fix and removal of the temporary data card
-- PR #13 — unified Knowledge Base, structured Catch Log, retired Planner/parser, and title-only site header
+**PR #28 — Add final Fishing KB content and imagery batch**
 
-A Sev 1 regression was found immediately afterward: gear category cards could not open leaf pages because the legacy router and structured My Gear router both reacted to `#/inventory/...` hashes; the My Gear header layout also regressed and a temporary My Gear import/export card was unwanted.
+- exact tested PR head: `c397985e99532b0ea572afd9910c0d131469a439`
+- PR CI: **#120 / 33840154633** — success
+- merge commit: `093139e5314af55691e608277b68b79b2d369166`
+- production workflow: **#121 / 33840208952** — success
+- production build: success
+- GitHub Pages artifact upload: success
+- **Deploy to GitHub Pages: success**
 
-That My Gear regression was fixed in **PR #10**, and the complete My Gear flow was accepted on 2026-09-02.
+Immediately preceding releases:
 
-Current verified application release commit:
+- PR #26 — repository-local media hardening; merge `9af96810cb02c81da2a0e3f5463071e020ae6cfc`; production #113 / `33833494282`
+- PR #27 — Recovery B Gear/browse/content updates; merge `2635d9eb5cb80d446050090ba3f5a2736cac0c84`; production #117 / `33834793404`
 
-`1c61cb0b001bb9f543904a2328178632ac0efed1`
+### What PR #28 delivered
 
-Production GitHub Actions run:
+The final supplied MHT batch became the current authored KB content. Existing pages refreshed:
 
-**#77 / 33644412492**
+- Swimbait
+- Jerkbait
+- Crankbait
+- Chatterbait / Bladed Jig
+- Spinnerbait
+- Jigs
+- Frogs
+- Drop Shot
+- Wacky Worm
+- Ned Rig
+- Trout Fishing
 
-Verified successful:
+New KB pages:
 
-- JavaScript validation
-- structured My Gear model tests
-- My Gear routing/layout regression tests
-- unified Knowledge Base and Catch Log model tests
-- Knowledge Base routing and retired-Planner regression tests
-- PWA build
-- bundle verification
-- GitHub Pages artifact
-- GitHub Pages deployment
+- Inline Spinner
+- Snaps & Swivels
+- Flasher Rig
+- Inline Trolling Rig
+- Bobber Rig
+- Slip Sinker Rig
+- Spring Fishing
 
-The live build marker was verified on 2026-09-02 with:
+The batch also:
 
-- 61 My Gear records
-- 41 Knowledge Base entities
-- 5 structured catches
-- 41 offline Knowledge Base assets
-- 62 available My Gear images out of 65 requested
-- 36 resolved video titles
+- added authored My Gear/KB cross-links where appropriate;
+- added Inline Spinner and Snaps & Swivels links to relevant Gear Notes;
+- activated the new local rig images and replacement Rainbow Trout, Coastal Cutthroat Trout, Smallmouth Bass, and Largemouth Bass pictures;
+- reused exact owned-Gear images for the requested Swimbait, Jerkbait, Crankbait, Chatterbait, Spinnerbait, Jig, and Frog KB pages;
+- renamed lure types to **Soft plastics and swimbaits**, **Topwater**, and **Trolling lures**;
+- removed the separate Material spec row from the South Bend 120-Piece Hook Assortment and South Bend 24-Piece Assorted Brass Swivels;
+- corrected Search+filter layout so dropdown/filter controls sit on the right.
 
-The route ownership is explicit:
+## Current UI conventions
 
-- `pwa/gear-app.js` owns all `#/inventory/...` routes.
-- `pwa/kb-app.js` owns Home and all `#/kb/...` routes.
-- `pwa/my-gear-routing.test.mjs` and `pwa/kb-routing.test.mjs` guard this boundary.
+- Root My Gear and root Knowledge Base always have Search.
+- Browse-list Search appears at **10 or more entries** and is omitted below 10.
+- On pages with both Search and a dropdown/filter, the filter is right-aligned.
+- Line is intentionally flat; Rods & Reels retains grouping.
+- My Gear title/subtitle are left; Search/Back actions sit to the right on large screens and adapt on mobile.
+- My Gear contains no Knots category.
+- My Gear is browse-only: no visible My Gear data card, no Export/Import controls, no Add/Edit/Delete forms.
+- Gear leaf pages use structured Manufacturer / Model, Specifications, Links, and optional Markdown **Notes**.
+- KB representative pictures that depict a specific owned item may store explicit `gearItemId` and link the caption to that My Gear leaf.
 
-## Current accepted My Gear UI requirements
+## Media workflow — standing rule
 
-After PR #10, current intended behavior is:
+This is important because it blocked the project repeatedly on 2026-09-03.
 
-- Home My Gear card subtext: **`Browse your inventory of equipment, tackle, and bait`**
-- My Gear page title and subtitle on the **left**, Back button on the **right**
-- My Gear subtitle: **`Browse your inventory of equipment, tackle, and bait`**
-- no Knots category in My Gear
-- no visible **My Gear data** card
-- no current Export/Import buttons
-- category cards open category pages
-- gear cards open leaf pages rather than bouncing back to My Gear
-- applicable leaf pages use **Manufacturer / Model**, **Specifications**, **Links**
-- manufacturer links display only the manufacturer's name
-- retailer links are separate typed links
-- catch history appears only where appropriate (rod/reel setups, lures, bait)
-- images/media viewer remain presentation-only
+The failure was **not** the PWA, GitHub Actions, or bad image files. The unreliable step was transporting binary image bytes/base64 through ChatGPT's GitHub tool path.
 
-The user accepted this complete My Gear flow on 2026-09-02. Do not reopen acceptance or add v2 editing unless a new defect or explicit request requires it.
+For future user-supplied images:
 
-## v2 editing scope — deferred
+1. I provide the exact feature branch, repository path, and filename.
+2. I upload the binary image directly to GitHub myself on that branch.
+3. You verify that file in GitHub.
+4. You update `pwa/local-media.json`, data, Markdown, tests, and build checks as appropriate.
+5. **Do not try to base64-encode or upload image binaries through ChatGPT/GitHub connector calls.**
 
-I do plan eventually to add normal My Gear forms such as **Add a new hook** and **Edit this page**, but **do not build those yet**.
+`pwa/apply-local-media.mjs` validates repository-local image size, signature/structure, and filename extension, copies active local assets into `dist`, and verifies that the built bytes match the source. The production workflow also asserts required local assets.
 
-Also do not expose JSON import/export in the current v1 UI. We discussed JSON export → edit externally → import as a useful future bulk-edit workflow, but I specifically asked to remove the temporary My Gear data card for now.
+## My Gear v2 editing — still deferred
 
-When v2 work resumes:
+Do not build editing UI unless I explicitly resume it.
 
-- normal forms are the everyday CRUD path;
-- JSON export/import can be a bulk-edit/backup path;
-- do **not** add an in-app raw JSON editor.
+When resumed:
+
+- normal forms are the everyday Add/Edit/Delete path;
+- validated JSON export/import may be backup/bulk-edit tooling;
+- no in-app raw JSON editor.
 
 ## Current core fishing setup
 
@@ -198,145 +236,105 @@ When v2 work resumes:
 ### Main spinning setup
 
 - Daiwa Tatula XT `TATULAXT702MFS`
-- 7', medium power, fast action, 2-piece
-- Daiwa Exceler LT `EXELT2500D-XH`, 6.2:1 gear ratio
-- Sufix 832 15 lb Hi-Vis Yellow braid, 300 yd
+- Daiwa Exceler LT `EXELT2500D-XH`
+- Sufix 832 15 lb Hi-Vis Yellow braid
 - Seaguar InvizX 8 lb fluorocarbon leader
 
 ### Main baitcasting setup
 
-- Shimano Zodias `ZDC72MHB`, 7'2", medium-heavy, fast
-- Shimano 22 SLX DC XT 71HG, 7.4:1 gear ratio
+- Shimano Zodias `ZDC72MHB`
+- Shimano 22 SLX DC XT 71HG
 - PowerPro Super8 Slick V2 30 lb Moss Green braid
 - Seaguar InvizX 12 lb fluorocarbon leader
 
 ### Shore trout spincast setup
 
-- Pflueger President Spincast Combo
-- part `PRESSC-606L2CBO`
+- Pflueger President Spincast Combo `PRESSC-606L2CBO`
 - 6'6" medium-power 2-piece rod
-- reel rated 8-14 lb line, 3.8:1 gear ratio
+- 3.8:1 reel
 - recommended 6 lb mono
 
-Jacob and I share tackle; his smaller hard baits generally fit the spinning setup best.
+For exact product values and current owned inventory, trust `pwa/data/gear.seed.json` rather than reconstructing from this bootstrap.
 
-For kayak fishing plans, account for paddle-only boat control by favoring routes, controlled drifts, trolling passes, and casting ahead rather than assuming stationary hovering.
+## Current unresolved priorities
 
-## Important My Gear content decisions already incorporated
+Use `Fishing_TODO.md` as canonical. Important current items:
 
-The deep My Gear scrub immediately before the data refactor corrected many product identities/specs/links and should not be lost. The structured seed was created from that reviewed content.
-
-Important examples:
-
-- Sufix 832 manufacturer link is Sufix/Rapala; no separate original Amazon link.
-- PowerPro Super8 Slick V2 has explicit PowerPro/Shimano manufacturer link.
-- Seaguar InvizX manufacturer link is explicit; 8 lb has original Amazon retailer link, 12 lb has original Tackle Warehouse retailer link.
-- Cylinder weights: `THKFISH / 28 pcs sinkers set`.
-- Egg sinkers: `Eagle Claw / Egg sinkers`.
-- Swiveling trolling sinkers: `Eagle Claw / Swiveling trolling sinkers`.
-- Glass beads: `Top Brass / Czechoslovakian Glass Beads`.
-- VMC Crossover Rings model: `Crossover rings`.
-- VMC Redline Weedless Wacky Neko model: `Redline Weedless Wacky Neko`.
-- Gamakatsu G-Finesse Drop Shot Hook model: `G-Finesse Drop Shot Hook`.
-- Gamakatsu EWG Worm Offset Hook model: `EWG Worm Offset Hook`.
-- South Bend Hook Assortment combines standard and Aberdeen/long-shank hooks.
-- Lure type names include **Jigs** and **Soft plastics**.
-- Panther Martin entries were removed after identifying the owned spinner as Mepps Aglia #3.
-- Owned inline-spinner records include Mepps Aglia #3 plus two Generic spinner records.
-- Acme is the manufacturer for Kastmaster.
-- Dick Nite spoon guidance includes: rig split rings top/bottom with the single hook point toward the concave side, and fish with a bit of nightcrawler or PowerBait egg.
-
-For exact values, trust `pwa/data/gear.seed.json` rather than reconstructing from this summary.
-
-## Media state
-
-The PWA caches representative product images at build time and has a zoom viewer. Previous blocker fixes established:
-
-- minimum/100% view contains the full source image;
-- pinch zoom/pan and +/-/reset work;
-- mobile viewer stays inside the visible dynamic viewport with accessible close control;
-- full exact Tatula XT product image is used;
-- Pearl White Flicker Shad 5 image was corrected;
-- requested manufacturer-source images were refreshed where verifiable.
-
-The two Tsuridamashii products still have **no product image**. Amazon blocks reliable automated retrieval, and exact external mirrors also did not yield usable image responses. Do not substitute unverified look-alike images.
-
-## Knowledge-base migration history
-
-The OneNote PDF was migrated to GitHub Markdown. The later OneNote MHT export restored external hyperlinks inline. On 2026-08-29, I designated OneNote as the most up-to-date historical source of truth and closed the migration audit without requiring exhaustive reconciliation of every earlier ChatGPT transcript.
-
-Historical chats remain useful supplemental evidence, but they are not a completeness gate. Do not resurrect old rejected/superseded ideas without checking current files and the decision log.
-
-## Evidence/status labels for Markdown knowledge/reference material
-
-- **OWNED / INSTALLED** — actually owned or installed.
-- **USER VERIFIED** — physically measured, inspected, or explicitly confirmed by me.
-- **USER OBSERVED** — behavior I personally observed.
-- **MANUFACTURER DOCUMENTED** — exact manufacturer documentation.
-- **ONENOTE SOURCE** — imported from OneNote PDF.
-- **ONENOTE LINK RESTORED** — URL recovered from OneNote MHT.
-- **HISTORICAL CHAT SEED** — supplemental prior-chat evidence.
-- **RESEARCHED / CANDIDATE** — considered but not purchased/installed.
-- **REJECTED / SUPERSEDED** — no longer current.
-- **PROBABLE** — strong inference, not verified.
-- **UNKNOWN / UNRESOLVED** — not established.
-
-Do not convert candidate gear into owned gear unless I confirm it or current durable data already establishes ownership.
-
-## Current open priorities
-
-Use `Fishing_TODO.md` as canonical. Especially important now:
-
-1. Defer My Gear CRUD forms and JSON import/export UI until v2.
-2. Resolve PowerBait hook-size conflict (#4 in OneNote rig vs prior #8 guidance).
-3. Resolve the preserved loop-knot conflict.
-4. Continue curating complete KB documents and structured catches.
+1. Spot-check/accept the PR #28 production content and imagery; report any final corrections.
+2. Resolve the PowerBait hook-size conflict (#4 OneNote rig vs. prior #8 guidance).
+3. Resolve the loop-knot guidance conflict.
+4. Continue adding structured catches; record setup on new catches when known.
 5. Verify actual fish-finder power/wiring installed state.
 6. Verify Bonafide RVR119 brass insert/thread sizes.
 7. Resolve rear flush rod-holder angle modification.
 8. Confirm purchase status of Bonafide under-seat tackle storage and YakAttack fish cooler bag.
+9. Remaining candidate KB articles include Texas Rig, Carolina Rig, Alabama Rig, Neko Rig, and Spoons.
+
+## Evidence/status labels for reference Markdown
+
+- **OWNED / INSTALLED**
+- **USER VERIFIED**
+- **USER OBSERVED**
+- **MANUFACTURER DOCUMENTED**
+- **ONENOTE SOURCE**
+- **ONENOTE LINK RESTORED**
+- **HISTORICAL CHAT SEED**
+- **RESEARCHED / CANDIDATE**
+- **REJECTED / SUPERSEDED**
+- **PROBABLE**
+- **UNKNOWN / UNRESOLVED**
+
+Do not convert candidate gear into owned gear unless I confirm it or current durable runtime data already establishes ownership.
 
 ## Durable update rules
 
-Use the correct owner for the data domain:
-
 ### My Gear
 
-- Update `pwa/data/gear.seed.json` for durable baseline My Gear data changes while the current database is seed-managed.
-- Keep schema/stable IDs valid; update tests when model invariants change.
-- Do not patch presentation code to correct data that belongs in the structured record.
-- Do not fall back to Markdown parsing to derive My Gear facts.
+- update `pwa/data/gear.seed.json` for durable baseline Gear changes;
+- preserve stable IDs and strict schema-v2 validity;
+- update tests when invariants change;
+- data fixes belong in structured records, not presentation hacks;
+- do not parse legacy Markdown to recreate Gear facts.
 
-### Knowledge Base / general fishing reference
+### Knowledge Base / Catch Log
 
-- Update `pwa/data/kb.seed.json` for the unified entity index and the registered full document under `pwa/kb-content/` for authored KB content.
-- Update `pwa/data/catches.seed.json` for structured catch records.
-- Keep schema/stable IDs valid and do not infer domain facts by parsing Markdown headings/prose.
-- Update `Fishing_TODO.md` and/or `Fishing_Decision_Log.md` for unresolved work or durable decisions.
-- `Topics/*.md`, `Fishing_Gear_Registry.md`, and `Fishing_Tackle_Inventory.md` remain useful migrated/reference material, but are not application data sources.
+- update `pwa/data/kb.seed.json` for the entity index;
+- update the registered complete document under `pwa/kb-content/` for authored KB content;
+- update `pwa/data/catches.seed.json` for structured catches;
+- preserve stable IDs and validate `gear://`, `kb://`, and Catch relationships;
+- do not infer domain relationships from prose.
 
-For current regulations, stocking, access, prices, availability, or conditions, recheck authoritative current sources.
+### Project state
+
+- update `Fishing_Context.md` for current state;
+- update `Fishing_Decision_Log.md` for durable decisions/process rules;
+- update `Fishing_TODO.md` for unresolved/completed work;
+- keep this bootstrap consistent with those files when transferring chats.
 
 ## Development/deployment workflow
 
 For meaningful PWA changes:
 
-1. Fetch the latest `main` state/SHA.
-2. Create a normal feature/fix branch.
-3. Make coherent changes on that branch.
-4. Open a PR and let **PR CI run build-only validation**.
-5. Do not merge until the exact final head passes.
-6. Merge normally.
-7. Verify both production **build** and **GitHub Pages deploy** jobs before telling me it is live.
+1. fetch latest `main` and create a normal feature/fix branch;
+2. make coherent durable commits;
+3. open a PR;
+4. wait for **PR CI on the exact final head**;
+5. fix failures and rerun until that exact head is green;
+6. merge that tested head;
+7. verify the production workflow on the exact merge commit;
+8. verify both production build and actual **Deploy to GitHub Pages** succeeded;
+9. only then call the change live.
 
-Avoid disposable Actions workflows and routine direct-to-main edits. Earlier temporary workflow experiments produced confusing failure notification emails; the normal branch/PR path is the preferred operating procedure.
+Avoid disposable workflows and routine direct-to-main editing. If a task times out, prefer durable GitHub checkpoints over keeping important state only in the chat turn.
 
-If I give a requirement that would materially affect architecture, deployment, maintenance burden, performance, or usability, explain the impact and discuss its priority before letting it drive the design. This applies across application work, including TowCalc. Privacy/access control is P3 unless explicitly elevated.
+If a requirement materially affects architecture, deployment, maintenance burden, performance, or usability, explain the impact and discuss priority before letting it drive the design. Privacy/access control remains P3 unless explicitly elevated.
 
 ## Immediate continuation instruction
 
-Start in Chat mode and confirm the current repository state and latest production deployment. Treat the unified KB Entity model, structured Catch Log, retired Planner scope, title-only site header, and accepted My Gear v1 behavior as durable decisions unless I explicitly reopen them. Select any next work from `Fishing_TODO.md` or my new request; do not restart My Gear acceptance or Knowledge Base architecture design.
+Start in **Chat mode**. Restore state from the repository in the read order above and confirm the latest `main`/production state before making new changes. Treat My Gear schema v2, unified five-type KB Entity model, structured Catch Log, flat Equipment taxonomy, direct-GitHub user-image upload workflow, retired Planner scope, and current browse-only My Gear behavior as durable decisions unless I explicitly reopen them.
+
+The likely immediate next step is either my PR #28 visual/content acceptance pass or a new request from me. Do not restart the My Gear or KB architecture design from scratch.
 
 ---
 
-This bootstrap supersedes the pre-refactor Markdown-only bootstrap.
+This bootstrap supersedes all earlier Fishing bootstrap versions.
