@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { validateKbBundle, validateCatchBundle, groupEntitiesByType, catchesForEntity, KB_DESCRIPTION_MAX_LENGTH } from './kb-model.js';
+import { validateKbBundle, validateCatchBundle, groupEntitiesByType, catchesForEntity, KB_DESCRIPTION_MAX_LENGTH, CATCH_SCHEMA_VERSION } from './kb-model.js';
 
 const readJson = path => JSON.parse(fs.readFileSync(new URL(path, import.meta.url), 'utf8'));
 const kb = readJson('./data/kb.seed.json');
@@ -9,6 +9,12 @@ const gear = readJson('./data/gear.seed.json');
 
 assert.deepEqual(validateKbBundle(kb), { valid:true, errors:[] });
 assert.deepEqual(validateCatchBundle(catches, kb, gear), { valid:true, errors:[] });
+assert.equal(catches.schemaVersion, CATCH_SCHEMA_VERSION);
+assert.equal(catches.schemaVersion, 2);
+assert.equal(catches.dataVersion, '2026-09-04-catches-v2-external-notes-1');
+for (const record of catches.catches) {
+  for (const field of ['exactSpotNotes','notes','source']) assert.equal(field in record, false, `${record.id} must not contain retired narrative/provenance field ${field}.`);
+}
 
 const groups = groupEntitiesByType(kb);
 assert.equal(groups.location.length, 8);
@@ -39,7 +45,8 @@ assert.equal(yellowPerch?.name, 'Yellow Perch');
 assert.ok(yellowPerch?.picture?.src, 'Yellow Perch must have a representative picture.');
 const perchCatch = catches.catches.find(record => record.id === 'catch-2026-08-04-lake-sammamish-perch-01');
 assert.equal(perchCatch?.speciesId, 'species-perch', 'Existing perch catch must retain its stable species reference.');
-assert.match(perchCatch?.notes || '', /Yellow Perch/, 'Existing perch catch must document the Yellow Perch convention.');
+const perchNotes = fs.readFileSync(new URL('./catch-content/catch-2026-08-04-lake-sammamish-perch-01.md', import.meta.url), 'utf8');
+assert.match(perchNotes, /bench west of Tibbetts Beach/, 'Existing user-authored exact-spot note must survive in external Catch Markdown.');
 
 const kokanee = kb.entities.find(record => record.id === 'species-kokanee');
 assert.equal(kokanee?.picture?.src, './assets/kb/species/kokanee-phases.webp');
@@ -83,4 +90,14 @@ const invalidCatch = structuredClone(catches);
 invalidCatch.catches[0].techniqueId = 'technique-does-not-exist';
 assert.equal(validateCatchBundle(invalidCatch, kb, gear).valid, false);
 
-console.log('Unified Knowledge Base and Catch Log model tests passed.');
+const invalidInlineCatchNotes = structuredClone(catches);
+invalidInlineCatchNotes.catches[0].notes = 'Narrative belongs in Markdown.';
+assert.equal(validateCatchBundle(invalidInlineCatchNotes, kb, gear).valid, false,
+  'Inline Catch notes must be rejected; use catch-content/<stable-id>.md.');
+
+const invalidCatchSource = structuredClone(catches);
+invalidCatchSource.catches[0].source = 'Retired provenance';
+assert.equal(validateCatchBundle(invalidCatchSource, kb, gear).valid, false,
+  'Retired Catch source/provenance must be rejected.');
+
+console.log('Unified Knowledge Base and Catch Log v2 model tests passed.');
