@@ -32,8 +32,10 @@ assert.doesNotMatch(gearApp, /['"]line['"]\s*:\s*\[/,
   'Line must render as one flat list without Braided/Fluorocarbon section headings.');
 assert.doesNotMatch(gearApp, /My Gear data|gearExportButton|gearImportButton/,
   'v2 import/export controls must not appear in the current My Gear UI.');
-assert.match(gearApp, /function pageHeader\(title,subtitle,back,search = null\)[\s\S]*section-title-actions[\s\S]*section-search[\s\S]*back-button/,
-  'Page header must place an optional compact Search control in the same action area immediately before Back.');
+assert.match(gearApp, /const searchControl = search \? `<input class="search section-search"/,
+  'Page header must render the compact Search control when requested.');
+assert.match(gearApp, /section-title-actions">\$\{searchControl\}\$\{back \? `<button class="back-button"/,
+  'Page header action area must render Search immediately before Back.');
 assert.match(gearApp, /<h3>Notes<\/h3>/, 'Gear leaf narrative section must be titled Notes.');
 assert.match(gearApp, /renderMarkdown\(notes\)/, 'Gear Notes must use the shared safe Markdown renderer.');
 assert.match(gearApp, /const picture = record\.picture \|\| species\?\.picture \|\| null;/,
