@@ -14,6 +14,7 @@ const CORE = [
   './data/kb.seed.json',
   './data/catches.seed.json',
   './gear-media.json',
+  './gear-notes-assets.json',
   './kb-assets.json',
   './video-titles.json',
   './manifest.webmanifest',
@@ -31,6 +32,9 @@ self.addEventListener('install', event => {
     } catch (error) {
       console.warn('Optional gear media precache incomplete', error);
     }
+    const gearNotesResponse = await cache.match('./gear-notes-assets.json');
+    const gearNoteAssets = gearNotesResponse ? await gearNotesResponse.json() : [];
+    await cache.addAll(gearNoteAssets || []);
     const kbResponse = await cache.match('./kb-assets.json');
     const kbAssets = kbResponse ? await kbResponse.json() : [];
     await cache.addAll(kbAssets || []);

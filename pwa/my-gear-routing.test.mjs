@@ -40,8 +40,20 @@ assert.match(gearApp, /const searchControl = search \? `<input class="search sec
   'Page header must render the compact Search control when requested.');
 assert.match(gearApp, /section-title-actions">\$\{searchControl\}\$\{back \? `<button class="back-button"/,
   'Page header action area must render Search immediately before Back.');
-assert.match(gearApp, /<h3>Notes<\/h3>/, 'Gear leaf narrative section must be titled Notes.');
-assert.match(gearApp, /renderMarkdown\(notes\)/, 'Gear Notes must use the shared safe Markdown renderer.');
+
+assert.match(gearApp, /\.\/gear-notes-assets\.json/,
+  'My Gear must load the generated external Notes asset manifest.');
+assert.match(gearApp, /`\.\/gear-content\/\$\{item\.id\}\.md`/,
+  'Gear Notes must resolve deterministically from the stable Gear ID.');
+assert.match(gearApp, /renderMarkdown\(result\.markdown, \{ contentPath:result\.contentPath \}\)/,
+  'External Gear Notes must use the shared safe Markdown renderer with their source content path.');
+assert.match(gearApp, /gearNoteAssets && !gearNoteAssets\.has\(contentPath\)/,
+  'Production Gear pages must avoid requesting Notes files that are absent from the validated asset manifest.');
+assert.match(gearApp, /!gearNoteAssets && typeof item\.notes === 'string'/,
+  'Legacy inline Notes may only be used as a source-tree development/migration fallback when the generated manifest is unavailable.');
+assert.equal(fs.existsSync(new URL('./gear-content/setup-spinning.md', import.meta.url)), true,
+  'External Gear Notes should exist as ordinary Markdown files keyed by stable Gear ID.');
+
 assert.match(gearApp, /const picture = record\.picture \|\| species\?\.picture \|\| null;/,
   'Gear catch cards must prefer an exact catch picture and otherwise use the Species picture.');
 assert.doesNotMatch(gearApp, /How to use it|Knots & connections|resolveGuidance|sanitizeGuidanceHtml/,
@@ -76,4 +88,4 @@ assert.equal(index.includes('<script src="./app.js"'), false,
 assert.equal(index.includes('legacy-app-loader.js'), false,
   'The retired legacy route loader must not load.');
 
-console.log('My Gear routing/layout/media regression tests passed.');
+console.log('My Gear routing/layout/media/Notes regression tests passed.');

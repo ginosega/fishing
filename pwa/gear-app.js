@@ -25,6 +25,8 @@ const repo = new GearRepository();
 let bundle = null;
 let catchRows = [];
 let kbEntities = new Map();
+let gearNoteAssets = null;
+const gearNoteCache = new Map();
 let rendering = false;
 
 const ready = initialize();
@@ -44,14 +46,16 @@ if (app) new MutationObserver(() => {
 }).observe(app, { childList:true, subtree:false });
 
 async function initialize() {
-  const [gearBundle, catches, kb] = await Promise.all([
+  const [gearBundle, catches, kb, noteAssets] = await Promise.all([
     repo.initialize(),
     loadJson('./data/catches.seed.json', { catches:[] }),
-    loadJson('./data/kb.seed.json', { entities:[] })
+    loadJson('./data/kb.seed.json', { entities:[] }),
+    loadJson('./gear-notes-assets.json', null)
   ]);
   bundle = gearBundle;
   catchRows = Array.isArray(catches.catches) ? catches.catches : [];
   kbEntities = new Map((kb.entities || []).map(entity => [entity.id, entity]));
+  gearNoteAssets = Array.isArray(noteAssets) ? new Set(noteAssets) : null;
   renderIfGearRoute();
   patchHomeCopy();
 }
@@ -152,9 +156,10 @@ function renderItem(id) {
       ${item.specifications?.length ? detailCell('Specifications', escapeHtml(gearSpecificationText(item))) : ''}
       ${links.length ? detailCell('Links', linksHtml(links)) : ''}
     </div></section>
-    ${notesPanel(item.notes)}
+    ${notesPanelShell()}
     ${['lures','bait'].includes(item.category) ? renderCatchHistory(item) : ''}`;
   bindGearRoutes();
+  loadGearNotesIntoPanel(item);
 }
 
 function renderSetup(item) {
@@ -163,9 +168,10 @@ function renderSetup(item) {
   app.innerHTML = `${pageHeader(`Rod: ${rodName}, Reel: ${reelName}`,`Rods & Reels - ${displayGearType(item.type)}`,'#/inventory/rods-reels')}
     ${componentPanel('Rod',item.rod)}
     ${componentPanel('Reel',item.reel)}
-    ${notesPanel(item.notes)}
+    ${notesPanelShell()}
     ${renderCatchHistory(item)}`;
   bindGearRoutes();
+  loadGearNotesIntoPanel(item);
 }
 
 function componentPanel(title,component) {
@@ -179,9 +185,44 @@ function componentPanel(title,component) {
   </div></section>`;
 }
 
-function notesPanel(notes) {
-  if (typeof notes !== 'string' || !notes.trim()) return '';
-  return `<section class="panel"><h3>Notes</h3><div class="kb-content gear-notes">${renderMarkdown(notes)}</div></section>`;
+function notesPanelShell() {
+  return '<section class="panel" id="gearNotesPanel" hidden><h3>Notes</h3><div class="kb-content gear-notes" id="gearNotesBody"></div></section>';
+}
+
+async function loadGearNotesIntoPanel(item) {
+  const result = await loadGearNotes(item);
+  if (location.hash !== `#/inventory/item/${encodeURIComponent(item.id)}`) return;
+  const panel = document.querySelector('#gearNotesPanel');
+  const body = document.querySelector('#gearNotesBody');
+  if (!panel || !body) return;
+  if (!result.markdown.trim()) { panel.remove(); return; }
+  body.innerHTML = renderMarkdown(result.markdown, { contentPath:result.contentPath });
+  panel.hidden = false;
+}
+
+async function loadGearNotes(item) {
+  if (gearNoteCache.has(item.id)) return gearNoteCache.get(item.id);
+  const contentPath = `./gear-content/${item.id}.md`;
+  if (gearNoteAssets && !gearNoteAssets.has(contentPath)) {
+    const empty = { markdown:'', contentPath };
+    gearNoteCache.set(item.id, empty);
+    return empty;
+  }
+  try {
+    const response = await fetch(contentPath, { cache:'no-cache' });
+    if (response.ok) {
+      const loaded = { markdown:await response.text(), contentPath };
+      gearNoteCache.set(item.id, loaded);
+      return loaded;
+    }
+  } catch {}
+  // Direct source-tree development may not have the generated asset manifest yet.
+  // Retain legacy inline Notes only as a development/migration fallback; production
+  // builds register and precache the external Markdown files.
+  const fallback = !gearNoteAssets && typeof item.notes === 'string' ? item.notes : '';
+  const loaded = { markdown:fallback, contentPath };
+  gearNoteCache.set(item.id, loaded);
+  return loaded;
 }
 
 function renderCatchHistory(item) {

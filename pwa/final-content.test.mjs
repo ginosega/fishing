@@ -8,9 +8,30 @@ const local = readJson('./local-media.json');
 const mediaSources = readJson('./media-sources.json');
 const styles = fs.readFileSync(new URL('./styles.css', import.meta.url), 'utf8');
 const applyMedia = fs.readFileSync(new URL('./apply-local-media.mjs', import.meta.url), 'utf8');
+const applyGearNotes = fs.readFileSync(new URL('./apply-gear-notes.mjs', import.meta.url), 'utf8');
+
+const gearNotes = item => {
+  const url = new URL(`./gear-content/${item.id}.md`, import.meta.url);
+  return fs.existsSync(url) ? fs.readFileSync(url, 'utf8') : '';
+};
 
 assert.equal(gear.dataVersion, '2026-09-04-my-gear-v2-final-content-1');
 assert.equal(kb.dataVersion, '2026-09-04-kb-v1-final-content-1');
+
+const legacyNotes = gear.items.filter(item => typeof item.notes === 'string' && item.notes.trim());
+assert.ok(legacyNotes.length > 0, 'Expected legacy inline Notes during external-Markdown migration.');
+for (const item of legacyNotes) {
+  assert.ok(gearNotes(item).trim(), `${item.id} legacy Notes must have a migrated external Markdown file.`);
+}
+const externalNoteFiles = fs.readdirSync(new URL('./gear-content/', import.meta.url)).filter(name => name.endsWith('.md'));
+for (const filename of externalNoteFiles) {
+  const id = filename.replace(/\.md$/i, '');
+  assert.ok(gear.items.some(item => item.id === id), `${filename} must map to a current Gear stable ID.`);
+}
+assert.match(applyGearNotes, /gear-content/, 'Build must materialize external Gear Notes.');
+assert.match(applyGearNotes, /gear-notes-assets\.json/, 'Build must generate the Gear Notes offline asset manifest.');
+assert.match(applyGearNotes, /Legacy inline Notes for \$\{id\} have not been migrated/,
+  'Build must fail if an existing inline Note lacks its external Markdown replacement.');
 
 const lureTypes = new Set(gear.items.filter(item => item.category === 'lures').map(item => item.type));
 for (const oldType of ['Soft plastics','Topwater / frogs','Trout / kokanee trolling attractors']) assert.equal(lureTypes.has(oldType), false, `Retired lure type remains: ${oldType}`);
@@ -18,11 +39,11 @@ for (const newType of ['Soft plastics and swimbaits','Topwater','Trolling lures'
 
 const inlineSpinners = gear.items.filter(item => item.category === 'lures' && String(item.type || '').toLowerCase().includes('inline spinner'));
 assert.ok(inlineSpinners.length > 0, 'Expected at least one inline spinner Gear item.');
-for (const item of inlineSpinners) assert.match(item.notes || '', /kb:\/\/technique-inline-spinner/, `${item.id} must link to Inline Spinner.`);
+for (const item of inlineSpinners) assert.match(gearNotes(item), /kb:\/\/technique-inline-spinner/, `${item.id} must link to Inline Spinner.`);
 
 const snapSwivels = gear.items.filter(item => item.category === 'snaps-swivels');
 assert.ok(snapSwivels.length > 0, 'Expected Snaps & Swivels Gear items.');
-for (const item of snapSwivels) assert.match(item.notes || '', /kb:\/\/technique-snaps-swivels/, `${item.id} must link to Snaps & Swivels.`);
+for (const item of snapSwivels) assert.match(gearNotes(item), /kb:\/\/technique-snaps-swivels/, `${item.id} must link to Snaps & Swivels.`);
 
 for (const id of ['south-bend-hook-assortment','south-bend-assorted-brass-swivels']) {
   const item = gear.items.find(record => record.id === id);
@@ -119,4 +140,4 @@ for (const filename of [
   assert.match(markdown, /(?:gear|kb):\/\/[a-z0-9-]+/, `${filename} must retain at least one authored KB/Gear stable-ID navigation link.`);
 }
 
-console.log(`Final content batch validated: ${newEntities.length} new KB entities, ${localImageCases.size} new local KB images, ${gearMediaCases.size} Gear-backed KB images.`);
+console.log(`Final content batch validated: ${externalNoteFiles.length} external Gear Notes, ${newEntities.length} new KB entities, ${localImageCases.size} new local KB images, ${gearMediaCases.size} Gear-backed KB images.`);
