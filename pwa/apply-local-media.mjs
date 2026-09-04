@@ -8,9 +8,11 @@ const gearOut = path.join(dist, 'assets', 'gear');
 const config = JSON.parse(await fs.readFile(path.join(here, 'local-media.json'), 'utf8'));
 const ownership = JSON.parse(await fs.readFile(path.join(here, 'media-owners.json'), 'utf8'));
 const gearMediaPath = path.join(dist, 'gear-media.json');
+const gearSeedPath = path.join(dist, 'data', 'gear.seed.json');
 const kbSeedPath = path.join(dist, 'data', 'kb.seed.json');
 const kbAssetsPath = path.join(dist, 'kb-assets.json');
 const gearMedia = JSON.parse(await fs.readFile(gearMediaPath, 'utf8'));
+const gearSeed = JSON.parse(await fs.readFile(gearSeedPath, 'utf8'));
 const kbSeed = JSON.parse(await fs.readFile(kbSeedPath, 'utf8'));
 const kbAssets = new Set(JSON.parse(await fs.readFile(kbAssetsPath, 'utf8')));
 
@@ -20,13 +22,13 @@ if (!Array.isArray(config.gear) || !Array.isArray(config.kb) || !Array.isArray(c
 }
 
 const ownersByMedia = new Map((ownership.items || []).map(record => [record.mediaId, record.owners]));
+const gearById = new Map((gearSeed.items || []).map(item => [item.id, item]));
 const byMediaId = new Map(gearMedia.map(record => [record.id, record]));
 const kbById = new Map((kbSeed.entities || []).map(entity => [entity.id, entity]));
 await fs.mkdir(gearOut, { recursive:true });
 
 for (const item of config.gear) {
-  const owners = ownersByMedia.get(item.mediaId);
-  if (!owners?.length) throw new Error(`Local Gear media ${item.mediaId} has no explicit owner mapping.`);
+  const owners = resolveGearOwners(item);
   const source = localSource(item.source, 'assets/gear-source/');
   const bytes = await readValidatedImage(source);
   const extension = imageExtension(source, bytes);
@@ -86,6 +88,32 @@ await fs.writeFile(gearMediaPath, JSON.stringify([...byMediaId.values()], null, 
 await fs.writeFile(kbSeedPath, JSON.stringify(kbSeed, null, 2));
 await fs.writeFile(kbAssetsPath, JSON.stringify([...kbAssets].sort(), null, 2));
 console.log(`Local media validated: ${config.gear.length} active Gear, ${config.kb.length} KB, ${config.staged.length} staged.`);
+
+function resolveGearOwners(item) {
+  if (!item.mediaId) throw new Error('Local Gear media entry is missing mediaId.');
+  const explicit = item.owners;
+  if (explicit != null) {
+    if (!Array.isArray(explicit) || !explicit.length) throw new Error(`Local Gear media ${item.mediaId} owners must be a non-empty array.`);
+    return explicit.map((owner, index) => validateGearOwner(owner, `${item.mediaId}.owners[${index}]`));
+  }
+  const mapped = ownersByMedia.get(item.mediaId);
+  if (!mapped?.length) throw new Error(`Local Gear media ${item.mediaId} has no explicit owner mapping.`);
+  return mapped.map((owner, index) => validateGearOwner(owner, `${item.mediaId}.mappedOwners[${index}]`));
+}
+
+function validateGearOwner(owner, at) {
+  if (!owner || typeof owner !== 'object' || Array.isArray(owner)) throw new Error(`${at} must be an object.`);
+  if (Object.keys(owner).some(field => !['gearItemId','component'].includes(field))) throw new Error(`${at} contains an unknown field.`);
+  const gearItem = gearById.get(owner.gearItemId);
+  if (!gearItem) throw new Error(`${at}.gearItemId references unknown Gear ID ${owner.gearItemId}.`);
+  if (owner.component != null) {
+    if (!['rod','reel'].includes(owner.component)) throw new Error(`${at}.component must be rod or reel.`);
+    if (gearItem.category !== 'rods-reels') throw new Error(`${at}.component is only valid for Rods & Reels.`);
+  } else if (gearItem.category === 'rods-reels') {
+    throw new Error(`${at} must specify component for a Rods & Reels setup.`);
+  }
+  return { gearItemId:owner.gearItemId, ...(owner.component ? { component:owner.component } : {}) };
+}
 
 function localSource(value, requiredPrefix) {
   const relative = normalizeRelative(value);

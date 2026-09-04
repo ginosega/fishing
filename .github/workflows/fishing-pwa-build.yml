@@ -92,6 +92,10 @@ jobs:
           test -f pwa/dist/assets/kb/equipment/booyah-pad-crasher.jpg
           test -f pwa/dist/assets/gear/booyah-pad-crasher-assortment.jpg
           test -f pwa/dist/assets/gear/vmc-swimbait-jig.png
+          test -f pwa/dist/assets/gear/south-bend-classic-dressed-spinners.jpg
+          test -f pwa/dist/assets/gear/south-bend-removable-split-shot-sinkers.png
+          test -f pwa/dist/assets/gear/south-bend-assorted-brass-swivels.png
+          test -f pwa/dist/assets/gear/south-bend-hook-assortment.png
           grep -q 'gear-app.js?v=' pwa/dist/index.html
           grep -q 'kb-app.js?v=' pwa/dist/index.html
           grep -q 'media-ui.js?v=' pwa/dist/index.html
@@ -101,6 +105,9 @@ jobs:
           grep -q 'northern-pikeminnow.png' pwa/dist/data/kb.seed.json
           grep -q 'booyah-pad-crasher.jpg' pwa/dist/data/kb.seed.json
           ! grep -q 'kokanee-phases.webp' pwa/dist/data/kb.seed.json
+          grep -q '2026-09-03-my-gear-v2-content-1' pwa/dist/data/gear.seed.json
+          grep -q 'South Bend 125-Piece Removable Split Shot Sinkers' pwa/dist/data/gear.seed.json
+          grep -q 'South Bend 24-Piece Assorted Brass Swivels' pwa/dist/data/gear.seed.json
           grep -q '"localSource": true' pwa/dist/gear-media.json
       - name: Upload CI artifact
         uses: actions/upload-artifact@v4

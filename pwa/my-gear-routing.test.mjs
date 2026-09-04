@@ -22,10 +22,20 @@ assert.match(gearApp, /const search = items\.length >= SEARCH_THRESHOLD;/,
   'My Gear Search must be based on list size rather than a hard-coded category.');
 assert.doesNotMatch(gearApp, /const search = category === 'lures'/,
   'Lures must not be a special-case Search rule.');
+assert.match(gearApp, /id:'gearRootSearch'[\s\S]*placeholder:'Search all gear…'/,
+  'Root My Gear must provide a search across all owned Gear records.');
+assert.match(gearApp, /gearCategoryGrid[\s\S]*gearRootSearchResults/,
+  'Root My Gear search must replace the category grid with matching Gear cards while searching.');
+assert.match(gearApp, /const TYPE_ORDER = \{\s*'rods-reels':\['Spinning','Baitcasting','Spincasting'\]\s*\};/,
+  'Only Rods & Reels should retain second-level type grouping.');
+assert.doesNotMatch(gearApp, /['"]line['"]\s*:\s*\[/,
+  'Line must render as one flat list without Braided/Fluorocarbon section headings.');
 assert.doesNotMatch(gearApp, /My Gear data|gearExportButton|gearImportButton/,
   'v2 import/export controls must not appear in the current My Gear UI.');
-assert.match(gearApp, /class="section-title"><div><h2>[\s\S]*?<\/div>\$\{back \? `<button class="back-button"/,
-  'Page header must keep title/subtitle on the left and Back on the right.');
+assert.match(gearApp, /const searchControl = search \? `<input class="search section-search"/,
+  'Page header must render the compact Search control when requested.');
+assert.match(gearApp, /section-title-actions">\$\{searchControl\}\$\{back \? `<button class="back-button"/,
+  'Page header action area must render Search immediately before Back.');
 assert.match(gearApp, /<h3>Notes<\/h3>/, 'Gear leaf narrative section must be titled Notes.');
 assert.match(gearApp, /renderMarkdown\(notes\)/, 'Gear Notes must use the shared safe Markdown renderer.');
 assert.match(gearApp, /const picture = record\.picture \|\| species\?\.picture \|\| null;/,
