@@ -1,66 +1,33 @@
-One or more narrow
-blades mounted on a straight wire shaft, with a bullet or torpedo-shaped
-weighted body on the shaft and feathers, hair, or soft plastic on treble hook.
-Compact, casts well, and imitates small baitfish or insects. The lure spins
-directly around the wire shaft and provides a tight, consistent spinning
-vibration and very high flash. Good for trout, smallmouth bass, and panfish.
+One or more narrow blades mounted on a straight wire shaft, with a bullet or torpedo-shaped weighted body on the shaft and feathers, hair, or soft plastic on treble hook. Compact, casts well, and imitates small baitfish or insects. The lure spins directly around the wire shaft and provides a tight, consistent spinning vibration and very high flash. Good for trout, smallmouth bass, and panfish.
 
 # Use
-
-- Use in clear, cold rivers,
-  creeks, and lakes- the tight wobble and flash excels when fish are finicky
-- Best in open water along the
-  deep edge of cover, over the top of cover, or along the edge of a current
-  in the river
-- Don't use in heavy cover;
-  doesn't deflect well and can snag easily
+- Use in clear, cold rivers, creeks, and lakes- the tight wobble and flash excels when fish are finicky
+- Best in open water along the deep edge of cover, over the top of cover, or along the edge of a current in the river
+- Don't use in heavy cover; doesn't deflect well and can snag easily
 
 # Gear
-
-- Rod: Ultralight or light
-  power rod, fast action
+- Rod: Ultralight or light power rod, fast action
 - Reel: Spinning
-- Line: 4–8 lb. mono or 6–10
-  lb. fluorocarbon for trout/panfish; up to 12–15 lb. for bass.
+- Line: 4–8 lb. mono or 6–10 lb. fluorocarbon for trout/panfish; up to 12–15 lb. for bass.
 - Tackle:
-
-- If using only fluoro or mono
-  line, use a swivel about 12–18 inches ahead of the lure and don't add a
-  dressing. Add a snap if changing lures. Mainline → swivel → 12–18” leader
-  → snap (optional) → lure.
-- If using braided line and a
-  leader, insert a swivel in the leader. Mainline → 12-18" leader →
-  swivel → 12-18" leader → (optional) snap → lure
-
-- Knot: Improved Clinch. Retie
-  often, as vibrations stress the knot over time.
+  - If using only fluoro or mono line, use a swivel about 12–18 inches ahead of the lure and don't add a dressing. Add a snap if changing lures. Mainline → swivel → 12–18” leader → snap (optional) → lure.
+  - If using braided line and a leader, insert a swivel in the leader. Mainline → 12-18" leader → swivel → 12-18" leader → (optional) snap → lure
+- Knot: Improved Clinch. Retie often, as vibrations stress the knot over time.
 - Lure color:
-
-- Clear water: Silver, copper,
-  or natural finishes
-- Stained water: Gold,
-  chartreuse, or black with bright dots
-- Low light: Glow,
-  fluorescent, or UV-painted blades
+  - Clear water: Silver, copper, or natural finishes
+  - Stained water: Gold, chartreuse, or black with bright dots
+  - Low light: Glow, fluorescent, or UV-painted blades
 
 # Technique
-
-- After casting, pop rod tip to
-  get blade spinning
-- Retrieve at a constant rate,
-  keeping lure just under the surface or a few feet down
-- Adjust speed so the blade
-  barely flashes under the surface for a natural presentation.
-- Retrieve a spinner slowly in
-  cold water and faster in warm water
-- When fishing in rivers and
-  streams, cast upstream at a 1:00 or 11:00 angle, guiding the spinner by
-  cover and obstructions. This is where fish will be hiding.
+- After casting, pop rod tip to get blade spinning
+- Retrieve at a constant rate, keeping lure just under the surface or a few feet down
+- Adjust speed so the blade barely flashes under the surface for a natural presentation.
+- Retrieve a spinner slowly in cold water and faster in warm water
+- When fishing in rivers and streams, cast upstream at a 1:00 or 11:00 angle, guiding the spinner by cover and obstructions. This is where fish will be hiding.
 
 # Lures
 
 ## Brands
-
 |  |  |  |  |  |
 | --- | --- | --- | --- | --- |
 | Brand / Model | Key Features | Best Species | Ideal Conditions | Retrieve |
@@ -74,7 +41,6 @@ vibration and very high flash. Good for trout, smallmouth bass, and panfish.
 | Blue Fox Super Vibrax Glow / UV | Modern twist with glow and UV paint for low light or deep water. | Salmon, steelhead, big trout | Low-light or deep presentations where visibility matters. |  |
 
 ## Matching Lure to Target Fish
-
 |  |  |  |  |
 | --- | --- | --- | --- |
 | Species | Best Inline Spinner Choices | Size Range (approx.) | Notes |
@@ -84,7 +50,7 @@ vibration and very high flash. Good for trout, smallmouth bass, and panfish.
 | Panfish (Bluegill, Crappie, Perch) | Rooster Tail, Joe’s Flies | #0–#1 | Light line, slow retrieve, match hatch colors. |
 | Pike / Pickerel | Mepps Aglia #4–#5, Blue Fox Vibrax | #4–#6 | Use larger sizes and metallic finishes. |
 | Salmon / Steelhead | Blue Fox Vibrax, Panther Martin | #4–#6 | Bright, high-contrast colors (orange, pink, chartreuse) work best in rivers. |
-## Related
 
+## Related
 - My Gear: [Mepps Aglia #3](gear://mepps-aglia-3), [South Bend 3-Piece Classic Dressed Spinners](gear://generic-0-inline-spinner-assortment)
 - KB: [Snaps & Swivels](kb://technique-snaps-swivels), [Trout Fishing](kb://technique-trout-fishing), [Improved Clinch Knot](kb://knot-improved-clinch)
