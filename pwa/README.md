@@ -135,6 +135,12 @@ Every Location, Species, Equipment, Technique, and Knot uses the same logical fi
 
 Use, Rigging, Notes, Resources, Warnings, links, tables, and embedded images stay in Markdown Content rather than atomic schema fields.
 
+### Physical Markdown layout
+
+Equipment and Technique entities currently share the physical directory `kb-content/techniques/`; the entity's `type` in `data/kb.seed.json` controls where it appears in the UI. This is a storage-path convention, not a taxonomy leak.
+
+Content-only Markdown edits are safe. Renaming or moving an article file requires updating the entity's registered `content` path. Build validation checks registered content and internal stable-ID links.
+
 ### Current final content set
 
 PR #28 refreshed these existing pages from user-supplied MHT content:
@@ -162,6 +168,8 @@ PR #28 added:
 - Spring Fishing
 
 Authored content may link to owned Gear and other KB articles by stable ID. Those links are navigation and are build-validated; they do not create reverse relationship maintenance requirements.
+
+The user is currently correcting formatting errors in many of these PR #28-created/refreshed Markdown documents. This is authored-content cleanup, not an architectural change.
 
 ## Structured Catch Log
 
@@ -192,6 +200,16 @@ If `catch.picture` is null, Catch cards/pages use the linked Species picture as 
 
 `media-sources.json` owns source/provenance; `media-owners.json` owns exact stable Gear association. `media-ui.js` performs exact owner-ID lookup and never guesses from aliases, headings, manufacturer/model strings, or rendered labels.
 
+### KB picture sources
+
+A KB `picture.src` may be:
+
+- an `http(s)` URL;
+- a safe repository-local `./assets/kb/...` path; or
+- a safe repository-local `./assets/gear/...` path when the KB page intentionally reuses a built owned-Gear image.
+
+The `./assets/gear/...` case is required by PR #28's exact owned-item picture reuse for Swimbait, Jerkbait, Crankbait, Chatterbait, Spinnerbait, and Jig.
+
 ### Repository-local media
 
 `local-media.json` configures active user-supplied local Gear/KB media. `apply-local-media.mjs`:
@@ -201,10 +219,11 @@ If `catch.picture` is null, Catch cards/pages use the linked Species picture as 
 - verifies filename extension matches detected format;
 - copies active local Gear media into `dist/assets/gear/`;
 - copies active local KB media into its stable `assets/kb/...` path;
-- updates built media/KB metadata;
-- verifies built KB bytes match source bytes.
+- updates built Gear/KB media metadata;
+- verifies built KB bytes match source bytes;
+- **revalidates the fully transformed built KB bundle before writing/deploying it**.
 
-This hardening was added after a corrupt Kokanee WebP could pass the earlier source pipeline yet render blank.
+The final point was added in PR #30 after the production build had been able to transform source-valid KB data into runtime-invalid data by substituting `./assets/gear/...` picture paths after the earlier source validation step.
 
 ### User-supplied binary workflow
 
@@ -281,26 +300,32 @@ node pwa/build.mjs
 node pwa/apply-local-media.mjs
 ```
 
-The CI workflow additionally runs structured-model, routing, KB Markdown, and final-content regression tests and verifies the deployable bundle.
+The CI workflow additionally runs structured-model, routing, KB Markdown, final-content regression tests, post-transform/local-media validation, and deployable-bundle verification.
 
 ## Current production release
 
 Latest verified release:
 
-- PR #28 — `Add final Fishing KB content and imagery batch`
-- exact tested head `c397985e99532b0ea572afd9910c0d131469a439`
-- PR CI #120 / `33840154633` — success
-- merge `093139e5314af55691e608277b68b79b2d369166`
-- production #121 / `33840208952` — build success, Pages artifact success, **Deploy to GitHub Pages success**
+- PR #30 — `Fix KB validation for Gear-backed pictures`
+- exact tested head `ffa4c500f2bf23be8d883736aed235a1e1011677`
+- PR CI #124 / `33843072806` — success
+- merge `f64217485df024ebebf15af5adfb9bbd7018be5d`
+- production #125 / `33843111957` — build success, transformed KB validation success, Pages artifact success, **Deploy to GitHub Pages success**
+- user verified the live site healthy afterward
 
 Recent stabilization:
 
+- PR #25 — Catch imagery / browse-list media polish
 - PR #26 — local media hardening
 - PR #27 — Recovery B Gear/browse/content updates
 - PR #28 — final KB/content/image batch
+- PR #29 — project-state reconciliation
+- PR #30 — Gear-backed picture validation hotfix + final transformed-data guard
 
 For meaningful changes, use a normal feature/fix branch and PR. Merge only after exact-head CI passes, then verify both the production build and actual Pages deployment before saying a release is live.
 
+Any build stage that mutates already-validated structured data must validate the final deployable form after the mutation; source-only validation is not enough.
+
 ## Future work
 
-Canonical future work is `../Fishing_TODO.md`. Major deferred/unresolved themes include PowerBait hook-size conflict, loop-knot conflict, remaining candidate rig/spoon pages, structured catch additions, hardware/install-state verification, and eventual My Gear CRUD.
+Canonical future work is `../Fishing_TODO.md`. Immediate current work is the PR #28 Equipment/Technique Markdown formatting cleanup and acceptance pass. Other major deferred/unresolved themes include PowerBait hook-size conflict, loop-knot conflict, remaining candidate rig/spoon pages, structured catch additions, hardware/install-state verification, and eventual My Gear CRUD.
