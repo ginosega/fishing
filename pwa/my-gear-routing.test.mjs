@@ -12,8 +12,12 @@ assert.match(gearApp, /data-gear-item=.*?navigate\(`#\/inventory\/item\//s,
   'Gear cards must navigate to structured item routes.');
 assert.match(gearApp, /Browse your inventory of equipment, tackle, and bait/,
   'Home/My Gear copy must use the accepted inventory description.');
-assert.match(gearApp, /function itemCard\(item\) \{\s*const meta = item\.type \|\| '';/,
-  'Second-level My Gear cards must show only the item type as subtext.');
+assert.match(gearApp, /const TYPE_LABELS = \{[\s\S]*'Trolling lures':'Trolling'[\s\S]*\};/,
+  'Stored Trolling lures records must display with the user-facing Trolling label.');
+assert.match(gearApp, /function itemCard\(item\) \{\s*const meta = displayGearType\(item\.type\);/,
+  'Second-level My Gear cards must show the user-facing item type as subtext.');
+assert.match(gearApp, /function searchableText\(item\)[\s\S]*displayGearType\(item\.type\)/,
+  'My Gear Search must index the user-facing type label rather than stale display copy.');
 assert.doesNotMatch(gearApp, /function itemCard\(item\)[\s\S]{0,260}gearSpecificationText\(item\)/,
   'Second-level My Gear cards must not include Specifications content.');
 assert.match(gearApp, /const SEARCH_THRESHOLD = 10;/,

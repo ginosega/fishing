@@ -95,6 +95,16 @@ for (const [id, mediaId] of gearMediaCases) {
 assert.equal(kbMedia.get('technique-frogs')?.gearItemId, 'booyah-pad-crasher');
 
 assert.match(styles, /\.compact-toolbar\s*\{[^}]*justify-content:\s*flex-end;/s, 'Search/filter dropdown toolbar must align right.');
+assert.match(styles, /\[hidden\]\s*\{[^}]*display:\s*none\s*!important;/s,
+  'The hidden attribute must override grid/list display rules so root Search replaces category cards.');
+assert.match(styles, /\.gear-card-picture\s*\{[^}]*width:\s*78px;[^}]*height:\s*78px;/s,
+  'Gear card thumbnails must use a square frame.');
+assert.match(styles, /\.kb-card-picture\s*\{[^}]*width:\s*78px;[^}]*height:\s*78px;/s,
+  'Knowledge Base card thumbnails must use a square frame.');
+assert.match(styles, /\.catch-card-picture\s*\{[^}]*width:\s*72px;[^}]*height:\s*72px;/s,
+  'Catch card thumbnails must use a square frame.');
+assert.match(styles, /\.gear-card-picture, \.kb-card-picture, \.catch-card-picture\s*\{[^}]*object-fit:\s*contain;[^}]*background:\s*#fff;/s,
+  'All card thumbnails must preserve the full image with white letterboxing instead of cropping.');
 assert.match(applyMedia, /if \(item\.gearMediaId\)/, 'Local-media build must support reusing Gear media on KB pages.');
 assert.match(applyMedia, /byMediaId\.get\(item\.gearMediaId\)/, 'Gear-backed KB media must resolve by stable media ID.');
 
