@@ -1,6 +1,6 @@
 # Fishing New Chat Bootstrap Prompt
 
-**Status:** ACTIVE HANDOFF — PRODUCTION VERIFIED 2026-09-04
+**Status:** ACTIVE HANDOFF — PRODUCTION HEALTHY AFTER PR #30; PR #28 MARKDOWN ACCEPTANCE CLEANUP IN PROGRESS — 2026-09-04
 
 Copy the prompt below into a new **Chat-mode** Fishing conversation.
 
@@ -98,6 +98,8 @@ Current seed:
 
 Use, Rigging, Notes, Resources, tables, links, warnings, and embedded pictures belong inside complete Markdown Content. Do not add atomic schema fields or parse prose to infer domain facts.
 
+Equipment and Technique article bodies currently share the physical directory `pwa/kb-content/techniques/`; the entity `type` determines the browse category. Content-only edits are valid. Do not rename or move a document without also updating its registered `content` path in `pwa/data/kb.seed.json`.
+
 ### 3. Catch Log — structured historical relationships
 
 `pwa/data/catches.seed.json` currently contains **5 catches**.
@@ -135,24 +137,31 @@ Live site:
 
 ### Latest verified release
 
-**PR #28 — Add final Fishing KB content and imagery batch**
+**PR #30 — Fix KB validation for Gear-backed pictures**
 
-- exact tested PR head: `c397985e99532b0ea572afd9910c0d131469a439`
-- PR CI: **#120 / 33840154633** — success
-- merge commit: `093139e5314af55691e608277b68b79b2d369166`
-- production workflow: **#121 / 33840208952** — success
+- exact tested PR head: `ffa4c500f2bf23be8d883736aed235a1e1011677`
+- PR CI: **#124 / 33843072806** — success
+- merge commit: `f64217485df024ebebf15af5adfb9bbd7018be5d`
+- production workflow: **#125 / 33843111957** — success
 - production build: success
+- transformed/local-media KB validation: success
 - GitHub Pages artifact upload: success
 - **Deploy to GitHub Pages: success**
+- user verified the live site healthy afterward in normal and InPrivate sessions
+
+PR #30 fixed a production-only mismatch from PR #28's owned-Gear image reuse. `apply-local-media.mjs` rewrote six built KB pictures to `./assets/gear/...`; the old browser-side KB validator only accepted local `./assets/kb/...` paths. The validator now accepts safe local pictures under either `./assets/kb/...` or `./assets/gear/...`, and the local-media step revalidates the **fully transformed built KB bundle** before deployment.
 
 Immediately preceding releases:
 
+- PR #25 — Catch imagery / browse-list media polish; merge `26aebfe4f428bebd735baf5a1b30ffa26b8a0b33`
 - PR #26 — repository-local media hardening; merge `9af96810cb02c81da2a0e3f5463071e020ae6cfc`; production #113 / `33833494282`
 - PR #27 — Recovery B Gear/browse/content updates; merge `2635d9eb5cb80d446050090ba3f5a2736cac0c84`; production #117 / `33834793404`
+- PR #28 — final Fishing KB content and imagery batch; merge `093139e5314af55691e608277b68b79b2d369166`; production #121 / `33840208952`
+- PR #29 — documentation/state reconciliation after PR #28; merge `b3e1b4735cbdc26c41a0bf96b8f4a19bcb09d3ca`
 
 ### What PR #28 delivered
 
-The final supplied MHT batch became the current authored KB content. Existing pages refreshed:
+Existing pages refreshed:
 
 - Swimbait
 - Jerkbait
@@ -180,11 +189,31 @@ The batch also:
 
 - added authored My Gear/KB cross-links where appropriate;
 - added Inline Spinner and Snaps & Swivels links to relevant Gear Notes;
-- activated the new local rig images and replacement Rainbow Trout, Coastal Cutthroat Trout, Smallmouth Bass, and Largemouth Bass pictures;
+- activated local rig images and replacement Rainbow Trout, Coastal Cutthroat Trout, Smallmouth Bass, and Largemouth Bass pictures;
 - reused exact owned-Gear images for the requested Swimbait, Jerkbait, Crankbait, Chatterbait, Spinnerbait, Jig, and Frog KB pages;
 - renamed lure types to **Soft plastics and swimbaits**, **Topwater**, and **Trolling lures**;
 - removed the separate Material spec row from the South Bend 120-Piece Hook Assortment and South Bend 24-Piece Assorted Brass Swivels;
 - corrected Search+filter layout so dropdown/filter controls sit on the right.
+
+## Current acceptance state — important
+
+The runtime is healthy, but the user's PR #28 acceptance pass found **formatting errors in many newly created/refreshed Equipment and Technique Markdown documents**. The user is currently editing those `.md` files directly in GitHub under `pwa/kb-content/techniques/`.
+
+`Fishing_TODO.md` item **FISH-TODO-052** owns this cleanup. After the edits are complete, run the normal validation/build/deploy path and spot-check representative Equipment/Technique pages, images, links, and Search/filter placement before closing acceptance.
+
+## Interrupted-chat reconstruction
+
+The recovered substantive build sequence was:
+
+1. PR #24 — flat five-type KB taxonomy / Equipment peer type.
+2. PR #25 — Catch imagery, Yellow Perch convention, 10-entry Search rule, Catch Back fix, Gear card thumbnails, linked owned-item captions.
+3. PR #26 — repository-local media hardening and direct-GitHub binary workflow.
+4. PR #27 — Recovery B Gear/browse/content updates.
+5. PR #28 — final MHT content/images and authored cross-links.
+6. PR #29 — state reconciliation/handoff.
+7. PR #30 — production recovery for Gear-backed KB image validation.
+
+No distinct post-PR #29 feature branch, commit, PR, or recoverable unmerged application functionality was found. Do not invent a hidden build. The correct resume point is the PR #28 Markdown cleanup/acceptance work, then `Fishing_TODO.md`.
 
 ## Current UI conventions
 
@@ -200,9 +229,7 @@ The batch also:
 
 ## Media workflow — standing rule
 
-This is important because it blocked the project repeatedly on 2026-09-03.
-
-The failure was **not** the PWA, GitHub Actions, or bad image files. The unreliable step was transporting binary image bytes/base64 through ChatGPT's GitHub tool path.
+The repeated 2026-09-03 failures were caused by transporting binary image bytes/base64 through ChatGPT's GitHub tool path, not by the PWA or GitHub Actions.
 
 For future user-supplied images:
 
@@ -212,7 +239,7 @@ For future user-supplied images:
 4. You update `pwa/local-media.json`, data, Markdown, tests, and build checks as appropriate.
 5. **Do not try to base64-encode or upload image binaries through ChatGPT/GitHub connector calls.**
 
-`pwa/apply-local-media.mjs` validates repository-local image size, signature/structure, and filename extension, copies active local assets into `dist`, and verifies that the built bytes match the source. The production workflow also asserts required local assets.
+`pwa/apply-local-media.mjs` validates repository-local image size, signature/structure, and filename extension, copies active local assets into `dist`, verifies built bytes, updates built media/KB metadata, and revalidates the final transformed KB bundle.
 
 ## My Gear v2 editing — still deferred
 
@@ -260,7 +287,7 @@ For exact product values and current owned inventory, trust `pwa/data/gear.seed.
 
 Use `Fishing_TODO.md` as canonical. Important current items:
 
-1. Spot-check/accept the PR #28 production content and imagery; report any final corrections.
+1. Finish the PR #28 Equipment/Technique Markdown formatting cleanup and final acceptance pass.
 2. Resolve the PowerBait hook-size conflict (#4 OneNote rig vs. prior #8 guidance).
 3. Resolve the loop-knot guidance conflict.
 4. Continue adding structured catches; record setup on new catches when known.
@@ -325,15 +352,17 @@ For meaningful PWA changes:
 8. verify both production build and actual **Deploy to GitHub Pages** succeeded;
 9. only then call the change live.
 
+Additionally, if a build stage mutates already-validated structured data, validate the **final deployable transformed data** after that mutation. Source-only validation is not sufficient.
+
 Avoid disposable workflows and routine direct-to-main editing. If a task times out, prefer durable GitHub checkpoints over keeping important state only in the chat turn.
 
 If a requirement materially affects architecture, deployment, maintenance burden, performance, or usability, explain the impact and discuss priority before letting it drive the design. Privacy/access control remains P3 unless explicitly elevated.
 
 ## Immediate continuation instruction
 
-Start in **Chat mode**. Restore state from the repository in the read order above and confirm the latest `main`/production state before making new changes. Treat My Gear schema v2, unified five-type KB Entity model, structured Catch Log, flat Equipment taxonomy, direct-GitHub user-image upload workflow, retired Planner scope, and current browse-only My Gear behavior as durable decisions unless I explicitly reopen them.
+Start in **Chat mode**. Restore state from the repository in the read order above and confirm the latest `main`/production state before making new changes. Treat My Gear schema v2, unified five-type KB Entity model, structured Catch Log, flat Equipment taxonomy, direct-GitHub user-image upload workflow, post-transform validation rule, retired Planner scope, and current browse-only My Gear behavior as durable decisions unless I explicitly reopen them.
 
-The likely immediate next step is either my PR #28 visual/content acceptance pass or a new request from me. Do not restart the My Gear or KB architecture design from scratch.
+The immediate continuation is the PR #28 Equipment/Technique Markdown formatting cleanup/acceptance pass unless I give a newer request. Do not restart the My Gear or KB architecture design from scratch and do not assume there is an unmerged hidden build after PR #29.
 
 ---
 

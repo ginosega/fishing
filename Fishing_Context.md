@@ -1,6 +1,6 @@
 # Fishing Context
 
-**Status:** Active authoritative current-state summary. OneNote migration/link restoration completed 2026-08-29; My Gear schema-v2/data-model reconciliation completed 2026-09-02; repository-local media recovery completed 2026-09-03; latest Fishing Companion production release verified 2026-09-04.
+**Status:** Active authoritative current-state summary. OneNote migration/link restoration completed 2026-08-29; My Gear schema-v2/data-model reconciliation completed 2026-09-02; repository-local media recovery completed 2026-09-03; Fishing Companion production hotfix PR #30 verified 2026-09-04.
 
 This file is a compact router/current-state summary. Detailed procedures and long-form fishing knowledge belong in their domain owners.
 
@@ -99,6 +99,8 @@ Current seed:
 
 Equipment is a flat peer category for rigs, presentations, lure/gear guides, and equipment knowledge. Technique is reserved for strategy/conditions/species-oriented guidance. Stable IDs survive taxonomy changes.
 
+The Equipment and Technique article bodies currently remain physically stored together under `pwa/kb-content/techniques/`; the entity `type` in `kb.seed.json` determines the browse category. Do not rename or move an article file without updating its registered `content` path.
+
 PR #28 added Inline Spinner, Snaps & Swivels, Flasher Rig, Inline Trolling Rig, Bobber Rig, Slip Sinker Rig, and Spring Fishing and refreshed Swimbait, Jerkbait, Crankbait, Chatterbait, Spinnerbait, Jig, Frog, Drop Shot, Wacky Worm, Ned Rig, and Trout Fishing.
 
 ### Catch Log
@@ -120,20 +122,27 @@ Live URL: `https://ginosega.github.io/fishing/`
 
 ### Latest verified release
 
-**PR #28 — Add final Fishing KB content and imagery batch**
+**PR #30 — Fix KB validation for Gear-backed pictures**
 
-- exact tested head: `c397985e99532b0ea572afd9910c0d131469a439`
-- PR CI: **#120 / 33840154633**, success
-- merge commit: `093139e5314af55691e608277b68b79b2d369166`
-- production workflow: **#121 / 33840208952**, success
+- exact tested head: `ffa4c500f2bf23be8d883736aed235a1e1011677`
+- PR CI: **#124 / 33843072806**, success
+- merge commit: `f64217485df024ebebf15af5adfb9bbd7018be5d`
+- production workflow: **#125 / 33843111957**, success
 - production build: success
+- transformed/local-media KB validation: success
 - GitHub Pages artifact: success
 - **Deploy to GitHub Pages: success**
+- user verified the live site healthy in both normal and InPrivate browser sessions after deployment.
+
+PR #30 was a production hotfix for a release defect introduced by the PR #28 Gear-backed KB-image reuse path. `apply-local-media.mjs` legitimately rewrote six KB `picture.src` values to `./assets/gear/...`, but browser-side KB validation previously accepted local pictures only under `./assets/kb/...`. The hotfix now accepts safe local picture paths under either asset root and, critically, revalidates the **fully transformed built KB bundle** before deployment.
 
 Recent releases immediately preceding it:
 
+- PR #25: Catch imagery / browse-list media polish; merge `26aebfe4f428bebd735baf5a1b30ffa26b8a0b33`
 - PR #26: repository-local media hardening; merge `9af96810cb02c81da2a0e3f5463071e020ae6cfc`; production #113 / `33833494282`
 - PR #27: Recovery B Gear/browse/content updates; merge `2635d9eb5cb80d446050090ba3f5a2736cac0c84`; production #117 / `33834793404`
+- PR #28: final KB content and imagery batch; merge `093139e5314af55691e608277b68b79b2d369166`; production #121 / `33840208952`
+- PR #29: documentation/state reconciliation after PR #28; merge `b3e1b4735cbdc26c41a0bf96b8f4a19bcb09d3ca`
 
 ### Current accepted behavior
 
@@ -148,6 +157,27 @@ Recent releases immediately preceding it:
 - Lure type labels include **Soft plastics and swimbaits**, **Topwater**, and **Trolling lures**.
 - South Bend hook/swivel records retain requested size information without a separate `Material` specification row.
 
+## Current acceptance / content-cleanup state
+
+The user has completed enough of the PR #28 production acceptance pass to identify a substantial authored-content issue: **many newly created or refreshed Equipment/Technique Markdown documents contain formatting errors**. The application/runtime architecture is healthy; the problem is in authored Markdown presentation.
+
+The user is currently correcting those documents directly in GitHub under `pwa/kb-content/techniques/`. Content-only edits are valid; files should not be renamed or moved unless `pwa/data/kb.seed.json` is updated too. After the edits are complete, run the normal validation/build/deploy path and perform a final Equipment/Technique spot-check.
+
+## Interrupted-chat reconstruction
+
+Repository history plus recovered prior-chat context establish the substantive work sequence that led into the interrupted handoff:
+
+1. **PR #24** established the flat five-type KB taxonomy with Equipment as a peer type.
+2. The user then requested a combined KB/Gear/Catch polish pass: linked owned-item picture captions, replacement Kokanee image, Yellow Perch standing interpretation, Catch picture fallback with future exact overrides, Catch Log Back-button repair, the 10-entry Search rule, and Gear card thumbnails.
+3. **PR #25** implemented that Catch/KB/Gear media-polish batch.
+4. Image-transfer failures then forced the direct-GitHub binary workflow; **PR #26** hardened local-media handling.
+5. **PR #27** completed Recovery B Gear/browse/content cleanup.
+6. **PR #28** imported the supplied final MHT content and imagery batch, creating/updating the Equipment/Technique pages now being manually formatting-cleaned.
+7. **PR #29** reconciled documentation/state for handoff.
+8. The replacement chat then discovered and fixed the PR #28 Gear-backed-picture runtime validation defect in **PR #30**.
+
+No distinct post-PR #29 feature branch, commit, PR, or recoverable user request has been found that represents additional unmerged application functionality. Therefore the correct resume point is **not an unknown hidden build**: it is the PR #28 acceptance/content-cleanup work now underway, followed by the still-open product backlog. If a specific feature request from the dead chat is remembered later, treat it as new evidence and reconcile it against current `main` before implementation.
+
 ## Media handling convention
 
 The repeated 2026-09-03 failures were isolated to binary transport through the ChatGPT-to-GitHub tool path, not to the PWA or GitHub Actions.
@@ -159,7 +189,7 @@ Standing workflow for user-supplied images:
 3. ChatGPT verifies the uploaded file and handles manifests/data/tests/PR/deploy.
 4. Do **not** encode or push image binaries through ChatGPT tool calls.
 
-`pwa/apply-local-media.mjs` validates repository-local image size, format signatures/structure, and extension consistency before copying assets into the build. `pwa/local-media.json` is the active local-media configuration.
+`pwa/apply-local-media.mjs` validates repository-local image size, format signatures/structure, and extension consistency, copies active local assets into the build, updates built metadata, verifies built bytes, and revalidates the transformed KB bundle before deployment.
 
 ## Deferred v2 behavior
 
@@ -180,6 +210,7 @@ Standing workflow for user-supplied images:
 
 Use `Fishing_TODO.md` as canonical. Important unresolved items include:
 
+- finish the Equipment/Technique Markdown formatting cleanup and acceptance pass;
 - resolve PowerBait hook-size guidance conflict;
 - resolve loop-knot guidance conflict;
 - continue structured Catch Log additions without inventing historical relationships;
@@ -187,8 +218,7 @@ Use `Fishing_TODO.md` as canonical. Important unresolved items include:
 - verify Bonafide RVR119 insert bolt/thread sizes;
 - decide whether/how to modify the rear flush rod-holder angle;
 - confirm purchase status of Bonafide under-seat tackle storage and YakAttack fish cooler bag;
-- complete remaining candidate KB articles such as Texas, Carolina, Alabama, Neko rigs, and Spoons;
-- perform user-facing spot-check/acceptance of the latest PR #28 production content if not already done.
+- complete remaining candidate KB articles such as Texas, Carolina, Alabama, Neko rigs, and Spoons.
 
 ## Migration record
 
