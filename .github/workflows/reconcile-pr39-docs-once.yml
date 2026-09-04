@@ -19,6 +19,13 @@ jobs:
       - name: Apply documentation reconciliation if present
         run: |
           if [ -f reconcile-pr39-docs-once.mjs ]; then
+            python - <<'PY'
+          from pathlib import Path
+          p = Path('reconcile-pr39-docs-once.mjs')
+          s = p.read_text()
+          s = s.replace('Markdown (`gear-content/<gear-id>.md`, `catch-content/<catch-id>.md`)', 'Markdown (\\`gear-content/<gear-id>.md\\`, \\`catch-content/<catch-id>.md\\`)')
+          p.write_text(s)
+          PY
             node reconcile-pr39-docs-once.mjs
           fi
       - name: Commit reconciled documentation
