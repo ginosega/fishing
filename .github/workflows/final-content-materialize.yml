@@ -1,0 +1,36 @@
+name: Materialize final Fishing content batch
+
+on:
+  push:
+    branches:
+      - kb/final-content-batch-20260903
+    paths:
+      - 'pwa/materialize-final-content.mjs'
+      - '.github/workflows/final-content-materialize.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: kb/final-content-batch-20260903
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Materialize final batch
+        run: node pwa/materialize-final-content.mjs
+      - name: Commit materialized files
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add pwa/data/gear.seed.json pwa/data/kb.seed.json pwa/local-media.json pwa/apply-local-media.mjs pwa/styles.css
+          if git diff --cached --quiet; then
+            echo 'No materialized changes.'
+          else
+            git commit -m 'Materialize final Fishing content batch [skip ci]'
+            git push origin HEAD:kb/final-content-batch-20260903
+          fi
