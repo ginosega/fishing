@@ -52,6 +52,7 @@ jobs:
           node --check pwa/markdown-render.js
           node --check pwa/media-ui.js
           node --check pwa/build.mjs
+          node --check pwa/apply-local-media.mjs
           node --check pwa/serve.mjs
       - name: Test structured My Gear model
         run: node pwa/gear-model.test.mjs
@@ -63,6 +64,8 @@ jobs:
         run: node pwa/kb-routing.test.mjs
       - name: Build PWA
         run: node pwa/build.mjs
+      - name: Apply and validate local media
+        run: node pwa/apply-local-media.mjs
       - name: Verify bundle
         run: |
           test -f pwa/dist/index.html
@@ -83,11 +86,22 @@ jobs:
           test -f pwa/dist/kb-content/locations/lake-sammamish.md
           test -f pwa/dist/kb-content/techniques/ned-rig.md
           test -f pwa/dist/kb-content/knots/palomar.md
+          test -f pwa/dist/assets/kb/species/kokanee-phases.png
+          test ! -f pwa/dist/assets/kb/species/kokanee-phases.webp
+          test -f pwa/dist/assets/kb/species/northern-pikeminnow.png
+          test -f pwa/dist/assets/kb/equipment/booyah-pad-crasher.jpg
+          test -f pwa/dist/assets/gear/booyah-pad-crasher-assortment.jpg
+          test -f pwa/dist/assets/gear/vmc-swimbait-jig.png
           grep -q 'gear-app.js?v=' pwa/dist/index.html
           grep -q 'kb-app.js?v=' pwa/dist/index.html
           grep -q 'media-ui.js?v=' pwa/dist/index.html
           grep -q 'styles.css?v=' pwa/dist/index.html
           grep -q 'unified Markdown-content Knowledge Base' pwa/dist/build.json
+          grep -q 'kokanee-phases.png' pwa/dist/data/kb.seed.json
+          grep -q 'northern-pikeminnow.png' pwa/dist/data/kb.seed.json
+          grep -q 'booyah-pad-crasher.jpg' pwa/dist/data/kb.seed.json
+          ! grep -q 'kokanee-phases.webp' pwa/dist/data/kb.seed.json
+          grep -q '"localSource": true' pwa/dist/gear-media.json
       - name: Upload CI artifact
         uses: actions/upload-artifact@v4
         with:

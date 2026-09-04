@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "gear": [
+    {
+      "mediaId": "booyah-pad-crasher-assortment",
+      "source": "./assets/gear-source/booyah-pad-crasher.jpg",
+      "alt": "Booyah Pad Crasher hollow-body frog",
+      "destination": "https://www.dickssportinggoods.com/p/booyah-pad-crasher-frog-assortment-3-pack-20byhupdcrshr3pkklur/20byhupdcrshr3pkklur",
+      "sourcePage": "https://www.dickssportinggoods.com/p/booyah-pad-crasher-frog-assortment-3-pack-20byhupdcrshr3pkklur/20byhupdcrshr3pkklur"
+    },
+    {
+      "mediaId": "vmc-swimbait-jig",
+      "source": "./assets/gear-source/vmc-swimbait-jig.png",
+      "alt": "VMC Swimbait Jig white jighead",
+      "destination": "https://www.rapala.com/us_en/sbj-swimbait-jig?childSku=us-SBJ14-W",
+      "sourcePage": "https://www.rapala.com/us_en/sbj-swimbait-jig?childSku=us-SBJ14-W"
+    }
+  ],
+  "kb": [
+    {
+      "entityId": "species-kokanee",
+      "source": "./assets/kb/species/kokanee-phases.png",
+      "alt": "Kokanee shown in silver non-spawning and red spawning phases",
+      "caption": "Kokanee shown in non-spawning (silver) and spawning (red) phases",
+      "credit": null,
+      "sourceUrl": null
+    },
+    {
+      "entityId": "species-northern-pikeminnow",
+      "source": "./assets/kb/species/northern-pikeminnow.png",
+      "alt": "Northern pikeminnow",
+      "caption": "Northern pikeminnow",
+      "credit": null,
+      "sourceUrl": null
+    },
+    {
+      "entityId": "technique-frogs",
+      "source": "./assets/kb/equipment/booyah-pad-crasher.jpg",
+      "alt": "Booyah Pad Crasher hollow-body frog",
+      "caption": "Booyah Pad Crasher",
+      "credit": null,
+      "sourceUrl": null,
+      "gearItemId": "booyah-pad-crasher"
+    }
+  ],
+  "staged": [
+    { "source": "./assets/gear-source/south-bend-hook-assortment.png" },
+    { "source": "./assets/gear-source/south-bend-dressed-spinners.jpg" },
+    { "source": "./assets/gear-source/south-bend-split-shot.png" },
+    { "source": "./assets/gear-source/south-bend-brass-swivels.png" }
+  ]
+}
