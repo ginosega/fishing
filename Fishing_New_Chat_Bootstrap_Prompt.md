@@ -1,6 +1,6 @@
 # Fishing New Chat Bootstrap Prompt
 
-**Status:** ACTIVE HANDOFF — PRODUCTION VERIFIED THROUGH PR #32; PR #28 CONTENT ACCEPTANCE CLOSED — 2026-09-04
+**Status:** ACTIVE HANDOFF — PRODUCTION HEALTHY; PR #28 ACCEPTANCE CLOSED; NESTED LIST RENDERER FIXED/CONFIRMED; NIGHT-END CONTENT CHECKPOINT VERIFIED — 2026-09-04
 
 Copy the prompt below into a new **Chat-mode** Fishing conversation.
 
@@ -73,6 +73,8 @@ Equipment and Technique article bodies currently share `pwa/kb-content/technique
 
 Authored internal navigation may appear under `# Links`, `## Related`, or another sensible section. The durable invariant is a valid `gear://` / `kb://` stable-ID target, **not a particular Markdown heading**.
 
+Markdown list indentation is semantic. `pwa/markdown-render.js` must preserve nested unordered/ordered list structure; do not flatten nested source or rewrite valid nested Markdown merely to accommodate the renderer.
+
 ### 3. Catch Log — structured historical relationships
 
 `pwa/data/catches.seed.json` currently contains **5 catches**.
@@ -96,30 +98,33 @@ The current application is browse-focused and personal.
 
 Live site: `https://ginosega.github.io/fishing/`
 
-### Latest verified application release
+### Latest verified runtime release
 
-**PR #32 — Complete final KB Markdown acceptance cleanup**
+**PR #34 — Render nested Markdown lists correctly**
 
-- exact tested PR head: `973b8cb0294cfbab789b2f9dde69830199c5b83a`
-- PR CI: **#151 / 33848718142** — success
-- merge commit: `356174e1376d591e9b33bef06e52e9fdb5c3d31c`
-- production workflow: **#152 / 33848766888** — success
-- production build: success
-- transformed/local-media KB validation: success
-- replacement Largemouth/Smallmouth Bass image validation: success
-- bundle verification: success
-- GitHub Pages artifact upload: success
-- **Deploy to GitHub Pages: success**
+- exact tested PR head: `4c94156416e7bfddfb912991c86bc3e5af66b91c`
+- PR CI: **#158 / 33850003616** — success
+- merge commit: `82601038f0e931f6ef1bee4c8f5e062a73c793c5`
+- production workflow: **#159 / 33850049987** — success
+- all tests/build/transformed-local-media validation/bundle verification: success
+- GitHub Pages artifact + deployment: success
+- user confirmed the Chatterbait and Jerkbait nested lists render correctly on the live site
 
-PR #32 closed the PR #28 authored-content acceptance sequence. The user manually cleaned the imported Equipment/Technique Markdown. Final review inspected all 15 modified article files, fixed residual structure/wrapping artifacts in Chatterbait, Jerkbait, Inline Trolling Rig, and Spring Fishing, and updated `final-content.test.mjs` so it validates stable-ID navigation rather than requiring a `## Related` heading.
+PR #34 fixed a presentation defect, not a data-model defect: correctly indented nested Markdown lists looked right in GitHub but were flattened by Fishing Companion's custom renderer. The renderer is now indentation-aware and regression-tested for nested unordered and ordered lists.
 
-### Stabilization/recovery sequence now closed
+### Final night-end production content checkpoint
 
-PR #24 taxonomy → PR #25 catch/media polish → PR #26 local-media hardening → PR #27 Recovery B → PR #28 final MHT content/images → PR #29 state reconciliation → PR #30 Gear-backed-picture production hotfix → PR #31 state reconciliation → PR #32 final content acceptance.
+The audited pre-reconciliation `main` is **`955d37bf675f3163fe610324809a972916c98ef0`**. Production run **#166 / 33851195203** succeeded on that exact commit, including all tests, build, transformed/local-media validation, bundle verification, Pages artifact upload, and deployment.
 
-No separate post-PR #29 hidden/unmerged application build was found. Do not invent one or restart that recovery work.
+Late-night authored-content maintenance included **Buzzbait, Fishing Line, Rods & Reels, Walking Bait, Slip Sinker Rig, Bobber Rig, Flasher Rig, Inline Spinner, and Inline Trolling Rig**. These are ordinary KB maintenance, not continuation of PR #28 acceptance.
 
-## Current UI conventions
+### Recovery/acceptance sequence is closed
+
+PR #24 taxonomy → PR #25 catch/media polish → PR #26 local-media hardening → PR #27 Recovery B → PR #28 final MHT content/images → PR #29 reconciliation → PR #30 Gear-backed-picture production hotfix → PR #31 reconciliation → PR #32 final content acceptance → PR #33 reconciliation.
+
+No separate post-PR #29 hidden/unmerged application build was found. PR #34 was a later renderer fix discovered through live production acceptance.
+
+## Current UI/content conventions
 
 - Root My Gear and root Knowledge Base always have Search.
 - Browse-list Search appears at **10 or more entries** and is omitted below 10.
@@ -128,6 +133,8 @@ No separate post-PR #29 hidden/unmerged application build was found. Do not inve
 - My Gear contains no Knots category and remains browse-only: no Add/Edit/Delete forms and no visible import/export UI.
 - Gear leaf pages use structured Manufacturer / Model, Specifications, Links, and optional Markdown Notes.
 - KB representative pictures that depict a specific owned item may store explicit `gearItemId` and link the caption to that My Gear leaf.
+- Authored stable-ID links are heading-independent.
+- Nested lists must preserve Markdown indentation in Fishing Companion.
 
 Current lure type labels include **Soft plastics and swimbaits**, **Topwater**, and **Trolling lures**.
 
@@ -144,6 +151,12 @@ For future user-supplied images:
 `pwa/apply-local-media.mjs` validates repository-local image size, signature/structure, and filename extension, copies active local assets into `dist`, verifies built bytes, updates built media/KB metadata, and revalidates the final transformed KB bundle.
 
 A build step that mutates already-validated structured data must validate the **final deployable transformed data** after the mutation. Source-only validation is not sufficient.
+
+## Direct Markdown editing convention
+
+For deliberate one-file authored-content cleanup, direct editing of `pwa/kb-content/**` in GitHub is acceptable. Do not rename/move registered KB files without updating `kb.seed.json`.
+
+Be aware that every `pwa/**` commit triggers the shared Fishing Pages workflow. The workflow uses one global `fishing-pages` concurrency group with `cancel-in-progress: true`, so overlapping direct `main` edits can cancel an in-progress PR or production run. During coordinated runtime changes, avoid overlapping direct content pushes until exact-head CI/deploy has completed.
 
 ## My Gear v2 editing — still deferred
 
@@ -172,7 +185,7 @@ Use `Fishing_TODO.md` as canonical. Important current items include:
 7. Confirm purchase status of Bonafide under-seat tackle storage and YakAttack fish cooler bag.
 8. Remaining candidate KB articles include Texas Rig, Carolina Rig, Alabama Rig, Neko Rig, and Spoons.
 
-The PR #28 formatting-cleanup/acceptance item is complete and must not be presented as current work.
+FISH-TODO-052 (PR #28 formatting acceptance) and FISH-TODO-055 (nested-list renderer defect) are complete and must not be presented as current work.
 
 ## Durable update rules
 
@@ -202,13 +215,13 @@ For meaningful PWA changes:
 8. verify both production build and actual **Deploy to GitHub Pages** succeeded;
 9. only then call the change live.
 
-Avoid disposable workflows and routine direct-to-main editing. If a task is interrupted, prefer durable GitHub checkpoints over keeping important state only in the chat.
+Avoid disposable workflows. If a task is interrupted, prefer durable GitHub checkpoints over keeping important state only in the chat.
 
 ## Immediate continuation instruction
 
-Start in **Chat mode**. Restore state from the repository in the read order above and confirm current `main` before making changes. Treat My Gear schema v2, unified five-type KB Entity model, structured Catch Log, flat Equipment taxonomy, direct-GitHub image workflow, final transformed-data validation, retired Planner scope, browse-only My Gear behavior, and heading-independent authored stable-ID links as durable decisions unless I explicitly reopen them.
+Start in **Chat mode**. Restore state from the repository in the read order above and confirm current `main` before making changes. Treat My Gear schema v2, unified five-type KB Entity model, structured Catch Log, flat Equipment taxonomy, direct-GitHub image workflow, final transformed-data validation, retired Planner scope, browse-only My Gear behavior, heading-independent authored stable-ID links, and indentation-aware nested Markdown list rendering as durable decisions unless I explicitly reopen them.
 
-The PR #28 recovery/acceptance sequence is closed. Continue from the current user request or the canonical `Fishing_TODO.md` backlog; do not resume obsolete cleanup work.
+The PR #28 recovery/acceptance sequence is closed, and the nested-list defect is fixed. Continue from my current request or the canonical `Fishing_TODO.md` backlog; do not resume obsolete cleanup work.
 
 ---
 

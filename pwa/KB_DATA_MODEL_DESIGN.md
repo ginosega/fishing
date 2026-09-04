@@ -4,7 +4,7 @@
 
 **Updated:** 2026-09-04
 
-**Current implementation verification:** The unified KB/Catch architecture originated in PR #13, was extended with flat Equipment taxonomy in PR #24, received the final content/image batch in PR #28, was hardened for transformed Gear-backed pictures in PR #30, and completed authored-content acceptance in PR #32. Latest verified application merge is `356174e1376d591e9b33bef06e52e9fdb5c3d31c`; production run #152 / `33848766888` completed build, transformed/local-media validation, bundle verification, GitHub Pages artifact upload, and deployment successfully.
+**Current implementation verification:** The unified KB/Catch architecture originated in PR #13, was extended with flat Equipment taxonomy in PR #24, received the final content/image batch in PR #28, was hardened for transformed Gear-backed pictures in PR #30, completed authored-content acceptance in PR #32, and gained indentation-aware nested Markdown list rendering in PR #34. Latest verified runtime merge is `82601038f0e931f6ef1bee4c8f5e062a73c793c5`; production run #159 / `33850049987` completed tests, build, transformed/local-media validation, bundle verification, GitHub Pages artifact upload, and deployment successfully. The user confirmed the nested-list fix live. The final audited production content checkpoint before nightly reconciliation is `955d37bf675f3163fe610324809a972916c98ef0`, production run #166 / `33851195203`, success through Pages deployment.
 
 Current production data contains **54 KB entities** (8 Locations, 7 Species, 22 Equipment, 7 Techniques, 10 Knots) and **5 structured catches**.
 
@@ -25,7 +25,7 @@ User-facing KB sections are Locations, Species, Equipment, Techniques, Knots, an
 - Preserve complete authored fishing knowledge without unnecessary atomic fields.
 - Give every KB entity and catch a stable ID.
 - Use one entity envelope and generic renderer for all five KB entity types.
-- Preserve Markdown headings, tables, images, internal links, My Gear links, and external resources.
+- Preserve Markdown headings, tables, nested lists, images, internal links, My Gear links, and external resources.
 - Support exact Catch backlinks through structured IDs.
 - Validate explicit relationships rather than infer them from prose/display text.
 - Keep My Gear, KB, and Catch Log as separate fact owners.
@@ -151,13 +151,15 @@ ChatGPT must **not** upload/base64-transport user image binaries through connect
 
 ## 8. Content rules
 
-The complete Markdown document may contain any useful headings and narrative structure, including Use / When to Use, Rigging / Setup, Technique / Retrieve, Gear / Tackle, Notes / Warnings, Resources, tables, external links, `gear://stable-id`, `kb://stable-id`, registered relative KB-document links, and embedded local/external images.
+The complete Markdown document may contain any useful headings and narrative structure, including Use / When to Use, Rigging / Setup, Technique / Retrieve, Gear / Tackle, Notes / Warnings, Resources, tables, nested unordered/ordered lists, external links, `gear://stable-id`, `kb://stable-id`, registered relative KB-document links, and embedded local/external images.
 
 The app does **not** parse headings or prose to infer structured facts or relationships.
 
 Content-only Markdown edits are valid. Renaming or moving a document requires updating the entity's `content` path in `kb.seed.json`.
 
 Authored stable-ID navigation is semantically independent of the heading it appears under. `# Links`, `## Related`, or another sensible section is acceptable; the durable requirement is that the `gear://` / `kb://` target exists. PR #32 changed the final-content regression accordingly.
+
+Markdown list indentation is also semantic. PR #34 changed the custom renderer so indented child items remain nested `<ul>` / `<ol>` structures rather than being flattened. Regression tests cover nested unordered and ordered lists. Correctly authored nested source should not be flattened as a workaround.
 
 ## 9. Link rules
 
@@ -233,9 +235,11 @@ All five entity-category lists are filtered views of the same entity collection.
 
 PR #28 refreshed Swimbait, Jerkbait, Crankbait, Chatterbait / Bladed Jig, Spinnerbait, Jigs, Frogs, Drop Shot, Wacky Worm, Ned Rig, and Trout Fishing, and added Inline Spinner, Snaps & Swivels, Flasher Rig, Inline Trolling Rig, Bobber Rig, Slip Sinker Rig, and Spring Fishing.
 
-The user completed a broad manual formatting cleanup of the imported pages on 2026-09-04. Final acceptance reviewed all 15 modified Equipment/Technique documents, fixed residual structure/wrapping issues in Chatterbait, Jerkbait, Inline Trolling Rig, and Spring Fishing, validated replacement Largemouth/Smallmouth Bass images, and production-deployed PR #32 successfully.
+The user completed a broad manual formatting cleanup of the imported pages on 2026-09-04. Final acceptance reviewed the modified Equipment/Technique documents, fixed residual structure/wrapping issues, validated replacement Largemouth/Smallmouth Bass images, and production-deployed PR #32 successfully.
 
 **PR #28 content acceptance is closed.** Future changes to these articles are ordinary KB maintenance.
+
+Late-night ordinary content maintenance surrounding and after PR #34 updated Buzzbait, Fishing Line, Rods & Reels, Walking Bait, Slip Sinker Rig, Bobber Rig, Flasher Rig, Inline Spinner, and Inline Trolling Rig. The final audited production content checkpoint is `955d37bf675f3163fe610324809a972916c98ef0`, run #166 / `33851195203`, success.
 
 ## 15. Validation invariants
 
@@ -251,6 +255,7 @@ Build/tests verify at least:
 - `gearItemId`, `gear://`, and `kb://` targets resolve;
 - authored stable-ID navigation is retained independent of section heading;
 - registered relative KB links resolve;
+- nested unordered/ordered Markdown lists retain indentation-based hierarchy in renderer regression tests;
 - Catch Species/Location/Gear/presentation references resolve to valid targets/categories;
 - exactly one lure-or-bait per Catch;
 - no historical inference/fuzzy fallback;
@@ -265,12 +270,15 @@ If future KB/Catch editing is requested, add a repository/store layer only when 
 
 ## 17. Current release verification
 
-Latest verified application release:
+Latest verified runtime release:
 
-- PR #32 exact head `973b8cb0294cfbab789b2f9dde69830199c5b83a`
-- PR CI #151 / `33848718142` — success
-- merge `356174e1376d591e9b33bef06e52e9fdb5c3d31c`
-- production #152 / `33848766888` — build, transformed/local-media validation, replacement bass-image validation, bundle verification, Pages artifact, and Deploy to GitHub Pages all succeeded
+- PR #34 exact head `4c94156416e7bfddfb912991c86bc3e5af66b91c`
+- PR CI #158 / `33850003616` — success
+- merge `82601038f0e931f6ef1bee4c8f5e062a73c793c5`
+- production #159 / `33850049987` — tests, build, transformed/local-media validation, bundle verification, Pages artifact, and Deploy to GitHub Pages all succeeded
+- user confirmed nested Chatterbait/Jerkbait lists display correctly in production
+
+Latest verified production content checkpoint: `955d37bf675f3163fe610324809a972916c98ef0`; production #166 / `33851195203` succeeded through all tests and Pages deployment.
 
 ## 18. Durable conflicts still unresolved
 

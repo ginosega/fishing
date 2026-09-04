@@ -129,7 +129,7 @@ Every Location, Species, Equipment, Technique, and Knot uses the same logical fi
 
 **Equipment** contains rigs, presentations, lure/gear guides, and equipment-oriented knowledge. **Technique** contains strategy, seasonal/condition guidance, species tactics, and other non-equipment methods. Stable IDs are identity, so an Equipment article may legitimately retain a historical `technique-*` ID.
 
-Use, Rigging, Notes, Resources, Warnings, links, tables, and embedded images stay in Markdown Content rather than atomic schema fields.
+Use, Rigging, Notes, Resources, Warnings, links, tables, nested lists, and embedded images stay in Markdown Content rather than atomic schema fields.
 
 ### Physical Markdown layout
 
@@ -137,13 +137,25 @@ Equipment and Technique entities currently share the physical directory `kb-cont
 
 Content-only Markdown edits are safe. Renaming or moving an article file requires updating the entity's registered `content` path. Build validation checks registered content and internal stable-ID links.
 
+### Authored Markdown rendering conventions
+
+`markdown-render.js` is a safe custom renderer. Current durable behavior includes:
+
+- headings, paragraphs, tables, block quotes, code blocks, inline emphasis/code/links/images;
+- registered relative KB links and `gear://` / `kb://` stable-ID navigation;
+- nested unordered and ordered lists based on Markdown indentation.
+
+List indentation is semantic. PR #34 fixed the prior defect where all list items were flattened even when the source contained valid indented sub-items. Do not work around the renderer by flattening correctly authored source; regression coverage in `kb-routing.test.mjs` protects nested unordered and ordered lists.
+
+Authored stable-ID links may live under `# Links`, `## Related`, or another sensible Markdown section. Tests validate the stable-ID links themselves, not a particular heading label.
+
 ### Final content set and acceptance
 
 PR #28 refreshed Swimbait, Jerkbait, Crankbait, Chatterbait / Bladed Jig, Spinnerbait, Jigs, Frogs, Drop Shot, Wacky Worm, Ned Rig, and Trout Fishing; it added Inline Spinner, Snaps & Swivels, Flasher Rig, Inline Trolling Rig, Bobber Rig, Slip Sinker Rig, and Spring Fishing.
 
-The user completed a broad formatting cleanup of those imported pages on 2026-09-04. Final acceptance inspected all 15 modified Equipment/Technique documents, fixed remaining list/wrapping artifacts in Chatterbait, Jerkbait, Inline Trolling Rig, and Spring Fishing, and validated replacement Largemouth/Smallmouth Bass images. PR #32 production-verified the final state. The PR #28 content acceptance is therefore **closed**.
+The user completed a broad formatting cleanup of those imported pages on 2026-09-04. Final acceptance inspected the modified Equipment/Technique documents, fixed remaining structure/wrapping artifacts, and validated replacement Largemouth/Smallmouth Bass images. PR #32 production-verified the final state. The PR #28 content acceptance is therefore **closed**.
 
-Authored content may link to owned Gear and other KB articles by stable ID. Those links are navigation and are build-validated; they do not create reverse relationship maintenance requirements. They may live under `# Links`, `## Related`, or another sensible Markdown section; tests validate the stable-ID links themselves, not a particular heading label.
+Late-night ordinary content maintenance surrounding and after PR #34 updated Buzzbait, Fishing Line, Rods & Reels, Walking Bait, Slip Sinker Rig, Bobber Rig, Flasher Rig, Inline Spinner, and Inline Trolling Rig. These are ordinary current KB maintenance, not continuation of PR #28 acceptance.
 
 ## Structured Catch Log
 
@@ -190,7 +202,7 @@ My Gear owns `#/inventory`, `#/inventory/{category}`, and `#/inventory/item/{sta
 
 Knowledge Base owns `#/home`, `#/kb`, the five entity-category routes, `#/kb/entity/{stable-id}`, `#/kb/catches`, and `#/kb/catch/{stable-id}`.
 
-`my-gear-routing.test.mjs`, `kb-routing.test.mjs`, and `final-content.test.mjs` guard route/content/media regressions. `final-content.test.mjs` validates stable authored KB/Gear navigation rather than requiring a specific Markdown section heading.
+`my-gear-routing.test.mjs`, `kb-routing.test.mjs`, and `final-content.test.mjs` guard route/content/media regressions. `kb-routing.test.mjs` also protects nested Markdown list behavior; `final-content.test.mjs` validates stable authored KB/Gear navigation rather than requiring a specific Markdown section heading.
 
 ## Offline and storage behavior
 
@@ -223,22 +235,29 @@ node pwa/build.mjs
 node pwa/apply-local-media.mjs
 ```
 
-CI additionally runs structured-model, routing, KB Markdown, final-content regression tests, post-transform/local-media validation, and deployable-bundle verification.
+CI additionally runs structured-model, routing, KB Markdown, nested-list, final-content regression tests, post-transform/local-media validation, and deployable-bundle verification.
 
-## Current production release
+## Current production state
 
-Latest verified application release:
+### Latest verified runtime release
 
-- PR #32 — `Complete final KB Markdown acceptance cleanup`
-- exact tested head `973b8cb0294cfbab789b2f9dde69830199c5b83a`
-- PR CI #151 / `33848718142` — success
-- merge `356174e1376d591e9b33bef06e52e9fdb5c3d31c`
-- production #152 / `33848766888` — build, transformed/local-media validation, replacement bass-image validation, bundle verification, Pages artifact, and **Deploy to GitHub Pages** all succeeded
+- PR #34 — `Render nested Markdown lists correctly`
+- exact tested head `4c94156416e7bfddfb912991c86bc3e5af66b91c`
+- PR CI #158 / `33850003616` — success
+- merge `82601038f0e931f6ef1bee4c8f5e062a73c793c5`
+- production #159 / `33850049987` — tests, build, transformed/local-media validation, bundle verification, Pages artifact, and **Deploy to GitHub Pages** all succeeded
+- user confirmed the live nested-list fix
 
-Recent stabilization sequence: PR #25 catch/media polish → PR #26 local-media hardening → PR #27 Recovery B → PR #28 final content/image batch → PR #29 state reconciliation → PR #30 transformed-picture validation hotfix → PR #31 state reconciliation → PR #32 final content acceptance.
+### Latest verified production content checkpoint
 
-For meaningful changes, use a normal feature/fix branch and PR. Merge only after exact-head CI passes, then verify both the production build and actual Pages deployment before saying a release is live. Any build stage that mutates already-validated structured data must validate the final deployable form after the mutation.
+The final audited pre-reconciliation `main` is **`955d37bf675f3163fe610324809a972916c98ef0`**. Production **#166 / 33851195203** succeeded on that exact commit through all tests, build, transformed/local-media validation, bundle verification, Pages artifact upload, and deployment.
+
+Recent sequence: PR #25 catch/media polish → PR #26 local-media hardening → PR #27 Recovery B → PR #28 final content/image batch → PR #29 reconciliation → PR #30 transformed-picture validation hotfix → PR #31 reconciliation → PR #32 final content acceptance → PR #33 reconciliation → PR #34 nested-list renderer fix.
+
+For meaningful runtime changes, use a normal feature/fix branch and PR. Merge only after exact-head CI passes, then verify both the production build and actual Pages deployment before saying a release is live. Any build stage that mutates already-validated structured data must validate the final deployable form after the mutation.
+
+For deliberate one-file authored Markdown cleanup, direct GitHub edits are acceptable, but every `pwa/**` commit triggers the shared workflow. Because `.github/workflows/fishing-pwa-build.yml` uses one `fishing-pages` concurrency group with `cancel-in-progress: true`, avoid overlapping direct `main` edits with coordinated runtime PR validation/deployment.
 
 ## Future work
 
-Canonical future work is `../Fishing_TODO.md`. The PR #28 content cleanup is complete. Remaining themes include the PowerBait hook-size conflict, loop-knot conflict, candidate rig/spoon pages, structured catch additions, hardware/install-state verification, and eventual My Gear CRUD.
+Canonical future work is `../Fishing_TODO.md`. The PR #28 content cleanup and PR #34 nested-list defect are complete. Remaining themes include the PowerBait hook-size conflict, loop-knot conflict, candidate rig/spoon pages, structured catch additions, hardware/install-state verification, and eventual My Gear CRUD.
