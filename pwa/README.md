@@ -2,9 +2,9 @@
 
 Fishing Companion is a single-user, offline-capable, browse-focused fishing application with three durable data domains that share identity/ownership/validation rules without forcing identical schemas or storage:
 
-- **My Gear** — structured local-first owned inventory plus lightweight Markdown Notes.
+- **My Gear** — structured local-first owned facts plus optional stable-ID Markdown Notes.
 - **Knowledge Base** — unified structured index over complete authored Markdown documents.
-- **Catch Log** — separate structured historical data that owns the exact cross-entity relationships current product behavior needs.
+- **Catch Log** — structured historical facts/relationships plus optional stable-ID Markdown Notes.
 
 The app does not currently need accounts, synchronization, access control, a planner, fishing sessions, or trip history. My Gear editing remains deferred.
 
@@ -28,7 +28,7 @@ Catch Log therefore owns structured historical relationships. My Gear and KB may
 ```text
 pwa/data/gear.seed.json
         ↓
-strict schema-v2 validation
+strict schema-v3 validation
         ↓
 IndexedDB local store
         ↓
@@ -40,9 +40,11 @@ structured My Gear UI
 Key files:
 
 - `data/gear.seed.json` — bundled baseline/portable data
-- `gear-model.js` — strict schema-v2 validation/display helpers
+- `gear-model.js` — strict schema-v3 validation/display helpers
 - `gear-store.js` — IndexedDB repository and deterministic seed-version migration
 - `gear-app.js` — all `#/inventory/...` routes and user-facing type-label aliases
+- `gear-content/` — optional authored Notes keyed by Gear stable ID
+- `apply-authored-notes.mjs` — shared Gear/Catch Notes validation, materialization, and offline manifests
 - `media-owners.json` — exact stable-ID Gear media ownership
 - `media-sources.json` — remote/source media metadata
 - `local-media.json` — repository-local active media configuration
@@ -51,11 +53,11 @@ Key files:
 
 Current seed metadata:
 
-- schema version `2`
-- data version `2026-09-04-my-gear-v2-final-content-1`
+- schema version `3`
+- data version `2026-09-04-my-gear-v3-external-notes-1`
 - **63 records** across 7 categories
 
-Ordinary product facts are explicit structured data. Optional `notes` is Markdown narrative. Rods & Reels remain first-class setup records with embedded rod/reel value objects.
+Ordinary product facts are explicit structured data. Optional authored Notes live at `gear-content/<gear-id>.md` and are not duplicated in Gear JSON. Rods & Reels remain first-class setup records with embedded rod/reel value objects.
 
 Retired/forbidden schema-v1 concepts:
 
@@ -77,7 +79,7 @@ Retired/forbidden schema-v1 concepts:
 - no Knots category
 - no My Gear data/import/export card
 - no current Add/Edit/Delete forms
-- leaf pages use structured Manufacturer / Model, Specifications, Links, and optional Markdown **Notes**
+- leaf pages use structured Manufacturer / Model, Specifications, Links, and optional external Markdown **Notes**
 - internal Notes links use `gear://stable-id` and `kb://stable-id`
 
 Current user-facing lure-type labels include **Soft plastics and swimbaits**, **Topwater**, and **Trolling**. `gear.seed.json` still stores the pre-PR #36 value `Trolling lures`; `gear-app.js` maps that internal value to `Trolling` wherever it is displayed or searched. This copy-only presentation change deliberately avoids bumping the seed dataVersion or refreshing IndexedDB.
@@ -105,7 +107,7 @@ Key files:
 - `markdown-render.js` — safe Markdown rendering and internal-link rewriting
 - `kb-app.js` — Home and all `#/kb/...` routes
 - `KB_DATA_MODEL_DESIGN.md` — accepted/current KB design
-- `DATA_MODEL_RECONCILIATION_DESIGN.md` — shared architectural principles and My Gear schema-v2 rationale
+- `DATA_MODEL_RECONCILIATION_DESIGN.md` — shared architectural principles, current My Gear schema-v3 rationale, and authored-Notes ownership rules
 
 Current KB seed metadata:
 
@@ -160,9 +162,9 @@ Subsequent direct Markdown edits are ordinary current KB maintenance and are not
 
 ## Structured Catch Log
 
-Catch Log is separate because catches require exact historical relationships rather than general authored knowledge.
+Catch Log is separate because catches require exact historical relationships rather than general authored knowledge. Structured Catch JSON contains only stable identity/date/size, required Species and Location IDs, exactly one Lure or Bait relationship, optional rod/reel setup and presentation/technique IDs when actually recorded, and an optional exact catch picture.
 
-Each record includes stable identity/date/size, required Species and Location IDs, exactly one Lure or Bait relationship, optional rod/reel setup and presentation/technique IDs when actually recorded, optional exact catch picture, Markdown narrative, and provenance.
+Optional authored Catch Notes live separately at `catch-content/<catch-id>.md`. The old structured Exact Spot Notes, generated Notes, and source/Provenance fields are retired; Catch leaves render one optional **Notes** card from Markdown.
 
 There is no Session ID, generic additional-gear relationship, or trip/no-catch model. Historical setup/technique attribution is not inferred.
 
@@ -219,7 +221,7 @@ Knowledge Base owns `#/home`, `#/kb`, the five entity-category routes, `#/kb/ent
 
 ## Offline and storage behavior
 
-The Service Worker caches the shell, seed datasets, registered KB Content, local KB assets, and available build-time/local Gear images. IndexedDB remains the live My Gear store.
+The Service Worker caches the shell, seed datasets, registered KB Content, validated Gear/Catch authored Notes manifests and Markdown, local KB assets, and available build-time/local Gear images. IndexedDB remains the live My Gear store.
 
 When bundled Gear schema/data version advances, seed-managed local stores are refreshed deterministically from validated seed data while stable IDs preserve Catch references. Non-seed/imported local data must not be silently discarded.
 
@@ -245,6 +247,7 @@ Build pipeline:
 
 ```bash
 node pwa/build.mjs
+node pwa/apply-authored-notes.mjs
 node pwa/apply-local-media.mjs
 ```
 
@@ -254,13 +257,20 @@ CI additionally runs structured-model, routing, KB Markdown, nested-list, final-
 
 ### Latest verified runtime release
 
-- PR #36 — `Polish Gear labels, thumbnails, and root search UX`
-- exact tested head `30c8fb265b66d9287efe7fe3c34f732f98f9f7ca`
-- PR CI #176 / `33893140327` — success
-- merge `15c5ac6f8f3d37ad8b884436c6312083b1939921`
-- production #177 / `33893200789` — all tests, build, transformed/local-media validation, bundle verification, Pages artifact, and **Deploy to GitHub Pages** succeeded
+**PR #39 — Unify authored Gear and Catch Notes as Markdown**
 
-PR #34 remains the earlier nested-list renderer release. PR #35 reconciled the prior night-end state; PR #36 is the current runtime release.
+- exact tested PR head: `77ec40db223b275366a73091974ecd4d421a2c90`
+- PR CI: **#196 / 33907218850** — success
+- merge commit: `e997492b995f7e7cb8fa4af21ef1f2953df63a78`
+- production workflow: **#197 / 33907284576** — success
+- all structured-model/routing/Markdown/final-content tests: success
+- PWA build + unified authored-Notes validation + transformed/local-media validation: success
+- bundle verification and GitHub Pages artifact upload: success
+- **Deploy to GitHub Pages: success**
+
+PR #39 completed the authored-content architecture cleanup begun in PR #38: My Gear schema v3 contains only structured owned facts while optional Notes live in `pwa/gear-content/<gear-id>.md`; Catch Log schema v2 contains only structured catch facts/relationships while optional Notes live in `pwa/catch-content/<catch-id>.md`. The five existing user-authored Exact Spot Notes were preserved verbatim as Catch Markdown. The prior generated Catch Notes and Provenance/source card were retired, so Catch leaves now render one optional Markdown-backed **Notes** card. Gear and Catch Notes use the same renderer, stable-ID navigation conventions, build validation, asset-manifest pattern, and offline caching.
+
+PR #36 remains the prior UX-polish release for the **Trolling** display alias, square non-cropping thumbnails, and root-search replacement behavior.
 
 For meaningful runtime changes, use a normal feature/fix branch and PR. Merge only after exact-head CI passes, then verify both the production build and actual Pages deployment before saying a release is live. Any build stage that mutates already-validated structured data must validate the final deployable form after the mutation.
 

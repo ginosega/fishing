@@ -4,7 +4,7 @@
 
 **Updated:** 2026-09-04
 
-**Current implementation verification:** The unified KB/Catch architecture originated in PR #13, was extended with flat Equipment taxonomy in PR #24, received the final content/image batch in PR #28, was hardened for transformed Gear-backed pictures in PR #30, completed authored-content acceptance in PR #32, and gained indentation-aware nested Markdown list rendering in PR #34. Latest verified runtime merge is `82601038f0e931f6ef1bee4c8f5e062a73c793c5`; production run #159 / `33850049987` completed tests, build, transformed/local-media validation, bundle verification, GitHub Pages artifact upload, and deployment successfully. The user confirmed the nested-list fix live. The final audited production content checkpoint before nightly reconciliation is `955d37bf675f3163fe610324809a972916c98ef0`, production run #166 / `33851195203`, success through Pages deployment.
+**Current implementation verification:** The unified KB/Catch architecture originated in PR #13, was extended with flat Equipment taxonomy in PR #24, hardened for transformed Gear-backed pictures in PR #30, completed authored-content acceptance in PR #32, gained indentation-aware nested Markdown lists in PR #34, and converged authored narrative storage in PR #39. Latest verified runtime merge is `e997492b995f7e7cb8fa4af21ef1f2953df63a78`; production run #197 / `33907284576` completed tests, build, authored-Notes/local-media validation, bundle verification, GitHub Pages artifact upload, and deployment successfully.
 
 Current production data contains **54 KB entities** (8 Locations, 7 Species, 22 Equipment, 7 Techniques, 10 Knots) and **5 structured catches**.
 
@@ -49,7 +49,10 @@ User-facing KB sections are Locations, Species, Equipment, Techniques, Knots, an
 
 ```text
 pwa/data/kb.seed.json            # Unified KB Entity catalog
-pwa/data/catches.seed.json       # Structured Catch Log
+pwa/data/catches.seed.json       # Structured Catch Log facts/relationships
+pwa/catch-content/                  # Optional Catch Notes keyed by stable Catch ID
+pwa/gear-content/                   # Optional Gear Notes keyed by stable Gear ID
+pwa/apply-authored-notes.mjs        # Shared authored-Notes validation/materialization/manifests
 pwa/kb-content/                  # Complete authored Markdown documents
   locations/
   species/
@@ -181,8 +184,8 @@ Catch Log remains separate because catches are structured historical records wit
 
 ```json
 {
-  "schemaVersion": 1,
-  "dataVersion": "YYYY-MM-DD-catches-v1",
+  "schemaVersion": 2,
+  "dataVersion": "YYYY-MM-DD-catches-v2",
   "catches": []
 }
 ```
@@ -192,18 +195,19 @@ Current core rules:
 - immutable catch stable ID;
 - historical date/time and size;
 - required `speciesId` and `locationId`;
-- Markdown exact-spot/depth/structure/conditions narrative;
 - optional `rodReelSetupId` only when known;
 - optional presentation/technique reference only when explicitly recorded;
 - exactly one Lure or Bait stable ID plus name snapshot;
 - optional exact catch picture;
-- catch-specific Markdown notes and provenance.
+- optional authored Notes at `pwa/catch-content/<catch-id>.md`, keyed deterministically by stable Catch ID.
+
+Structured Catch records do **not** contain Exact Spot Notes, generated Notes, or source/Provenance fields. Existing user-authored Exact Spot Notes were migrated verbatim into the external Notes files in PR #39.
 
 Historical setup/technique is never inferred solely from lure type or general context.
 
 ## 11. Catch backlinks and pictures
 
-Only Catch records own catch relationships. Backlinks are computed at render time for applicable Location, Species, presentation/Technique/Equipment, setup, lure, and bait pages. KB/Gear records do not store duplicate catch-ID arrays.
+Only Catch records own catch relationships. Backlinks are computed at render time for Location and Species KB pages and for applicable Gear setup/lure/bait pages. Equipment, Technique, and Knot KB pages do not currently render Catch backlinks. KB/Gear records do not store duplicate catch-ID arrays.
 
 If a Catch has an exact `picture`, use it; otherwise, use the linked Species representative picture as the UI fallback. The fallback does not copy Species image data into the Catch record.
 
@@ -256,7 +260,8 @@ Build/tests verify at least:
 - authored stable-ID navigation is retained independent of section heading;
 - registered relative KB links resolve;
 - nested unordered/ordered Markdown lists retain indentation-based hierarchy in renderer regression tests;
-- Catch Species/Location/Gear/presentation references resolve to valid targets/categories;
+- Catch schema-v2 exact fields and Species/Location/Gear/presentation references resolve to valid targets/categories;
+- external Catch Notes files map one-to-one to valid Catch stable IDs and are materialized into the deployable/offline bundle;
 - exactly one lure-or-bait per Catch;
 - no historical inference/fuzzy fallback;
 - route ownership and retired Planner behavior remain guarded by tests;
@@ -266,17 +271,16 @@ Build/tests verify at least:
 
 The current KB is browse-only and does not need IndexedDB merely for symmetry with My Gear. JSON catalog + Markdown documents are appropriate to authored knowledge.
 
-If future KB/Catch editing is requested, add a repository/store layer only when the editing feature justifies it. Do not change storage merely to make all domains physically identical.
+If future KB/Catch editing is requested, add a repository/store layer only when the editing feature justifies it. Catch structured facts remain JSON while authored Notes remain stable-ID Markdown until such a feature requires another persistence layer. Do not change storage merely to make all domains physically identical.
 
 ## 17. Current release verification
 
 Latest verified runtime release:
 
-- PR #34 exact head `4c94156416e7bfddfb912991c86bc3e5af66b91c`
-- PR CI #158 / `33850003616` — success
-- merge `82601038f0e931f6ef1bee4c8f5e062a73c793c5`
-- production #159 / `33850049987` — tests, build, transformed/local-media validation, bundle verification, Pages artifact, and Deploy to GitHub Pages all succeeded
-- user confirmed nested Chatterbait/Jerkbait lists display correctly in production
+- PR #39 exact tested head `77ec40db223b275366a73091974ecd4d421a2c90`
+- PR CI #196 / `33907218850` — success
+- merge `e997492b995f7e7cb8fa4af21ef1f2953df63a78`
+- production #197 / `33907284576` — tests, build, authored-Notes/local-media validation, bundle verification, Pages artifact, and Deploy to GitHub Pages all succeeded
 
 Latest verified production content checkpoint: `955d37bf675f3163fe610324809a972916c98ef0`; production #166 / `33851195203` succeeded through all tests and Pages deployment.
 

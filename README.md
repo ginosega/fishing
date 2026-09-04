@@ -8,15 +8,15 @@ This repository is the durable working home for the Fishing project: fishing and
 
 ## Project status
 
-**Status: NORMAL PROJECT MAINTENANCE / PRODUCTION HEALTHY / PR #36 UX POLISH DEPLOYED / PR #28 CONTENT ACCEPTANCE CLOSED**
+**Status: NORMAL PROJECT MAINTENANCE / PRODUCTION HEALTHY / PR #39 AUTHORED-NOTES UNIFICATION DEPLOYED / PR #28 CONTENT ACCEPTANCE CLOSED**
 
 The OneNote migration and hyperlink restoration were completed on 2026-08-29. OneNote was designated the most up-to-date historical source of truth for migration closure; historical Fishing chats remain supplemental evidence and decision history. Temporary migration audit/reconciliation files were removed after closure.
 
 Fishing Companion has three durable application-data domains with shared architectural principles but deliberately different storage models:
 
-1. **My Gear** — structured owned inventory in JSON + IndexedDB, with optional Markdown Notes.
+1. **My Gear** — structured owned facts in JSON + IndexedDB, with optional authored Notes stored separately as stable-ID Markdown files.
 2. **Knowledge Base** — a strict structured entity index over complete authored Markdown documents.
-3. **Catch Log** — separate structured historical records that own the exact cross-entity relationships required by current application behavior.
+3. **Catch Log** — separate structured historical facts/relationships, with optional authored Notes stored separately as stable-ID Markdown files.
 
 The Planner, Planner Attributes, fishing sessions, session IDs, trip history, Markdown-derived identity inference, and fuzzy media-to-Gear matching are retired.
 
@@ -27,19 +27,21 @@ The Planner, Planner Attributes, fishing sessions, session IDs, trip history, Ma
 Runtime/source owners:
 
 - `pwa/data/gear.seed.json` — bundled baseline / portable representation
-- `pwa/gear-model.js` — strict schema-v2 validation and display helpers
+- `pwa/gear-model.js` — strict schema-v3 validation and display helpers
 - `pwa/gear-store.js` — IndexedDB repository and seed migration
 - `pwa/gear-app.js` — all `#/inventory/...` routes
+- `pwa/gear-content/` — optional authored Notes keyed deterministically by Gear stable ID
+- `pwa/apply-authored-notes.mjs` — validates/materializes Gear + Catch authored Notes and generates offline manifests
 - `pwa/media-owners.json`, `pwa/media-sources.json`, `pwa/local-media.json` — exact stable-ID media ownership/source configuration
 - `pwa/apply-local-media.mjs` — validates and materializes repository-local media into the production bundle
 
 Current seed:
 
-- schema version `2`
-- data version `2026-09-04-my-gear-v2-final-content-1`
+- schema version `3`
+- data version `2026-09-04-my-gear-v3-external-notes-1`
 - **63 records** across Rods & Reels, Line, Weights, Snaps & Swivels, Hooks, Lures, and Bait
 
-Manufacturer, model, specifications, and typed links are structured facts. `notes` is optional Markdown narrative. Do not reintroduce `profiles`, structured usage/connection guidance, `knowledgeRefs`, setup `mainLine`/`leader`, or inference from display text/Markdown.
+Manufacturer, model, specifications, and typed links are structured facts. Narrative is not stored in Gear JSON: optional Notes live at `pwa/gear-content/<gear-id>.md`, keyed by stable Gear ID and validated/materialized by `pwa/apply-authored-notes.mjs`. Do not reintroduce inline `notes`, `profiles`, structured usage/connection guidance, `knowledgeRefs`, setup `mainLine`/`leader`, or inference from display text/Markdown.
 
 **Knots are not My Gear records.** They are Knowledge Base entities.
 
@@ -73,12 +75,15 @@ Markdown indentation is meaningful for lists. Fishing Companion must preserve ne
 
 ### Catch Log
 
-- source: `pwa/data/catches.seed.json`
+- structured source: `pwa/data/catches.seed.json`
+- authored Notes: `pwa/catch-content/<catch-id>.md`
+- schema version `2`, data version `2026-09-04-catches-v2-external-notes-1`
 - **5 structured catches** remain in the current seed
 - catches store required Species/Location IDs, exactly one Lure or Bait relationship, and optional setup/technique IDs when actually known
 - historical setup/technique values are never inferred
 - backlinks are computed from Catch-owned forward references rather than duplicated on KB/Gear records
 - optional exact catch pictures override the default Species-picture fallback
+- optional Catch Notes are authored Markdown keyed by Catch stable ID; structured Catch records do not contain narrative/provenance fields
 
 ## Fishing Companion PWA
 
@@ -88,20 +93,20 @@ Current product scope is **single-user, personal, offline-capable, and browse-fo
 
 ### Latest verified runtime release
 
-**PR #36 — Polish Gear labels, thumbnails, and root search UX**
+**PR #39 — Unify authored Gear and Catch Notes as Markdown**
 
-- exact tested PR head: `30c8fb265b66d9287efe7fe3c34f732f98f9f7ca`
-- PR CI: **#176 / 33893140327** — success
-- merge commit: `15c5ac6f8f3d37ad8b884436c6312083b1939921`
-- production workflow: **#177 / 33893200789** — success
+- exact tested PR head: `77ec40db223b275366a73091974ecd4d421a2c90`
+- PR CI: **#196 / 33907218850** — success
+- merge commit: `e997492b995f7e7cb8fa4af21ef1f2953df63a78`
+- production workflow: **#197 / 33907284576** — success
 - all structured-model/routing/Markdown/final-content tests: success
-- PWA build and transformed/local-media validation: success
+- PWA build + unified authored-Notes validation + transformed/local-media validation: success
 - bundle verification and GitHub Pages artifact upload: success
 - **Deploy to GitHub Pages: success**
 
-PR #36 implemented three presentation/UX fixes without changing the accepted data model: the user-facing lure label is now **Trolling**; all Gear/KB/Catch card thumbnails use square white frames with `object-fit: contain` so wide images remain fully visible instead of being cropped; and root My Gear/Knowledge Base searches now hide the category-card grids as soon as a query is entered so results appear immediately below the page controls.
+PR #39 completed the authored-content architecture cleanup begun in PR #38: My Gear schema v3 contains only structured owned facts while optional Notes live in `pwa/gear-content/<gear-id>.md`; Catch Log schema v2 contains only structured catch facts/relationships while optional Notes live in `pwa/catch-content/<catch-id>.md`. The five existing user-authored Exact Spot Notes were preserved verbatim as Catch Markdown. The prior generated Catch Notes and Provenance/source card were retired, so Catch leaves now render one optional Markdown-backed **Notes** card. Gear and Catch Notes use the same renderer, stable-ID navigation conventions, build validation, asset-manifest pattern, and offline caching.
 
-PR #34 remains the prior renderer release that added indentation-aware nested unordered/ordered Markdown lists.
+PR #36 remains the prior UX-polish release for the **Trolling** display alias, square non-cropping thumbnails, and root-search replacement behavior.
 
 ### Latest verified authored-content baseline before PR #36
 
@@ -111,7 +116,7 @@ The earlier night-end content audit checkpoint was `955d37bf675f3163fe610324809a
 
 ### Stabilization/recovery history
 
-PR #25 catch/media polish → PR #26 local-media hardening → PR #27 Recovery B → PR #28 final content/image batch → PR #29 reconciliation → PR #30 transformed-picture validation hotfix → PR #31 reconciliation → PR #32 final content acceptance → PR #33 reconciliation → PR #34 nested-list renderer fix → PR #35 night-end reconciliation → PR #36 UX polish.
+PR #25 catch/media polish → PR #26 local-media hardening → PR #27 Recovery B → PR #28 final content/image batch → PR #29 reconciliation → PR #30 transformed-picture validation hotfix → PR #31 reconciliation → PR #32 final content acceptance → PR #33 reconciliation → PR #34 nested-list renderer fix → PR #35 night-end reconciliation → PR #36 UX polish → PR #38 external Gear Notes → PR #39 Gear/Catch authored-Notes unification.
 
 The interrupted-chat recovery and PR #28 acceptance sequences are closed. No hidden/unmerged post-PR #29 application build was found.
 
@@ -123,7 +128,7 @@ The interrupted-chat recovery and PR #28 acceptance sequences are closed. No hid
 - When a page has both Search and a dropdown/filter, the filter control is right-aligned.
 - Line is intentionally a flat list; Rods & Reels retains setup grouping.
 - My Gear remains browse-only: no Add/Edit/Delete forms and no visible JSON import/export UI.
-- Gear leaf pages use structured product facts plus optional Markdown **Notes**.
+- Gear leaf pages use structured product facts plus optional external Markdown **Notes**.
 - KB representative pictures may link to a specific owned Gear record by explicit stable ID.
 - Authored KB/Gear stable-ID links are heading-independent.
 - Nested Markdown lists are indentation-sensitive and must remain nested in the PWA.
@@ -144,7 +149,7 @@ The repeated 2026-09-03 image failures were isolated to transporting binary imag
 
 Repository-local images are validated by `pwa/apply-local-media.mjs` for supported format/extension/structure before entering the production bundle. The same step also validates the transformed KB bundle after media substitutions.
 
-## Deferred v2 editing features
+## Deferred My Gear editing features
 
 The My Gear repository/IndexedDB architecture is writable, but editing UI is intentionally deferred. When resumed, normal forms are the everyday Add/Edit/Delete path; validated JSON export/import may be a backup/bulk-edit path; do not add an in-app raw JSON editor.
 

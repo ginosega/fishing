@@ -1,6 +1,6 @@
 # Fishing Context
 
-**Status:** Active authoritative current-state summary. OneNote migration/link restoration completed 2026-08-29; My Gear schema-v2/data-model reconciliation completed 2026-09-02; repository-local media recovery completed 2026-09-03; PR #28 content acceptance completed 2026-09-04; nested Markdown list rendering fixed in PR #34; PR #36 UX polish production-deployed on 2026-09-04. Project is in normal maintenance state.
+**Status:** Active authoritative current-state summary. OneNote migration/link restoration completed 2026-08-29; My Gear local-first/data-model reconciliation completed 2026-09-02; repository-local media recovery completed 2026-09-03; PR #28 content acceptance, PR #34 nested-list rendering, PR #36 UX polish, PR #38 Gear Notes externalization, and PR #39 Gear/Catch authored-Notes unification production-deployed by 2026-09-04. Project is in normal maintenance state.
 
 This file is a compact router/current-state summary. Detailed procedures and long-form fishing knowledge belong in their domain owners.
 
@@ -62,6 +62,8 @@ Runtime/source owners:
 - `pwa/gear-model.js`
 - `pwa/gear-store.js`
 - `pwa/gear-app.js`
+- `pwa/gear-content/`
+- `pwa/apply-authored-notes.mjs`
 - `pwa/media-owners.json`
 - `pwa/media-sources.json`
 - `pwa/local-media.json`
@@ -69,12 +71,12 @@ Runtime/source owners:
 
 Current seed:
 
-- schema version `2`
-- data version `2026-09-04-my-gear-v2-final-content-1`
+- schema version `3`
+- data version `2026-09-04-my-gear-v3-external-notes-1`
 - **63 records**
 - categories: Rods & Reels, Line, Weights, Snaps & Swivels, Hooks, Lures, Bait
 
-My Gear owns structured product/setup facts. Optional `notes` is Markdown. `gear://` and `kb://` links inside Notes are authored navigation, not maintained domain relationships. Knots are intentionally not in My Gear.
+My Gear owns structured product/setup facts. Optional authored Notes live separately at `pwa/gear-content/<gear-id>.md`; inline JSON `notes` are retired. `gear://` and `kb://` links inside Notes are authored navigation, not maintained domain relationships. Knots are intentionally not in My Gear.
 
 The current user-facing lure labels include **Soft plastics and swimbaits**, **Topwater**, and **Trolling**. The seed still contains the internal value `Trolling lures`; PR #36 maps that stored value to the user-facing `Trolling` label in `gear-app.js`, avoiding a seed/IndexedDB migration for a wording-only change.
 
@@ -109,7 +111,9 @@ Subsequent ordinary content maintenance remains part of current production and d
 
 ### Catch Log
 
-- source: `pwa/data/catches.seed.json`
+- structured source: `pwa/data/catches.seed.json`
+- authored Notes: `pwa/catch-content/<catch-id>.md`
+- schema version `2`, data version `2026-09-04-catches-v2-external-notes-1`
 - **5 structured catches**
 - required Species + Location IDs
 - exactly one Lure or Bait relationship
@@ -117,6 +121,7 @@ Subsequent ordinary content maintenance remains part of current production and d
 - no inference of historical setup/technique
 - backlinks computed from Catch-owned forward references
 - optional exact catch picture overrides Species-picture fallback
+- Catch narrative is one optional Markdown-backed **Notes** card; the old structured Exact Spot Notes / generated Notes / source-Provenance fields are retired
 
 Planner, Planner Attributes, fishing sessions, session IDs, and trip history are retired.
 
@@ -126,27 +131,20 @@ Live URL: `https://ginosega.github.io/fishing/`
 
 ### Latest verified runtime release
 
-**PR #36 — Polish Gear labels, thumbnails, and root search UX**
+**PR #39 — Unify authored Gear and Catch Notes as Markdown**
 
-- exact tested PR head: `30c8fb265b66d9287efe7fe3c34f732f98f9f7ca`
-- PR CI: **#176 / 33893140327**, success
-- merge commit: `15c5ac6f8f3d37ad8b884436c6312083b1939921`
-- production workflow: **#177 / 33893200789**, success
+- exact tested PR head: `77ec40db223b275366a73091974ecd4d421a2c90`
+- PR CI: **#196 / 33907218850** — success
+- merge commit: `e997492b995f7e7cb8fa4af21ef1f2953df63a78`
+- production workflow: **#197 / 33907284576** — success
 - all structured-model/routing/Markdown/final-content tests: success
-- PWA build: success
-- transformed/local-media validation: success
+- PWA build + unified authored-Notes validation + transformed/local-media validation: success
 - bundle verification and GitHub Pages artifact upload: success
 - **Deploy to GitHub Pages: success**
 
-PR #36 made three presentation-layer improvements without changing My Gear/KB/Catch schemas:
+PR #39 completed the authored-content architecture cleanup begun in PR #38: My Gear schema v3 contains only structured owned facts while optional Notes live in `pwa/gear-content/<gear-id>.md`; Catch Log schema v2 contains only structured catch facts/relationships while optional Notes live in `pwa/catch-content/<catch-id>.md`. The five existing user-authored Exact Spot Notes were preserved verbatim as Catch Markdown. The prior generated Catch Notes and Provenance/source card were retired, so Catch leaves now render one optional Markdown-backed **Notes** card. Gear and Catch Notes use the same renderer, stable-ID navigation conventions, build validation, asset-manifest pattern, and offline caching.
 
-- user-facing `Trolling lures` is now displayed as **Trolling** throughout My Gear;
-- Gear, KB, and Catch card thumbnails use square white frames plus `object-fit: contain`, preserving full wide/tall source images instead of cropping them;
-- root My Gear/KB searches now actually replace the category-card grid while a query is present, so results appear immediately beneath the page controls on phones and desktop.
-
-The root-search defect was caused by explicit CSS grid/list `display` declarations overriding the browser's default rendering of the HTML `hidden` attribute. PR #36 added a global `[hidden] { display: none !important; }` invariant and regression coverage.
-
-PR #34 remains the prior renderer release that made correctly indented nested Markdown lists render as nested unordered/ordered lists.
+PR #36 remains the prior UX-polish release for the **Trolling** display alias, square non-cropping thumbnails, and root-search replacement behavior.
 
 ### Current production lineage
 
@@ -168,6 +166,8 @@ The earlier night-end audit checkpoint `955d37bf675f3163fe610324809a972916c98ef0
 - PR #34: nested Markdown list renderer fix
 - PR #35: night-end project-state reconciliation
 - PR #36: Gear label / thumbnail / root-search UX polish
+- PR #38: external Gear Notes Markdown pipeline
+- PR #39: remove inline Gear Notes duplicates; externalize Catch Notes and retire Catch Provenance
 
 ### Current accepted behavior
 
@@ -177,7 +177,8 @@ The earlier night-end audit checkpoint `955d37bf675f3163fe610324809a972916c98ef0
 - When Search and a dropdown/filter coexist, the filter control is right-aligned.
 - Line is flat; Rods & Reels remains grouped by setup type.
 - My Gear is browse-only with no visible import/export card and no CRUD forms.
-- Gear leaf pages show structured facts plus optional Markdown **Notes**.
+- Gear leaf pages show structured facts plus optional external Markdown **Notes**.
+- Catch leaves show structured facts plus one optional external Markdown **Notes** card; no Provenance card.
 - Applicable Gear Notes link to KB articles with stable `kb://` IDs.
 - KB pictures for specific owned items may explicitly reference a stable Gear ID.
 - User-facing lure labels include **Soft plastics and swimbaits**, **Topwater**, and **Trolling**.
@@ -213,7 +214,7 @@ Standing workflow for user-supplied images:
 
 The thumbnail containment rule is presentation-only; source images do not need to be rewritten to square files.
 
-## Deferred v2 behavior
+## Deferred My Gear editing behavior
 
 - Do not add My Gear Add/Edit/Delete forms yet.
 - Do not expose JSON import/export controls in the current UI.
