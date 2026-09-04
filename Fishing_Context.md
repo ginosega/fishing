@@ -103,7 +103,7 @@ The Equipment and Technique article bodies currently remain physically stored to
 
 PR #28 added Inline Spinner, Snaps & Swivels, Flasher Rig, Inline Trolling Rig, Bobber Rig, Slip Sinker Rig, and Spring Fishing and refreshed Swimbait, Jerkbait, Crankbait, Chatterbait, Spinnerbait, Jig, Frog, Drop Shot, Wacky Worm, Ned Rig, and Trout Fishing. The 2026-09-04 acceptance pass cleaned the imported Markdown formatting and replaced the Largemouth/Smallmouth Bass pictures supplied by the user.
 
-After acceptance closed, the user made ordinary content-maintenance edits to **Buzzbait**, **Fishing Line**, **Rods & Reels**, and **Walking Bait**. These are current production content and are not a reopened PR #28 cleanup batch.
+Late-night ordinary content maintenance surrounding and after PR #34 updated **Buzzbait, Fishing Line, Rods & Reels, Walking Bait, Slip Sinker Rig, Bobber Rig, Flasher Rig, Inline Spinner, and Inline Trolling Rig**. These are current production content and are not a reopened PR #28 cleanup batch.
 
 ### Catch Log
 
@@ -141,14 +141,19 @@ PR #34 fixed a presentation-layer defect: correctly indented nested Markdown lis
 
 ### Latest verified production content checkpoint
 
-After PR #34, the user made four direct content-maintenance commits on `main`:
+The final audited pre-reconciliation `main` is **`955d37bf675f3163fe610324809a972916c98ef0`**. It includes all late-night authored-content maintenance through Inline Trolling Rig. Production workflow **#166 / 33851195203** completed successfully on that exact commit, including all tests, build, transformed/local-media validation, bundle verification, GitHub Pages artifact upload, and Pages deployment.
 
-- `5b1eda316a4672ac2f111c2fc9344786ba01d0bb` — Buzzbait formatting/readability
-- `2d4ce6d574007c403de617228bc50a27ff49ea97` — Fishing Line formatting/content cleanup
-- `481fe29c22638c52614f438a43ae4b1fb1f28622` — Rods & Reels Markdown cleanup
-- `0b89ebc20de049fe5d072e93edcdcaa7b13d01b2` — Walking Bait formatting/readability
+Relevant late-night direct content commits include:
 
-Current audited `main` baseline is `0b89ebc20de049fe5d072e93edcdcaa7b13d01b2`. Production workflow **#161 / 33850346865** completed successfully on that exact commit, including build, transformed/local-media validation, bundle verification, GitHub Pages artifact upload, and Pages deployment.
+- `5b1eda316a4672ac2f111c2fc9344786ba01d0bb` — Buzzbait
+- `2d4ce6d574007c403de617228bc50a27ff49ea97` — Fishing Line
+- `481fe29c22638c52614f438a43ae4b1fb1f28622` — Rods & Reels
+- `0b89ebc20de049fe5d072e93edcdcaa7b13d01b2` — Walking Bait
+- `d7c2b9f7aea756919efa02ae7a07155eb1ccc606` — Slip Sinker Rig
+- `46a37f88fe59c808f06d8697aa628cb7699fa724` — Bobber Rig
+- `cf8df8c2855d9b6caf0135cb2c2902b70c148694` — Flasher Rig
+- `59a9b1a7e88798f5b5e793bc6301ef196bc73826` — Inline Spinner
+- `955d37bf675f3163fe610324809a972916c98ef0` — Inline Trolling Rig
 
 ### Recent stabilization/recovery sequence
 
@@ -233,9 +238,9 @@ Use `Fishing_TODO.md` as canonical. Important unresolved items include:
 
 ## Night-end audit checkpoint — 2026-09-04
 
-The project-state audit found no unresolved data-model migration, hidden feature branch, pending PR #28 acceptance work, or known production outage. My Gear remains 63 records, KB remains 54 entities, Catch Log remains 5 catches, and the canonical active backlog above remains unchanged except that the nested-list renderer defect is now completed as FISH-TODO-055.
+The project-state audit found no unresolved data-model migration, hidden feature branch, pending PR #28 acceptance work, or known production outage. My Gear remains **63 records**, KB remains **54 entities**, Catch Log remains **5 catches**, and the canonical active backlog above remains unchanged except that the nested-list renderer defect is completed as FISH-TODO-055.
 
-The audited repository/production baseline before this documentation reconciliation is `main` `0b89ebc20de049fe5d072e93edcdcaa7b13d01b2`, production run #161 / `33850346865`, success.
+The final audited repository/production baseline before this documentation reconciliation is `main` **`955d37bf675f3163fe610324809a972916c98ef0`**, production run **#166 / 33851195203**, success through GitHub Pages deployment.
 
 ## Migration record
 
