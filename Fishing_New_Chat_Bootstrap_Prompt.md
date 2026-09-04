@@ -1,6 +1,6 @@
 # Fishing New Chat Bootstrap Prompt
 
-**Status:** ACTIVE HANDOFF — PRODUCTION HEALTHY; PR #28 ACCEPTANCE CLOSED; NESTED LIST RENDERER FIXED/CONFIRMED — 2026-09-04
+**Status:** ACTIVE HANDOFF — PRODUCTION HEALTHY; PR #28 ACCEPTANCE CLOSED; NESTED LIST RENDERER FIXED/CONFIRMED; NIGHT-END CONTENT CHECKPOINT VERIFIED — 2026-09-04
 
 Copy the prompt below into a new **Chat-mode** Fishing conversation.
 
@@ -112,16 +112,11 @@ Live site: `https://ginosega.github.io/fishing/`
 
 PR #34 fixed a presentation defect, not a data-model defect: correctly indented nested Markdown lists looked right in GitHub but were flattened by Fishing Companion's custom renderer. The renderer is now indentation-aware and regression-tested for nested unordered and ordered lists.
 
-### Latest verified production content checkpoint
+### Final night-end production content checkpoint
 
-After PR #34, four ordinary content-maintenance commits landed directly on `main`:
+The audited pre-reconciliation `main` is **`955d37bf675f3163fe610324809a972916c98ef0`**. Production run **#166 / 33851195203** succeeded on that exact commit, including all tests, build, transformed/local-media validation, bundle verification, Pages artifact upload, and deployment.
 
-- Buzzbait — `5b1eda316a4672ac2f111c2fc9344786ba01d0bb`
-- Fishing Line — `2d4ce6d574007c403de617228bc50a27ff49ea97`
-- Rods & Reels — `481fe29c22638c52614f438a43ae4b1fb1f28622`
-- Walking Bait — `0b89ebc20de049fe5d072e93edcdcaa7b13d01b2`
-
-The night-end audited pre-reconciliation baseline is `main` `0b89ebc20de049fe5d072e93edcdcaa7b13d01b2`. Production run **#161 / 33850346865** succeeded on that exact commit, including build, transformed/local-media validation, bundle verification, Pages artifact upload, and deployment.
+Late-night authored-content maintenance included **Buzzbait, Fishing Line, Rods & Reels, Walking Bait, Slip Sinker Rig, Bobber Rig, Flasher Rig, Inline Spinner, and Inline Trolling Rig**. These are ordinary KB maintenance, not continuation of PR #28 acceptance.
 
 ### Recovery/acceptance sequence is closed
 
