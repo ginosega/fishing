@@ -26,7 +26,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
 
@@ -39,27 +39,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref || github.ref }}
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      # BEGIN ONE-TIME AUTHORED NOTES MIGRATION
-      - name: Run one-time authored Notes source migration
-        if: github.event_name == 'pull_request' && github.head_ref == 'feature/unify-authored-notes-20260904'
-        run: node pwa/migrate-authored-notes-once.mjs
-      - name: Commit one-time authored Notes source migration
-        if: github.event_name == 'pull_request' && github.head_ref == 'feature/unify-authored-notes-20260904'
-        run: |
-          if ! git diff --quiet || ! git diff --cached --quiet; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git restore .github/workflows/fishing-pwa-build.yml
-            git add -A
-            git commit -m "Apply authored Notes source migration"
-            git push origin HEAD:${{ github.head_ref }}
-          fi
-      # END ONE-TIME AUTHORED NOTES MIGRATION
       - name: Validate JavaScript syntax
         run: |
           node --check pwa/gear-app.js
