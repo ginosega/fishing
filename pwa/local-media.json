@@ -17,9 +17,31 @@
     }
   ],
   "kb": [
-    { "source": "./assets/kb/species/kokanee-phases.png" },
-    { "source": "./assets/kb/species/northern-pikeminnow.png" },
-    { "source": "./assets/kb/equipment/booyah-pad-crasher.jpg" }
+    {
+      "entityId": "species-kokanee",
+      "source": "./assets/kb/species/kokanee-phases.png",
+      "alt": "Kokanee shown in silver non-spawning and red spawning phases",
+      "caption": "Kokanee shown in non-spawning (silver) and spawning (red) phases",
+      "credit": null,
+      "sourceUrl": null
+    },
+    {
+      "entityId": "species-northern-pikeminnow",
+      "source": "./assets/kb/species/northern-pikeminnow.png",
+      "alt": "Northern pikeminnow",
+      "caption": "Northern pikeminnow",
+      "credit": null,
+      "sourceUrl": null
+    },
+    {
+      "entityId": "technique-frogs",
+      "source": "./assets/kb/equipment/booyah-pad-crasher.jpg",
+      "alt": "Booyah Pad Crasher hollow-body frog",
+      "caption": "Booyah Pad Crasher",
+      "credit": null,
+      "sourceUrl": null,
+      "gearItemId": "booyah-pad-crasher"
+    }
   ],
   "staged": [
     { "source": "./assets/gear-source/south-bend-hook-assortment.png" },
