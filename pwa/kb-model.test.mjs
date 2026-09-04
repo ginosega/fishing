@@ -13,8 +13,8 @@ assert.deepEqual(validateCatchBundle(catches, kb, gear), { valid:true, errors:[]
 const groups = groupEntitiesByType(kb);
 assert.equal(groups.location.length, 8);
 assert.equal(groups.species.length, 7);
-assert.equal(groups.equipment.length, 16);
-assert.equal(groups.technique.length, 6);
+assert.equal(groups.equipment.length, 22);
+assert.equal(groups.technique.length, 7);
 assert.equal(groups.knot.length, 10);
 assert.equal(catchesForEntity(catches, 'locationId', 'location-lake-sammamish').length, 2);
 assert.equal(groups.equipment.some(entity => entity.id === 'technique-ned-rig'), true,
