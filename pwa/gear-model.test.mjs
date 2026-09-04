@@ -7,8 +7,9 @@ const result = validateGearBundle(seed);
 assert.equal(result.valid, true, result.errors.join('\n'));
 assert.equal(seed.schemaVersion, GEAR_SCHEMA_VERSION);
 assert.equal(seed.schemaVersion, 2);
-assert.equal(seed.items.length, 61);
+assert.equal(seed.items.length, 63);
 assert.ok(seed.dataVersion, 'dataVersion is required.');
+assert.equal(seed.dataVersion, '2026-09-03-my-gear-v2-content-1');
 assert.equal('profiles' in seed, false, 'Gear schema v2 must not contain profiles.');
 assert.equal(seed.items.some(item => item.category === 'knots'), false, 'Knots must not be part of My Gear.');
 for (const category of GEAR_CATEGORIES) assert.ok(seed.items.some(item => item.category === category), `Missing category ${category}`);
@@ -37,13 +38,52 @@ const modelCases = new Map([
   ['vmc-crossover-rings','Crossover rings'],
   ['gamakatsu-g-finesse-drop-shot-hook','G-Finesse Drop Shot Hook'],
   ['gamakatsu-ewg-worm-offset-hook','EWG Worm Offset Hook'],
-  ['south-bend-hook-assortment','Hook Assortment'],
+  ['south-bend-hook-assortment','120-Piece Hook Assortment'],
+  ['generic-0-inline-spinner-assortment','3-Piece Classic Dressed Spinners'],
+  ['south-bend-removable-split-shot-sinkers','125-Piece Removable Split Shot Sinkers'],
+  ['south-bend-assorted-brass-swivels','24-Piece Assorted Brass Swivels'],
   ['kastmaster','Kastmaster']
 ]);
 for (const [id,model] of modelCases) assert.equal(seed.items.find(record => record.id === id)?.model, model, `${id} model`);
 
+const booyah = seed.items.find(item => item.id === 'booyah-pad-crasher');
+assert.deepEqual(booyah?.manufacturer, { name:'Booyah' });
+assert.equal(booyah?.links?.[0]?.label, "Dick's Sporting Goods");
+assert.match(booyah?.links?.[0]?.url || '', /booyah-pad-crasher-frog-assortment-3-pack/);
+
+const spinner = seed.items.find(item => item.id === 'generic-0-inline-spinner-assortment');
+assert.equal(spinner?.name, 'South Bend 3-Piece Classic Dressed Spinners');
+assert.equal(spinner?.specifications?.find(spec => spec.label === 'Size')?.value, '#0');
+assert.equal(spinner?.specifications?.find(spec => spec.label === 'Weight')?.value, '1/8 oz');
+
+const splitShot = seed.items.find(item => item.id === 'south-bend-removable-split-shot-sinkers');
+assert.equal(splitShot?.specifications?.find(spec => spec.label === 'Material')?.value, 'Lead');
+assert.equal(splitShot?.specifications?.find(spec => spec.label === 'Sizes')?.value, 'BB, 3/0, 7, 5, 4');
+
+const brassSwivels = seed.items.find(item => item.id === 'south-bend-assorted-brass-swivels');
+assert.equal(brassSwivels?.specifications?.find(spec => spec.label === 'Material')?.value, 'Brass');
+assert.equal(brassSwivels?.specifications?.find(spec => spec.label === 'Sizes')?.value, '5, 7, 10, 12');
+
+const hooks = seed.items.find(item => item.id === 'south-bend-hook-assortment');
+assert.equal(hooks?.name, 'South Bend 120-Piece Hook Assortment');
+assert.equal(hooks?.specifications?.find(spec => spec.label === 'Material')?.value, 'Brass');
+assert.equal(hooks?.specifications?.find(spec => spec.label === 'Sizes')?.value, '2, 4, 6, 8, and 10');
+
+for (const [id,kbId] of [
+  ['zman-original-chatterbait','technique-chatterbait-bladed-jig'],
+  ['strike-king-red-eyed-special','technique-spinnerbait'],
+  ['rebel-crawfish','technique-crankbait'],
+  ['berkley-stunna','technique-jerkbait'],
+  ['strike-king-premier-pro-model-jig','technique-jigs'],
+  ['sixth-sense-divine-swimbait','technique-swimbait-soft-jerk-shad'],
+  ['yamamoto-senko','technique-wacky-worm'],
+  ['zman-ned-rig-kit','technique-ned-rig']
+]) assert.match(seed.items.find(item => item.id === id)?.notes || '', new RegExp(`kb:\\/\\/${kbId}`), `${id} KB Notes link`);
+
 assert.match(seed.items.find(item => item.id === 'setup-spinning')?.notes || '', /Sufix 832 15 lb/);
 assert.match(seed.items.find(item => item.id === 'swiveling-trolling-sinkers')?.notes || '', /kb:\/\/technique-paddle-only-kayak-strategy/);
+assert.match(seed.items.find(item => item.id === 'fin-sanity-bluegill')?.notes || '', /hard-jointed bluegill-profile/);
+assert.match(seed.items.find(item => item.id === 'fin-sanity-bluegill')?.notes || '', /kb:\/\/technique-swimbait-soft-jerk-shad/);
 
 const clone = value => structuredClone(value);
 const invalidExtra = clone(seed); invalidExtra.items[0].unexpected = true;
@@ -63,6 +103,7 @@ assert.equal(validateGearBundle(invalidVersion).valid, false, 'dataVersion must 
 
 const mediaSources = JSON.parse(await fs.readFile(new URL('./media-sources.json', import.meta.url), 'utf8'));
 const mediaOwners = JSON.parse(await fs.readFile(new URL('./media-owners.json', import.meta.url), 'utf8'));
+const localMedia = JSON.parse(await fs.readFile(new URL('./local-media.json', import.meta.url), 'utf8'));
 const sourceIds = new Set(mediaSources.items.map(item => item.id));
 const gearIds = new Set(seed.items.map(item => item.id));
 for (const record of mediaOwners.items) {
@@ -76,5 +117,13 @@ for (const record of mediaOwners.items) {
     }
   }
 }
+
+for (const mediaId of ['south-bend-classic-dressed-spinners','south-bend-removable-split-shot-sinkers','south-bend-assorted-brass-swivels','south-bend-hook-assortment']) {
+  const record = localMedia.gear.find(item => item.mediaId === mediaId);
+  assert.ok(record, `Missing repository-local media ${mediaId}`);
+  assert.ok(record.owners?.length, `${mediaId} must declare an explicit stable Gear owner.`);
+  for (const owner of record.owners) assert.ok(gearIds.has(owner.gearItemId), `${mediaId} references unknown Gear ID ${owner.gearItemId}`);
+}
+assert.equal(localMedia.staged.length, 0, 'Recovery B South Bend images must no longer be staged-only.');
 
 console.log(`Structured My Gear v2 seed validated: ${seed.items.length} records across ${GEAR_CATEGORIES.length} categories.`);
