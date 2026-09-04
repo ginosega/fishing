@@ -4,7 +4,7 @@
 
 **Accepted:** 2026-09-02
 
-**Reconciled through:** 2026-09-04 / PR #30
+**Reconciled through:** 2026-09-04 / PR #32
 
 **Purpose:** Keep My Gear, Knowledge Base, and Catch Log architecturally consistent without forcing identical schemas, identical persistence, or speculative relationship maintenance.
 
@@ -51,11 +51,7 @@ GearRepository
 My Gear UI
 ```
 
-Current production seed:
-
-- schema version `2`
-- data version `2026-09-04-my-gear-v2-final-content-1`
-- 63 records
+Current production seed: schema version `2`, data version `2026-09-04-my-gear-v2-final-content-1`, **63 records**.
 
 My Gear owns owned identity and product/setup facts: manufacturer, model, specifications, typed external links, and item/setup-specific Notes.
 
@@ -71,11 +67,7 @@ registered complete Markdown documents
 KB renderer/routes
 ```
 
-Current production seed:
-
-- schema version `1`
-- data version `2026-09-04-kb-v1-final-content-1`
-- 54 entities: 8 Location, 7 Species, 22 Equipment, 7 Technique, 10 Knot
+Current production seed: schema version `1`, data version `2026-09-04-kb-v1-final-content-1`, **54 entities**: 8 Location, 7 Species, 22 Equipment, 7 Technique, 10 Knot.
 
 KB owns reusable fishing knowledge. One complete Markdown document owns headings, narrative, tables, links, warnings, resources, and embedded pictures.
 
@@ -93,26 +85,17 @@ validated Gear + KB relationships
 Catch UI + computed backlinks
 ```
 
-Current seed contains 5 structured catches.
-
-Catch Log owns historical catch facts and the exact structured cross-domain relationships current product behavior requires.
+Current seed contains **5 structured catches**. Catch Log owns historical catch facts and the exact structured cross-domain relationships current product behavior requires.
 
 ## 3. Stable identity
 
 Every independently referenceable durable entity has an immutable stable ID.
 
-Examples:
+Examples: Gear item `sufix-832-15`, Gear setup `setup-spinning`, KB entity `technique-ned-rig`, Catch `catch-2026-07-27-silver-lake-largemouth-01`.
 
-- Gear item: `sufix-832-15`
-- Gear setup: `setup-spinning`
-- KB entity: `technique-ned-rig`
-- Catch: `catch-2026-07-27-silver-lake-largemouth-01`
+Names, descriptions, taxonomy, Markdown paths, picture files, routes, and display labels are not identity. Embedded rod/reel component value objects do not need independent IDs because current product behavior does not reference them independently.
 
-Names, descriptions, taxonomy, Markdown paths, picture files, routes, and display labels are not identity.
-
-Embedded rod/reel component value objects do not need independent IDs because current product behavior does not reference them independently.
-
-Stable IDs deliberately survive taxonomy changes. For example, an entity may retain a `technique-*` ID while its current KB `type` is `equipment`.
+Stable IDs deliberately survive taxonomy changes. An entity may retain a `technique-*` ID while its current KB `type` is `equipment`.
 
 ## 4. Fact ownership
 
@@ -121,7 +104,7 @@ Stable IDs deliberately survive taxonomy changes. For example, an entity may ret
 - owned item/setup identity;
 - manufacturer/model/part facts;
 - product specifications;
-- typed external links for the owned item;
+- typed external links;
 - item/setup-specific Markdown Notes;
 - exact stable association of media to Gear identity through the media ownership layer.
 
@@ -155,7 +138,7 @@ Current maintained structured relationships are principally Catch-owned:
 - Catch → optional Technique/Equipment presentation
 - Catch → exactly one Lure/Bait
 
-A representative KB picture may also carry an explicit `gearItemId` when it depicts a specific owned item and the UI should link the caption to that My Gear leaf. This is a narrow presentation/navigation relationship with exact identity, not a general Gear↔KB graph.
+A representative KB picture may also carry explicit `gearItemId` when it depicts a specific owned item and the UI should link the caption to that My Gear leaf. This is a narrow presentation/navigation relationship with exact identity, not a general Gear↔KB graph.
 
 My Gear does not add line configuration, related-lure, related-knot, or related-knowledge structured relationships merely for normalization.
 
@@ -168,9 +151,9 @@ Accepted internal Markdown link schemes:
 [Knowledge article](kb://stable-kb-id)
 ```
 
-Registered relative KB Markdown links are also supported.
+Registered relative KB Markdown links are also supported. The renderer constructs current routes and build validation ensures targets exist.
 
-The renderer constructs current routes. Build validation ensures targets exist.
+Authored stable-ID navigation is independent of section labeling: `# Links`, `## Related`, or another sensible Markdown heading is acceptable. Tests validate the durable stable-ID link/target, **not a particular heading string**. PR #32 made this invariant explicit after the user's valid formatting cleanup removed the old `## Related` headings.
 
 There is no requirement to maintain reverse links or exhaustive associations merely because an authored link exists.
 
@@ -186,22 +169,9 @@ Dataset envelope:
 }
 ```
 
-Ordinary items contain the accepted structured fields for stable ID, category, type, name, manufacturer, model, specifications, links, and optional Markdown `notes`.
+Ordinary items contain accepted structured fields for stable ID, category, type, name, manufacturer, model, specifications, links, and optional Markdown `notes`. Rods & Reels remain first-class setup records with embedded rod/reel product value objects and optional Notes.
 
-Rods & Reels remain first-class setup records with embedded rod/reel product value objects and optional Notes.
-
-Retired/rejected from schema v2:
-
-- top-level `profiles`;
-- `usage` / `connections`;
-- `usageProfileId` / `connectionProfileId`;
-- setup `mainLine` / `leader`;
-- `configuration` relationship objects;
-- `knowledgeRefs`;
-- raw HTML guidance;
-- unknown structural fields.
-
-The former **How to use it** presentation became **Notes**.
+Retired/rejected from schema v2: top-level profiles, usage/connections and profile IDs, setup `mainLine`/`leader`, configuration relationship objects, `knowledgeRefs`, raw HTML guidance, and unknown structural fields.
 
 ## 8. Unified Knowledge Base envelope
 
@@ -216,19 +186,9 @@ picture?
 content
 ```
 
-There are no entity-specific atomic data fields.
+There are no entity-specific atomic data fields. Current top-level types are `location`, `species`, `equipment`, `technique`, and `knot`.
 
-Current top-level types:
-
-- `location`
-- `species`
-- `equipment`
-- `technique`
-- `knot`
-
-**Equipment** was added as a flat peer type on 2026-09-03 for rigs, presentations, lure-family guides, and equipment-oriented knowledge. **Technique** remains for strategy, conditions, species-oriented methods, and broader approaches.
-
-No nested taxonomy was added.
+**Equipment** is a flat peer type for rigs, presentations, lure-family guides, and equipment-oriented knowledge. **Technique** remains for strategy, conditions, species-oriented methods, and broader approaches. No nested taxonomy was added.
 
 ## 9. Catch model rules
 
@@ -242,38 +202,21 @@ Historical rules:
 - exact spot/depth/structure/conditions belong in catch Markdown narrative;
 - a multi-species source row becomes separate catches when appropriate.
 
-Backlinks are computed from Catch forward references rather than stored redundantly.
-
-Catch picture behavior is presentation-only: an exact Catch image overrides, otherwise linked Species art is the fallback.
+Backlinks are computed from Catch forward references rather than stored redundantly. Exact Catch image overrides linked Species art; Species art is presentation fallback only.
 
 ## 10. No identity inference from presentation
 
-Application code must not discover Gear or KB identity from:
-
-- rendered names;
-- page headings;
-- manufacturer/model strings;
-- image aliases;
-- fuzzy text similarity;
-- Markdown prose;
-- generated routes.
-
-Broken IDs fail validation rather than falling back to a similar-looking record.
+Application code must not discover Gear or KB identity from rendered names, page headings, manufacturer/model strings, image aliases, fuzzy text similarity, Markdown prose, or generated routes. Broken IDs fail validation rather than falling back to a similar-looking record.
 
 ## 11. Routes are presentation concerns
 
 Structured data and authored internal links store stable IDs, not hash routes.
 
-Current route construction:
-
 - Gear: `#/inventory/item/{id}`
 - KB: `#/kb/entity/{id}`
 - Catch: `#/kb/catch/{id}`
 
-Route ownership is explicit:
-
-- `gear-app.js` owns all `#/inventory/...`
-- `kb-app.js` owns Home and all `#/kb/...`
+`gear-app.js` owns all `#/inventory/...`; `kb-app.js` owns Home and all `#/kb/...`.
 
 ## 12. Storage symmetry is not a goal
 
@@ -281,7 +224,7 @@ Route ownership is explicit:
 - KB uses JSON catalog + Markdown because it is document-oriented and browse-only.
 - Catch Log remains structured JSON until an editing feature justifies a writable repository/store.
 
-A future feature may change persistence, but storage should not be changed merely to make domains look alike.
+Storage should not be changed merely to make domains look alike.
 
 ## 13. Media reconciliation
 
@@ -297,65 +240,42 @@ A setup component may use explicit `component: rod|reel` ownership.
 
 ### Repository-local media
 
-PR #26 added:
+PR #26 added `local-media.json` and `apply-local-media.mjs`. Repository-local images are validated for size, supported format structure/signature, and extension consistency, then copied into the production bundle.
 
-- `local-media.json`
-- `apply-local-media.mjs`
+KB `picture.src` accepts only `http(s)` URLs, safe `./assets/kb/...` paths, or safe `./assets/gear/...` paths when intentionally reusing built owned-Gear media. Arbitrary local roots remain invalid.
 
-Repository-local images are validated for size, supported format structure/signature, and extension consistency, then copied into the production bundle. This was added after a malformed Kokanee WebP passed the earlier pipeline yet rendered blank.
-
-KB `picture.src` accepts only:
-
-- `http(s)` URLs;
-- safe local `./assets/kb/...` paths; or
-- safe local `./assets/gear/...` paths when intentionally reusing built owned-Gear media.
-
-The Gear-backed local path family is narrow and explicit; arbitrary local roots remain invalid.
+PR #32's production pipeline also validated the user's replacement Largemouth/Smallmouth Bass images under this same model.
 
 ### Final transformed-data validation
 
-PR #30 established a cross-build rule:
+PR #30 established:
 
 > **If a build step mutates already-validated structured data, validate the final deployable transformed data after the mutation.**
 
-The motivating defect was PR #28's valid source KB seed: `apply-local-media.mjs` later substituted six KB picture sources with `./assets/gear/...` paths, but the old runtime validator accepted only `./assets/kb/...`. CI therefore passed source validation while the deployed browser rejected the transformed KB bundle at startup.
-
-`apply-local-media.mjs` now revalidates the transformed built KB bundle after all media substitutions and before deployment.
+The motivating defect was PR #28's valid source KB seed becoming runtime-invalid after six picture sources were transformed to `./assets/gear/...`. `apply-local-media.mjs` now revalidates the transformed built KB bundle after all media substitutions and before deployment.
 
 ### User-supplied binary transport rule
 
-A separate reliability decision was made after repeated 2026-09-03 failures:
-
 > **Do not transport user image binaries/base64 through ChatGPT→GitHub connector calls.**
 
-Instead:
-
-1. ChatGPT specifies exact branch/path/filename.
-2. User uploads the binary directly to GitHub.
-3. ChatGPT verifies the uploaded file.
-4. ChatGPT updates text configuration, data, Markdown, tests, PR, and deployment.
-
-This process rule prevents a known tool-transport failure mode without changing domain identity/ownership principles.
+ChatGPT specifies the exact branch/path/filename; the user uploads the binary directly; ChatGPT verifies it and handles text configuration, data, Markdown, tests, PR, and deployment.
 
 ## 14. Validation rules
 
 Current build/test validation includes:
 
-- strict exact Gear record shapes;
+- strict exact Gear record shapes and legacy-field rejection;
 - required non-empty data versions;
-- legacy Gear field rejection;
 - five-type KB enum and exact entity shapes;
-- stable unique IDs;
-- one registered Markdown Content path per KB entity;
-- Catch type/category relationships;
-- exactly one lure/bait per Catch;
-- `gear://` and `kb://` target validation;
-- registered relative KB links;
+- stable unique IDs and one registered Markdown Content path per KB entity;
+- Catch type/category relationships and exactly one lure/bait per Catch;
+- `gear://`, `kb://`, and registered relative-link target validation;
+- authored stable-ID navigation independent of section-heading label;
 - exact Gear media owner IDs/component selectors;
-- KB picture-source allow-list for http(s), `./assets/kb/...`, and `./assets/gear/...`;
+- KB picture-source allow-list;
 - repository-local image validation;
 - route ownership and retired-Planner regression tests;
-- final-content regression tests for the 2026-09-04 batch;
+- final-content regression tests;
 - final transformed KB-bundle validation after local-media substitution.
 
 ## 15. Search/filter and UI principles
@@ -379,23 +299,20 @@ Reconciliation design was accepted in PR #15 and implemented in PR #16. Subseque
 - PR #28 — final KB content/image batch and authored cross-links
 - PR #29 — project-state reconciliation
 - PR #30 — Gear-backed KB picture validation + final transformed-data guard
+- PR #31 — durable state reconciliation after recovery
+- PR #32 — final PR #28 authored-content acceptance and heading-independent link regression
 
-Latest verified release:
+Latest verified application release:
 
-- PR #30 exact tested head `ffa4c500f2bf23be8d883736aed235a1e1011677`
-- CI #124 / `33843072806` success
-- merge `f64217485df024ebebf15af5adfb9bbd7018be5d`
-- production #125 / `33843111957` build + transformed-data validation + Pages deploy success
-- user verified the live site healthy after deployment
+- PR #32 exact tested head `973b8cb0294cfbab789b2f9dde69830199c5b83a`
+- CI #151 / `33848718142` success
+- merge `356174e1376d591e9b33bef06e52e9fdb5c3d31c`
+- production #152 / `33848766888` build + transformed/local-media validation + replacement bass-image validation + bundle verification + Pages deploy success
 
-No current production requirement justifies reopening the core data-model architecture.
+The PR #28 content-acceptance sequence is closed. No current production requirement justifies reopening the core data-model architecture.
 
 ## 17. Future editing direction
 
-My Gear CRUD remains deferred. When resumed:
-
-- normal forms are the everyday edit path;
-- validated JSON export/import can support backup/bulk editing;
-- no raw JSON editor inside the PWA.
+My Gear CRUD remains deferred. When resumed, normal forms are the everyday edit path, validated JSON export/import can support backup/bulk editing, and there should be no raw JSON editor inside the PWA.
 
 Future KB/Catch editing should add persistence only when the requested feature demonstrates the need. Do not redesign current schemas merely for hypothetical future synchronization.
