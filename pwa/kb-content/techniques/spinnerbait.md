@@ -60,7 +60,5 @@ A subsurface (1–6 ft) bait with one or more spoon-like blades attached offset 
 
 # Links
 - Video: [Spinnerbait Fishing Lure Tips and How to Fish Spinnerbaits (Underwater Footage)](https://www.youtube.com/watch?v=r-ba-GqRQOM)
-
-## Related
 - My Gear: [Strike King Red Eyed Special](gear://strike-king-red-eyed-special), [6th Sense Divine Spinnerbait](gear://sixth-sense-divine-spinnerbait)
 - KB: [Chatterbait](kb://technique-chatterbait-bladed-jig)
