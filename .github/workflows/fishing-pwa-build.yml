@@ -53,6 +53,7 @@ jobs:
           node --check pwa/media-ui.js
           node --check pwa/build.mjs
           node --check pwa/apply-local-media.mjs
+          node --check pwa/final-content.test.mjs
           node --check pwa/serve.mjs
       - name: Test structured My Gear model
         run: node pwa/gear-model.test.mjs
@@ -62,6 +63,8 @@ jobs:
         run: node pwa/kb-model.test.mjs
       - name: Test Knowledge Base routing and Markdown
         run: node pwa/kb-routing.test.mjs
+      - name: Test final content batch
+        run: node pwa/final-content.test.mjs
       - name: Build PWA
         run: node pwa/build.mjs
       - name: Apply and validate local media
@@ -85,11 +88,31 @@ jobs:
           test -f pwa/dist/video-titles.json
           test -f pwa/dist/kb-content/locations/lake-sammamish.md
           test -f pwa/dist/kb-content/techniques/ned-rig.md
+          test -f pwa/dist/kb-content/techniques/inline-spinner.md
+          test -f pwa/dist/kb-content/techniques/snaps-swivels.md
+          test -f pwa/dist/kb-content/techniques/flasher-rig.md
+          test -f pwa/dist/kb-content/techniques/inline-trolling-rig.md
+          test -f pwa/dist/kb-content/techniques/bobber-rig.md
+          test -f pwa/dist/kb-content/techniques/slip-sinker-rig.md
+          test -f pwa/dist/kb-content/techniques/spring-fishing.md
           test -f pwa/dist/kb-content/knots/palomar.md
           test -f pwa/dist/assets/kb/species/kokanee-phases.png
           test ! -f pwa/dist/assets/kb/species/kokanee-phases.webp
           test -f pwa/dist/assets/kb/species/northern-pikeminnow.png
+          test -f pwa/dist/assets/kb/species/rainbow-trout.png
+          test -f pwa/dist/assets/kb/species/coastal-cutthroat-trout.png
+          test -f pwa/dist/assets/kb/species/smallmouth-bass.png
+          test -f pwa/dist/assets/kb/species/largemouth-bass.png
           test -f pwa/dist/assets/kb/equipment/booyah-pad-crasher.jpg
+          test -f pwa/dist/assets/kb/equipment/inline-spinner-rig.png
+          test -f pwa/dist/assets/kb/equipment/drop-shot.png
+          test -f pwa/dist/assets/kb/equipment/wacky-worm.png
+          test -f pwa/dist/assets/kb/equipment/ned-rig.png
+          test -f pwa/dist/assets/kb/equipment/snap-swivel.png
+          test -f pwa/dist/assets/kb/equipment/flasher-rig.png
+          test -f pwa/dist/assets/kb/equipment/inline-trolling-rig.png
+          test -f pwa/dist/assets/kb/equipment/bobber-rig.png
+          test -f pwa/dist/assets/kb/equipment/slip-sinker-rig.png
           test -f pwa/dist/assets/gear/booyah-pad-crasher-assortment.jpg
           test -f pwa/dist/assets/gear/vmc-swimbait-jig.png
           test -f pwa/dist/assets/gear/south-bend-classic-dressed-spinners.jpg
@@ -103,9 +126,27 @@ jobs:
           grep -q 'unified Markdown-content Knowledge Base' pwa/dist/build.json
           grep -q 'kokanee-phases.png' pwa/dist/data/kb.seed.json
           grep -q 'northern-pikeminnow.png' pwa/dist/data/kb.seed.json
+          grep -q 'rainbow-trout.png' pwa/dist/data/kb.seed.json
+          grep -q 'coastal-cutthroat-trout.png' pwa/dist/data/kb.seed.json
+          grep -q 'smallmouth-bass.png' pwa/dist/data/kb.seed.json
+          grep -q 'largemouth-bass.png' pwa/dist/data/kb.seed.json
           grep -q 'booyah-pad-crasher.jpg' pwa/dist/data/kb.seed.json
           ! grep -q 'kokanee-phases.webp' pwa/dist/data/kb.seed.json
-          grep -q '2026-09-03-my-gear-v2-content-1' pwa/dist/data/gear.seed.json
+          grep -q '2026-09-04-my-gear-v2-final-content-1' pwa/dist/data/gear.seed.json
+          grep -q '2026-09-04-kb-v1-final-content-1' pwa/dist/data/kb.seed.json
+          grep -q 'technique-inline-spinner' pwa/dist/data/kb.seed.json
+          grep -q 'technique-snaps-swivels' pwa/dist/data/kb.seed.json
+          grep -q 'technique-flasher-rig' pwa/dist/data/kb.seed.json
+          grep -q 'technique-inline-trolling-rig' pwa/dist/data/kb.seed.json
+          grep -q 'technique-bobber-rig' pwa/dist/data/kb.seed.json
+          grep -q 'technique-slip-sinker-rig' pwa/dist/data/kb.seed.json
+          grep -q 'technique-spring-fishing' pwa/dist/data/kb.seed.json
+          grep -q 'fin-sanity-bluegill' pwa/dist/data/kb.seed.json
+          grep -q 'berkley-stunna' pwa/dist/data/kb.seed.json
+          grep -q 'strike-king-kvd-square-bill-1' pwa/dist/data/kb.seed.json
+          grep -q 'zman-original-chatterbait' pwa/dist/data/kb.seed.json
+          grep -q 'strike-king-red-eyed-special' pwa/dist/data/kb.seed.json
+          grep -q 'strike-king-tour-grade-football-jig' pwa/dist/data/kb.seed.json
           grep -q 'South Bend 125-Piece Removable Split Shot Sinkers' pwa/dist/data/gear.seed.json
           grep -q 'South Bend 24-Piece Assorted Brass Swivels' pwa/dist/data/gear.seed.json
           grep -q '"localSource": true' pwa/dist/gear-media.json
