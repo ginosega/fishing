@@ -4,7 +4,7 @@
 
 **Accepted:** 2026-09-02
 
-**Reconciled through:** 2026-09-04 / PR #34 / production content checkpoint `0b89ebc20de049fe5d072e93edcdcaa7b13d01b2`
+**Reconciled through:** 2026-09-04 / PR #34 / production content checkpoint `955d37bf675f3163fe610324809a972916c98ef0`
 
 **Purpose:** Keep My Gear, Knowledge Base, and Catch Log architecturally consistent without forcing identical schemas, identical persistence, or speculative relationship maintenance.
 
@@ -317,9 +317,9 @@ Latest verified runtime release:
 
 Latest audited production content checkpoint before nightly reconciliation:
 
-- `main` `0b89ebc20de049fe5d072e93edcdcaa7b13d01b2`
-- production #161 / `33850346865` success through GitHub Pages deployment
-- includes subsequent authored-content maintenance to Buzzbait, Fishing Line, Rods & Reels, and Walking Bait
+- `main` `955d37bf675f3163fe610324809a972916c98ef0`
+- production #166 / `33851195203` success through all tests and GitHub Pages deployment
+- includes late-night authored-content maintenance to Buzzbait, Fishing Line, Rods & Reels, Walking Bait, Slip Sinker Rig, Bobber Rig, Flasher Rig, Inline Spinner, and Inline Trolling Rig
 
 The PR #28 content-acceptance sequence is closed. No current production requirement justifies reopening the core data-model architecture.
 
