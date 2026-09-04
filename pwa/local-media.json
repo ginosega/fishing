@@ -1,6 +1,30 @@
 {
   "version": 1,
-  "gear": [],
-  "kb": [],
-  "staged": []
+  "gear": [
+    {
+      "mediaId": "booyah-pad-crasher-assortment",
+      "source": "./assets/gear-source/booyah-pad-crasher.jpg",
+      "alt": "Booyah Pad Crasher hollow-body frog",
+      "destination": "https://www.dickssportinggoods.com/p/booyah-pad-crasher-frog-assortment-3-pack-20byhupdcrshr3pkklur/20byhupdcrshr3pkklur",
+      "sourcePage": "https://www.dickssportinggoods.com/p/booyah-pad-crasher-frog-assortment-3-pack-20byhupdcrshr3pkklur/20byhupdcrshr3pkklur"
+    },
+    {
+      "mediaId": "vmc-swimbait-jig",
+      "source": "./assets/gear-source/vmc-swimbait-jig.png",
+      "alt": "VMC Swimbait Jig white jighead",
+      "destination": "https://www.rapala.com/us_en/sbj-swimbait-jig?childSku=us-SBJ14-W",
+      "sourcePage": "https://www.rapala.com/us_en/sbj-swimbait-jig?childSku=us-SBJ14-W"
+    }
+  ],
+  "kb": [
+    { "source": "./assets/kb/species/kokanee-phases.png" },
+    { "source": "./assets/kb/species/northern-pikeminnow.png" },
+    { "source": "./assets/kb/equipment/booyah-pad-crasher.jpg" }
+  ],
+  "staged": [
+    { "source": "./assets/gear-source/south-bend-hook-assortment.png" },
+    { "source": "./assets/gear-source/south-bend-dressed-spinners.jpg" },
+    { "source": "./assets/gear-source/south-bend-split-shot.png" },
+    { "source": "./assets/gear-source/south-bend-brass-swivels.png" }
+  ]
 }
