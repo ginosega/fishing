@@ -24,8 +24,10 @@ assert.match(kbApp, /kbCategoryGrid[\s\S]*kbRootSearchResults/,
   'Root Knowledge Base search must replace the category grid with matching entity cards while searching.');
 assert.match(kbApp, /function pageHeader\(title, subtitle, back, search = null\)|function pageHeader\(title,subtitle,back,search = null\)/,
   'Knowledge Base page header must accept an optional Search control.');
-assert.match(kbApp, /section-title-actions[\s\S]*section-search[\s\S]*back-button/,
-  'Knowledge Base list Search must share the right-side header action area and precede Back.');
+assert.match(kbApp, /const searchControl = search \? `<input class="search section-search"/,
+  'Knowledge Base page header must render the compact Search control when requested.');
+assert.match(kbApp, /section-title-actions">\$\{searchControl\}\$\{back \? `<button class="back-button"/,
+  'Knowledge Base header action area must render Search immediately before Back.');
 assert.match(kbApp, /function renderCatchList\(\)[\s\S]*?bindRoutes\(\);\s*\}/,
   'Catch Log must bind its Back button after rendering.');
 assert.match(kbApp, /const catchPicture = record\.picture \|\| species\?\.picture \|\| null;/,
