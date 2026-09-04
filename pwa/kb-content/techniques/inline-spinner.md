@@ -10,8 +10,10 @@ One or more narrow blades mounted on a straight wire shaft, with a bullet or tor
 - Reel: Spinning
 - Line: 4–8 lb. mono or 6–10 lb. fluorocarbon for trout/panfish; up to 12–15 lb. for bass.
 - Tackle:
-  - If using only fluoro or mono line, use a swivel about 12–18 inches ahead of the lure and don't add a dressing. Add a snap if changing lures. Mainline → swivel → 12–18” leader → snap (optional) → lure.
-  - If using braided line and a leader, insert a swivel in the leader. Mainline → 12-18" leader → swivel → 12-18" leader → (optional) snap → lure
+  - If using only fluoro or mono line, use a swivel about 12–18 inches ahead of the lure and don't add a dressing. Add a snap if changing lures:
+    - `Mainline → swivel → 12–18” leader → snap (optional) → lure`
+  - If using braided line and a leader, insert a swivel in the leader:
+    - `Mainline → 12-18" leader → swivel → 12-18" leader → (optional) snap → lure`
 - Knot: Improved Clinch. Retie often, as vibrations stress the knot over time.
 - Lure color:
   - Clear water: Silver, copper, or natural finishes
