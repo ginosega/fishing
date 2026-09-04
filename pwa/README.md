@@ -79,11 +79,7 @@ Retired/forbidden schema-v1 concepts:
 - leaf pages use structured Manufacturer / Model, Specifications, Links, and optional Markdown **Notes**
 - internal Notes links use `gear://stable-id` and `kb://stable-id`
 
-Current lure-type labels include:
-
-- **Soft plastics and swimbaits**
-- **Topwater**
-- **Trolling lures**
+Current lure-type labels include **Soft plastics and swimbaits**, **Topwater**, and **Trolling lures**.
 
 ## Unified Knowledge Base architecture
 
@@ -141,35 +137,13 @@ Equipment and Technique entities currently share the physical directory `kb-cont
 
 Content-only Markdown edits are safe. Renaming or moving an article file requires updating the entity's registered `content` path. Build validation checks registered content and internal stable-ID links.
 
-### Current final content set
+### Final content set and acceptance
 
-PR #28 refreshed these existing pages from user-supplied MHT content:
+PR #28 refreshed Swimbait, Jerkbait, Crankbait, Chatterbait / Bladed Jig, Spinnerbait, Jigs, Frogs, Drop Shot, Wacky Worm, Ned Rig, and Trout Fishing; it added Inline Spinner, Snaps & Swivels, Flasher Rig, Inline Trolling Rig, Bobber Rig, Slip Sinker Rig, and Spring Fishing.
 
-- Swimbait
-- Jerkbait
-- Crankbait
-- Chatterbait / Bladed Jig
-- Spinnerbait
-- Jigs
-- Frogs
-- Drop Shot
-- Wacky Worm
-- Ned Rig
-- Trout Fishing
+The user completed a broad formatting cleanup of those imported pages on 2026-09-04. Final acceptance inspected all 15 modified Equipment/Technique documents, fixed remaining list/wrapping artifacts in Chatterbait, Jerkbait, Inline Trolling Rig, and Spring Fishing, and validated replacement Largemouth/Smallmouth Bass images. PR #32 production-verified the final state. The PR #28 content acceptance is therefore **closed**.
 
-PR #28 added:
-
-- Inline Spinner
-- Snaps & Swivels
-- Flasher Rig
-- Inline Trolling Rig
-- Bobber Rig
-- Slip Sinker Rig
-- Spring Fishing
-
-Authored content may link to owned Gear and other KB articles by stable ID. Those links are navigation and are build-validated; they do not create reverse relationship maintenance requirements.
-
-The user is currently correcting formatting errors in many of these PR #28-created/refreshed Markdown documents. This is authored-content cleanup, not an architectural change.
+Authored content may link to owned Gear and other KB articles by stable ID. Those links are navigation and are build-validated; they do not create reverse relationship maintenance requirements. They may live under `# Links`, `## Related`, or another sensible Markdown section; tests validate the stable-ID links themselves, not a particular heading label.
 
 ## Structured Catch Log
 
@@ -179,11 +153,7 @@ Each record includes stable identity/date/size, required Species and Location ID
 
 There is no Session ID, generic additional-gear relationship, or trip/no-catch model. Historical setup/technique attribution is not inferred.
 
-Current seed contains **5 catches**.
-
-Catch backlinks on applicable Location, Species, Technique/Equipment, setup, lure, and bait pages are computed from Catch records. Backlinks are not stored redundantly.
-
-If `catch.picture` is null, Catch cards/pages use the linked Species picture as a presentation fallback.
+Current seed contains **5 catches**. Catch backlinks are computed from Catch records; they are not stored redundantly. If `catch.picture` is null, Catch cards/pages use the linked Species picture as a presentation fallback.
 
 ## Links and identity
 
@@ -202,64 +172,25 @@ If `catch.picture` is null, Catch cards/pages use the linked Species picture as 
 
 ### KB picture sources
 
-A KB `picture.src` may be:
-
-- an `http(s)` URL;
-- a safe repository-local `./assets/kb/...` path; or
-- a safe repository-local `./assets/gear/...` path when the KB page intentionally reuses a built owned-Gear image.
-
-The `./assets/gear/...` case is required by PR #28's exact owned-item picture reuse for Swimbait, Jerkbait, Crankbait, Chatterbait, Spinnerbait, and Jig.
+A KB `picture.src` may be an `http(s)` URL, a safe `./assets/kb/...` path, or a safe `./assets/gear/...` path when intentionally reusing a built owned-Gear image. The Gear-backed case is required by PR #28's exact owned-item picture reuse.
 
 ### Repository-local media
 
-`local-media.json` configures active user-supplied local Gear/KB media. `apply-local-media.mjs`:
+`local-media.json` configures active user-supplied local Gear/KB media. `apply-local-media.mjs` validates image size/signatures/extensions, materializes active images, updates built metadata, verifies bytes, and **revalidates the fully transformed built KB bundle before deployment**.
 
-- validates image size;
-- validates JPEG/PNG/GIF/WebP structural signatures;
-- verifies filename extension matches detected format;
-- copies active local Gear media into `dist/assets/gear/`;
-- copies active local KB media into its stable `assets/kb/...` path;
-- updates built Gear/KB media metadata;
-- verifies built KB bytes match source bytes;
-- **revalidates the fully transformed built KB bundle before writing/deploying it**.
-
-The final point was added in PR #30 after the production build had been able to transform source-valid KB data into runtime-invalid data by substituting `./assets/gear/...` picture paths after the earlier source validation step.
+This final-form validation rule was added in PR #30 after a source-valid KB bundle became runtime-invalid only after local-media substitution. PR #32 also confirmed the replacement Largemouth/Smallmouth Bass images pass the same local-media pipeline.
 
 ### User-supplied binary workflow
 
-**Do not upload or base64-transport user image binaries through ChatGPT/GitHub connector calls.** Repeated 2026-09-03 failures isolated that transport step as unreliable.
-
-Standing process:
-
-1. ChatGPT specifies exact feature branch/path/filename.
-2. User uploads binary directly to GitHub.
-3. ChatGPT verifies the GitHub file.
-4. ChatGPT handles manifests/data/content/tests/PR/deploy.
-
-This is the standard workflow even when manual image upload is less convenient.
+**Do not upload or base64-transport user image binaries through ChatGPT/GitHub connector calls.** The user uploads binaries directly to the specified GitHub feature branch/path; ChatGPT verifies them and handles manifests/data/content/tests/PR/deploy.
 
 ## Routes
 
-My Gear owns:
+My Gear owns `#/inventory`, `#/inventory/{category}`, and `#/inventory/item/{stable-id}`.
 
-- `#/inventory`
-- `#/inventory/{category}`
-- `#/inventory/item/{stable-id}`
+Knowledge Base owns `#/home`, `#/kb`, the five entity-category routes, `#/kb/entity/{stable-id}`, `#/kb/catches`, and `#/kb/catch/{stable-id}`.
 
-Knowledge Base owns:
-
-- `#/home`
-- `#/kb`
-- `#/kb/locations`
-- `#/kb/species`
-- `#/kb/equipment`
-- `#/kb/techniques`
-- `#/kb/knots`
-- `#/kb/entity/{stable-id}`
-- `#/kb/catches`
-- `#/kb/catch/{stable-id}`
-
-`my-gear-routing.test.mjs` and `kb-routing.test.mjs` guard route ownership and UI/Markdown regressions. `final-content.test.mjs` protects the 2026-09-04 final content batch.
+`my-gear-routing.test.mjs`, `kb-routing.test.mjs`, and `final-content.test.mjs` guard route/content/media regressions. `final-content.test.mjs` validates stable authored KB/Gear navigation rather than requiring a specific Markdown section heading.
 
 ## Offline and storage behavior
 
@@ -271,15 +202,7 @@ The shared image viewer supports fit-to-view minimum zoom, pinch/pan, +/-/reset,
 
 ## Retired architecture
 
-Do not reintroduce without an explicit product decision:
-
-- legacy Markdown fact parser/router
-- My Gear profiles/HTML guidance model
-- Planner / Planner Attributes
-- sessions / Session ID / trip history
-- Markdown catch-table parsing
-- fuzzy Gear-name matching
-- fuzzy media identity matching
+Do not reintroduce without an explicit product decision: legacy Markdown fact parser/router, My Gear profiles/HTML guidance, Planner/Planner Attributes, sessions/Session ID/trip history, Markdown catch-table parsing, fuzzy Gear-name matching, or fuzzy media identity matching.
 
 Migrated `Topics/*.md`, `Fishing_Gear_Registry.md`, and `Fishing_Tackle_Inventory.md` remain valuable history/reference but are not runtime sources.
 
@@ -300,32 +223,22 @@ node pwa/build.mjs
 node pwa/apply-local-media.mjs
 ```
 
-The CI workflow additionally runs structured-model, routing, KB Markdown, final-content regression tests, post-transform/local-media validation, and deployable-bundle verification.
+CI additionally runs structured-model, routing, KB Markdown, final-content regression tests, post-transform/local-media validation, and deployable-bundle verification.
 
 ## Current production release
 
-Latest verified release:
+Latest verified application release:
 
-- PR #30 — `Fix KB validation for Gear-backed pictures`
-- exact tested head `ffa4c500f2bf23be8d883736aed235a1e1011677`
-- PR CI #124 / `33843072806` — success
-- merge `f64217485df024ebebf15af5adfb9bbd7018be5d`
-- production #125 / `33843111957` — build success, transformed KB validation success, Pages artifact success, **Deploy to GitHub Pages success**
-- user verified the live site healthy afterward
+- PR #32 — `Complete final KB Markdown acceptance cleanup`
+- exact tested head `973b8cb0294cfbab789b2f9dde69830199c5b83a`
+- PR CI #151 / `33848718142` — success
+- merge `356174e1376d591e9b33bef06e52e9fdb5c3d31c`
+- production #152 / `33848766888` — build, transformed/local-media validation, replacement bass-image validation, bundle verification, Pages artifact, and **Deploy to GitHub Pages** all succeeded
 
-Recent stabilization:
+Recent stabilization sequence: PR #25 catch/media polish → PR #26 local-media hardening → PR #27 Recovery B → PR #28 final content/image batch → PR #29 state reconciliation → PR #30 transformed-picture validation hotfix → PR #31 state reconciliation → PR #32 final content acceptance.
 
-- PR #25 — Catch imagery / browse-list media polish
-- PR #26 — local media hardening
-- PR #27 — Recovery B Gear/browse/content updates
-- PR #28 — final KB/content/image batch
-- PR #29 — project-state reconciliation
-- PR #30 — Gear-backed picture validation hotfix + final transformed-data guard
-
-For meaningful changes, use a normal feature/fix branch and PR. Merge only after exact-head CI passes, then verify both the production build and actual Pages deployment before saying a release is live.
-
-Any build stage that mutates already-validated structured data must validate the final deployable form after the mutation; source-only validation is not enough.
+For meaningful changes, use a normal feature/fix branch and PR. Merge only after exact-head CI passes, then verify both the production build and actual Pages deployment before saying a release is live. Any build stage that mutates already-validated structured data must validate the final deployable form after the mutation.
 
 ## Future work
 
-Canonical future work is `../Fishing_TODO.md`. Immediate current work is the PR #28 Equipment/Technique Markdown formatting cleanup and acceptance pass. Other major deferred/unresolved themes include PowerBait hook-size conflict, loop-knot conflict, remaining candidate rig/spoon pages, structured catch additions, hardware/install-state verification, and eventual My Gear CRUD.
+Canonical future work is `../Fishing_TODO.md`. The PR #28 content cleanup is complete. Remaining themes include the PowerBait hook-size conflict, loop-knot conflict, candidate rig/spoon pages, structured catch additions, hardware/install-state verification, and eventual My Gear CRUD.
