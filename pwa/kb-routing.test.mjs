@@ -71,4 +71,17 @@ assert.match(html, /target="_blank" rel="noopener"/);
 assert.match(html, /<table>/);
 assert.doesNotMatch(renderMarkdown('[bad](javascript:alert(1))'), /href=/);
 
+const nestedListHtml = renderMarkdown([
+  '- Parent',
+  '  - Child one',
+  '  - Child two',
+  '- Sibling',
+  '1. Ordered parent',
+  '   1. Ordered child'
+].join('\n'));
+assert.match(nestedListHtml, /<ul><li>Parent<ul><li>Child one<\/li><li>Child two<\/li><\/ul><\/li><li>Sibling<\/li><\/ul>/,
+  'Indented unordered Markdown list items must remain nested.');
+assert.match(nestedListHtml, /<ol><li>Ordered parent<ol><li>Ordered child<\/li><\/ol><\/li><\/ol>/,
+  'Indented ordered Markdown list items must remain nested.');
+
 console.log('Knowledge Base routing, Markdown, article layout, and retired Planner regression tests passed.');
