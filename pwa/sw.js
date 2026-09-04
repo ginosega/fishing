@@ -15,6 +15,7 @@ const CORE = [
   './data/catches.seed.json',
   './gear-media.json',
   './gear-notes-assets.json',
+  './catch-notes-assets.json',
   './kb-assets.json',
   './video-titles.json',
   './manifest.webmanifest',
@@ -35,6 +36,9 @@ self.addEventListener('install', event => {
     const gearNotesResponse = await cache.match('./gear-notes-assets.json');
     const gearNoteAssets = gearNotesResponse ? await gearNotesResponse.json() : [];
     await cache.addAll(gearNoteAssets || []);
+    const catchNotesResponse = await cache.match('./catch-notes-assets.json');
+    const catchNoteAssets = catchNotesResponse ? await catchNotesResponse.json() : [];
+    await cache.addAll(catchNoteAssets || []);
     const kbResponse = await cache.match('./kb-assets.json');
     const kbAssets = kbResponse ? await kbResponse.json() : [];
     await cache.addAll(kbAssets || []);

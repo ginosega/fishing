@@ -1,9 +1,9 @@
-export const GEAR_SCHEMA_VERSION = 2;
+export const GEAR_SCHEMA_VERSION = 3;
 export const GEAR_CATEGORIES = ['rods-reels','line','weights','snaps-swivels','hooks','lures','bait'];
 
 const ROOT_FIELDS = ['schemaVersion','dataVersion','items'];
-const PRODUCT_FIELDS = ['id','category','type','name','manufacturer','model','specifications','links','notes'];
-const SETUP_FIELDS = ['id','category','type','name','rod','reel','notes'];
+const PRODUCT_FIELDS = ['id','category','type','name','manufacturer','model','specifications','links'];
+const SETUP_FIELDS = ['id','category','type','name','rod','reel'];
 const COMPONENT_FIELDS = ['manufacturer','model','specifications','links'];
 const MANUFACTURER_FIELDS = ['name','url'];
 const SPECIFICATION_FIELDS = ['label','value'];
@@ -36,7 +36,6 @@ export function validateGearBundle(bundle) {
       validateLinks(item.links, `${at}.links`, errors, true);
     }
 
-    validateNotes(item.notes, `${at}.notes`, errors);
   }
   return { valid: errors.length === 0, errors };
 }
@@ -121,10 +120,6 @@ function validateLinks(links, at, errors, required=false) {
   });
 }
 
-function validateNotes(notes, at, errors) {
-  if (notes == null) return;
-  if (typeof notes !== 'string') errors.push(`${at} must be Markdown text or null.`);
-}
 
 function validateExactFields(value, allowed, at, errors) {
   if (!isObject(value)) return;
