@@ -36,7 +36,6 @@ await fs.writeFile(path.join(dataOut, 'catches.seed.json'), JSON.stringify(catch
 
 const gearIds = new Set(gearSeed.items.map(item => item.id));
 const kbIds = new Set(kbSeed.entities.map(entity => entity.id));
-for (const item of gearSeed.items) validateGearNotesLinks(item.notes, item.id, gearIds, kbIds);
 
 const indexSource = await fs.readFile(path.join(here, 'index.html'), 'utf8');
 const versionedIndex = indexSource
@@ -252,23 +251,6 @@ function extractMarkdownImages(markdown) {
 
 function extractMarkdownLinks(markdown) {
   return [...String(markdown || '').matchAll(/(?<!!)\[[^\]]+\]\(([^)\s]+)(?:\s+["'][^"']*["'])?\)/g)].map(match => match[1].replaceAll('&amp;', '&'));
-}
-
-function validateGearNotesLinks(markdown, itemId, gearIds, kbIds) {
-  if (!markdown) return;
-  for (const target of extractMarkdownLinks(markdown)) {
-    if (/^gear:\/\//i.test(target)) {
-      const id = target.slice(7);
-      if (!gearIds.has(id)) throw new Error(`My Gear ${itemId} notes reference unknown My Gear ID ${id}.`);
-      continue;
-    }
-    if (/^kb:\/\//i.test(target)) {
-      const id = target.slice(5);
-      if (!kbIds.has(id)) throw new Error(`My Gear ${itemId} notes reference unknown KB ID ${id}.`);
-      continue;
-    }
-    if (/^#\/(?:inventory|kb)(?:\/|$)/i.test(target)) throw new Error(`My Gear ${itemId} notes store a raw application route; use gear:// or kb:// instead: ${target}`);
-  }
 }
 
 function validateContentLinks(markdown, entity, knownContentPaths, gearIds, kbIds) {

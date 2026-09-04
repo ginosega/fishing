@@ -158,17 +158,16 @@ async function renderCatch(id) {
   if (!record) return navigate('#/kb/catches');
   const species = entity(record.speciesId);
   const location = entity(record.locationId);
-  const setup = state.gear.items.find(item => item.id === record.rodReelSetupId);
   const method = entity(record.techniqueId);
-  const lureOrBait = state.gear.items.find(item => item.id === record.lureOrBait.itemId);
+  const setup = gear(record.rodReelSetupId);
+  const lureOrBait = gear(record.lureOrBait.itemId);
   const catchPicture = record.picture || species?.picture || null;
-  app.innerHTML = `${pageHeader(`${species?.name || 'Catch'} - ${formatCatchDate(record.date, record.time)}`, location?.name || '', '#/kb/catches')}
-    ${representativePicture(catchPicture, species?.name || 'Catch')}
+  app.innerHTML = `${pageHeader(species?.name || 'Catch', formatCatchDate(record.date, record.time), '#/kb/catches')}
+    ${representativePicture(catchPicture, `${species?.name || 'Catch'} on ${record.date}`)}
     <section class="panel"><div class="detail-grid">
-      ${detailLink('Species', species?.name || record.speciesId, species ? `#/kb/entity/${species.id}` : '')}
-      ${detailLink('Location', location?.name || record.locationId, location ? `#/kb/entity/${location.id}` : '')}
-      ${detailCell('Date / time', escapeHtml(formatCatchDate(record.date, record.time))) }
-      ${detailCell('Size', escapeHtml(formatCatchSize(record.size))) }
+      ${detailLink('Species', species?.name, species ? `#/kb/entity/${species.id}` : '')}
+      ${detailLink('Location', location?.name, location ? `#/kb/entity/${location.id}` : '')}
+      ${detailCell('Size', formatCatchSize(record.size))}
       ${detailLink('Rod & reel', setup?.name || 'Not recorded', setup ? `#/inventory/item/${setup.id}` : '')}
       ${detailLink('Technique / presentation', method?.name || 'Not recorded', method ? `#/kb/entity/${method.id}` : '')}
       ${detailLink(record.lureOrBait.type === 'bait' ? 'Bait' : 'Lure', lureOrBait?.name || record.lureOrBait.nameSnapshot, `#/inventory/item/${record.lureOrBait.itemId}`)}
