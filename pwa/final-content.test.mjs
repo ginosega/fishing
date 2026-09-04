@@ -106,7 +106,7 @@ for (const filename of [
 ]) {
   const markdown = fs.readFileSync(new URL(filename, import.meta.url), 'utf8');
   assert.ok(markdown.length > 100, `${filename} replacement content is unexpectedly short.`);
-  assert.match(markdown, /## Related/, `${filename} must include authored KB/Gear navigation links.`);
+  assert.match(markdown, /(?:gear|kb):\/\/[a-z0-9-]+/, `${filename} must retain at least one authored KB/Gear stable-ID navigation link.`);
 }
 
 console.log(`Final content batch validated: ${newEntities.length} new KB entities, ${localImageCases.size} new local KB images, ${gearMediaCases.size} Gear-backed KB images.`);
