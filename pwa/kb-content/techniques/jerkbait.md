@@ -12,9 +12,9 @@ A long, slender hard or soft plastic lure designed to imitate an injured or dart
 # Gear
 - Rod: 6'7"–9' medium or medium-light power, fast action
 - Reel: Baitcaster for heavier jerkbaits, spinning reel for lighter
-  - Line: 8–12 lb. fluoro or 15–20 lb. braid + 6–10 ft fluoro leader
+- Line: 8–12 lb. fluoro or 15–20 lb. braid + 6–10 ft fluoro leader
   - Use fluoro for suspending jerkbaits - it sinks slightly and helps keep the bait at depth
-- Use 8-10 lb. fluoro in clear water to hide the line, use 10-12 lb. in darker water
+  - Use 8-10 lb. fluoro in clear water to hide the line, use 10-12 lb. in darker water
 - Hook (if using a fluke): 4/0 EWG Worm offset hook
   - [How to rig a soft jerkbait](https://youtu.be/dOgX9l18DQk?si=ZVbQZVWdYs8C4dwg) (video)
 - Tie a hard plastic jerkbait directly to the lure, or use a small snap if needed to swap lures
