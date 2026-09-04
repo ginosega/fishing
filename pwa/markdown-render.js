@@ -2,7 +2,6 @@ export function renderMarkdown(markdown, options = {}) {
   const lines = String(markdown || '').replace(/\r\n?/g, '\n').split('\n');
   const blocks = [];
   let paragraph = [];
-  let list = null;
   let quote = [];
   let code = null;
 
@@ -11,17 +10,12 @@ export function renderMarkdown(markdown, options = {}) {
     blocks.push(`<p>${renderInline(paragraph.join(' '), options)}</p>`);
     paragraph = [];
   };
-  const flushList = () => {
-    if (!list) return;
-    blocks.push(`<${list.tag}>${list.items.map(item => `<li>${renderInline(item, options)}</li>`).join('')}</${list.tag}>`);
-    list = null;
-  };
   const flushQuote = () => {
     if (!quote.length) return;
     blocks.push(`<blockquote><p>${renderInline(quote.join(' '), options)}</p></blockquote>`);
     quote = [];
   };
-  const flushAll = () => { flushParagraph(); flushList(); flushQuote(); };
+  const flushAll = () => { flushParagraph(); flushQuote(); };
 
   for (let index = 0; index < lines.length; index++) {
     const raw = lines[index];
@@ -51,19 +45,16 @@ export function renderMarkdown(markdown, options = {}) {
     }
     if (/^\s*([-*_])(?:\s*\1){2,}\s*$/.test(raw)) { flushAll(); blocks.push('<hr>'); continue; }
 
-    const bullet = /^\s*[-*+]\s+(.+)$/.exec(raw);
-    const ordered = /^\s*\d+[.)]\s+(.+)$/.exec(raw);
-    if (bullet || ordered) {
-      flushParagraph(); flushQuote();
-      const tag = ordered ? 'ol' : 'ul';
-      if (list?.tag !== tag) flushList();
-      list ||= { tag, items:[] };
-      list.items.push((bullet || ordered)[1]);
+    const listBlock = readList(lines, index);
+    if (listBlock) {
+      flushAll();
+      blocks.push(renderList(listBlock.lists, options));
+      index = listBlock.endIndex;
       continue;
     }
 
     const quoted = /^\s*>\s?(.*)$/.exec(raw);
-    if (quoted) { flushParagraph(); flushList(); quote.push(quoted[1]); continue; }
+    if (quoted) { flushParagraph(); quote.push(quoted[1]); continue; }
     paragraph.push(raw.trim());
   }
   if (code) blocks.push(`<pre><code>${escapeHtml(code.lines.join('\n'))}</code></pre>`);
@@ -156,6 +147,51 @@ function resolveRelative(target, contentPath = './kb-content/index.md') {
     if (resolved.origin !== 'https://local.invalid') return '';
     return decodeURIComponent(resolved.pathname.replace(/^\//, '')) + resolved.search + resolved.hash;
   } catch { return ''; }
+}
+
+function readList(lines, index) {
+  const tokens = [];
+  let cursor = index;
+  while (cursor < lines.length) {
+    const match = /^(\s*)([-*+]|\d+[.)])\s+(.+)$/.exec(lines[cursor]);
+    if (!match) break;
+    tokens.push({
+      indent: match[1].replace(/\t/g, '    ').length,
+      tag: /^\d/.test(match[2]) ? 'ol' : 'ul',
+      text: match[3]
+    });
+    cursor++;
+  }
+  if (!tokens.length) return null;
+
+  const root = { lists:[] };
+  const stack = [];
+
+  for (const token of tokens) {
+    while (stack.length && token.indent < stack.at(-1).indent) stack.pop();
+
+    if (!stack.length || token.indent > stack.at(-1).indent) {
+      const parentLists = stack.length ? stack.at(-1).node.items.at(-1)?.children : root.lists;
+      const node = { tag:token.tag, items:[] };
+      (parentLists || root.lists).push(node);
+      stack.push({ indent:token.indent, node, parentLists:parentLists || root.lists });
+    }
+
+    if (token.indent === stack.at(-1).indent && token.tag !== stack.at(-1).node.tag) {
+      const current = stack.pop();
+      const node = { tag:token.tag, items:[] };
+      current.parentLists.push(node);
+      stack.push({ indent:token.indent, node, parentLists:current.parentLists });
+    }
+
+    stack.at(-1).node.items.push({ text:token.text, children:[] });
+  }
+
+  return { lists:root.lists, endIndex:cursor - 1 };
+}
+
+function renderList(lists, options) {
+  return lists.map(list => `<${list.tag}>${list.items.map(item => `<li>${renderInline(item.text, options)}${renderList(item.children, options)}</li>`).join('')}</${list.tag}>`).join('');
 }
 
 function readTable(lines, index) {
