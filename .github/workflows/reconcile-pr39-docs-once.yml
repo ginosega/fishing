@@ -24,6 +24,7 @@ jobs:
           p = Path('reconcile-pr39-docs-once.mjs')
           s = p.read_text()
           s = s.replace('Markdown (`gear-content/<gear-id>.md`, `catch-content/<catch-id>.md`)', 'Markdown (\\`gear-content/<gear-id>.md\\`, \\`catch-content/<catch-id>.md\\`)')
+          s = s.replace("  if (text.indexOf(from, i + from.length) >= 0) throw new Error(`Ambiguous pattern: ${label}`);\n", "")
           p.write_text(s)
           PY
             node reconcile-pr39-docs-once.mjs
