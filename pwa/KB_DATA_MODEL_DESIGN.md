@@ -207,7 +207,7 @@ Historical setup/technique is never inferred solely from lure type or general co
 
 ## 11. Catch backlinks and pictures
 
-Only Catch records own catch relationships. Backlinks are computed at render time for applicable Location, Species, presentation/Technique/Equipment, setup, lure, and bait pages. KB/Gear records do not store duplicate catch-ID arrays.
+Only Catch records own catch relationships. Backlinks are computed at render time for Location and Species KB pages and for applicable Gear setup/lure/bait pages. Equipment, Technique, and Knot KB pages do not currently render Catch backlinks. KB/Gear records do not store duplicate catch-ID arrays.
 
 If a Catch has an exact `picture`, use it; otherwise, use the linked Species representative picture as the UI fallback. The fallback does not copy Species image data into the Catch record.
 

@@ -1,6 +1,6 @@
 # Fishing New Chat Bootstrap Prompt
 
-**Status:** ACTIVE HANDOFF — PRODUCTION HEALTHY; PR #36 UX POLISH DEPLOYED; PR #28 ACCEPTANCE CLOSED — 2026-09-04
+**Status:** ACTIVE HANDOFF — PRODUCTION HEALTHY; PR #39 AUTHORED-NOTES UNIFICATION DEPLOYED; PR #28 ACCEPTANCE CLOSED — 2026-09-04
 
 Copy the prompt below into a new **Chat-mode** Fishing conversation.
 
@@ -24,8 +24,8 @@ Read these files first, in order:
 
 Then, depending on the task:
 
-- For **My Gear**, inspect `pwa/data/gear.seed.json`, `pwa/gear-model.js`, `pwa/gear-store.js`, `pwa/gear-app.js`, `pwa/media-owners.json`, `pwa/media-sources.json`, `pwa/local-media.json`, and `pwa/apply-local-media.mjs`.
-- For **Knowledge Base/Catch Log**, inspect `pwa/data/kb.seed.json`, `pwa/data/catches.seed.json`, `pwa/kb-model.js`, `pwa/kb-app.js`, `pwa/markdown-render.js`, and the relevant complete documents under `pwa/kb-content/`.
+- For **My Gear**, inspect `pwa/data/gear.seed.json`, `pwa/gear-model.js`, `pwa/gear-store.js`, `pwa/gear-app.js`, `pwa/gear-content/`, `pwa/apply-authored-notes.mjs`, `pwa/media-owners.json`, `pwa/media-sources.json`, `pwa/local-media.json`, and `pwa/apply-local-media.mjs`.
+- For **Knowledge Base/Catch Log**, inspect `pwa/data/kb.seed.json`, `pwa/data/catches.seed.json`, `pwa/catch-content/`, `pwa/apply-authored-notes.mjs`, `pwa/kb-model.js`, `pwa/kb-app.js`, `pwa/markdown-render.js`, and the relevant complete documents under `pwa/kb-content/`.
 - For data-model rationale, inspect `pwa/KB_DATA_MODEL_DESIGN.md` and `pwa/DATA_MODEL_RECONCILIATION_DESIGN.md`.
 - Use `Topics/*.md`, `Fishing_Gear_Registry.md`, and `Fishing_Tackle_Inventory.md` only as migrated/reference history when useful; they are **not runtime application data sources**.
 
@@ -125,7 +125,7 @@ The earlier night-end content checkpoint `955d37bf675f3163fe610324809a972916c98e
 
 ### Recovery/acceptance sequence is closed
 
-PR #24 taxonomy → PR #25 catch/media polish → PR #26 local-media hardening → PR #27 Recovery B → PR #28 final MHT content/images → PR #29 reconciliation → PR #30 Gear-backed-picture production hotfix → PR #31 reconciliation → PR #32 final content acceptance → PR #33 reconciliation.
+PR #24 taxonomy → PR #25 catch/media polish → PR #26 local-media hardening → PR #27 Recovery B → PR #28 final MHT content/images → PR #29 reconciliation → PR #30 Gear-backed-picture production hotfix → PR #31 reconciliation → PR #32 final content acceptance → PR #33 reconciliation → PR #34 nested-list rendering → PR #36 UX polish → PR #38 external Gear Notes → PR #39 Gear/Catch authored-Notes unification.
 
 No separate post-PR #29 hidden/unmerged application build was found. PR #34 and later PRs are normal subsequent maintenance.
 
@@ -168,7 +168,7 @@ For deliberate one-file authored-content cleanup, direct editing of `pwa/kb-cont
 
 Be aware that every `pwa/**` commit triggers the shared Fishing Pages workflow. The workflow uses one global `fishing-pages` concurrency group with `cancel-in-progress: true`, so overlapping direct `main` edits can cancel an in-progress PR or production run. During coordinated runtime changes, avoid overlapping direct content pushes until exact-head CI/deploy has completed.
 
-## My Gear v2 editing — still deferred
+## My Gear editing — still deferred
 
 Do not build editing UI unless I explicitly resume it. When resumed, normal forms are the everyday Add/Edit/Delete path; validated JSON export/import may support backup/bulk editing; no in-app raw JSON editor.
 
@@ -195,17 +195,17 @@ Use `Fishing_TODO.md` as canonical. Important current items include:
 7. Confirm purchase status of Bonafide under-seat tackle storage and YakAttack fish cooler bag.
 8. Remaining candidate KB articles include Texas Rig, Carolina Rig, Alabama Rig, Neko Rig, and Spoons.
 
-FISH-TODO-052 (PR #28 formatting acceptance), FISH-TODO-055 (nested-list renderer defect), and FISH-TODO-056 (PR #36 UX polish) are complete and must not be presented as current work.
+FISH-TODO-052 (PR #28 formatting acceptance), FISH-TODO-055 (nested-list renderer defect), FISH-TODO-056 (PR #36 UX polish), and FISH-TODO-057 (PR #39 authored-Notes architecture) are complete and must not be presented as current work.
 
 ## Durable update rules
 
 ### My Gear
 
-Update `pwa/data/gear.seed.json` for durable baseline Gear **data** changes; preserve stable IDs and strict schema-v2 validity; update tests when invariants change; data fixes belong in structured records, not presentation hacks. Pure wording/presentation aliases may remain in the presentation layer when changing stored data would create an unnecessary migration, as with the PR #36 `Trolling lures` → `Trolling` display label.
+Update `pwa/data/gear.seed.json` for durable baseline Gear **data** changes; preserve stable IDs and strict schema-v3 validity. Edit optional authored Notes in `pwa/gear-content/<gear-id>.md`; do not reintroduce inline JSON `notes`. Update tests when invariants change; data fixes belong in structured records, not presentation hacks. Pure wording/presentation aliases may remain in the presentation layer when changing stored data would create an unnecessary migration, as with the PR #36 `Trolling lures` → `Trolling` display label.
 
 ### Knowledge Base / Catch Log
 
-Update `pwa/data/kb.seed.json` for the entity index, registered documents under `pwa/kb-content/` for authored KB content, and `pwa/data/catches.seed.json` for structured catches. Preserve stable IDs and validate `gear://`, `kb://`, registered relative links, and Catch relationships. Do not infer domain relationships from prose.
+Update `pwa/data/kb.seed.json` for the entity index, registered documents under `pwa/kb-content/` for authored KB content, `pwa/data/catches.seed.json` for structured Catch facts/relationships, and `pwa/catch-content/<catch-id>.md` for optional authored Catch Notes. Preserve stable IDs and validate `gear://`, `kb://`, registered relative links, Catch relationships, and authored-Notes ownership. Do not infer domain relationships from prose.
 
 ### Project state
 
@@ -229,7 +229,7 @@ Avoid disposable workflows. If a task is interrupted, prefer durable GitHub chec
 
 ## Immediate continuation instruction
 
-Start in **Chat mode**. Restore state from the repository in the read order above and confirm current `main` before making changes. Treat My Gear schema v2, unified five-type KB Entity model, structured Catch Log, flat Equipment taxonomy, direct-GitHub image workflow, final transformed-data validation, retired Planner scope, browse-only My Gear behavior, heading-independent authored stable-ID links, indentation-aware nested Markdown list rendering, root-search replacement UX, and non-cropping square thumbnail presentation as durable decisions unless I explicitly reopen them.
+Start in **Chat mode**. Restore state from the repository in the read order above and confirm current `main` before making changes. Treat My Gear schema v3 with external stable-ID Notes, Catch schema v2 with external stable-ID Notes, the unified five-type KB Entity model, flat Equipment taxonomy, direct-GitHub image workflow, final transformed-data validation, retired Planner scope, browse-only My Gear behavior, heading-independent authored stable-ID links, indentation-aware nested Markdown list rendering, root-search replacement UX, and non-cropping square thumbnail presentation as durable decisions unless I explicitly reopen them.
 
 The PR #28 recovery/acceptance sequence is closed. Continue from my current request or the canonical `Fishing_TODO.md` backlog; do not resume obsolete cleanup work.
 

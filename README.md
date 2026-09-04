@@ -27,7 +27,7 @@ The Planner, Planner Attributes, fishing sessions, session IDs, trip history, Ma
 Runtime/source owners:
 
 - `pwa/data/gear.seed.json` — bundled baseline / portable representation
-- `pwa/gear-model.js` — strict schema-v2 validation and display helpers
+- `pwa/gear-model.js` — strict schema-v3 validation and display helpers
 - `pwa/gear-store.js` — IndexedDB repository and seed migration
 - `pwa/gear-app.js` — all `#/inventory/...` routes
 - `pwa/gear-content/` — optional authored Notes keyed deterministically by Gear stable ID
@@ -116,7 +116,7 @@ The earlier night-end content audit checkpoint was `955d37bf675f3163fe610324809a
 
 ### Stabilization/recovery history
 
-PR #25 catch/media polish → PR #26 local-media hardening → PR #27 Recovery B → PR #28 final content/image batch → PR #29 reconciliation → PR #30 transformed-picture validation hotfix → PR #31 reconciliation → PR #32 final content acceptance → PR #33 reconciliation → PR #34 nested-list renderer fix → PR #35 night-end reconciliation → PR #36 UX polish.
+PR #25 catch/media polish → PR #26 local-media hardening → PR #27 Recovery B → PR #28 final content/image batch → PR #29 reconciliation → PR #30 transformed-picture validation hotfix → PR #31 reconciliation → PR #32 final content acceptance → PR #33 reconciliation → PR #34 nested-list renderer fix → PR #35 night-end reconciliation → PR #36 UX polish → PR #38 external Gear Notes → PR #39 Gear/Catch authored-Notes unification.
 
 The interrupted-chat recovery and PR #28 acceptance sequences are closed. No hidden/unmerged post-PR #29 application build was found.
 
@@ -128,7 +128,7 @@ The interrupted-chat recovery and PR #28 acceptance sequences are closed. No hid
 - When a page has both Search and a dropdown/filter, the filter control is right-aligned.
 - Line is intentionally a flat list; Rods & Reels retains setup grouping.
 - My Gear remains browse-only: no Add/Edit/Delete forms and no visible JSON import/export UI.
-- Gear leaf pages use structured product facts plus optional Markdown **Notes**.
+- Gear leaf pages use structured product facts plus optional external Markdown **Notes**.
 - KB representative pictures may link to a specific owned Gear record by explicit stable ID.
 - Authored KB/Gear stable-ID links are heading-independent.
 - Nested Markdown lists are indentation-sensitive and must remain nested in the PWA.
@@ -149,7 +149,7 @@ The repeated 2026-09-03 image failures were isolated to transporting binary imag
 
 Repository-local images are validated by `pwa/apply-local-media.mjs` for supported format/extension/structure before entering the production bundle. The same step also validates the transformed KB bundle after media substitutions.
 
-## Deferred v2 editing features
+## Deferred My Gear editing features
 
 The My Gear repository/IndexedDB architecture is writable, but editing UI is intentionally deferred. When resumed, normal forms are the everyday Add/Edit/Delete path; validated JSON export/import may be a backup/bulk-edit path; do not add an in-app raw JSON editor.
 

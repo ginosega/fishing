@@ -40,7 +40,7 @@ structured My Gear UI
 Key files:
 
 - `data/gear.seed.json` — bundled baseline/portable data
-- `gear-model.js` — strict schema-v2 validation/display helpers
+- `gear-model.js` — strict schema-v3 validation/display helpers
 - `gear-store.js` — IndexedDB repository and deterministic seed-version migration
 - `gear-app.js` — all `#/inventory/...` routes and user-facing type-label aliases
 - `gear-content/` — optional authored Notes keyed by Gear stable ID
@@ -79,7 +79,7 @@ Retired/forbidden schema-v1 concepts:
 - no Knots category
 - no My Gear data/import/export card
 - no current Add/Edit/Delete forms
-- leaf pages use structured Manufacturer / Model, Specifications, Links, and optional Markdown **Notes**
+- leaf pages use structured Manufacturer / Model, Specifications, Links, and optional external Markdown **Notes**
 - internal Notes links use `gear://stable-id` and `kb://stable-id`
 
 Current user-facing lure-type labels include **Soft plastics and swimbaits**, **Topwater**, and **Trolling**. `gear.seed.json` still stores the pre-PR #36 value `Trolling lures`; `gear-app.js` maps that internal value to `Trolling` wherever it is displayed or searched. This copy-only presentation change deliberately avoids bumping the seed dataVersion or refreshing IndexedDB.
@@ -107,7 +107,7 @@ Key files:
 - `markdown-render.js` — safe Markdown rendering and internal-link rewriting
 - `kb-app.js` — Home and all `#/kb/...` routes
 - `KB_DATA_MODEL_DESIGN.md` — accepted/current KB design
-- `DATA_MODEL_RECONCILIATION_DESIGN.md` — shared architectural principles and My Gear schema-v2 rationale
+- `DATA_MODEL_RECONCILIATION_DESIGN.md` — shared architectural principles, current My Gear schema-v3 rationale, and authored-Notes ownership rules
 
 Current KB seed metadata:
 

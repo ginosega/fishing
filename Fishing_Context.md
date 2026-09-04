@@ -214,7 +214,7 @@ Standing workflow for user-supplied images:
 
 The thumbnail containment rule is presentation-only; source images do not need to be rewritten to square files.
 
-## Deferred v2 behavior
+## Deferred My Gear editing behavior
 
 - Do not add My Gear Add/Edit/Delete forms yet.
 - Do not expose JSON import/export controls in the current UI.
