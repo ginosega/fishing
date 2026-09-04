@@ -51,6 +51,19 @@ for (const item of config.kb) {
   if (!item.entityId) throw new Error('Local KB media entry is missing entityId.');
   const entity = kbById.get(item.entityId);
   if (!entity) throw new Error(`Local KB media references unknown entity ${item.entityId}.`);
+  if (item.gearMediaId) {
+    const media = byMediaId.get(item.gearMediaId);
+    if (!media?.asset) throw new Error(`KB media for ${item.entityId} references unavailable Gear media ${item.gearMediaId}.`);
+    entity.picture = {
+      src:media.asset,
+      alt:item.alt || media.alt || entity.name,
+      caption:item.caption || entity.name,
+      credit:item.credit ?? null,
+      sourceUrl:item.sourceUrl ?? null,
+      ...(item.gearItemId ? { gearItemId:item.gearItemId } : {})
+    };
+    continue;
+  }
   const source = localSource(item.source, 'assets/kb/');
   const bytes = await readValidatedImage(source);
   const relative = normalizeRelative(item.source);

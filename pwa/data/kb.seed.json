@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "dataVersion": "2026-09-03-kb-v1-catch-media-1",
+  "dataVersion": "2026-09-04-kb-v1-final-content-1",
   "entities": [
     {
       "id": "location-lake-washington",
@@ -86,7 +86,7 @@
       "id": "technique-trout-fishing",
       "type": "technique",
       "name": "Trout Fishing",
-      "description": "Casting, spinner, still-fishing, bobber, and kayak-trolling guidance for trout.",
+      "description": "Casting, bank-fishing, bobber, still-fishing, and kayak-trolling guidance.",
       "picture": null,
       "content": "./kb-content/techniques/trout-fishing.md"
     },
@@ -133,8 +133,8 @@
     {
       "id": "technique-jigs",
       "type": "equipment",
-      "name": "Jigs",
-      "description": "Casting, swimming, football, and finesse jig guidance.",
+      "name": "Jig",
+      "description": "Casting, swim, football-head, and finesse jig guidance.",
       "picture": null,
       "content": "./kb-content/techniques/jigs.md"
     },
@@ -149,8 +149,8 @@
     {
       "id": "technique-chatterbait-bladed-jig",
       "type": "equipment",
-      "name": "Chatterbait / Bladed Jig",
-      "description": "Bladed-jig presentation for grass, stained water, and reaction bites.",
+      "name": "Chatterbait",
+      "description": "Bladed-jig presentation for grass, stained water, cover, and reaction bites.",
       "picture": null,
       "content": "./kb-content/techniques/chatterbait-bladed-jig.md"
     },
@@ -173,8 +173,8 @@
     {
       "id": "technique-swimbait-soft-jerk-shad",
       "type": "equipment",
-      "name": "Swimbait / Soft Jerk Shad",
-      "description": "A lifelike baitfish presentation for points, weed edges, docks, and structure.",
+      "name": "Swimbait",
+      "description": "Lifelike baitfish presentations, rigging, retrieves, and swimbait styles.",
       "picture": null,
       "content": "./kb-content/techniques/swimbait-soft-jerk-shad.md"
     },
@@ -189,7 +189,7 @@
     {
       "id": "technique-frogs",
       "type": "equipment",
-      "name": "Frogs",
+      "name": "Frog",
       "description": "Frog tackle, retrieves, hook-set timing, lure types, and common modifications.",
       "picture": {
         "src": "https://d2dz5gposoi2o6.cloudfront.net/ecom/prod/item_images/c/2/0/5/c205d2254bb2fe0375d3dbeed8933c47b5a27a7b_2026000833.jpg",
@@ -440,6 +440,62 @@
       "description": "Use for spooling line",
       "picture": null,
       "content": "./kb-content/knots/arbor.md"
+    },
+    {
+      "id": "technique-inline-spinner",
+      "type": "equipment",
+      "name": "Inline Spinner",
+      "description": "Casting and retrieve guidance for inline spinners in lakes, rivers, and creeks.",
+      "picture": null,
+      "content": "./kb-content/techniques/inline-spinner.md"
+    },
+    {
+      "id": "technique-snaps-swivels",
+      "type": "equipment",
+      "name": "Snaps & Swivels",
+      "description": "When to use snaps, swivels, and snap swivels without hurting lure action.",
+      "picture": null,
+      "content": "./kb-content/techniques/snaps-swivels.md"
+    },
+    {
+      "id": "technique-flasher-rig",
+      "type": "equipment",
+      "name": "Flasher Rig",
+      "description": "Kayak-trolling rig with a dodger, leader, and trout or kokanee lure.",
+      "picture": null,
+      "content": "./kb-content/techniques/flasher-rig.md"
+    },
+    {
+      "id": "technique-inline-trolling-rig",
+      "type": "equipment",
+      "name": "Inline Trolling Rig",
+      "description": "Simple weighted trolling rig for trout and kokanee from a kayak.",
+      "picture": null,
+      "content": "./kb-content/techniques/inline-trolling-rig.md"
+    },
+    {
+      "id": "technique-bobber-rig",
+      "type": "equipment",
+      "name": "Bobber Rig",
+      "description": "Float rig with split shot, swivel, leader, and bait for suspended trout.",
+      "picture": null,
+      "content": "./kb-content/techniques/bobber-rig.md"
+    },
+    {
+      "id": "technique-slip-sinker-rig",
+      "type": "equipment",
+      "name": "Slip Sinker Rig",
+      "description": "Bottom-fishing rig with an egg sinker, swivel, leader, and bait.",
+      "picture": null,
+      "content": "./kb-content/techniques/slip-sinker-rig.md"
+    },
+    {
+      "id": "technique-spring-fishing",
+      "type": "technique",
+      "name": "Spring Fishing",
+      "description": "Spring bass patterns by temperature, wind, clarity, depth, and presentation.",
+      "picture": null,
+      "content": "./kb-content/techniques/spring-fishing.md"
     }
   ]
 }

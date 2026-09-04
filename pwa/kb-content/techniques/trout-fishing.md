@@ -1,81 +1,109 @@
-OneNote source resources:
+# Casting
 
-- [TOP 3 Trout Fishing Tactics For Lakes & Ponds (IN DEPTH HOW TO)](https://youtu.be/ag2nElS9JGY?si=OfbEV6EH2FmidIQ_)
-- [How To Set up & Fish For Trout, EVERYTHING You Need To Know!](https://youtu.be/PbtnYhptufI?si=CG6TmJRQZNgeCGVV)
-- [Slip sinker rig](https://www.wired2fish.com/tackle-tips/how-to-tie-a-slip-sinker-rig)
-- [Trout trolling rigs](https://sportfishingbuddy.com/trout-trolling-rigs/)
+- Use a Kastmaster, spoon, or
+  inline spinner
 
-### Casting
+- Use a spoon when fish are
+  following but not striking, water is calm and clear, or trout seem
+  spooky. Use a spinner around creeks, shaded banks, or rocky edges.
+- If using a Kastmaster, the
+  1/4 oz size casts farther and sinks faster than the 1/8 oz size; use it
+  if trout are deeper.
+- Rig a spoon with split rings
+  at top and bottom and a single hook at bottom with point toward the
+  concave side of spoon. Fish it with a bit of nightcrawler or PowerBait
+  egg on the hook.
+- See [Inline Spinner](kb://technique-inline-spinner)
 
-Current lures:
+- Trout will also bite small
+  crankbaits and jerkbaits
+- Cast toward points, shaded
+  banks, cove mouths, docks, laydowns and shoreline wood, weed edges near
+  deeper water, shady pockets with 4–10 feet of water nearby, and surface
+  rises.
+- Fan cast in a clock pattern:
+  left, straight out, right, then move 20–30 yards down the bank. For spoons
+  and spinners use a steady retrieve with occasional pauses.
 
-- Kastmaster 1/8 oz chrome neon blue and 1/4 oz chrome/gold.
-- Dick Nite #2 brass redhead and nickel redhead.
-- Panther Martin 1/8 oz blue/black/silver/yellow.
-- Mepps Aglia #3 / 1/4 oz red.
-- [Rapala Original Floating F-3](https://www.rapala.com/us_en/original-floating?childSku=us-F03S), [Husky Jerk](https://www.rapala.com/us_en/husky-jerk?childSku=us-HJ06YP), [RipStop](https://www.rapala.com/us_en/ripstop?childSku=us-RPS09MBS).
+# Bank Fishing
 
-OneNote Kastmaster note: 1/4 oz is more important than 1/8 oz because it casts better from a kayak and sinks faster when trout are slightly deeper. Use for cutthroat, stocked rainbows, perch, and occasional smallmouth.
+Slip Sinker Rig
 
-General spoon rig:
+- See [Slip Sinker Rig](kb://technique-slip-sinker-rig)
+- Weight sits on the bottom.
+  Leader should be long enough for the floating bait to clear the weeds so
+  fish can see it.
+- Cast it out, let the sinker
+  hit bottom, reel just enough to remove slack, then set the rod down and
+  watch the tip. Wait 10–15 minutes per cast. If no bite, reel in, check the
+  bait, and recast left/right or farther/closer. Feel for light taps, the
+  rod tip bouncing, line slowly tightening, or the rod loading up steadily.
+  Give the fish a moment, then reel down and lift firmly.
 
-`main line -> leader -> snap -> Kastmaster/Dick Nite`
+Bobber Rig
 
-No swivel unless the spoon starts twisting. OneNote also notes spoons can be rigged with split rings top and bottom and a single hook at bottom with hook point toward concave side, and can be fished with a bit of nightcrawler or PowerBait egg on the hook.
+- See [Bobber Rig](kb://technique-bobber-rig)
+- Start with the bait suspended
+  3–5' below the bobber and shorten if fish are rising or shallow or go
+  longer if no bites and deeper water nearby: 5–8 feet, preferably with a
+  slip bobber. If there are lots of weeds keep the bait above the weed tops.
+- Bobbers work best when placed
+  near an edge or activity. Cast near shade lines, weed edges, dock edges,
+  shoreline drop-offs, visible fish activity, and slightly wind-blown water.
+  Let the rod sit, but occasionally give the bobber a small twitch and let
+  the bait settle again. If the bobber dips, slides sideways, or slowly goes
+  under, reel down and lift.
 
-### Inline spinners
+Timing
 
-Use in clear/cold rivers, creeks, and lakes; along the deep edge of cover; over top of cover; or along current seams. Avoid heavy cover because treble hooks snag easily.
+- Early morning: Still fish
+  with a slip sinker and cast around it with spoons, inline spinners, or
+  jerkbaits.
+- Mid-day: This is the toughest
+  time for bank fishing, but try a slip sinker rig cast to the deepest
+  reachable water, or a bobber rig if there is shade, weeds, or visible fish
+  activity.
+- Evening: This is the best
+  time for bank fishing. In the first 30 minutes still fish with a slip
+  sinker rig and cast around it with spoons, inline spinners, or jerkbaits.
 
-Gear:
+# Trolling
 
-- Best on spinning rod.
-- Trout/panfish line: 4-8 lb mono or 6-10 lb fluorocarbon; bass can use heavier.
-- With braid + leader, insert swivel in leader to reduce twist.
+- See [Inline Trolling Rig](kb://technique-inline-trolling-rig),
+  [Flasher Rig](kb://technique-flasher-rig)
+- During a hot, bright day,
+  trout usually avoid the warmest, brightest surface layer and may hold
+  deeper where the water is cooler and safer. But in the evening trout will
+  often come up shallower because they feel safer feeding closer to the
+  surface and nearer shore in the lower light, because the surface water is
+  cooler than midday, and because insects and small baitfish become active
+  near the surface. Shoreline edges, points, creek mouths, weed edges, and
+  shallow-to-deep transitions can all become better as light fades.
 
-Technique:
+For
+a kayak setup, that means:
 
-- After casting, pop rod tip to start blade spinning.
-- Retrieve steadily just under surface or a few feet down.
-- Slow retrieve in cold water; faster in warm water.
-- Rivers/streams: cast upstream at 1:00 or 11:00 angle and guide spinner past cover/obstructions.
+- Morning/evening: start with
+  1/4 oz to 1/2 oz trolling weight, or even no weight with a Flicker Shad,
+  Kastmaster, or inline spinner if fish are rising. Troll it 70–120 feet
+  behind the kayak along contour edges, points, and the edges of coves. Make
+  slow S-turns. If you get a strike, repeat same depth and route. Useful if
+  the trout are deeper than spinners and spoons can reach.
+- Midday / bright sun / hot
+  water: fish deeper, and follow contour edges using a 1/2 oz to 1 oz
+  trolling weight
 
-Colors:
+Caveat:
+if your fish finder shows fish or bait deeper at sunset, follow the
+electronics, not the general rule.
 
-- Clear water: silver, copper, natural.
-- Stained water: gold, chartreuse, black with bright dots.
-- Low light: glow/fluorescent/UV.
+# Videos
 
-### Still fishing
+- [TOP 3 Trout Fishing Tactics
+  For Lakes & Ponds (IN DEPTH HOW TO)](https://youtu.be/ag2nElS9JGY?si=OfbEV6EH2FmidIQ_)
+- [How To Set up & Fish For
+  Trout, EVERYTHING You Need To Know!](https://youtu.be/PbtnYhptufI?si=CG6TmJRQZNgeCGVV)
+## Related
 
-Slip-sinker bottom rig from OneNote and the linked [slip sinker rig](https://www.wired2fish.com/tackle-tips/how-to-tie-a-slip-sinker-rig) reference:
-
-`main line -> 1/2 oz egg sinker -> bead -> swivel -> leader -> #4 hook with dough or nugget`
-
-Purpose: weight rests on bottom and floating bait rises above weeds. Leader should clear weed tops. Carolina Keeper can replace bead/swivel in some rigs, but Carolina Keepers are not yet owned.
-
-**Open conflict:** prior chat guidance often suggested #8 hooks for PowerBait/Power Eggs. OneNote uses #4. Keep both until tested/resolved.
-
-### Bobber fishing
-
-OneNote bobber rig:
-
-`main line -> bobber -> leader -> split shot -> swivel -> leader -> #4 hook with piece of worm run up hook shank to eye`
-
-Use when fish are shallow, rising, around weeds, or bottom is too weedy/mucky for bottom bait. Keep bait suspended above bottom/weed tops.
-
-### Kayak trolling
-
-Inline trolling rig:
-
-`main line -> torpedo weight with swivels at each end -> 3-4' leader -> Wedding Ring / hoochie / small spinner, with egg`
-
-Flasher/dodger rig:
-
-`main line -> small sliding weight -> bead -> swivel -> 3-4' leader -> dodger -> 18-30" leader -> Wedding Ring / hoochie / small spinner, with egg`
-
-Depth guidance:
-
-- Morning/evening: start with 1/4 to 1/2 oz trolling weight, or no weight with Flicker Shad/Kastmaster/inline spinner if fish are rising.
-- Midday / bright sun / hot water: fish deeper with 1/2 to 1 oz trolling weight and follow contour edges.
-- If the fish finder shows fish/bait deeper at sunset, follow electronics over the general shallow-evening rule.
+- KB: [Inline Spinner](kb://technique-inline-spinner), [Slip Sinker Rig](kb://technique-slip-sinker-rig), [Bobber Rig](kb://technique-bobber-rig), [Inline Trolling Rig](kb://technique-inline-trolling-rig), [Flasher Rig](kb://technique-flasher-rig), [Crankbait](kb://technique-crankbait), [Jerkbait](kb://technique-jerkbait)
+- My Gear: [Kastmaster](gear://kastmaster), [Mepps Aglia #3](gear://mepps-aglia-3), [Berkley Flicker Shad 5](gear://berkley-flicker-shad-5), [Mack's Wedding Ring](gear://macks-wedding-ring)
