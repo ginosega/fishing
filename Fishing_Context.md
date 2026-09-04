@@ -1,180 +1,195 @@
 # Fishing Context
 
-**Status:** Active working context. OneNote migration/link restoration completed 2026-08-29; My Gear refactored 2026-09-01; unified Knowledge Base and structured Catch Log implemented 2026-09-02.
+**Status:** Active authoritative current-state summary. OneNote migration/link restoration completed 2026-08-29; My Gear schema-v2/data-model reconciliation completed 2026-09-02; repository-local media recovery completed 2026-09-03; latest Fishing Companion production release verified 2026-09-04.
 
-This is a compact router/current-state summary. Do not use it as the detailed owner for procedures or long-form knowledge.
+This file is a compact router/current-state summary. Detailed procedures and long-form fishing knowledge belong in their domain owners.
 
 ## Operating mode
 
-Use **Chat mode by default**. A temporary switch to Work should be proposed only for a specific Work-only capability, with that need explained and user approval obtained first. Project complexity, length, file volume, analysis, and artifact creation do not by themselves justify Work.
+Operating mode: This project uses Chat mode by default. Do not recommend Work unless a task specifically requires a Work-only capability. Never recommend Work merely because the project or task is complex, lengthy, file-heavy, analytical, or involves creating artifacts. Explain the specific need and obtain the user's approval before recommending a temporary switch.
 
 ## User fishing profile
 
-- Primary geography: Western Washington, especially Kirkland / Lake Washington / Lake Sammamish, plus camping trips to regional lakes.
+- Primary geography: Western Washington, especially Kirkland / Lake Washington / Lake Sammamish, plus regional camping lakes.
 - Main fishing partners: son Jacob and family.
 - Main platforms: Bonafide RVR119 kayak, bank fishing, dock fishing.
 - Common targets: bass, trout, panfish/perch, and opportunistic mixed species.
-- Preferred planning style: practical, rod-by-rod, matched to actual gear and location conditions.
-- Fishing Companion is intended to make the project knowledge and inventory fast to consume in the field.
+- Preferred planning style: practical, rod-by-rod, matched to actual gear and current location conditions.
+- Fishing Companion is intended to make project knowledge and inventory fast to consume in the field.
 
 ## Current core platform
 
-- Kayak: **Bonafide RVR119**.
-- OneNote specs: 11'9" length, 35" width, 85 lb weight, 425 lb capacity, S/N `LPS00469H526`.
-- Current propulsion: paddle-only.
+- Kayak: **Bonafide RVR119**, paddle-only.
 - No pedal drive, motor, anchor, stakeout pole, or drift sock currently documented as owned.
 - Mapping: Garmin Navionics phone app for detailed contours.
-- On-water electronics: Humminbird Helix 5 CHIRP DI GPS G3, XNT 9 HW DI T transducer, base map.
+- On-water electronics: Humminbird Helix 5 CHIRP DI GPS G3 with XNT 9 HW DI T transducer.
 
-Details:
-
-- `Topics/Bonafide_RVR119_Kayak.md`
-- `Topics/Fish_Finder_Electronics_Wiring.md`
-- `Topics/Kayak_Rigging_Accessories_Storage.md`
+Details remain in `Topics/Bonafide_RVR119_Kayak.md`, `Topics/Fish_Finder_Electronics_Wiring.md`, and `Topics/Kayak_Rigging_Accessories_Storage.md`.
 
 ## Current rod systems
 
-### Spinning / Jacob-friendly / finesse / trout
+### Spinning / finesse / trout
 
-- Rod: Daiwa Tatula XT `TATULAXT702MFS`, 7', medium power, fast action, 2-piece.
-- Reel: Daiwa Exceler LT `EXELT2500D-XH`, 6.2:1 gear ratio.
-- Main line: Sufix 832 15 lb Hi-Vis Yellow braid, 300 yd, part `660-115Y`.
-- Leader: Seaguar InvizX 8 lb fluorocarbon.
-- Primary role: drop shot, Ned rig, wacky worm, small spoons, inline spinners, small Rapalas, trout/panfish, Jacob's smaller hard baits.
+- Daiwa Tatula XT `TATULAXT702MFS`, 7', medium, fast, 2-piece.
+- Daiwa Exceler LT `EXELT2500D-XH`, 6.2:1.
+- Sufix 832 15 lb Hi-Vis Yellow braid.
+- Seaguar InvizX 8 lb fluorocarbon leader.
 
-### Baitcasting / general-purpose bass / heavier trolling plugs
+### Baitcasting / general-purpose bass
 
-- Rod: Shimano Zodias `ZDC72MHB`, 7'2", medium-heavy, fast.
-- Reel: Shimano 22 SLX DC XT 71HG, 7.4:1 gear ratio.
-- Main line: PowerPro Super8 Slick V2 30 lb Moss Green braid.
-- Leader: Seaguar InvizX 12 lb fluorocarbon.
-- Primary role: spinnerbaits, chatterbaits, crankbaits, jigs, soft plastics, swimbaits, topwater, and kayak trolling heavier plugs such as Flicker Shad.
+- Shimano Zodias `ZDC72MHB`, 7'2", medium-heavy, fast.
+- Shimano 22 SLX DC XT 71HG, 7.4:1.
+- PowerPro Super8 Slick V2 30 lb Moss Green braid.
+- Seaguar InvizX 12 lb fluorocarbon leader.
 
 ### Shore trout spincast
 
 - Pflueger President Spincast Combo, part `PRESSC-606L2CBO`.
-- Rod: 6'6", medium power, 2-piece.
-- Reel: 8-14 lb line weight, 3.8:1 gear ratio.
-- Recommended line: 6 lb monofilament, e.g. Berkley Trilene XL.
-- Primary role: simple shore trout bottom/bobber rigs, small spoons/spinners, and kid/guest-friendly bank fishing.
+- 6'6" medium-power 2-piece rod, 3.8:1 reel.
+- Recommended 6 lb monofilament.
 
-Details: `Topics/Rods_Reels_Line_Knots.md` and the structured My Gear seed.
+For exact current owned-record values, trust `pwa/data/gear.seed.json`.
 
-## Current project data routing
+## Application data routing
 
-### My Gear PWA data
+### My Gear
 
-My Gear uses structured local-first data and does **not** parse the Markdown inventory tables for its records.
+My Gear is structured local-first data and does **not** parse Markdown inventory tables.
 
-- Baseline/portable dataset: `pwa/data/gear.seed.json`
-- Schema/validation: `pwa/gear-model.js`
-- Live local/offline data: browser IndexedDB through `pwa/gear-store.js`
-- UI: `pwa/gear-app.js`
-- Current seed data version: `2026-09-01-my-gear-v1`
+Runtime/source owners:
 
-Current My Gear categories:
+- `pwa/data/gear.seed.json`
+- `pwa/gear-model.js`
+- `pwa/gear-store.js`
+- `pwa/gear-app.js`
+- `pwa/media-owners.json`
+- `pwa/media-sources.json`
+- `pwa/local-media.json`
+- `pwa/apply-local-media.mjs`
 
-- Rods & Reels
-- Line
-- Weights
-- Snaps & Swivels
-- Hooks
-- Lures
-- Bait
+Current seed:
 
-**Knots are intentionally not in My Gear.** They are Knowledge Base entities.
+- schema version `2`
+- data version `2026-09-04-my-gear-v2-final-content-1`
+- **63 records**
+- categories: Rods & Reels, Line, Weights, Snaps & Swivels, Hooks, Lures, Bait
 
-`Fishing_Gear_Registry.md` and `Fishing_Tackle_Inventory.md` remain useful migrated/reference material, but they are not application data sources.
+My Gear owns structured product/setup facts. Optional `notes` is Markdown. `gear://` and `kb://` links inside Notes are authored navigation, not maintained domain relationships. Knots are intentionally not in My Gear.
 
-### Knowledge Base and Catch Log
+`Fishing_Gear_Registry.md` and `Fishing_Tackle_Inventory.md` remain migrated/reference sources, not runtime sources.
 
-Knowledge Base entities use one unified schema:
+### Knowledge Base
+
+Knowledge Base entities use one unified envelope:
 
 - `id`
-- `type`: `location`, `species`, `technique`, or `knot`
+- `type`: `location`, `species`, `equipment`, `technique`, or `knot`
 - `name`
 - optional `description`
 - optional `picture`
-- `content`: path to one complete Markdown document
+- `content`: one complete Markdown document
 
-Runtime owners:
+Runtime/source owners are `pwa/data/kb.seed.json`, `pwa/kb-content/`, `pwa/kb-model.js`, `pwa/kb-app.js`, and `pwa/markdown-render.js`.
 
-- `pwa/data/kb.seed.json`
-- `pwa/kb-content/`
-- `pwa/data/catches.seed.json`
-- `pwa/kb-model.js`
-- `pwa/kb-app.js`
-- `pwa/markdown-render.js`
+Current seed:
 
-The Knowledge Base is browsable only. Planner, Planner Attributes, fishing sessions, session IDs, and trip history were retired. Catch records are structured and link by stable IDs; exact-spot Markdown owns depth, structure, conditions, and relevant links. Historical setup and technique values are not inferred.
+- schema version `1`
+- data version `2026-09-04-kb-v1-final-content-1`
+- **54 entities**: 8 Locations, 7 Species, 22 Equipment, 7 Techniques, 10 Knots
 
-## Fishing Companion current production state
+Equipment is a flat peer category for rigs, presentations, lure/gear guides, and equipment knowledge. Technique is reserved for strategy/conditions/species-oriented guidance. Stable IDs survive taxonomy changes.
 
-Live URL:
+PR #28 added Inline Spinner, Snaps & Swivels, Flasher Rig, Inline Trolling Rig, Bobber Rig, Slip Sinker Rig, and Spring Fishing and refreshed Swimbait, Jerkbait, Crankbait, Chatterbait, Spinnerbait, Jig, Frog, Drop Shot, Wacky Worm, Ned Rig, and Trout Fishing.
 
-`https://ginosega.github.io/fishing/`
+### Catch Log
 
-Current verified application release commit:
+- source: `pwa/data/catches.seed.json`
+- **5 structured catches**
+- required Species + Location IDs
+- exactly one Lure or Bait relationship
+- optional setup/technique references only when actually known
+- no inference of historical setup/technique
+- backlinks computed from Catch-owned forward references
+- optional exact catch picture overrides Species-picture fallback
 
-`1c61cb0b001bb9f543904a2328178632ac0efed1`
+Planner, Planner Attributes, fishing sessions, session IDs, and trip history are retired.
 
-Current production workflow:
+## Fishing Companion production state
 
-- GitHub Actions run **#77 / 33644412492**
-- build: success
-- structured My Gear model tests: success
-- My Gear routing/layout regression tests: success
-- unified Knowledge Base/Catch Log validation and routing tests: success
-- bundle verification: success
-- GitHub Pages deployment: success
+Live URL: `https://ginosega.github.io/fishing/`
 
-The structured My Gear refactor was merged in PR #9. PR #10 fixed its Sev 1 routing/layout regression. PR #13 implemented the unified Knowledge Base and structured Catch Log, removed the legacy parser/Planner code, and removed the site-header kicker.
+### Latest verified release
 
-Current accepted behavior after PR #10:
+**PR #28 — Add final Fishing KB content and imagery batch**
 
-- Home My Gear subtext: `Browse your inventory of equipment, tackle, and bait`
-- My Gear page header: title and subtext on the left, Back button on the right
-- My Gear contains no Knots category
-- My Gear contains no visible **My Gear data** import/export card
-- structured My Gear owns all `#/inventory/...` routes, including leaf pages
-- `pwa/kb-app.js` owns Home and all `#/kb/...` routes
+- exact tested head: `c397985e99532b0ea572afd9910c0d131469a439`
+- PR CI: **#120 / 33840154633**, success
+- merge commit: `093139e5314af55691e608277b68b79b2d369166`
+- production workflow: **#121 / 33840208952**, success
+- production build: success
+- GitHub Pages artifact: success
+- **Deploy to GitHub Pages: success**
 
-The user accepted the post-PR #10 My Gear flow on 2026-09-02. The PR #13 production deployment was then verified with 61 My Gear records, 41 Knowledge Base entities, 5 catches, 41 offline KB assets, and 62 of 65 requested My Gear images available. The live header shows only the Fishing Companion title.
+Recent releases immediately preceding it:
+
+- PR #26: repository-local media hardening; merge `9af96810cb02c81da2a0e3f5463071e020ae6cfc`; production #113 / `33833494282`
+- PR #27: Recovery B Gear/browse/content updates; merge `2635d9eb5cb80d446050090ba3f5a2736cac0c84`; production #117 / `33834793404`
+
+### Current accepted behavior
+
+- Root My Gear and root Knowledge Base have Search.
+- Browse-list Search appears at **10+ entries**.
+- When Search and a dropdown/filter coexist, the filter control is right-aligned.
+- Line is flat; Rods & Reels remains grouped by setup type.
+- My Gear is browse-only with no visible import/export card and no CRUD forms.
+- Gear leaf pages show structured facts plus optional Markdown **Notes**.
+- Applicable Gear Notes link to KB articles with stable `kb://` IDs.
+- KB pictures for specific owned items may explicitly reference a stable Gear ID.
+- Lure type labels include **Soft plastics and swimbaits**, **Topwater**, and **Trolling lures**.
+- South Bend hook/swivel records retain requested size information without a separate `Material` specification row.
+
+## Media handling convention
+
+The repeated 2026-09-03 failures were isolated to binary transport through the ChatGPT-to-GitHub tool path, not to the PWA or GitHub Actions.
+
+Standing workflow for user-supplied images:
+
+1. ChatGPT specifies exact branch/path/filename.
+2. User uploads the binary directly to GitHub on that feature branch.
+3. ChatGPT verifies the uploaded file and handles manifests/data/tests/PR/deploy.
+4. Do **not** encode or push image binaries through ChatGPT tool calls.
+
+`pwa/apply-local-media.mjs` validates repository-local image size, format signatures/structure, and extension consistency before copying assets into the build. `pwa/local-media.json` is the active local-media configuration.
 
 ## Deferred v2 behavior
 
 - Do not add My Gear Add/Edit/Delete forms yet.
-- Do not expose JSON import/export controls in the current v1 UI.
-- The underlying repository/IndexedDB design remains writable so those features can be added later.
-- When v2 manual bulk editing is resumed, preferred workflow is JSON export → edit externally → import; do not add a raw JSON editor inside the PWA.
+- Do not expose JSON import/export controls in the current UI.
+- Future normal CRUD should use ordinary forms.
+- Future bulk backup/edit may use validated JSON export → edit externally → import.
+- Do not add an in-app raw JSON editor.
 
 ## Current operational constraints
 
-- Paddle-only kayak with no anchor/drift sock means fishing plans should emphasize route fishing, controlled drifts, trolling passes, and casting ahead rather than hovering over one spot.
-- The Helix has sonar/down imaging/GPS but no side imaging or forward-facing sonar.
+- Paddle-only kayak with no anchor/drift sock: emphasize route fishing, controlled drifts, trolling passes, and casting ahead rather than stationary hovering.
+- Helix has sonar/down imaging/GPS but no side imaging or forward-facing sonar.
 - Navionics is the contour-planning tool; Helix confirms depth, weeds, bait, bottom changes, and fish marks.
 - User usually carries only two rods on the kayak.
-- Jacob's tackle is shared, but Jacob's smaller Rapalas should normally be prioritized for the spinning rod.
-
-## High-value current locations
-
-- Lake Washington: north end/Kenmore/Log Boom/Sammamish River mouth, Juanita Bay, Kirkland waterfront, Mercer Island.
-- Lake Sammamish: north end, Idylwood, State Park, east shoreline, Tibbetts/bench areas.
-- Camping/trip lakes: Silver Lake Whatcom County, Cranberry Lake at Deception Pass, Mayfield Lake/Ike Kinswa, Lake Chelan, Lake Cle Elum.
 
 ## Active unresolved priorities
 
-See `Fishing_TODO.md`. Current important items include:
+Use `Fishing_TODO.md` as canonical. Important unresolved items include:
 
-- Preserve and resolve source conflicts, especially hook-size guidance for PowerBait and loop-knot guidance.
-- Continue curating complete Knowledge Base Markdown documents and structured catches without reintroducing parser-derived facts.
-- Verify purchase status for Bonafide RVR119 Under Seat Tackle Storage and YakAttack fish cooler bag.
-- Verify actual installed state of fish-finder wiring/fuse/connector details.
-- Verify Bonafide RVR119 insert bolt/thread sizes.
-- Decide whether/how to modify the rear flush rod-holder angle.
+- resolve PowerBait hook-size guidance conflict;
+- resolve loop-knot guidance conflict;
+- continue structured Catch Log additions without inventing historical relationships;
+- verify actual fish-finder wiring/power installed state;
+- verify Bonafide RVR119 insert bolt/thread sizes;
+- decide whether/how to modify the rear flush rod-holder angle;
+- confirm purchase status of Bonafide under-seat tackle storage and YakAttack fish cooler bag;
+- complete remaining candidate KB articles such as Texas, Carolina, Alabama, Neko rigs, and Spoons;
+- perform user-facing spot-check/acceptance of the latest PR #28 production content if not already done.
 
 ## Migration record
 
-The OneNote PDF was migrated and the later OneNote Single File Web Page/MHT export was used to recover hyperlinks, which are embedded inline in the relevant Markdown files. On 2026-08-29, migration audit/reconciliation was closed with OneNote designated as the most up-to-date historical source of truth. Historical chat material remains supplemental evidence and decision history.
-
-If something later seems missing or conflicts with recollection, use `Fishing_Decision_Log.md`, `Fishing_TODO.md`, user confirmation, manufacturer documentation, the structured My Gear seed, or historical-source recovery as appropriate, then update the authoritative source for the affected data domain.
+OneNote PDF migration and MHT link restoration are closed historical work. If something later appears missing or conflicts with recollection, use current structured runtime data, `Fishing_Decision_Log.md`, `Fishing_TODO.md`, user confirmation, manufacturer documentation, or targeted historical-source recovery as appropriate. Do not reopen exhaustive migration reconciliation by default.
