@@ -9,7 +9,7 @@ assert.equal(seed.schemaVersion, GEAR_SCHEMA_VERSION);
 assert.equal(seed.schemaVersion, 2);
 assert.equal(seed.items.length, 63);
 assert.ok(seed.dataVersion, 'dataVersion is required.');
-assert.equal(seed.dataVersion, '2026-09-03-my-gear-v2-content-1');
+assert.equal(seed.dataVersion, '2026-09-04-my-gear-v2-final-content-1');
 assert.equal('profiles' in seed, false, 'Gear schema v2 must not contain profiles.');
 assert.equal(seed.items.some(item => item.category === 'knots'), false, 'Knots must not be part of My Gear.');
 for (const category of GEAR_CATEGORIES) assert.ok(seed.items.some(item => item.category === category), `Missing category ${category}`);
@@ -61,12 +61,12 @@ assert.equal(splitShot?.specifications?.find(spec => spec.label === 'Material')?
 assert.equal(splitShot?.specifications?.find(spec => spec.label === 'Sizes')?.value, 'BB, 3/0, 7, 5, 4');
 
 const brassSwivels = seed.items.find(item => item.id === 'south-bend-assorted-brass-swivels');
-assert.equal(brassSwivels?.specifications?.find(spec => spec.label === 'Material')?.value, 'Brass');
+assert.equal(brassSwivels?.specifications?.find(spec => spec.value === 'Brass' && !('label' in spec))?.value, 'Brass');
 assert.equal(brassSwivels?.specifications?.find(spec => spec.label === 'Sizes')?.value, '5, 7, 10, 12');
 
 const hooks = seed.items.find(item => item.id === 'south-bend-hook-assortment');
 assert.equal(hooks?.name, 'South Bend 120-Piece Hook Assortment');
-assert.equal(hooks?.specifications?.find(spec => spec.label === 'Material')?.value, 'Brass');
+assert.equal(hooks?.specifications?.find(spec => spec.value === 'Brass' && !('label' in spec))?.value, 'Brass');
 assert.equal(hooks?.specifications?.find(spec => spec.label === 'Sizes')?.value, '2, 4, 6, 8, and 10');
 
 for (const [id,kbId] of [
