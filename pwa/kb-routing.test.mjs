@@ -39,6 +39,22 @@ assert.match(kbApp, /picture\.gearItemId[\s\S]*?#\/inventory\/item\//,
 assert.match(kbApp, /My catch history/, 'Location and Species KB pages must retain catch-history backlinks.');
 assert.match(kbApp, /function catchField\(type\) \{ return \(\{ location:'locationId', species:'speciesId' \}\)\[type\] \|\| ''; \}/, 'Catch-history backlinks must be limited to Location and Species KB pages.');
 assert.doesNotMatch(kbApp, /technique:'techniqueId'|equipment:'[^']*Id'|knot:'[^']*Id'/, 'Equipment, Technique, and Knot KB pages must not render catch-history backlinks.');
+
+assert.match(kbApp, /\.\/catch-notes-assets\.json/,
+  'Catch Log must load the generated external Notes asset manifest.');
+assert.match(kbApp, /`\.\/catch-content\/\$\{record\.id\}\.md`/,
+  'Catch Notes must resolve deterministically from the stable Catch ID.');
+assert.match(kbApp, /<h3>Notes<\/h3>/,
+  'Catch leaf narrative must render as one card titled Notes.');
+assert.match(kbApp, /renderMarkdown\(result\.markdown, \{ contentPath:result\.contentPath, entityByContentPath:state\.entityByContentPath \}\)/,
+  'Catch Notes must use the shared safe Markdown renderer.');
+assert.doesNotMatch(kbApp, /Exact spot notes|record\.exactSpotNotes/,
+  'The retired Exact Spot Notes card/field must not remain in Catch UI code.');
+assert.doesNotMatch(kbApp, /Provenance|record\.source/,
+  'Catch Provenance must not remain in the current UI.');
+assert.doesNotMatch(kbApp, /record\.notes/,
+  'Catch runtime must not retain a fallback to the retired structured notes field.');
+
 assert.match(markdownRender, /export function renderCatchCard/, 'Catch cards must have one shared renderer.');
 assert.match(kbApp, /renderCatchCard\(record/, 'KB catch cards must use the shared renderer.');
 assert.match(gearApp, /renderCatchCard\(record/, 'Gear catch cards must use the shared renderer.');
@@ -84,4 +100,4 @@ assert.match(nestedListHtml, /<ul><li>Parent<ul><li>Child one<\/li><li>Child two
 assert.match(nestedListHtml, /<ol><li>Ordered parent<ol><li>Ordered child<\/li><\/ol><\/li><\/ol>/,
   'Indented ordered Markdown list items must remain nested.');
 
-console.log('Knowledge Base routing, Markdown, article layout, and retired Planner regression tests passed.');
+console.log('Knowledge Base routing, Markdown, Catch external-Notes, article layout, and retired Planner regression tests passed.');
