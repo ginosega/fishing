@@ -42,7 +42,7 @@ Key files:
 - `data/gear.seed.json` — bundled baseline/portable data
 - `gear-model.js` — strict schema-v2 validation/display helpers
 - `gear-store.js` — IndexedDB repository and deterministic seed-version migration
-- `gear-app.js` — all `#/inventory/...` routes
+- `gear-app.js` — all `#/inventory/...` routes and user-facing type-label aliases
 - `media-owners.json` — exact stable-ID Gear media ownership
 - `media-sources.json` — remote/source media metadata
 - `local-media.json` — repository-local active media configuration
@@ -70,6 +70,7 @@ Retired/forbidden schema-v1 concepts:
 ### My Gear UI conventions
 
 - root My Gear has Search
+- a non-empty root Search hides the category-card grid and shows matching item cards immediately below the page controls
 - browse-list Search appears at **10+ entries**
 - if a searchable list also has a dropdown/filter, the filter is right-aligned
 - Line is intentionally flat; Rods & Reels retains grouping
@@ -79,7 +80,7 @@ Retired/forbidden schema-v1 concepts:
 - leaf pages use structured Manufacturer / Model, Specifications, Links, and optional Markdown **Notes**
 - internal Notes links use `gear://stable-id` and `kb://stable-id`
 
-Current lure-type labels include **Soft plastics and swimbaits**, **Topwater**, and **Trolling lures**.
+Current user-facing lure-type labels include **Soft plastics and swimbaits**, **Topwater**, and **Trolling**. `gear.seed.json` still stores the pre-PR #36 value `Trolling lures`; `gear-app.js` maps that internal value to `Trolling` wherever it is displayed or searched. This copy-only presentation change deliberately avoids bumping the seed dataVersion or refreshing IndexedDB.
 
 ## Unified Knowledge Base architecture
 
@@ -155,7 +156,7 @@ PR #28 refreshed Swimbait, Jerkbait, Crankbait, Chatterbait / Bladed Jig, Spinne
 
 The user completed a broad formatting cleanup of those imported pages on 2026-09-04. Final acceptance inspected the modified Equipment/Technique documents, fixed remaining structure/wrapping artifacts, and validated replacement Largemouth/Smallmouth Bass images. PR #32 production-verified the final state. The PR #28 content acceptance is therefore **closed**.
 
-Late-night ordinary content maintenance surrounding and after PR #34 updated Buzzbait, Fishing Line, Rods & Reels, Walking Bait, Slip Sinker Rig, Bobber Rig, Flasher Rig, Inline Spinner, and Inline Trolling Rig. These are ordinary current KB maintenance, not continuation of PR #28 acceptance.
+Subsequent direct Markdown edits are ordinary current KB maintenance and are not continuation of PR #28 acceptance. PR #36 was branched from exact `main` `97857fb947603c9e27a683b8c1f646fd540b1a1a`, preserving all such user edits through `trilene.md`.
 
 ## Structured Catch Log
 
@@ -192,9 +193,21 @@ A KB `picture.src` may be an `http(s)` URL, a safe `./assets/kb/...` path, or a 
 
 This final-form validation rule was added in PR #30 after a source-valid KB bundle became runtime-invalid only after local-media substitution. PR #32 also confirmed the replacement Largemouth/Smallmouth Bass images pass the same local-media pipeline.
 
+### Card-thumbnail presentation
+
+PR #36 standardized Gear, KB, and Catch card thumbnails as square frames with a white background and `object-fit: contain`. Wide rectangular fish images therefore display at full width with white space above/below instead of being center-cropped. Tall or square source images likewise remain fully visible. This is a CSS presentation rule; source image files do not need to be rewritten to square dimensions.
+
 ### User-supplied binary workflow
 
 **Do not upload or base64-transport user image binaries through ChatGPT/GitHub connector calls.** The user uploads binaries directly to the specified GitHub feature branch/path; ChatGPT verifies them and handles manifests/data/content/tests/PR/deploy.
+
+## Search behavior
+
+- Root My Gear and root Knowledge Base always provide Search.
+- A non-empty root Search hides the category-card grid and shows matching result cards directly below the page controls.
+- Browse-list Search appears at 10+ entries.
+- Type-page Search filters the visible result-card list in place.
+- The root/category hiding behavior relies on the standard HTML `hidden` attribute plus the stylesheet invariant `[hidden] { display: none !important; }`; this prevents explicit grid/list `display` declarations from keeping hidden category cards onscreen.
 
 ## Routes
 
@@ -202,7 +215,7 @@ My Gear owns `#/inventory`, `#/inventory/{category}`, and `#/inventory/item/{sta
 
 Knowledge Base owns `#/home`, `#/kb`, the five entity-category routes, `#/kb/entity/{stable-id}`, `#/kb/catches`, and `#/kb/catch/{stable-id}`.
 
-`my-gear-routing.test.mjs`, `kb-routing.test.mjs`, and `final-content.test.mjs` guard route/content/media regressions. `kb-routing.test.mjs` also protects nested Markdown list behavior; `final-content.test.mjs` validates stable authored KB/Gear navigation rather than requiring a specific Markdown section heading.
+`my-gear-routing.test.mjs`, `kb-routing.test.mjs`, and `final-content.test.mjs` guard route/content/media regressions. `kb-routing.test.mjs` also protects nested Markdown list behavior; `final-content.test.mjs` validates stable authored KB/Gear navigation and now also guards the square/contain thumbnail and hidden-state CSS invariants introduced in PR #36.
 
 ## Offline and storage behavior
 
@@ -241,18 +254,13 @@ CI additionally runs structured-model, routing, KB Markdown, nested-list, final-
 
 ### Latest verified runtime release
 
-- PR #34 — `Render nested Markdown lists correctly`
-- exact tested head `4c94156416e7bfddfb912991c86bc3e5af66b91c`
-- PR CI #158 / `33850003616` — success
-- merge `82601038f0e931f6ef1bee4c8f5e062a73c793c5`
-- production #159 / `33850049987` — tests, build, transformed/local-media validation, bundle verification, Pages artifact, and **Deploy to GitHub Pages** all succeeded
-- user confirmed the live nested-list fix
+- PR #36 — `Polish Gear labels, thumbnails, and root search UX`
+- exact tested head `30c8fb265b66d9287efe7fe3c34f732f98f9f7ca`
+- PR CI #176 / `33893140327` — success
+- merge `15c5ac6f8f3d37ad8b884436c6312083b1939921`
+- production #177 / `33893200789` — all tests, build, transformed/local-media validation, bundle verification, Pages artifact, and **Deploy to GitHub Pages** succeeded
 
-### Latest verified production content checkpoint
-
-The final audited pre-reconciliation `main` is **`955d37bf675f3163fe610324809a972916c98ef0`**. Production **#166 / 33851195203** succeeded on that exact commit through all tests, build, transformed/local-media validation, bundle verification, Pages artifact upload, and deployment.
-
-Recent sequence: PR #25 catch/media polish → PR #26 local-media hardening → PR #27 Recovery B → PR #28 final content/image batch → PR #29 reconciliation → PR #30 transformed-picture validation hotfix → PR #31 reconciliation → PR #32 final content acceptance → PR #33 reconciliation → PR #34 nested-list renderer fix.
+PR #34 remains the earlier nested-list renderer release. PR #35 reconciled the prior night-end state; PR #36 is the current runtime release.
 
 For meaningful runtime changes, use a normal feature/fix branch and PR. Merge only after exact-head CI passes, then verify both the production build and actual Pages deployment before saying a release is live. Any build stage that mutates already-validated structured data must validate the final deployable form after the mutation.
 
@@ -260,4 +268,4 @@ For deliberate one-file authored Markdown cleanup, direct GitHub edits are accep
 
 ## Future work
 
-Canonical future work is `../Fishing_TODO.md`. The PR #28 content cleanup and PR #34 nested-list defect are complete. Remaining themes include the PowerBait hook-size conflict, loop-knot conflict, candidate rig/spoon pages, structured catch additions, hardware/install-state verification, and eventual My Gear CRUD.
+Canonical future work is `../Fishing_TODO.md`. The PR #28 content cleanup, PR #34 nested-list defect, and PR #36 UX-polish items are complete. Remaining themes include the PowerBait hook-size conflict, loop-knot conflict, candidate rig/spoon pages, structured catch additions, hardware/install-state verification, and eventual My Gear CRUD.
