@@ -6,17 +6,16 @@ const seed = JSON.parse(await fs.readFile(new URL('./data/gear.seed.json', impor
 const result = validateGearBundle(seed);
 assert.equal(result.valid, true, result.errors.join('\n'));
 assert.equal(seed.schemaVersion, GEAR_SCHEMA_VERSION);
-assert.equal(seed.schemaVersion, 2);
+assert.equal(seed.schemaVersion, 3);
 assert.equal(seed.items.length, 63);
-assert.ok(seed.dataVersion, 'dataVersion is required.');
-assert.equal(seed.dataVersion, '2026-09-04-my-gear-v2-final-content-1');
-assert.equal('profiles' in seed, false, 'Gear schema v2 must not contain profiles.');
+assert.equal(seed.dataVersion, '2026-09-04-my-gear-v3-external-notes-1');
+assert.equal('profiles' in seed, false, 'Gear schema v3 must not contain profiles.');
 assert.equal(seed.items.some(item => item.category === 'knots'), false, 'Knots must not be part of My Gear.');
 for (const category of GEAR_CATEGORIES) assert.ok(seed.items.some(item => item.category === category), `Missing category ${category}`);
 
-const legacyFields = ['usage','connections','usageProfileId','connectionProfileId','mainLine','leader','configuration','knowledgeRefs','aliases'];
+const legacyFields = ['notes','usage','connections','usageProfileId','connectionProfileId','mainLine','leader','configuration','knowledgeRefs','aliases'];
 for (const item of seed.items) {
-  for (const field of legacyFields) assert.equal(field in item, false, `${item.id} must not contain legacy/speculative field ${field}.`);
+  for (const field of legacyFields) assert.equal(field in item, false, `${item.id} must not contain retired/speculative field ${field}.`);
 }
 
 const manufacturerCases = [
@@ -69,6 +68,7 @@ assert.equal(hooks?.name, 'South Bend 120-Piece Hook Assortment');
 assert.equal(hooks?.specifications?.find(spec => spec.value === 'Brass' && !('label' in spec))?.value, 'Brass');
 assert.equal(hooks?.specifications?.find(spec => spec.label === 'Sizes')?.value, '2, 4, 6, 8, and 10');
 
+const gearNotes = async id => fs.readFile(new URL(`./gear-content/${id}.md`, import.meta.url), 'utf8');
 for (const [id,kbId] of [
   ['zman-original-chatterbait','technique-chatterbait-bladed-jig'],
   ['strike-king-red-eyed-special','technique-spinnerbait'],
@@ -78,12 +78,12 @@ for (const [id,kbId] of [
   ['sixth-sense-divine-swimbait','technique-swimbait-soft-jerk-shad'],
   ['yamamoto-senko','technique-wacky-worm'],
   ['zman-ned-rig-kit','technique-ned-rig']
-]) assert.match(seed.items.find(item => item.id === id)?.notes || '', new RegExp(`kb:\\/\\/${kbId}`), `${id} KB Notes link`);
+]) assert.match(await gearNotes(id), new RegExp(`kb:\\/\\/${kbId}`), `${id} external KB Notes link`);
 
-assert.match(seed.items.find(item => item.id === 'setup-spinning')?.notes || '', /Sufix 832 15 lb/);
-assert.match(seed.items.find(item => item.id === 'swiveling-trolling-sinkers')?.notes || '', /kb:\/\/technique-paddle-only-kayak-strategy/);
-assert.match(seed.items.find(item => item.id === 'fin-sanity-bluegill')?.notes || '', /hard-jointed bluegill-profile/);
-assert.match(seed.items.find(item => item.id === 'fin-sanity-bluegill')?.notes || '', /kb:\/\/technique-swimbait-soft-jerk-shad/);
+assert.match(await gearNotes('setup-spinning'), /Sufix 832 15 lb/);
+assert.match(await gearNotes('swiveling-trolling-sinkers'), /kb:\/\/technique-paddle-only-kayak-strategy/);
+assert.match(await gearNotes('fin-sanity-bluegill'), /hard-jointed bluegill-profile/);
+assert.match(await gearNotes('fin-sanity-bluegill'), /kb:\/\/technique-swimbait-soft-jerk-shad/);
 
 const clone = value => structuredClone(value);
 const invalidExtra = clone(seed); invalidExtra.items[0].unexpected = true;
@@ -96,8 +96,8 @@ const invalidMainLine = clone(seed); invalidMainLine.items[0].mainLine = 'text';
 assert.equal(validateGearBundle(invalidMainLine).valid, false, 'Legacy setup mainLine must be rejected.');
 const invalidKnowledgeRefs = clone(seed); invalidKnowledgeRefs.items[3].knowledgeRefs = {};
 assert.equal(validateGearBundle(invalidKnowledgeRefs).valid, false, 'Speculative knowledgeRefs must be rejected.');
-const invalidNotes = clone(seed); invalidNotes.items[3].notes = 42;
-assert.equal(validateGearBundle(invalidNotes).valid, false, 'Notes must be Markdown text or null.');
+const invalidInlineNotes = clone(seed); invalidInlineNotes.items[3].notes = 'Narrative belongs in Markdown.';
+assert.equal(validateGearBundle(invalidInlineNotes).valid, false, 'Inline Gear Notes must be rejected; use gear-content/<stable-id>.md.');
 const invalidVersion = clone(seed); invalidVersion.dataVersion = '';
 assert.equal(validateGearBundle(invalidVersion).valid, false, 'dataVersion must be required.');
 
@@ -126,4 +126,4 @@ for (const mediaId of ['south-bend-classic-dressed-spinners','south-bend-removab
 }
 assert.equal(localMedia.staged.length, 0, 'Recovery B South Bend images must no longer be staged-only.');
 
-console.log(`Structured My Gear v2 seed validated: ${seed.items.length} records across ${GEAR_CATEGORIES.length} categories.`);
+console.log(`Structured My Gear v3 seed validated: ${seed.items.length} records across ${GEAR_CATEGORIES.length} categories; authored Notes externalized.`);
