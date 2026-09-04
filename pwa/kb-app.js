@@ -83,10 +83,29 @@ function renderHome() {
 
 function renderKbIndex() {
   const groups = groupEntitiesByType(state.kb);
-  app.innerHTML = `${pageHeader('Knowledge Base', 'Browse your fishing reference by subject.', '#/home')}
-    <section class="category-grid kb-category-grid">${Object.entries(TYPE_META).map(([type, meta]) => categoryCard(meta.icon, meta.label, meta.description, `#/kb/${plural(type)}`, groups[type].length)).join('')}
+  app.innerHTML = `${pageHeader('Knowledge Base', 'Browse your fishing reference by subject.', '#/home', {
+      id:'kbRootSearch',
+      placeholder:'Search all knowledge…'
+    })}
+    <section class="category-grid kb-category-grid" id="kbCategoryGrid">${Object.entries(TYPE_META).map(([type, meta]) => categoryCard(meta.icon, meta.label, meta.description, `#/kb/${plural(type)}`, groups[type].length)).join('')}
       ${categoryCard('🗒️', 'Catch Log', 'Recorded catches with stable links to species, locations, techniques, setups, lures, and bait', '#/kb/catches', state.catches.catches.length)}
-    </section>`;
+    </section>
+    <section class="item-list root-search-results" id="kbRootSearchResults" hidden></section>`;
+  const search = document.querySelector('#kbRootSearch');
+  const categories = document.querySelector('#kbCategoryGrid');
+  const results = document.querySelector('#kbRootSearchResults');
+  const draw = () => {
+    const q = normalize(search?.value || '');
+    categories.hidden = Boolean(q);
+    results.hidden = !q;
+    if (!q) { results.innerHTML = ''; bindRoutes(); return; }
+    const filtered = state.kb.entities
+      .filter(entity => normalize(`${entity.name} ${entity.description || ''}`).includes(q))
+      .sort((a, b) => a.name.localeCompare(b.name));
+    results.innerHTML = filtered.length ? filtered.map(entityCard).join('') : '<div class="empty">No matching entries.</div>';
+    bindRoutes();
+  };
+  search?.addEventListener('input', draw);
   bindRoutes();
 }
 
@@ -95,15 +114,15 @@ function renderEntityList(type) {
   if (!meta) return navigate('#/kb');
   const entities = state.kb.entities.filter(entity => entity.type === type).sort((a, b) => a.name.localeCompare(b.name));
   const searchable = entities.length >= SEARCH_THRESHOLD;
-  app.innerHTML = `${pageHeader(meta.label, meta.description, '#/kb')}
-    ${searchable ? `<div class="toolbar"><input class="search" id="kbEntitySearch" type="search" placeholder="Search ${escapeAttr(meta.label.toLowerCase())}…" /></div>` : ''}
+  app.innerHTML = `${pageHeader(meta.label, meta.description, '#/kb', searchable ? {
+      id:'kbEntitySearch',
+      placeholder:`Search ${meta.label.toLowerCase()}…`
+    } : null)}
     <section class="item-list" id="kbEntityList"></section>`;
   const draw = () => {
     const q = normalize(document.querySelector('#kbEntitySearch')?.value || '');
     const filtered = entities.filter(entity => !q || normalize(`${entity.name} ${entity.description || ''}`).includes(q));
-    document.querySelector('#kbEntityList').innerHTML = filtered.length ? filtered.map(entity => `<button type="button" class="item-card kb-entity-card" data-kb-route="#/kb/entity/${escapeAttr(entity.id)}">
-      ${pictureThumb(entity.picture, entity.name)}<div><h3>${escapeHtml(entity.name)}</h3>${entity.description ? `<div class="item-meta">${escapeHtml(entity.description)}</div>` : ''}</div>
-    </button>`).join('') : '<div class="empty">No matching entries.</div>';
+    document.querySelector('#kbEntityList').innerHTML = filtered.length ? filtered.map(entityCard).join('') : '<div class="empty">No matching entries.</div>';
     bindRoutes();
   };
   document.querySelector('#kbEntitySearch')?.addEventListener('input', draw);
@@ -193,12 +212,20 @@ function pictureThumb(picture, fallbackAlt) {
   return picture ? `<img class="kb-card-picture" src="${escapeAttr(picture.src)}" alt="${escapeAttr(picture.alt || fallbackAlt)}" loading="lazy">` : '';
 }
 
+function entityCard(entity) {
+  return `<button type="button" class="item-card kb-entity-card" data-kb-route="#/kb/entity/${escapeAttr(entity.id)}">
+    ${pictureThumb(entity.picture, entity.name)}<div><h3>${escapeHtml(entity.name)}</h3>${entity.description ? `<div class="item-meta">${escapeHtml(entity.description)}</div>` : ''}</div>
+  </button>`;
+}
+
 function categoryCard(icon, label, description, route, count) {
   return `<button class="category-card kb-category-card" data-kb-route="${escapeAttr(route)}"><span>${icon}</span><strong>${escapeHtml(label)}</strong><small>${escapeHtml(description)}</small><span class="badge">${count} ${count === 1 ? 'entry' : 'entries'}</span></button>`;
 }
 
-function pageHeader(title, subtitle, back) {
-  return `<div class="section-title"><div><h2>${escapeHtml(title)}</h2>${subtitle ? `<p>${escapeHtml(subtitle)}</p>` : ''}</div>${back ? `<button class="back-button" data-kb-route="${escapeAttr(back)}">← Back</button>` : ''}</div>`;
+function pageHeader(title, subtitle, back, search = null) {
+  const searchControl = search ? `<input class="search section-search" id="${escapeAttr(search.id)}" type="search" placeholder="${escapeAttr(search.placeholder)}" />` : '';
+  const actions = searchControl || back ? `<div class="section-title-actions">${searchControl}${back ? `<button class="back-button" data-kb-route="${escapeAttr(back)}">← Back</button>` : ''}</div>` : '';
+  return `<div class="section-title"><div><h2>${escapeHtml(title)}</h2>${subtitle ? `<p>${escapeHtml(subtitle)}</p>` : ''}</div>${actions}</div>`;
 }
 
 function detailCell(label, value) {

@@ -13,8 +13,7 @@ const CATEGORY_META = {
 };
 const CATEGORY_ORDER = Object.keys(CATEGORY_META);
 const TYPE_ORDER = {
-  'rods-reels':['Spinning','Baitcasting','Spincasting'],
-  line:['Braided','Fluorocarbon','Monofilament']
+  'rods-reels':['Spinning','Baitcasting','Spincasting']
 };
 const SEARCH_THRESHOLD = 10;
 
@@ -80,11 +79,28 @@ function patchHomeCopy() {
 }
 
 function renderCategories() {
-  app.innerHTML = `${pageHeader('My Gear','Browse your inventory of equipment, tackle, and bait','#/home')}
-    <section class="category-grid">${CATEGORY_ORDER.map(key => {
+  app.innerHTML = `${pageHeader('My Gear','Browse your inventory of equipment, tackle, and bait','#/home', {
+      id:'gearRootSearch',
+      placeholder:'Search all gear…'
+    })}
+    <section class="category-grid" id="gearCategoryGrid">${CATEGORY_ORDER.map(key => {
       const meta = CATEGORY_META[key];
       return `<button class="category-card" data-gear-route="#/inventory/${key}"><span>${meta.icon}</span><strong>${escapeHtml(meta.label)}</strong></button>`;
-    }).join('')}</section>`;
+    }).join('')}</section>
+    <section class="item-list root-search-results" id="gearRootSearchResults" hidden></section>`;
+  const search = document.querySelector('#gearRootSearch');
+  const categories = document.querySelector('#gearCategoryGrid');
+  const results = document.querySelector('#gearRootSearchResults');
+  const draw = () => {
+    const q = normalize(search?.value || '');
+    categories.hidden = Boolean(q);
+    results.hidden = !q;
+    if (!q) { results.innerHTML = ''; bindGearRoutes(); return; }
+    const filtered = bundle.items.filter(item => searchableText(item).includes(q));
+    results.innerHTML = filtered.length ? filtered.map(itemCard).join('') : '<div class="empty">No matching records.</div>';
+    bindGearRoutes();
+  };
+  search?.addEventListener('input', draw);
   bindGearRoutes();
 }
 
@@ -103,8 +119,11 @@ function renderList(category) {
   const types = [...new Set(items.map(item => item.type).filter(Boolean))].sort();
   const search = items.length >= SEARCH_THRESHOLD;
   const filter = category === 'lures' || category === 'hooks';
-  app.innerHTML = `${pageHeader(meta.label,'','#/inventory')}
-    ${search || filter ? `<div class="toolbar">${search ? `<input class="search" id="gearSearch" type="search" placeholder="Search ${escapeAttr(meta.label.toLowerCase())}…" />` : ''}${filter ? `<select class="select" id="gearTypeFilter"><option value="">All types</option>${types.map(type => `<option value="${escapeAttr(type)}">${escapeHtml(type)}</option>`).join('')}</select>` : ''}</div>` : ''}
+  app.innerHTML = `${pageHeader(meta.label,'','#/inventory', search ? {
+      id:'gearSearch',
+      placeholder:`Search ${meta.label.toLowerCase()}…`
+    } : null)}
+    ${filter ? `<div class="toolbar compact-toolbar"><select class="select" id="gearTypeFilter"><option value="">All types</option>${types.map(type => `<option value="${escapeAttr(type)}">${escapeHtml(type)}</option>`).join('')}</select></div>` : ''}
     <section class="item-list" id="gearItemList"></section>`;
   const draw = () => {
     const q = normalize(document.querySelector('#gearSearch')?.value || '');
@@ -186,8 +205,10 @@ function itemCard(item) {
   return `<article class="item-card" data-gear-item="${escapeAttr(item.id)}"><h3>${escapeHtml(item.name)}</h3>${meta ? `<div class="item-meta"><span>${escapeHtml(meta)}</span></div>` : ''}</article>`;
 }
 
-function pageHeader(title,subtitle,back) {
-  return `<div class="section-title"><div><h2>${escapeHtml(title)}</h2>${subtitle ? `<p>${escapeHtml(subtitle)}</p>` : ''}</div>${back ? `<button class="back-button" data-gear-route="${escapeAttr(back)}">← Back</button>` : ''}</div>`;
+function pageHeader(title,subtitle,back,search = null) {
+  const searchControl = search ? `<input class="search section-search" id="${escapeAttr(search.id)}" type="search" placeholder="${escapeAttr(search.placeholder)}" />` : '';
+  const actions = searchControl || back ? `<div class="section-title-actions">${searchControl}${back ? `<button class="back-button" data-gear-route="${escapeAttr(back)}">← Back</button>` : ''}</div>` : '';
+  return `<div class="section-title"><div><h2>${escapeHtml(title)}</h2>${subtitle ? `<p>${escapeHtml(subtitle)}</p>` : ''}</div>${actions}</div>`;
 }
 
 function detailCell(label,value) {
