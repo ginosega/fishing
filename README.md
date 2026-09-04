@@ -101,14 +101,9 @@ PR #34 fixed the mismatch where GitHub Preview correctly rendered indented sub-b
 
 ### Latest verified production content state
 
-After PR #34, ordinary content-maintenance edits were made directly to `main` for:
+The final audited pre-reconciliation `main` is **`955d37bf675f3163fe610324809a972916c98ef0`**. Production run **#166 / 33851195203** on that exact commit passed all tests, build, transformed/local-media validation, bundle verification, Pages artifact upload, and deployment.
 
-- Buzzbait — commit `5b1eda316a4672ac2f111c2fc9344786ba01d0bb`
-- Fishing Line — commit `2d4ce6d574007c403de617228bc50a27ff49ea97`
-- Rods & Reels — commit `481fe29c22638c52614f438a43ae4b1fb1f28622`
-- Walking Bait — commit `0b89ebc20de049fe5d072e93edcdcaa7b13d01b2`
-
-The audited pre-reconciliation `main` is `0b89ebc20de049fe5d072e93edcdcaa7b13d01b2`. Production run **#161 / 33850346865** on that exact commit passed build, transformed/local-media validation, bundle verification, Pages artifact upload, and deployment.
+Late-night authored-content maintenance included **Buzzbait, Fishing Line, Rods & Reels, Walking Bait, Slip Sinker Rig, Bobber Rig, Flasher Rig, Inline Spinner, and Inline Trolling Rig**. These are ordinary KB maintenance and do not reopen the closed PR #28 acceptance batch.
 
 ### Stabilization/recovery history
 
@@ -193,4 +188,4 @@ For requirements with substantial architecture, deployment, maintenance, perform
 
 ## Night-end audit checkpoint — 2026-09-04
 
-The audited durable state contains **63 My Gear records, 54 KB entities, and 5 catches**. PR #28 content acceptance is closed; PR #30 production recovery is closed; PR #34 nested-list rendering is fixed and user-confirmed; no known production outage or hidden unmerged feature work remains. Canonical unresolved work is solely the active backlog in `Fishing_TODO.md`.
+The audited durable state contains **63 My Gear records, 54 KB entities, and 5 catches**. PR #28 content acceptance is closed; PR #30 production recovery is closed; PR #34 nested-list rendering is fixed and user-confirmed; no known production outage or hidden unmerged feature work remains. The final pre-reconciliation production checkpoint is `955d37bf675f3163fe610324809a972916c98ef0`, run **#166 / 33851195203**, fully deployed. Canonical unresolved work is solely the active backlog in `Fishing_TODO.md`.
