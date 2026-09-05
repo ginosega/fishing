@@ -31,12 +31,12 @@ Unscrew the front cover/cone of the reel. On most push-button/spincast reels, th
 
 3. **Wipe everything clean**  
 Use a dry cloth, toothbrush, and Q-tips to clean:
-- inside of the front cone
-- spool face
-- center shaft
-- pickup pins
-- line guide hole in the front cone
-- any old dirt, weed bits, grit, or dried grease
+    - inside of the front cone
+    - spool face
+    - center shaft
+    - pickup pins
+    - line guide hole in the front cone
+    - any old dirt, weed bits, grit, or dried grease
 
     If there is crusty dirt, use a slightly damp cloth with mild soapy water, then dry it fully.
 
