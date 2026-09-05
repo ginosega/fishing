@@ -89,4 +89,4 @@ After reassembly:
 3. Confirm the pickup pins engage.
 4. Pull line against the drag.
 5. Cast a practice weight or lure in the yard.
-6 Make sure line comes out smoothly and retrieves evenly.
+6. Make sure line comes out smoothly and retrieves evenly.
