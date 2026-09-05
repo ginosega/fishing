@@ -100,4 +100,30 @@ assert.match(nestedListHtml, /<ul><li>Parent<ul><li>Child one<\/li><li>Child two
 assert.match(nestedListHtml, /<ol><li>Ordered parent<ol><li>Ordered child<\/li><\/ol><\/li><\/ol>/,
   'Indented ordered Markdown list items must remain nested.');
 
+const looseOrderedListHtml = renderMarkdown([
+  '1. **Remove the old line**  ',
+  'Cut off and discard all the old line.',
+  '',
+  '    Do this before cleaning so you can see the spool clearly.',
+  '',
+  '2. **Remove the front cone**  ',
+  'Unscrew the front cover/cone of the reel.',
+  '',
+  '3. **Wipe everything clean**  ',
+  'Use a dry cloth to clean:',
+  '   - inside of the front cone',
+  '   - spool face',
+  '',
+  '    If there is crusty dirt, use a slightly damp cloth.',
+  '',
+  '4. **Check the pickup pins**  ',
+  'They should retract and pop back out smoothly.'
+].join('\n'));
+assert.equal((looseOrderedListHtml.match(/<ol(?:\s|>)/g) || []).length, 1,
+  'Ordered list items separated by continuation paragraphs must remain in one ordered list.');
+assert.match(looseOrderedListHtml, /<ol><li><p><strong>Remove the old line<\/strong><br>Cut off and discard all the old line\.<\/p><p>Do this before cleaning so you can see the spool clearly\.<\/p><\/li><li><p><strong>Remove the front cone<\/strong><br>Unscrew the front cover\/cone of the reel\.<\/p>/,
+  'Loose ordered-list continuation paragraphs must remain inside their numbered list item.');
+assert.match(looseOrderedListHtml, /<li><p><strong>Wipe everything clean<\/strong><br>Use a dry cloth to clean:<\/p><ul><li>inside of the front cone<\/li><li>spool face<\/li><\/ul><p>If there is crusty dirt, use a slightly damp cloth\.<\/p><\/li>/,
+  'Nested bullets and later paragraphs must remain inside the same loose ordered-list item.');
+
 console.log('Knowledge Base routing, Markdown, Catch external-Notes, article layout, and retired Planner regression tests passed.');
