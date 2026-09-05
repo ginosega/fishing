@@ -24,7 +24,7 @@ Avoid WD-40 as the main lubricant. It can clean/displace water, but it is not a 
 1. Remove the old line  
 Cut off and discard all the old line. If it has been sitting for years, it will have memory, weak spots, and coils.
 
-> Do this before cleaning so you can see the spool and pickup system clearly.
+Do this before cleaning so you can see the spool and pickup system clearly.
 
 2. Remove the front cone  
 Unscrew the front cover/cone of the reel. On most push-button/spincast reels, the nose cone simply twists off. Inside you should see the spool, pickup pins, and center shaft.
