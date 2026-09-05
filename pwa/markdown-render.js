@@ -7,12 +7,12 @@ export function renderMarkdown(markdown, options = {}) {
 
   const flushParagraph = () => {
     if (!paragraph.length) return;
-    blocks.push(`<p>${renderInline(paragraph.join(' '), options)}</p>`);
+    blocks.push(`<p>${renderParagraphLines(paragraph, options)}</p>`);
     paragraph = [];
   };
   const flushQuote = () => {
     if (!quote.length) return;
-    blocks.push(`<blockquote><p>${renderInline(quote.join(' '), options)}</p></blockquote>`);
+    blocks.push(`<blockquote><p>${renderParagraphLines(quote, options)}</p></blockquote>`);
     quote = [];
   };
   const flushAll = () => { flushParagraph(); flushQuote(); };
@@ -55,7 +55,7 @@ export function renderMarkdown(markdown, options = {}) {
 
     const quoted = /^\s*>\s?(.*)$/.exec(raw);
     if (quoted) { flushParagraph(); quote.push(quoted[1]); continue; }
-    paragraph.push(raw.trim());
+    paragraph.push(raw.trimStart());
   }
   if (code) blocks.push(`<pre><code>${escapeHtml(code.lines.join('\n'))}</code></pre>`);
   flushAll();
@@ -149,49 +149,114 @@ function resolveRelative(target, contentPath = './kb-content/index.md') {
   } catch { return ''; }
 }
 
+function renderParagraphLines(lines, options) {
+  return lines.map((line, index) => {
+    const hardBreak = / {2,}$/.test(line);
+    const html = renderInline(line.replace(/ {2,}$/, ''), options);
+    if (index === lines.length - 1) return html;
+    return `${html}${hardBreak ? '<br>' : ' '}`;
+  }).join('');
+}
+
 function readList(lines, index) {
-  const tokens = [];
+  const first = listMarker(lines[index]);
+  if (!first) return null;
+
+  const list = { tag:first.tag, start:first.ordinal || 1, items:[] };
+  const baseIndent = first.indent;
   let cursor = index;
+
   while (cursor < lines.length) {
-    const match = /^(\s*)([-*+]|\d+[.)])\s+(.+)$/.exec(lines[cursor]);
-    if (!match) break;
-    tokens.push({
-      indent: match[1].replace(/\t/g, '    ').length,
-      tag: /^\d/.test(match[2]) ? 'ol' : 'ul',
-      text: match[3]
-    });
+    const marker = listMarker(lines[cursor]);
+    if (!marker || marker.indent !== baseIndent || marker.tag !== list.tag) break;
+
+    const item = { lines:[marker.text] };
     cursor++;
-  }
-  if (!tokens.length) return null;
+    let paragraphInterrupted = false;
 
-  const root = { lists:[] };
-  const stack = [];
+    while (cursor < lines.length) {
+      const raw = lines[cursor];
+      const sibling = listMarker(raw);
 
-  for (const token of tokens) {
-    while (stack.length && token.indent < stack.at(-1).indent) stack.pop();
+      if (sibling && sibling.indent === baseIndent) {
+        if (sibling.tag === list.tag) break;
+        return { lists:[list], endIndex:cursor - 1 };
+      }
 
-    if (!stack.length || token.indent > stack.at(-1).indent) {
-      const parentLists = stack.length ? stack.at(-1).node.items.at(-1)?.children : root.lists;
-      const node = { tag:token.tag, items:[] };
-      (parentLists || root.lists).push(node);
-      stack.push({ indent:token.indent, node, parentLists:parentLists || root.lists });
+      if (!raw.trim()) {
+        let lookahead = cursor + 1;
+        while (lookahead < lines.length && !lines[lookahead].trim()) lookahead++;
+        if (lookahead >= lines.length) {
+          cursor = lookahead;
+          break;
+        }
+
+        const nextMarker = listMarker(lines[lookahead]);
+        if (nextMarker && nextMarker.indent === baseIndent && nextMarker.tag === list.tag) {
+          cursor = lookahead;
+          break;
+        }
+
+        if (leadingIndent(lines[lookahead]) > baseIndent) {
+          item.lines.push('');
+          cursor++;
+          paragraphInterrupted = true;
+          continue;
+        }
+
+        list.items.push(item);
+        return { lists:[list], endIndex:cursor - 1 };
+      }
+
+      if (leadingIndent(raw) > baseIndent) {
+        item.lines.push(raw);
+        cursor++;
+        continue;
+      }
+
+      if (!paragraphInterrupted && !startsTopLevelBlock(raw)) {
+        item.lines.push(raw);
+        cursor++;
+        continue;
+      }
+
+      list.items.push(item);
+      return { lists:[list], endIndex:cursor - 1 };
     }
 
-    if (token.indent === stack.at(-1).indent && token.tag !== stack.at(-1).node.tag) {
-      const current = stack.pop();
-      const node = { tag:token.tag, items:[] };
-      current.parentLists.push(node);
-      stack.push({ indent:token.indent, node, parentLists:current.parentLists });
-    }
-
-    stack.at(-1).node.items.push({ text:token.text, children:[] });
+    list.items.push(item);
   }
 
-  return { lists:root.lists, endIndex:cursor - 1 };
+  return { lists:[list], endIndex:cursor - 1 };
+}
+
+function listMarker(line) {
+  const match = /^(\s*)([-*+]|\d+[.)])\s+(.+)$/.exec(line || '');
+  if (!match) return null;
+  const indent = match[1].replace(/\t/g, '    ').length;
+  const ordered = /^\d/.test(match[2]);
+  return {
+    indent,
+    tag:ordered ? 'ol' : 'ul',
+    ordinal:ordered ? Number.parseInt(match[2], 10) : null,
+    text:match[3]
+  };
+}
+
+function leadingIndent(line) {
+  const match = /^(\s*)/.exec(line || '');
+  return (match?.[1] || '').replace(/\t/g, '    ').length;
+}
+
+function startsTopLevelBlock(line) {
+  return /^(?:#{1,6}\s+|```|\s*>\s?|\s*([-*_])(?:\s*\1){2,}\s*$)/.test(line || '');
 }
 
 function renderList(lists, options) {
-  return lists.map(list => `<${list.tag}>${list.items.map(item => `<li>${renderInline(item.text, options)}${renderList(item.children, options)}</li>`).join('')}</${list.tag}>`).join('');
+  return lists.map(list => {
+    const start = list.tag === 'ol' && list.start !== 1 ? ` start="${list.start}"` : '';
+    return `<${list.tag}${start}>${list.items.map(item => `<li>${renderMarkdown(item.lines.join('\n'), options)}</li>`).join('')}</${list.tag}>`;
+  }).join('');
 }
 
 function readTable(lines, index) {
