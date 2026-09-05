@@ -31,12 +31,12 @@ Unscrew the front cover/cone of the reel. On most push-button/spincast reels, th
 
 3. **Wipe everything clean**  
 Use a dry cloth, toothbrush, and Q-tips to clean:
-  - inside of the front cone
-  - spool face
-  - center shaft
-  - pickup pins
-  - line guide hole in the front cone
-  - any old dirt, weed bits, grit, or dried grease
+- inside of the front cone
+- spool face
+- center shaft
+- pickup pins
+- line guide hole in the front cone
+- any old dirt, weed bits, grit, or dried grease
 
     If there is crusty dirt, use a slightly damp cloth with mild soapy water, then dry it fully.
 
@@ -46,17 +46,17 @@ The pickup pins are the little metal pins that grab the line when you turn the h
     Press the button and turn the handle while watching them. They should retract and pop back out smoothly.
 
     If they are sticky:
-  - wipe around them with a Q-tip
-  - add one tiny drop of reel oil to the moving area
-  - work the button and handle several times
-  - wipe off excess oil
+    - wipe around them with a Q-tip
+    - add one tiny drop of reel oil to the moving area
+    - work the button and handle several times
+    - wipe off excess oil
 
     Do not flood the reel with oil.
 
 5. **Oil the center shaft**  
 Put one small drop of reel oil on the center shaft where the spool rides, then turn the handle a few times. Again, wipe excess. Too much oil attracts dirt.
 
-6. *$Oil the handle knobs**  
+6. **Oil the handle knobs**  
 If the handle feels squeaky or stiff, add a tiny drop of oil where the knobs spin. Work them back and forth.
 
 7. **Check the drag**  
