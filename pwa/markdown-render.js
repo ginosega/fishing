@@ -255,8 +255,14 @@ function startsTopLevelBlock(line) {
 function renderList(lists, options) {
   return lists.map(list => {
     const start = list.tag === 'ol' && list.start !== 1 ? ` start="${list.start}"` : '';
-    return `<${list.tag}${start}>${list.items.map(item => `<li>${renderMarkdown(item.lines.join('\n'), options)}</li>`).join('')}</${list.tag}>`;
+    return `<${list.tag}${start}>${list.items.map(item => `<li>${renderListItem(item, options)}</li>`).join('')}</${list.tag}>`;
   }).join('');
+}
+
+function renderListItem(item, options) {
+  const html = renderMarkdown(item.lines.join('\n'), options);
+  const loose = item.lines.some(line => !line.trim() || / {2,}$/.test(line));
+  return loose ? html : html.replace(/^<p>([\s\S]*?)<\/p>/, '$1');
 }
 
 function readTable(lines, index) {
