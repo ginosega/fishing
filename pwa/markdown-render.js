@@ -198,7 +198,7 @@ function readList(lines, index) {
           break;
         }
 
-        if (leadingIndent(lines[lookahead]) > baseIndent) {
+        if (leadingIndent(lines[lookahead]) >= marker.contentIndent) {
           item.lines.push('');
           cursor++;
           paragraphInterrupted = true;
@@ -209,10 +209,16 @@ function readList(lines, index) {
         return { lists:[list], endIndex:cursor - 1 };
       }
 
-      if (leadingIndent(raw) > baseIndent) {
+      const indent = leadingIndent(raw);
+      if (indent >= marker.contentIndent) {
         item.lines.push(raw);
         cursor++;
         continue;
+      }
+
+      if (indent > baseIndent) {
+        list.items.push(item);
+        return { lists:[list], endIndex:cursor - 1 };
       }
 
       if (!paragraphInterrupted && !startsTopLevelBlock(raw)) {
@@ -238,6 +244,7 @@ function listMarker(line) {
   const ordered = /^\d/.test(match[2]);
   return {
     indent,
+    contentIndent:indent + match[2].length + 1,
     tag:ordered ? 'ol' : 'ul',
     ordinal:ordered ? Number.parseInt(match[2], 10) : null,
     text:match[3]
