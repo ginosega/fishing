@@ -31,12 +31,12 @@ Unscrew the front cover/cone of the reel. On most push-button/spincast reels, th
 
 3. **Wipe everything clean**  
 Use a dry cloth, toothbrush, and Q-tips to clean:
-    - inside of the front cone
-    - spool face
-    - center shaft
-    - pickup pins
-    - line guide hole in the front cone
-    - any old dirt, weed bits, grit, or dried grease
+  - inside of the front cone
+  - spool face
+  - center shaft
+  - pickup pins
+  - line guide hole in the front cone
+  - any old dirt, weed bits, grit, or dried grease
 
     If there is crusty dirt, use a slightly damp cloth with mild soapy water, then dry it fully.
 
@@ -46,30 +46,30 @@ The pickup pins are the little metal pins that grab the line when you turn the h
     Press the button and turn the handle while watching them. They should retract and pop back out smoothly.
 
     If they are sticky:
-- wipe around them with a Q-tip
-- add one tiny drop of reel oil to the moving area
-- work the button and handle several times
-wipe off excess oil
+  - wipe around them with a Q-tip
+  - add one tiny drop of reel oil to the moving area
+  - work the button and handle several times
+  - wipe off excess oil
 
     Do not flood the reel with oil.
 
-**5. Oil the center shaft**
+5. **Oil the center shaft**  
 Put one small drop of reel oil on the center shaft where the spool rides, then turn the handle a few times. Again, wipe excess. Too much oil attracts dirt.
 
-**6. Oil the handle knobs*"
+6. *$Oil the handle knobs**  
 If the handle feels squeaky or stiff, add a tiny drop of oil where the knobs spin. Work them back and forth.
 
-**7. Check the drag**
+7. **Check the drag**  
 Tighten and loosen the drag knob to make sure it moves smoothly. Pull line off the spool after you restring it. The drag should slip smoothly, not jerk.
 
-If the drag is very sticky, that may require opening the reel farther, but for casual trout fishing, I would first clean, reline, and test it.
+    If the drag is very sticky, that may require opening the reel farther, but for casual trout fishing, I would first clean, reline, and test it.
 
-**8. Optional: open the side cover**
+8. **Optional: open the side cover**  
 Only do this if you are comfortable, and do it over a tray so parts do not disappear.
 
-If you open the gear side and see old dried grease, wipe away the excess and apply a very small amount of reel grease to the gear teeth. Do not pack the reel full of grease.
+    If you open the gear side and see old dried grease, wipe away the excess and apply a very small amount of reel grease to the gear teeth. Do not pack the reel full of grease.
 
-For this reel, I’d keep it simple unless it feels rough or makes grinding noises.
+    For this reel, I’d keep it simple unless it feels rough or makes grinding noises.
 
 ## Re-spool it correctly
 Use 6 lb mono.
