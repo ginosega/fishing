@@ -21,13 +21,13 @@ Spincast reels are simple, but old line, dried grease, and sticky pickup pins ca
 Avoid WD-40 as the main lubricant. It can clean/displace water, but it is not a good long-term reel oil.
 
 ### Step-by-step maintenance 
-1. **Remove the old line**. 
+1. **Remove the old line** 
 Cut off and discard all the old line. If it has been sitting for years, it will have memory, weak spots, and coils.
+
 Do this before cleaning so you can see the spool and pickup system clearly.
 
-**2. Remove the front cone**
-Unscrew the front cover/cone of the reel. On most push-button/spincast reels, the nose cone simply twists off.
-Inside you should see the spool, pickup pins, and center shaft.
+2. **Remove the front cone**. 
+Unscrew the front cover/cone of the reel. On most push-button/spincast reels, the nose cone simply twists off. Inside you should see the spool, pickup pins, and center shaft.
 
 **3. Wipe everything clean**
 Use a dry cloth, toothbrush, and Q-tips to clean:
