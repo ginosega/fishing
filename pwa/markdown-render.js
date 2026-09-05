@@ -180,6 +180,7 @@ function readList(lines, index) {
 
       if (sibling && sibling.indent === baseIndent) {
         if (sibling.tag === list.tag) break;
+        list.items.push(item);
         return { lists:[list], endIndex:cursor - 1 };
       }
 
