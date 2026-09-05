@@ -22,8 +22,7 @@ Avoid WD-40 as the main lubricant. It can clean/displace water, but it is not a 
 
 ### Step-by-step maintenance 
 1. Remove the old line
-
-Cut off and discard all the old line. If it has been sitting for years, it will have memory, weak spots, and coils.
+  Cut off and discard all the old line. If it has been sitting for years, it will have memory, weak spots, and coils.
 Do this before cleaning so you can see the spool and pickup system clearly.
 
 **2. Remove the front cone**
