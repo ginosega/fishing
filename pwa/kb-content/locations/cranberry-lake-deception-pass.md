@@ -1,19 +1,9 @@
-Context:
+# Notes 
 
-- Freshwater lake near the swimming/beach area in Deception Pass State Park.
-- Prior discussion identified likely targets as trout plus warmwater species such as bass/perch/bullhead, but this needs current verification.
+At Cranberry Lake in Deception Pass State Park, you’ll typically find rainbow trout, largemouth bass, yellow perch, and possibly  bullhead catfish.
 
-Tactics:
+In the morning and evening, try topwater lures or a weightless soft plastic like a wacky-rigged worm near lily pads or structure for bass. 
 
-- Shore/kayak trout: PowerBait, Kastmaster, Dick Nite, Panther Martin, Mepps, small Rapalas.
-- Bass/panfish: wacky Senko, small hard baits, worms/bobber around weeds/cover.
+During the day, troll small spinners or crankbaits from your kayak for trout. If you want to bottom-fish for perch or catfish, bring some worms or PowerBait. Keep one rod rigged for bass and one for trout. 
 
-## Before fishing
-
-For every trip, recheck:
-
-- Fish Washington regulations.
-- Emergency rules.
-- Park/dock signage.
-- Parking/launch restrictions.
-- Species-specific retention rules.
+If you have a fish finder, look for deeper sections for trout or perch, and hit those weed edges and docks for bass.
