@@ -26,10 +26,10 @@ Cut off and discard all the old line. If it has been sitting for years, it will 
 
     Do this before cleaning so you can see the spool and pickup system clearly.
 
-2. Remove the front cone  
+2. **Remove the front cone**  
 Unscrew the front cover/cone of the reel. On most push-button/spincast reels, the nose cone simply twists off. Inside you should see the spool, pickup pins, and center shaft.
 
-**3. Wipe everything clean**
+3. **Wipe everything clean**  
 Use a dry cloth, toothbrush, and Q-tips to clean:
 - inside of the front cone
 - spool face
@@ -38,20 +38,20 @@ Use a dry cloth, toothbrush, and Q-tips to clean:
 - line guide hole in the front cone
 - any old dirt, weed bits, grit, or dried grease
 
-If there is crusty dirt, use a slightly damp cloth with mild soapy water, then dry it fully.
+    If there is crusty dirt, use a slightly damp cloth with mild soapy water, then dry it fully.
 
-**4. Check the pickup pins**
+4. **Check the pickup pins**  
 The pickup pins are the little metal pins that grab the line when you turn the handle after casting.
 
-Press the button and turn the handle while watching them. They should retract and pop back out smoothly.
+    Press the button and turn the handle while watching them. They should retract and pop back out smoothly.
 
-If they are sticky:
+    If they are sticky:
 - wipe around them with a Q-tip
 - add one tiny drop of reel oil to the moving area
 - work the button and handle several times
 wipe off excess oil
 
-Do not flood the reel with oil.
+    Do not flood the reel with oil.
 
 **5. Oil the center shaft**
 Put one small drop of reel oil on the center shaft where the spool rides, then turn the handle a few times. Again, wipe excess. Too much oil attracts dirt.
