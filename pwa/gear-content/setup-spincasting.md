@@ -46,10 +46,10 @@ The pickup pins are the little metal pins that grab the line when you turn the h
     Press the button and turn the handle while watching them. They should retract and pop back out smoothly.
 
     If they are sticky:
-  - wipe around them with a Q-tip
-  - add one tiny drop of reel oil to the moving area
-  - work the button and handle several times
-  - wipe off excess oil
+   - wipe around them with a Q-tip
+   - add one tiny drop of reel oil to the moving area
+   - work the button and handle several times
+   - wipe off excess oil
 
     Do not flood the reel with oil.
 
