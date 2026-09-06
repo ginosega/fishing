@@ -7,13 +7,30 @@ const result = validateGearBundle(seed);
 assert.equal(result.valid, true, result.errors.join('\n'));
 assert.equal(seed.schemaVersion, GEAR_SCHEMA_VERSION);
 assert.equal(seed.schemaVersion, 3);
-assert.equal(seed.items.length, 63);
-assert.equal(seed.dataVersion, '2026-09-04-my-gear-v3-external-notes-1');
+assert.ok(seed.items.length >= 64, 'The accepted Gear baseline must remain present.');
+assert.equal(seed.dataVersion, '2026-09-06-my-gear-v3-bonafide-rvr119-1');
 assert.equal('profiles' in seed, false, 'Gear schema v3 must not contain profiles.');
 assert.equal(seed.items.some(item => item.category === 'knots'), false, 'Knots must not be part of My Gear.');
 for (const category of GEAR_CATEGORIES.filter(category => category !== 'accessories')) assert.ok(seed.items.some(item => item.category === category), `Missing category ${category}`);
 assert.ok(GEAR_CATEGORIES.includes('accessories'), 'Accessories must be an allowed My Gear category even before its first record is added.');
 assert.deepEqual(GEAR_ACCESSORY_TYPES, ['Kayaks','Tools','Tackle Management','Electronics','Storage','Miscellaneous']);
+const rvr119 = seed.items.find(item => item.id === 'bonafide-rvr119');
+assert.ok(rvr119, 'Owned Bonafide RVR119 must be in the seed.');
+assert.equal(rvr119.category, 'accessories');
+assert.equal(rvr119.type, 'Kayaks');
+assert.equal(rvr119.name, 'Bonafide RVR119');
+assert.deepEqual(rvr119.manufacturer, {name:'Bonafide',url:'https://bonafidefishing.com/products/rvr119'});
+assert.equal(rvr119.model, 'RVR119');
+assert.deepEqual(rvr119.specifications, [
+  {label:'S/N',value:'LPS00469H526'},
+  {label:'Length',value:'11\' 9"'},
+  {label:'Width',value:'35"'},
+  {label:'Weight',value:'85 lb'},
+  {label:'Capacity',value:'425 lb'},
+  {label:'Color',value:'Steel'}
+]);
+assert.deepEqual(rvr119.links, [{kind:'retailer',label:'Eco Fishing',url:'https://ecofishingshop.com/products/bonafide-rvr119-fishing-kayak?variant=41430925508742'}]);
+
 
 const accessoryWithoutOptionalMetadata = {
   schemaVersion:GEAR_SCHEMA_VERSION,
