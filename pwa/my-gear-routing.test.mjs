@@ -41,6 +41,47 @@ assert.match(gearApp, /const searchControl = search \? `<input class="search sec
 assert.match(gearApp, /section-title-actions">\$\{searchControl\}\$\{back \? `<button class="back-button"/,
   'Page header action area must render Search immediately before Back.');
 
+assert.match(gearApp, /accessories: \{ label:'Accessories', iconHtml:ACCESSORIES_ICON \}/,
+  'My Gear must expose the Accessories category card.');
+assert.match(gearApp, /fill="#76c8ef"[\s\S]*fill="#a9afb2"|fill="#a9afb2"[\s\S]*fill="#76c8ef"/,
+  'Accessories card must use the approved light-blue kayak and gray paddle SVG treatment.');
+assert.match(gearApp, /accessories:GEAR_ACCESSORY_TYPES/,
+  'Accessories Type options must come from the fixed chat-managed taxonomy.');
+assert.match(gearApp, /#\/inventory\/new/,
+  'My Gear root must expose the New Gear Item route.');
+assert.match(gearApp, /#\/inventory\/edit\//,
+  'Gear detail pages must expose the Edit Gear Item route.');
+assert.match(gearApp, /＋ Add Gear item/,
+  'My Gear root must provide the requested Add Gear item link.');
+assert.match(gearApp, />Edit Gear item<\/a>/,
+  'Gear leaf pages must provide an Edit Gear item link.');
+assert.match(gearApp, /name="gearPictureChoice"[\s\S]*value="yes"[\s\S]*value="no"/,
+  'Picture authoring must start with required Yes/No choices.');
+assert.match(gearApp, /name="gearNotesChoice"[\s\S]*value="yes"[\s\S]*value="no"/,
+  'Notes authoring must start with required Yes/No choices.');
+assert.match(gearApp, /id="previewNotes"[\s\S]*Preview/,
+  'Notes Yes flow must provide Markdown Preview.');
+assert.match(gearApp, /data-spec-label[\s\S]*data-spec-value[\s\S]*Add specification/,
+  'Specifications must be repeatable Label / Value rows.');
+assert.match(gearApp, /data-link-kind[\s\S]*data-link-label[\s\S]*data-link-url[\s\S]*Add link/,
+  'Links must be repeatable typed Link Text / URL rows.');
+assert.match(gearApp, /id="gearId"[\s\S]*readonly/,
+  'Stable Gear ID must be shown read-only in the authoring form.');
+assert.match(gearApp, /pwa\/assets\/gear-source\/\$\{filename\}/,
+  'Prepared picture additions must identify the repository upload path.');
+assert.match(gearApp, /pwa\/gear-content\/\$\{id\}\.md/,
+  'Prepared Notes changes must identify the stable-ID Markdown path.');
+assert.match(gearApp, /fishing-companion-gear-change-v1/,
+  'Add/Edit must generate a versioned handoff package.');
+assert.match(gearApp, /navigator\.clipboard\.writeText\(payload\)/,
+  'Prepared Gear changes must support one-click copying into chat.');
+assert.doesNotMatch(gearApp, /repo\.(?:merge|replace)\(/,
+  'The authoring UI must not create a divergent local Gear database; repository handoff remains authoritative.');
+assert.match(gearApp, /disallowed executable markup/,
+  'Plain structured fields must reject executable markup.');
+assert.match(gearApp, /\['http:','https:'\]\.includes\(new URL\(value\)\.protocol\)/,
+  'Entered URLs must be restricted to http(s).');
+
 assert.match(gearApp, /\.\/gear-notes-assets\.json/,
   'My Gear must load the generated external Notes asset manifest.');
 assert.match(gearApp, /`\.\/gear-content\/\$\{item\.id\}\.md`/,
@@ -79,6 +120,10 @@ for (const [mediaId, assetName] of [
     `${mediaId} repository source image must exist.`);
 }
 
+assert.match(index, /\.category-card-icon svg/,
+  'App shell must include responsive styling for the Accessories kayak SVG.');
+assert.match(index, /\.gear-editor/,
+  'App shell must include Gear authoring form styles.');
 const gearIndex = index.indexOf('./gear-app.js');
 const kbIndex = index.indexOf('./kb-app.js');
 assert.ok(gearIndex >= 0 && kbIndex > gearIndex,
@@ -88,4 +133,4 @@ assert.equal(index.includes('<script src="./app.js"'), false,
 assert.equal(index.includes('legacy-app-loader.js'), false,
   'The retired legacy route loader must not load.');
 
-console.log('My Gear routing/layout/media/external-Notes regression tests passed.');
+console.log('My Gear routing/layout/media/external-Notes/add-edit authoring regression tests passed.');
