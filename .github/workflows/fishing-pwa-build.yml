@@ -151,7 +151,7 @@ jobs:
           grep -q 'largemouth-bass.png' pwa/dist/data/kb.seed.json
           grep -q 'booyah-pad-crasher.jpg' pwa/dist/data/kb.seed.json
           ! grep -q 'kokanee-phases.webp' pwa/dist/data/kb.seed.json
-          grep -q '2026-09-04-my-gear-v3-external-notes-1' pwa/dist/data/gear.seed.json
+          grep -q '2026-09-06-my-gear-v3-bonafide-rvr119-1' pwa/dist/data/gear.seed.json
           grep -q '2026-09-04-kb-v1-final-content-1' pwa/dist/data/kb.seed.json
           grep -q '2026-09-04-catches-v2-external-notes-1' pwa/dist/data/catches.seed.json
           ! grep -q '"notes":' pwa/dist/data/gear.seed.json
