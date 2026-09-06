@@ -1,6 +1,6 @@
 # Fishing TODO
 
-_Last updated: 2026-09-04_
+_Last updated: 2026-09-06_
 
 This file is the canonical backlog for unresolved Fishing-project verification items, research tasks, equipment questions, technique work, and owner follow-ups.
 
@@ -58,7 +58,6 @@ The application has three durable data domains: My Gear uses structured JSON/Ind
 | FISH-TODO-034 | P3 | OPEN | Markdown usability | Spot-check inline links in GitHub Preview and PWA. | Applies especially to newly expanded authored documents under `pwa/kb-content/`. |
 | FISH-TODO-037 | P3 | DEFERRED | PWA / multi-user product | Generalize Fishing Companion for multiple users. | Current app remains intentionally single-user/personal. Revisit only after the personal version is mature. |
 | FISH-TODO-039 | P2 | OPEN | PWA / Catch Log | Record rod/reel setup on new catches when known. | Existing historical catches remain null where setup attribution was not recorded and must not be invented. |
-| FISH-TODO-045 | P2 | DEFERRED | PWA / My Gear editing | Add normal Add/Edit/Delete forms and expose validated JSON import/export when editing work resumes against the current schema. | Current UI remains browse-only. Future bulk-edit preference is Export JSON → edit externally → Import JSON; no raw JSON editor. External Markdown Notes remain a separate authored-content surface. |
 
 ---
 
@@ -77,6 +76,7 @@ The application has three durable data domains: My Gear uses structured JSON/Ind
 | FISH-TODO-042 | 2026-09-01 | PWA / Line content | Braided-line resources presented as normal user-facing resources rather than OneNote-framed prose. |
 | FISH-TODO-043 | 2026-09-01 | PWA / Knot content | Trilene reverse link to Snaps & Swivels removed and video link normalized. |
 | FISH-TODO-044 | 2026-09-01 | Tackle / PWA data | Cylinder weights corrected to manufacturer THKFISH, model `28 pcs sinkers set`. |
+| FISH-TODO-045 | 2026-09-06 | PWA / My Gear editing | PR #42 replaced the prior browse-only/deferred-editing state with validated Add/Edit authoring forms that generate a copyable `fishing-companion-gear-change-v1` handoff package rather than mutating a divergent local database. Categories/Types remain chat-managed; stable Gear IDs are read-only; Picture/Notes Yes/No flows support adding/removing external media/Markdown; Rods & Reels retain a limited paired-setup edit path. PR #42 exact head `81617e4dcaae92e67444a6a2fd51f6d96ba78b7d` passed PR CI #227 / `34062145243`; merge `ab27f2ff312cc181693aa86c4219b26b6977a274`; production #228 / `34062190429` passed build, tests, bundle verification, Pages artifact upload, and actual GitHub Pages deployment. |
 | FISH-TODO-048 | 2026-09-01 | PWA / My Gear routing | Sev 1 post-refactor routing/layout regression fixed in PR #10; structured My Gear owns all `#/inventory` routes and regression tests guard the boundary. |
 | FISH-TODO-035 | 2026-09-02 | Fishing Companion PWA | User accepted the complete post-PR #10 My Gear browse flow as working correctly. |
 | FISH-TODO-046 | 2026-09-02 | PWA / Knowledge Base architecture | Adopted and implemented unified indexed-Markdown KB entity architecture with stable IDs; later extended with flat Equipment peer type while preserving the same envelope. |
