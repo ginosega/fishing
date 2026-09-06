@@ -8,13 +8,13 @@ This repository is the durable working home for the Fishing project: fishing and
 
 ## Project status
 
-**Status: NORMAL PROJECT MAINTENANCE / PRODUCTION HEALTHY / PR #39 AUTHORED-NOTES UNIFICATION DEPLOYED / PR #28 CONTENT ACCEPTANCE CLOSED**
+**Status: NORMAL PROJECT MAINTENANCE / PRODUCTION HEALTHY / PR #42 MY GEAR AUTHORING/HANDOFF DEPLOYED / PR #39 AUTHORED-NOTES UNIFICATION DEPLOYED / PR #28 CONTENT ACCEPTANCE CLOSED**
 
 The OneNote migration and hyperlink restoration were completed on 2026-08-29. OneNote was designated the most up-to-date historical source of truth for migration closure; historical Fishing chats remain supplemental evidence and decision history. Temporary migration audit/reconciliation files were removed after closure.
 
 Fishing Companion has three durable application-data domains with shared architectural principles but deliberately different storage models:
 
-1. **My Gear** — structured owned facts in JSON + IndexedDB, with optional authored Notes stored separately as stable-ID Markdown files.
+1. **My Gear** — structured owned facts in JSON + IndexedDB, with optional authored Notes stored separately as stable-ID Markdown files; browser Add/Edit forms validate and prepare repository-handoff packages.
 2. **Knowledge Base** — a strict structured entity index over complete authored Markdown documents.
 3. **Catch Log** — separate structured historical facts/relationships, with optional authored Notes stored separately as stable-ID Markdown files.
 
@@ -29,7 +29,7 @@ Runtime/source owners:
 - `pwa/data/gear.seed.json` — bundled baseline / portable representation
 - `pwa/gear-model.js` — strict schema-v3 validation and display helpers
 - `pwa/gear-store.js` — IndexedDB repository and seed migration
-- `pwa/gear-app.js` — all `#/inventory/...` routes
+- `pwa/gear-app.js` — all `#/inventory/...` routes, including Add/Edit authoring/handoff
 - `pwa/gear-content/` — optional authored Notes keyed deterministically by Gear stable ID
 - `pwa/apply-authored-notes.mjs` — validates/materializes Gear + Catch authored Notes and generates offline manifests
 - `pwa/media-owners.json`, `pwa/media-sources.json`, `pwa/local-media.json` — exact stable-ID media ownership/source configuration
@@ -39,11 +39,17 @@ Current seed:
 
 - schema version `3`
 - data version `2026-09-04-my-gear-v3-external-notes-1`
-- **63 records** across Rods & Reels, Line, Weights, Snaps & Swivels, Hooks, Lures, and Bait
+- **63 current records**
+- allowed categories: Rods & Reels, Line, Weights, Snaps & Swivels, Hooks, Lures, Bait, **Accessories**
+- Accessories Types: Kayaks, Tools, Tackle Management, Electronics, Storage, Miscellaneous
 
-Manufacturer, model, specifications, and typed links are structured facts. Narrative is not stored in Gear JSON: optional Notes live at `pwa/gear-content/<gear-id>.md`, keyed by stable Gear ID and validated/materialized by `pwa/apply-authored-notes.mjs`. Do not reintroduce inline `notes`, `profiles`, structured usage/connection guidance, `knowledgeRefs`, setup `mainLine`/`leader`, or inference from display text/Markdown.
+Manufacturer, model, specifications, and typed links are structured facts when present. For ordinary non-setup product records these fields may be omitted when they are genuinely unknown/not applicable. Narrative is not stored in Gear JSON: optional Notes live at `pwa/gear-content/<gear-id>.md`, keyed by stable Gear ID and validated/materialized by `pwa/apply-authored-notes.mjs`. Do not reintroduce inline `notes`, `profiles`, structured usage/connection guidance, `knowledgeRefs`, setup `mainLine`/`leader`, or inference from display text/Markdown.
 
 **Knots are not My Gear records.** They are Knowledge Base entities.
+
+PR #42 added a user-facing authoring workflow without changing GitHub's role as durable authority. `#/inventory/new` and `#/inventory/edit/<stable-id>` validate structured form input, preview Notes Markdown, detect existing Picture/Notes state, and generate a copyable `fishing-companion-gear-change-v1` package. The browser does **not** persist these changes to GitHub or create a divergent local Gear database. The package is pasted into Fishing chat for reconciliation/promotion into the repository. Existing Gear IDs are immutable/read-only. Category/Type taxonomy remains chat-managed rather than form-administered.
+
+Picture additions/replacements identify `pwa/assets/gear-source/<filename>` for direct user binary upload; Notes additions/updates identify `pwa/gear-content/<gear-id>.md`. Rods & Reels retain a paired-component schema, so their form is intentionally limited and new setup/component/media changes remain chat-managed.
 
 The current user-facing lure type labels are **Soft plastics and swimbaits**, **Topwater**, and **Trolling**. The existing seed value `Trolling lures` remains stored internally and is mapped to the display label `Trolling` in `pwa/gear-app.js`; this wording-only change intentionally did not force an IndexedDB seed migration.
 
@@ -71,7 +77,7 @@ Equipment and Technique article files currently share `pwa/kb-content/techniques
 
 Authored navigation may use `gear://stable-id` or `kb://stable-id`; these links are navigation, not a maintained relationship graph. The links may live under `# Links`, `## Related`, or another sensible Markdown section; stable target identity matters, not the heading label.
 
-Markdown indentation is meaningful for lists. Fishing Companion must preserve nested unordered/ordered list structure rather than flattening indented sub-items.
+Markdown indentation and loose-list continuation structure are meaningful. Fishing Companion must preserve nested unordered/ordered lists and continuation paragraphs within a numbered list item rather than flattening or restarting valid lists.
 
 ### Catch Log
 
@@ -89,24 +95,24 @@ Markdown indentation is meaningful for lists. Fishing Companion must preserve ne
 
 Live site: `https://ginosega.github.io/fishing/`
 
-Current product scope is **single-user, personal, offline-capable, and browse-focused**. Access control/multi-user generalization remains deferred unless explicitly elevated.
+Current product scope is **single-user, personal, offline-capable, browse-focused with validated Gear authoring/handoff**. Access control/multi-user generalization remains deferred unless explicitly elevated.
 
 ### Latest verified runtime release
 
-**PR #39 — Unify authored Gear and Catch Notes as Markdown**
+**PR #42 — Add My Gear item authoring and edit handoff**
 
-- exact tested PR head: `77ec40db223b275366a73091974ecd4d421a2c90`
-- PR CI: **#196 / 33907218850** — success
-- merge commit: `e997492b995f7e7cb8fa4af21ef1f2953df63a78`
-- production workflow: **#197 / 33907284576** — success
+- exact tested PR head: `81617e4dcaae92e67444a6a2fd51f6d96ba78b7d`
+- PR CI: **#227 / 34062145243** — success
+- merge commit: `ab27f2ff312cc181693aa86c4219b26b6977a274`
+- production workflow: **#228 / 34062190429** — success
 - all structured-model/routing/Markdown/final-content tests: success
-- PWA build + unified authored-Notes validation + transformed/local-media validation: success
-- bundle verification and GitHub Pages artifact upload: success
+- PWA build + authored-Notes/local-media validation + bundle verification: success
+- GitHub Pages artifact upload: success
 - **Deploy to GitHub Pages: success**
 
-PR #39 completed the authored-content architecture cleanup begun in PR #38: My Gear schema v3 contains only structured owned facts while optional Notes live in `pwa/gear-content/<gear-id>.md`; Catch Log schema v2 contains only structured catch facts/relationships while optional Notes live in `pwa/catch-content/<catch-id>.md`. The five existing user-authored Exact Spot Notes were preserved verbatim as Catch Markdown. The prior generated Catch Notes and Provenance/source card were retired, so Catch leaves now render one optional Markdown-backed **Notes** card. Gear and Catch Notes use the same renderer, stable-ID navigation conventions, build validation, asset-manifest pattern, and offline caching.
+PR #42 introduced **Accessories** as the eighth allowed My Gear category, with the user-approved light-blue kayak/gray-paddle icon and fixed Types Kayaks, Tools, Tackle Management, Electronics, Storage, and Miscellaneous. It added safe New/Edit Gear forms with stable read-only IDs, optional metadata, repeatable Specifications/Links, Picture and Notes Yes/No flows, Markdown Preview, removal confirmation, security/schema validation, and a copyable versioned handoff package while preserving GitHub as the durable source of truth.
 
-PR #36 remains the prior UX-polish release for the **Trolling** display alias, square non-cropping thumbnails, and root-search replacement behavior.
+PR #41 fixed the loose ordered-list continuation-paragraph renderer behavior. PR #39 remains the authored Gear/Catch Notes architecture release; PR #36 remains the UX-polish release for the **Trolling** display alias, square non-cropping thumbnails, and root-search replacement behavior.
 
 ### Latest verified authored-content baseline before PR #36
 
@@ -116,7 +122,7 @@ The earlier night-end content audit checkpoint was `955d37bf675f3163fe610324809a
 
 ### Stabilization/recovery history
 
-PR #25 catch/media polish → PR #26 local-media hardening → PR #27 Recovery B → PR #28 final content/image batch → PR #29 reconciliation → PR #30 transformed-picture validation hotfix → PR #31 reconciliation → PR #32 final content acceptance → PR #33 reconciliation → PR #34 nested-list renderer fix → PR #35 night-end reconciliation → PR #36 UX polish → PR #38 external Gear Notes → PR #39 Gear/Catch authored-Notes unification.
+PR #25 catch/media polish → PR #26 local-media hardening → PR #27 Recovery B → PR #28 final content/image batch → PR #29 reconciliation → PR #30 transformed-picture validation hotfix → PR #31 reconciliation → PR #32 final content acceptance → PR #33 reconciliation → PR #34 nested-list renderer fix → PR #35 night-end reconciliation → PR #36 UX polish → PR #38 external Gear Notes → PR #39 Gear/Catch authored-Notes unification → PR #41 loose-list renderer fix → PR #42 My Gear authoring/handoff.
 
 The interrupted-chat recovery and PR #28 acceptance sequences are closed. No hidden/unmerged post-PR #29 application build was found.
 
@@ -127,11 +133,12 @@ The interrupted-chat recovery and PR #28 acceptance sequences are closed. No hid
 - Browse-list Search appears at **10 or more entries**; smaller lists omit it.
 - When a page has both Search and a dropdown/filter, the filter control is right-aligned.
 - Line is intentionally a flat list; Rods & Reels retains setup grouping.
-- My Gear remains browse-only: no Add/Edit/Delete forms and no visible JSON import/export UI.
+- My Gear includes **Accessories** and provides root **Add Gear item** plus per-leaf **Edit Gear item** authoring/handoff forms; no visible raw JSON editor is exposed.
+- The Gear form validates and prepares changes but does not itself persist them to the durable repository/local source of truth.
 - Gear leaf pages use structured product facts plus optional external Markdown **Notes**.
 - KB representative pictures may link to a specific owned Gear record by explicit stable ID.
 - Authored KB/Gear stable-ID links are heading-independent.
-- Nested Markdown lists are indentation-sensitive and must remain nested in the PWA.
+- Nested/loose Markdown lists are structure-sensitive and must remain valid in the PWA.
 - Gear, KB, and Catch card thumbnails use square white frames with `object-fit: contain`; full source imagery must remain visible, with white letterboxing where aspect ratios do not fill the square.
 
 Current user-facing lure type labels include **Soft plastics and swimbaits**, **Topwater**, and **Trolling**.
@@ -149,9 +156,11 @@ The repeated 2026-09-03 image failures were isolated to transporting binary imag
 
 Repository-local images are validated by `pwa/apply-local-media.mjs` for supported format/extension/structure before entering the production bundle. The same step also validates the transformed KB bundle after media substitutions.
 
-## Deferred My Gear editing features
+## My Gear authoring / handoff
 
-The My Gear repository/IndexedDB architecture is writable, but editing UI is intentionally deferred. When resumed, normal forms are the everyday Add/Edit/Delete path; validated JSON export/import may be a backup/bulk-edit path; do not add an in-app raw JSON editor.
+The user-facing Add/Edit workflow is intentionally **authoring, validation, and handoff**, not direct durable persistence. A generated `fishing-companion-gear-change-v1` package must be pasted into chat and reconciled against current `main` before repository promotion/deployment.
+
+Categories and Types remain chat-managed. Existing stable IDs do not change. Picture and Notes Yes/No flows support additions to records that previously had neither, as well as explicit keep/replace/remove requests. Notes remain external Markdown; user-supplied image binaries remain direct-GitHub uploads.
 
 ## Start here in a new chat
 
@@ -199,4 +208,4 @@ For requirements with substantial architecture, deployment, maintenance, perform
 
 ## Historical night-end audit checkpoint — 2026-09-04
 
-The night-end audit established **63 My Gear records, 54 KB entities, and 5 catches**; PR #28 content acceptance closed; PR #30 production recovery closed; PR #34 nested-list rendering fixed and user-confirmed; and no hidden unmerged feature work. Its final pre-reconciliation production checkpoint was `955d37bf675f3163fe610324809a972916c98ef0`, run **#166 / 33851195203**. That checkpoint is historical; current production is PR #36 merge `15c5ac6f8f3d37ad8b884436c6312083b1939921` / run **#177 / 33893200789**.
+The night-end audit established **63 My Gear records, 54 KB entities, and 5 catches**; PR #28 content acceptance closed; PR #30 production recovery closed; PR #34 nested-list rendering fixed and user-confirmed; and no hidden unmerged feature work. Its final pre-reconciliation production checkpoint was `955d37bf675f3163fe610324809a972916c98ef0`, run **#166 / 33851195203**. That checkpoint is historical; current production is PR #42 merge `ab27f2ff312cc181693aa86c4219b26b6977a274` / run **#228 / 34062190429**.
