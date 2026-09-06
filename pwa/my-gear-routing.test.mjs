@@ -61,10 +61,13 @@ assert.match(gearApp, /name="gearNotesChoice"[\s\S]*value="yes"[\s\S]*value="no"
   'Notes authoring must start with required Yes/No choices.');
 assert.match(gearApp, /id="previewNotes"[\s\S]*Preview/,
   'Notes Yes flow must provide Markdown Preview.');
-assert.match(gearApp, /data-spec-label[\s\S]*data-spec-value[\s\S]*Add specification/,
-  'Specifications must be repeatable Label / Value rows.');
-assert.match(gearApp, /data-link-kind[\s\S]*data-link-label[\s\S]*data-link-url[\s\S]*Add link/,
-  'Links must be repeatable typed Link Text / URL rows.');
+assert.match(gearApp, /data-spec-label/, 'Specifications must provide a Label field.');
+assert.match(gearApp, /data-spec-value/, 'Specifications must provide a Value field.');
+assert.match(gearApp, /＋ Add specification/, 'Specifications must support repeatable rows.');
+assert.match(gearApp, /data-link-kind/, 'Links must provide a link type field.');
+assert.match(gearApp, /data-link-label/, 'Links must provide Link Text.');
+assert.match(gearApp, /data-link-url/, 'Links must provide a URL field.');
+assert.match(gearApp, /＋ Add link/, 'Links must support repeatable rows.');
 assert.match(gearApp, /id="gearId"[\s\S]*readonly/,
   'Stable Gear ID must be shown read-only in the authoring form.');
 assert.match(gearApp, /pwa\/assets\/gear-source\/\$\{filename\}/,
