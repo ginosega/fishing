@@ -1,5 +1,6 @@
 export const GEAR_SCHEMA_VERSION = 3;
-export const GEAR_CATEGORIES = ['rods-reels','line','weights','snaps-swivels','hooks','lures','bait'];
+export const GEAR_CATEGORIES = ['rods-reels','line','weights','snaps-swivels','hooks','lures','bait','accessories'];
+export const GEAR_ACCESSORY_TYPES = ['Kayaks','Tools','Tackle Management','Electronics','Storage','Miscellaneous'];
 
 const ROOT_FIELDS = ['schemaVersion','dataVersion','items'];
 const PRODUCT_FIELDS = ['id','category','type','name','manufacturer','model','specifications','links'];
@@ -30,12 +31,11 @@ export function validateGearBundle(bundle) {
       validateComponent(item.rod, `${at}.rod`, errors);
       validateComponent(item.reel, `${at}.reel`, errors);
     } else {
-      validateManufacturer(item.manufacturer, `${at}.manufacturer`, errors);
-      if (!isText(item.model)) errors.push(`${at}.model is required.`);
-      validateSpecifications(item.specifications, `${at}.specifications`, errors, true);
-      validateLinks(item.links, `${at}.links`, errors, true);
+      validateManufacturer(item.manufacturer, `${at}.manufacturer`, errors, false);
+      if (item.model != null && !isText(item.model)) errors.push(`${at}.model must be text when present.`);
+      validateSpecifications(item.specifications, `${at}.specifications`, errors, false);
+      validateLinks(item.links, `${at}.links`, errors, false);
     }
-
   }
   return { valid: errors.length === 0, errors };
 }
@@ -76,23 +76,25 @@ function validateIdentity(item, at, ids, errors) {
   else ids.add(item.id);
   if (!GEAR_CATEGORIES.includes(item.category)) errors.push(`${at}.category must be one of ${GEAR_CATEGORIES.join(', ')}.`);
   if (!isText(item.type)) errors.push(`${at}.type is required.`);
+  if (item.category === 'accessories' && !GEAR_ACCESSORY_TYPES.includes(item.type)) errors.push(`${at}.type must be one of ${GEAR_ACCESSORY_TYPES.join(', ')} for Accessories.`);
   if (!isText(item.name)) errors.push(`${at}.name is required.`);
 }
 
 function validateComponent(component, at, errors) {
   if (!isObject(component)) { errors.push(`${at} is required.`); return; }
   validateExactFields(component, COMPONENT_FIELDS, at, errors);
-  validateManufacturer(component.manufacturer, `${at}.manufacturer`, errors);
+  validateManufacturer(component.manufacturer, `${at}.manufacturer`, errors, true);
   if (!isText(component.model)) errors.push(`${at}.model is required.`);
   validateSpecifications(component.specifications, `${at}.specifications`, errors, true);
   validateLinks(component.links, `${at}.links`, errors, true);
 }
 
-function validateManufacturer(manufacturer, at, errors) {
-  if (!isObject(manufacturer)) { errors.push(`${at} is required.`); return; }
+function validateManufacturer(manufacturer, at, errors, required=false) {
+  if (manufacturer == null) { if (required) errors.push(`${at} is required.`); return; }
+  if (!isObject(manufacturer)) { errors.push(`${at} must be an object.`); return; }
   validateExactFields(manufacturer, MANUFACTURER_FIELDS, at, errors);
   if (!isText(manufacturer.name)) errors.push(`${at}.name is required.`);
-  validateUrl(manufacturer.url, `${at}.url`, errors);
+  if (manufacturer.url != null) validateUrl(manufacturer.url, `${at}.url`, errors);
 }
 
 function validateSpecifications(specs, at, errors, required=false) {
@@ -119,7 +121,6 @@ function validateLinks(links, at, errors, required=false) {
     validateUrl(link.url, `${row}.url`, errors, true);
   });
 }
-
 
 function validateExactFields(value, allowed, at, errors) {
   if (!isObject(value)) return;

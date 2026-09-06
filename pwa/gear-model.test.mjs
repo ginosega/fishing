@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import assert from 'node:assert/strict';
-import { validateGearBundle, GEAR_CATEGORIES, GEAR_SCHEMA_VERSION, gearLinks } from './gear-model.js';
+import { validateGearBundle, GEAR_CATEGORIES, GEAR_ACCESSORY_TYPES, GEAR_SCHEMA_VERSION, gearLinks } from './gear-model.js';
 
 const seed = JSON.parse(await fs.readFile(new URL('./data/gear.seed.json', import.meta.url), 'utf8'));
 const result = validateGearBundle(seed);
@@ -11,7 +11,21 @@ assert.equal(seed.items.length, 63);
 assert.equal(seed.dataVersion, '2026-09-04-my-gear-v3-external-notes-1');
 assert.equal('profiles' in seed, false, 'Gear schema v3 must not contain profiles.');
 assert.equal(seed.items.some(item => item.category === 'knots'), false, 'Knots must not be part of My Gear.');
-for (const category of GEAR_CATEGORIES) assert.ok(seed.items.some(item => item.category === category), `Missing category ${category}`);
+for (const category of GEAR_CATEGORIES.filter(category => category !== 'accessories')) assert.ok(seed.items.some(item => item.category === category), `Missing category ${category}`);
+assert.ok(GEAR_CATEGORIES.includes('accessories'), 'Accessories must be an allowed My Gear category even before its first record is added.');
+assert.deepEqual(GEAR_ACCESSORY_TYPES, ['Kayaks','Tools','Tackle Management','Electronics','Storage','Miscellaneous']);
+
+const accessoryWithoutOptionalMetadata = {
+  schemaVersion:GEAR_SCHEMA_VERSION,
+  dataVersion:'test-accessories',
+  items:[{ id:'test-kayak', category:'accessories', type:'Kayaks', name:'Test Kayak' }]
+};
+assert.equal(validateGearBundle(accessoryWithoutOptionalMetadata).valid, true,
+  'Ordinary Gear products must allow Manufacturer, Model, Specifications, and Links to be omitted.');
+const invalidAccessoryType = structuredClone(accessoryWithoutOptionalMetadata);
+invalidAccessoryType.items[0].type = 'Boats';
+assert.equal(validateGearBundle(invalidAccessoryType).valid, false,
+  'Accessories must use one of the fixed chat-managed accessory Types.');
 
 const legacyFields = ['notes','usage','connections','usageProfileId','connectionProfileId','mainLine','leader','configuration','knowledgeRefs','aliases'];
 for (const item of seed.items) {
@@ -126,4 +140,4 @@ for (const mediaId of ['south-bend-classic-dressed-spinners','south-bend-removab
 }
 assert.equal(localMedia.staged.length, 0, 'Recovery B South Bend images must no longer be staged-only.');
 
-console.log(`Structured My Gear v3 seed validated: ${seed.items.length} records across ${GEAR_CATEGORIES.length} categories; authored Notes externalized.`);
+console.log(`Structured My Gear v3 seed validated: ${seed.items.length} records across ${GEAR_CATEGORIES.length} allowed categories; authored Notes externalized.`);
