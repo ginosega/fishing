@@ -7,6 +7,14 @@ const kb = readJson('./data/kb.seed.json');
 const catches = readJson('./data/catches.seed.json');
 const local = readJson('./local-media.json');
 const mediaSources = readJson('./media-sources.json');
+const rvr119MediaId = 'bonafide-rvr119';
+const rvr119Media = local.gear.find(record => record.mediaId === rvr119MediaId);
+assert.equal(rvr119Media?.source, './assets/gear-source/bonafide-rvr119.png');
+assert.ok(mediaSources.items.some(record => record.id === rvr119MediaId));
+const rvr119Owners = readJson('./media-owners.json').items.find(record => record.mediaId === rvr119MediaId);
+assert.deepEqual(rvr119Owners?.owners, [{gearItemId:rvr119MediaId}]);
+assert.ok(fs.statSync(new URL(rvr119Media.source, import.meta.url)).size > 0);
+
 const styles = fs.readFileSync(new URL('./styles.css', import.meta.url), 'utf8');
 const applyMedia = fs.readFileSync(new URL('./apply-local-media.mjs', import.meta.url), 'utf8');
 const applyAuthoredNotes = fs.readFileSync(new URL('./apply-authored-notes.mjs', import.meta.url), 'utf8');
@@ -21,7 +29,7 @@ const catchNotes = record => {
 };
 
 assert.equal(gear.schemaVersion, 3);
-assert.equal(gear.dataVersion, '2026-09-04-my-gear-v3-external-notes-1');
+assert.equal(gear.dataVersion, '2026-09-06-my-gear-v3-bonafide-rvr119-1');
 assert.equal(kb.dataVersion, '2026-09-04-kb-v1-final-content-1');
 assert.equal(catches.schemaVersion, 2);
 assert.equal(catches.dataVersion, '2026-09-04-catches-v2-external-notes-1');
@@ -35,7 +43,8 @@ for (const filename of externalNoteFiles) {
   const id = filename.replace(/\.md$/i, '');
   assert.ok(gear.items.some(item => item.id === id), `${filename} must map to a current Gear stable ID.`);
 }
-assert.equal(externalNoteFiles.length, 41, 'Expected all 41 authored Gear Notes to remain externalized.');
+assert.ok(externalNoteFiles.length >= 41, 'The original 41 authored Gear Notes must remain externalized.');
+assert.equal(gearNotes(gear.items.find(item => item.id === 'bonafide-rvr119')), '# Accessories\n- Bow hatch\n  - Tool bag: Phillips screwdriver, 7/16 box wrench for seat nuts, hex wrench for studs\n  - How to tie this off?\n'.replaceAll('\\n','\n'));
 const catchNoteFiles = fs.readdirSync(new URL('./catch-content/', import.meta.url)).filter(name => name.endsWith('.md'));
 assert.equal(catchNoteFiles.length, 5, 'Expected the five authored Catch Exact Spot Notes to be externalized.');
 for (const filename of catchNoteFiles) {

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 3,
-  "dataVersion": "2026-09-04-my-gear-v3-external-notes-1",
+  "dataVersion": "2026-09-06-my-gear-v3-bonafide-rvr119-1",
   "items": [
     {
       "id": "setup-spinning",
@@ -1764,6 +1764,50 @@
         }
       ],
       "links": []
+    },
+    {
+      "id": "bonafide-rvr119",
+      "category": "accessories",
+      "type": "Kayaks",
+      "name": "Bonafide RVR119",
+      "manufacturer": {
+        "name": "Bonafide",
+        "url": "https://bonafidefishing.com/products/rvr119"
+      },
+      "model": "RVR119",
+      "specifications": [
+        {
+          "label": "S/N",
+          "value": "LPS00469H526"
+        },
+        {
+          "label": "Length",
+          "value": "11' 9\""
+        },
+        {
+          "label": "Width",
+          "value": "35\""
+        },
+        {
+          "label": "Weight",
+          "value": "85 lb"
+        },
+        {
+          "label": "Capacity",
+          "value": "425 lb"
+        },
+        {
+          "label": "Color",
+          "value": "Steel"
+        }
+      ],
+      "links": [
+        {
+          "kind": "retailer",
+          "label": "Eco Fishing",
+          "url": "https://ecofishingshop.com/products/bonafide-rvr119-fishing-kayak?variant=41430925508742"
+        }
+      ]
     }
   ]
 }
