@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { validateGearBundle } from './gear-model.js';
 import { validateKbBundle, validateCatchBundle } from './kb-model.js';
+import { versionRuntime } from './version-runtime.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, '..');
@@ -113,6 +114,9 @@ await fs.writeFile(path.join(out, 'build.json'), JSON.stringify({
   requestedGearImages: mediaItems.length,
   videoTitles: Object.keys(videoTitles).length
 }, null, 2));
+
+await import('./runtime-versioning.test.mjs');
+await versionRuntime(out, buildVersion);
 
 const missingMedia = mediaItems.filter(item => !successfulMedia.some(result => result.id === item.id));
 console.log(`Fishing Companion built at ${out}`);
