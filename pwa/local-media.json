@@ -54,6 +54,13 @@
           "gearItemId": "south-bend-hook-assortment"
         }
       ]
+    },
+    {
+      "mediaId": "bonafide-rvr119",
+      "source": "./assets/gear-source/bonafide-rvr119.png",
+      "alt": "Bonafide RVR119 fishing kayak in Steel",
+      "destination": "https://bonafidefishing.com/products/rvr119",
+      "sourcePage": ""
     }
   ],
   "kb": [

@@ -7,6 +7,14 @@ const kb = readJson('./data/kb.seed.json');
 const catches = readJson('./data/catches.seed.json');
 const local = readJson('./local-media.json');
 const mediaSources = readJson('./media-sources.json');
+const rvr119MediaId = 'bonafide-rvr119';
+const rvr119Media = local.gear.find(record => record.mediaId === rvr119MediaId);
+assert.equal(rvr119Media?.source, './assets/gear-source/bonafide-rvr119.png');
+assert.ok(mediaSources.items.some(record => record.id === rvr119MediaId));
+const rvr119Owners = readJson('./media-owners.json').items.find(record => record.mediaId === rvr119MediaId);
+assert.deepEqual(rvr119Owners?.owners, [{gearItemId:rvr119MediaId}]);
+assert.ok(fs.statSync(new URL(rvr119Media.source, import.meta.url)).size > 0);
+
 const styles = fs.readFileSync(new URL('./styles.css', import.meta.url), 'utf8');
 const applyMedia = fs.readFileSync(new URL('./apply-local-media.mjs', import.meta.url), 'utf8');
 const applyAuthoredNotes = fs.readFileSync(new URL('./apply-authored-notes.mjs', import.meta.url), 'utf8');
