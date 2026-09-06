@@ -1,6 +1,10 @@
 name: Fishing cache hotfix integration
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - fix/gear-module-cache-regression
+    paths:
+      - '.github/workflows/fishing-cache-hotfix-apply.yml'
 permissions:
   contents: write
 jobs:
