@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { validateKbBundle } from './kb-model.js';
+import { materializeKbEntity, validateKbMediaBundle } from './kb-picture-model.js';
 import { readValidatedImage, imageExtension } from './image-validation.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -50,6 +51,9 @@ for (const item of config.gear) {
   });
 }
 
+const kbMediaValidation = validateKbMediaBundle({version:1,kb:config.kb},kbSeed,gearSeed,[...byMediaId.values()]);
+if (!kbMediaValidation.valid) throw new Error(kbMediaValidation.errors.join('\n'));
+
 for (const item of config.kb) {
   if (!item.entityId) throw new Error('Local KB media entry is missing entityId.');
   const entity = kbById.get(item.entityId);
@@ -57,14 +61,7 @@ for (const item of config.kb) {
   if (item.gearMediaId) {
     const media = byMediaId.get(item.gearMediaId);
     if (!media?.asset) throw new Error(`KB media for ${item.entityId} references unavailable Gear media ${item.gearMediaId}.`);
-    entity.picture = {
-      src:media.asset,
-      alt:item.alt || media.alt || entity.name,
-      caption:item.caption || entity.name,
-      credit:item.credit ?? null,
-      sourceUrl:item.sourceUrl ?? null,
-      ...(item.gearItemId ? { gearItemId:item.gearItemId } : {})
-    };
+    entity.picture = materializeKbEntity(entity, config, [...byMediaId.values()], gearSeed).picture;
     continue;
   }
   const source = localSource(item.source, 'assets/kb/');
@@ -74,21 +71,7 @@ for (const item of config.kb) {
   await fs.mkdir(path.dirname(built), { recursive:true });
   await fs.writeFile(built, bytes);
 
-  const previous = entity.picture?.src;
-  if (typeof previous === 'string' && previous.startsWith('./assets/kb/') && previous !== item.source) {
-    const oldRelative = normalizeRelative(previous);
-    await fs.rm(path.join(dist, oldRelative), { force:true });
-    kbAssets.delete(`./${oldRelative}`);
-  }
-
-  entity.picture = {
-    src:item.source,
-    alt:item.alt || entity.name,
-    caption:item.caption || entity.name,
-    credit:item.credit ?? null,
-    sourceUrl:item.sourceUrl ?? null,
-    ...(item.gearItemId ? { gearItemId:item.gearItemId } : {})
-  };
+  entity.picture = materializeKbEntity(entity, config, [...byMediaId.values()], gearSeed).picture;
   kbAssets.add(`./${relative}`);
 
   const builtBytes = await readValidatedImage(built);
@@ -108,6 +91,7 @@ if (!transformedKbValidation.valid) {
 await fs.writeFile(gearMediaPath, JSON.stringify([...byMediaId.values()], null, 2));
 await fs.writeFile(kbSeedPath, JSON.stringify(kbSeed, null, 2));
 await fs.writeFile(kbAssetsPath, JSON.stringify([...kbAssets].sort(), null, 2));
+await fs.writeFile(path.join(dist, 'kb-media.json'), JSON.stringify({version:1,kb:config.kb}, null, 2));
 console.log(`Local media validated: ${config.gear.length} active Gear, ${config.kb.length} KB, ${config.staged.length} staged.`);
 
 function resolveGearOwners(item) {

@@ -1,12 +1,10 @@
-# Fishing Context
-
-**Status: ACTIVE / production healthy / Gear authoring refinement pending release.** Reconciled for chat transfer on 2026-09-06. This is the authoritative current-state router; historical facts and full release details remain in their domain owners and the release handoff.
+**Status: ACTIVE / production healthy / KB Add/Edit in progress.** Reconciled September 7, 2026 against the actual PR47 deployment and user acceptance.
 
 ## Immediate release checkpoint
 
-The latest verified production source at this audit is main `cdb1c500f08394a9c44ea2012b6de72adbd46ecc`, merged PR #45 (Bonafide RVR119), with production workflow #235 reported successful. The user confirmed that PR #44's module-cache fix restored My Gear home-card navigation. No current production outage is known.
+The last user-verified production release is PR47, merge `f05b7ec532d8e45f3fc36c1e0976c5ea40eb9983`. Exact-head PR CI #239 / `34135260691` and production #240 / `34135326910` succeeded, including the actual Deploy to GitHub Pages step. Gear schema4 and the user-uploaded Cylinder Weights image are live. FISH-TODO-058 and 059 are DONE. PR46 was the preceding documentation handoff; PR47 incorporated it and the image upload. The September 6 handoff is historical recovery evidence, not an open release instruction.
 
-The approved Gear refinement is preserved, **not merged or deployed**, on `feature/gear-guides-ordered-links` at `24ea22ac187f81b42c2d91743e0a470ba3d1ad94`. Temporary migration workflow #6 / `34088215783` succeeded; the final normal PR, exact-head CI, merge, and production Pages deployment remain outstanding. The full source inventory and recovery/release checklist are in `Fishing_Release_Handoff_2026-09-06.md`. FISH-TODO-058 is IN PROGRESS. Do not restart the implementation or declare it live.
+Current work is FISH-TODO-060, KB Add/Edit on `feature/kb-authoring` / PR48. The existing unified KB schema and document storage remain authoritative. The feature must pass normal CI and production verification before it is called deployed. No historical migration is to be rerun.
 
 ## Operating mode and source authority
 
@@ -32,27 +30,23 @@ The user typically carries two rods on the kayak. For current paddle-only fishin
 
 Fishing Companion is single-user/offline-capable, with three durable domains that share stable identity, explicit fact ownership, strict validation, exact feature-driven relationships, authored-narrative separation, and final transformed-data validation. They need not share identical schemas or storage. `gear://` and `kb://` are authored navigation, not maintained relationship graphs. Do not infer identities or historical relationships from prose, labels, image aliases, or similar names.
 
-### My Gear — deployed baseline
+### My Gear — deployed schema4
 
-Main contains schema **3**, data version `2026-09-06-my-gear-v3-bonafide-rvr119-1`, **64 records**. Source/runtime owners are `pwa/data/gear.seed.json`, `pwa/gear-model.js`, `pwa/gear-store.js`, `pwa/gear-app.js`, and the media/Notes pipeline. Structured product/setup facts are in JSON/IndexedDB; optional authored Notes live at `pwa/gear-content/<stable-id>.md`. Inline JSON Notes, profiles, usage/connections, setup mainLine/leader, and knowledgeRefs are retired. Knots belong in KB, not My Gear.
+Main contains schema **4**, data version `2026-09-06-my-gear-v4-ordered-links-1`, **64 records**. Source/runtime owners are `pwa/data/gear.seed.json`, `pwa/gear-model.js`, `pwa/gear-store.js`, `pwa/gear-app.js`, and the media/Notes pipeline. Structured product/setup facts are in JSON/IndexedDB; optional authored Notes live at `pwa/gear-content/<stable-id>.md`. Inline JSON Notes, profiles, usage/connections, setup mainLine/leader, and knowledgeRefs are retired. Knots belong in KB, not My Gear.
 
 Existing Add/Edit authoring is live from PR42, with PR44's cache fix user-confirmed. `#/inventory/new` and `#/inventory/edit/<id>` generate a validated `fishing-companion-gear-change-v1` package for chat/repository promotion. The browser does not write GitHub or create a divergent local Gear database. Existing IDs are read-only. Category/Type administration remains chat-managed. Rods & Reels have embedded components and limited setup editing; new paired setups/component changes remain chat-managed. Manufacturer, Model, Specifications, and Links are optional for ordinary products.
 
-The deployed category is Accessories, with Types Kayaks, Tools, Tackle Management, Electronics, Storage, Miscellaneous. These labels are **superseded by the approved pending release**, not yet production state. The old 63-record count is historical and must not be used to overwrite PR45 data.
+The eighth category displays **Equipment**, retaining internal key `accessories`, with Types Kayaks, Tools, Tackle Management, Electronics, Storage, Accessories. The approved light-blue kayak/gray-paddle icon is live. Taxonomy administration remains chat-managed.
 
-### My Gear — approved pending schema4
+Manufacturer is `{name}`; Links are ordered `{label,url}` pairs, with former manufacturer URLs first and no classifications. The form omits Manufacturer URL and Link Type; empty Links sections are hidden. The schema3→4 upgrade preserves non-seed local records, and seed-managed data refreshes by version.
 
-The pending feature uses data version `2026-09-06-my-gear-v4-ordered-links-1`, retaining all 64 records and stable IDs. My Gear displays **Equipment**, retains internal category key `accessories`, and has Types Kayaks, Tools, Tackle Management, Electronics, Storage, Accessories. The approved light-blue kayak/gray-paddle SVG remains the category icon. Taxonomy is still administered through chat.
-
-Manufacturer is `{name}`; Links are ordered `{label,url}` pairs, with former manufacturer URLs first and no classifications. The form removes Manufacturer URL and Link Type, and uses subtitle `Create a new Gear item entry for handoff.` Leaf links retain stored order and the section is omitted when empty. A validated schema3→4 upgrade preserves non-seed local records; seed-managed data refreshes by version.
-
-Supporting Notes images may live beside Markdown in `pwa/gear-content/`, with safe Gear-ID-prefixed filenames and relative references. The build validates formats, extensions, paths, ownership, sizes and offline inclusion, and preserves exact bytes. Old `assets/gear-notes/` references remain supported. Hero images remain separate media-owned assets. Existing-picture Edit shows the actual source/media ID, has explicit Keep/Replace, supports same-filename replacement, and preserves media identity. No bulk legacy migration is required.
+Supporting Notes images may live beside Markdown in `pwa/gear-content/` with safe Gear-ID-prefixed filenames. The build validates format, extension, ownership, size, exact bytes and offline inclusion; legacy `assets/gear-notes/` references remain supported. Existing-picture Edit shows actual source/media identity, explicit Keep/Replace and same-filename replacement. No bulk conversion is required. Permanent media-policy and final-bundle tests run in the normal Pages workflow.
 
 ### Knowledge Base
 
 Schema **1**, data version `2026-09-04-kb-v1-final-content-1`, **54 entities**: 8 Locations, 7 Species, 22 Equipment, 7 Techniques, 10 Knots. Each uses id, type, name, optional description/picture, and one complete Markdown Content path. Sources are `pwa/data/kb.seed.json`, `pwa/kb-content/`, `pwa/kb-model.js`, `pwa/kb-app.js`, and shared renderer.
 
-Equipment is a flat peer type for rigs, presentations, lure/gear guides; Technique is for strategy/conditions/species-oriented guidance. Their documents currently share `pwa/kb-content/techniques/`, and type—not directory or ID prefix—controls taxonomy. The pending release changes the KB equipment card display to **Gear Guides** with exact subtitle `Equipment, rigs, and presentations reference`, without changing the underlying type or stable IDs. The KB remains document-oriented and browse-only.
+Equipment is a flat peer type for rigs, presentations, lure/gear guides; Technique is for strategy/conditions/species-oriented guidance. Their documents currently share `pwa/kb-content/techniques/`, and type—not directory or ID prefix—controls taxonomy. PR47 changed the KB equipment card display to **Gear Guides** with exact subtitle `Equipment, rigs, and presentations reference`, without changing the underlying type or stable IDs. The KB remains document-oriented. Add/Edit is being added under FISH-TODO-060: complete Markdown, immutable existing ID/path, source-aware image actions, validated copyable handoffs and no competing local database. The source index and transformed display pictures must remain distinct. Existing Type prefixes are conventions, not identity constraints after reclassification.
 
 ### Catch Log
 
@@ -72,12 +66,12 @@ The custom Markdown renderer preserves nested unordered/ordered lists and loose-
 
 PR45 added the owned Bonafide RVR119, Gear ID `bonafide-rvr119`, source image `pwa/assets/gear-source/bonafide-rvr119.png`, Notes `pwa/gear-content/bonafide-rvr119.md`. Preserve the exact user-provided specs, links, and authored Notes. The public serial number remains as supplied unless the user requests removal. Do not silently rename the authored `# Accessories` Notes heading during taxonomy migration.
 
-Cylinder Weights is Gear ID `cylinder-weights`, media ID `thkfish-cylinder-weights`. Its replacement image remains pending user supply; preserve existing media until a valid local replacement is registered. The proposed source is `pwa/assets/gear-source/cylinder-weights.png` or matching real extension. Track separately as FISH-TODO-059.
+Cylinder Weights is Gear ID `cylinder-weights`, media ID `thkfish-cylinder-weights`. The user uploaded `pwa/assets/gear-source/thkfish-cylinder-weights.jpg`; PR47 registered it while preserving the media ID, owner and provenance. The user confirmed the new image appears on the live site. FISH-TODO-059 is DONE.
 
 Use `Fishing_TODO.md` for the full backlog. Important unresolved items include fish-finder installed power/wiring, kayak insert threads, rear flush rod-holder angle, under-seat tackle storage and cooler ownership, PowerBait hook-size and loop-knot conflicts, remaining Texas/Carolina/Alabama/Neko/Spoons KB pages, and Catch additions. Historical research/candidate gear is not owned without confirmation. The separate Trailer griddle item belongs in the Trailer project, not Fishing.
 
 ## Release and handoff history
 
-PR39 established unified external Gear/Catch Notes and removed duplicate narrative fields. PR41 fixed loose ordered lists. PR42 deployed Gear Add/Edit authoring; PR44 fixed module cache and was user-confirmed; PR45 added the Bonafide RVR119. The exact main and unmerged branch checkpoint above supersede older ‘latest release’ wording. Historical PR28/PR30/PR34/PR36 and night-end audit facts remain in the Decision Log and release history. No hidden unmerged PR29 recovery work is outstanding.
+PR39 established external Gear/Catch Notes; PR41 fixed loose ordered lists; PR42 deployed Gear Add/Edit; PR44 fixed module caching and was user-confirmed; PR45 added the Bonafide RVR119; PR46 reconciled the interrupted handoff; PR47 deployed schema4 and Cylinder Weights. Production run #240 completed successfully on September 7, 2026. Historical content acceptance and migration audits remain closed.
 
-The immediate next task is FISH-TODO-058, not a new architecture review. Resume the preserved branch and finish normal release work. The separate `Fishing_Release_Handoff_2026-09-06.md` records all temporary artifacts, test evidence, source SHAs, and release steps. Re-fetch current GitHub state on continuation. Do not mark the feature complete or deployed until actual evidence exists.
+Current work is PR48 / FISH-TODO-060. Preserve all 64 Gear, 54 KB and five Catch records; do not reintroduce Planner/sessions, inferred relationships, raw JSON editing, or duplicate storage. Complete the release and reconcile this file, TODO, Decision Log, bootstrap and PWA README against actual evidence before transferring chats.

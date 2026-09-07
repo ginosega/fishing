@@ -72,3 +72,11 @@ The Service Worker caches the shell, registered KB Content, relevant local KB/me
 The PR28 content/imagery batch was accepted and closed through PR32 after source cleanup and media validation. It added Inline Spinner, Snaps & Swivels, Flasher Rig, Inline Trolling Rig, Bobber Rig, Slip Sinker Rig and Spring Fishing, and refreshed the principal lure/rig and Trout Fishing articles. PR34/41 subsequently fixed Markdown renderer behavior. This work is completed historical maintenance, not an open migration.
 
 Future ordinary content work includes Texas, Carolina, Alabama and Neko rigs, Spoons, and relevant research in the canonical TODO. Maintain source facts and avoid inventing missing ownership or relationships. The immediate project release task is FISH-TODO-058, the preserved unmerged Gear refinement; it does not require redesigning the KB. Complete the normal release and update deployment status only after exact-head CI, merge, and actual Pages deployment succeed.
+
+## September 7, 2026 — KB authoring reconciliation
+
+The Gear schema4 and KB schema1 remain architecturally compatible without becoming identical. Both have immutable stable identities, strict structured validation, explicit fact/media ownership, optional representative pictures, and authored Markdown links. Gear owns product/setup facts in JSON/IndexedDB and optional Notes; KB owns a small index over one complete Markdown article per entity. These are necessary domain differences, not architectural inconsistencies.
+
+KB Type prefixes are conventions for new IDs only. Existing IDs and content paths are immutable across rename/reclassification; exact Catch references must remain valid. Reclassification does not create an inferred relationship, rename a document, or rewrite authored links.
+
+The unnecessary authoring divergence is addressed by FISH-TODO-060: a Gear-style validated, copyable handoff with source/version checks and explicit picture actions. No browser GitHub writes, duplicate local database, new taxonomy editor, or additional narrative fields are introduced. Source metadata and transformed display pictures remain separate; the shared resolver and final-bundle validator protect the distinction. Repository promotion retains prior media provenance, validates actual image bytes and ownership, and never deletes original images as a side effect.

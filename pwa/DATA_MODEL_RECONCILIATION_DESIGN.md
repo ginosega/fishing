@@ -82,3 +82,11 @@ Root Gear/KB Search always; nonempty search hides category cards and places matc
 ## 10. Historical and completion boundary
 
 The original schema2 reconciliation, schema3 external-Notes migration, PR28 content acceptance, PR30 transformed-data recovery, PR34/41 Markdown fixes, and PR42 authoring release remain completed historical work. Original detailed versions remain in Git history and the Decision History. This pending refinement does not reopen those architectural choices. The full current source/test/cleanup checklist is in`../Fishing_Release_Handoff_2026-09-06.md`. Complete FISH-TODO-058 only after clean final-head PR CI, expected-head merge, and actual Pages deployment; then reconcile all production-status documents.
+
+## September 7, 2026 — KB authoring reconciliation
+
+The Gear schema4 and KB schema1 remain architecturally compatible without becoming identical. Both have immutable stable identities, strict structured validation, explicit fact/media ownership, optional representative pictures, and authored Markdown links. Gear owns product/setup facts in JSON/IndexedDB and optional Notes; KB owns a small index over one complete Markdown article per entity. These are necessary domain differences, not architectural inconsistencies.
+
+KB Type prefixes are conventions for new IDs only. Existing IDs and content paths are immutable across rename/reclassification; exact Catch references must remain valid. Reclassification does not create an inferred relationship, rename a document, or rewrite authored links.
+
+The unnecessary authoring divergence is addressed by FISH-TODO-060: a Gear-style validated, copyable handoff with source/version checks and explicit picture actions. No browser GitHub writes, duplicate local database, new taxonomy editor, or additional narrative fields are introduced. Source metadata and transformed display pictures remain separate; the shared resolver and final-bundle validator protect the distinction. Repository promotion retains prior media provenance, validates actual image bytes and ownership, and never deletes original images as a side effect.

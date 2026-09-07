@@ -1,6 +1,7 @@
 import { GearRepository } from './gear-store.js';
 import { gearDisplayModel, gearSpecificationText, gearLinks, validateGearBundle, GEAR_ACCESSORY_TYPES } from './gear-model.js';
 import { renderMarkdown, renderCatchCard } from './markdown-render.js';
+import { slugify, uniqueStableId, isHttpUrl, isSafeImageFilename, validatePlainText, renderPreparedHandoff } from './authoring-common.js';
 
 const ACCESSORIES_ICON = `<svg viewBox="0 0 64 64" role="img" aria-label="Kayak">
   <defs><linearGradient id="kayakHull" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a2def7"/><stop offset="1" stop-color="#76c8ef"/></linearGradient></defs>
@@ -656,34 +657,9 @@ function addNotesSummary(summary, notes) {
 }
 
 function showPreparedChange(prepared) {
-  const panel = document.querySelector('#gearPreparedPanel');
-  if (!panel) return;
-  const payload = JSON.stringify(prepared, null, 2);
-  const pictureInstruction = ['add','replace'].includes(prepared.picture?.action)
-    ? `<p><strong>Picture upload:</strong> <code>${escapeHtml(prepared.picture.uploadPath)}</code></p><p>Upload the replacement directly to GitHub. The handoff preserves the existing media ID and owner; it has not changed the current picture.</p>`
-    : prepared.picture?.action === 'remove' ? '<p><strong>Picture:</strong> removal requested.</p>' : '';
-  const notesInstruction = prepared.notes?.path && prepared.notes.action !== 'none'
-    ? `<p><strong>Notes file:</strong> <code>${escapeHtml(prepared.notes.path)}</code></p>`
-    : '';
-  panel.innerHTML = `<h3>${prepared.operation === 'add' ? 'Gear item ready to hand off' : 'Gear changes ready to hand off'}</h3>
-    <p>Copy this package and paste it into our Fishing chat. The site has validated the record but has not written anything to GitHub or local Gear storage.</p>
-    <ul>${prepared.summary.map(line => `<li>${escapeHtml(line)}</li>`).join('')}</ul>
-    ${pictureInstruction}${notesInstruction}
-    <label class="field-label" for="gearChangePackage">Item data</label>
-    <textarea class="input handoff-package" id="gearChangePackage" rows="16" readonly>${escapeHtml(payload)}</textarea>
-    <div class="inline-actions"><button class="primary-button" id="copyGearPackage" type="button">Copy item data</button><span class="copy-status" id="copyGearStatus" aria-live="polite"></span></div>`;
-  panel.hidden = false;
-  document.querySelector('#copyGearPackage')?.addEventListener('click', async () => {
-    const status = document.querySelector('#copyGearStatus');
-    try {
-      await navigator.clipboard.writeText(payload);
-      if (status) status.textContent = 'Copied.';
-    } catch {
-      document.querySelector('#gearChangePackage')?.select();
-      if (status) status.textContent = 'Clipboard unavailable; item data selected for manual copy.';
-    }
+  renderPreparedHandoff(document.querySelector('#gearPreparedPanel'), prepared, {
+    id:'gearChangePackage', label:prepared.operation === 'add' ? 'Gear item' : 'Gear changes'
   });
-  panel.scrollIntoView({ behavior:'smooth', block:'start' });
 }
 
 function previewNotes(id) {
@@ -751,36 +727,8 @@ function linkRowHtml(link={}) {
   </div>`;
 }
 
-function validatePlainText(value,label,max,errors,required=false) {
-  if (required && !value) { errors.push(`${label} is required.`); return; }
-  if (!value) return;
-  if (value.length > max) errors.push(`${label} must be ${max} characters or fewer.`);
-  if (/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/.test(value)) errors.push(`${label} contains unsupported control characters.`);
-  if (/<\s*\/?\s*(script|iframe|object|embed|style|link|meta)\b/i.test(value)) errors.push(`${label} contains disallowed executable markup.`);
-}
-
-function isHttpUrl(value) {
-  if (!value) return false;
-  try { return ['http:','https:'].includes(new URL(value).protocol); }
-  catch { return false; }
-}
-
-function isSafeImageFilename(value) {
-  return /^[a-z0-9][a-z0-9._-]*\.(?:jpe?g|png|webp|gif)$/i.test(value) && !value.includes('..');
-}
-
 function uniqueGearId(name) {
-  const base = slugify(name);
-  if (!base) return '';
-  let candidate = base;
-  let suffix = 2;
-  const ids = new Set(bundle.items.map(item => item.id));
-  while (ids.has(candidate)) candidate = `${base}-${suffix++}`;
-  return candidate;
-}
-
-function slugify(value) {
-  return String(value || '').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/&/g,' and ').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,100);
+  return uniqueStableId(name, bundle.items.map(item => item.id));
 }
 
 function directMediaForItem(id) {

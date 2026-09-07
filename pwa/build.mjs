@@ -4,6 +4,9 @@ import { fileURLToPath } from 'node:url';
 import { validateGearBundle } from './gear-model.js';
 import { validateKbBundle, validateCatchBundle } from './kb-model.js';
 import { versionRuntime } from './version-runtime.mjs';
+import { readValidatedImage } from './image-validation.mjs';
+import { isSafeImageFilename } from './authoring-common.js';
+import { validateKbMarkdown, authoredTargets } from './kb-authoring-model.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, '..');
@@ -12,7 +15,7 @@ const dataOut = path.join(out, 'data');
 const gearOut = path.join(out, 'assets', 'gear');
 const buildVersion = (process.env.GITHUB_SHA || new Date().toISOString()).replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 24);
 
-const shellFiles = ['styles.css', 'gear-app.js', 'kb-app.js', 'gear-store.js', 'gear-model.js', 'kb-model.js', 'markdown-render.js', 'media-ui.js', 'manifest.webmanifest', 'icon.svg'];
+const shellFiles = ['styles.css', 'gear-app.js', 'kb-app.js', 'gear-store.js', 'gear-model.js', 'kb-model.js', 'kb-authoring.js', 'kb-authoring-model.js', 'kb-picture-model.js', 'authoring-common.js', 'markdown-render.js', 'media-ui.js', 'manifest.webmanifest', 'icon.svg'];
 
 await fs.rm(out, { recursive: true, force: true });
 await fs.mkdir(dataOut, { recursive: true });
@@ -29,6 +32,7 @@ const kbSeed = JSON.parse(await fs.readFile(path.join(here, 'data', 'kb.seed.jso
 const kbValidation = validateKbBundle(kbSeed);
 if (!kbValidation.valid) throw new Error(`Invalid unified Knowledge Base seed:\n${kbValidation.errors.join('\n')}`);
 await fs.writeFile(path.join(dataOut, 'kb.seed.json'), JSON.stringify(kbSeed, null, 2));
+await fs.writeFile(path.join(out, 'kb-authoring-source.json'), JSON.stringify(kbSeed, null, 2));
 
 const catchSeed = JSON.parse(await fs.readFile(path.join(here, 'data', 'catches.seed.json'), 'utf8'));
 const catchValidation = validateCatchBundle(catchSeed, kbSeed, gearSeed);
@@ -57,11 +61,18 @@ for (const entity of kbSeed.entities) {
   await copyBuildFile(sourcePath, contentPath);
   kbAssets.add(`./${contentPath}`);
   validateContentLinks(markdown, entity, knownContentPaths, gearIds, kbIds);
-  for (const imageTarget of extractMarkdownImages(markdown)) {
+  const contentErrors = validateKbMarkdown(markdown, entity, kbSeed, gearSeed);
+  if (contentErrors.length) throw new Error(`${entity.content}: ${contentErrors.join('; ')}`);
+  for (const imageTarget of authoredTargets(markdown, true)) {
     if (/^https?:\/\//i.test(imageTarget)) continue;
     const imagePath = normalizeBuildPath(path.posix.join(path.posix.dirname(contentPath), imageTarget));
-    if (!imagePath.startsWith('assets/kb/')) throw new Error(`${entity.content} references local image outside ./assets/kb/: ${imageTarget}`);
-    await copyBuildFile(safePwaPath(imagePath), imagePath);
+    const imageName = path.posix.basename(imagePath);
+    const sibling = path.posix.dirname(imagePath) === path.posix.dirname(contentPath) &&
+      imageName.startsWith(`${entity.id}-`) && isSafeImageFilename(imageName);
+    if (!imagePath.startsWith('assets/kb/') && !sibling) throw new Error(`${entity.content} references local image outside its approved locations: ${imageTarget}`);
+    const imageSource = safePwaPath(imagePath);
+    await readValidatedImage(imageSource);
+    await copyBuildFile(imageSource, imagePath);
     kbAssets.add(`./${imagePath}`);
   }
   if (entity.picture?.src && !/^https?:\/\//i.test(entity.picture.src)) {

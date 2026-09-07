@@ -12,6 +12,7 @@ export function validateKbBundle(bundle) {
   if (bundle.schemaVersion !== KB_SCHEMA_VERSION) errors.push(`schemaVersion must be ${KB_SCHEMA_VERSION}.`);
   if (!isText(bundle.dataVersion)) errors.push('dataVersion is required.');
   if (!Array.isArray(bundle.entities)) errors.push('entities must be an array.');
+  validateExactFields(bundle, ['schemaVersion','dataVersion','entities'], 'root', errors);
 
   const ids = new Set();
   const contentPaths = new Set();
@@ -21,7 +22,6 @@ export function validateKbBundle(bundle) {
     validateExactFields(entity, ENTITY_FIELDS, at, errors);
     validateStableId(entity.id, at, errors, ids);
     if (!KB_TYPES.includes(entity.type)) errors.push(`${at}.type must be one of ${KB_TYPES.join(', ')}.`);
-    if (KB_TYPES.includes(entity.type) && isText(entity.id) && !validEntityIdPrefix(entity)) errors.push(`${at}.id prefix is not valid for ${entity.type}.`);
     if (!isText(entity.name)) errors.push(`${at}.name is required.`);
     if (entity.description != null && !isText(entity.description)) errors.push(`${at}.description must be text or null.`);
     else if (entity.description?.length > KB_DESCRIPTION_MAX_LENGTH) errors.push(`${at}.description must be ${KB_DESCRIPTION_MAX_LENGTH} characters or fewer.`);
@@ -130,13 +130,6 @@ function validateGearReference(id, category, at, gear, errors, required) {
   else if (item.category !== category) errors.push(`${at} must reference My Gear category ${category}.`);
 }
 
-function validEntityIdPrefix(entity) {
-  if (entity.id.startsWith(`${entity.type}-`)) return true;
-  // Equipment was split from the original Technique type in 2026. Preserve
-  // those stable public IDs rather than renaming kb:// links during taxonomy changes.
-  return entity.type === 'equipment' && entity.id.startsWith('technique-');
-}
-
 function validateStableId(id, at, errors, ids, prefix = '') {
   if (!isText(id)) errors.push(`${at}.id is required.`);
   else if (!/^[a-z0-9][a-z0-9-]*$/.test(id)) errors.push(`${at}.id must use lowercase letters, numbers, and hyphens only.`);
@@ -151,7 +144,12 @@ function validateExactFields(value, fields, at, errors) {
   for (const key of fields) if (!(key in value)) errors.push(`${at}.${key} must be present.`);
 }
 
-function isSafeAssetSource(value) { return /^https?:\/\//i.test(value) || /^\.\/assets\/(?:kb|gear)\/[a-z0-9/_.-]+$/i.test(value); }
+function isSafeAssetSource(value) {
+  if (/^https?:\/\//i.test(value)) return isHttpUrl(value);
+  if (!/^\.\/assets\/(?:kb|gear)\//.test(value)) return false;
+  const parts = value.slice(2).split('/');
+  return parts.every(part => part && part !== '.' && part !== '..' && /^[a-z0-9._-]+$/i.test(part));
+}
 function isIsoDate(value) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value || '')) return false;
   const date = new Date(`${value}T00:00:00Z`);

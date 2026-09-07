@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
 const gearApp = fs.readFileSync(new URL('./gear-app.js', import.meta.url), 'utf8');
+const authoringCommon = fs.readFileSync(new URL('./authoring-common.js', import.meta.url), 'utf8');
 const mediaUi = fs.readFileSync(new URL('./media-ui.js', import.meta.url), 'utf8');
 const index = fs.readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const mediaOverrides = JSON.parse(fs.readFileSync(new URL('./media-overrides.json', import.meta.url), 'utf8'));
@@ -80,13 +81,15 @@ assert.match(gearApp, /name="gearPictureAction" value="replace"/);
 assert.match(gearApp, /sourcePath/);
 assert.match(gearApp, /fishing-companion-gear-change-v1/,
   'Add/Edit must generate a versioned handoff package.');
-assert.match(gearApp, /navigator\.clipboard\.writeText\(payload\)/,
+assert.match(gearApp, /renderPreparedHandoff\(document\.querySelector\('#gearPreparedPanel'\)/,
+  'Gear must use the shared authoring handoff renderer.');
+assert.match(authoringCommon, /navigator\.clipboard\.writeText\(payload\)/,
   'Prepared Gear changes must support one-click copying into chat.');
 assert.doesNotMatch(gearApp, /repo\.(?:merge|replace)\(/,
   'The authoring UI must not create a divergent local Gear database; repository handoff remains authoritative.');
-assert.match(gearApp, /disallowed executable markup/,
+assert.match(authoringCommon, /disallowed executable markup/,
   'Plain structured fields must reject executable markup.');
-assert.match(gearApp, /\['http:','https:'\]\.includes\(new URL\(value\)\.protocol\)/,
+assert.match(authoringCommon, /\['http:', 'https:'\]\.includes\(new URL\(value\)\.protocol\)/,
   'Entered URLs must be restricted to http(s).');
 
 assert.match(gearApp, /\.\/gear-notes-assets\.json/,
