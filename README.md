@@ -8,9 +8,9 @@ Use Chat mode by default. Do not recommend Work merely because a task is complex
 
 ## Current state
 
-Production is healthy. The last user-verified runtime release is PR #47, merge `f05b7ec532d8e45f3fc36c1e0976c5ea40eb9983`, production workflow #240 (`34135326910`), September 7, 2026. Its build and actual GitHub Pages deployment succeeded. Gear schema4 and the Cylinder Weights image are live; the user verified both. FISH-TODO-058 and 059 are complete.
+Production is healthy. The latest verified runtime release is PR #48, merge `6d04e29b6770000eaa50f6c449ad82bc88f7326d`, production workflow #252 (`34142574286`), September 7, 2026. All build, test, final-bundle and GitHub Pages deployment steps succeeded. Gear schema4, the user-verified Cylinder Weights image, and KB Add/Edit are live. FISH-TODO-058, 059 and 060 are complete.
 
-KB Add/Edit is the current work item, FISH-TODO-060, on `feature/kb-authoring` / PR #48. It is not production until normal CI, merge and Pages deployment are verified. See the current Context, TODO and Decision Log; do not mistake the historical September 6 release handoff for current state.
+KB Add/Edit is deployed through PR48 / FISH-TODO-060, including complete Markdown editing/Preview, stable-ID and document-path preservation, source-aware picture changes, validated handoffs, and repository promotion. No schema migration or competing local KB database was introduced. The release records and open backlog are reconciled; there is no pending application release. User acceptance of the new KB editor remains a normal follow-up, not a failed deployment.
 
 Live site: https://ginosega.github.io/fishing/
 

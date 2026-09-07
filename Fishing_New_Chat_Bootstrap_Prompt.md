@@ -18,9 +18,9 @@ Then fetch current main, relevant feature branch/PR, and any actual CI/deploymen
 
 ## Verified baseline and current work
 
-As of September 7, 2026, PR47 is the last user-verified runtime release: merge `f05b7ec532d8e45f3fc36c1e0976c5ea40eb9983`, production workflow #240 / `34135326910`. Gear schema4 and the new Cylinder Weights image are live; the user verified both. FISH-TODO-058 and 059 are DONE. The September 6 handoff is historical, not unfinished work.
+As of September 7, 2026, the latest verified runtime release is PR48, merge `6d04e29b6770000eaa50f6c449ad82bc88f7326d`, production workflow #252 / `34142574286`. Normal PR CI #251 / `34142498510` and production build/deployment succeeded. KB Add/Edit is deployed. PR47, merge `f05b7ec532d8e45f3fc36c1e0976c5ea40eb9983`, production #240 / `34135326910`, is the preceding user-accepted Gear schema4/Cylinder Weights release. FISH-TODO-058, 059 and 060 are DONE. The September 6 handoff is historical, not unfinished work.
 
-Current work is KB Add/Edit, FISH-TODO-060, `feature/kb-authoring`, PR48. Check current GitHub state before continuing. This feature must follow the established Gear handoff pattern while preserving KB's complete authored Markdown, source/derived image identity, immutable existing IDs and document paths. Do not call it deployed until exact-head CI, merge and actual Pages deployment are verified.
+There is no pending application release. Start with current main and the canonical TODO rather than resuming `feature/kb-authoring` or any temporary migration/integration branch. Preserve the existing editor functionality and all user-authored data. New KB editor user acceptance may be recorded as normal feedback; it does not invalidate the verified deployment.
 
 ## Architecture and safety
 

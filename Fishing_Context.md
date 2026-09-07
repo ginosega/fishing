@@ -1,10 +1,12 @@
-**Status: ACTIVE / production healthy / KB Add/Edit in progress.** Reconciled September 7, 2026 against the actual PR47 deployment and user acceptance.
+**Status: ACTIVE / production healthy / KB Add/Edit deployed.** Reconciled September 7, 2026 against PR48 and the completed production deployment.
 
 ## Immediate release checkpoint
 
-The last user-verified production release is PR47, merge `f05b7ec532d8e45f3fc36c1e0976c5ea40eb9983`. Exact-head PR CI #239 / `34135260691` and production #240 / `34135326910` succeeded, including the actual Deploy to GitHub Pages step. Gear schema4 and the user-uploaded Cylinder Weights image are live. FISH-TODO-058 and 059 are DONE. PR46 was the preceding documentation handoff; PR47 incorporated it and the image upload. The September 6 handoff is historical recovery evidence, not an open release instruction.
+PR #48, final head `85245de2451db97370268e14dfc2c66a53c8c61d`, passed normal PR CI #251 / `34142498510` against main `f05b7ec532d8e45f3fc36c1e0976c5ea40eb9983`. Merge `6d04e29b6770000eaa50f6c449ad82bc88f7326d` passed production #252 / `34142574286`, including the actual Deploy to GitHub Pages step. The production run completed September 7, 2026 at 16:18:08 UTC. The deployed release is ready for user acceptance.
 
-Current work is FISH-TODO-060, KB Add/Edit on `feature/kb-authoring` / PR48. The existing unified KB schema and document storage remain authoritative. The feature must pass normal CI and production verification before it is called deployed. No historical migration is to be rerun.
+PR47 is the preceding user-accepted Gear release, merge `f05b7ec532d8e45f3fc36c1e0976c5ea40eb9983`, production #240 / `34135326910`. Gear schema4 and the user-uploaded Cylinder Weights image were verified by the user. FISH-TODO-058, 059 and 060 are DONE. The September 6 handoff is historical recovery evidence, not an open release instruction. No historical migration is to be rerun.
+
+There is no pending application release. The remaining backlog is maintained in `Fishing_TODO.md`; user acceptance of KB Add/Edit can be recorded without reopening the completed deployment.
 
 ## Operating mode and source authority
 
@@ -46,7 +48,7 @@ Supporting Notes images may live beside Markdown in `pwa/gear-content/` with saf
 
 Schema **1**, data version `2026-09-04-kb-v1-final-content-1`, **54 entities**: 8 Locations, 7 Species, 22 Equipment, 7 Techniques, 10 Knots. Each uses id, type, name, optional description/picture, and one complete Markdown Content path. Sources are `pwa/data/kb.seed.json`, `pwa/kb-content/`, `pwa/kb-model.js`, `pwa/kb-app.js`, and shared renderer.
 
-Equipment is a flat peer type for rigs, presentations, lure/gear guides; Technique is for strategy/conditions/species-oriented guidance. Their documents currently share `pwa/kb-content/techniques/`, and type—not directory or ID prefix—controls taxonomy. PR47 changed the KB equipment card display to **Gear Guides** with exact subtitle `Equipment, rigs, and presentations reference`, without changing the underlying type or stable IDs. The KB remains document-oriented. Add/Edit is being added under FISH-TODO-060: complete Markdown, immutable existing ID/path, source-aware image actions, validated copyable handoffs and no competing local database. The source index and transformed display pictures must remain distinct. Existing Type prefixes are conventions, not identity constraints after reclassification.
+Equipment is a flat peer type for rigs, presentations, lure/gear guides; Technique is for strategy/conditions/species-oriented guidance. Their documents currently share `pwa/kb-content/techniques/`, and type—not directory or ID prefix—controls taxonomy. PR47 changed the KB equipment card display to **Gear Guides** with exact subtitle `Equipment, rigs, and presentations reference`, without changing the underlying type or stable IDs. The KB remains document-oriented. Add/Edit is deployed under FISH-TODO-060: complete Markdown, immutable existing ID/path, source-aware image actions, validated copyable handoffs and no competing local database. The source index and transformed display pictures must remain distinct. Existing Type prefixes are conventions, not identity constraints after reclassification.
 
 ### Catch Log
 
@@ -72,6 +74,6 @@ Use `Fishing_TODO.md` for the full backlog. Important unresolved items include f
 
 ## Release and handoff history
 
-PR39 established external Gear/Catch Notes; PR41 fixed loose ordered lists; PR42 deployed Gear Add/Edit; PR44 fixed module caching and was user-confirmed; PR45 added the Bonafide RVR119; PR46 reconciled the interrupted handoff; PR47 deployed schema4 and Cylinder Weights. Production run #240 completed successfully on September 7, 2026. Historical content acceptance and migration audits remain closed.
+PR39 established external Gear/Catch Notes; PR41 fixed loose ordered lists; PR42 deployed Gear Add/Edit; PR44 fixed module caching and was user-confirmed; PR45 added the Bonafide RVR119; PR46 reconciled the interrupted handoff; PR47 deployed schema4 and Cylinder Weights; PR48 deployed KB Add/Edit. Production #252 completed successfully on September 7, 2026. Historical content acceptance and migration audits remain closed.
 
-Current work is PR48 / FISH-TODO-060. Preserve all 64 Gear, 54 KB and five Catch records; do not reintroduce Planner/sessions, inferred relationships, raw JSON editing, or duplicate storage. Complete the release and reconcile this file, TODO, Decision Log, bootstrap and PWA README against actual evidence before transferring chats.
+The current production baseline is `6d04e29b6770000eaa50f6c449ad82bc88f7326d`. Preserve all 64 Gear, 54 KB and five Catch records; do not reintroduce Planner/sessions, inferred relationships, raw JSON editing, or duplicate storage. Future changes start from current main and the canonical backlog. Keep Context, TODO, Decision Log, bootstrap and PWA README consistent with actual release evidence.
