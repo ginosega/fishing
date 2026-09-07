@@ -1,0 +1,40 @@
+name: Fishing Gear Guides migration
+on:
+  push:
+    branches:
+      - feature/gear-guides-ordered-links
+    paths:
+      - '.github/workflows/fishing-gear-guides-migration.yml'
+permissions:
+  contents: write
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/gear-guides-ordered-links
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Apply exact source and regression migration
+        run: |
+          node pwa/migrate-gear-guides.mjs
+          node pwa/migrate-gear-guides-tests.mjs
+          node --check pwa/gear-model.js
+          node --check pwa/gear-store.js
+          node --check pwa/gear-app.js
+          node --check pwa/kb-app.js
+          node pwa/gear-model.test.mjs
+          node pwa/my-gear-routing.test.mjs
+          node pwa/kb-model.test.mjs
+          node pwa/kb-routing.test.mjs
+          node pwa/final-content.test.mjs
+      - name: Commit validated source
+        run: |
+          git config user.name "Fishing Project"
+          git config user.email "actions@users.noreply.github.com"
+          git add pwa/gear-model.js pwa/gear-store.js pwa/gear-app.js pwa/kb-app.js pwa/index.html pwa/data/gear.seed.json pwa/gear-model.test.mjs pwa/my-gear-routing.test.mjs pwa/kb-routing.test.mjs pwa/final-content.test.mjs
+          git commit -m "Refine Gear taxonomy and migrate to ordered links"
+          git push origin HEAD:feature/gear-guides-ordered-links
