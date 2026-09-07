@@ -1,292 +1,74 @@
 # Fishing Companion Knowledge Base Data Model
 
-**Status:** Accepted / implemented / current
+**Status: ACCEPTED / IMPLEMENTED / CURRENT.** Reconciled for the 2026-09-06 handoff. The underlying KB/Catch architecture is deployed and unchanged; the approved **Gear Guides** display-label refinement is pending release with My Gear schema4. Historical design and release details remain available in Git history and the Decision History.
 
-**Updated:** 2026-09-04
+## Product direction
 
-**Current implementation verification:** The unified KB/Catch architecture originated in PR #13, was extended with flat Equipment taxonomy in PR #24, hardened for transformed Gear-backed pictures in PR #30, completed authored-content acceptance in PR #32, gained indentation-aware nested Markdown lists in PR #34, and converged authored narrative storage in PR #39. Latest verified runtime merge is `e997492b995f7e7cb8fa4af21ef1f2953df63a78`; production run #197 / `33907284576` completed tests, build, authored-Notes/local-media validation, bundle verification, GitHub Pages artifact upload, and deployment successfully.
+Knowledge Base is a browsable repository of reusable fishing information, not a Planner or session/trip tracking application. Its articles are complete authored Markdown documents indexed by a small, strict entity catalog. Fishing Companion has separate My Gear, Knowledge Base, and Catch Log domains that share architectural principles but do not need identical schemas or storage.
 
-Current production data contains **54 KB entities** (8 Locations, 7 Species, 22 Equipment, 7 Techniques, 10 Knots) and **5 structured catches**.
+The latest verified production/main checkpoint is `cdb1c500f08394a9c44ea2012b6de72adbd46ecc`, PR45, production workflow#235 reported successful. The pending Gear refinement is on`feature/gear-guides-ordered-links` at`24ea22ac187f81b42c2d91743e0a470ba3d1ad94`, not yet merged/deployed. The exact source/test/release handoff is`../Fishing_Release_Handoff_2026-09-06.md`. Do not treat the pending UI label as a deployed change or invent a PR number.
 
-## 1. Product direction
+## Unified entity envelope
 
-Fishing Companion has three durable application-data domains:
+Every Location, Species, Equipment, Technique and Knot has the same logical fields:
 
-- **My Gear** — structured local-first owned inventory backed by `pwa/data/gear.seed.json` and IndexedDB.
-- **Knowledge Base** — browse-only information repository backed by one unified KB Entity model plus complete Markdown documents.
-- **Catch Log** — separate structured historical data with explicit stable-ID relationships to KB entities and My Gear records.
+| Field | Rule |
+|---|---|
+| id | Immutable lowercase kebab-case stable ID. |
+| type | One of location, species, equipment, technique, knot. |
+| name | User-facing name. |
+| description | Optional card/page-header subtext. |
+| picture | Optional representative card/header picture. |
+| content | Path to one complete Markdown document. |
 
-The Knowledge Base is not a planner or recommendation engine. It does not assemble plans, score recommendations, infer relationships from prose, or require planner-specific attributes.
+`type` is the only top-level discriminator. There is no nested Equipment or Technique subtype field, no connection type for Knots, and no Session ID. Use flexible Markdown for rigging, use cases, cautions, resources, warnings, videos, diagrams and images instead of proliferating atomic metadata fields.
 
-User-facing KB sections are Locations, Species, Equipment, Techniques, Knots, and Catch Log.
+Current KB schema1/data version`2026-09-04-kb-v1-final-content-1` has54 entities:8 Locations,7 Species,22 Equipment,7 Techniques,10 Knots. The pending release changes the user-facing KB equipment card to **Gear Guides** with exact subtitle`Equipment, rigs, and presentations reference`. The internal type remains`equipment`; no entity IDs, content paths, or domain relationships change.
 
-## 2. Goals
+## Taxonomy and content ownership
 
-- Preserve complete authored fishing knowledge without unnecessary atomic fields.
-- Give every KB entity and catch a stable ID.
-- Use one entity envelope and generic renderer for all five KB entity types.
-- Preserve Markdown headings, tables, nested lists, images, internal links, My Gear links, and external resources.
-- Support exact Catch backlinks through structured IDs.
-- Validate explicit relationships rather than infer them from prose/display text.
-- Keep My Gear, KB, and Catch Log as separate fact owners.
-- Preserve offline browsing after content/assets are cached.
-- Validate the **final deployable form** whenever the build transforms already-validated KB data.
+Location covers waters/access/seasonal and local observations; Species covers identification/behavior/habitat/targeting notes; Equipment covers rigs, presentations, lure and gear guides; Technique covers strategy, conditions, seasonal and species-oriented methods; Knot covers connection guidance and learning resources. Equipment is a flat peer type, not a nested Technique type. A historical ID such as`technique-*` may remain valid after classification as Equipment because stable identity is not derived from current display taxonomy.
 
-## 3. Non-goals
+Equipment and Technique articles currently share the physical directory`pwa/kb-content/techniques/`. The entity's`type` in`data/kb.seed.json` determines browse placement. Do not rename/move content files without updating their registered paths. Do not introduce a parallel folder-only taxonomy or duplicate the complete article into another domain.
 
-- No Planner / Planner Attributes.
-- No recommendation scoring or parser-derived fishing plans.
-- No fishing-session, Session ID, trip-history, or no-catch-session model.
-- No entity-specific schema families.
-- No Equipment/Technique subtype/grouping field.
-- No atomic Use/Rigging/Notes/Links fields in KB entities.
-- No knot connection taxonomy.
-- No Markdown-table parsing to manufacture identity/relationships.
-- No fuzzy name matching for cross-domain relationships.
-- No KB/Catch editing forms in the current browse-focused release.
+The KB's equipment type is not the same thing as the owned Gear inventory category. My Gear's pending **Equipment** category retains key`accessories` and contains owned kayaks/tools/electronics/storage/tackle-management items. The KB card **Gear Guides** contains reusable knowledge. The two can link by stable ID without sharing a single taxonomy or creating a speculative relationship graph.
 
-## 4. Source layout
+## Structured index and authored documents
 
-```text
-pwa/data/kb.seed.json            # Unified KB Entity catalog
-pwa/data/catches.seed.json       # Structured Catch Log facts/relationships
-pwa/catch-content/                  # Optional Catch Notes keyed by stable Catch ID
-pwa/gear-content/                   # Optional Gear Notes keyed by stable Gear ID
-pwa/apply-authored-notes.mjs        # Shared authored-Notes validation/materialization/manifests
-pwa/kb-content/                  # Complete authored Markdown documents
-  locations/
-  species/
-  techniques/                    # Physical home for both Equipment + Technique articles
-  knots/
-pwa/assets/kb/                   # Repository-local KB-specific images
-pwa/assets/gear/                 # Built Gear image assets; may be reused by KB pictures
-pwa/local-media.json             # Active repository-local media configuration
-pwa/apply-local-media.mjs        # Local image validation/materialization + final KB revalidation
-```
+The index is`pwa/data/kb.seed.json`; complete documents live in`pwa/kb-content/`; strict validation is in`pwa/kb-model.js`; UI/routes in`pwa/kb-app.js`; safe shared rendering in`pwa/markdown-render.js`. A new article needs a registered stable ID/type/name/content path and a complete Markdown document. Ordinary edits to an existing Markdown file do not require reauthoring the index if its identity/path stay unchanged. The build verifies registered content and internal targets.
 
-`kb.seed.json` contains one `entities` array. Every entity uses the same six logical fields: ID, Type, Name, Description, Picture, Content.
+The shared renderer handles headings, paragraphs, tables, blockquotes, code, emphasis, links/images, and nested/loose list structure. PR34 fixed nested-list indentation; PR41 fixed loose ordered-list continuation paragraphs and numbering. Valid authored source should not be flattened to work around the renderer. Authored navigation may appear under`# Links`,`## Related`, or any sensible section; tests validate actual stable-ID targets, not a required heading label.
 
-`Content` is represented by a path to one complete Markdown file. The build validates every registered document and internal application link.
+External links use safe HTTP(S).`kb://<id>` and`gear://<id>` resolve stable navigation; registered relative KB links can be resolved through the index. Raw app hash routes/direct Markdown links are not the durable authored convention. Missing internal IDs fail validation rather than fuzzy-matching. This is navigation, not a maintained all-to-all relationship graph.
 
-Equipment and Technique articles currently share the physical `kb-content/techniques/` directory. The `type` field controls user-facing taxonomy; the directory name does not.
+## Catch Log as a separate domain
 
-## 5. Unified KB Entity schema
+Catches need exact historical facts and relationships, so they are not just KB articles. Schema2/data version`2026-09-04-catches-v2-external-notes-1` has5 records. Required Species/Location references, exactly one Lure/Bait, optional known setup/technique, date/time/size and optional exact picture belong in structured Catch data. Do not infer setup/technique from an older narrative or create generic additional-gear/session/trip relationships. Catch backlinks are computed from Catch-owned forward references.
 
-### Dataset envelope
+Optional authored Catch narrative lives at`pwa/catch-content/<catch-id>.md` and renders as one Notes card. PR39 preserved the five original user-authored Exact Spot Notes verbatim while retiring structured Exact Spot Notes, generated Notes, source/Provenance fields, and duplicate narrative cards. A missing file means no Notes. Exact Catch picture takes priority; otherwise Species picture may be used as a presentation fallback. No session ID, Planner Attributes, trip history, or no-bite-session model is part of the product.
 
-```json
-{
-  "schemaVersion": 1,
-  "dataVersion": "YYYY-MM-DD-kb-v1",
-  "entities": []
-}
-```
+## Cross-domain consistency
 
-Current production data version: `2026-09-04-kb-v1-final-content-1`.
+The accepted rule is: store a structured relationship only when current application behavior requires the relationship as a durable fact. Catch's historical references, explicit owned-Gear media ownership and intentional KB reuse of a particular owned picture qualify. A general article link to a lure/rig is sufficient as authored navigation. Do not copy Gear records into KB or add a relationship field simply because another domain has one. My Gear and KB share stable IDs/validation/navigation principles, while their content ownership and storage remain appropriate to their different jobs.
 
-### Entity fields
+The Gear schema4 change is limited to owned product links/taxonomy/media authoring. KB schema1 and Catch schema2 are unaffected. Do not migrate the KB because the Gear category is renamed or the KB card label changes. The source of truth and compatibility rationale are detailed in`DATA_MODEL_RECONCILIATION_DESIGN.md`.
 
-| Field | Required | Type | Rule |
-|---|---:|---|---|
-| `id` | Yes | string | Unique immutable lowercase kebab-case ID. |
-| `type` | Yes | enum | Exactly `location`, `species`, `equipment`, `technique`, or `knot`. |
-| `name` | Yes | string | User-facing entity name. |
-| `description` | No | plain text or null | Optional card/page-header subtext; obeys current description validation. |
-| `picture` | No | picture object or null | Optional representative card/header image. |
-| `content` | Yes | string | Repository-relative path to one complete Markdown document. |
+## Picture and media handling
 
-Stable ID is identity. Names, taxonomy, descriptions, picture source, and Markdown paths may change without changing an ID. Existing `technique-*` IDs may therefore remain unchanged even when an article is now `type: equipment`.
+KB`picture.src` may use safe HTTP(S), safe`./assets/kb/...`, or intentional built owned-Gear`./assets/gear/...` paths. Explicit`gearItemId`/media identity is required where a KB picture depicts a particular owned item. Do not infer ownership from captions or labels or duplicate every Gear image into KB.
 
-## 6. Equipment vs. Technique
+The repository-local media pipeline validates actual image format/structure, extension, size and safe paths, copies exact bytes, updates built metadata and verifies final output. Source-valid KB data can become invalid after media substitution; PR30 established the rule that final deployable transformed data must be revalidated. Do not rely on source validation alone.
 
-The flat five-type taxonomy improves semantic clarity without adding nested navigation.
+User-supplied image binaries are uploaded directly to GitHub at the exact branch/path specified by the assistant; never transport/reconstruct binary bytes through the ChatGPT/GitHub connector. The pending Gear Notes sibling-image policy is confined to Gear authored content, supports safe Gear-ID-prefixed images beside the Markdown, preserves existing Notes image paths, and includes referenced assets offline. It does not alter KB identity or require duplicate media.
 
-### Equipment
+## UI and offline behavior
 
-Use for rigs and terminal presentations, lure-family/equipment guides, rigging-oriented gear knowledge, and practical use/selection information centered on equipment or presentation mechanics.
+Root Knowledge Base Search is always available. A nonempty query hides category cards and shows matching results directly below controls; browse Search appears at10+entries. Card thumbnails use square white contain frames to preserve full source images without cropping. The Knowledge Base remains browsable, with stable routes and complete documents. Catch history is surfaced only where supported by exact relationships; no speculative reverse-link graph.
 
-Examples include Wacky Worm, Ned Rig, Drop Shot, Jigs, Spinnerbait, Chatterbait / Bladed Jig, Crankbait, Jerkbait, Swimbait, Frogs, Inline Spinner, Snaps & Swivels, Flasher Rig, Inline Trolling Rig, Bobber Rig, and Slip Sinker Rig.
+The Service Worker caches the shell, registered KB Content, relevant local KB/media assets, and Gear/Catch Notes manifests. Normal authored Markdown edits trigger the Pages build/deployment. Avoid overlapping direct-main content commits with coordinated runtime PR CI because the shared`fishing-pages` concurrency group cancels in-progress runs.
 
-### Technique
+## Current content acceptance and future work
 
-Use for strategy, seasonal/condition guidance, species-oriented fishing methods, route/boat-control tactics, and broader fishing approaches not centered on one equipment family.
+The PR28 content/imagery batch was accepted and closed through PR32 after source cleanup and media validation. It added Inline Spinner, Snaps & Swivels, Flasher Rig, Inline Trolling Rig, Bobber Rig, Slip Sinker Rig and Spring Fishing, and refreshed the principal lure/rig and Trout Fishing articles. PR34/41 subsequently fixed Markdown renderer behavior. This work is completed historical maintenance, not an open migration.
 
-Examples include Trout Fishing, Spring Fishing, paddle-only kayak strategy, seasonal bass guidance, color/scent, and water visibility.
-
-There is no nested taxonomy or subtype field.
-
-## 7. Picture object and local media
-
-Representative picture shape:
-
-```json
-{
-  "src": "./assets/kb/example.png",
-  "alt": "Descriptive alternative text",
-  "caption": "Optional caption",
-  "credit": null,
-  "sourceUrl": null,
-  "gearItemId": "optional-stable-owned-gear-id"
-}
-```
-
-When `gearItemId` is present, it must resolve to an existing My Gear record. This is used when the representative image depicts a specific owned item; the UI may link the caption to that exact My Gear leaf.
-
-### Allowed picture sources
-
-A KB `picture.src` may be an `http(s)` URL, a safe repository-local path under `./assets/kb/...`, or a safe repository-local path under `./assets/gear/...` when intentionally reusing a built owned-Gear image. Arbitrary local roots are invalid.
-
-The Gear-backed case is deliberate and required by PR #28's image-reuse design for Swimbait, Jerkbait, Crankbait, Chatterbait, Spinnerbait, and Jig.
-
-Repository-local media is configured in `local-media.json` and validated/materialized by `apply-local-media.mjs`. Validation checks image size, supported format structure/signatures, and extension consistency. PR #32 confirmed the user's replacement Largemouth/Smallmouth Bass images through this same pipeline.
-
-Separate thumbnail files are not required; one source asset is scaled by presentation CSS.
-
-### Final-form validation rule
-
-The build first validates source `kb.seed.json`, but `apply-local-media.mjs` may replace picture metadata in the **built** KB bundle. It therefore re-runs `validateKbBundle()` after all local-media substitutions and before deployment.
-
-This rule was added in PR #30 after PR #28 exposed a gap: source data was valid, but six transformed picture paths were rejected by the old runtime validator. General rule: whenever a build stage mutates already-validated structured data, validate the **final deployable transformed form**, not just the source.
-
-### User-supplied binary convention
-
-ChatGPT must **not** upload/base64-transport user image binaries through connector tool calls. The user uploads the binary directly to the specified GitHub feature branch/path; ChatGPT verifies it and handles text/config/tests/release work.
-
-## 8. Content rules
-
-The complete Markdown document may contain any useful headings and narrative structure, including Use / When to Use, Rigging / Setup, Technique / Retrieve, Gear / Tackle, Notes / Warnings, Resources, tables, nested unordered/ordered lists, external links, `gear://stable-id`, `kb://stable-id`, registered relative KB-document links, and embedded local/external images.
-
-The app does **not** parse headings or prose to infer structured facts or relationships.
-
-Content-only Markdown edits are valid. Renaming or moving a document requires updating the entity's `content` path in `kb.seed.json`.
-
-Authored stable-ID navigation is semantically independent of the heading it appears under. `# Links`, `## Related`, or another sensible section is acceptable; the durable requirement is that the `gear://` / `kb://` target exists. PR #32 changed the final-content regression accordingly.
-
-Markdown list indentation is also semantic. PR #34 changed the custom renderer so indented child items remain nested `<ul>` / `<ol>` structures rather than being flattened. Regression tests cover nested unordered and ordered lists. Correctly authored nested source should not be flattened as a workaround.
-
-## 9. Link rules
-
-- External websites use ordinary Markdown links.
-- Registered relative Markdown links become KB routes.
-- My Gear navigation uses `gear://stable-gear-id`.
-- KB navigation uses `kb://stable-kb-id`.
-- Build validation requires internal IDs/registered paths to exist.
-- Authored links are navigation, not automatically maintained reverse relationships.
-- Tests validate stable-ID link presence/targets, not a particular Markdown heading label.
-- Catch relationships always store stable IDs directly.
-- No fuzzy relationship creation is permitted.
-
-## 10. Structured Catch Log
-
-Catch Log remains separate because catches are structured historical records with exact relationships.
-
-### Dataset envelope
-
-```json
-{
-  "schemaVersion": 2,
-  "dataVersion": "YYYY-MM-DD-catches-v2",
-  "catches": []
-}
-```
-
-Current core rules:
-
-- immutable catch stable ID;
-- historical date/time and size;
-- required `speciesId` and `locationId`;
-- optional `rodReelSetupId` only when known;
-- optional presentation/technique reference only when explicitly recorded;
-- exactly one Lure or Bait stable ID plus name snapshot;
-- optional exact catch picture;
-- optional authored Notes at `pwa/catch-content/<catch-id>.md`, keyed deterministically by stable Catch ID.
-
-Structured Catch records do **not** contain Exact Spot Notes, generated Notes, or source/Provenance fields. Existing user-authored Exact Spot Notes were migrated verbatim into the external Notes files in PR #39.
-
-Historical setup/technique is never inferred solely from lure type or general context.
-
-## 11. Catch backlinks and pictures
-
-Only Catch records own catch relationships. Backlinks are computed at render time for Location and Species KB pages and for applicable Gear setup/lure/bait pages. Equipment, Technique, and Knot KB pages do not currently render Catch backlinks. KB/Gear records do not store duplicate catch-ID arrays.
-
-If a Catch has an exact `picture`, use it; otherwise, use the linked Species representative picture as the UI fallback. The fallback does not copy Species image data into the Catch record.
-
-## 12. Routes
-
-```text
-#/kb
-#/kb/locations
-#/kb/species
-#/kb/equipment
-#/kb/techniques
-#/kb/knots
-#/kb/entity/{stable-id}
-#/kb/catches
-#/kb/catch/{stable-id}
-```
-
-All five entity-category lists are filtered views of the same entity collection. My Gear owns all `#/inventory/...` routes; KB owns Home and all `#/kb/...` routes.
-
-## 13. Browse/search conventions
-
-- Root Knowledge Base has Search.
-- Entity lists show Search at **10+ entries**.
-- Smaller lists omit Search.
-- Search is a presentation filter; it does not create stored relationships.
-- Equipment/Technique remain peer categories rather than nested navigation.
-
-## 14. Production content state
-
-PR #28 refreshed Swimbait, Jerkbait, Crankbait, Chatterbait / Bladed Jig, Spinnerbait, Jigs, Frogs, Drop Shot, Wacky Worm, Ned Rig, and Trout Fishing, and added Inline Spinner, Snaps & Swivels, Flasher Rig, Inline Trolling Rig, Bobber Rig, Slip Sinker Rig, and Spring Fishing.
-
-The user completed a broad manual formatting cleanup of the imported pages on 2026-09-04. Final acceptance reviewed the modified Equipment/Technique documents, fixed residual structure/wrapping issues, validated replacement Largemouth/Smallmouth Bass images, and production-deployed PR #32 successfully.
-
-**PR #28 content acceptance is closed.** Future changes to these articles are ordinary KB maintenance.
-
-Late-night ordinary content maintenance surrounding and after PR #34 updated Buzzbait, Fishing Line, Rods & Reels, Walking Bait, Slip Sinker Rig, Bobber Rig, Flasher Rig, Inline Spinner, and Inline Trolling Rig. The final audited production content checkpoint is `955d37bf675f3163fe610324809a972916c98ef0`, run #166 / `33851195203`, success.
-
-## 15. Validation invariants
-
-Build/tests verify at least:
-
-- KB schema version/dataVersion and exact allowed entity fields;
-- valid five-type enum;
-- unique stable IDs and one-to-one Content paths;
-- registered Markdown documents exist;
-- description-length convention;
-- local picture paths restricted to accepted http(s), `./assets/kb/...`, or `./assets/gear/...` forms;
-- local image format/integrity;
-- `gearItemId`, `gear://`, and `kb://` targets resolve;
-- authored stable-ID navigation is retained independent of section heading;
-- registered relative KB links resolve;
-- nested unordered/ordered Markdown lists retain indentation-based hierarchy in renderer regression tests;
-- Catch schema-v2 exact fields and Species/Location/Gear/presentation references resolve to valid targets/categories;
-- external Catch Notes files map one-to-one to valid Catch stable IDs and are materialized into the deployable/offline bundle;
-- exactly one lure-or-bait per Catch;
-- no historical inference/fuzzy fallback;
-- route ownership and retired Planner behavior remain guarded by tests;
-- **the fully transformed built KB bundle is valid after local-media substitution**.
-
-## 16. Editing/storage direction
-
-The current KB is browse-only and does not need IndexedDB merely for symmetry with My Gear. JSON catalog + Markdown documents are appropriate to authored knowledge.
-
-If future KB/Catch editing is requested, add a repository/store layer only when the editing feature justifies it. Catch structured facts remain JSON while authored Notes remain stable-ID Markdown until such a feature requires another persistence layer. Do not change storage merely to make all domains physically identical.
-
-## 17. Current release verification
-
-Latest verified runtime release:
-
-- PR #39 exact tested head `77ec40db223b275366a73091974ecd4d421a2c90`
-- PR CI #196 / `33907218850` — success
-- merge `e997492b995f7e7cb8fa4af21ef1f2953df63a78`
-- production #197 / `33907284576` — tests, build, authored-Notes/local-media validation, bundle verification, Pages artifact, and Deploy to GitHub Pages all succeeded
-
-Latest verified production content checkpoint: `955d37bf675f3163fe610324809a972916c98ef0`; production #166 / `33851195203` succeeded through all tests and Pages deployment.
-
-## 18. Durable conflicts still unresolved
-
-- PowerBait still-rig hook size: #4 in OneNote examples vs. prior #8 guidance.
-- Loop-knot guidance: OneNote warning vs. some lure/presentation recommendations.
-
-Keep both conflicts explicit until deliberately resolved; do not let unrelated content edits silently decide them.
+Future ordinary content work includes Texas, Carolina, Alabama and Neko rigs, Spoons, and relevant research in the canonical TODO. Maintain source facts and avoid inventing missing ownership or relationships. The immediate project release task is FISH-TODO-058, the preserved unmerged Gear refinement; it does not require redesigning the KB. Complete the normal release and update deployment status only after exact-head CI, merge, and actual Pages deployment succeed.
