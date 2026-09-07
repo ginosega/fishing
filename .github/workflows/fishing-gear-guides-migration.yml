@@ -18,15 +18,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Apply exact source and regression migration
+      - name: Apply approved Notes media changes
         run: |
-          echo 'Applying corrected ordered-links migration'
-          node pwa/migrate-gear-guides.mjs
-          node pwa/migrate-gear-guides-tests.mjs
-          node --check pwa/gear-model.js
-          node --check pwa/gear-store.js
+          node pwa/migrate-gear-notes-media.mjs
           node --check pwa/gear-app.js
-          node --check pwa/kb-app.js
+          node --check pwa/apply-authored-notes.mjs
+          node --check pwa/apply-local-media.mjs
+          node --check pwa/image-validation.mjs
+          node pwa/gear-media-policy.test.mjs
           node pwa/gear-model.test.mjs
           node pwa/my-gear-routing.test.mjs
           node pwa/kb-model.test.mjs
@@ -36,6 +35,6 @@ jobs:
         run: |
           git config user.name "Fishing Project"
           git config user.email "actions@users.noreply.github.com"
-          git add pwa/gear-model.js pwa/gear-store.js pwa/gear-app.js pwa/kb-app.js pwa/index.html pwa/data/gear.seed.json pwa/gear-model.test.mjs pwa/my-gear-routing.test.mjs pwa/kb-routing.test.mjs pwa/final-content.test.mjs
-          git commit -m "Refine Gear taxonomy and migrate to ordered links"
+          git add pwa/gear-app.js pwa/index.html pwa/apply-authored-notes.mjs pwa/apply-local-media.mjs pwa/build.mjs pwa/image-validation.mjs
+          git commit -m "Support sibling Notes images and explicit picture replacement"
           git push origin HEAD:feature/gear-guides-ordered-links
