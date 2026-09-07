@@ -20,6 +20,7 @@ jobs:
           node-version: '22'
       - name: Apply exact source and regression migration
         run: |
+          echo 'Applying corrected ordered-links migration'
           node pwa/migrate-gear-guides.mjs
           node pwa/migrate-gear-guides-tests.mjs
           node --check pwa/gear-model.js
