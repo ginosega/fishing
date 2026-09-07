@@ -1,6 +1,6 @@
 # Fishing TODO
 
-_Last updated: 2026-09-06_
+_Last updated: 2026-09-07_
 
 This file is the canonical backlog for unresolved Fishing-project verification items, research tasks, equipment questions, technique work, and owner follow-ups.
 
@@ -26,8 +26,7 @@ The application has three durable data domains: My Gear uses structured JSON/Ind
 
 | ID | Priority | Status | Area | Work item | Next action / notes |
 |---|---|---|---|---|---|
-| FISH-TODO-058 | P1 | IN PROGRESS | PWA / Gear authoring release | Complete approved Gear taxonomy, ordered-links, Notes-image, and legacy-picture replacement release. | Source preserved on `feature/gear-guides-ordered-links` at `24ea22ac187f81b42c2d91743e0a470ba3d1ad94`. Full temporary build/tests passed, but no normal PR/merge/production deployment. Incorporate this documentation handoff, remove temporary scripts/workflow, integrate permanent media-policy and final-bundle checks, run exact-head PR CI, merge and verify actual Pages deployment. See `Fishing_Release_Handoff_2026-09-06.md`. Do not mark complete before release verification. |
-| FISH-TODO-059 | P3 | WAITING ON USER | My Gear / media | Replace Cylinder Weights legacy picture. | Once the new editor is deployed, prepare a replacement handoff and upload the actual image directly to GitHub. Preserve Gear ID `cylinder-weights`, media ID `thkfish-cylinder-weights`, and existing image until the valid replacement is registered. Suggested source path: `pwa/assets/gear-source/cylinder-weights.png` or matching actual extension. |
+| FISH-TODO-060 | P1 | IN PROGRESS | PWA / KB authoring | Add validated Add/Edit authoring to all five KB types. | Implement on `feature/kb-authoring`, PR #48. Reuse Gear handoff conventions, preserve source/derived media and stable paths, validate promotion and final bundle, remove temporary integration artifacts, run exact-head CI, merge and verify Pages. No data migration or new local database. |
 | FISH-TODO-005 | P2 | WAITING ON USER | Gear registry | Verify exact fish-finder power system installed state. | OneNote has parts: Amped Outdoors 12V 8Ah battery, 3A inline fuse, 2-pin IP68 connector, disconnects; confirm what is actually installed. |
 | FISH-TODO-006 | P2 | OPEN | Kayak | Verify Bonafide RVR119 brass insert bolt/thread sizes. | Recover source details from historical chats/OneNote, manufacturer documentation, or user measurement. |
 | FISH-TODO-007 | P2 | OPEN | Kayak rigging | Decide whether/how to modify rear flush rod-holder angle. | Preserve installed Pelican rod-holder details; evaluate alternatives to heat-bending. |
@@ -67,6 +66,8 @@ The application has three durable data domains: My Gear uses structured JSON/Ind
 
 | ID | Completed | Area | Resolution |
 |---|---|---|---|
+| FISH-TODO-058 | 2026-09-07 | PWA / Gear authoring release | PR #47 merged at `f05b7ec532d8e45f3fc36c1e0976c5ea40eb9983`. PR CI #239 / `34135260691` and production #240 / `34135326910` passed, including actual Pages deployment. Schema4, ordered links, Equipment/Gear Guides labels, Notes images, picture replacement and permanent regression checks are live and user accepted. Temporary migration artifacts removed. |
+| FISH-TODO-059 | 2026-09-07 | My Gear / media | User uploaded `pwa/assets/gear-source/thkfish-cylinder-weights.jpg`; PR47 registered it while preserving Gear ID `cylinder-weights`, media ID `thkfish-cylinder-weights`, ownership and provenance. User verified the new image appears on the live site. |
 | FISH-TODO-001 | 2026-08-29 | Project migration | OneNote fishing/kayak notebook content migrated into the durable GitHub Markdown knowledge base. |
 | FISH-TODO-002 | 2026-08-29 | Project migration | Migration audit/reconciliation closed by user scope decision: OneNote was the most up-to-date historical source of truth; exhaustive transcript-by-transcript historical-chat reconciliation was not required. Dedicated audit/reconciliation files were retired after closure. |
 | FISH-TODO-003 | 2026-08-29 | Project architecture | GitHub-based new-chat bootstrap prompt completed for normal ongoing project use. |

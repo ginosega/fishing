@@ -4,6 +4,8 @@ import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
 import { validateGearBundle } from './gear-model.js';
 import { validateKbBundle, validateCatchBundle } from './kb-model.js';
+import { materializeKbEntity,validateKbMediaBundle } from './kb-picture-model.js';
+import { stableJson } from './authoring-common.js';
 const here=path.dirname(fileURLToPath(import.meta.url));
 const dist=path.join(here,'dist');
 const read=async name=>JSON.parse(await fs.readFile(path.join(dist,name),'utf8'));
@@ -38,6 +40,23 @@ for(const image of media) {
     assert.ok(image.sourcePath.startsWith('pwa/assets/gear-source/'),`Invalid repository source ${image.sourcePath}`);
     assert.equal(image.localSource,true);
   }
+}
+const sourceKb=await read('kb-authoring-source.json');
+const kbMedia=await read('kb-media.json');
+const sourceValidation=validateKbBundle(sourceKb);
+assert.ok(sourceValidation.valid,sourceValidation.errors.join('; '));
+const sourceOnDisk=JSON.parse(await fs.readFile(path.join(here,'data/kb.seed.json'),'utf8'));
+assert.equal(stableJson(sourceKb),stableJson(sourceOnDisk),'Authoring snapshot must equal repository source.');
+const localMedia=JSON.parse(await fs.readFile(path.join(here,'local-media.json'),'utf8'));
+assert.equal(stableJson(kbMedia.kb),stableJson(localMedia.kb),'Deployed overlay must match repository media ownership.');
+const overlayValidation=validateKbMediaBundle(kbMedia,sourceKb,gear,media);
+assert.ok(overlayValidation.valid,overlayValidation.errors.join('; '));
+assert.equal(stableJson(kb),stableJson({...sourceKb,entities:sourceKb.entities.map(entity=>materializeKbEntity(entity,kbMedia,media,gear))}),
+  'Every deployed KB entity must be the exact materialization of its canonical source and media overlay.');
+for(const item of kbMedia.kb) if(item.source) {
+  const filename=path.resolve(dist,item.source);
+  assert.ok(filename.startsWith(dist+path.sep));
+  assert.ok((await fs.stat(filename)).isFile(),`Missing KB picture ${item.source}`);
 }
 assert.equal(gear.schemaVersion,4);
 assert.ok(gear.items.length>=64);

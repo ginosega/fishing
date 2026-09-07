@@ -1,6 +1,7 @@
 import { GearRepository } from './gear-store.js';
 import { validateKbBundle, validateCatchBundle, groupEntitiesByType, catchesForEntity } from './kb-model.js';
 import { renderMarkdown, renderCatchCard, formatCatchDate, formatCatchSize } from './markdown-render.js';
+import { mountKbEditor } from './kb-authoring.js';
 
 const TYPE_META = {
   location: { label:'Locations', icon:'📍', description:'Waters, access, seasonal patterns, and local observations' },
@@ -15,7 +16,7 @@ const app = document.querySelector('#app');
 const homeButton = document.querySelector('#homeButton');
 const statusDot = document.querySelector('#onlineStatus');
 const gearRepository = new GearRepository();
-const state = { kb:null, catches:null, gear:null, content:new Map(), entityByContentPath:new Map(), catchNoteAssets:null, catchNotes:new Map() };
+const state = { kb:null, kbSource:null, catches:null, gear:null, content:new Map(), entityByContentPath:new Map(), catchNoteAssets:null, catchNotes:new Map(), media:[], localMedia:{kb:[]} };
 
 const ready = initialize();
 
@@ -28,19 +29,27 @@ window.addEventListener('offline', updateOnlineStatus);
 homeButton?.addEventListener('click', () => navigate('#/home'));
 
 async function initialize() {
-  const [kb, catches, gear, catchNoteAssets] = await Promise.all([
+  const [kb, kbSource, catches, gear, catchNoteAssets, media, localMedia] = await Promise.all([
     fetchJson('./data/kb.seed.json'),
+    fetchJson('./kb-authoring-source.json'),
     fetchJson('./data/catches.seed.json'),
     gearRepository.initialize(),
-    fetchJson('./catch-notes-assets.json', null)
+    fetchJson('./catch-notes-assets.json', null),
+    fetchJson('./gear-media.json', []),
+    fetchJson('./kb-media.json', {kb:[]})
   ]);
   const kbValidation = validateKbBundle(kb);
   if (!kbValidation.valid) throw new Error(`Invalid Knowledge Base data: ${kbValidation.errors.join(' ')}`);
   const catchValidation = validateCatchBundle(catches, kb, gear);
   if (!catchValidation.valid) throw new Error(`Invalid Catch Log data: ${catchValidation.errors.join(' ')}`);
+  const sourceValidation = validateKbBundle(kbSource);
+  if (!sourceValidation.valid || kbSource.dataVersion !== kb.dataVersion || kbSource.schemaVersion !== kb.schemaVersion) throw new Error('KB authoring source does not match the deployed data.');
   state.kb = kb;
+  state.kbSource = kbSource;
   state.catches = catches;
   state.gear = gear;
+  state.media = media;
+  state.localMedia = localMedia;
   state.catchNoteAssets = Array.isArray(catchNoteAssets) ? new Set(catchNoteAssets) : null;
   state.entityByContentPath = new Map(kb.entities.map(entity => [entity.content, entity]));
   updateOnlineStatus();
@@ -62,6 +71,8 @@ async function renderRoute() {
     if (!parts.length || parts[0] === 'home') return renderHome();
     if (parts[0] !== 'kb') return navigate('#/home');
     if (!parts[1]) return renderKbIndex();
+    if (parts[1] === 'new') return renderKbEditor(null, false, parts[2] || '');
+    if (parts[1] === 'edit') return renderKbEditor(state.kb.entities.find(row => row.id === decodeURIComponent(parts.slice(2).join('/'))) || null, true);
     if (parts[1] === 'catches') return renderCatchList();
     if (parts[1] === 'catch' && parts[2]) return renderCatch(decodeURIComponent(parts.slice(2).join('/')));
     if (parts[1] === 'entity' && parts[2]) return renderEntity(decodeURIComponent(parts.slice(2).join('/')));
@@ -92,7 +103,8 @@ function renderKbIndex() {
     <section class="category-grid kb-category-grid" id="kbCategoryGrid">${Object.entries(TYPE_META).map(([type, meta]) => categoryCard(meta.icon, meta.label, meta.description, `#/kb/${plural(type)}`, groups[type].length)).join('')}
       ${categoryCard('🗒️', 'Catch Log', 'Recorded catches with stable links to species, locations, techniques, setups, lures, and bait', '#/kb/catches', state.catches.catches.length)}
     </section>
-    <section class="item-list root-search-results" id="kbRootSearchResults" hidden></section>`;
+    <section class="item-list root-search-results" id="kbRootSearchResults" hidden></section>
+    ${kbPageActions('<a class="text-action" href="#/kb/new" data-kb-route="#/kb/new">＋ Add KB entry</a>')}`;
   const search = document.querySelector('#kbRootSearch');
   const categories = document.querySelector('#kbCategoryGrid');
   const results = document.querySelector('#kbRootSearchResults');
@@ -120,7 +132,8 @@ function renderEntityList(type) {
       id:'kbEntitySearch',
       placeholder:`Search ${meta.label.toLowerCase()}…`
     } : null)}
-    <section class="item-list" id="kbEntityList"></section>`;
+    <section class="item-list" id="kbEntityList"></section>
+    ${kbPageActions(`<a class="text-action" href="#/kb/new/${type}" data-kb-route="#/kb/new/${type}">＋ Add ${{location:'Location',species:'Species',equipment:'Gear Guide',technique:'Technique',knot:'Knot'}[type]} entry</a>`)}`;
   const draw = () => {
     const q = normalize(document.querySelector('#kbEntitySearch')?.value || '');
     const filtered = entities.filter(entity => !q || normalize(`${entity.name} ${entity.description || ''}`).includes(q));
@@ -137,13 +150,35 @@ async function renderEntity(id) {
   app.innerHTML = `${pageHeader(entity.name, entity.description || '', `#/kb/${plural(entity.type)}`)}<section class="loading-card compact"><div class="spinner" aria-hidden="true"></div><p>Loading content…</p></section>`;
   bindRoutes();
   const content = await loadContent(entity.content);
+  if (location.hash !== `#/kb/entity/${encodeURIComponent(id)}`) return;
   const catchFieldName = catchField(entity.type);
   const catches = catchFieldName ? catchesForEntity(state.catches, catchFieldName, entity.id) : [];
   app.innerHTML = `${pageHeader(entity.name, entity.description || '', `#/kb/${plural(entity.type)}`)}
     ${representativePicture(entity.picture, entity.name)}
     <article class="panel kb-content">${renderMarkdown(content, { contentPath:entity.content, entityByContentPath:state.entityByContentPath })}</article>
-    ${catchFieldName ? catchBacklinks(catches) : ''}`;
+    ${catchFieldName ? catchBacklinks(catches) : ''}
+    ${kbPageActions(`<a class="text-action" href="#/kb/edit/${encodeURIComponent(entity.id)}" data-kb-route="#/kb/edit/${escapeAttr(entity.id)}">Edit KB entry</a>`)}`;
   bindRoutes();
+}
+
+async function renderKbEditor(entity, requestedExisting=false, initialType='') {
+  if (requestedExisting && !entity) return navigate('#/kb');
+  const route = entity ? `#/kb/edit/${encodeURIComponent(entity.id)}` : initialType ? `#/kb/new/${initialType}` : '#/kb/new';
+  const back = entity ? `#/kb/entity/${encodeURIComponent(entity.id)}` : initialType ? `#/kb/${plural(initialType)}` : '#/kb';
+  const title = entity ? 'Edit KB Entry' : 'New KB Entry';
+  app.innerHTML = `${pageHeader(title, entity ? 'Loading the complete authored document…' : 'Create a new Knowledge Base entry for handoff.', back)}<section class="loading-card compact"><div class="spinner" aria-hidden="true"></div><p>Loading editor…</p></section>`;
+  bindRoutes();
+  const markdown = entity ? await loadContent(entity.content) : '';
+  if (location.hash !== route) return;
+  app.innerHTML = `${pageHeader(title, entity ? 'Prepare a validated change package for this KB entry.' : 'Create a new Knowledge Base entry for handoff.', back)}<div id="kbEditorRoot"></div>`;
+  bindRoutes();
+  mountKbEditor({root:document.querySelector('#kbEditorRoot'),bundle:state.kb,sourceBundle:state.kbSource,gearBundle:state.gear,catchBundle:state.catches,
+    original:entity,sourceOriginal:entity ? state.kbSource.entities.find(row => row.id === entity.id) : null,markdown,media:state.media,localMedia:state.localMedia,initialType,entityByContentPath:state.entityByContentPath,
+    onCancel:()=>navigate(back)});
+}
+
+function kbPageActions(content) {
+  return `<div class="page-actions">${content}</div>`;
 }
 
 function renderCatchList() {

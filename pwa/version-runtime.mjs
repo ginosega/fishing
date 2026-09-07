@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-export const RUNTIME_MODULES = ['gear-app.js', 'kb-app.js', 'gear-store.js', 'gear-model.js', 'kb-model.js', 'markdown-render.js', 'media-ui.js'];
+export const RUNTIME_MODULES = ['gear-app.js', 'kb-app.js', 'gear-store.js', 'gear-model.js', 'kb-model.js', 'kb-authoring.js', 'kb-authoring-model.js', 'kb-picture-model.js', 'authoring-common.js', 'markdown-render.js', 'media-ui.js'];
 const MODULE_SET = new Set(RUNTIME_MODULES);
 
 export function versionModuleSource(source, version) {

@@ -1,3 +1,11 @@
+# Closure — September 7, 2026
+
+This is a historical recovery/release record, not an active continuation instruction. The preserved Gear feature was reconciled with PR46 and the user-uploaded Cylinder Weights image, cleaned, validated and merged in PR47. Final head `fd0f07e2929343303f93f8b9433326c7301543bb` passed PR CI #239 / `34135260691`; merge `f05b7ec532d8e45f3fc36c1e0976c5ea40eb9983` passed production #240 / `34135326910`, including actual Pages deployment. The user verified the Gear refinement and new Cylinder Weights image. FISH-TODO-058 and 059 are DONE. The seven one-time migration/finalization artifacts were removed; permanent image validation, media policy and final-bundle checks remain.
+
+The current work is KB Add/Edit, FISH-TODO-060, PR48 / `feature/kb-authoring`. Fetch current main and the authoritative Context/TODO before continuing; do not resume the old migration branch or rerun its one-time scripts.
+
+---
+
 # Fishing Release Handoff — 2026-09-06
 
 **Status: IN PROGRESS / NOT DEPLOYED.** This is the durable handoff for the interrupted Gear authoring refinement. It records the source state and release obligations; it is not a claim that the pending feature is live.

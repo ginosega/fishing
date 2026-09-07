@@ -49,6 +49,11 @@ jobs:
           node --check pwa/gear-store.js
           node --check pwa/gear-model.js
           node --check pwa/kb-model.js
+          node --check pwa/authoring-common.js
+          node --check pwa/kb-authoring.js
+          node --check pwa/kb-authoring-model.js
+          node --check pwa/kb-picture-model.js
+          node --check pwa/promote-kb-change.mjs
           node --check pwa/markdown-render.js
           node --check pwa/media-ui.js
           node --check pwa/build.mjs
@@ -69,6 +74,10 @@ jobs:
         run: node pwa/kb-model.test.mjs
       - name: Test Knowledge Base routing and Markdown
         run: node pwa/kb-routing.test.mjs
+      - name: Test Knowledge Base Add/Edit and source-aware media
+        run: node pwa/kb-authoring.test.mjs
+      - name: Test Knowledge Base repository promotion
+        run: node pwa/kb-promotion.test.mjs
       - name: Test final content batch
         run: node pwa/final-content.test.mjs
       - name: Build PWA
@@ -88,6 +97,12 @@ jobs:
           test -f pwa/dist/gear-store.js
           test -f pwa/dist/gear-model.js
           test -f pwa/dist/kb-model.js
+          test -f pwa/dist/kb-authoring.js
+          test -f pwa/dist/kb-authoring-model.js
+          test -f pwa/dist/kb-picture-model.js
+          test -f pwa/dist/authoring-common.js
+          test -f pwa/dist/kb-authoring-source.json
+          test -f pwa/dist/kb-media.json
           test -f pwa/dist/markdown-render.js
           test -f pwa/dist/data/gear.seed.json
           test -f pwa/dist/data/kb.seed.json
