@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { readValidatedImage } from './image-validation.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const out = path.join(here, 'dist');
@@ -27,6 +28,7 @@ await materializeNotes({
   sourceDir:'gear-content',
   ids:gearIds,
   localAssetRoot:'assets/gear-notes/',
+  siblingImages:true,
   manifest:'gear-notes-assets.json'
 });
 await materializeNotes({
@@ -71,11 +73,20 @@ async function materializeNotes(config) {
 
     for (const imageTarget of extractMarkdownImages(markdown)) {
       if (/^https?:\/\//i.test(imageTarget)) continue;
+      if (/^(?:\/|\\|[a-z][a-z0-9+.-]*:)/i.test(imageTarget)) throw new Error(`Unsafe Notes image target: ${imageTarget}`);
       const imagePath = normalizeBuildPath(path.posix.join(path.posix.dirname(relativeContentPath), imageTarget));
-      if (!imagePath.startsWith(config.localAssetRoot)) {
-        throw new Error(`${relativeContentPath} references local image outside ./${config.localAssetRoot}: ${imageTarget}`);
+      const sibling = config.siblingImages && imagePath.startsWith(config.sourceDir + '/') &&
+        path.posix.dirname(imagePath) === config.sourceDir &&
+        path.posix.basename(imagePath).startsWith(id + '-') &&
+        /^[a-z0-9][a-z0-9._-]*\.(?:jpe?g|png|webp|gif)$/.test(path.posix.basename(imagePath)) &&
+        !path.posix.basename(imagePath).includes('..');
+      const legacy = imagePath.startsWith(config.localAssetRoot);
+      if (!sibling && !legacy) {
+        throw new Error(`${relativeContentPath} references local image outside its approved Notes image locations: ${imageTarget}`);
       }
-      await copyBuildFile(safePwaPath(imagePath), imagePath, config.label);
+      const imageSource = safePwaPath(imagePath);
+      await readValidatedImage(imageSource);
+      await copyBuildFile(imageSource, imagePath, config.label);
       assets.add(`./${imagePath}`);
     }
   }

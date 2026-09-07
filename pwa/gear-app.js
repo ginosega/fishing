@@ -3,18 +3,19 @@ import { gearDisplayModel, gearSpecificationText, gearLinks, validateGearBundle,
 import { renderMarkdown, renderCatchCard } from './markdown-render.js';
 
 const ACCESSORIES_ICON = `<svg viewBox="0 0 64 64" role="img" aria-label="Kayak">
-  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M9 19 55 45" stroke="#8f979b" stroke-width="3"/>
-    <path d="m7 16 9 4-5 7-7-8Z" fill="#a9afb2" stroke="#737b80" stroke-width="1.5"/>
-    <path d="m57 48-9-4 5-7 7 8Z" fill="#a9afb2" stroke="#737b80" stroke-width="1.5"/>
-    <path d="M9 47 55 17" stroke="#8f979b" stroke-width="3"/>
-    <path d="m7 50 9-5-5-7-7 9Z" fill="#a9afb2" stroke="#737b80" stroke-width="1.5"/>
-    <path d="m57 14-9 5 5 7 7-9Z" fill="#a9afb2" stroke="#737b80" stroke-width="1.5"/>
-    <path d="M7 32c8-10 17-15 25-15s17 5 25 15c-8 10-17 15-25 15S15 42 7 32Z" fill="#76c8ef" stroke="#2f8fc0" stroke-width="2"/>
-    <ellipse cx="32" cy="32" rx="9" ry="6" fill="#eef7fb" stroke="#2f8fc0" stroke-width="2"/>
+  <defs><linearGradient id="kayakHull" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a2def7"/><stop offset="1" stop-color="#76c8ef"/></linearGradient></defs>
+  <g transform="rotate(-35 32 32)" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M32 3 C40 9 43 20 43 32 C43 46 38 56 32 61 C26 56 21 46 21 32 C21 20 24 9 32 3Z" fill="url(#kayakHull)" stroke="#2f8fc0" stroke-width="2"/>
+    <path d="M32 5 C27 12 25 20 25 32 M32 5 C37 12 39 20 39 32" fill="none" stroke="#e5f6fd" stroke-width=".8" opacity=".8"/>
+    <path d="M25 15 39 19 M25 19 39 15 M24 45 40 49 M24 49 40 45" fill="none" stroke="#367da3" stroke-width="1.2"/>
+    <ellipse cx="32" cy="32" rx="8.5" ry="12" fill="#233b4e" stroke="#377fa4" stroke-width="1.6"/>
+    <ellipse cx="32" cy="32" rx="5.2" ry="7.5" fill="#344d60"/>
+    <path d="M27 27 Q32 24 37 27 M27 37 Q32 40 37 37" fill="none" stroke="#6d8998" stroke-width="1.2"/>
+    <path d="M8 32H56" stroke="#555e63" stroke-width="2.8"/>
+    <path d="M8 29 3 25 Q1 32 3 39 L8 35Z" fill="#a9afb2" stroke="#737b80" stroke-width="1.2"/>
+    <path d="M56 29 61 25 Q63 32 61 39 L56 35Z" fill="#a9afb2" stroke="#737b80" stroke-width="1.2"/>
   </g>
 </svg>`;
-
 const CATEGORY_META = {
   'rods-reels': { label:'Rods & Reels', icon:'🎣' },
   line: { label:'Line', icon:'〰️' },
@@ -23,7 +24,7 @@ const CATEGORY_META = {
   hooks: { label:'Hooks', icon:'🪝' },
   lures: { label:'Lures', icon:'🐟' },
   bait: { label:'Bait', icon:'🪱' },
-  accessories: { label:'Accessories', iconHtml:ACCESSORIES_ICON }
+  accessories: { label:'Equipment', iconHtml:ACCESSORIES_ICON }
 };
 const CATEGORY_ORDER = Object.keys(CATEGORY_META);
 const TYPE_ORDER = {
@@ -205,7 +206,6 @@ function renderSetup(item) {
 
 function componentPanel(title,component) {
   const links = [];
-  if (component.manufacturer.url) links.push({kind:'manufacturer',label:component.manufacturer.name,url:component.manufacturer.url});
   links.push(...(component.links || []));
   return `<section class="panel"><h2 class="subsection-heading">${escapeHtml(title)}</h2><div class="detail-grid">
     ${detailCell('Manufacturer / Model',escapeHtml(`${component.manufacturer.name} / ${component.model}`))}
@@ -270,14 +270,17 @@ function renderProductEditor(item, notesMarkdown) {
   const currentMedia = editing ? directMediaForItem(item.id) : null;
   const hasPicture = Boolean(currentMedia);
   const hasNotes = Boolean(notesMarkdown.trim());
-  const currentFilename = basename(currentMedia?.asset || '');
+  const currentFilename = currentMedia?.sourcePath ? basename(currentMedia.sourcePath) : '';
+  const suggestedFilename = item ? `${item.id}.png` : '';
+  const pictureSource = currentMedia?.sourcePath || currentMedia?.imageSource || '';
+  const currentMediaId = currentMedia?.id || item?.id || null;
   const initialCategory = item?.category || '';
   const initialType = item?.type || '';
   const specs = item?.specifications?.length ? item.specifications : [{label:'',value:''}];
-  const links = item?.links?.length ? item.links : [{kind:'other',label:'',url:''}];
+  const links = item?.links?.length ? item.links : [{label:'',url:''}];
   const back = editing ? `#/inventory/item/${item.id}` : '#/inventory';
 
-  app.innerHTML = `${pageHeader(editing ? 'Edit Gear Item' : 'New Gear Item', editing ? 'Prepare a validated change package for this Gear record.' : 'Create a validated Gear item package for repository handoff.', back)}
+  app.innerHTML = `${pageHeader(editing ? 'Edit Gear Item' : 'New Gear Item', editing ? 'Prepare a validated change package for this Gear record.' : 'Create a new Gear item entry for handoff.', back)}
     <form class="gear-editor" id="gearEditor" novalidate>
       <section class="panel form-panel">
         <div class="form-errors" id="gearFormErrors" role="alert" hidden></div>
@@ -287,7 +290,6 @@ function renderProductEditor(item, notesMarkdown) {
           ${formField('Type *', `<select class="select" id="gearType" required>${typeOptionsHtml(initialCategory, initialType, true)}</select>`, 'Types are maintained in chat; this form only selects among existing types.')}
           ${formField('Name *', `<input class="input" id="gearName" maxlength="160" value="${escapeAttr(item?.name || '')}" required>`)}
           ${formField('Manufacturer', `<input class="input" id="gearManufacturer" maxlength="120" value="${escapeAttr(item?.manufacturer?.name || '')}">`)}
-          ${formField('Manufacturer URL', `<input class="input" id="gearManufacturerUrl" inputmode="url" maxlength="2000" placeholder="https://…" value="${escapeAttr(item?.manufacturer?.url || '')}">`)}
           ${formField('Model', `<input class="input" id="gearModel" maxlength="160" value="${escapeAttr(item?.model || '')}">`)}
         </div>
       </section>
@@ -310,9 +312,12 @@ function renderProductEditor(item, notesMarkdown) {
           <label><input type="radio" name="gearPictureChoice" value="yes" ${hasPicture ? 'checked' : ''}> Yes</label>
           <label><input type="radio" name="gearPictureChoice" value="no" ${hasPicture ? '' : 'checked'}> No</label>
         </fieldset>
-        ${hasPicture ? `<div class="current-state-note">Current picture: <code>${escapeHtml(currentFilename || currentMedia?.asset || 'configured media')}</code></div>` : ''}
+        ${hasPicture ? `<div class="current-state-note">Current picture: <code>${escapeHtml(currentMedia.asset)}</code><br>Media ID: <code>${escapeHtml(currentMediaId)}</code><br>Source: ${pictureSource ? pictureSource.startsWith('https://') || pictureSource.startsWith('http://') ? `<a href="${escapeAttr(pictureSource)}" target="_blank" rel="noopener">${escapeHtml(pictureSource)}</a>` : `<code>${escapeHtml(pictureSource)}</code>` : 'Source unavailable'}${currentMedia.sourcePath ? `<br>Repository source: <code>${escapeHtml(currentMedia.sourcePath)}</code>` : ''}</div>` : ''}
         <div id="pictureFields" ${hasPicture ? '' : 'hidden'}>
-          ${formField('Preferred source filename *', `<input class="input" id="gearPictureFilename" maxlength="180" value="${escapeAttr(currentFilename)}" placeholder="example-item.jpg">`, 'Use a filename only, not a folder path. Supported: JPG, PNG, WebP, GIF.')}
+          ${hasPicture ? `<fieldset class="choice-fieldset"><legend>Picture action</legend><label><input type="radio" name="gearPictureAction" value="keep" checked> Keep current picture</label><label><input type="radio" name="gearPictureAction" value="replace"> Replace picture</label></fieldset>` : ''}
+          <div id="replacementPictureFields" ${hasPicture ? 'hidden' : ''}>
+            ${formField('Preferred source filename *', `<input class="input" id="gearPictureFilename" maxlength="180" value="${escapeAttr(currentFilename || suggestedFilename)}" placeholder="example-item.jpg">`, 'Use the exact extension of your replacement image. JPG, PNG, WebP, and GIF are supported. The filename may be the same as the existing one.')}
+          </div>
         </div>
       </section>
 
@@ -324,6 +329,7 @@ function renderProductEditor(item, notesMarkdown) {
         </fieldset>
         <div id="notesFields" ${hasNotes ? '' : 'hidden'}>
           <label class="field-label" for="gearNotes">Notes Markdown</label>
+          <p class="form-help">Upload supporting images alongside the Markdown in pwa/gear-content/. Prefix each filename with the Gear ID, then reference it by filename, for example ![Bow hatch](bonafide-rvr119-bow-hatch.png). New images appear in Preview after they are available on the site.</p>
           <textarea class="input markdown-editor" id="gearNotes" maxlength="${MAX_NOTES_LENGTH}" rows="14">${escapeHtml(notesMarkdown)}</textarea>
           <div class="inline-actions"><button class="secondary-button" id="previewNotes" type="button">Preview</button></div>
           <div class="panel markdown-preview" id="notesPreview" hidden><h3>Notes preview</h3><div class="kb-content" id="notesPreviewBody"></div></div>
@@ -338,7 +344,7 @@ function renderProductEditor(item, notesMarkdown) {
     <section class="panel prepared-change" id="gearPreparedPanel" hidden></section>`;
 
   bindGearRoutes();
-  bindProductEditor({ item, notesMarkdown, currentMedia, currentFilename, hasNotes, hasPicture, back });
+  bindProductEditor({ item, notesMarkdown, currentMedia, currentFilename, currentMediaId, hasNotes, hasPicture, back });
 }
 
 function renderSetupEditor(item) {
@@ -416,6 +422,11 @@ function bindProductEditor(context) {
   const id = document.querySelector('#gearId');
   const pictureFilename = document.querySelector('#gearPictureFilename');
   let autoPictureFilename = !context.hasPicture;
+  const updatePictureAction = () => {
+    const replacement = document.querySelector('#replacementPictureFields');
+    if (replacement) replacement.hidden = context.hasPicture && document.querySelector('input[name="gearPictureAction"]:checked')?.value !== 'replace';
+  };
+  document.querySelectorAll('input[name="gearPictureAction"]').forEach(input => input.addEventListener('change', updatePictureAction));
 
   const updateTypeOptions = () => {
     const selected = type.value;
@@ -434,12 +445,13 @@ function bindProductEditor(context) {
   pictureFilename?.addEventListener('input', () => { autoPictureFilename = false; });
   document.querySelectorAll('input[name="gearPictureChoice"]').forEach(input => input.addEventListener('change', () => {
     toggleChoicePanel('gearPictureChoice','pictureFields');
+    updatePictureAction();
     if (!context.item && input.checked && input.value === 'yes' && autoPictureFilename) pictureFilename.value = id.value ? `${id.value}.jpg` : '';
   }));
   document.querySelectorAll('input[name="gearNotesChoice"]').forEach(input => input.addEventListener('change', () => toggleChoicePanel('gearNotesChoice','notesFields')));
 
   document.querySelector('#addSpec')?.addEventListener('click', () => document.querySelector('#specRows')?.insertAdjacentHTML('beforeend', specRowHtml({label:'',value:''})));
-  document.querySelector('#addLink')?.addEventListener('click', () => document.querySelector('#linkRows')?.insertAdjacentHTML('beforeend', linkRowHtml({kind:'other',label:'',url:''})));
+  document.querySelector('#addLink')?.addEventListener('click', () => document.querySelector('#linkRows')?.insertAdjacentHTML('beforeend', linkRowHtml({label:'',url:''})));
   form.addEventListener('click', event => {
     const remove = event.target.closest('[data-remove-row]');
     if (!remove) return;
@@ -447,7 +459,7 @@ function bindProductEditor(context) {
     const container = row?.parentElement;
     row?.remove();
     if (container && !container.querySelector('.repeater-row')) {
-      container.insertAdjacentHTML('beforeend', container.id === 'specRows' ? specRowHtml({label:'',value:''}) : linkRowHtml({kind:'other',label:'',url:''}));
+      container.insertAdjacentHTML('beforeend', container.id === 'specRows' ? specRowHtml({label:'',value:''}) : linkRowHtml({label:'',url:''}));
     }
   });
 
@@ -520,7 +532,6 @@ function collectProductChange(context) {
   const type = document.querySelector('#gearType').value;
   const name = document.querySelector('#gearName').value.trim();
   const manufacturerName = document.querySelector('#gearManufacturer').value.trim();
-  const manufacturerUrl = document.querySelector('#gearManufacturerUrl').value.trim();
   const model = document.querySelector('#gearModel').value.trim();
 
   if (!id || !/^[a-z0-9][a-z0-9-]*$/.test(id)) errors.push('A valid generated Gear ID is required.');
@@ -530,8 +541,6 @@ function collectProductChange(context) {
   validatePlainText(name,'Name',160,errors,true);
   validatePlainText(manufacturerName,'Manufacturer',120,errors,false);
   validatePlainText(model,'Model',160,errors,false);
-  if (manufacturerUrl && !manufacturerName) errors.push('Enter Manufacturer when a Manufacturer URL is provided.');
-  if (manufacturerUrl && !isHttpUrl(manufacturerUrl)) errors.push('Manufacturer URL must be a valid http(s) URL.');
 
   const specifications = [];
   document.querySelectorAll('#specRows .repeater-row').forEach((row,index) => {
@@ -545,19 +554,18 @@ function collectProductChange(context) {
 
   const links = [];
   document.querySelectorAll('#linkRows .repeater-row').forEach((row,index) => {
-    const kind = row.querySelector('[data-link-kind]').value;
     const label = row.querySelector('[data-link-label]').value.trim();
     const url = row.querySelector('[data-link-url]').value.trim();
     if (!label && !url) return;
     validatePlainText(label,`Link ${index + 1} text`,120,errors,true);
-    if (!['retailer','resource','other'].includes(kind)) errors.push(`Link ${index + 1} type is invalid.`);
     if (!isHttpUrl(url)) errors.push(`Link ${index + 1} URL must be a valid http(s) URL.`);
-    links.push({kind,label,url});
+    links.push({label,url});
   });
 
   const pictureYes = document.querySelector('input[name="gearPictureChoice"]:checked')?.value === 'yes';
   const pictureFilename = document.querySelector('#gearPictureFilename')?.value.trim() || '';
-  if (pictureYes && !isSafeImageFilename(pictureFilename)) errors.push('Preferred source filename must be a filename ending in .jpg, .jpeg, .png, .webp, or .gif, with no folder path.');
+  const pictureAction = context.hasPicture ? document.querySelector('input[name="gearPictureAction"]:checked')?.value : 'add';
+  if (pictureYes && (!context.hasPicture || pictureAction === 'replace') && !isSafeImageFilename(pictureFilename)) errors.push('Preferred source filename must be a filename ending in .jpg, .jpeg, .png, .webp, or .gif, with no folder path.');
 
   const notesYes = document.querySelector('input[name="gearNotesChoice"]:checked')?.value === 'yes';
   const notesMarkdown = document.querySelector('#gearNotes')?.value || '';
@@ -565,7 +573,7 @@ function collectProductChange(context) {
   if (notesMarkdown.length > MAX_NOTES_LENGTH) errors.push(`Notes must be ${MAX_NOTES_LENGTH.toLocaleString()} characters or fewer.`);
 
   const item = { id, category, type, name };
-  if (manufacturerName) item.manufacturer = { name:manufacturerName, ...(manufacturerUrl ? {url:manufacturerUrl} : {}) };
+  if (manufacturerName) item.manufacturer = { name:manufacturerName };
   if (model) item.model = model;
   if (specifications.length) item.specifications = specifications;
   if (links.length) item.links = links;
@@ -578,7 +586,7 @@ function collectProductChange(context) {
   if (errors.length) { showFormErrors([...new Set(errors)]); return null; }
   showFormErrors([]);
 
-  const picture = pictureChange(context, pictureYes, pictureFilename, id);
+  const picture = pictureChange(context, pictureYes, pictureFilename, id, pictureAction);
   const notes = notesChange(context.hasNotes, context.notesMarkdown, notesYes, notesMarkdown, id);
   const summary = editing ? productEditSummary(context.item, item) : [`Add new ${CATEGORY_META[category].label} item: ${name}`];
   addPictureSummary(summary, picture);
@@ -596,15 +604,18 @@ function collectProductChange(context) {
   };
 }
 
-function pictureChange(context, desired, filename, id) {
-  const uploadPath = desired ? `pwa/assets/gear-source/${filename}` : null;
+function pictureChange(context, desired, filename, id, pictureAction='add') {
+  const current = context.currentMedia || null;
+  const currentAsset = current?.asset || null;
+  const mediaId = context.currentMediaId || current?.id || id;
+  const currentSource = current?.sourcePath || current?.imageSource || null;
+  const currentInfo = { mediaId, currentAsset, currentSource };
   if (!context.hasPicture && !desired) return { action:'none', hasPicture:false };
-  if (!context.hasPicture && desired) return { action:'add', hasPicture:true, sourceFilename:filename, uploadPath };
-  if (context.hasPicture && !desired) return { action:'remove', hasPicture:false, currentAsset:context.currentMedia?.asset || null };
-  const changedFilename = filename && filename !== context.currentFilename;
-  return changedFilename
-    ? { action:'replace', hasPicture:true, sourceFilename:filename, uploadPath, currentAsset:context.currentMedia?.asset || null }
-    : { action:'keep', hasPicture:true, currentAsset:context.currentMedia?.asset || null, sourceFilename:filename || context.currentFilename };
+  if (context.hasPicture && !desired) return { action:'remove', hasPicture:false, ...currentInfo };
+  if (context.hasPicture && pictureAction !== 'replace') return { action:'keep', hasPicture:true, ...currentInfo };
+  const uploadPath = `pwa/assets/gear-source/${filename}`;
+  return { action:context.hasPicture ? 'replace' : 'add', hasPicture:true, mediaId,
+    sourceFilename:filename, uploadPath, ...(context.hasPicture ? currentInfo : {}) };
 }
 
 function notesChange(hadNotes, originalMarkdown, desired, markdown, id) {
@@ -624,7 +635,6 @@ function productEditSummary(before, after) {
     ['Type', before.type, after.type],
     ['Name', before.name, after.name],
     ['Manufacturer', before.manufacturer?.name || '', after.manufacturer?.name || ''],
-    ['Manufacturer URL', before.manufacturer?.url || '', after.manufacturer?.url || ''],
     ['Model', before.model || '', after.model || '']
   ];
   for (const [label,oldValue,newValue] of scalar) if (oldValue !== newValue) summary.push(`${label}: ${oldValue || '(blank)'} → ${newValue || '(blank)'}`);
@@ -650,7 +660,7 @@ function showPreparedChange(prepared) {
   if (!panel) return;
   const payload = JSON.stringify(prepared, null, 2);
   const pictureInstruction = ['add','replace'].includes(prepared.picture?.action)
-    ? `<p><strong>Picture upload:</strong> <code>${escapeHtml(prepared.picture.uploadPath)}</code></p>`
+    ? `<p><strong>Picture upload:</strong> <code>${escapeHtml(prepared.picture.uploadPath)}</code></p><p>Upload the replacement directly to GitHub. The handoff preserves the existing media ID and owner; it has not changed the current picture.</p>`
     : prepared.picture?.action === 'remove' ? '<p><strong>Picture:</strong> removal requested.</p>' : '';
   const notesInstruction = prepared.notes?.path && prepared.notes.action !== 'none'
     ? `<p><strong>Notes file:</strong> <code>${escapeHtml(prepared.notes.path)}</code></p>`
@@ -734,13 +744,7 @@ function specRowHtml(spec={}) {
 }
 
 function linkRowHtml(link={}) {
-  const kind = link.kind || 'other';
   return `<div class="repeater-row link-row">
-    <select class="select" data-link-kind aria-label="Link type">
-      <option value="retailer" ${kind === 'retailer' ? 'selected' : ''}>Retailer</option>
-      <option value="resource" ${kind === 'resource' ? 'selected' : ''}>Resource</option>
-      <option value="other" ${kind === 'other' ? 'selected' : ''}>Other</option>
-    </select>
     <input class="input" data-link-label maxlength="120" placeholder="Link text" aria-label="Link text" value="${escapeAttr(link.label || '')}">
     <input class="input" data-link-url maxlength="2000" inputmode="url" placeholder="https://…" aria-label="URL" value="${escapeAttr(link.url || '')}">
     <button class="remove-row-button" type="button" data-remove-row aria-label="Remove link">×</button>
@@ -834,7 +838,7 @@ function detailCell(label,value) {
 }
 
 function linksHtml(links) {
-  return `<div class="detail-links">${dedupeLinks(links).map(link => `<a href="${escapeAttr(link.url)}" target="_blank" rel="noopener">${escapeHtml(link.label)} ↗</a>`).join('<br>')}</div>`;
+  return `<div class="detail-links">${links.map(link => `<a href="${escapeAttr(link.url)}" target="_blank" rel="noopener">${escapeHtml(link.label)} ↗</a>`).join('<br>')}</div>`;
 }
 
 function bindGearRoutes() {

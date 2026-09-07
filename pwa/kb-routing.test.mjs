@@ -10,7 +10,7 @@ const index = fs.readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 for (const type of ['location', 'species', 'equipment', 'technique', 'knot']) assert.ok(kbApp.includes(`${type}:`), `Knowledge Base app must expose the ${type} type.`);
 for (const route of ['#/kb/catches', '#/kb/catch/', '#/kb/entity/']) assert.ok(kbApp.includes(route), `Knowledge Base app must expose ${route}.`);
 assert.match(kbApp, /`#\/kb\/\$\{plural\(type\)\}`/, 'Entity categories must route from the unified type discriminator.');
-assert.match(kbApp, /equipment: \{ label:'Equipment', icon:'🧰', description:'Rigs, presentations, and gear guides\.' \}/,
+assert.match(kbApp, /equipment: \{ label:'Gear Guides', icon:'🧰', description:'Equipment, rigs, and presentations reference' \}/,
   'Equipment card must use the approved description.');
 assert.match(kbApp, /technique: \{ label:'Techniques', icon:'🧭', description:'Strategy, conditions, and species reference\.' \}/,
   'Techniques card must use the approved description.');
