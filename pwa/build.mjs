@@ -156,6 +156,7 @@ async function buildGearMedia(item) {
       destination: item.destination || item.sourcePage || '',
       sourcePage: item.sourcePage || '',
       imageSource: imageUrl,
+      sourceKind:'remote',
       bytes: bytes.length
     };
   } catch (error) {

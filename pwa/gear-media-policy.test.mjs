@@ -63,8 +63,10 @@ try {
   failed('outside its approved Notes image locations');
   await write('gear-content/test-kayak.md','![Wrong](../assets/gear-source/test-kayak-bow.png)\n');
   failed('outside its approved Notes image locations');
+  await write('gear-content/test-kayak.md','![Absolute](/test-kayak-bow.png)\n');
+  failed('Unsafe Notes image target');
   await write('gear-content/test-kayak.md','![Missing](test-kayak-missing.png)\n');
-  failed('Missing required Gear Notes asset');
+  failed('Missing required image asset');
   await write('gear-content/test-kayak.md','![Bad](test-kayak-bow.png)\n');
   await write('gear-content/test-kayak-bow.png',Buffer.from('not an image'));
   failed('Unsupported or structurally invalid image');

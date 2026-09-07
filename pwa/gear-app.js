@@ -269,7 +269,10 @@ function renderProductEditor(item, notesMarkdown) {
   const currentMedia = editing ? directMediaForItem(item.id) : null;
   const hasPicture = Boolean(currentMedia);
   const hasNotes = Boolean(notesMarkdown.trim());
-  const currentFilename = basename(currentMedia?.asset || '');
+  const currentFilename = currentMedia?.sourcePath ? basename(currentMedia.sourcePath) : '';
+  const suggestedFilename = item ? `${item.id}.png` : '';
+  const pictureSource = currentMedia?.sourcePath || currentMedia?.imageSource || '';
+  const currentMediaId = currentMedia?.id || item?.id || null;
   const initialCategory = item?.category || '';
   const initialType = item?.type || '';
   const specs = item?.specifications?.length ? item.specifications : [{label:'',value:''}];
@@ -308,9 +311,12 @@ function renderProductEditor(item, notesMarkdown) {
           <label><input type="radio" name="gearPictureChoice" value="yes" ${hasPicture ? 'checked' : ''}> Yes</label>
           <label><input type="radio" name="gearPictureChoice" value="no" ${hasPicture ? '' : 'checked'}> No</label>
         </fieldset>
-        ${hasPicture ? `<div class="current-state-note">Current picture: <code>${escapeHtml(currentFilename || currentMedia?.asset || 'configured media')}</code></div>` : ''}
+        ${hasPicture ? `<div class="current-state-note">Current picture: <code>${escapeHtml(currentMedia.asset)}</code><br>Media ID: <code>${escapeHtml(currentMediaId)}</code><br>Source: ${pictureSource ? pictureSource.startsWith('https://') || pictureSource.startsWith('http://') ? `<a href="${escapeAttr(pictureSource)}" target="_blank" rel="noopener">${escapeHtml(pictureSource)}</a>` : `<code>${escapeHtml(pictureSource)}</code>` : 'Source unavailable'}${currentMedia.sourcePath ? `<br>Repository source: <code>${escapeHtml(currentMedia.sourcePath)}</code>` : ''}</div>` : ''}
         <div id="pictureFields" ${hasPicture ? '' : 'hidden'}>
-          ${formField('Preferred source filename *', `<input class="input" id="gearPictureFilename" maxlength="180" value="${escapeAttr(currentFilename)}" placeholder="example-item.jpg">`, 'Use a filename only, not a folder path. Supported: JPG, PNG, WebP, GIF.')}
+          ${hasPicture ? `<fieldset class="choice-fieldset"><legend>Picture action</legend><label><input type="radio" name="gearPictureAction" value="keep" checked> Keep current picture</label><label><input type="radio" name="gearPictureAction" value="replace"> Replace picture</label></fieldset>` : ''}
+          <div id="replacementPictureFields" ${hasPicture ? 'hidden' : ''}>
+            ${formField('Preferred source filename *', `<input class="input" id="gearPictureFilename" maxlength="180" value="${escapeAttr(currentFilename || suggestedFilename)}" placeholder="example-item.jpg">`, 'Use the exact extension of your replacement image. JPG, PNG, WebP, and GIF are supported. The filename may be the same as the existing one.')}
+          </div>
         </div>
       </section>
 
@@ -336,7 +342,7 @@ function renderProductEditor(item, notesMarkdown) {
     <section class="panel prepared-change" id="gearPreparedPanel" hidden></section>`;
 
   bindGearRoutes();
-  bindProductEditor({ item, notesMarkdown, currentMedia, currentFilename, hasNotes, hasPicture, back });
+  bindProductEditor({ item, notesMarkdown, currentMedia, currentFilename, currentMediaId, hasNotes, hasPicture, back });
 }
 
 function renderSetupEditor(item) {
@@ -414,6 +420,11 @@ function bindProductEditor(context) {
   const id = document.querySelector('#gearId');
   const pictureFilename = document.querySelector('#gearPictureFilename');
   let autoPictureFilename = !context.hasPicture;
+  const updatePictureAction = () => {
+    const replacement = document.querySelector('#replacementPictureFields');
+    if (replacement) replacement.hidden = context.hasPicture && document.querySelector('input[name="gearPictureAction"]:checked')?.value !== 'replace';
+  };
+  document.querySelectorAll('input[name="gearPictureAction"]').forEach(input => input.addEventListener('change', updatePictureAction));
 
   const updateTypeOptions = () => {
     const selected = type.value;
@@ -432,6 +443,7 @@ function bindProductEditor(context) {
   pictureFilename?.addEventListener('input', () => { autoPictureFilename = false; });
   document.querySelectorAll('input[name="gearPictureChoice"]').forEach(input => input.addEventListener('change', () => {
     toggleChoicePanel('gearPictureChoice','pictureFields');
+    updatePictureAction();
     if (!context.item && input.checked && input.value === 'yes' && autoPictureFilename) pictureFilename.value = id.value ? `${id.value}.jpg` : '';
   }));
   document.querySelectorAll('input[name="gearNotesChoice"]').forEach(input => input.addEventListener('change', () => toggleChoicePanel('gearNotesChoice','notesFields')));
@@ -550,7 +562,8 @@ function collectProductChange(context) {
 
   const pictureYes = document.querySelector('input[name="gearPictureChoice"]:checked')?.value === 'yes';
   const pictureFilename = document.querySelector('#gearPictureFilename')?.value.trim() || '';
-  if (pictureYes && !isSafeImageFilename(pictureFilename)) errors.push('Preferred source filename must be a filename ending in .jpg, .jpeg, .png, .webp, or .gif, with no folder path.');
+  const pictureAction = context.hasPicture ? document.querySelector('input[name="gearPictureAction"]:checked')?.value : 'add';
+  if (pictureYes && (!context.hasPicture || pictureAction === 'replace') && !isSafeImageFilename(pictureFilename)) errors.push('Preferred source filename must be a filename ending in .jpg, .jpeg, .png, .webp, or .gif, with no folder path.');
 
   const notesYes = document.querySelector('input[name="gearNotesChoice"]:checked')?.value === 'yes';
   const notesMarkdown = document.querySelector('#gearNotes')?.value || '';
@@ -571,7 +584,7 @@ function collectProductChange(context) {
   if (errors.length) { showFormErrors([...new Set(errors)]); return null; }
   showFormErrors([]);
 
-  const picture = pictureChange(context, pictureYes, pictureFilename, id);
+  const picture = pictureChange(context, pictureYes, pictureFilename, id, pictureAction);
   const notes = notesChange(context.hasNotes, context.notesMarkdown, notesYes, notesMarkdown, id);
   const summary = editing ? productEditSummary(context.item, item) : [`Add new ${CATEGORY_META[category].label} item: ${name}`];
   addPictureSummary(summary, picture);
@@ -589,15 +602,18 @@ function collectProductChange(context) {
   };
 }
 
-function pictureChange(context, desired, filename, id) {
-  const uploadPath = desired ? `pwa/assets/gear-source/${filename}` : null;
+function pictureChange(context, desired, filename, id, pictureAction='add') {
+  const current = context.currentMedia || null;
+  const currentAsset = current?.asset || null;
+  const mediaId = context.currentMediaId || current?.id || id;
+  const currentSource = current?.sourcePath || current?.imageSource || null;
+  const currentInfo = { mediaId, currentAsset, currentSource };
   if (!context.hasPicture && !desired) return { action:'none', hasPicture:false };
-  if (!context.hasPicture && desired) return { action:'add', hasPicture:true, sourceFilename:filename, uploadPath };
-  if (context.hasPicture && !desired) return { action:'remove', hasPicture:false, currentAsset:context.currentMedia?.asset || null };
-  const changedFilename = filename && filename !== context.currentFilename;
-  return changedFilename
-    ? { action:'replace', hasPicture:true, sourceFilename:filename, uploadPath, currentAsset:context.currentMedia?.asset || null }
-    : { action:'keep', hasPicture:true, currentAsset:context.currentMedia?.asset || null, sourceFilename:filename || context.currentFilename };
+  if (context.hasPicture && !desired) return { action:'remove', hasPicture:false, ...currentInfo };
+  if (context.hasPicture && pictureAction !== 'replace') return { action:'keep', hasPicture:true, ...currentInfo };
+  const uploadPath = `pwa/assets/gear-source/${filename}`;
+  return { action:context.hasPicture ? 'replace' : 'add', hasPicture:true, mediaId,
+    sourceFilename:filename, uploadPath, ...(context.hasPicture ? currentInfo : {}) };
 }
 
 function notesChange(hadNotes, originalMarkdown, desired, markdown, id) {
@@ -642,7 +658,7 @@ function showPreparedChange(prepared) {
   if (!panel) return;
   const payload = JSON.stringify(prepared, null, 2);
   const pictureInstruction = ['add','replace'].includes(prepared.picture?.action)
-    ? `<p><strong>Picture upload:</strong> <code>${escapeHtml(prepared.picture.uploadPath)}</code></p>`
+    ? `<p><strong>Picture upload:</strong> <code>${escapeHtml(prepared.picture.uploadPath)}</code></p><p>Upload the replacement directly to GitHub. The handoff preserves the existing media ID and owner; it has not changed the current picture.</p>`
     : prepared.picture?.action === 'remove' ? '<p><strong>Picture:</strong> removal requested.</p>' : '';
   const notesInstruction = prepared.notes?.path && prepared.notes.action !== 'none'
     ? `<p><strong>Notes file:</strong> <code>${escapeHtml(prepared.notes.path)}</code></p>`
