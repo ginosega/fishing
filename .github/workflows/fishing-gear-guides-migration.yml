@@ -21,6 +21,7 @@ jobs:
       - name: Apply approved Notes media changes
         run: |
           node pwa/migrate-gear-notes-media.mjs
+          node pwa/migrate-gear-notes-media-fixes.mjs
           node --check pwa/gear-app.js
           node --check pwa/apply-authored-notes.mjs
           node --check pwa/apply-local-media.mjs
@@ -35,6 +36,6 @@ jobs:
         run: |
           git config user.name "Fishing Project"
           git config user.email "actions@users.noreply.github.com"
-          git add pwa/gear-app.js pwa/index.html pwa/apply-authored-notes.mjs pwa/apply-local-media.mjs pwa/build.mjs pwa/image-validation.mjs
+          git add pwa/gear-app.js pwa/index.html pwa/apply-authored-notes.mjs pwa/apply-local-media.mjs pwa/build.mjs pwa/image-validation.mjs pwa/gear-media-policy.test.mjs
           git commit -m "Support sibling Notes images and explicit picture replacement"
           git push origin HEAD:feature/gear-guides-ordered-links
