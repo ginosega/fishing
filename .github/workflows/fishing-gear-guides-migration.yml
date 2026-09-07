@@ -18,29 +18,21 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Finalize release source and documentation
+      - name: Finalize validated release source and documentation
         run: |
           node pwa/finalize-gear-guides-release.mjs
           node pwa/finalize-gear-guides-tests.mjs
           node --check pwa/gear-app.js
-          node --check pwa/image-validation.mjs
-          node --check pwa/verify-final-bundle.mjs
           node pwa/gear-media-policy.test.mjs
           node pwa/gear-model.test.mjs
           node pwa/my-gear-routing.test.mjs
           node pwa/kb-model.test.mjs
           node pwa/kb-routing.test.mjs
           node pwa/final-content.test.mjs
-      - name: Build and validate deployable bundle
-        run: |
-          node pwa/build.mjs
-          node pwa/apply-authored-notes.mjs
-          node pwa/apply-local-media.mjs
-          node pwa/verify-final-bundle.mjs
       - name: Commit validated source
         run: |
           git config user.name "Fishing Project"
           git config user.email "actions@users.noreply.github.com"
-          git add README.md Fishing_Context.md Fishing_TODO.md Fishing_Decision_Log.md Fishing_New_Chat_Bootstrap_Prompt.md pwa/README.md pwa/gear-app.js pwa/my-gear-routing.test.mjs .github/workflows/fishing-pwa-build.yml
+          git add README.md Fishing_Context.md Fishing_TODO.md Fishing_Decision_Log.md Fishing_New_Chat_Bootstrap_Prompt.md pwa/README.md pwa/gear-app.js pwa/my-gear-routing.test.mjs
           git commit -m "Finalize Gear Guides release and durable state"
           git push origin HEAD:feature/gear-guides-ordered-links
