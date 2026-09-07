@@ -1,14 +1,14 @@
-export const GEAR_SCHEMA_VERSION = 3;
+export const GEAR_SCHEMA_VERSION = 4;
 export const GEAR_CATEGORIES = ['rods-reels','line','weights','snaps-swivels','hooks','lures','bait','accessories'];
-export const GEAR_ACCESSORY_TYPES = ['Kayaks','Tools','Tackle Management','Electronics','Storage','Miscellaneous'];
+export const GEAR_ACCESSORY_TYPES = ['Kayaks','Tools','Tackle Management','Electronics','Storage','Accessories'];
 
 const ROOT_FIELDS = ['schemaVersion','dataVersion','items'];
 const PRODUCT_FIELDS = ['id','category','type','name','manufacturer','model','specifications','links'];
 const SETUP_FIELDS = ['id','category','type','name','rod','reel'];
 const COMPONENT_FIELDS = ['manufacturer','model','specifications','links'];
-const MANUFACTURER_FIELDS = ['name','url'];
+const MANUFACTURER_FIELDS = ['name'];
 const SPECIFICATION_FIELDS = ['label','value'];
-const LINK_FIELDS = ['kind','label','url'];
+const LINK_FIELDS = ['label','url'];
 
 export function validateGearBundle(bundle) {
   const errors = [];
@@ -51,9 +51,34 @@ export function gearSpecificationText(item) {
 
 export function gearLinks(item) {
   const links = [];
-  if (item.category !== 'rods-reels' && item.manufacturer?.url) links.push({ kind:'manufacturer', label:item.manufacturer.name, url:item.manufacturer.url });
   for (const link of item.links || []) links.push(link);
-  return dedupeLinks(links);
+  return links;
+}
+
+// Upgrade a validated legacy handoff or non-seed local store without losing owned records.
+export function upgradeGearBundle(bundle) {
+  if (bundle?.schemaVersion === GEAR_SCHEMA_VERSION) return structuredClone(bundle);
+  if (bundle?.schemaVersion !== 3 || !Array.isArray(bundle.items)) throw new Error('Unsupported Gear schema version.');
+  const next = structuredClone(bundle);
+  next.schemaVersion = GEAR_SCHEMA_VERSION;
+  next.dataVersion = `${bundle.dataVersion}-v4`;
+  const convert = part => {
+    if (!part) return;
+    const links = (part.links || []).map(({kind,...link}) => link);
+    if (part.manufacturer?.url) {
+      links.unshift({label:part.manufacturer.name,url:part.manufacturer.url});
+      delete part.manufacturer.url;
+    }
+    if (links.length || Object.hasOwn(part,'links')) part.links = links;
+  };
+  for (const item of next.items) {
+    if (item.category === 'accessories' && item.type === 'Miscellaneous') item.type = 'Accessories';
+    if (item.category === 'rods-reels') { convert(item.rod); convert(item.reel); }
+    else convert(item);
+  }
+  const result=validateGearBundle(next);
+  if (!result.valid) throw new Error(`Legacy Gear migration failed: ${result.errors.join(' ')}`);
+  return next;
 }
 
 export function diffGearBundles(currentBundle, importedBundle) {
@@ -76,7 +101,7 @@ function validateIdentity(item, at, ids, errors) {
   else ids.add(item.id);
   if (!GEAR_CATEGORIES.includes(item.category)) errors.push(`${at}.category must be one of ${GEAR_CATEGORIES.join(', ')}.`);
   if (!isText(item.type)) errors.push(`${at}.type is required.`);
-  if (item.category === 'accessories' && !GEAR_ACCESSORY_TYPES.includes(item.type)) errors.push(`${at}.type must be one of ${GEAR_ACCESSORY_TYPES.join(', ')} for Accessories.`);
+  if (item.category === 'accessories' && !GEAR_ACCESSORY_TYPES.includes(item.type)) errors.push(`${at}.type must be one of ${GEAR_ACCESSORY_TYPES.join(', ')} for Equipment.`);
   if (!isText(item.name)) errors.push(`${at}.name is required.`);
 }
 
@@ -94,7 +119,6 @@ function validateManufacturer(manufacturer, at, errors, required=false) {
   if (!isObject(manufacturer)) { errors.push(`${at} must be an object.`); return; }
   validateExactFields(manufacturer, MANUFACTURER_FIELDS, at, errors);
   if (!isText(manufacturer.name)) errors.push(`${at}.name is required.`);
-  if (manufacturer.url != null) validateUrl(manufacturer.url, `${at}.url`, errors);
 }
 
 function validateSpecifications(specs, at, errors, required=false) {
@@ -117,7 +141,6 @@ function validateLinks(links, at, errors, required=false) {
     if (!isObject(link)) { errors.push(`${row} must be an object.`); return; }
     validateExactFields(link, LINK_FIELDS, row, errors);
     if (!isText(link.label)) errors.push(`${row}.label is required.`);
-    if (!['retailer','resource','other'].includes(link.kind || 'other')) errors.push(`${row}.kind is invalid.`);
     validateUrl(link.url, `${row}.url`, errors, true);
   });
 }
@@ -132,14 +155,6 @@ function validateUrl(value, at, errors, required=false) {
   if (!value) { if (required) errors.push(`${at} is required.`); return; }
   try { const url = new URL(value); if (!['http:','https:'].includes(url.protocol)) throw new Error(); }
   catch { errors.push(`${at} must be an http(s) URL.`); }
-}
-
-function dedupeLinks(links) {
-  const seen = new Set();
-  return links.filter(link => {
-    if (!link?.url || seen.has(link.url)) return false;
-    seen.add(link.url); return true;
-  });
 }
 
 function stableJson(value) {

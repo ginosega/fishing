@@ -1,4 +1,4 @@
-import { GEAR_SCHEMA_VERSION, validateGearBundle } from './gear-model.js';
+import { GEAR_SCHEMA_VERSION, validateGearBundle, upgradeGearBundle } from './gear-model.js';
 
 const DB_NAME = 'fishing-companion';
 const DB_VERSION = 1;
@@ -30,6 +30,9 @@ export class GearRepository {
     const localIsSeedManaged = !meta?.source || meta.source === 'seed';
     if (localIsSeedManaged && (meta?.schemaVersion !== GEAR_SCHEMA_VERSION || meta?.dataVersion !== seed.dataVersion)) {
       await this.replace(seed, { source:'seed' });
+    } else if (!localIsSeedManaged && meta?.schemaVersion === 3) {
+      const upgraded = upgradeGearBundle(await this.exportBundle());
+      await this.replace(upgraded, { source:meta.source });
     }
     return this.exportBundle();
   }
@@ -62,7 +65,7 @@ export class GearRepository {
       requestResult(tx.objectStore(META_STORE).get(META_KEY))
     ]);
     return {
-      schemaVersion: GEAR_SCHEMA_VERSION,
+      schemaVersion: metaRecord?.schemaVersion || GEAR_SCHEMA_VERSION,
       dataVersion: metaRecord?.dataVersion || 'local',
       items: items.sort(sortItems)
     };

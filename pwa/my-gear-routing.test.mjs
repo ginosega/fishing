@@ -41,7 +41,7 @@ assert.match(gearApp, /const searchControl = search \? `<input class="search sec
 assert.match(gearApp, /section-title-actions">\$\{searchControl\}\$\{back \? `<button class="back-button"/,
   'Page header action area must render Search immediately before Back.');
 
-assert.match(gearApp, /accessories: \{ label:'Accessories', iconHtml:ACCESSORIES_ICON \}/,
+assert.match(gearApp, /accessories: \{ label:'Equipment', iconHtml:ACCESSORIES_ICON \}/,
   'My Gear must expose the Accessories category card.');
 assert.match(gearApp, /fill="#76c8ef"[\s\S]*fill="#a9afb2"|fill="#a9afb2"[\s\S]*fill="#76c8ef"/,
   'Accessories card must use the approved light-blue kayak and gray paddle SVG treatment.');
@@ -64,7 +64,8 @@ assert.match(gearApp, /id="previewNotes"[\s\S]*Preview/,
 assert.match(gearApp, /data-spec-label/, 'Specifications must provide a Label field.');
 assert.match(gearApp, /data-spec-value/, 'Specifications must provide a Value field.');
 assert.match(gearApp, /＋ Add specification/, 'Specifications must support repeatable rows.');
-assert.match(gearApp, /data-link-kind/, 'Links must provide a link type field.');
+assert.doesNotMatch(gearApp, /data-link-kind|gearManufacturerUrl/, 'Links must not expose classification or a separate manufacturer URL.');
+assert.match(gearApp, /Create a new Gear item entry for handoff\./);
 assert.match(gearApp, /data-link-label/, 'Links must provide Link Text.');
 assert.match(gearApp, /data-link-url/, 'Links must provide a URL field.');
 assert.match(gearApp, /＋ Add link/, 'Links must support repeatable rows.');

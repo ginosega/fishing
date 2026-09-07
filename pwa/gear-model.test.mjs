@@ -1,25 +1,25 @@
 import fs from 'node:fs/promises';
 import assert from 'node:assert/strict';
-import { validateGearBundle, GEAR_CATEGORIES, GEAR_ACCESSORY_TYPES, GEAR_SCHEMA_VERSION, gearLinks } from './gear-model.js';
+import { validateGearBundle, GEAR_CATEGORIES, GEAR_ACCESSORY_TYPES, GEAR_SCHEMA_VERSION, gearLinks, upgradeGearBundle } from './gear-model.js';
 
 const seed = JSON.parse(await fs.readFile(new URL('./data/gear.seed.json', import.meta.url), 'utf8'));
 const result = validateGearBundle(seed);
 assert.equal(result.valid, true, result.errors.join('\n'));
 assert.equal(seed.schemaVersion, GEAR_SCHEMA_VERSION);
-assert.equal(seed.schemaVersion, 3);
+assert.equal(seed.schemaVersion, 4);
 assert.ok(seed.items.length >= 64, 'The accepted Gear baseline must remain present.');
-assert.equal(seed.dataVersion, '2026-09-06-my-gear-v3-bonafide-rvr119-1');
+assert.equal(seed.dataVersion, '2026-09-06-my-gear-v4-ordered-links-1');
 assert.equal('profiles' in seed, false, 'Gear schema v3 must not contain profiles.');
 assert.equal(seed.items.some(item => item.category === 'knots'), false, 'Knots must not be part of My Gear.');
 for (const category of GEAR_CATEGORIES.filter(category => category !== 'accessories')) assert.ok(seed.items.some(item => item.category === category), `Missing category ${category}`);
 assert.ok(GEAR_CATEGORIES.includes('accessories'), 'Accessories must be an allowed My Gear category even before its first record is added.');
-assert.deepEqual(GEAR_ACCESSORY_TYPES, ['Kayaks','Tools','Tackle Management','Electronics','Storage','Miscellaneous']);
+assert.deepEqual(GEAR_ACCESSORY_TYPES, ['Kayaks','Tools','Tackle Management','Electronics','Storage','Accessories']);
 const rvr119 = seed.items.find(item => item.id === 'bonafide-rvr119');
 assert.ok(rvr119, 'Owned Bonafide RVR119 must be in the seed.');
 assert.equal(rvr119.category, 'accessories');
 assert.equal(rvr119.type, 'Kayaks');
 assert.equal(rvr119.name, 'Bonafide RVR119');
-assert.deepEqual(rvr119.manufacturer, {name:'Bonafide',url:'https://bonafidefishing.com/products/rvr119'});
+assert.deepEqual(rvr119.manufacturer, {name:'Bonafide'});
 assert.equal(rvr119.model, 'RVR119');
 assert.deepEqual(rvr119.specifications, [
   {label:'S/N',value:'LPS00469H526'},
@@ -29,7 +29,10 @@ assert.deepEqual(rvr119.specifications, [
   {label:'Capacity',value:'425 lb'},
   {label:'Color',value:'Steel'}
 ]);
-assert.deepEqual(rvr119.links, [{kind:'retailer',label:'Eco Fishing',url:'https://ecofishingshop.com/products/bonafide-rvr119-fishing-kayak?variant=41430925508742'}]);
+assert.deepEqual(rvr119.links, [
+  {label:'Bonafide',url:'https://bonafidefishing.com/products/rvr119'},
+  {label:'Eco Fishing',url:'https://ecofishingshop.com/products/bonafide-rvr119-fishing-kayak?variant=41430925508742'}
+]);
 
 
 const accessoryWithoutOptionalMetadata = {
@@ -61,7 +64,7 @@ for (const [id,label] of manufacturerCases) {
   assert.ok(item, `Missing ${id}`);
   const links = gearLinks(item);
   assert.equal(links[0]?.label, label, `${id} manufacturer link label`);
-  assert.equal(links[0]?.kind, 'manufacturer', `${id} manufacturer link kind`);
+  assert.ok(!links.some(link => Object.hasOwn(link,'kind')), `${id} links must not have classifications`);
 }
 
 const modelCases = new Map([
@@ -115,6 +118,16 @@ assert.match(await gearNotes('setup-spinning'), /Sufix 832 15 lb/);
 assert.match(await gearNotes('swiveling-trolling-sinkers'), /kb:\/\/technique-paddle-only-kayak-strategy/);
 assert.match(await gearNotes('fin-sanity-bluegill'), /hard-jointed bluegill-profile/);
 assert.match(await gearNotes('fin-sanity-bluegill'), /kb:\/\/technique-swimbait-soft-jerk-shad/);
+
+const legacy = {schemaVersion:3,dataVersion:'legacy',items:[{id:'test-legacy',category:'accessories',type:'Miscellaneous',name:'Legacy',manufacturer:{name:'Maker',url:'https://example.com/maker'},links:[{kind:'retailer',label:'Shop',url:'https://example.com/shop'}]}]};
+const upgraded = upgradeGearBundle(legacy);
+assert.equal(upgraded.schemaVersion,4);
+assert.equal(upgraded.items[0].type,'Accessories');
+assert.deepEqual(upgraded.items[0].links,[{label:'Maker',url:'https://example.com/maker'},{label:'Shop',url:'https://example.com/shop'}]);
+const invalidKind = structuredClone(seed); invalidKind.items.find(item=>item.id==='bonafide-rvr119').links[0].kind='retailer';
+assert.equal(validateGearBundle(invalidKind).valid,false,'Link classifications must be rejected.');
+const invalidManufacturerUrl = structuredClone(seed); invalidManufacturerUrl.items.find(item=>item.id==='bonafide-rvr119').manufacturer.url='https://example.com';
+assert.equal(validateGearBundle(invalidManufacturerUrl).valid,false,'Manufacturer URLs must live in ordered Links.');
 
 const clone = value => structuredClone(value);
 const invalidExtra = clone(seed); invalidExtra.items[0].unexpected = true;

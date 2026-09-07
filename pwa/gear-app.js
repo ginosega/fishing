@@ -23,7 +23,7 @@ const CATEGORY_META = {
   hooks: { label:'Hooks', icon:'🪝' },
   lures: { label:'Lures', icon:'🐟' },
   bait: { label:'Bait', icon:'🪱' },
-  accessories: { label:'Accessories', iconHtml:ACCESSORIES_ICON }
+  accessories: { label:'Equipment', iconHtml:ACCESSORIES_ICON }
 };
 const CATEGORY_ORDER = Object.keys(CATEGORY_META);
 const TYPE_ORDER = {
@@ -205,7 +205,6 @@ function renderSetup(item) {
 
 function componentPanel(title,component) {
   const links = [];
-  if (component.manufacturer.url) links.push({kind:'manufacturer',label:component.manufacturer.name,url:component.manufacturer.url});
   links.push(...(component.links || []));
   return `<section class="panel"><h2 class="subsection-heading">${escapeHtml(title)}</h2><div class="detail-grid">
     ${detailCell('Manufacturer / Model',escapeHtml(`${component.manufacturer.name} / ${component.model}`))}
@@ -274,10 +273,10 @@ function renderProductEditor(item, notesMarkdown) {
   const initialCategory = item?.category || '';
   const initialType = item?.type || '';
   const specs = item?.specifications?.length ? item.specifications : [{label:'',value:''}];
-  const links = item?.links?.length ? item.links : [{kind:'other',label:'',url:''}];
+  const links = item?.links?.length ? item.links : [{label:'',url:''}];
   const back = editing ? `#/inventory/item/${item.id}` : '#/inventory';
 
-  app.innerHTML = `${pageHeader(editing ? 'Edit Gear Item' : 'New Gear Item', editing ? 'Prepare a validated change package for this Gear record.' : 'Create a validated Gear item package for repository handoff.', back)}
+  app.innerHTML = `${pageHeader(editing ? 'Edit Gear Item' : 'New Gear Item', editing ? 'Prepare a validated change package for this Gear record.' : 'Create a new Gear item entry for handoff.', back)}
     <form class="gear-editor" id="gearEditor" novalidate>
       <section class="panel form-panel">
         <div class="form-errors" id="gearFormErrors" role="alert" hidden></div>
@@ -287,7 +286,6 @@ function renderProductEditor(item, notesMarkdown) {
           ${formField('Type *', `<select class="select" id="gearType" required>${typeOptionsHtml(initialCategory, initialType, true)}</select>`, 'Types are maintained in chat; this form only selects among existing types.')}
           ${formField('Name *', `<input class="input" id="gearName" maxlength="160" value="${escapeAttr(item?.name || '')}" required>`)}
           ${formField('Manufacturer', `<input class="input" id="gearManufacturer" maxlength="120" value="${escapeAttr(item?.manufacturer?.name || '')}">`)}
-          ${formField('Manufacturer URL', `<input class="input" id="gearManufacturerUrl" inputmode="url" maxlength="2000" placeholder="https://…" value="${escapeAttr(item?.manufacturer?.url || '')}">`)}
           ${formField('Model', `<input class="input" id="gearModel" maxlength="160" value="${escapeAttr(item?.model || '')}">`)}
         </div>
       </section>
@@ -439,7 +437,7 @@ function bindProductEditor(context) {
   document.querySelectorAll('input[name="gearNotesChoice"]').forEach(input => input.addEventListener('change', () => toggleChoicePanel('gearNotesChoice','notesFields')));
 
   document.querySelector('#addSpec')?.addEventListener('click', () => document.querySelector('#specRows')?.insertAdjacentHTML('beforeend', specRowHtml({label:'',value:''})));
-  document.querySelector('#addLink')?.addEventListener('click', () => document.querySelector('#linkRows')?.insertAdjacentHTML('beforeend', linkRowHtml({kind:'other',label:'',url:''})));
+  document.querySelector('#addLink')?.addEventListener('click', () => document.querySelector('#linkRows')?.insertAdjacentHTML('beforeend', linkRowHtml({label:'',url:''})));
   form.addEventListener('click', event => {
     const remove = event.target.closest('[data-remove-row]');
     if (!remove) return;
@@ -447,7 +445,7 @@ function bindProductEditor(context) {
     const container = row?.parentElement;
     row?.remove();
     if (container && !container.querySelector('.repeater-row')) {
-      container.insertAdjacentHTML('beforeend', container.id === 'specRows' ? specRowHtml({label:'',value:''}) : linkRowHtml({kind:'other',label:'',url:''}));
+      container.insertAdjacentHTML('beforeend', container.id === 'specRows' ? specRowHtml({label:'',value:''}) : linkRowHtml({label:'',url:''}));
     }
   });
 
@@ -520,7 +518,6 @@ function collectProductChange(context) {
   const type = document.querySelector('#gearType').value;
   const name = document.querySelector('#gearName').value.trim();
   const manufacturerName = document.querySelector('#gearManufacturer').value.trim();
-  const manufacturerUrl = document.querySelector('#gearManufacturerUrl').value.trim();
   const model = document.querySelector('#gearModel').value.trim();
 
   if (!id || !/^[a-z0-9][a-z0-9-]*$/.test(id)) errors.push('A valid generated Gear ID is required.');
@@ -530,8 +527,6 @@ function collectProductChange(context) {
   validatePlainText(name,'Name',160,errors,true);
   validatePlainText(manufacturerName,'Manufacturer',120,errors,false);
   validatePlainText(model,'Model',160,errors,false);
-  if (manufacturerUrl && !manufacturerName) errors.push('Enter Manufacturer when a Manufacturer URL is provided.');
-  if (manufacturerUrl && !isHttpUrl(manufacturerUrl)) errors.push('Manufacturer URL must be a valid http(s) URL.');
 
   const specifications = [];
   document.querySelectorAll('#specRows .repeater-row').forEach((row,index) => {
@@ -545,14 +540,12 @@ function collectProductChange(context) {
 
   const links = [];
   document.querySelectorAll('#linkRows .repeater-row').forEach((row,index) => {
-    const kind = row.querySelector('[data-link-kind]').value;
     const label = row.querySelector('[data-link-label]').value.trim();
     const url = row.querySelector('[data-link-url]').value.trim();
     if (!label && !url) return;
     validatePlainText(label,`Link ${index + 1} text`,120,errors,true);
-    if (!['retailer','resource','other'].includes(kind)) errors.push(`Link ${index + 1} type is invalid.`);
     if (!isHttpUrl(url)) errors.push(`Link ${index + 1} URL must be a valid http(s) URL.`);
-    links.push({kind,label,url});
+    links.push({label,url});
   });
 
   const pictureYes = document.querySelector('input[name="gearPictureChoice"]:checked')?.value === 'yes';
@@ -565,7 +558,7 @@ function collectProductChange(context) {
   if (notesMarkdown.length > MAX_NOTES_LENGTH) errors.push(`Notes must be ${MAX_NOTES_LENGTH.toLocaleString()} characters or fewer.`);
 
   const item = { id, category, type, name };
-  if (manufacturerName) item.manufacturer = { name:manufacturerName, ...(manufacturerUrl ? {url:manufacturerUrl} : {}) };
+  if (manufacturerName) item.manufacturer = { name:manufacturerName };
   if (model) item.model = model;
   if (specifications.length) item.specifications = specifications;
   if (links.length) item.links = links;
@@ -624,7 +617,6 @@ function productEditSummary(before, after) {
     ['Type', before.type, after.type],
     ['Name', before.name, after.name],
     ['Manufacturer', before.manufacturer?.name || '', after.manufacturer?.name || ''],
-    ['Manufacturer URL', before.manufacturer?.url || '', after.manufacturer?.url || ''],
     ['Model', before.model || '', after.model || '']
   ];
   for (const [label,oldValue,newValue] of scalar) if (oldValue !== newValue) summary.push(`${label}: ${oldValue || '(blank)'} → ${newValue || '(blank)'}`);
@@ -734,13 +726,7 @@ function specRowHtml(spec={}) {
 }
 
 function linkRowHtml(link={}) {
-  const kind = link.kind || 'other';
   return `<div class="repeater-row link-row">
-    <select class="select" data-link-kind aria-label="Link type">
-      <option value="retailer" ${kind === 'retailer' ? 'selected' : ''}>Retailer</option>
-      <option value="resource" ${kind === 'resource' ? 'selected' : ''}>Resource</option>
-      <option value="other" ${kind === 'other' ? 'selected' : ''}>Other</option>
-    </select>
     <input class="input" data-link-label maxlength="120" placeholder="Link text" aria-label="Link text" value="${escapeAttr(link.label || '')}">
     <input class="input" data-link-url maxlength="2000" inputmode="url" placeholder="https://…" aria-label="URL" value="${escapeAttr(link.url || '')}">
     <button class="remove-row-button" type="button" data-remove-row aria-label="Remove link">×</button>
@@ -834,7 +820,7 @@ function detailCell(label,value) {
 }
 
 function linksHtml(links) {
-  return `<div class="detail-links">${dedupeLinks(links).map(link => `<a href="${escapeAttr(link.url)}" target="_blank" rel="noopener">${escapeHtml(link.label)} ↗</a>`).join('<br>')}</div>`;
+  return `<div class="detail-links">${links.map(link => `<a href="${escapeAttr(link.url)}" target="_blank" rel="noopener">${escapeHtml(link.label)} ↗</a>`).join('<br>')}</div>`;
 }
 
 function bindGearRoutes() {
