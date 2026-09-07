@@ -1,0 +1,61 @@
+name: Fishing KB source integration
+
+on:
+  push:
+    branches:
+      - feature/kb-authoring
+    paths:
+      - 'pwa/_release-transfer/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fishing-kb-source-integration
+  cancel-in-progress: false
+
+jobs:
+  integrate:
+    if: github.repository == 'ginosega/fishing' && github.ref == 'refs/heads/feature/kb-authoring'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify exact source and reconstruct reviewed patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD^)" = '0f85d17cc0a78e72a06c63a89839a6eaf07d5f75'
+          test "$(find pwa/_release-transfer -name 'part-*.b64' -type f | wc -l)" -eq 7
+          cat pwa/_release-transfer/part-*.b64 | base64 --decode | xz --decompress > /tmp/fishing-kb-release.patch
+          echo '4ec6da3208d221cf82e5f2153669167f8dbf876dded048980f30645ffa12e208  /tmp/fishing-kb-release.patch' | sha256sum --check
+          git apply --check /tmp/fishing-kb-release.patch
+          git apply --index /tmp/fishing-kb-release.patch
+      - name: Validate integrated source
+        run: |
+          node --check pwa/kb-authoring.js
+          node --check pwa/kb-authoring-model.js
+          node --check pwa/kb-picture-model.js
+          node --check pwa/promote-kb-change.mjs
+          node pwa/gear-model.test.mjs
+          node pwa/my-gear-routing.test.mjs
+          node pwa/gear-media-policy.test.mjs
+          node pwa/kb-model.test.mjs
+          node pwa/kb-routing.test.mjs
+          node pwa/kb-authoring.test.mjs
+          node pwa/kb-promotion.test.mjs
+          node pwa/final-content.test.mjs
+      - name: Commit validated source to feature branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Implement Knowledge Base Add/Edit and reconcile release records'
+          git push origin HEAD:refs/heads/feature/kb-authoring
