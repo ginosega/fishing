@@ -54,12 +54,17 @@ jobs:
           node --check pwa/build.mjs
           node --check pwa/apply-authored-notes.mjs
           node --check pwa/apply-local-media.mjs
+          node --check pwa/image-validation.mjs
+          node --check pwa/gear-media-policy.test.mjs
+          node --check pwa/verify-final-bundle.mjs
           node --check pwa/final-content.test.mjs
           node --check pwa/serve.mjs
       - name: Test structured My Gear model
         run: node pwa/gear-model.test.mjs
       - name: Test My Gear routing and layout
         run: node pwa/my-gear-routing.test.mjs
+      - name: Test Gear media policy and picture replacement
+        run: node pwa/gear-media-policy.test.mjs
       - name: Test unified Knowledge Base model
         run: node pwa/kb-model.test.mjs
       - name: Test Knowledge Base routing and Markdown
@@ -72,6 +77,8 @@ jobs:
         run: node pwa/apply-authored-notes.mjs
       - name: Apply and validate local media
         run: node pwa/apply-local-media.mjs
+      - name: Verify final transformed bundle
+        run: node pwa/verify-final-bundle.mjs
       - name: Verify bundle
         run: |
           test -f pwa/dist/index.html
@@ -138,6 +145,7 @@ jobs:
           test -f pwa/dist/assets/gear/south-bend-removable-split-shot-sinkers.png
           test -f pwa/dist/assets/gear/south-bend-assorted-brass-swivels.png
           test -f pwa/dist/assets/gear/south-bend-hook-assortment.png
+          test -f pwa/dist/assets/gear/thkfish-cylinder-weights.jpg
           grep -q 'gear-app.js?v=' pwa/dist/index.html
           grep -q 'kb-app.js?v=' pwa/dist/index.html
           grep -q 'media-ui.js?v=' pwa/dist/index.html
@@ -151,7 +159,7 @@ jobs:
           grep -q 'largemouth-bass.png' pwa/dist/data/kb.seed.json
           grep -q 'booyah-pad-crasher.jpg' pwa/dist/data/kb.seed.json
           ! grep -q 'kokanee-phases.webp' pwa/dist/data/kb.seed.json
-          grep -q '2026-09-06-my-gear-v3-bonafide-rvr119-1' pwa/dist/data/gear.seed.json
+          grep -q '2026-09-06-my-gear-v4-ordered-links-1' pwa/dist/data/gear.seed.json
           grep -q '2026-09-04-kb-v1-final-content-1' pwa/dist/data/kb.seed.json
           grep -q '2026-09-04-catches-v2-external-notes-1' pwa/dist/data/catches.seed.json
           ! grep -q '"notes":' pwa/dist/data/gear.seed.json
