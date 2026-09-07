@@ -3,18 +3,19 @@ import { gearDisplayModel, gearSpecificationText, gearLinks, validateGearBundle,
 import { renderMarkdown, renderCatchCard } from './markdown-render.js';
 
 const ACCESSORIES_ICON = `<svg viewBox="0 0 64 64" role="img" aria-label="Kayak">
-  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M9 19 55 45" stroke="#8f979b" stroke-width="3"/>
-    <path d="m7 16 9 4-5 7-7-8Z" fill="#a9afb2" stroke="#737b80" stroke-width="1.5"/>
-    <path d="m57 48-9-4 5-7 7 8Z" fill="#a9afb2" stroke="#737b80" stroke-width="1.5"/>
-    <path d="M9 47 55 17" stroke="#8f979b" stroke-width="3"/>
-    <path d="m7 50 9-5-5-7-7 9Z" fill="#a9afb2" stroke="#737b80" stroke-width="1.5"/>
-    <path d="m57 14-9 5 5 7 7-9Z" fill="#a9afb2" stroke="#737b80" stroke-width="1.5"/>
-    <path d="M7 32c8-10 17-15 25-15s17 5 25 15c-8 10-17 15-25 15S15 42 7 32Z" fill="#76c8ef" stroke="#2f8fc0" stroke-width="2"/>
-    <ellipse cx="32" cy="32" rx="9" ry="6" fill="#eef7fb" stroke="#2f8fc0" stroke-width="2"/>
+  <defs><linearGradient id="kayakHull" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a2def7"/><stop offset="1" stop-color="#76c8ef"/></linearGradient></defs>
+  <g transform="rotate(-35 32 32)" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M32 3 C40 9 43 20 43 32 C43 46 38 56 32 61 C26 56 21 46 21 32 C21 20 24 9 32 3Z" fill="url(#kayakHull)" stroke="#2f8fc0" stroke-width="2"/>
+    <path d="M32 5 C27 12 25 20 25 32 M32 5 C37 12 39 20 39 32" fill="none" stroke="#e5f6fd" stroke-width=".8" opacity=".8"/>
+    <path d="M25 15 39 19 M25 19 39 15 M24 45 40 49 M24 49 40 45" fill="none" stroke="#367da3" stroke-width="1.2"/>
+    <ellipse cx="32" cy="32" rx="8.5" ry="12" fill="#233b4e" stroke="#377fa4" stroke-width="1.6"/>
+    <ellipse cx="32" cy="32" rx="5.2" ry="7.5" fill="#344d60"/>
+    <path d="M27 27 Q32 24 37 27 M27 37 Q32 40 37 37" fill="none" stroke="#6d8998" stroke-width="1.2"/>
+    <path d="M8 32H56" stroke="#555e63" stroke-width="2.8"/>
+    <path d="M8 29 3 25 Q1 32 3 39 L8 35Z" fill="#a9afb2" stroke="#737b80" stroke-width="1.2"/>
+    <path d="M56 29 61 25 Q63 32 61 39 L56 35Z" fill="#a9afb2" stroke="#737b80" stroke-width="1.2"/>
   </g>
 </svg>`;
-
 const CATEGORY_META = {
   'rods-reels': { label:'Rods & Reels', icon:'🎣' },
   line: { label:'Line', icon:'〰️' },
@@ -328,6 +329,7 @@ function renderProductEditor(item, notesMarkdown) {
         </fieldset>
         <div id="notesFields" ${hasNotes ? '' : 'hidden'}>
           <label class="field-label" for="gearNotes">Notes Markdown</label>
+          <p class="form-help">Upload supporting images alongside the Markdown in pwa/gear-content/. Prefix each filename with the Gear ID, then reference it by filename, for example ![Bow hatch](bonafide-rvr119-bow-hatch.png). New images appear in Preview after they are available on the site.</p>
           <textarea class="input markdown-editor" id="gearNotes" maxlength="${MAX_NOTES_LENGTH}" rows="14">${escapeHtml(notesMarkdown)}</textarea>
           <div class="inline-actions"><button class="secondary-button" id="previewNotes" type="button">Preview</button></div>
           <div class="panel markdown-preview" id="notesPreview" hidden><h3>Notes preview</h3><div class="kb-content" id="notesPreviewBody"></div></div>

@@ -258,3 +258,11 @@ The PR #28 recovery/acceptance sequence is closed. Continue from my current requ
 ---
 
 This bootstrap supersedes all earlier Fishing bootstrap versions.
+
+## Current Gear authoring release (2026-09-06)
+
+Restore the latest main before acting. Current My Gear schema is v4, dataVersion `2026-09-06-my-gear-v4-ordered-links-1`, with 64 records at release. Equipment is the My Gear category label (internal key `accessories`), with Types Kayaks, Tools, Tackle Management, Electronics, Storage, Accessories. The KB equipment card is Gear Guides. Links are ordered Label/URL pairs without classifications or a separate manufacturer URL. Preserve stable IDs and all existing facts.
+
+Notes images may be colocated in `pwa/gear-content/`, named with the owning Gear-ID prefix and referenced relatively. The build validates local image format/size/path and includes referenced images offline; legacy `assets/gear-notes/` paths continue to work. User image binaries must be uploaded directly to GitHub. Existing-picture edits must distinguish Keep/Replace, display the actual source, support same-filename replacement, and preserve media ID/owner when promoting a new local source. Cylinder Weights retains media ID `thkfish-cylinder-weights`; no replacement binary has been supplied yet.
+
+This current-state section supersedes any older schema-v3, Accessories/Miscellaneous, typed-links, or generated-image-filename instructions elsewhere in this bootstrap. Chat mode remains the default; never recommend Work merely for complexity, duration, files, analysis, or artifacts.

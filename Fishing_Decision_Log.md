@@ -81,3 +81,10 @@ This file preserves **why** durable decisions were made so rejected or supersede
 
 - **PowerBait hook size:** OneNote rig examples use #4 while prior guidance often suggested #8 for PowerBait/Power Eggs. Preserve both until testing/user preference resolves it.
 - **Loop knot:** OneNote knot material warns against loop knots as weak, while some lure/equipment guidance recommends them for action. Preserve the conflict until deliberately resolved.
+## 2026-09-06 — Gear taxonomy, links, and media authoring
+
+- My Gear category **Equipment** retains the internal `accessories` key; KB equipment is displayed as **Gear Guides** with subtitle `Equipment, rigs, and presentations reference`. Equipment Types are Kayaks, Tools, Tackle Management, Electronics, Storage, Accessories. Taxonomy remains chat-managed.
+- Gear schema v4 stores ordered `{label,url}` links only. Legacy manufacturer URLs become the first link and classifications are removed. The form has no separate Manufacturer URL or Link Type field. Empty Links sections remain hidden. Existing IDs and facts are preserved.
+- Gear Notes images may be colocated with Markdown in `pwa/gear-content/` using Gear-ID-prefixed filenames and relative references. Validate source image bytes, extension, size, ownership/path, and offline inclusion. Preserve existing legacy Notes image paths. Hero media remains separate.
+- Existing Gear pictures expose source/identity and explicit Keep/Replace. Same-filename replacement is allowed. A replacement uses direct GitHub upload into `pwa/assets/gear-source/` and retains the old media ID/owner. Convert legacy images as requested rather than bulk-migrating. Do not invent a replacement or delete current media before a valid uploaded source is registered.
+- Browser authoring remains handoff-only; no direct GitHub write or divergent local database.

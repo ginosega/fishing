@@ -71,11 +71,11 @@ Runtime/source owners:
 
 Current seed:
 
-- schema version `3`
-- data version `2026-09-04-my-gear-v3-external-notes-1`
-- **63 records**
-- allowed categories: Rods & Reels, Line, Weights, Snaps & Swivels, Hooks, Lures, Bait, Accessories
-- current Accessories Types: Kayaks, Tools, Tackle Management, Electronics, Storage, Miscellaneous
+- schema version `4`
+- data version `2026-09-06-my-gear-v4-ordered-links-1`
+- **64 records**
+- allowed categories: Rods & Reels, Line, Weights, Snaps & Swivels, Hooks, Lures, Bait, Equipment (stable key `accessories`)
+- current Equipment Types: Kayaks, Tools, Tackle Management, Electronics, Storage, Accessories
 
 My Gear owns structured product/setup facts. Optional authored Notes live separately at `pwa/gear-content/<gear-id>.md`; inline JSON `notes` are retired. `gear://` and `kb://` links inside Notes are authored navigation, not maintained domain relationships. Knots are intentionally not in My Gear.
 
@@ -260,3 +260,11 @@ The night-end audit found no unresolved data-model migration, hidden feature bra
 ## Migration record
 
 OneNote PDF migration and MHT link restoration are closed historical work. If something later appears missing or conflicts with recollection, use current structured runtime data, `Fishing_Decision_Log.md`, `Fishing_TODO.md`, user confirmation, manufacturer documentation, or targeted historical-source recovery as appropriate. Do not reopen exhaustive migration reconciliation by default.
+
+## 2026-09-06 Gear authoring refinement
+
+The current schema-v4 Gear release preserves 64 records and all stable IDs. My Gear displays Equipment (internal key `accessories`); the KB equipment card displays Gear Guides. Links are ordered Label/URL pairs, with legacy manufacturer URLs migrated into the first link and no classifications. Both existing and new forms use the simplified fields. The approved light-blue kayak/gray-paddle icon remains the Equipment icon.
+
+Supporting Gear Notes images may live beside the stable-ID Markdown in `pwa/gear-content/`, with safe Gear-ID-prefixed filenames and relative references. The build validates image format/size/path and adds referenced assets to offline manifests; old `assets/gear-notes/` references remain valid. Direct GitHub binary upload is still required.
+
+Existing-picture editing displays the actual source and media identity and offers explicit Keep/Replace. Same-filename replacement is supported; a replacement handoff retains the original media ID/owner and identifies the exact `pwa/assets/gear-source/` upload path. Legacy remote images are promoted individually as users replace them, not bulk-migrated. Cylinder Weights still uses media ID `thkfish-cylinder-weights`; its replacement binary is pending.

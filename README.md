@@ -209,3 +209,7 @@ For requirements with substantial architecture, deployment, maintenance, perform
 ## Historical night-end audit checkpoint — 2026-09-04
 
 The night-end audit established **63 My Gear records, 54 KB entities, and 5 catches**; PR #28 content acceptance closed; PR #30 production recovery closed; PR #34 nested-list rendering fixed and user-confirmed; and no hidden unmerged feature work. Its final pre-reconciliation production checkpoint was `955d37bf675f3163fe610324809a972916c98ef0`, run **#166 / 33851195203**. That checkpoint is historical; current production is PR #42 merge `ab27f2ff312cc181693aa86c4219b26b6977a274` / run **#228 / 34062190429**.
+
+### Current Gear authoring refinement
+
+My Gear now uses schema v4 with ordered, unclassified links and the user-facing Equipment category (stable key `accessories`); the KB card is Gear Guides. Gear Notes support validated, Gear-ID-prefixed sibling images in `pwa/gear-content/`. Existing image editing distinguishes Keep from Replace, preserves media identity, and supplies an exact repository upload path. See `pwa/README.md` for the current policy and implementation.

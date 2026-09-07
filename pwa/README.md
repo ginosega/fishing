@@ -28,7 +28,7 @@ Catch Log therefore owns structured historical relationships. My Gear and KB may
 ```text
 pwa/data/gear.seed.json
         ↓
-strict schema-v3 validation
+strict schema-v4 validation
         ↓
 IndexedDB local store
         ↓
@@ -40,7 +40,7 @@ structured My Gear UI
 Key files:
 
 - `data/gear.seed.json` — bundled baseline/portable data
-- `gear-model.js` — strict schema-v3 validation/display helpers and canonical Gear category/type constraints
+- `gear-model.js` — strict schema-v4 validation/display helpers and canonical Gear category/type constraints
 - `gear-store.js` — IndexedDB repository and deterministic seed-version migration
 - `gear-app.js` — all `#/inventory/...` routes, user-facing type-label aliases, and Add/Edit authoring/handoff UI
 - `gear-content/` — optional authored Notes keyed by Gear stable ID
@@ -53,11 +53,11 @@ Key files:
 
 Current seed metadata:
 
-- schema version `3`
-- data version `2026-09-04-my-gear-v3-external-notes-1`
-- **63 current records**
-- **8 allowed categories**: Rods & Reels, Line, Weights, Snaps & Swivels, Hooks, Lures, Bait, Accessories
-- Accessories Types: Kayaks, Tools, Tackle Management, Electronics, Storage, Miscellaneous
+- schema version `4`
+- data version `2026-09-06-my-gear-v4-ordered-links-1`
+- **64 current records**
+- **8 allowed categories**: Rods & Reels, Line, Weights, Snaps & Swivels, Hooks, Lures, Bait, Equipment
+- Equipment Types: Kayaks, Tools, Tackle Management, Electronics, Storage, Accessories
 
 Ordinary product facts are explicit structured data. Manufacturer, Model, Specifications, and Links are optional for ordinary non-setup records when genuinely unavailable/not applicable. Optional authored Notes live at `gear-content/<gear-id>.md` and are not duplicated in Gear JSON. Rods & Reels remain first-class setup records with embedded rod/reel value objects.
 
@@ -85,7 +85,7 @@ Retired/forbidden schema-v1 concepts:
 - leaf pages use structured facts and optional external Markdown **Notes**
 - internal Notes links use `gear://stable-id` and `kb://stable-id`
 
-The Accessories category uses the user-approved light-blue kayak / gray-paddle icon. Its current canonical Types are Kayaks, Tools, Tackle Management, Electronics, Storage, and Miscellaneous. Category/Type taxonomy is administered through chat/repository changes, not through the item form.
+The Equipment category (stable key `accessories`) uses the user-approved light-blue kayak / gray-paddle icon. Its canonical Types are Kayaks, Tools, Tackle Management, Electronics, Storage, and Accessories. Category/Type taxonomy is administered through chat/repository changes, not through the item form.
 
 Current user-facing lure-type labels include **Soft plastics and swimbaits**, **Topwater**, and **Trolling**. `gear.seed.json` still stores the pre-PR #36 value `Trolling lures`; `gear-app.js` maps that internal value to `Trolling` wherever it is displayed or searched. This copy-only presentation change deliberately avoids bumping the seed dataVersion or refreshing IndexedDB.
 
@@ -97,10 +97,10 @@ For ordinary product records, New/Edit forms provide:
 
 - required Category, Type, Name, Picture Yes/No, Notes Yes/No;
 - generated/read-only stable Gear ID;
-- optional Manufacturer, Manufacturer URL, Model;
+- optional Manufacturer and Model;
 - repeatable Specification Label/Value rows;
-- repeatable typed Link Text/URL rows;
-- Picture filename/path preparation;
+- repeatable ordered Link Text/URL rows, without classifications;
+- Picture filename/path preparation, actual source display, and explicit Keep/Replace for existing pictures;
 - Notes Markdown textarea plus safe Preview;
 - existing Picture/Notes detection and explicit removal confirmation;
 - strict structured/schema/URL/input validation.
@@ -134,7 +134,7 @@ Key files:
 - `markdown-render.js` — safe Markdown rendering and internal-link rewriting
 - `kb-app.js` — Home and all `#/kb/...` routes
 - `KB_DATA_MODEL_DESIGN.md` — accepted/current KB design
-- `DATA_MODEL_RECONCILIATION_DESIGN.md` — shared architectural principles, current My Gear schema-v3 rationale, and authored-Notes ownership rules
+- `DATA_MODEL_RECONCILIATION_DESIGN.md` — shared architectural principles, historical schema-v3 rationale, and authored-Notes ownership rules
 
 Current KB seed metadata:
 
@@ -313,3 +313,19 @@ For deliberate one-file authored Markdown cleanup, direct GitHub edits are accep
 ## Future work
 
 Canonical future work is `../Fishing_TODO.md`. FISH-TODO-045 (My Gear Add/Edit authoring), the PR #28 content cleanup, PR #34/PR #41 Markdown-list defects, and PR #36 UX-polish items are complete. Remaining themes include the PowerBait hook-size conflict, loop-knot conflict, candidate rig/spoon pages, structured catch additions, and hardware/install-state verification.
+
+## PR #46 — Gear taxonomy, ordered links, and media authoring
+
+My Gear schema v4 keeps stable IDs and the internal category key `accessories` while displaying **Equipment**. The KB's equipment entity type is unchanged, but its card is **Gear Guides**. The six Equipment Types end with Accessories, not Miscellaneous. All 64 existing records are preserved. Manufacturer URLs were migrated to the first ordered Link entry and all link classifications were removed. New and existing product forms use only Link Text and URL; leaf pages show all links in stored order and omit the Links section when empty. Schema-v3 non-seed local stores are upgraded without discarding owned records.
+
+### Authored Notes images
+
+Place supporting images next to their Markdown in `pwa/gear-content/`. Use lowercase safe filenames prefixed by the stable Gear ID, such as `bonafide-rvr119-bow-hatch.png`. Reference the image from `bonafide-rvr119.md` as `![Bow hatch](bonafide-rvr119-bow-hatch.png)`. The build validates referenced local images as JPEG, PNG, WebP, or GIF, checks actual format against extension, requires nonempty files no larger than 10 MiB, and rejects missing, unsafe, or unowned paths. Existing `assets/gear-notes/` references remain supported. Exact image bytes are copied without recompression, and the generated Notes manifest includes each referenced image for offline caching. The main Gear hero/thumbnail picture remains a separate media-owned asset.
+
+Notes Markdown can be edited directly on main; GitHub Actions still rebuilds and deploys on commits. Images must be uploaded directly to GitHub, not transported through ChatGPT. Preview resolves already-deployed relative images; newly uploaded images become visible after their deployment.
+
+### Existing picture replacement
+
+Edit displays the current deployed asset, stable media ID, and actual remote source URL or repository source path. With Picture Yes, choose **Keep current picture** (default) or **Replace picture**. Replace permits the same filename and generates a source upload path under `pwa/assets/gear-source/`. The handoff includes the existing media ID, asset/source, and requested replacement path. After the user uploads the binary directly to GitHub, repository promotion preserves the original media ID/owner and registers the new source in `local-media.json`; no duplicate media identity is created. The old remote source remains available as provenance. Existing images are not bulk-migrated or deleted.
+
+For Cylinder Weights, retain Gear ID `cylinder-weights` and media ID `thkfish-cylinder-weights`. A replacement may use `pwa/assets/gear-source/cylinder-weights.png` or the matching actual extension. No replacement has been received or registered yet.

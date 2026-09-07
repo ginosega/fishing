@@ -63,8 +63,10 @@ The application has three durable data domains: My Gear uses structured JSON/Ind
 
 ## Completed Items
 
+
 | ID | Completed | Area | Resolution |
 |---|---|---|---|
+| FISH-TODO-058 | 2026-09-06 | PWA / Gear authoring | Refined My Gear Equipment and KB Gear Guides naming, migrated Gear to schema v4 ordered links, enabled Gear-ID-prefixed sibling Notes images with offline validation, and added explicit legacy-picture Keep/Replace handoff preserving media identity. Existing 64 records and stable IDs retained; Cylinder Weights replacement remains awaiting the user-supplied binary. |
 | FISH-TODO-001 | 2026-08-29 | Project migration | OneNote fishing/kayak notebook content migrated into the durable GitHub Markdown knowledge base. |
 | FISH-TODO-002 | 2026-08-29 | Project migration | Migration audit/reconciliation closed by user scope decision: OneNote was the most up-to-date historical source of truth; exhaustive transcript-by-transcript historical-chat reconciliation was not required. Dedicated audit/reconciliation files were retired after closure. |
 | FISH-TODO-003 | 2026-08-29 | Project architecture | GitHub-based new-chat bootstrap prompt completed for normal ongoing project use. |

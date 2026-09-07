@@ -43,7 +43,7 @@ assert.match(gearApp, /section-title-actions">\$\{searchControl\}\$\{back \? `<b
 
 assert.match(gearApp, /accessories: \{ label:'Equipment', iconHtml:ACCESSORIES_ICON \}/,
   'My Gear must expose the Accessories category card.');
-assert.match(gearApp, /fill="#76c8ef"[\s\S]*fill="#a9afb2"|fill="#a9afb2"[\s\S]*fill="#76c8ef"/,
+assert.match(gearApp, /stop-color="#76c8ef"[\s\S]*fill="#a9afb2"|fill="#a9afb2"[\s\S]*stop-color="#76c8ef"/,
   'Accessories card must use the approved light-blue kayak and gray paddle SVG treatment.');
 assert.match(gearApp, /accessories:GEAR_ACCESSORY_TYPES/,
   'Accessories Type options must come from the fixed chat-managed taxonomy.');
@@ -75,6 +75,9 @@ assert.match(gearApp, /pwa\/assets\/gear-source\/\$\{filename\}/,
   'Prepared picture additions must identify the repository upload path.');
 assert.match(gearApp, /pwa\/gear-content\/\$\{id\}\.md/,
   'Prepared Notes changes must identify the stable-ID Markdown path.');
+assert.match(gearApp, /name="gearPictureAction" value="keep" checked/);
+assert.match(gearApp, /name="gearPictureAction" value="replace"/);
+assert.match(gearApp, /sourcePath/);
 assert.match(gearApp, /fishing-companion-gear-change-v1/,
   'Add/Edit must generate a versioned handoff package.');
 assert.match(gearApp, /navigator\.clipboard\.writeText\(payload\)/,
