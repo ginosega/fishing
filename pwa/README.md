@@ -2,7 +2,7 @@
 
 ## Status and architecture
 
-Production is healthy. The last user-verified release is PR47, merge `f05b7ec532d8e45f3fc36c1e0976c5ea40eb9983`, production #240 / `34135326910`, September 7, 2026. Gear schema4 and the user-uploaded Cylinder Weights picture are live. KB Add/Edit is the next release, FISH-TODO-060 / PR48 on `feature/kb-authoring`; do not call it deployed before actual verification.
+Production is healthy. The latest verified release is PR48, merge `6d04e29b6770000eaa50f6c449ad82bc88f7326d`, production #252 / `34142574286`, September 7, 2026. Normal PR CI #251 / `34142498510` and production build, tests, bundle verification and actual Pages deployment succeeded. Gear schema4, KB Add/Edit and the user-verified Cylinder Weights picture are live. FISH-TODO-058/059/060 are DONE. There is no pending application release.
 
 Fishing Companion is a single-user, offline-capable personal application. GitHub is its durable source of truth. Three domains share stable IDs, explicit fact ownership, strict validation, exact feature-driven relationships and authored narrative separation. They intentionally retain domain-appropriate schemas and storage. There is no Planner, sessions, trip history, accounts, synchronization or multi-user scope.
 
@@ -18,7 +18,7 @@ Optional authored Notes live at `gear-content/<id>.md`; no inline JSON Notes, us
 
 ### Add/Edit authoring
 
-FISH-TODO-060 adds `#/kb/new`, `#/kb/new/<type>`, and `#/kb/edit/<id>` using the same handoff model as Gear. A complete Markdown article is edited with source and Preview; it is not an extra Notes field or atomic guidance schema. New IDs are generated from the initial type/name, and new content paths from the stable ID. Existing IDs and paths never change on rename or reclassification. Existing ID prefixes are historical identity, not validation constraints. A reclassification must preserve exact Catch references or be rejected.
+Deployed by PR48 / FISH-TODO-060, `#/kb/new`, `#/kb/new/<type>`, and `#/kb/edit/<id>` using the same handoff model as Gear. A complete Markdown article is edited with source and Preview; it is not an extra Notes field or atomic guidance schema. New IDs are generated from the initial type/name, and new content paths from the stable ID. Existing IDs and paths never change on rename or reclassification. Existing ID prefixes are historical identity, not validation constraints. A reclassification must preserve exact Catch references or be rejected.
 
 The browser prepares `fishing-companion-kb-change-v1` packages containing a source version, original source/display entity, original Markdown, exact media mapping, proposed entity/content/picture actions and a human-readable summary. It never directly writes GitHub or maintains a competing KB database. Taxonomy changes remain chat/repository work.
 
@@ -57,4 +57,4 @@ node pwa/verify-final-bundle.mjs
 
 The permanent `.github/workflows/fishing-pwa-build.yml` runs syntax, model, routing, authoring, media, content, build and final-bundle checks. New runtime modules must be included in the build, versioned module graph and service-worker offline manifest, including the canonical KB authoring/overlay metadata. `node pwa/serve.mjs` serves local development at `http://127.0.0.1:4173`.
 
-Meaningful runtime changes use a feature branch and PR, exact final-head/current-base CI, expected-head merge, and verified production deployment. Shared Pages concurrency is `fishing-pages` with `cancel-in-progress:true`. Do not overlap direct-main content writes with release validation. Temporary source integration tools must be removed before final PR CI. Respect workflow permissions and do not rerun one-time migrations. Preserve all existing records and authored files. The September 6 release handoff is historical; current state is in the root Context/TODO/Decision Log/bootstrap.
+Meaningful runtime changes use a feature branch and PR, exact final-head/current-base CI, expected-head merge, and verified production deployment. Shared Pages concurrency is `fishing-pages` with `cancel-in-progress:true`. Do not overlap direct-main content writes with release validation. Temporary source integration tools must be removed before final PR CI. Respect workflow permissions and do not rerun one-time migrations. Preserve all existing records and authored files. The September 6 release handoff is historical; PR48 deployment evidence is recorded in the root Context/TODO/Decision Log/bootstrap. Start future work from current main, not the retired integration branch.

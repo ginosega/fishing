@@ -2,7 +2,11 @@
 
 This is a historical recovery/release record, not an active continuation instruction. The preserved Gear feature was reconciled with PR46 and the user-uploaded Cylinder Weights image, cleaned, validated and merged in PR47. Final head `fd0f07e2929343303f93f8b9433326c7301543bb` passed PR CI #239 / `34135260691`; merge `f05b7ec532d8e45f3fc36c1e0976c5ea40eb9983` passed production #240 / `34135326910`, including actual Pages deployment. The user verified the Gear refinement and new Cylinder Weights image. FISH-TODO-058 and 059 are DONE. The seven one-time migration/finalization artifacts were removed; permanent image validation, media policy and final-bundle checks remain.
 
-The current work is KB Add/Edit, FISH-TODO-060, PR48 / `feature/kb-authoring`. Fetch current main and the authoritative Context/TODO before continuing; do not resume the old migration branch or rerun its one-time scripts.
+## KB Add/Edit follow-on release
+
+PR #48, final head `85245de2451db97370268e14dfc2c66a53c8c61d`, passed normal PR CI #251 / `34142498510` against main `f05b7ec532d8e45f3fc36c1e0976c5ea40eb9983`. Merge `6d04e29b6770000eaa50f6c449ad82bc88f7326d` passed production #252 / `34142574286`, including the actual Deploy to GitHub Pages step. The production run completed September 7, 2026 at 16:18:08 UTC. The deployed release is ready for user acceptance. FISH-TODO-060 is DONE. The feature preserved all 64 Gear, 54 KB and five Catch records, source/derived media boundaries and authored Markdown. Temporary source-transfer artifacts/workflows were removed; permanent authoring, promotion and final-bundle validation remain.
+
+The archived September 6 checkpoint below intentionally retains its original pending-state language and exact historical SHAs. It is not current project state. Do not resume the old Gear or KB integration branches or rerun one-time migrations. Restore current main, Context, TODO and Decision Log for subsequent work.
 
 ---
 
