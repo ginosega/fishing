@@ -21,8 +21,8 @@ jobs:
       - name: Promote exact authorized changes
         run: |
           set -euo pipefail
-          node --check pwa/changes/2026-09-08-batch.mjs
-          node pwa/changes/2026-09-08-batch.mjs
+          node --check pwa/changes/2026-09-08-runner-fix.mjs
+          node pwa/changes/2026-09-08-runner-fix.mjs
           node --check pwa/accepted-2026-09-08.test.mjs
           node pwa/accepted-2026-09-08.test.mjs
           node pwa/dagger-axis.test.mjs
