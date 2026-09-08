@@ -44,6 +44,7 @@ jobs:
           node-version: '22'
       - name: Validate JavaScript syntax
         run: |
+          node --check pwa/dagger-axis.test.mjs
           node --check pwa/gear-app.js
           node --check pwa/kb-app.js
           node --check pwa/gear-store.js
@@ -64,6 +65,8 @@ jobs:
           node --check pwa/verify-final-bundle.mjs
           node --check pwa/final-content.test.mjs
           node --check pwa/serve.mjs
+      - name: Test Dagger Axis source and ownership
+        run: node pwa/dagger-axis.test.mjs
       - name: Test structured My Gear model
         run: node pwa/gear-model.test.mjs
       - name: Test My Gear routing and layout
@@ -88,6 +91,8 @@ jobs:
         run: node pwa/apply-local-media.mjs
       - name: Verify final transformed bundle
         run: node pwa/verify-final-bundle.mjs
+      - name: Verify Dagger Axis transformed media
+        run: node pwa/dagger-axis.test.mjs --dist
       - name: Verify bundle
         run: |
           test -f pwa/dist/index.html
@@ -161,6 +166,7 @@ jobs:
           test -f pwa/dist/assets/gear/south-bend-assorted-brass-swivels.png
           test -f pwa/dist/assets/gear/south-bend-hook-assortment.png
           test -f pwa/dist/assets/gear/thkfish-cylinder-weights.jpg
+          test -f pwa/dist/assets/gear/dagger-axis-10-5.png
           grep -q 'gear-app.js?v=' pwa/dist/index.html
           grep -q 'kb-app.js?v=' pwa/dist/index.html
           grep -q 'media-ui.js?v=' pwa/dist/index.html
@@ -174,7 +180,7 @@ jobs:
           grep -q 'largemouth-bass.png' pwa/dist/data/kb.seed.json
           grep -q 'booyah-pad-crasher.jpg' pwa/dist/data/kb.seed.json
           ! grep -q 'kokanee-phases.webp' pwa/dist/data/kb.seed.json
-          grep -q '2026-09-06-my-gear-v4-ordered-links-1' pwa/dist/data/gear.seed.json
+          grep -q '2026-09-08-my-gear-v4-dagger-axis-1' pwa/dist/data/gear.seed.json
           grep -q '2026-09-04-kb-v1-final-content-1' pwa/dist/data/kb.seed.json
           grep -q '2026-09-04-catches-v2-external-notes-1' pwa/dist/data/catches.seed.json
           ! grep -q '"notes":' pwa/dist/data/gear.seed.json
