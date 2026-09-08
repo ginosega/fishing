@@ -64,3 +64,6 @@ const rvr=gear.items.find(item=>item.id==='bonafide-rvr119');
 assert.ok(rvr);
 assert.deepEqual(rvr.links.map(link=>link.label),['Bonafide','Eco Fishing']);
 console.log(`Final transformed bundle validated: ${gear.items.length} Gear, ${kb.entities.length} KB, ${catches.catches.length} catches, ${media.length} media, ${assets.size} offline document assets.`);
+
+import {verifyAcceptedBatch} from './accepted-2026-09-08.test.mjs';
+await verifyAcceptedBatch(true);

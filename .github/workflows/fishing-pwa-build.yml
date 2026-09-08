@@ -44,6 +44,7 @@ jobs:
           node-version: '22'
       - name: Validate JavaScript syntax
         run: |
+          node --check pwa/accepted-2026-09-08.test.mjs
           node --check pwa/dagger-axis.test.mjs
           node --check pwa/gear-app.js
           node --check pwa/kb-app.js
@@ -65,6 +66,8 @@ jobs:
           node --check pwa/verify-final-bundle.mjs
           node --check pwa/final-content.test.mjs
           node --check pwa/serve.mjs
+      - name: Test accepted kayak correction and KB images
+        run: node pwa/accepted-2026-09-08.test.mjs
       - name: Test Dagger Axis source and ownership
         run: node pwa/dagger-axis.test.mjs
       - name: Test structured My Gear model
@@ -93,6 +96,8 @@ jobs:
         run: node pwa/verify-final-bundle.mjs
       - name: Verify Dagger Axis transformed media
         run: node pwa/dagger-axis.test.mjs --dist
+      - name: Verify accepted KB image bytes and final data
+        run: node pwa/accepted-2026-09-08.test.mjs --dist
       - name: Verify bundle
         run: |
           test -f pwa/dist/index.html
@@ -159,6 +164,9 @@ jobs:
           test -f pwa/dist/assets/kb/equipment/inline-trolling-rig.png
           test -f pwa/dist/assets/kb/equipment/bobber-rig.png
           test -f pwa/dist/assets/kb/equipment/slip-sinker-rig.png
+          test -f pwa/dist/assets/kb/entries/technique-fishing-line.jpg
+          test -f pwa/dist/assets/kb/entries/technique-walking-bait.jpg
+          test -f pwa/dist/assets/kb/entries/technique-rods-reels.png
           test -f pwa/dist/assets/gear/booyah-pad-crasher-assortment.jpg
           test -f pwa/dist/assets/gear/vmc-swimbait-jig.png
           test -f pwa/dist/assets/gear/south-bend-classic-dressed-spinners.jpg
@@ -180,8 +188,8 @@ jobs:
           grep -q 'largemouth-bass.png' pwa/dist/data/kb.seed.json
           grep -q 'booyah-pad-crasher.jpg' pwa/dist/data/kb.seed.json
           ! grep -q 'kokanee-phases.webp' pwa/dist/data/kb.seed.json
-          grep -q '2026-09-08-my-gear-v4-dagger-axis-1' pwa/dist/data/gear.seed.json
-          grep -q '2026-09-04-kb-v1-final-content-1' pwa/dist/data/kb.seed.json
+          grep -q '2026-09-08-my-gear-v4-dagger-length-1' pwa/dist/data/gear.seed.json
+          grep -q '2026-09-08-kb-v1-three-hero-images-1' pwa/dist/data/kb.seed.json
           grep -q '2026-09-04-catches-v2-external-notes-1' pwa/dist/data/catches.seed.json
           ! grep -q '"notes":' pwa/dist/data/gear.seed.json
           ! grep -q '"exactSpotNotes":' pwa/dist/data/catches.seed.json

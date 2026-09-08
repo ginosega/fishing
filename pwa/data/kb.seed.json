@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "dataVersion": "2026-09-04-kb-v1-final-content-1",
+  "dataVersion": "2026-09-08-kb-v1-three-hero-images-1",
   "entities": [
     {
       "id": "location-lake-washington",
@@ -95,7 +95,14 @@
       "type": "equipment",
       "name": "Fishing Line",
       "description": "Braid, fluorocarbon, mono, leader, knot, and spooling guidance.",
-      "picture": null,
+      "picture": {
+        "src": "./assets/kb/entries/technique-fishing-line.jpg",
+        "alt": "Sufix 832 fishing line",
+        "caption": null,
+        "credit": null,
+        "sourceUrl": null,
+        "gearItemId": "sufix-832-15"
+      },
       "content": "./kb-content/techniques/fishing-line.md"
     },
     {
@@ -103,7 +110,13 @@
       "type": "equipment",
       "name": "Rods & Reels",
       "description": "Spinning and baitcasting selection, setup, adjustment, and casting guidance.",
-      "picture": null,
+      "picture": {
+        "src": "./assets/kb/entries/technique-rods-reels.png",
+        "alt": "Baitcasting reel",
+        "caption": null,
+        "credit": null,
+        "sourceUrl": null
+      },
       "content": "./kb-content/techniques/rods-reels.md"
     },
     {
@@ -221,7 +234,13 @@
       "type": "equipment",
       "name": "Walking Bait",
       "description": "Walk-the-dog tackle, line, cadence, color guidance, and bait examples.",
-      "picture": null,
+      "picture": {
+        "src": "./assets/kb/entries/technique-walking-bait.jpg",
+        "alt": "Heddon Zara Spook",
+        "caption": null,
+        "credit": null,
+        "sourceUrl": null
+      },
       "content": "./kb-content/techniques/walking-bait.md"
     },
     {
