@@ -4,11 +4,13 @@ Durable project repository for personal fishing/kayak knowledge, owned gear, cat
 
 ## Current state
 
-**Production healthy; kayak correction and three KB pictures deployed.** PR56, merge `531f04a84c0d75e2a7f23dc368149de5026b607b`, passed normal CI #284 / `34188600391` and production #285 / `34188668110`, including actual GitHub Pages deployment on September 8, 2026. The Dagger Axis 10.5 Length is corrected to the user-confirmed `10' 6"`. Fishing Line, Walking Bait and Rods & Reels now have the requested pictures. All authored Markdown and unrelated domain records are preserved. The latest user-replaced Dagger PNG is retained, including the subsequent source replacement in commit `2c79f685f5d3fc1020930874cfea486425840c3c`. The image regression now validates actual source format, identity, ownership and byte-identical output without freezing a user-maintained image hash. FISH065 and FISH066 are DONE. FISH063 remains OPEN for KB image-filename usability. Browser acceptance and independent live HTTP verification are separate from verified deployment.
+**Production healthy; Perception Joyride and Rods & Reels caption deployed.** PR58, merge `8cceecc42d7ffab1c672e6991378d032136145b4`, passed normal PR CI #297 / `34189898597` and production #298 / `34189948481`, including actual GitHub Pages deployment on September 8, 2026.
 
-Current sources: Gear schema4/65 records, dataVersion `2026-09-08-my-gear-v4-dagger-length-1`; KB schema1/54 entities, dataVersion `2026-09-08-kb-v1-three-hero-images-1`; Catch schema2/five historical records, dataVersion `2026-09-04-catches-v2-external-notes-1`. No application release is pending. PR47–55 remain closed historical release evidence.
+PR58 added the user-supplied owned Gear record `perception-joyride-10-0` (Perception Joyride 10.0) exactly as submitted, registered the already-uploaded `pwa/assets/gear-source/perception-joyride-10.png` with explicit ownership, and created no Notes. It also changed only the existing Rods & Reels hero-picture caption to `Baitcasting reel`; the picture bytes, alt text, content path and complete authored Markdown were preserved. The Dagger Axis 10.5 remains at the confirmed `10' 6"` and its latest user-replaced source image remains preserved. FISH-TODO-068 is DONE. FISH-TODO-063 remains OPEN for KB image-filename/upload-destination usability.
 
-Live site: [Fishing Companion](https://ginosega.github.io/fishing/). See [latest release closeout](pwa/RELEASE_2026-09-08_KAYAK_KB_IMAGES.md) for exact implementation and deployment evidence.
+Current sources: Gear schema4/66 records, dataVersion `2026-09-08-my-gear-v4-perception-joyride-1`; KB schema1/54 entities, dataVersion `2026-09-08-kb-v1-rods-reels-caption-1`; Catch schema2/five historical records, dataVersion `2026-09-04-catches-v2-external-notes-1`. No application release is pending.
+
+Live site: [Fishing Companion](https://ginosega.github.io/fishing/). See [latest release closeout](pwa/RELEASE_2026-09-08_JOYRIDE_RODS_CAPTION.md) for exact implementation and deployment evidence. Earlier PR47–57 release records remain historical evidence.
 
 ## Authoritative project records
 
@@ -17,8 +19,8 @@ Live site: [Fishing Companion](https://ginosega.github.io/fishing/). See [latest
 - [Decision Log](Fishing_Decision_Log.md) — accepted decisions and standing process.
 - [New-chat bootstrap](Fishing_New_Chat_Bootstrap_Prompt.md) — restore instructions and latest verified baseline.
 - [PWA README](pwa/README.md) — runtime architecture, build/test commands and deployment.
-- [Latest release](pwa/RELEASE_2026-09-08_KAYAK_KB_IMAGES.md) — PR56 correction and three pictures.
-- [Dagger addition history](pwa/DAGGER_AXIS_RELEASE_2026-09-08.md) — PR54 and subsequent correction.
+- [Latest release](pwa/RELEASE_2026-09-08_JOYRIDE_RODS_CAPTION.md) — PR58 Joyride/caption release.
+- [Previous kayak/KB image release](pwa/RELEASE_2026-09-08_KAYAK_KB_IMAGES.md) — PR56 correction and three pictures.
 - [Historical documentation](History/) — exact prior versions, not competing current authority.
 
 Gear Registry, Tackle Inventory, Topics, original OneNote/PDF material, decision history and older release records remain reference/history. Structured PWA sources and stable-ID authored Markdown own current runtime facts. Do not infer ownership or historical catch relationships from reference material.
