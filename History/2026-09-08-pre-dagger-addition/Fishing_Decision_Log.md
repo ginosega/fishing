@@ -1,7 +1,5 @@
 # Fishing Decision Log
 
-**Pending release decision:** Add the user-authorized Dagger Axis 10.5 as a separate Kayaks Gear record, preserving its stable ID, exact authored specifications, no Notes, and explicit image owner. Source schema4/65 records, dataVersion `2026-09-08-my-gear-v4-dagger-axis-1`. Preserve the submitted length until confirmed; FISH065. No KB/Catch or existing owned Gear changes. See `pwa/DAGGER_AXIS_RELEASE_2026-09-08.md`.
-
 **Status:** Current decision authority, reconciled September 8, 2026. Complete earlier decisions remain in `Fishing_Decision_History_Through_2026-09-06.md` and the preserved records under `History/`. Historical CURRENT labels do not override this index.
 
 ## Release authority

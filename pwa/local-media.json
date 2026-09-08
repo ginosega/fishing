@@ -1,40 +1,274 @@
 {
   "version": 1,
   "gear": [
-    {"mediaId":"booyah-pad-crasher-assortment","source":"./assets/gear-source/booyah-pad-crasher.jpg","alt":"Booyah Pad Crasher hollow-body frog","destination":"https://www.dickssportinggoods.com/p/booyah-pad-crasher-frog-assortment-3-pack-20byhupdcrshr3pkklur/20byhupdcrshr3pkklur","sourcePage":"https://www.dickssportinggoods.com/p/booyah-pad-crasher-frog-assortment-3-pack-20byhupdcrshr3pkklur/20byhupdcrshr3pkklur"},
-    {"mediaId":"vmc-swimbait-jig","source":"./assets/gear-source/vmc-swimbait-jig.png","alt":"VMC Swimbait Jig white jighead","destination":"https://www.rapala.com/us_en/sbj-swimbait-jig?childSku=us-SBJ14-W","sourcePage":"https://www.rapala.com/us_en/sbj-swimbait-jig?childSku=us-SBJ14-W"},
-    {"mediaId":"south-bend-classic-dressed-spinners","source":"./assets/gear-source/south-bend-dressed-spinners.jpg","alt":"South Bend 3-Piece Classic Dressed Spinners","owners":[{"gearItemId":"generic-0-inline-spinner-assortment"}]},
-    {"mediaId":"south-bend-removable-split-shot-sinkers","source":"./assets/gear-source/south-bend-split-shot.png","alt":"South Bend 125-Piece Removable Split Shot Sinkers","owners":[{"gearItemId":"south-bend-removable-split-shot-sinkers"}]},
-    {"mediaId":"south-bend-assorted-brass-swivels","source":"./assets/gear-source/south-bend-brass-swivels.png","alt":"South Bend 24-Piece Assorted Brass Swivels","owners":[{"gearItemId":"south-bend-assorted-brass-swivels"}]},
-    {"mediaId":"south-bend-hook-assortment","source":"./assets/gear-source/south-bend-hook-assortment.png","alt":"South Bend 120-Piece Hook Assortment","owners":[{"gearItemId":"south-bend-hook-assortment"}]},
-    {"mediaId":"bonafide-rvr119","source":"./assets/gear-source/bonafide-rvr119.png","alt":"Bonafide RVR119 fishing kayak in Steel","destination":"https://bonafidefishing.com/products/rvr119","sourcePage":""},
-    {"mediaId":"thkfish-cylinder-weights","source":"./assets/gear-source/thkfish-cylinder-weights.jpg","alt":"THKFISH 28-piece drop-shot cylinder sinker set","destination":"https://thkfish.net/products/thkfish-fishing-weights-fishing-sinker-drop-shot-weights-fishing-weights-kit-drop-shot-rig-wacky-hooks-offset-hooks-fishing-tackle-28pcs","sourcePage":"https://www.ebay.com/itm/304986165277"},
-    {"mediaId":"zman-jack-hammer","source":"./assets/gear-source/zman-jack-hammer.png","alt":"Z-Man Evergreen ChatterBait Jack Hammer","destination":"https://zmanfishing.com/products/chatterbait-r-jackhammer#","sourcePage":"https://www.ebay.com/itm/336474453546"}
+    {
+      "mediaId": "booyah-pad-crasher-assortment",
+      "source": "./assets/gear-source/booyah-pad-crasher.jpg",
+      "alt": "Booyah Pad Crasher hollow-body frog",
+      "destination": "https://www.dickssportinggoods.com/p/booyah-pad-crasher-frog-assortment-3-pack-20byhupdcrshr3pkklur/20byhupdcrshr3pkklur",
+      "sourcePage": "https://www.dickssportinggoods.com/p/booyah-pad-crasher-frog-assortment-3-pack-20byhupdcrshr3pkklur/20byhupdcrshr3pkklur"
+    },
+    {
+      "mediaId": "vmc-swimbait-jig",
+      "source": "./assets/gear-source/vmc-swimbait-jig.png",
+      "alt": "VMC Swimbait Jig white jighead",
+      "destination": "https://www.rapala.com/us_en/sbj-swimbait-jig?childSku=us-SBJ14-W",
+      "sourcePage": "https://www.rapala.com/us_en/sbj-swimbait-jig?childSku=us-SBJ14-W"
+    },
+    {
+      "mediaId": "south-bend-classic-dressed-spinners",
+      "source": "./assets/gear-source/south-bend-dressed-spinners.jpg",
+      "alt": "South Bend 3-Piece Classic Dressed Spinners",
+      "owners": [
+        {
+          "gearItemId": "generic-0-inline-spinner-assortment"
+        }
+      ]
+    },
+    {
+      "mediaId": "south-bend-removable-split-shot-sinkers",
+      "source": "./assets/gear-source/south-bend-split-shot.png",
+      "alt": "South Bend 125-Piece Removable Split Shot Sinkers",
+      "owners": [
+        {
+          "gearItemId": "south-bend-removable-split-shot-sinkers"
+        }
+      ]
+    },
+    {
+      "mediaId": "south-bend-assorted-brass-swivels",
+      "source": "./assets/gear-source/south-bend-brass-swivels.png",
+      "alt": "South Bend 24-Piece Assorted Brass Swivels",
+      "owners": [
+        {
+          "gearItemId": "south-bend-assorted-brass-swivels"
+        }
+      ]
+    },
+    {
+      "mediaId": "south-bend-hook-assortment",
+      "source": "./assets/gear-source/south-bend-hook-assortment.png",
+      "alt": "South Bend 120-Piece Hook Assortment",
+      "owners": [
+        {
+          "gearItemId": "south-bend-hook-assortment"
+        }
+      ]
+    },
+    {
+      "mediaId": "bonafide-rvr119",
+      "source": "./assets/gear-source/bonafide-rvr119.png",
+      "alt": "Bonafide RVR119 fishing kayak in Steel",
+      "destination": "https://bonafidefishing.com/products/rvr119",
+      "sourcePage": ""
+    },
+    {
+      "mediaId": "thkfish-cylinder-weights",
+      "source": "./assets/gear-source/thkfish-cylinder-weights.jpg",
+      "alt": "THKFISH 28-piece drop-shot cylinder sinker set",
+      "destination": "https://thkfish.net/products/thkfish-fishing-weights-fishing-sinker-drop-shot-weights-fishing-weights-kit-drop-shot-rig-wacky-hooks-offset-hooks-fishing-tackle-28pcs",
+      "sourcePage": "https://www.ebay.com/itm/304986165277"
+    },
+    {
+      "mediaId": "zman-jack-hammer",
+      "source": "./assets/gear-source/zman-jack-hammer.png",
+      "alt": "Z-Man Evergreen ChatterBait Jack Hammer",
+      "destination": "https://zmanfishing.com/products/chatterbait-r-jackhammer#",
+      "sourcePage": "https://www.ebay.com/itm/336474453546"
+    },
+    {
+      "mediaId": "dagger-axis-10-5",
+      "source": "./assets/gear-source/dagger-axis-10-5.png",
+      "alt": "Dagger Axis 10.5 crossover kayak",
+      "destination": "https://www.confluenceoutdoor.com/products/dagger-axis-105-crossover-kayak-9030515209?_pos=1&_psq=axis&_psid=22657cf47&_ss=e",
+      "sourcePage": "https://www.confluenceoutdoor.com/products/dagger-axis-105-crossover-kayak-9030515209?_pos=1&_psq=axis&_psid=22657cf47&_ss=e",
+      "owners": [
+        {
+          "gearItemId": "dagger-axis-10-5"
+        }
+      ]
+    }
   ],
   "kb": [
-    {"entityId":"species-kokanee","source":"./assets/kb/species/kokanee-phases.png","alt":"Kokanee shown in silver non-spawning and red spawning phases","caption":"Kokanee shown in non-spawning (silver) and spawning (red) phases","credit":null,"sourceUrl":null},
-    {"entityId":"species-northern-pikeminnow","source":"./assets/kb/species/northern-pikeminnow.png","alt":"Northern pikeminnow","caption":"Northern pikeminnow","credit":null,"sourceUrl":null},
-    {"entityId":"technique-frogs","source":"./assets/kb/equipment/booyah-pad-crasher.jpg","alt":"Booyah Pad Crasher hollow-body frog","caption":"Booyah Pad Crasher","credit":null,"sourceUrl":null,"gearItemId":"booyah-pad-crasher"},
-    {"entityId":"technique-swimbait-soft-jerk-shad","gearMediaId":"fin-sanity-bluegill","alt":"Fin-Sanity Bluegill swimbait","caption":"Fin-Sanity Bluegill","gearItemId":"fin-sanity-bluegill"},
-    {"entityId":"technique-jerkbait","gearMediaId":"berkley-stunna","alt":"Berkley Stunna jerkbait","caption":"Berkley Stunna","gearItemId":"berkley-stunna"},
-    {"entityId":"technique-crankbait","gearMediaId":"strike-king-kvd-square-bill-1","alt":"Strike King KVD Square Bill 1.0 crankbait","caption":"Strike King KVD Square Bill 1.0","gearItemId":"strike-king-kvd-square-bill-1"},
-    {"entityId":"technique-chatterbait-bladed-jig","gearMediaId":"zman-original-chatterbait","alt":"Z-Man Original ChatterBait","caption":"Z-Man Original ChatterBait","gearItemId":"zman-original-chatterbait"},
-    {"entityId":"technique-spinnerbait","gearMediaId":"strike-king-red-eyed-special","alt":"Strike King Red Eyed Special spinnerbait","caption":"Strike King Red Eyed Special","gearItemId":"strike-king-red-eyed-special"},
-    {"entityId":"technique-jigs","gearMediaId":"strike-king-tour-grade-football-jig","alt":"Strike King Tour Grade Football Jig","caption":"Strike King Tour Grade Football Jig","gearItemId":"strike-king-tour-grade-football-jig"},
-    {"entityId":"technique-inline-spinner","source":"./assets/kb/equipment/inline-spinner-rig.png","alt":"Inline spinner rig","caption":"Inline spinner rig","credit":null,"sourceUrl":null},
-    {"entityId":"technique-drop-shot","source":"./assets/kb/equipment/drop-shot.png","alt":"Drop shot rig","caption":"Drop shot rig","credit":null,"sourceUrl":null},
-    {"entityId":"technique-wacky-worm","source":"./assets/kb/equipment/wacky-worm.png","alt":"Wacky worm rig","caption":"Wacky worm rig","credit":null,"sourceUrl":null},
-    {"entityId":"technique-ned-rig","source":"./assets/kb/equipment/ned-rig.png","alt":"Ned rig","caption":"Ned rig","credit":null,"sourceUrl":null},
-    {"entityId":"technique-snaps-swivels","source":"./assets/kb/equipment/snap-swivel.png","alt":"Snap swivel","caption":"Snap swivel","credit":null,"sourceUrl":null},
-    {"entityId":"technique-flasher-rig","source":"./assets/kb/equipment/flasher-rig.png","alt":"Flasher trolling rig","caption":"Flasher rig","credit":null,"sourceUrl":null},
-    {"entityId":"technique-inline-trolling-rig","source":"./assets/kb/equipment/inline-trolling-rig.png","alt":"Inline trolling rig","caption":"Inline trolling rig","credit":null,"sourceUrl":null},
-    {"entityId":"technique-bobber-rig","source":"./assets/kb/equipment/bobber-rig.png","alt":"Bobber rig","caption":"Bobber rig","credit":null,"sourceUrl":null},
-    {"entityId":"technique-slip-sinker-rig","source":"./assets/kb/equipment/slip-sinker-rig.png","alt":"Slip sinker rig","caption":"Slip sinker rig","credit":null,"sourceUrl":null},
-    {"entityId":"species-rainbow-trout","source":"./assets/kb/species/rainbow-trout.png","alt":"Rainbow trout","caption":"Rainbow trout","credit":null,"sourceUrl":null},
-    {"entityId":"species-coastal-cutthroat-trout","source":"./assets/kb/species/coastal-cutthroat-trout.png","alt":"Coastal cutthroat trout","caption":"Coastal cutthroat trout","credit":null,"sourceUrl":null},
-    {"entityId":"species-smallmouth-bass","source":"./assets/kb/species/smallmouth-bass.png","alt":"Smallmouth bass","caption":"Smallmouth bass","credit":null,"sourceUrl":null},
-    {"entityId":"species-largemouth-bass","source":"./assets/kb/species/largemouth-bass.png","alt":"Largemouth bass","caption":"Largemouth bass","credit":null,"sourceUrl":null},
-    {"entityId":"technique-buzzbait","source":"./assets/kb/entries/technique-buzzbait.jpg","alt":"Booyah Buzz buzzbait","caption":"Booyah Buzz buzzbait","credit":null,"sourceUrl":"https://a.co/d/02qedNlw"}
+    {
+      "entityId": "species-kokanee",
+      "source": "./assets/kb/species/kokanee-phases.png",
+      "alt": "Kokanee shown in silver non-spawning and red spawning phases",
+      "caption": "Kokanee shown in non-spawning (silver) and spawning (red) phases",
+      "credit": null,
+      "sourceUrl": null
+    },
+    {
+      "entityId": "species-northern-pikeminnow",
+      "source": "./assets/kb/species/northern-pikeminnow.png",
+      "alt": "Northern pikeminnow",
+      "caption": "Northern pikeminnow",
+      "credit": null,
+      "sourceUrl": null
+    },
+    {
+      "entityId": "technique-frogs",
+      "source": "./assets/kb/equipment/booyah-pad-crasher.jpg",
+      "alt": "Booyah Pad Crasher hollow-body frog",
+      "caption": "Booyah Pad Crasher",
+      "credit": null,
+      "sourceUrl": null,
+      "gearItemId": "booyah-pad-crasher"
+    },
+    {
+      "entityId": "technique-swimbait-soft-jerk-shad",
+      "gearMediaId": "fin-sanity-bluegill",
+      "alt": "Fin-Sanity Bluegill swimbait",
+      "caption": "Fin-Sanity Bluegill",
+      "gearItemId": "fin-sanity-bluegill"
+    },
+    {
+      "entityId": "technique-jerkbait",
+      "gearMediaId": "berkley-stunna",
+      "alt": "Berkley Stunna jerkbait",
+      "caption": "Berkley Stunna",
+      "gearItemId": "berkley-stunna"
+    },
+    {
+      "entityId": "technique-crankbait",
+      "gearMediaId": "strike-king-kvd-square-bill-1",
+      "alt": "Strike King KVD Square Bill 1.0 crankbait",
+      "caption": "Strike King KVD Square Bill 1.0",
+      "gearItemId": "strike-king-kvd-square-bill-1"
+    },
+    {
+      "entityId": "technique-chatterbait-bladed-jig",
+      "gearMediaId": "zman-original-chatterbait",
+      "alt": "Z-Man Original ChatterBait",
+      "caption": "Z-Man Original ChatterBait",
+      "gearItemId": "zman-original-chatterbait"
+    },
+    {
+      "entityId": "technique-spinnerbait",
+      "gearMediaId": "strike-king-red-eyed-special",
+      "alt": "Strike King Red Eyed Special spinnerbait",
+      "caption": "Strike King Red Eyed Special",
+      "gearItemId": "strike-king-red-eyed-special"
+    },
+    {
+      "entityId": "technique-jigs",
+      "gearMediaId": "strike-king-tour-grade-football-jig",
+      "alt": "Strike King Tour Grade Football Jig",
+      "caption": "Strike King Tour Grade Football Jig",
+      "gearItemId": "strike-king-tour-grade-football-jig"
+    },
+    {
+      "entityId": "technique-inline-spinner",
+      "source": "./assets/kb/equipment/inline-spinner-rig.png",
+      "alt": "Inline spinner rig",
+      "caption": "Inline spinner rig",
+      "credit": null,
+      "sourceUrl": null
+    },
+    {
+      "entityId": "technique-drop-shot",
+      "source": "./assets/kb/equipment/drop-shot.png",
+      "alt": "Drop shot rig",
+      "caption": "Drop shot rig",
+      "credit": null,
+      "sourceUrl": null
+    },
+    {
+      "entityId": "technique-wacky-worm",
+      "source": "./assets/kb/equipment/wacky-worm.png",
+      "alt": "Wacky worm rig",
+      "caption": "Wacky worm rig",
+      "credit": null,
+      "sourceUrl": null
+    },
+    {
+      "entityId": "technique-ned-rig",
+      "source": "./assets/kb/equipment/ned-rig.png",
+      "alt": "Ned rig",
+      "caption": "Ned rig",
+      "credit": null,
+      "sourceUrl": null
+    },
+    {
+      "entityId": "technique-snaps-swivels",
+      "source": "./assets/kb/equipment/snap-swivel.png",
+      "alt": "Snap swivel",
+      "caption": "Snap swivel",
+      "credit": null,
+      "sourceUrl": null
+    },
+    {
+      "entityId": "technique-flasher-rig",
+      "source": "./assets/kb/equipment/flasher-rig.png",
+      "alt": "Flasher trolling rig",
+      "caption": "Flasher rig",
+      "credit": null,
+      "sourceUrl": null
+    },
+    {
+      "entityId": "technique-inline-trolling-rig",
+      "source": "./assets/kb/equipment/inline-trolling-rig.png",
+      "alt": "Inline trolling rig",
+      "caption": "Inline trolling rig",
+      "credit": null,
+      "sourceUrl": null
+    },
+    {
+      "entityId": "technique-bobber-rig",
+      "source": "./assets/kb/equipment/bobber-rig.png",
+      "alt": "Bobber rig",
+      "caption": "Bobber rig",
+      "credit": null,
+      "sourceUrl": null
+    },
+    {
+      "entityId": "technique-slip-sinker-rig",
+      "source": "./assets/kb/equipment/slip-sinker-rig.png",
+      "alt": "Slip sinker rig",
+      "caption": "Slip sinker rig",
+      "credit": null,
+      "sourceUrl": null
+    },
+    {
+      "entityId": "species-rainbow-trout",
+      "source": "./assets/kb/species/rainbow-trout.png",
+      "alt": "Rainbow trout",
+      "caption": "Rainbow trout",
+      "credit": null,
+      "sourceUrl": null
+    },
+    {
+      "entityId": "species-coastal-cutthroat-trout",
+      "source": "./assets/kb/species/coastal-cutthroat-trout.png",
+      "alt": "Coastal cutthroat trout",
+      "caption": "Coastal cutthroat trout",
+      "credit": null,
+      "sourceUrl": null
+    },
+    {
+      "entityId": "species-smallmouth-bass",
+      "source": "./assets/kb/species/smallmouth-bass.png",
+      "alt": "Smallmouth bass",
+      "caption": "Smallmouth bass",
+      "credit": null,
+      "sourceUrl": null
+    },
+    {
+      "entityId": "species-largemouth-bass",
+      "source": "./assets/kb/species/largemouth-bass.png",
+      "alt": "Largemouth bass",
+      "caption": "Largemouth bass",
+      "credit": null,
+      "sourceUrl": null
+    },
+    {
+      "entityId": "technique-buzzbait",
+      "source": "./assets/kb/entries/technique-buzzbait.jpg",
+      "alt": "Booyah Buzz buzzbait",
+      "caption": "Booyah Buzz buzzbait",
+      "credit": null,
+      "sourceUrl": "https://a.co/d/02qedNlw"
+    }
   ],
   "staged": []
 }

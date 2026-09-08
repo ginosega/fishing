@@ -1,7 +1,5 @@
 # Fishing Companion PWA
 
-**Current addition in progress:** Dagger Axis 10.5, Gear/media ID `dagger-axis-10-5`. Source schema4 now has 65 records; dataVersion `2026-09-08-my-gear-v4-dagger-axis-1`. The user-uploaded PNG and exact supplied facts are registered. See [Dagger release](DAGGER_AXIS_RELEASE_2026-09-08.md). The submitted 12' 6" length is preserved pending confirmation (FISH065). Production is not yet claimed for this addition. Existing release history remains valid.
-
 ## Status and architecture
 
 Production is healthy. PR52 head `28d84e650e0b3e1722a81d4abeeed7cb7572662c` passed normal CI #266 / `34185963172`; merge `91ee0966eff5ef95d6a7d192a95b10940d0b534e` passed production #267 / `34186006471`, including actual Pages deployment. Buzzbait KB and Jack Hammer Gear image changes are deployed; FISH062 DONE. See `IMAGE_RELEASE_2026-09-07.md` for exact evidence and source preservation. PR48 remains the latest application-feature release (KB Add/Edit), PR47 deployed Gear schema4/Cylinder Weights, PR49 closed those records, and PR50/51 recovered/reconciled the project. No pending application release. Earlier complete PWA documentation is preserved in `../History/2026-09-07-pre-recovery/pwa/README.md` and `../History/2026-09-07-pre-image-closeout/pwa/README.md`.

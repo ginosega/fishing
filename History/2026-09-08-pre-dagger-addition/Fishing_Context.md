@@ -1,7 +1,5 @@
 # Fishing Context
 
-**Current addition in progress:** Dagger Axis 10.5, Gear/media ID `dagger-axis-10-5`. Source schema4 now has 65 records; dataVersion `2026-09-08-my-gear-v4-dagger-axis-1`. The user-uploaded PNG and exact supplied facts are registered. See [Dagger release](pwa/DAGGER_AXIS_RELEASE_2026-09-08.md). The submitted 12' 6" length is preserved pending confirmation (FISH065). Production is not yet claimed for this addition. Existing release history remains valid.
-
 **Status: ACTIVE / production healthy.** Reconciled September 8, 2026. Latest maintenance release PR52, merge `91ee0966eff5ef95d6a7d192a95b10940d0b534e`, normal CI #266 / `34185963172`, production #267 / `34186006471` succeeded, including actual Pages deployment. See `pwa/IMAGE_RELEASE_2026-09-07.md`. FISH-TODO-062 DONE; no pending application release. Browser acceptance remains a normal follow-up.
 
 ## Authority and operating mode

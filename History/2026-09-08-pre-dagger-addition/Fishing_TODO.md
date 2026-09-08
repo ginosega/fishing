@@ -42,8 +42,6 @@ Status: OPEN (ready), WAITING ON USER (requires confirmation/input), IN PROGRESS
 | FISH-TODO-034 | P3 | OPEN | Markdown usability | Spot-check links in GitHub Preview and PWA, especially expanded KB articles. |
 | FISH-TODO-037 | P3 | DEFERRED | PWA multi-user | Generalize for multiple users only after personal version is mature. |
 | FISH-TODO-039 | P2 | OPEN | Catch Log | Record rod/reel setup on new catches when known; do not invent historical null values. |
-| FISH-TODO-064 | P2 | IN PROGRESS | My Gear | Add Dagger Axis 10.5 with exact authored facts and supplied PNG; verify CI and production. See pwa/DAGGER_AXIS_RELEASE_2026-09-08.md. |
-| FISH-TODO-065 | P2 | WAITING ON USER | Kayak specifications | Confirm Dagger Axis 10.5 Length: the supplied 12' 6" appears inconsistent with the model designation. Preserve the submitted value until confirmed. |
 | FISH-TODO-063 | P2 | OPEN | KB image authoring | Make filename and exact upload destination explicit in the editor. Address the reported `buzzbait.jpg` rejection without weakening safe-path, stable-ID, replacement, ownership or source/derived validation. Consider a clearly generated filename/path and guidance for already-uploaded files. No runtime fix was included in the image-only PR52. |
 
 ## Completed Items
@@ -56,4 +54,4 @@ Status: OPEN (ready), WAITING ON USER (requires confirmation/input), IN PROGRESS
 | FISH-TODO-058 | 2026-09-07 | Gear schema4 | PR47 merge `f05b7ec532d8e45f3fc36c1e0976c5ea40eb9983`; CI #239 / `34135260691`; production #240 / `34135326910` passed. Ordered links, Equipment/Gear Guides, Notes images, picture replacement and permanent regression gates deployed/user accepted. |
 | FISH-TODO-059 | 2026-09-07 | Cylinder Weights media | User-uploaded `thkfish-cylinder-weights.jpg` registered with original ID/owner/provenance; user verified image live. |
 
-The complete prior completed-task table, including FISH001–004, 035–057 and the historical duplicate-number handoff row, is preserved in `History/2026-09-07-pre-recovery/Fishing_TODO.md`. No completed task has been reopened or discarded. The duplicate historical FISH060 handoff identifier remains retired as `ARCHIVE-2026-09-06-HANDOFF`. The next new canonical task ID is FISH-TODO-066. Future work begins from current main and this backlog; do not resume closed release branches or one-time migrations.
+The complete prior completed-task table, including FISH001–004, 035–057 and the historical duplicate-number handoff row, is preserved in `History/2026-09-07-pre-recovery/Fishing_TODO.md`. No completed task has been reopened or discarded. The duplicate historical FISH060 handoff identifier remains retired as `ARCHIVE-2026-09-06-HANDOFF`. The next new canonical task ID is FISH-TODO-064. Future work begins from current main and this backlog; do not resume closed release branches or one-time migrations.
