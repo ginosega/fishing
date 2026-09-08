@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "dataVersion": "2026-09-08-kb-v1-rods-reels-caption-1",
+  "dataVersion": "2026-09-08-kb-v1-cranberry-lake-picture-1",
   "entities": [
     {
       "id": "location-lake-washington",
@@ -31,7 +31,13 @@
       "type": "location",
       "name": "Cranberry Lake, Deception Pass State Park",
       "description": "Freshwater fishing at Deception Pass State Park.",
-      "picture": null,
+      "picture": {
+        "src": "./assets/kb/entries/location-cranberry-lake-deception-pass.png",
+        "alt": "Cranberry Lake",
+        "caption": "Cranberry Lake",
+        "credit": null,
+        "sourceUrl": null
+      },
       "content": "./kb-content/locations/cranberry-lake-deception-pass.md"
     },
     {

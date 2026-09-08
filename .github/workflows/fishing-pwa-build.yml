@@ -46,6 +46,7 @@ jobs:
         run: |
           node --check pwa/accepted-2026-09-08.test.mjs
           node --check pwa/accepted-2026-09-08-joyride-caption.test.mjs
+          node --check pwa/cranberry-lake-picture.test.mjs
           node --check pwa/dagger-axis.test.mjs
           node --check pwa/gear-app.js
           node --check pwa/kb-app.js
@@ -71,6 +72,8 @@ jobs:
         run: node pwa/accepted-2026-09-08.test.mjs
       - name: Test Perception Joyride and Rods caption
         run: node pwa/accepted-2026-09-08-joyride-caption.test.mjs
+      - name: Test Cranberry Lake picture and source preservation
+        run: node pwa/cranberry-lake-picture.test.mjs
       - name: Test Dagger Axis source and ownership
         run: node pwa/dagger-axis.test.mjs
       - name: Test structured My Gear model
@@ -103,6 +106,8 @@ jobs:
         run: node pwa/accepted-2026-09-08.test.mjs --dist
       - name: Verify Joyride media and Rods caption in final data
         run: node pwa/accepted-2026-09-08-joyride-caption.test.mjs --dist
+      - name: Verify Cranberry Lake picture in final data
+        run: node pwa/cranberry-lake-picture.test.mjs --dist
       - name: Verify bundle
         run: |
           test -f pwa/dist/index.html
@@ -172,6 +177,7 @@ jobs:
           test -f pwa/dist/assets/kb/entries/technique-fishing-line.jpg
           test -f pwa/dist/assets/kb/entries/technique-walking-bait.jpg
           test -f pwa/dist/assets/kb/entries/technique-rods-reels.png
+          test -f pwa/dist/assets/kb/entries/location-cranberry-lake-deception-pass.png
           test -f pwa/dist/assets/gear/booyah-pad-crasher-assortment.jpg
           test -f pwa/dist/assets/gear/vmc-swimbait-jig.png
           test -f pwa/dist/assets/gear/south-bend-classic-dressed-spinners.jpg
@@ -195,7 +201,7 @@ jobs:
           grep -q 'booyah-pad-crasher.jpg' pwa/dist/data/kb.seed.json
           ! grep -q 'kokanee-phases.webp' pwa/dist/data/kb.seed.json
           grep -q '2026-09-08-my-gear-v4-perception-joyride-1' pwa/dist/data/gear.seed.json
-          grep -q '2026-09-08-kb-v1-rods-reels-caption-1' pwa/dist/data/kb.seed.json
+          grep -q '2026-09-08-kb-v1-cranberry-lake-picture-1' pwa/dist/data/kb.seed.json
           grep -q '2026-09-04-catches-v2-external-notes-1' pwa/dist/data/catches.seed.json
           ! grep -q '"notes":' pwa/dist/data/gear.seed.json
           ! grep -q '"exactSpotNotes":' pwa/dist/data/catches.seed.json

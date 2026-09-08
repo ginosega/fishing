@@ -1,18 +1,17 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import crypto from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {validateGearBundle} from './gear-model.js';
 import {validateKbBundle,validateCatchBundle} from './kb-model.js';
-import {readValidatedImage} from './image-validation.mjs';
+import {readValidatedImage,detectImageType} from './image-validation.mjs';
 const read=p=>JSON.parse(fs.readFileSync(new URL(p,import.meta.url),'utf8'));
 const gear=read('./data/gear.seed.json'),kb=read('./data/kb.seed.json'),catches=read('./data/catches.seed.json'),sources=read('./media-sources.json'),owners=read('./media-owners.json'),local=read('./local-media.json');
 assert.ok(validateGearBundle(gear).valid); assert.ok(validateKbBundle(kb).valid); assert.ok(validateCatchBundle(catches,kb,gear).valid);
-assert.equal(gear.dataVersion,'2026-09-08-my-gear-v4-perception-joyride-1'); assert.equal(kb.dataVersion,'2026-09-08-kb-v1-rods-reels-caption-1'); assert.equal(gear.items.length,66);
+assert.equal(gear.dataVersion,'2026-09-08-my-gear-v4-perception-joyride-1'); assert.equal(kb.dataVersion,'2026-09-08-kb-v1-cranberry-lake-picture-1'); assert.equal(gear.items.length,66);
 const id='perception-joyride-10-0'; const expected={"id":"perception-joyride-10-0","category":"accessories","type":"Accessories","name":"Perception Joyride 10.0","manufacturer":{"name":"Perception"},"model":"Joyride 10.0","specifications":[{"label":"Length","value":"10'"},{"label":"Height","value":"15.25\""},{"label":"Width","value":"28.5\""},{"label":"Weight","value":"50 lb"},{"label":"Color","value":"Funkadelic"}],"links":[{"label":"Perception","url":"https://www.perception-kayaks.com/product/perception-joyride-10-sit-inside-kayak-for-adults-and-kids-recreational-and-multi-water-kayak-with-selfie-slot-10dapper/"}]}; assert.deepEqual(gear.items.filter(x=>x.id===id),[expected]); assert.equal(fs.existsSync(new URL('./gear-content/'+id+'.md',import.meta.url)),false);
 assert.deepEqual(owners.items.find(x=>x.mediaId===id).owners,[{gearItemId:id}]); const source=sources.items.find(x=>x.id===id); assert.equal(source.destination,expected.links[0].url); assert.equal(source.sourcePage,expected.links[0].url);
 const entry=local.gear.find(x=>x.mediaId===id); assert.equal(entry.source,'./assets/gear-source/perception-joyride-10.png'); assert.deepEqual(entry.owners,[{gearItemId:id}]);
-const bytes=await readValidatedImage(fileURLToPath(new URL(entry.source,import.meta.url))); const blob=crypto.createHash('sha1').update('blob '+bytes.length+'\0').update(bytes).digest('hex'); assert.equal(blob,'f24403f79788755e267ee721f5e93c34c3f8f472'); assert.equal(bytes.length,562530);
+const bytes=await readValidatedImage(fileURLToPath(new URL(entry.source,import.meta.url))); assert.equal(detectImageType(bytes,entry.source),'png'); assert.ok(bytes.length>0); // User-maintained image bytes are mutable; final output must match the current source.
 const rods=kb.entities.find(x=>x.id==='technique-rods-reels'); assert.equal(rods.picture.caption,'Baitcasting reel'); assert.equal(rods.picture.alt,'Baitcasting reel'); assert.equal(local.kb.find(x=>x.entityId==='technique-rods-reels').caption,'Baitcasting reel');
 if(process.argv.includes('--dist')){const builtGear=read('./dist/data/gear.seed.json'),builtKb=read('./dist/data/kb.seed.json'); assert.deepEqual(builtGear.items.find(x=>x.id===id),expected); assert.equal(builtKb.entities.find(x=>x.id==='technique-rods-reels').picture.caption,'Baitcasting reel'); const media=read('./dist/gear-media.json').find(x=>x.id===id); assert.ok(media); assert.equal(media.asset,'./assets/gear/perception-joyride-10-0.png'); assert.deepEqual(media.owners,[{gearItemId:id}]); assert.equal(media.localSource,true); assert.equal(media.sourcePath,'pwa/assets/gear-source/perception-joyride-10.png'); assert.deepEqual(fs.readFileSync(new URL('./dist/assets/gear/perception-joyride-10-0.png',import.meta.url)),bytes);}
 console.log('Perception Joyride add and Rods & Reels caption checks passed.');

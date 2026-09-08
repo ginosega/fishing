@@ -305,6 +305,14 @@
       "caption": "Baitcasting reel",
       "credit": null,
       "sourceUrl": null
+    },
+    {
+      "entityId": "location-cranberry-lake-deception-pass",
+      "source": "./assets/kb/entries/location-cranberry-lake-deception-pass.png",
+      "alt": "Cranberry Lake",
+      "caption": "Cranberry Lake",
+      "credit": null,
+      "sourceUrl": null
     }
   ],
   "staged": []

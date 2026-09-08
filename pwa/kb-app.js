@@ -3,11 +3,14 @@ import { validateKbBundle, validateCatchBundle, groupEntitiesByType, catchesForE
 import { renderMarkdown, renderCatchCard, formatCatchDate, formatCatchSize } from './markdown-render.js';
 import { mountKbEditor } from './kb-authoring.js';
 
+const KB_SUBTITLE = 'Fishing reference and catch log';
+const CATCH_SUBTITLE = 'Recorded catches';
+
 const TYPE_META = {
   location: { label:'Locations', icon:'📍', description:'Waters, access, seasonal patterns, and local observations' },
   species: { label:'Species', icon:'🐟', description:'Fish identification, behavior, habitat, and targeting notes' },
-  equipment: { label:'Gear Guides', icon:'🧰', description:'Equipment, rigs, and presentations reference' },
-  technique: { label:'Techniques', icon:'🧭', description:'Strategy, conditions, and species reference.' },
+  equipment: { label:'Gear Guides', icon:'🧰', description:'Equipment, rig, and presentation reference' },
+  technique: { label:'Techniques', icon:'🧭', description:'Strategy, conditions, and species reference' },
   knot: { label:'Knots', icon:'🪢', description:'Connection guidance, cautions, and learning resources' }
 };
 const SEARCH_THRESHOLD = 10;
@@ -89,19 +92,19 @@ function renderHome() {
   app.innerHTML = `<section class="hero"><h2>Fishing Companion</h2><p class="muted">Your local-first gear inventory and browsable fishing reference.</p></section>
     <section class="choice-grid">
       <button class="choice-card" data-kb-route="#/inventory"><span class="choice-icon">🎒</span><div><strong>My Gear</strong><p>Browse your inventory of equipment, tackle, and bait</p></div></button>
-      <button class="choice-card" data-kb-route="#/kb"><span class="choice-icon">📚</span><div><strong>Knowledge Base</strong><p>Browse locations, species, equipment, techniques, knots, and catches</p></div></button>
+      <button class="choice-card" data-kb-route="#/kb"><span class="choice-icon">📚</span><div><strong>Knowledge Base</strong><p>${KB_SUBTITLE}</p></div></button>
     </section>`;
   bindRoutes();
 }
 
 function renderKbIndex() {
   const groups = groupEntitiesByType(state.kb);
-  app.innerHTML = `${pageHeader('Knowledge Base', 'Browse your fishing reference by subject.', '#/home', {
+  app.innerHTML = `${pageHeader('Knowledge Base', KB_SUBTITLE, '#/home', {
       id:'kbRootSearch',
       placeholder:'Search all knowledge…'
     })}
     <section class="category-grid kb-category-grid" id="kbCategoryGrid">${Object.entries(TYPE_META).map(([type, meta]) => categoryCard(meta.icon, meta.label, meta.description, `#/kb/${plural(type)}`, groups[type].length)).join('')}
-      ${categoryCard('🗒️', 'Catch Log', 'Recorded catches with stable links to species, locations, techniques, setups, lures, and bait', '#/kb/catches', state.catches.catches.length)}
+      ${categoryCard('🗒️', 'Catch Log', CATCH_SUBTITLE, '#/kb/catches', state.catches.catches.length)}
     </section>
     <section class="item-list root-search-results" id="kbRootSearchResults" hidden></section>
     ${kbPageActions('<a class="text-action" href="#/kb/new" data-kb-route="#/kb/new">＋ Add KB entry</a>')}`;
@@ -183,7 +186,7 @@ function kbPageActions(content) {
 
 function renderCatchList() {
   const records = [...state.catches.catches].sort((a, b) => `${b.date} ${b.time || ''}`.localeCompare(`${a.date} ${a.time || ''}`));
-  app.innerHTML = `${pageHeader('Catch Log', 'Recorded catches with exact structured relationships.', '#/kb')}
+  app.innerHTML = `${pageHeader('Catch Log', CATCH_SUBTITLE, '#/kb')}
     <section class="panel">${records.length ? records.map(record => catchCard(record)).join('') : '<div class="empty">No catches have been recorded.</div>'}</section>`;
   bindRoutes();
 }
