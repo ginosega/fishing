@@ -20,77 +20,77 @@ The latest inspected production run #312 succeeded. Run #311 failed after deleti
 
 **Insight:** Define the product before the architecture. A personal reference/inventory application should not inherit features of a general fishing platform.
 
-| ID | Topic | Proposed default / requirement | Question for you |
-|---|---|---|---|
-| S1 | Purpose | Personal inventory, reusable knowledge, and individual catch records; no general fishing platform. | Does this describe the complete purpose? |
-| S2 | Release scope | All three domains in v2 unless explicitly deferred. | Must all three be complete at launch? |
-| S3 | Devices | Responsive desktop and phone PWA. | Which devices and browsers must be supported? |
-| S4 | Offline | Keep offline reading; decide editing separately. | What must work without internet? |
-| S5 | Exclusions | No Planner, sessions, accounts, social features, or speculative graphs. | Confirm these exclusions and identify any others. |
-| S6 | Future features | No implementation for hypothetical requirements. | Which near-term features must influence architecture now? |
-| S7 | Success | Prioritize data integrity, core workflows, and reliable releases. | What are your top three success criteria? |
+| ID | Topic | Proposed default / requirement | Question for you | Response |
+|---|---|---|---|---|
+| S1 | Purpose | Personal inventory, reusable knowledge, and individual catch records; no general fishing platform. | Does this describe the complete purpose? | Yes |
+| S2 | Release scope | All three domains in v2 unless explicitly deferred. | Must all three be complete at launch? | Yes |
+| S3 | Devices | Responsive desktop and phone PWA. | Which devices and browsers must be supported? | Windows PC (Edge & Chrome), iPhone (Safari & Chrome), Android phone (Edge & Chrome) |
+| S4 | Offline | Keep offline reading; decide editing separately. | What must work without internet? | Viewing previously-entered data including text and images is a P1, adding and editing items is a P2 |
+| S5 | Exclusions | No Planner, sessions, accounts, social features, or speculative graphs. | Confirm these exclusions and identify any others. | Confirmed |
+| S6 | Future features | No implementation for hypothetical requirements. | Which near-term features must influence architecture now? | We may consider how to add and edit records while offline, but not necessary to implement now, and this is an area where we should be very careful not to over-engineer or introduce unnecessary complexity and potential fragility for a P2 feature |
+| S7 | Success | Prioritize data integrity, core workflows, and reliable releases. | What are your top three success criteria? | Agree with these |
 
 ## 2. My Gear
 
 **Insight:** Model owned facts, not a generic product catalog. Special Rod/Reel structures should be justified by actual workflows, not preserved merely because they exist.
 
-| ID | Topic | Proposed default / requirement | Question for you |
-|---|---|---|---|
-| G1 | Inventory scope | Owned items only; no candidate-product catalog. | How should sold, lost, or retired items be handled? |
-| G2 | Categories | Review the eight existing categories rather than preserve them automatically. | Which categories should be added, combined, renamed, or removed? |
-| G3 | Equipment types | Retain only meaningful subtypes. | Which of Kayaks, Tools, Tackle Management, Electronics, Storage, and Accessories do you need? |
-| G4 | Type vocabulary | Controlled lists only where useful. | Should types be fixed, editable, or free text? |
-| G5 | Identity | Preserve stable IDs and hide technical naming from normal editing. | Should IDs be completely hidden from the ordinary UI? |
-| G6 | Product facts | Small common schema with optional manufacturer, model, specifications, links, and picture. | Which additional facts—part number, quantity, cost, purchase date, warranty, serial number—are genuinely required? |
-| G7 | Manufacturers | Simple text rather than separate manufacturer entities. | Do you need a manufacturer database? |
-| G8 | Specifications | Ordered label/value facts unless typed fields enable a real feature. | Do any specifications need structured units, sorting, or calculations? |
-| G9 | Links | Ordered, user-authored label/URL pairs. | Is any link classification or special behavior needed? |
-| G10 | Quantities and variants | No SKU, lot, or transaction model without a use case. | How should quantities, colors, sizes, and variants be recorded? |
-| G11 | Rods and Reels | Preserve the three actual setups but redesign the model. | Should rods/reels be independent records linked into setups, or embedded components? Do you swap them? |
-| G12 | Component detail | Reuse common product fields and rendering. | Do individual rods/reels need pictures, links, specifications, and Notes, or only complete setups? |
-| G13 | Line on setups | Do not reintroduce retired mainline/leader fields automatically. | Do you want structured line/leader assignments or are Notes sufficient? |
-| G14 | Relationships | Only feature-driven relationships. | Do you need installed accessories, storage locations, trailer pairings, or other structured associations? |
-| G15 | History | No inventory transaction ledger by default. | Do you need purchase, retirement, maintenance, or usage history? |
-| G16 | Notes | Optional authoritative Markdown separate from facts. | Should Notes disappear when empty? Any other content fields needed? |
+| ID | Topic | Proposed default / requirement | Question for you | Response |
+|---|---|---|---|---|
+| G1 | Inventory scope | Owned items only; no candidate-product catalog. | How should sold, lost, or retired items be handled? | These can be deleted - not necessary to expose Delete functionality on the site though - that would be a very rare need so I consider that a P3. Simply asking you in chat to do that would be fine. |
+| G2 | Categories | Review the eight existing categories rather than preserve them automatically. | Which categories should be added, combined, renamed, or removed? | I think we keep the ones that we have now. Note that I do not feel we need a mechanism to create a new category via the website - that is a P3. |
+| G3 | Equipment types | Retain only meaningful subtypes. | Which of Kayaks, Tools, Tackle Management, Electronics, Storage, and Accessories do you need? | What we have now accurately represents all of the types of gear that I have today, and I don't have any immediate need to add new gear that would necessitate a new type. It is somewhat likely that I may in the future, however, but I do not feel we need a mechanism to create a new type via the website - that is a P3, as long as you are able to do that when I give you that request in chat. |
+| G4 | Type vocabulary | Controlled lists only where useful. | Should types be fixed, editable, or free text? | It is possible that I may want to change the name of a type in the future. I do not need that capability supported on the website, but you should be able to implement that if I ask via chat. |
+| G5 | Identity | Preserve stable IDs and hide technical naming from normal editing. | Should IDs be completely hidden from the ordinary UI? | I don't need to see them on the page, but I don't mind if they are in the URL, and I like to see them on the Edit Item page. One thing to consider is how we will support authoring a link (for example, in a markdown file or Note) to a KB or Gear entry. That should be easy to do; if it requires me to get the ID from the target page's Edit view, that would be fine. |
+| G6 | Product facts | Small common schema with optional manufacturer, model, specifications, links, and picture. | Which additional facts—part number, quantity, cost, purchase date, warranty, serial number—are genuinely required? | I like the schema that we have today for Gear items: Name, Manufacturer, and Model are called out separately on the entry form (and optional, although I will endeavor to fill these out for every Gear entry), and other fields are available as an expandable set of label/value pairs in the Specifications. We should preserve this model. |
+| G7 | Manufacturers | Simple text rather than separate manufacturer entities. | Do you need a manufacturer database? | No. Simple text please. |
+| G8 | Specifications | Ordered label/value facts unless typed fields enable a real feature. | Do any specifications need structured units, sorting, or calculations? | No. |
+| G9 | Links | Ordered, user-authored label/URL pairs. | Is any link classification or special behavior needed? | I need to be able to control the order in which they are displayed on the page. I don't think we need to over-think this though - if you just show them in the order that they are entered, that is fine. |
+| G10 | Quantities and variants | No SKU, lot, or transaction model without a use case. | How should quantities, colors, sizes, and variants be recorded? | I can either do that by entering label/value pairs in the Specifications section (e.g., "Colors / Green pumpkin, Chartreuse", or I can just add that info in the Notes markdown. |
+| G11 | Rods and Reels | Preserve the three actual setups but redesign the model. | Should rods/reels be independent records linked into setups, or embedded components? Do you swap them? | This is an area where we should simplify by eliminating the requirement to maintain the linkage, and track rods and reels separately. The Category should still be "Rods & Reels" and within that there should be the following types: Baitcasting rod, Spinning rod, Baitcasting reel, Spinning reel, Spincasting reel. I can clarify the relationships in the Notes field, e.g., "This reel is currently mounted on the Diawa Tatula XT spinning rod", with "Diawa Tatula XT" linked to that item. |
+| G12 | Component detail | Reuse common product fields and rendering. | Do individual rods/reels need pictures, links, specifications, and Notes, or only complete setups? | Per above, let's split these up into separate Gear items and have pictures, links, specs, and notes for each. |
+| G13 | Line on setups | Do not reintroduce retired mainline/leader fields automatically. | Do you want structured line/leader assignments or are Notes sufficient? | Notes are sufficient. |
+| G14 | Relationships | Only feature-driven relationships. | Do you need installed accessories, storage locations, trailer pairings, or other structured associations? | No - notes are sufficient, and preferred actually, since some of these relationships are subject to change. |
+| G15 | History | No inventory transaction ledger by default. | Do you need purchase, retirement, maintenance, or usage history? | No. |
+| G16 | Notes | Optional authoritative Markdown separate from facts. | Should Notes disappear when empty? Any other content fields needed? | Notes should disappear when empty but be available for me to add via the Edit Item view. |
 
 ## 3. Knowledge Base
 
 **Insight:** The flat, Markdown-oriented KB is close to the desired design. Avoid reintroducing atomic guidance schemas or inferred relationship graphs.
 
-| ID | Topic | Proposed default / requirement | Question for you |
-|---|---|---|---|
-| K1 | Purpose | Reusable reference independent of ownership. | Confirm this remains a reference library, not a planning system. |
-| K2 | Types | Location, Species, Gear Guides, Techniques, Knots. | Are these the final types? |
-| K3 | Guide distinction | Equipment/rig/presentation reference versus methods/strategy/conditions. | Is this distinction useful and clear? |
-| K4 | Entry schema | ID, type, name, optional description/picture, Markdown content. | What additional fields, if any, are essential? |
-| K5 | Description | Short authored summary. | Keep, change, or remove the 80-character limit? |
-| K6 | Article model | One complete Markdown article; no atomic guidance schema. | Do you want unrestricted headings and content without required templates? |
-| K7 | Taxonomy | Flat categories; simple reclassification. | Do you need to administer categories/subcategories in the UI? |
-| K8 | References | Authored links and exact Catch backlinks; no inferred graph. | Do you want automatic Related Items sections? |
-| K9 | External resources | Ordinary links and images; no automated research ingestion. | Should any web research/import functionality be in the application? |
-| K10 | Locations | Keep access, maps, regulations, and advice in Markdown by default. | Do you need structured coordinates, map pins, launch records, or region filters? |
-| K11 | Species | Article plus stable identity for Catch references. | Are any species-specific structured fields needed? |
-| K12 | Lifecycle | Git history and controlled deletion. | Do you need drafts, publish states, or an in-app revision history? |
+| ID | Topic | Proposed default / requirement | Question for you | Response |
+|---|---|---|---|---|
+| K1 | Purpose | Reusable reference independent of ownership. | Confirm this remains a reference library, not a planning system. | Confirmed. |
+| K2 | Types | Location, Species, Gear Guides, Techniques, Knots. | Are these the final types? | Yes, although the names may change, and I may move items from one to another. I am still not satisfied with where we landed on presentations, for example - are those Gear Guides or Techniques? You can make a valid argument for either. |
+| K3 | Guide distinction | Equipment/rig/presentation reference versus methods/strategy/conditions. | Is this distinction useful and clear? | Yes - for me at least. This is how I think of these. |
+| K4 | Entry schema | ID, type, name, optional description/picture, Markdown content. | What additional fields, if any, are essential? | No authored fields, but keep in mind there should be relationships between  Location and Species KB items and the catch log. |
+| K5 | Description | Short authored summary. | Keep, change, or remove the 80-character limit? | Keep. |
+| K6 | Article model | One complete Markdown article; no atomic guidance schema. | Do you want unrestricted headings and content without required templates? | Yes - no template needed. |
+| K7 | Taxonomy | Flat categories; simple reclassification. | Do you need to administer categories/subcategories in the UI? | No, although I may ask you via chat to do that - see my comment above about Types. |
+| K8 | References | Authored links and exact Catch backlinks; no inferred graph. | Do you want automatic Related Items sections? | Only for catches, and only to Locations and Species. Other links I can enter myself in the markdown. |
+| K9 | External resources | Ordinary links and images; no automated research ingestion. | Should any web research/import functionality be in the application? | No. |
+| K10 | Locations | Keep access, maps, regulations, and advice in Markdown by default. | Do you need structured coordinates, map pins, launch records, or region filters? | No. I will enter this if I want it in the markdown. |
+| K11 | Species | Article plus stable identity for Catch references. | Are any species-specific structured fields needed? | No. |
+| K12 | Lifecycle | Git history and controlled deletion. | Do you need drafts, publish states, or an in-app revision history? | No. |
 
 ## 4. Catch Log
 
 **Insight:** A catch is a historical event. Preserve known facts and unknowns; do not force a new catch to reference owned tackle unless that is genuinely required.
 
-| ID | Topic | Proposed default / requirement | Question for you |
-|---|---|---|---|
-| C1 | Purpose | Individual fish, not trips or no-catch sessions. | Confirm this scope. |
-| C2 | Editing | Straightforward Add/Edit if Catch is included at launch. | Should catches be authored in the browser or through ChatGPT/repository changes? |
-| C3 | Date/time | Date required, time optional, no unnecessary timezone transformations. | Do you need exact timestamps or just local date/time? |
-| C4 | Species/location | Exact KB references when known; preserve unknown historical facts. | Must new catches select existing KB entries? Can a missing entry be created during capture? |
-| C5 | Size | Preserve original measurements and units without false precision. | Which length/weight fields and metric support do you need? |
-| C6 | Lure/bait | Reconsider mandatory owned-Gear reference. | Should free text be allowed? Can there be no lure/bait or more than one? |
-| C7 | Equipment references | Optional exact known setup and technique references. | Which additional gear, line, leader, or trailer references are useful? |
-| C8 | Conditions | Keep spot/depth/structure/conditions in Markdown unless filters require fields. | Which conditions, if any, should be structured for reporting? |
-| C9 | Pictures | Shared picture structure. | One picture or multiple? Species fallback, generic placeholder, or none? |
-| C10 | Browse | Chronological list with useful filters. | Which filters and sorts do you need? |
-| C11 | Backlinks | Derive only real references. | Which Gear/KB pages should display Catch history? |
-| C12 | Analytics | Defer dashboards and statistics. | Any statistics, maps, or CSV export needed at launch? |
-| C13 | History | Preserve all five existing records and Notes exactly. | Confirm no unknown historical facts should be filled by inference. |
+| ID | Topic | Proposed default / requirement | Question for you | Response |
+|---|---|---|---|---|
+| C1 | Purpose | Individual fish, not trips or no-catch sessions. | Confirm this scope. |  |
+| C2 | Editing | Straightforward Add/Edit if Catch is included at launch. | Should catches be authored in the browser or through ChatGPT/repository changes? |  |
+| C3 | Date/time | Date required, time optional, no unnecessary timezone transformations. | Do you need exact timestamps or just local date/time? |  |
+| C4 | Species/location | Exact KB references when known; preserve unknown historical facts. | Must new catches select existing KB entries? Can a missing entry be created during capture? |  |
+| C5 | Size | Preserve original measurements and units without false precision. | Which length/weight fields and metric support do you need? |  |
+| C6 | Lure/bait | Reconsider mandatory owned-Gear reference. | Should free text be allowed? Can there be no lure/bait or more than one? |  |
+| C7 | Equipment references | Optional exact known setup and technique references. | Which additional gear, line, leader, or trailer references are useful? |  |
+| C8 | Conditions | Keep spot/depth/structure/conditions in Markdown unless filters require fields. | Which conditions, if any, should be structured for reporting? |  |
+| C9 | Pictures | Shared picture structure. | One picture or multiple? Species fallback, generic placeholder, or none? |  |
+| C10 | Browse | Chronological list with useful filters. | Which filters and sorts do you need? |  |
+| C11 | Backlinks | Derive only real references. | Which Gear/KB pages should display Catch history? |  |
+| C12 | Analytics | Defer dashboards and statistics. | Any statistics, maps, or CSV export needed at launch? |  |
+| C13 | History | Preserve all five existing records and Notes exactly. | Confirm no unknown historical facts should be filled by inference. |  |
 
 ## 5. Images and media
 
