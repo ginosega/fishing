@@ -1,8 +1,8 @@
 # Fishing TODO
 
-_Last updated: 2026-09-08_
+_Last updated: 2026-09-07_
 
-This is the canonical backlog. Runtime facts are owned by the structured PWA data and stable-ID authored Markdown; historical OneNote/PDF/Topics and archived records are references, not parallel databases. Complete prior task descriptions and release evidence are preserved in `History/2026-09-07-pre-recovery/Fishing_TODO.md` and `History/2026-09-07-pre-image-closeout/Fishing_TODO.md`.
+This is the canonical backlog. Current runtime facts are owned by the structured PWA data and stable-ID authored Markdown; historical OneNote/PDF/Topics and the archived pre-recovery TODO are reference sources, not parallel current databases. All original task descriptions and completed release evidence are preserved byte-for-byte in `History/2026-09-07-pre-recovery/Fishing_TODO.md`.
 
 Status: OPEN (ready), WAITING ON USER (requires confirmation/input), IN PROGRESS (active), DEFERRED (intentionally postponed), DONE (resolved with authoritative source updated). Priority: P1 affects safety/core source of truth; P2 useful verification/gear/technique work; P3 optional/lower urgency. Do not infer purchases, ownership or historical Catch attribution.
 
@@ -42,16 +42,14 @@ Status: OPEN (ready), WAITING ON USER (requires confirmation/input), IN PROGRESS
 | FISH-TODO-034 | P3 | OPEN | Markdown usability | Spot-check links in GitHub Preview and PWA, especially expanded KB articles. |
 | FISH-TODO-037 | P3 | DEFERRED | PWA multi-user | Generalize for multiple users only after personal version is mature. |
 | FISH-TODO-039 | P2 | OPEN | Catch Log | Record rod/reel setup on new catches when known; do not invent historical null values. |
-| FISH-TODO-063 | P2 | OPEN | KB image authoring | Make filename and exact upload destination explicit in the editor. Address the reported `buzzbait.jpg` rejection without weakening safe-path, stable-ID, replacement, ownership or source/derived validation. Consider a clearly generated filename/path and guidance for already-uploaded files. No runtime fix was included in the image-only PR52. |
 
 ## Completed Items
 
 | ID | Completed | Area | Resolution |
 |---|---|---|---|
-| FISH-TODO-062 | 2026-09-08 | KB/Gear media | PR52 registered the two user-supplied images. Final head `28d84e650e0b3e1722a81d4abeeed7cb7572662c`; normal CI #266 / `34185963172` passed against main `4ca1613d089859cfd554636e8c554acd6178cdc1`; merge `91ee0966eff5ef95d6a7d192a95b10940d0b534e`; production #267 / `34186006471` passed all tests and actual Pages deployment. Buzzbait source copied exactly to the approved entries path; Jack Hammer local source registered with original media ID/owner/provenance. No authored text, Gear facts, schema, historical relationships or source images were deleted. See `pwa/IMAGE_RELEASE_2026-09-07.md`. Browser acceptance remains separate. |
 | FISH-TODO-061 | 2026-09-07 | Project/production recovery | PR50 fixed the frozen Bonafide Notes regression and incorporated the full audit branch. Head `6b5f9221803c265a78c5d4f391813c9517a9ebc0`; normal CI #259 / `34184091548` passed; merge `fcf28f34b89f68c22e8a2200e8410509801ff801`; production #260 / `34184126036` passed including actual Pages deployment. Latest user edits/images preserved; permanent tests retained; no migration. Documentation reconciled and pre-recovery records archived. See `Fishing_Recovery_Closeout_2026-09-07.md`. |
 | FISH-TODO-060 | 2026-09-07 | KB authoring | PR48 deployed Add/Edit for all five KB types, complete Markdown/Preview, immutable IDs/paths, source-aware media and validated handoffs. Head `85245de2451db97370268e14dfc2c66a53c8c61d`; CI #251 / `34142498510`; merge `6d04e29b6770000eaa50f6c449ad82bc88f7326d`; production #252 / `34142574286` succeeded. PR49 reconciled release records, merge `024bec08a51c103e98c9913e786db2de40155b64`, production #254 / `34159581055`. |
 | FISH-TODO-058 | 2026-09-07 | Gear schema4 | PR47 merge `f05b7ec532d8e45f3fc36c1e0976c5ea40eb9983`; CI #239 / `34135260691`; production #240 / `34135326910` passed. Ordered links, Equipment/Gear Guides, Notes images, picture replacement and permanent regression gates deployed/user accepted. |
 | FISH-TODO-059 | 2026-09-07 | Cylinder Weights media | User-uploaded `thkfish-cylinder-weights.jpg` registered with original ID/owner/provenance; user verified image live. |
 
-The complete prior completed-task table, including FISH001–004, 035–057 and the historical duplicate-number handoff row, is preserved in `History/2026-09-07-pre-recovery/Fishing_TODO.md`. No completed task has been reopened or discarded. The duplicate historical FISH060 handoff identifier remains retired as `ARCHIVE-2026-09-06-HANDOFF`. The next new canonical task ID is FISH-TODO-064. Future work begins from current main and this backlog; do not resume closed release branches or one-time migrations.
+The complete prior completed-task table, including FISH001–004, 035–057 and the historical duplicate-number handoff row, is preserved in `History/2026-09-07-pre-recovery/Fishing_TODO.md`. No completed task has been reopened or discarded. The duplicate historical FISH060 handoff identifier remains retired as `ARCHIVE-2026-09-06-HANDOFF`. The next new canonical task ID is FISH-TODO-062. Future work begins from current main and this backlog; do not resume closed release branches or one-time migrations.

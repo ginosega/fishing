@@ -14,18 +14,18 @@ Read these files from current main in order:
 3. `Fishing_TODO.md`
 4. `Fishing_Decision_Log.md`
 5. `pwa/README.md`
-6. `pwa/IMAGE_RELEASE_2026-09-07.md` (latest image release evidence)
-7. `Fishing_Recovery_Closeout_2026-09-07.md` and the earlier release closeouts only as historical evidence when needed.
+6. `Fishing_Recovery_Closeout_2026-09-07.md` (latest recovery and deployment evidence)
+7. `Fishing_Release_Closeout_2026-09-07.md` and `Fishing_Release_Handoff_2026-09-06.md` only as historical release evidence when needed.
 
-Then fetch current main, relevant feature branch/PR, and actual CI/deployment status. Preserve direct user edits; latest repository facts override this prompt. Complete earlier documentation is preserved in Git history and `History/`; it is historical, not competing current authority. Do not restart an old release or migration from an archival checkpoint.
+Then fetch current main, relevant feature branch/PR, and actual CI/deployment status. Preserve direct user edits; latest repository facts override this prompt. Full pre-recovery documentation is preserved byte-for-byte in `History/2026-09-07-pre-recovery/`; it is historical, not competing current authority. Do not restart an old release or migration from an archival checkpoint.
 
 ## Verified baseline
 
-As of September 8, 2026, the latest maintenance release is PR52. Final head `28d84e650e0b3e1722a81d4abeeed7cb7572662c` passed normal PR CI #266 / `34185963172` against main `4ca1613d089859cfd554636e8c554acd6178cdc1`. Merge `91ee0966eff5ef95d6a7d192a95b10940d0b534e` passed production #267 / `34186006471`, including the actual GitHub Pages deployment. Both image changes are deployed. FISH062 DONE. Browser acceptance remains a normal follow-up; an independent HTTP fetch was unavailable.
+As of September 7, 2026, the latest application-feature release is PR48, merge `6d04e29b6770000eaa50f6c449ad82bc88f7326d`, production #252 / `34142574286`. PR49 reconciled that release, merge `024bec08a51c103e98c9913e786db2de40155b64`, production #254 / `34159581055`. PR47, merge `f05b7ec532d8e45f3fc36c1e0976c5ea40eb9983`, production #240 / `34135326910`, is the preceding user-accepted Gear schema4/Cylinder Weights release. FISH058/059/060 are DONE.
 
-The latest application-feature release is PR48, merge `6d04e29b6770000eaa50f6c449ad82bc88f7326d`, production #252 / `34142574286`. PR49 closed that release. PR47 deployed Gear schema4/Cylinder Weights. PR50 recovered the frozen Bonafide Notes test and incorporated the full audit branch; PR51 reconciled the recovery documentation. FISH058–062 DONE. No application release is pending. The live site is `https://ginosega.github.io/fishing/`.
+The September 7 content-regression recovery is PR50: head `6b5f9221803c265a78c5d4f391813c9517a9ebc0`, normal CI #259 / `34184091548` passed, merge `fcf28f34b89f68c22e8a2200e8410509801ff801`, production #260 / `34184126036` succeeded including actual Pages deployment. The frozen Bonafide Notes assertion was repaired without reverting the user's expanded Markdown. The full audit branch was incorporated and permanent regression gates retained. Current user image uploads and other direct-main edits were preserved. FISH061 is DONE. The separate independent live HTTP fetch was unavailable; do not claim one occurred. The live site is `https://ginosega.github.io/fishing/`.
 
-Start with current main and the canonical TODO, not old KB/Gear integration branches, migration branches or audit snapshots. User acceptance feedback does not invalidate verified deployment. Preserve editor functionality and all user-authored data. FISH063 tracks the separate KB image-filename usability issue; do not treat it as an unfinished PR52 release.
+There is no pending application release. Start with current main and the canonical TODO, not `feature/kb-authoring`, `feature/gear-guides-ordered-links`, or temporary audit/integration branches. User acceptance of the KB editor is normal feedback, not an unfinished deployment. Preserve editor functionality and all user-authored data.
 
 ## Architecture and safety
 
@@ -34,8 +34,6 @@ Fishing Companion is single-user/offline-capable with three durable domains. Gea
 Gear displays Equipment (key `accessories`); KB displays Gear Guides (type `equipment`). Preserve stable IDs, user facts, authored text, historical relationships, image bytes and provenance. No inferred ownership or Catch attribution. `gear://` and `kb://` are authored navigation, not a speculative relationship graph.
 
 Browser Add/Edit prepares validated packages for chat/repository promotion; it does not write GitHub or maintain a competing local database. User images are uploaded directly to exact GitHub branch/path/filenames. Do not transport image bytes through the connector. Do not delete current media before replacement validation. Revalidate final transformed data after all media stages. User-maintained Markdown is not a frozen full-text test fixture; preserve durable facts and authored links while allowing legitimate content edits.
-
-Current Buzzbait KB ID is `technique-buzzbait`; its representative source is `./assets/kb/entries/technique-buzzbait.jpg`. The original equipment-directory image is preserved. Jack Hammer retains Gear/media ID `zman-jack-hammer` and active source `pwa/assets/gear-source/zman-jack-hammer.png`, exact owner and original provenance. Neither image-only change modifies the Gear/KB/Catch schema or data versions. Do not infer the new PNG's external origin from the previous remote image.
 
 ## Release and handoff discipline
 
