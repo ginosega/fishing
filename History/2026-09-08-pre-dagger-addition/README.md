@@ -1,7 +1,5 @@
 # Fishing
 
-**Current addition in progress:** Dagger Axis 10.5, Gear/media ID `dagger-axis-10-5`. Source schema4 now has 65 records; dataVersion `2026-09-08-my-gear-v4-dagger-axis-1`. The user-uploaded PNG and exact supplied facts are registered. See [Dagger release](pwa/DAGGER_AXIS_RELEASE_2026-09-08.md). The submitted 12' 6" length is preserved pending confirmation (FISH065). Production is not yet claimed for this addition. Existing release history remains valid.
-
 Durable project repository for personal fishing/kayak knowledge, owned gear, catch records and Fishing Companion. GitHub is the authoritative source. Current records are concise; complete earlier versions are preserved in Git history and `History/`. Archived records are evidence, not parallel current sources.
 
 ## Current state

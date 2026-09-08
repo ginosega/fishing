@@ -29,7 +29,7 @@ const catchNotes = record => {
 };
 
 assert.equal(gear.schemaVersion, 4);
-assert.equal(gear.dataVersion, '2026-09-06-my-gear-v4-ordered-links-1');
+assert.equal(gear.dataVersion, '2026-09-08-my-gear-v4-dagger-axis-1');
 assert.equal(kb.dataVersion, '2026-09-04-kb-v1-final-content-1');
 assert.equal(catches.schemaVersion, 2);
 assert.equal(catches.dataVersion, '2026-09-04-catches-v2-external-notes-1');

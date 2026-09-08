@@ -655,6 +655,16 @@
       "imageSource": "",
       "destination": "https://bonafidefishing.com/products/rvr119",
       "alt": "Bonafide RVR119 fishing kayak in Steel"
+    },
+    {
+      "id": "dagger-axis-10-5",
+      "aliases": [
+        "Dagger Axis 10.5",
+        "Axis 10.5"
+      ],
+      "sourcePage": "https://www.confluenceoutdoor.com/products/dagger-axis-105-crossover-kayak-9030515209?_pos=1&_psq=axis&_psid=22657cf47&_ss=e",
+      "destination": "https://www.confluenceoutdoor.com/products/dagger-axis-105-crossover-kayak-9030515209?_pos=1&_psq=axis&_psid=22657cf47&_ss=e",
+      "alt": "Dagger Axis 10.5 crossover kayak"
     }
   ]
 }

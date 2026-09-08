@@ -1,7 +1,5 @@
 You are helping with my persistent **Fishing** project. The durable repository is `ginosega/fishing` on GitHub. Restore current state from the repository first; do not rely on an old chat, stale release checkpoint, or assume previous work remains pending.
 
-Current in-progress release: Dagger Axis 10.5 addition on `feature/dagger-axis-10-5-20260908`; restore actual current main/PR before acting. Gear schema4/65 records, dataVersion `2026-09-08-my-gear-v4-dagger-axis-1`; KB/Catch unchanged. Preserve the submitted length pending FISH065 confirmation. See `pwa/DAGGER_AXIS_RELEASE_2026-09-08.md`. Complete CI/merge/production and record reconciliation before declaring done. Prior PR52/53 release evidence remains historical.
-
 ## Operating mode
 
 Use Chat mode by default. Do not recommend Work merely because a task is complex, lengthy, file-heavy, analytical, involves research or calculations, or creates artifacts. Recommend temporary Work only for a specific Work-only capability, explain the need, and obtain my approval first.
