@@ -1,0 +1,40 @@
+name: One-time Cranberry release preparation
+on:
+  push:
+    branches:
+      - feature/cranberry-lake-picture-20260908
+    paths:
+      - .github/workflows/cranberry-release-preparation.yml
+permissions:
+  contents: write
+jobs:
+  prepare:
+    if: github.event.head_commit.message == 'Stage Cranberry regression and release preparation'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Update exact version gates and mutable-source regressions
+        run: node .release-work/prepare-cranberry.mjs
+      - name: Check syntax and source models
+        run: |
+          node --check pwa/accepted-2026-09-08.test.mjs
+          node --check pwa/accepted-2026-09-08-joyride-caption.test.mjs
+          node --check pwa/cranberry-lake-picture.test.mjs
+          node pwa/gear-model.test.mjs
+          node pwa/kb-model.test.mjs
+          node pwa/cranberry-lake-picture.test.mjs
+      - name: Commit validated preparation and remove one-time machinery
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add pwa/accepted-2026-09-08.test.mjs pwa/accepted-2026-09-08-joyride-caption.test.mjs pwa/cranberry-lake-picture.test.mjs .github/workflows/fishing-pwa-build.yml
+          git rm .github/workflows/cranberry-release-preparation.yml
+          git rm -r .release-work
+          git diff --cached --check
+          git commit -m 'Validate Cranberry picture and preserve mutable user media'
+          git push origin HEAD:feature/cranberry-lake-picture-20260908
