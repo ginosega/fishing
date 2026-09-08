@@ -1,12 +1,12 @@
 # Fishing Companion Knowledge Base Data Model
 
-**Status: ACCEPTED / IMPLEMENTED / CURRENT.** Reconciled for the 2026-09-06 handoff. The underlying KB/Catch architecture is deployed and unchanged; the approved **Gear Guides** display-label refinement is pending release with My Gear schema4. Historical design and release details remain available in Git history and the Decision History.
+**Status: ACCEPTED / IMPLEMENTED / CURRENT.** Reconciled September 7, 2026 after Gear schema4 (PR47) and KB Add/Edit (PR48) deployment. The KB/Catch architecture and **Gear Guides** display label are live. Historical pre-release details remain available in Git history, the Decision History, and the September 6 handoff.
 
 ## Product direction
 
 Knowledge Base is a browsable repository of reusable fishing information, not a Planner or session/trip tracking application. Its articles are complete authored Markdown documents indexed by a small, strict entity catalog. Fishing Companion has separate My Gear, Knowledge Base, and Catch Log domains that share architectural principles but do not need identical schemas or storage.
 
-The latest verified production/main checkpoint is `cdb1c500f08394a9c44ea2012b6de72adbd46ecc`, PR45, production workflow#235 reported successful. The pending Gear refinement is on`feature/gear-guides-ordered-links` at`24ea22ac187f81b42c2d91743e0a470ba3d1ad94`, not yet merged/deployed. The exact source/test/release handoff is`../Fishing_Release_Handoff_2026-09-06.md`. Do not treat the pending UI label as a deployed change or invent a PR number.
+The latest application-feature checkpoint is PR48 merge `6d04e29b6770000eaa50f6c449ad82bc88f7326d`, production #252 / `34142574286`. PR47 deployed Gear schema4 and the Gear Guides label; PR48 deployed KB Add/Edit. PR49 later reconciled release documentation. The September 6 handoff is a historical snapshot and must not be used to resume retired feature branches.
 
 ## Unified entity envelope
 
@@ -23,7 +23,7 @@ Every Location, Species, Equipment, Technique and Knot has the same logical fiel
 
 `type` is the only top-level discriminator. There is no nested Equipment or Technique subtype field, no connection type for Knots, and no Session ID. Use flexible Markdown for rigging, use cases, cautions, resources, warnings, videos, diagrams and images instead of proliferating atomic metadata fields.
 
-Current KB schema1/data version`2026-09-04-kb-v1-final-content-1` has54 entities:8 Locations,7 Species,22 Equipment,7 Techniques,10 Knots. The pending release changes the user-facing KB equipment card to **Gear Guides** with exact subtitle`Equipment, rigs, and presentations reference`. The internal type remains`equipment`; no entity IDs, content paths, or domain relationships change.
+Current KB schema1/data version`2026-09-04-kb-v1-final-content-1` has54 entities:8 Locations,7 Species,22 Equipment,7 Techniques,10 Knots. The deployed UI presents the KB equipment card as **Gear Guides** with exact subtitle`Equipment, rigs, and presentations reference`. The internal type remains`equipment`; no entity IDs, content paths, or domain relationships change.
 
 ## Taxonomy and content ownership
 
@@ -31,7 +31,7 @@ Location covers waters/access/seasonal and local observations; Species covers id
 
 Equipment and Technique articles currently share the physical directory`pwa/kb-content/techniques/`. The entity's`type` in`data/kb.seed.json` determines browse placement. Do not rename/move content files without updating their registered paths. Do not introduce a parallel folder-only taxonomy or duplicate the complete article into another domain.
 
-The KB's equipment type is not the same thing as the owned Gear inventory category. My Gear's pending **Equipment** category retains key`accessories` and contains owned kayaks/tools/electronics/storage/tackle-management items. The KB card **Gear Guides** contains reusable knowledge. The two can link by stable ID without sharing a single taxonomy or creating a speculative relationship graph.
+The KB's equipment type is not the same thing as the owned Gear inventory category. My Gear's deployed **Equipment** category retains key`accessories` and contains owned kayaks/tools/electronics/storage/tackle-management items. The KB card **Gear Guides** contains reusable knowledge. The two can link by stable ID without sharing a single taxonomy or creating a speculative relationship graph.
 
 ## Structured index and authored documents
 
@@ -59,7 +59,7 @@ KB`picture.src` may use safe HTTP(S), safe`./assets/kb/...`, or intentional buil
 
 The repository-local media pipeline validates actual image format/structure, extension, size and safe paths, copies exact bytes, updates built metadata and verifies final output. Source-valid KB data can become invalid after media substitution; PR30 established the rule that final deployable transformed data must be revalidated. Do not rely on source validation alone.
 
-User-supplied image binaries are uploaded directly to GitHub at the exact branch/path specified by the assistant; never transport/reconstruct binary bytes through the ChatGPT/GitHub connector. The pending Gear Notes sibling-image policy is confined to Gear authored content, supports safe Gear-ID-prefixed images beside the Markdown, preserves existing Notes image paths, and includes referenced assets offline. It does not alter KB identity or require duplicate media.
+User-supplied image binaries are uploaded directly to GitHub at the exact branch/path specified by the assistant; never transport/reconstruct binary bytes through the ChatGPT/GitHub connector. The deployed Gear Notes sibling-image policy is confined to Gear authored content, supports safe Gear-ID-prefixed images beside the Markdown, preserves existing Notes image paths, and includes referenced assets offline. It does not alter KB identity or require duplicate media.
 
 ## UI and offline behavior
 
@@ -71,7 +71,7 @@ The Service Worker caches the shell, registered KB Content, relevant local KB/me
 
 The PR28 content/imagery batch was accepted and closed through PR32 after source cleanup and media validation. It added Inline Spinner, Snaps & Swivels, Flasher Rig, Inline Trolling Rig, Bobber Rig, Slip Sinker Rig and Spring Fishing, and refreshed the principal lure/rig and Trout Fishing articles. PR34/41 subsequently fixed Markdown renderer behavior. This work is completed historical maintenance, not an open migration.
 
-Future ordinary content work includes Texas, Carolina, Alabama and Neko rigs, Spoons, and relevant research in the canonical TODO. Maintain source facts and avoid inventing missing ownership or relationships. The immediate project release task is FISH-TODO-058, the preserved unmerged Gear refinement; it does not require redesigning the KB. Complete the normal release and update deployment status only after exact-head CI, merge, and actual Pages deployment succeed.
+Future ordinary content work includes Texas, Carolina, Alabama and Neko rigs, Spoons, and relevant research in the canonical TODO. Maintain source facts and avoid inventing missing ownership or relationships. Gear schema4 (FISH-TODO-058) and KB Add/Edit (FISH-TODO-060) are already deployed; future changes start from current main and follow the normal end-to-end release discipline.
 
 ## September 7, 2026 — KB authoring reconciliation
 
@@ -79,4 +79,4 @@ The Gear schema4 and KB schema1 remain architecturally compatible without becomi
 
 KB Type prefixes are conventions for new IDs only. Existing IDs and content paths are immutable across rename/reclassification; exact Catch references must remain valid. Reclassification does not create an inferred relationship, rename a document, or rewrite authored links.
 
-The unnecessary authoring divergence is addressed by FISH-TODO-060: a Gear-style validated, copyable handoff with source/version checks and explicit picture actions. No browser GitHub writes, duplicate local database, new taxonomy editor, or additional narrative fields are introduced. Source metadata and transformed display pictures remain separate; the shared resolver and final-bundle validator protect the distinction. Repository promotion retains prior media provenance, validates actual image bytes and ownership, and never deletes original images as a side effect.
+The former authoring divergence was resolved by PR48 / FISH-TODO-060: a Gear-style validated, copyable handoff with source/version checks and explicit picture actions. No browser GitHub writes, duplicate local database, new taxonomy editor, or additional narrative fields are introduced. Source metadata and transformed display pictures remain separate; the shared resolver and final-bundle validator protect the distinction. Repository promotion retains prior media provenance, validates actual image bytes and ownership, and never deletes original images as a side effect.
