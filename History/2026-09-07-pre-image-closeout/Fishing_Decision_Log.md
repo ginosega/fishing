@@ -1,10 +1,10 @@
 # Fishing Decision Log
 
-**Status:** Current decision authority, reconciled September 8, 2026. Complete earlier decisions remain in `Fishing_Decision_History_Through_2026-09-06.md` and the preserved records under `History/`. Historical CURRENT labels do not override this index.
+**Status:** Current decision authority, reconciled September 7, 2026. Full earlier decisions are preserved in `Fishing_Decision_History_Through_2026-09-06.md` and `History/2026-09-07-pre-recovery/Fishing_Decision_Log.md`. Superseded or historical CURRENT labels do not override this index.
 
 ## Release authority
 
-PR52 is the latest maintenance release: final head `28d84e650e0b3e1722a81d4abeeed7cb7572662c`, normal CI #266 / `34185963172`, merge `91ee0966eff5ef95d6a7d192a95b10940d0b534e`, production #267 / `34186006471` succeeded including actual Pages deployment. FISH062 DONE; no pending application release. See `pwa/IMAGE_RELEASE_2026-09-07.md`. PR48 remains the latest application-feature release, PR49 its closeout, PR50 the recovery and PR51 its documentation reconciliation. FISH058–062 DONE. The previous exact release evidence remains in the recovery/earlier closeouts and Git history.
+The latest application-feature release is PR48, merge `6d04e29b6770000eaa50f6c449ad82bc88f7326d`, production #252 / `34142574286`. PR49 documentation closeout merge `024bec08a51c103e98c9913e786db2de40155b64` passed production #254 / `34159581055`. PR50 recovered CI and merged the full reconciliation: head `6b5f9221803c265a78c5d4f391813c9517a9ebc0`, normal CI #259 / `34184091548`, merge `fcf28f34b89f68c22e8a2200e8410509801ff801`, production #260 / `34184126036`, including actual Pages deployment. See `Fishing_Recovery_Closeout_2026-09-07.md`. No pending application release. FISH-TODO-058/059/060/061 are DONE.
 
 ## Current decisions
 
@@ -13,7 +13,7 @@ PR52 is the latest maintenance release: final head `28d84e650e0b3e1722a81d4abeee
 | 2026-09-07 | Operating mode | Chat by default. Work only for a specific Work-only capability, with explanation and user approval. Complexity, duration, research, files and artifacts are not reasons to switch. |
 | 2026-09-07 | End-to-end execution | An authorized change continues through implementation, validation, PR/CI, merge, production verification, cleanup and authoritative records. Progress is informational, not an approval gate. Stop only for a genuine blocker or complete scope. |
 | 2026-08-29 | Source of truth | GitHub is durable. Current domain-owned runtime sources prevail over historical OneNote/PDF, migrated Topics, old chats or stale bootstrap text. Original migration/audit and PR28 content acceptance remain closed. |
-| 2026-09-07 | Documentation continuity | Preserve exact historical records in Git history/History, keep concise current authority and one canonical TODO. Full pre-recovery and pre-image-closeout docs are archived byte-for-byte; historical snapshots are not parallel current authority. |
+| 2026-09-07 | Documentation continuity | Preserve exact historical records in Git history/History, keep concise current authority and one canonical TODO. Full pre-recovery docs are archived byte-for-byte; historical snapshots are not parallel current authority. |
 | 2026-08-31 | Product scope | Single-user, personal, offline-capable. Public-but-non-advertised Pages acceptable. Accounts, sync, multi-user, Planner, sessions and trip history are out of scope. |
 | 2026-09-02 | Domain architecture | Share stable identity, explicit ownership, strict validation, authored narrative and feature-driven relationships without forcing identical schemas/storage. `gear://`/`kb://` are navigation, not speculative relationship graphs. |
 | 2026-09-04 | Narrative ownership | Gear/Catch structured records own facts/relationships; optional stable-ID Markdown owns narrative. No inline Notes, generated Catch Notes or Provenance/source fields. |
@@ -31,8 +31,6 @@ PR52 is the latest maintenance release: final head `28d84e650e0b3e1722a81d4abeee
 | 2026-09-04 | Final validation | Revalidate complete transformed data after every media/build stage, not source only. Permanent model, routing, authoring, media and final-bundle gates must remain. |
 | 2026-09-07 | Release process | Feature branch/PR, exact final-head/current-base CI, expected-head merge, actual production Pages verification. Respect denied permissions, no bypass/omission of tests, no one-time migration reruns. Avoid overlapping `fishing-pages` releases. |
 | 2026-09-07 | Authored content tests | User-maintained Markdown is not a frozen full-text fixture. Validate stable ownership/paths, durable accepted facts and authored links; allow legitimate additions/formatting. Preserve exact user text. PR50/FISH061. |
-| 2026-09-08 | Image-only promotion | PR52 registered existing user-uploaded bytes through the source/derived media pipeline. A picture-only overlay update does not require a schema/data migration or rewrite of complete authored articles. Preserve exact Gear/media IDs, ownership, source provenance and old image files/history. New source origin is not inferred from the prior remote picture. |
-| 2026-09-08 | KB filename usability | FISH063 OPEN: make expected filename/destination explicit, including already-uploaded files, while retaining safe paths, stable identity, replacement and validation rules. No broad filename-policy change is approved by this media release. |
 | 2026-09-06 | Gear/Cylinder release | PR47 deployed schema4 and registered valid Cylinder Weights image preserving ID/owner/provenance; user verified image live. FISH058/059 DONE. |
 | 2026-09-07 | KB release | PR48 deployed Add/Edit; PR49 closed docs. FISH060 DONE. User acceptance feedback does not invalidate deployment. |
 | 2026-09-07 | Search/layout | Root Gear/KB Search always, nonempty query hides categories; Browse Search at 10+; filters right aligned as applicable; Line flat, Rods grouped. |
@@ -40,6 +38,6 @@ PR52 is the latest maintenance release: final head `28d84e650e0b3e1722a81d4abeee
 
 ## Unresolved decisions and history
 
-PowerBait hook-size guidance (#4 versus #8) and loop-knot guidance remain unresolved. Preserve conflicting source guidance until deliberately researched/tested. Candidate products, unconfirmed purchases, kayak motor/LiveScope research and speculative relationships must not be represented as owned/current. Use `Fishing_TODO.md` for all open work. Detailed earlier decisions, release evidence and superseded rationale remain in the preserved decision history and Git history.
+PowerBait hook-size guidance (#4 versus #8) and loop-knot guidance remain unresolved. Preserve conflicting source guidance until deliberately researched/tested. Candidate products, unconfirmed purchases, kayak motor/LiveScope research and speculative relationships must not be represented as owned/current. Use `Fishing_TODO.md` for all open work. Detailed earlier decisions, release evidence, superseded rationale and exact historical SHAs remain in the preserved decision history and pre-recovery snapshot.
 
-Before chat transfer, reconcile actual repository state and outstanding transactions, not remembered conversation. Keep deployed, approved pending and historical facts distinct. Do not call a task complete until requested release, cleanup and records are complete. Earlier handoffs and recovered audit branches are historical; new work starts from current main.
+Before chat transfer, reconcile actual repository state and outstanding transactions, not remembered conversation. Keep deployed, approved pending and historical facts distinct. Do not call a task complete until requested release, cleanup and records are complete. The September 6 handoff and recovered audit branches are historical; new work starts from current main.
