@@ -13,16 +13,16 @@ const gear=read('./data/gear.seed.json');
 const kb=read('./data/kb.seed.json');
 const catches=read('./data/catches.seed.json');
 const local=read('./local-media.json');
-const plans=[{"id":"technique-fishing-line","name":"Fishing Line","description":"Braid, fluorocarbon, mono, leader, knot, and spooling guidance.","path":"./kb-content/techniques/fishing-line.md","filename":"technique-fishing-line.jpg","alt":"Sufix 832 fishing line","gearItemId":"sufix-832-15","markdownBlob":"f5b4b1f11638c7630889e9ecc2a59bd94b1ffc70","imageBlob":"6bbf79095fb60cda21ea086553a1ec3bf64132cb","imageBytes":34540},{"id":"technique-walking-bait","name":"Walking Bait","description":"Walk-the-dog tackle, line, cadence, color guidance, and bait examples.","path":"./kb-content/techniques/walking-bait.md","filename":"technique-walking-bait.jpg","alt":"Heddon Zara Spook","markdownBlob":"766aa8bbb0445184b9804abf5119bc2274089900","imageBlob":"9181d2b9a5767ae01855bbcdffdfa5d6c7dcd7d8","imageBytes":65306},{"id":"technique-rods-reels","name":"Rods & Reels","description":"Spinning and baitcasting selection, setup, adjustment, and casting guidance.","path":"./kb-content/techniques/rods-reels.md","filename":"technique-rods-reels.png","alt":"Baitcasting reel","markdownBlob":"50e36182db41b7a222a5231c545799ad25bbc270","imageBlob":"0304c3a3c3964f280db88ab70edca52e593a49e2","imageBytes":133226}];
+const plans=[{"id":"technique-fishing-line","name":"Fishing Line","description":"Braid, fluorocarbon, mono, leader, knot, and spooling guidance.","path":"./kb-content/techniques/fishing-line.md","filename":"technique-fishing-line.jpg","alt":"Sufix 832 fishing line","gearItemId":"sufix-832-15","markdownBlob":"f5b4b1f11638c7630889e9ecc2a59bd94b1ffc70","imageBlob":"6bbf79095fb60cda21ea086553a1ec3bf64132cb","imageBytes":34540},{"id":"technique-walking-bait","name":"Walking Bait","description":"Walk-the-dog tackle, line, cadence, color guidance, and bait examples.","path":"./kb-content/techniques/walking-bait.md","filename":"technique-walking-bait.jpg","alt":"Heddon Zara Spook","markdownBlob":"766aa8bbb0445184b9804abf5119bc2274089900","imageBlob":"9181d2b9a5767ae01855bbcdffdfa5d6c7dcd7d8","imageBytes":65306},{"id":"technique-rods-reels","name":"Rods & Reels","description":"Spinning and baitcasting selection, setup, adjustment, and casting guidance.","path":"./kb-content/techniques/rods-reels.md","filename":"technique-rods-reels.png","alt":"Baitcasting reel","caption":"Baitcasting reel","markdownBlob":"50e36182db41b7a222a5231c545799ad25bbc270","imageBlob":"0304c3a3c3964f280db88ab70edca52e593a49e2","imageBytes":133226}];
 export async function verifyAcceptedBatch(dist=false){
  assert.ok(validateGearBundle(gear).valid);
  assert.ok(validateKbBundle(kb).valid);
  assert.ok(validateCatchBundle(catches,kb,gear).valid);
  assert.equal(gear.schemaVersion,4);
- assert.equal(gear.dataVersion,'2026-09-08-my-gear-v4-dagger-length-1');
- assert.equal(gear.items.length,65);
+ assert.equal(gear.dataVersion,'2026-09-08-my-gear-v4-perception-joyride-1');
+ assert.equal(gear.items.length,66);
  assert.equal(kb.schemaVersion,1);
- assert.equal(kb.dataVersion,'2026-09-08-kb-v1-three-hero-images-1');
+ assert.equal(kb.dataVersion,'2026-09-08-kb-v1-rods-reels-caption-1');
  assert.equal(kb.entities.length,54);
  assert.equal(catches.catches.length,5);
  const dagger=gear.items.find(x=>x.id==='dagger-axis-10-5');
@@ -32,9 +32,9 @@ export async function verifyAcceptedBatch(dist=false){
  assert.deepEqual({...dagger,specifications:expected.specifications},expected);
  for(const p of plans){
   const src='./assets/kb/entries/'+p.filename;
-  const desired={src,alt:p.alt,caption:null,credit:null,sourceUrl:null,...(p.gearItemId?{gearItemId:p.gearItemId}:{})};
+  const desired={src,alt:p.alt,caption:p.caption??null,credit:null,sourceUrl:null,...(p.gearItemId?{gearItemId:p.gearItemId}:{})};
   assert.deepEqual(kb.entities.filter(x=>x.id===p.id),[{id:p.id,type:'equipment',name:p.name,description:p.description,picture:desired,content:p.path}]);
-  assert.deepEqual(local.kb.filter(x=>x.entityId===p.id),[{entityId:p.id,source:src,alt:p.alt,caption:null,credit:null,sourceUrl:null,...(p.gearItemId?{gearItemId:p.gearItemId}:{})}]);
+  assert.deepEqual(local.kb.filter(x=>x.entityId===p.id),[{entityId:p.id,source:src,alt:p.alt,caption:p.caption??null,credit:null,sourceUrl:null,...(p.gearItemId?{gearItemId:p.gearItemId}:{})}]);
   const bytes=await readValidatedImage(new URL('./'+src.slice(2),import.meta.url));
   assert.equal(bytes.length,p.imageBytes);
   assert.equal(digest(bytes),p.imageBlob);
@@ -48,7 +48,7 @@ export async function verifyAcceptedBatch(dist=false){
   assert.deepEqual(builtGear,gear);
   assert.ok(validateKbBundle(builtKb).valid);
   assert.ok(validateCatchBundle(catches,builtKb,builtGear).valid);
-  assert.equal(builtKb.dataVersion,'2026-09-08-kb-v1-three-hero-images-1');
+  assert.equal(builtKb.dataVersion,'2026-09-08-kb-v1-rods-reels-caption-1');
   for(const p of plans){
    const expected=materializeKbEntity(kb.entities.find(x=>x.id===p.id),local,media,gear);
    assert.deepEqual(builtKb.entities.find(x=>x.id===p.id),expected);

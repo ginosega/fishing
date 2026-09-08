@@ -87,6 +87,18 @@
           "gearItemId": "dagger-axis-10-5"
         }
       ]
+    },
+    {
+      "mediaId": "perception-joyride-10-0",
+      "source": "./assets/gear-source/perception-joyride-10.png",
+      "alt": "Perception Joyride 10.0 kayak",
+      "destination": "https://www.perception-kayaks.com/product/perception-joyride-10-sit-inside-kayak-for-adults-and-kids-recreational-and-multi-water-kayak-with-selfie-slot-10dapper/",
+      "sourcePage": "https://www.perception-kayaks.com/product/perception-joyride-10-sit-inside-kayak-for-adults-and-kids-recreational-and-multi-water-kayak-with-selfie-slot-10dapper/",
+      "owners": [
+        {
+          "gearItemId": "perception-joyride-10-0"
+        }
+      ]
     }
   ],
   "kb": [
@@ -290,7 +302,7 @@
       "entityId": "technique-rods-reels",
       "source": "./assets/kb/entries/technique-rods-reels.png",
       "alt": "Baitcasting reel",
-      "caption": null,
+      "caption": "Baitcasting reel",
       "credit": null,
       "sourceUrl": null
     }
