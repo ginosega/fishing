@@ -1,6 +1,6 @@
 # Fishing Companion — Release closeout, September 7, 2026
 
-This record supersedes any older in-progress release checkpoint. PR #48 is merged and deployed. The authoritative Context, TODO, Decision Log, bootstrap and PWA README must reflect the completed state. No new application release is pending.
+This record supersedes any older in-progress release checkpoint. PR #48 is merged and deployed. PR #49 subsequently reconciled the authoritative Context, TODO, Decision Log, bootstrap and PWA README; merge `024bec08a51c103e98c9913e786db2de40155b64` passed production workflow #254 / `34159581055`. No new application release is pending.
 
 ## Verified release
 
