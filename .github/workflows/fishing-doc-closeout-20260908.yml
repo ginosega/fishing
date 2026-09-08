@@ -1,0 +1,35 @@
+name: One-time Fishing release-record closeout
+on:
+  push:
+    branches: [docs/kayak-kb-images-closeout-20260908]
+    paths: ['.github/workflows/fishing-doc-closeout-20260908.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  reconcile:
+    if: github.repository == 'ginosega/fishing' && github.ref == 'refs/heads/docs/kayak-kb-images-closeout-20260908'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: docs/kayak-kb-images-closeout-20260908
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Reconcile authoritative records and check consistency
+        run: |
+          set -euo pipefail
+          node --check tools/complete-closeout.mjs
+          node tools/complete-closeout.mjs
+      - name: Commit documentation only
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A -- README.md Fishing_Context.md Fishing_TODO.md Fishing_Decision_Log.md Fishing_New_Chat_Bootstrap_Prompt.md pwa/README.md pwa/DAGGER_AXIS_RELEASE_2026-09-08.md pwa/RELEASE_2026-09-08_KAYAK_KB_IMAGES.md History/2026-09-08-pre-three-kb-images tools
+          git diff --cached --check
+          git commit -m 'Reconcile kayak correction and KB image release records'
+          git push origin HEAD:refs/heads/docs/kayak-kb-images-closeout-20260908
