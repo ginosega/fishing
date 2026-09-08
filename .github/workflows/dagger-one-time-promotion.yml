@@ -1,0 +1,102 @@
+name: One-time Dagger Axis source promotion
+on:
+  push:
+    branches: [feature/dagger-axis-10-5-20260908]
+    paths: [.github/workflows/dagger-one-time-promotion.yml]
+permissions:
+  contents: write
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/dagger-axis-10-5-20260908
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Promote exact authored Gear and media
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import path from 'node:path';
+          import crypto from 'node:crypto';
+          import assert from 'node:assert/strict';
+          import {validateGearBundle} from './pwa/gear-model.js';
+          import {readValidatedImage} from './pwa/image-validation.mjs';
+          const read = p => JSON.parse(fs.readFileSync(p,'utf8'));
+          const write = (p,v) => fs.writeFileSync(p,JSON.stringify(v,null,2)+'\n');
+          const oldVersion='2026-09-06-my-gear-v4-ordered-links-1';
+          const newVersion='2026-09-08-my-gear-v4-dagger-axis-1';
+          const id='dagger-axis-10-5';
+          const source='./assets/gear-source/dagger-axis-10-5.png';
+          const url='https://www.confluenceoutdoor.com/products/dagger-axis-105-crossover-kayak-9030515209?_pos=1&_psq=axis&_psid=22657cf47&_ss=e';
+          const item={id,category:'accessories',type:'Kayaks',name:'Dagger Axis 10.5',manufacturer:{name:'Dagger'},model:'Axis 10.5',specifications:[{label:'Length',value:'12\' 6"'},{label:'Height',value:'15.25"'},{label:'Width',value:'28.5"'},{label:'Weight',value:'50 lb'},{label:'Cockpit opening',value:'52.5"x23.5" (6.0 deck)'}],links:[{label:'Dagger',url}]};
+          const bytes=await readValidatedImage('pwa/'+source.slice(2));
+          const blob=crypto.createHash('sha1').update(`blob ${bytes.length}\0`).update(bytes).digest('hex');
+          assert.equal(blob,'b6b9c96057adda124b7369952e851b13cf2f3b7b','Uploaded PNG must match the observed Git blob.');
+          const gear=read('pwa/data/gear.seed.json');
+          assert.equal(gear.schemaVersion,4);
+          assert.equal(gear.dataVersion,oldVersion);
+          assert.equal(gear.items.length,64);
+          assert.ok(!gear.items.some(x=>x.id===id));
+          assert.ok(validateGearBundle(gear).valid);
+          gear.items.push(item);
+          gear.dataVersion=newVersion;
+          const valid=validateGearBundle(gear);
+          assert.ok(valid.valid,valid.errors.join('\n'));
+          write('pwa/data/gear.seed.json',gear);
+          const sources=read('pwa/media-sources.json');
+          const owners=read('pwa/media-owners.json');
+          const local=read('pwa/local-media.json');
+          assert.ok(!sources.items.some(x=>x.id===id));
+          assert.ok(!owners.items.some(x=>x.mediaId===id));
+          assert.ok(!local.gear.some(x=>x.mediaId===id));
+          sources.items.push({id,aliases:['Dagger Axis 10.5','Axis 10.5'],sourcePage:url,destination:url,alt:'Dagger Axis 10.5 crossover kayak'});
+          owners.items.push({mediaId:id,owners:[{gearItemId:id}]});
+          local.gear.push({mediaId:id,source,alt:'Dagger Axis 10.5 crossover kayak',destination:url,sourcePage:url,owners:[{gearItemId:id}]});
+          write('pwa/media-sources.json',sources);
+          write('pwa/media-owners.json',owners);
+          write('pwa/local-media.json',local);
+          for(const p of ['pwa/gear-model.test.mjs','pwa/final-content.test.mjs','.github/workflows/fishing-pwa-build.yml']) {
+            const text=fs.readFileSync(p,'utf8');
+            assert.ok(text.includes(oldVersion),p+' must contain the previous version gate.');
+            fs.writeFileSync(p,text.replaceAll(oldVersion,newVersion));
+          }
+          const test=`import assert from 'node:assert/strict';\nimport fs from 'node:fs';\nimport crypto from 'node:crypto';\nimport {validateGearBundle} from './gear-model.js';\nimport {readValidatedImage} from './image-validation.mjs';\nconst read=p=>JSON.parse(fs.readFileSync(new URL(p,import.meta.url),'utf8'));\nconst gear=read('./data/gear.seed.json');\nassert.ok(validateGearBundle(gear).valid);\nassert.equal(gear.schemaVersion,4);\nassert.equal(gear.dataVersion,'${newVersion}');\nassert.equal(gear.items.length,65);\nconst id='${id}';\nconst expected=${JSON.stringify(item)};\nassert.deepEqual(gear.items.filter(x=>x.id===id),[expected]);\nconst sources=read('./media-sources.json');\nconst owners=read('./media-owners.json');\nconst local=read('./local-media.json');\nassert.equal(sources.items.filter(x=>x.id===id).length,1);\nassert.equal(sources.items.find(x=>x.id===id).sourcePage,'${url}');\nassert.deepEqual(owners.items.find(x=>x.mediaId===id).owners,[{gearItemId:id}]);\nconst entry=local.gear.find(x=>x.mediaId===id);\nassert.equal(entry.source,'${source}');\nassert.deepEqual(entry.owners,[{gearItemId:id}]);\nassert.equal(entry.destination,'${url}');\nassert.equal(local.gear.filter(x=>x.mediaId===id).length,1);\nassert.equal(fs.existsSync(new URL('./gear-content/'+id+'.md',import.meta.url)),false);\nconst bytes=await readValidatedImage(new URL(entry.source,import.meta.url));\nconst blob=crypto.createHash('sha1').update('blob '+bytes.length+'\\0').update(bytes).digest('hex');\nassert.equal(blob,'b6b9c96057adda124b7369952e851b13cf2f3b7b');\nif(process.argv.includes('--dist')) {\n const built=read('./dist/data/gear.seed.json');\n assert.deepEqual(built.items.find(x=>x.id===id),expected);\n const media=read('./dist/gear-media.json').find(x=>x.id===id);\n assert.ok(media);\n assert.equal(media.asset,'./assets/gear/dagger-axis-10-5.png');\n assert.deepEqual(media.owners,[{gearItemId:id}]);\n assert.equal(media.localSource,true);\n assert.equal(media.sourcePath,'pwa/assets/gear-source/dagger-axis-10-5.png');\n assert.deepEqual(fs.readFileSync(new URL('./dist/assets/gear/dagger-axis-10-5.png',import.meta.url)),bytes);\n}\nconsole.log('Dagger Axis source identity, exact authored facts, ownership and media validation passed.');\n`;
+          fs.writeFileSync('pwa/dagger-axis.test.mjs',test);
+          const workflow='.github/workflows/fishing-pwa-build.yml';
+          let ci=fs.readFileSync(workflow,'utf8');
+          ci=ci.replace('      - name: Test structured My Gear model','      - name: Test Dagger Axis source and ownership\n        run: node pwa/dagger-axis.test.mjs\n      - name: Test structured My Gear model');
+          ci=ci.replace('      - name: Verify bundle','      - name: Verify Dagger Axis transformed media\n        run: node pwa/dagger-axis.test.mjs --dist\n      - name: Verify bundle');
+          ci=ci.replace('          node --check pwa/gear-app.js','          node --check pwa/dagger-axis.test.mjs\n          node --check pwa/gear-app.js');
+          ci=ci.replace('          test -f pwa/dist/assets/gear/thkfish-cylinder-weights.jpg','          test -f pwa/dist/assets/gear/dagger-axis-10-5.png\n          test -f pwa/dist/assets/gear/thkfish-cylinder-weights.jpg');
+          fs.writeFileSync(workflow,ci);
+          const release=`# Dagger Axis 10.5 addition\n\nStatus: IN PROGRESS. Source branch: feature/dagger-axis-10-5-20260908. Base: ddfd3bee79881aba4b03d44112496b1b386dfaf3.\n\nThe user-authorized add handoff is promoted as Gear ID and media ID \`${id}\`. All submitted product fields, ordered specifications and links are preserved exactly; no Notes are created. The source Gear schema remains 4 and the new dataVersion is \`${newVersion}\`; the record count becomes 65. KB and Catch sources remain unchanged. No existing Gear record, ID, ownership or source media is deleted.\n\nThe user-uploaded PNG is \`pwa/assets/gear-source/dagger-axis-10-5.png\`, Git blob \`${blob}\`, ${bytes.length} bytes. The local-media registration uses explicit ownership and the supplied manufacturer link as the destination/source page. The external origin of the uploaded PNG is not inferred. The image is validated and copied without recompression into the built asset, with offline inclusion through the existing media pipeline.\n\nThe supplied Length is 12' 6", which appears inconsistent with the Axis 10.5 model designation. It is preserved verbatim pending user confirmation. No alternative dimensions are silently substituted. FISH-TODO-065 tracks this review.\n\nPermanent regression coverage checks the exact authored item, 65-record source, media identity/owner, image format and Git blob, no Notes, and the byte-identical transformed image. Normal PR CI, current-base review, merge and actual production Pages deployment are required for closeout.\n`;
+          fs.writeFileSync('pwa/DAGGER_AXIS_RELEASE_2026-09-08.md',release);
+          // Preserve the current authoritative documents before updating their active state.
+          const docs=['README.md','Fishing_Context.md','Fishing_TODO.md','Fishing_Decision_Log.md','Fishing_New_Chat_Bootstrap_Prompt.md','pwa/README.md'];
+          for(const p of docs){const archive=path.join('History/2026-09-08-pre-dagger-addition',p);fs.mkdirSync(path.dirname(archive),{recursive:true});fs.copyFileSync(p,archive);}
+          const addSection=(p,text)=>{const old=fs.readFileSync(p,'utf8');const newline=old.indexOf('\n');fs.writeFileSync(p,old.slice(0,newline+1)+'\n'+text+'\n'+old.slice(newline+1));};
+          const current=`**Current addition in progress:** Dagger Axis 10.5, Gear/media ID \`${id}\`. Source schema4 now has 65 records; dataVersion \`${newVersion}\`. The user-uploaded PNG and exact supplied facts are registered. See [Dagger release](pwa/DAGGER_AXIS_RELEASE_2026-09-08.md). The submitted 12' 6" length is preserved pending confirmation (FISH065). Production is not yet claimed for this addition. Existing release history remains valid.`;
+          addSection('README.md',current);
+          addSection('Fishing_Context.md',current.replace('[Dagger release](pwa/','[Dagger release](pwa/'));
+          addSection('Fishing_Decision_Log.md',`**Pending release decision:** Add the user-authorized Dagger Axis 10.5 as a separate Kayaks Gear record, preserving its stable ID, exact authored specifications, no Notes, and explicit image owner. Source schema4/65 records, dataVersion \`${newVersion}\`. Preserve the submitted length until confirmed; FISH065. No KB/Catch or existing owned Gear changes. See \`pwa/DAGGER_AXIS_RELEASE_2026-09-08.md\`.`);
+          addSection('pwa/README.md',current.replaceAll('pwa/DAGGER_AXIS_RELEASE_2026-09-08.md','DAGGER_AXIS_RELEASE_2026-09-08.md'));
+          addSection('Fishing_New_Chat_Bootstrap_Prompt.md',`Current in-progress release: Dagger Axis 10.5 addition on \`feature/dagger-axis-10-5-20260908\`; restore actual current main/PR before acting. Gear schema4/65 records, dataVersion \`${newVersion}\`; KB/Catch unchanged. Preserve the submitted length pending FISH065 confirmation. See \`pwa/DAGGER_AXIS_RELEASE_2026-09-08.md\`. Complete CI/merge/production and record reconciliation before declaring done. Prior PR52/53 release evidence remains historical.`);
+          let todo=fs.readFileSync('Fishing_TODO.md','utf8');
+          todo=todo.replace('| FISH-TODO-063 |',`| FISH-TODO-064 | P2 | IN PROGRESS | My Gear | Add Dagger Axis 10.5 with exact authored facts and supplied PNG; verify CI and production. See pwa/DAGGER_AXIS_RELEASE_2026-09-08.md. |\n| FISH-TODO-065 | P2 | WAITING ON USER | Kayak specifications | Confirm Dagger Axis 10.5 Length: the supplied 12' 6" appears inconsistent with the model designation. Preserve the submitted value until confirmed. |\n| FISH-TODO-063 |`);
+          todo=todo.replace('The next new canonical task ID is FISH-TODO-064.','The next new canonical task ID is FISH-TODO-066.');
+          todo=todo.replace('_Last updated: 2026-09-08_','_Last updated: 2026-09-08_');
+          fs.writeFileSync('Fishing_TODO.md',todo);
+          // This is a disposable executor, not a runtime dependency or migration.
+          fs.unlinkSync('.github/workflows/dagger-one-time-promotion.yml');
+          console.log(`Prepared ${id}: 65 Gear records, image ${bytes.length} bytes, blob ${blob}.`);
+          NODE
+      - name: Commit validated source changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Add Dagger Axis 10.5 with validated local media"
+          git push origin HEAD:refs/heads/feature/dagger-axis-10-5-20260908
