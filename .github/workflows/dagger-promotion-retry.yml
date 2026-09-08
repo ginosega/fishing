@@ -1,0 +1,36 @@
+name: Dagger source promotion retry
+on:
+  push:
+    branches: [feature/dagger-axis-10-5-20260908]
+    paths: [.github/workflows/dagger-promotion-retry.yml]
+permissions:
+  contents: write
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/dagger-axis-10-5-20260908
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Apply validated source-only patch
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import {execFileSync} from 'node:child_process';
+          const workflow=fs.readFileSync('.github/workflows/dagger-one-time-promotion.yml','utf8');
+          const match=workflow.match(/node --input-type=module <<'NODE'\n([\s\S]*?)\n          NODE/);
+          if(!match) throw new Error('Original source promotion script not found.');
+          const script=match[1].split('\n').map(line=>line.replace(/^          /,'')).join('\n');
+          execFileSync(process.execPath,['--input-type=module','-e',script],{stdio:'inherit'});
+          NODE
+      - name: Commit source without workflow modifications
+        run: |
+          git restore .github/workflows/fishing-pwa-build.yml .github/workflows/dagger-one-time-promotion.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A -- . ':!.github/workflows'
+          git commit -m "Add Dagger Axis 10.5 with validated local media"
+          git push origin HEAD:refs/heads/feature/dagger-axis-10-5-20260908
