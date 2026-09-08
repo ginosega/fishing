@@ -1,0 +1,48 @@
+name: One-time Cranberry Lake picture promotion
+on:
+  push:
+    branches:
+      - feature/cranberry-lake-picture-20260908
+    paths:
+      - .github/workflows/cranberry-picture-promotion.yml
+permissions:
+  contents: write
+jobs:
+  promote:
+    if: github.event.head_commit.message == 'Stage Cranberry Lake picture promotion'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate and apply the exact authored handoff
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs/promises';
+          import assert from 'node:assert/strict';
+          import {promoteKbChange} from './pwa/promote-kb-change.mjs';
+          const pkg=JSON.parse(await fs.readFile('.release-work/cranberry-lake.json','utf8'));
+          await promoteKbChange(pkg,{apply:true,dataVersion:'2026-09-08-kb-v1-cranberry-lake-picture-1'});
+          const kb=JSON.parse(await fs.readFile('pwa/data/kb.seed.json','utf8'));
+          const local=JSON.parse(await fs.readFile('pwa/local-media.json','utf8'));
+          const id='location-cranberry-lake-deception-pass';
+          const p={src:'./assets/kb/entries/'+id+'.png',alt:'Cranberry Lake',caption:'Cranberry Lake',credit:null,sourceUrl:null};
+          assert.equal(kb.dataVersion,'2026-09-08-kb-v1-cranberry-lake-picture-1');
+          assert.deepEqual(kb.entities.filter(e=>e.id===id).map(e=>e.picture),[p]);
+          assert.deepEqual(local.kb.filter(e=>e.entityId===id),[{entityId:id,source:p.src,alt:p.alt,caption:p.caption,credit:null,sourceUrl:null}]);
+          assert.equal(kb.entities.length,54);
+          NODE
+      - name: Commit validated source changes and remove one-time machinery
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add pwa/data/kb.seed.json pwa/local-media.json
+          if test -f pwa/kb-media-history.json; then git add pwa/kb-media-history.json; fi
+          git rm .github/workflows/cranberry-picture-promotion.yml
+          git rm -r .release-work
+          git diff --cached --check
+          git commit -m 'Promote Cranberry Lake picture from validated handoff'
+          git push origin HEAD:feature/cranberry-lake-picture-20260908
