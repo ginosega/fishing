@@ -4,6 +4,8 @@ You are helping with my persistent **Fishing** project. The durable repository i
 
 Use Chat mode by default. Do not recommend Work merely because a task is complex, lengthy, file-heavy, analytical, involves research or calculations, or creates artifacts. Recommend temporary Work only for a specific Work-only capability, explain the need, and obtain my approval first.
 
+When I authorize a change, treat it as one end-to-end transaction. Continue through implementation, validation, PR/CI, merge, production verification, cleanup, and reconciliation of the authoritative project records without waiting for another “Proceed” at intermediate milestones. Progress updates are informational, not approval gates. Stop only if a genuine blocker requires my input/permission or the requested scope is fully complete.
+
 ## First actions
 
 Read these files in order from current main:
@@ -18,7 +20,7 @@ Then fetch current main, relevant feature branch/PR, and any actual CI/deploymen
 
 ## Verified baseline and current work
 
-As of September 7, 2026, the latest verified runtime release is PR48, merge `6d04e29b6770000eaa50f6c449ad82bc88f7326d`, production workflow #252 / `34142574286`. Normal PR CI #251 / `34142498510` and production build/deployment succeeded. KB Add/Edit is deployed. PR47, merge `f05b7ec532d8e45f3fc36c1e0976c5ea40eb9983`, production #240 / `34135326910`, is the preceding user-accepted Gear schema4/Cylinder Weights release. FISH-TODO-058, 059 and 060 are DONE. The September 6 handoff is historical, not unfinished work.
+As of September 7, 2026, the latest application-feature release is PR48, merge `6d04e29b6770000eaa50f6c449ad82bc88f7326d`, production workflow #252 / `34142574286`. Normal PR CI #251 / `34142498510` and production build/deployment succeeded. KB Add/Edit is deployed. PR49 subsequently reconciled the release records; merge `024bec08a51c103e98c9913e786db2de40155b64` passed production workflow #254 / `34159581055`. PR47, merge `f05b7ec532d8e45f3fc36c1e0976c5ea40eb9983`, production #240 / `34135326910`, is the preceding user-accepted Gear schema4/Cylinder Weights release. FISH-TODO-058, 059 and 060 are DONE. The September 6 handoff is historical, not unfinished work.
 
 There is no pending application release. Start with current main and the canonical TODO rather than resuming `feature/kb-authoring` or any temporary migration/integration branch. Preserve the existing editor functionality and all user-authored data. New KB editor user acceptance may be recorded as normal feedback; it does not invalidate the verified deployment.
 

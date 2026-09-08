@@ -9,7 +9,7 @@ assert.equal(seed.schemaVersion, GEAR_SCHEMA_VERSION);
 assert.equal(seed.schemaVersion, 4);
 assert.ok(seed.items.length >= 64, 'The accepted Gear baseline must remain present.');
 assert.equal(seed.dataVersion, '2026-09-06-my-gear-v4-ordered-links-1');
-assert.equal('profiles' in seed, false, 'Gear schema v3 must not contain profiles.');
+assert.equal('profiles' in seed, false, 'Gear schema v4 must not contain profiles.');
 assert.equal(seed.items.some(item => item.category === 'knots'), false, 'Knots must not be part of My Gear.');
 for (const category of GEAR_CATEGORIES.filter(category => category !== 'accessories')) assert.ok(seed.items.some(item => item.category === category), `Missing category ${category}`);
 assert.ok(GEAR_CATEGORIES.includes('accessories'), 'Accessories must be an allowed My Gear category even before its first record is added.');
@@ -170,4 +170,4 @@ for (const mediaId of ['south-bend-classic-dressed-spinners','south-bend-removab
 }
 assert.equal(localMedia.staged.length, 0, 'Recovery B South Bend images must no longer be staged-only.');
 
-console.log(`Structured My Gear v3 seed validated: ${seed.items.length} records across ${GEAR_CATEGORIES.length} allowed categories; authored Notes externalized.`);
+console.log(`Structured My Gear v4 seed validated: ${seed.items.length} records across ${GEAR_CATEGORIES.length} allowed categories; authored Notes externalized.`);

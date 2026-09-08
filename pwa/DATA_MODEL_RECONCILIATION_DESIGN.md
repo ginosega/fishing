@@ -1,6 +1,6 @@
 # Fishing Companion Data Model Reconciliation Design
 
-**Status: ACCEPTED architecture / deployed Gear schema3 / approved schema4 refinement pending release.** Reconciled for chat transfer on 2026-09-06. The original cross-domain design was accepted 2026-09-02 and authored-Notes ownership was completed in PR39. Historical source revisions remain in Git history; this document describes current principles and the next approved schema transition.
+**Status: ACCEPTED / IMPLEMENTED / CURRENT.** Reconciled September 7, 2026 after Gear schema4 (PR47) and KB Add/Edit (PR48) deployment. The original cross-domain design was accepted 2026-09-02 and authored-Notes ownership was completed in PR39. Historical pre-release wording remains in Git history; this document describes the deployed architecture.
 
 ## 1. Core decision
 
@@ -12,7 +12,7 @@ The three domains are My Gear (owned facts), Knowledge Base (reusable authored k
 
 GitHub is the durable project source. Runtime My Gear uses a validated seed and local IndexedDB; the browser's authoring forms do not create a second authoritative inventory. KB is indexed complete Markdown; Catch has structured facts plus external narrative. Legacy OneNote, migrated Topics, and old inventory tables are reference history, not parallel runtime sources.
 
-The latest verified main checkpoint is `cdb1c500f08394a9c44ea2012b6de72adbd46ecc`, PR45, production workflow#235 reported successful. Main has64 Gear records at schema3/data version`2026-09-06-my-gear-v3-bonafide-rvr119-1`. The approved schema4 source is unmerged on`feature/gear-guides-ordered-links`, head`24ea22ac187f81b42c2d91743e0a470ba3d1ad94`. The temporary build/tests passed, but normal PR CI, merge and actual Pages deployment are outstanding. The exact release handoff is`../Fishing_Release_Handoff_2026-09-06.md`; FISH-TODO-058 remains IN PROGRESS. No future PR number or deployment should be asserted before it exists.
+The deployed application baseline is PR48 merge `6d04e29b6770000eaa50f6c449ad82bc88f7326d`, production #252 / `34142574286`. Gear schema4 was deployed by PR47; KB Add/Edit followed in PR48. PR49 later reconciled release documentation without changing the application model. Current Gear has 64 records at schema4/data version `2026-09-06-my-gear-v4-ordered-links-1`. The September 6 handoff is historical evidence only; retired feature branches and one-time migrations must not be resumed.
 
 ## 3. Shared invariants
 
@@ -35,25 +35,25 @@ The browser Add/Edit routes create validated`fishing-companion-gear-change-v1` p
 
 ### Structured schema and version transition
 
-Main schema3 has64 records, required stable ID/category/type/name for ordinary products, optional Manufacturer/Model/Specifications/Links, and strict embedded rod/reel components for setups. Inline Notes are prohibited. Profiles, usage/connections, knowledgeRefs, setup mainLine/leader, raw HTML guidance, and generic extra structural fields are retired.
+Deployed schema4 has 64 records, required stable ID/category/type/name for ordinary products, optional Manufacturer/Model/Specifications/Links, and strict embedded rod/reel components for setups. Inline Notes are prohibited. Profiles, usage/connections, knowledgeRefs, setup mainLine/leader, raw HTML guidance, and generic extra structural fields are retired.
 
-Approved schema4 keeps the same64 records and stable IDs. Data version`2026-09-06-my-gear-v4-ordered-links-1`. Manufacturer is `{name}`; Links are ordered `{label,url}` pairs. Existing manufacturer URLs migrate into the first link position, followed by existing links in original order. Link classifications are removed, not retained as hidden unused metadata. The form has no separate Manufacturer URL or Link Type control. Leaf links preserve stored order; an empty Links section is omitted. The schema3→4 upgrade must preserve non-seed local records and validate its output. Rod/Reel component links follow the same pattern.
+Schema4 keeps the same 64 stable IDs. Data version`2026-09-06-my-gear-v4-ordered-links-1`. Manufacturer is `{name}`; Links are ordered `{label,url}` pairs. Existing manufacturer URLs migrate into the first link position, followed by existing links in original order. Link classifications are removed, not retained as hidden unused metadata. The form has no separate Manufacturer URL or Link Type control. Leaf links preserve stored order; an empty Links section is omitted. The schema3→4 upgrade must preserve non-seed local records and validate its output. Rod/Reel component links follow the same pattern.
 
 ### Category identity and taxonomy
 
-The eighth category retains stable key`accessories` but is approved to display **Equipment**, with Types Kayaks, Tools, Tackle Management, Electronics, Storage, Accessories. The approved light-blue kayak/gray-paddle icon remains. The earlier Accessories/Miscellaneous wording is the deployed schema3 baseline and a superseded naming decision; it is not the desired post-release taxonomy. Changing only labels does not justify changing stable IDs or introducing a new category key.
+The eighth category retains stable key `accessories` and displays **Equipment**, with Types Kayaks, Tools, Tackle Management, Electronics, Storage, Accessories. The approved light-blue kayak/gray-paddle icon remains. The earlier Accessories/Miscellaneous wording is a superseded schema3-era naming decision retained only in history. Changing only labels does not justify changing stable IDs or introducing a new category key.
 
 ### Authored Notes
 
 Optional narrative lives exclusively in`gear-content/<gear-id>.md`. A missing file means no Notes card. A valid nonempty file is loaded deterministically by stable ID; no JSON fallback. The shared build validates IDs, ownership, safe references, and generates a manifest for offline loading. The author controls content, headings and link placement. `gear://` and`kb://` are navigation links, not durable relationship-table entries.
 
-Approved sibling-image policy: support Gear-ID-prefixed local images next to Markdown in`gear-content/`, referenced by relative filename. Validate safe paths, owner prefix, JPEG/PNG/WebP/GIF actual format and extension, nonempty size≤10MiB, exact-byte copying, and offline manifest inclusion. Existing`assets/gear-notes/` references remain supported. Hero/thumbnail media stays separately owned. This is approved and implemented on the pending branch, not yet deployed.
+Approved sibling-image policy: support Gear-ID-prefixed local images next to Markdown in`gear-content/`, referenced by relative filename. Validate safe paths, owner prefix, JPEG/PNG/WebP/GIF actual format and extension, nonempty size≤10MiB, exact-byte copying, and offline manifest inclusion. Existing`assets/gear-notes/` references remain supported. Hero/thumbnail media stays separately owned. This is deployed in Gear schema4 via PR47.
 
 ## 5. Knowledge Base model
 
 KB uses one unified envelope: id, type, name, optional description/picture, and one complete Markdown Content path. Type enum: location,species,equipment,technique,knot. Schema1 remains current, data version`2026-09-04-kb-v1-final-content-1`,54 entities. Equipment is a flat peer type for rigs/presentations/gear guides; Technique is for strategy/conditions/species-oriented methods. Physical directories do not define taxonomy; existing IDs may retain historical prefixes.
 
-The approved pending UI label is **Gear Guides** for internal`equipment`, with subtitle`Equipment, rigs, and presentations reference`. No schema, type, or identity change is needed. All flexible instructional content remains in Markdown. The KB is browsable, not a Planner, session system, or atomic article editor. Its indexed model is already architecturally consistent with Gear because the shared rules, not identical storage, are the design goal.
+The deployed UI label is **Gear Guides** for internal`equipment`, with subtitle`Equipment, rigs, and presentations reference`. No schema, type, or identity change is needed. All flexible instructional content remains in Markdown. The KB is browsable and document-oriented, not a Planner or session/trip system. Its Add/Edit editor edits one complete Markdown article per entity rather than an atomic guidance schema. Its indexed model is already architecturally consistent with Gear because the shared rules, not identical storage, are the design goal.
 
 ## 6. Catch Log model
 
@@ -71,9 +71,9 @@ A structured relationship is justified only when a current feature needs it. Cat
 
 `media-sources.json` owns source/provenance;`media-owners.json` owns exact Gear associations;`local-media.json` configures active local assets;`apply-local-media.mjs` validates/materializes them;`media-ui.js` presents them. KB may intentionally reference built Gear assets with exact identity. Do not infer owners from aliases, labels, or filenames.
 
-User images are uploaded directly to the specified GitHub branch/path. Never transport image bytes/base64 through the ChatGPT/GitHub connector. Validate source bytes and extension; copy exact bytes without recompression; verify final output. The pending existing-picture workflow shows actual source/media ID, explicit Keep/Replace, and supports same-filename replacement. Preserve media ID/owner and old provenance when promoting valid local replacement. No bulk migration or premature deletion is required.
+User images are uploaded directly to the specified GitHub branch/path. Never transport image bytes/base64 through the ChatGPT/GitHub connector. Validate source bytes and extension; copy exact bytes without recompression; verify final output. The deployed existing-picture workflow shows actual source/media ID, explicit Keep/Replace, and supports same-filename replacement. Preserve media ID/owner and old provenance when promoting valid local replacement. No bulk migration or premature deletion is required.
 
-The permanent build must run the relevant model/routing/content/media tests, authored-Notes and local-media stages, and final transformed-bundle verification before deployment. The pending feature introduces`image-validation.mjs`,`gear-media-policy.test.mjs`, and`verify-final-bundle.mjs`; integrate them into the permanent Pages workflow with authorized workflow-file changes. Temporary migration workflow success does not satisfy final release verification.
+The permanent build must run the relevant model/routing/content/media tests, authored-Notes and local-media stages, and final transformed-bundle verification before deployment. The permanent workflow includes `image-validation.mjs`, `gear-media-policy.test.mjs`, and `verify-final-bundle.mjs`. Temporary migration/integration workflow success never substitutes for normal PR CI and verified production deployment.
 
 ## 9. User-facing consistency
 
@@ -81,7 +81,7 @@ Root Gear/KB Search always; nonempty search hides category cards and places matc
 
 ## 10. Historical and completion boundary
 
-The original schema2 reconciliation, schema3 external-Notes migration, PR28 content acceptance, PR30 transformed-data recovery, PR34/41 Markdown fixes, and PR42 authoring release remain completed historical work. Original detailed versions remain in Git history and the Decision History. This pending refinement does not reopen those architectural choices. The full current source/test/cleanup checklist is in`../Fishing_Release_Handoff_2026-09-06.md`. Complete FISH-TODO-058 only after clean final-head PR CI, expected-head merge, and actual Pages deployment; then reconcile all production-status documents.
+The original schema2 reconciliation, schema3 external-Notes migration, PR28 content acceptance, PR30 transformed-data recovery, PR34/41 Markdown fixes, and PR42 authoring release remain completed historical work. Original detailed versions remain in Git history and the Decision History. Those completed refinements do not reopen the earlier architectural choices. The September 6 handoff is historical release evidence only. FISH-TODO-058 was completed by PR47 and FISH-TODO-060 by PR48; future work starts from current main and the canonical TODO.
 
 ## September 7, 2026 — KB authoring reconciliation
 
@@ -89,4 +89,4 @@ The Gear schema4 and KB schema1 remain architecturally compatible without becomi
 
 KB Type prefixes are conventions for new IDs only. Existing IDs and content paths are immutable across rename/reclassification; exact Catch references must remain valid. Reclassification does not create an inferred relationship, rename a document, or rewrite authored links.
 
-The unnecessary authoring divergence is addressed by FISH-TODO-060: a Gear-style validated, copyable handoff with source/version checks and explicit picture actions. No browser GitHub writes, duplicate local database, new taxonomy editor, or additional narrative fields are introduced. Source metadata and transformed display pictures remain separate; the shared resolver and final-bundle validator protect the distinction. Repository promotion retains prior media provenance, validates actual image bytes and ownership, and never deletes original images as a side effect.
+The former authoring divergence was resolved by PR48 / FISH-TODO-060: a Gear-style validated, copyable handoff with source/version checks and explicit picture actions. No browser GitHub writes, duplicate local database, new taxonomy editor, or additional narrative fields are introduced. Source metadata and transformed display pictures remain separate; the shared resolver and final-bundle validator protect the distinction. Repository promotion retains prior media provenance, validates actual image bytes and ownership, and never deletes original images as a side effect.
