@@ -29,8 +29,8 @@ const catchNotes = record => {
 };
 
 assert.equal(gear.schemaVersion, 4);
-assert.equal(gear.dataVersion, '2026-09-08-my-gear-v4-dagger-axis-1');
-assert.equal(kb.dataVersion, '2026-09-04-kb-v1-final-content-1');
+assert.equal(gear.dataVersion, '2026-09-08-my-gear-v4-dagger-length-1');
+assert.equal(kb.dataVersion, '2026-09-08-kb-v1-three-hero-images-1');
 assert.equal(catches.schemaVersion, 2);
 assert.equal(catches.dataVersion, '2026-09-04-catches-v2-external-notes-1');
 assert.ok(gear.items.every(item => !Object.hasOwn(item, 'notes')), 'Structured Gear seed must not contain inline Notes.');
@@ -190,3 +190,5 @@ for (const filename of [
 }
 
 console.log(`Final content validated: ${externalNoteFiles.length} Gear Notes, ${catchNoteFiles.length} Catch Notes, ${newEntities.length} new KB entities, ${localImageCases.size} local KB images, ${gearMediaCases.size} Gear-backed KB images.`);
+
+import './accepted-2026-09-08.test.mjs';

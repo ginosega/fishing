@@ -1,6 +1,6 @@
 {
   "schemaVersion": 4,
-  "dataVersion": "2026-09-08-my-gear-v4-dagger-axis-1",
+  "dataVersion": "2026-09-08-my-gear-v4-dagger-length-1",
   "items": [
     {
       "id": "setup-spinning",
@@ -1986,7 +1986,7 @@
       "specifications": [
         {
           "label": "Length",
-          "value": "12' 6\""
+          "value": "10' 6\""
         },
         {
           "label": "Height",
