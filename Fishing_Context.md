@@ -24,11 +24,13 @@ Browser Gear/KB Add/Edit prepares validated copyable packages for chat/repositor
 
 Dagger Axis 10.5 is an owned Kayaks Equipment record, ID/media ID `dagger-axis-10-5`. The user confirmed Length `10' 6"`, now corrected. Other specifications remain Height `15.25"`, Width `28.5"`, Weight `50 lb`, Cockpit opening `52.5"x23.5" (6.0 deck)`. Manufacturer, model, ordered link and no-Notes state are unchanged. FISH065 is DONE.
 
-The current source `pwa/assets/gear-source/dagger-axis-10-5.png` is Git blob `17ad66ac19cc0a71f3ca4c3fd4ea6ec5e881ac51`, 393226 bytes, from the user's main replacement commit `5265a393cce601a59540de2a17f5b7c56b4d3535`. The original blob `b6b9c96057adda124b7369952e851b13cf2f3b7b` remains in Git history. Existing owner, source path and destination are preserved. The media pipeline validates actual type/extension/size, resolves explicit owners, and copies source bytes without recompression.
+The current source `pwa/assets/gear-source/dagger-axis-10-5.png` is Git blob `cfb44c09b6ab3d79a53d50e626664dde5e148a3a`, 259840 bytes, from the user's latest main replacement commit `2c79f685f5d3fc1020930874cfea486425840c3c`. The previous replacement blob `17ad66ac19cc0a71f3ca4c3fd4ea6ec5e881ac51` and original blob `b6b9c96057adda124b7369952e851b13cf2f3b7b` remain in Git history. Existing owner, source path and destination are preserved. The media pipeline validates actual type/extension/size, resolves explicit owners, and copies source bytes without recompression.
 
 The three KB pictures are registered at `./assets/kb/entries/technique-fishing-line.jpg`, `./assets/kb/entries/technique-walking-bait.jpg` and `./assets/kb/entries/technique-rods-reels.png`. Their IDs, names, descriptions, content paths and original complete Markdown remain unchanged. Fishing Line's explicit `gearItemId` is `sufix-832-15`; no Gear association is inferred for the other two. All null provenance fields are retained as supplied. FISH066 is DONE.
 
 The existing Bonafide RVR119, its authored Notes, all other Gear ownership, previous Buzzbait/Jack Hammer images, and all KB/Catch records remain preserved. FISH063 separately tracks clearer KB filename/destination guidance. Historical media references do not imply ownership or external provenance.
+
+The concurrent user upload `pwa/assets/gear-source/perception-joyride-10.png`, blob `f24403f79788755e267ee721f5e93c34c3f8f472` (562530 bytes), is preserved without inventing an owned Gear record or media association. The Dagger regression validates actual replacement bytes and ownership rather than locking a historical hash.
 
 ## Release and validation
 

@@ -14,6 +14,10 @@ The initial source-promotion runner was denied workflow-write permission. A sour
 
 The user confirmed Length `10' 6"`. PR56 corrected only that specification and advanced Gear dataVersion to `2026-09-08-my-gear-v4-dagger-length-1`, preserving the remaining fields, ordered link, ID, owner and no-Notes state. FISH065 is DONE. The new dataVersion refreshes seed-managed clients.
 
-The user separately replaced `pwa/assets/gear-source/dagger-axis-10-5.png` on main at commit `5265a393cce601a59540de2a17f5b7c56b4d3535`. Current source blob `17ad66ac19cc0a71f3ca4c3fd4ea6ec5e881ac51` is 393226 bytes. The current media ID, owner and destination are unchanged; external image origin is not inferred. The source and byte-identical built asset are validated by permanent tests.
+The user separately replaced `pwa/assets/gear-source/dagger-axis-10-5.png` on main at commit `5265a393cce601a59540de2a17f5b7c56b4d3535`. Current source blob `cfb44c09b6ab3d79a53d50e626664dde5e148a3a` is 259840 bytes. The current media ID, owner and destination are unchanged; external image origin is not inferred. The source and byte-identical built asset are validated by permanent tests.
 
 PR56 head `d17d7b0c52955c06ef55659d6062e8b6f4a44759` passed normal CI #284 / `34188600391`; merge `531f04a84c0d75e2a7f23dc368149de5026b607b`; production #285 / `34188668110` succeeded including actual Pages deployment. Browser acceptance and independent HTTP verification remain separate. FISH063 remains the distinct KB filename-usability issue.
+
+## Subsequent source replacement
+
+The user replaced the PNG again in commit `2c79f685f5d3fc1020930874cfea486425840c3c`. Current source blob `cfb44c09b6ab3d79a53d50e626664dde5e148a3a` is 259840 bytes. The earlier replacement blob `17ad66ac19cc0a71f3ca4c3fd4ea6ec5e881ac51` and original blob remain in Git history. PR57 updates the regression to validate the actual image, existing stable owner and byte-identical transformed asset, rather than rejecting legitimate user-maintained image replacements. All product facts and the confirmed length remain unchanged.

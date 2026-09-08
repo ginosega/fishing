@@ -39,3 +39,7 @@ Live site: https://ginosega.github.io/fishing/
 Deployment is verified through GitHub Actions/Pages; independent live HTTP and user-browser acceptance are not claimed. FISH063 remains open for the separate KB filename/destination usability issue. No application release remains pending from this transaction.
 
 The authoritative root README, Context, TODO, Decision Log, bootstrap, PWA README and this closeout are reconciled. Exact pre-closeout records are preserved under `History/2026-09-08-pre-three-kb-images/`, with older history intact. Future work must restore actual current main and consult the canonical backlog.
+
+## Subsequent concurrent media and regression maintenance
+
+After production #285, the user replaced the Dagger source again at commit `2c79f685f5d3fc1020930874cfea486425840c3c`, blob `cfb44c09b6ab3d79a53d50e626664dde5e148a3a` (259840 bytes), and uploaded `pwa/assets/gear-source/perception-joyride-10.png`, blob `f24403f79788755e267ee721f5e93c34c3f8f472` (562530 bytes). Both are preserved. The Perception file is unregistered pending an explicit Gear handoff; no ownership is inferred. The earlier Dagger replacement `17ad66ac19cc0a71f3ca4c3fd4ea6ec5e881ac51` and original image remain in Git history. PR57/FISH067 removes the frozen source-hash assertion, retaining actual image validation, stable metadata and exact source-to-bundle byte checks. The PR56 historical release hashes above remain accurate for that release.

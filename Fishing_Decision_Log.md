@@ -10,9 +10,10 @@ The latest content release is PR56, head `d17d7b0c52955c06ef55659d6062e8b6f4a447
 
 | Date | Area | Decision / status |
 |---|---|---|
+| 2026-09-08 | Mutable source media | A user-maintained image is not a frozen historical hash fixture. Validate actual format, size, stable identity, explicit owner and exact transformed bytes. Preserve accepted prior hashes in release history. PR57/FISH067. |
 | 2026-09-08 | Dagger specifications | User confirmed Length `10' 6"`. Correct only that specification, preserve other facts and advance Gear dataVersion. PR56/FISH065 DONE. |
 | 2026-09-08 | KB hero images | Apply explicit picture handoffs to Fishing Line, Walking Bait and Rods & Reels using source-aware promotion. Preserve complete authored Markdown and exact bytes. Fishing Line explicitly links to Sufix 832; no other Gear association is inferred. PR56/FISH066 DONE. |
-| 2026-09-08 | Concurrent media | Preserve latest direct-main Dagger PNG replacement, blob `17ad66ac19cc0a71f3ca4c3fd4ea6ec5e881ac51`, with existing ID/owner/path. Prior blob remains in Git history; external origin is not inferred. |
+| 2026-09-08 | Concurrent media | Preserve latest direct-main Dagger PNG replacement, blob `cfb44c09b6ab3d79a53d50e626664dde5e148a3a`, with existing ID/owner/path. Prior blob remains in Git history; external origin is not inferred. |
 | 2026-09-08 | Dagger addition | PR54 added the separate Kayaks Gear record `dagger-axis-10-5`, preserving exact original submitted fields, no Notes and explicit image ownership. Original length was superseded by the confirmed correction. FISH064 DONE. |
 | 2026-09-07 | Operating mode | Chat by default. Work only for a specific Work-only capability, with explanation and user approval. Complexity, duration, research, files and artifacts are not reasons to switch. |
 | 2026-09-07 | End-to-end execution | An authorized change continues through implementation, validation, PR/CI, merge, production verification, cleanup and authoritative records. Progress is informational, not an approval gate. Stop only for a genuine blocker or complete scope. |
