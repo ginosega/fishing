@@ -2,95 +2,54 @@
 
 _Last updated: 2026-09-07_
 
-This file is the canonical backlog for unresolved Fishing-project verification items, research tasks, equipment questions, technique work, and owner follow-ups.
+This is the canonical backlog. Current runtime facts are owned by the structured PWA data and stable-ID authored Markdown; historical OneNote/PDF/Topics and the archived pre-recovery TODO are reference sources, not parallel current databases. All original task descriptions and completed release evidence are preserved byte-for-byte in `History/2026-09-07-pre-recovery/Fishing_TODO.md`.
 
-The application has three durable data domains: My Gear uses structured JSON/IndexedDB for facts plus stable-ID Markdown Notes, the Knowledge Base uses a unified structured entity index over complete Markdown documents, and Catch Log uses structured historical facts/relationships plus stable-ID Markdown Notes. Legacy OneNote/PDF and migrated topic files remain historical/reference sources, not parallel runtime sources of truth.
-
-## Status convention
-
-- **OPEN** — ready to work.
-- **WAITING ON USER** — requires information, photos, documents, measurements, purchase confirmation, acceptance, or a decision from the user.
-- **IN PROGRESS** — actively being worked.
-- **DEFERRED** — intentionally postponed.
-- **DONE** — resolved; update the authoritative source for that data domain before moving the item to Completed Items.
-
-## Priority convention
-
-- **P1** — high value / materially affects safety, core equipment state, or source of truth.
-- **P2** — useful verification, documentation, equipment, or technique work.
-- **P3** — optional cleanup / lower urgency.
-
----
+Status: OPEN (ready), WAITING ON USER (requires confirmation/input), IN PROGRESS (active), DEFERRED (intentionally postponed), DONE (resolved with authoritative source updated). Priority: P1 affects safety/core source of truth; P2 useful verification/gear/technique work; P3 optional/lower urgency. Do not infer purchases, ownership or historical Catch attribution.
 
 ## Active Backlog
 
-| ID | Priority | Status | Area | Work item | Next action / notes |
-|---|---|---|---|---|---|
-| FISH-TODO-005 | P2 | WAITING ON USER | Gear registry | Verify exact fish-finder power system installed state. | OneNote has parts: Amped Outdoors 12V 8Ah battery, 3A inline fuse, 2-pin IP68 connector, disconnects; confirm what is actually installed. |
-| FISH-TODO-006 | P2 | OPEN | Kayak | Verify Bonafide RVR119 brass insert bolt/thread sizes. | Recover source details from historical chats/OneNote, manufacturer documentation, or user measurement. |
-| FISH-TODO-007 | P2 | OPEN | Kayak rigging | Decide whether/how to modify rear flush rod-holder angle. | Preserve installed Pelican rod-holder details; evaluate alternatives to heat-bending. |
-| FISH-TODO-008 | P2 | WAITING ON USER | Kayak accessories | Confirm whether Bonafide RVR119 Under Seat Tackle Storage was purchased. | Historical material still lists as buy/research item, not owned. |
-| FISH-TODO-009 | P2 | WAITING ON USER | Kayak accessories | Confirm whether YakAttack 38 x 13 fish cooler bag was purchased. | If purchased, add exact SKU/status to the proper current source. |
-| FISH-TODO-010 | P2 | OPEN | Tackle | Buy/consider tubes and internal tube jigheads. | Useful for Lake Washington/Sammamish smallmouth. |
-| FISH-TODO-011 | P2 | OPEN | Tackle | Buy/consider bullet weights for Texas rigs. | Needed for Rage Craw / soft-plastics Texas-rig use. |
-| FISH-TODO-012 | P2 | OPEN | Tackle | Buy/consider 1/8 oz weighted EWG hooks. | Useful for Berkley Power Jerk Shad and soft-jerkbait depth control. |
-| FISH-TODO-013 | P2 | OPEN | Tackle | Buy/consider Carolina Keepers. | OneNote listed as buy item; useful as alternative to bead/swivel in some slip-sinker rigs. |
-| FISH-TODO-014 | P3 | OPEN | Tackle | Watch for KastKing 3600 deep box. | OneNote tackle-management note. |
-| FISH-TODO-015 | P3 | OPEN | Tackle | Buy/consider Berkley Warpig. | OneNote buy item: 1/2 oz, 3", Blue Shad. |
-| FISH-TODO-016 | P3 | OPEN | Tackle | Buy/consider Bait Pop with red flake. | OneNote scent TODO; prefer water-soluble scent, shrimp-extract flavor noted. |
-| FISH-TODO-017 | P2 | OPEN | Techniques | Resolve hook-size guidance for PowerBait still rigs. | OneNote rig uses #4 hook; prior guidance often used #8 for PowerBait/Power Eggs. Keep both until tested/decided. |
-| FISH-TODO-018 | P2 | OPEN | Techniques / knots | Resolve loop-knot guidance conflict. | Knot content preserves OneNote's warning while some equipment/technique content recommends loop knots for action. Resolve deliberately rather than incidentally. |
-| FISH-TODO-019 | P2 | OPEN | KB / Equipment | Build Texas Rig page. | OneNote page is TODO only. |
-| FISH-TODO-020 | P3 | OPEN | KB / Equipment | Build Carolina Rig page. | OneNote page is TODO only. |
-| FISH-TODO-021 | P3 | OPEN | KB / Equipment | Build Alabama Rig page. | OneNote page is TODO only. |
-| FISH-TODO-022 | P3 | OPEN | KB / Equipment | Build Neko Rig page. | OneNote contains seed gear/bait references; needs full article. |
-| FISH-TODO-023 | P3 | OPEN | KB / Equipment | Build Spoons page. | OneNote page is TODO only, though spoon inventory/usage is captured elsewhere. |
-| FISH-TODO-024 | P3 | OPEN | Locations | Research Lake Bosworth bass. | OneNote `Go` item only. |
-| FISH-TODO-025 | P3 | OPEN | Shopping/local | Visit/check Holiday Sports in Burlington. | OneNote `Go` item. |
-| FISH-TODO-026 | P3 | OPEN | Community | Research/join fish club. | OneNote buy/listen page note. |
-| FISH-TODO-027 | P2 | OPEN | Clothing | Buy/consider NRS ATB Wetshoe size 11. | OneNote clothing buy item, not owned unless user confirms. |
-| FISH-TODO-028 | P2 | OPEN | Clothing | Buy/consider NRS Champion Jacket and Bib. | Jacket must have neoprene cuffs, waterproof zipper, articulated hood; Champion Jacket and Bib listed as candidates. |
-| FISH-TODO-029 | P2 | OPEN | Kayak safety/storage | Determine how to tie off bow-hatch items. | Tool bag/bilge-pump tie-off question in OneNote. |
-| FISH-TODO-030 | P3 | DEFERRED | Power/electronics | Evaluate whether trailer battery could work for kayak motor/electronics scenario. | Resume only if the kayak-motor project returns. |
-| FISH-TODO-031 | P3 | OPEN | Learning | Listen/watch Science of the Strike episodes 8 and 16. | Dissolved oxygen and turbidity noted. |
-| FISH-TODO-032 | P3 | OPEN | Catch Log | Continue adding structured catch records. | Track catches only, not trips or no-bite sessions. Use stable species/location/gear references and do not infer setup or technique. |
-| FISH-TODO-033 | P3 | OPEN | Safety/regulations | Create regulation recheck checklist. | Include Fish Washington app, lake-specific rules, species ID, bait/retention implications. |
-| FISH-TODO-034 | P3 | OPEN | Markdown usability | Spot-check inline links in GitHub Preview and PWA. | Applies especially to newly expanded authored documents under `pwa/kb-content/`. |
-| FISH-TODO-037 | P3 | DEFERRED | PWA / multi-user product | Generalize Fishing Companion for multiple users. | Current app remains intentionally single-user/personal. Revisit only after the personal version is mature. |
-| FISH-TODO-039 | P2 | OPEN | PWA / Catch Log | Record rod/reel setup on new catches when known. | Existing historical catches remain null where setup attribution was not recorded and must not be invented. |
-
----
+| ID | Priority | Status | Area | Work item / next action |
+|---|---|---|---|---|
+| FISH-TODO-005 | P2 | WAITING ON USER | Gear | Verify exact installed fish-finder power system. Historical parts include Amped Outdoors 12V 8Ah, 3A fuse, 2-pin IP68 connector and disconnects; confirm actual installation. |
+| FISH-TODO-006 | P2 | OPEN | Kayak | Verify Bonafide RVR119 brass insert thread sizes from manufacturer documentation or measurement. |
+| FISH-TODO-007 | P2 | OPEN | Kayak rigging | Decide whether/how to modify rear flush rod-holder angle. Preserve installed Pelican details; evaluate alternatives to heat-bending. |
+| FISH-TODO-008 | P2 | WAITING ON USER | Kayak accessories | Confirm whether RVR119 Under Seat Tackle Storage was purchased. Latest authored Notes still list it as needed; do not infer ownership. |
+| FISH-TODO-009 | P2 | WAITING ON USER | Kayak accessories | Confirm whether YakAttack 38 x 13 fish cooler bag was purchased; record exact SKU/status only after confirmation. |
+| FISH-TODO-010 | P2 | OPEN | Tackle | Buy/consider tubes and internal tube jigheads for Lake Washington/Sammamish smallmouth. |
+| FISH-TODO-011 | P2 | OPEN | Tackle | Buy/consider bullet weights for Texas rigs/Rage Craw. |
+| FISH-TODO-012 | P2 | OPEN | Tackle | Buy/consider 1/8 oz weighted EWG hooks for Power Jerk Shad/depth control. |
+| FISH-TODO-013 | P2 | OPEN | Tackle | Buy/consider Carolina Keepers as alternative to bead/swivel in slip-sinker rigs. |
+| FISH-TODO-014 | P3 | OPEN | Tackle | Watch for KastKing 3600 deep box. |
+| FISH-TODO-015 | P3 | OPEN | Tackle | Buy/consider Berkley Warpig, 1/2 oz, 3", Blue Shad. |
+| FISH-TODO-016 | P3 | OPEN | Tackle | Buy/consider Bait Pop with red flake; water-soluble/shrimp-extract preference noted. |
+| FISH-TODO-017 | P2 | OPEN | Techniques | Resolve PowerBait still-rig hook size: historical #4 versus prior #8 guidance. Preserve both until tested/decided. |
+| FISH-TODO-018 | P2 | OPEN | Techniques/knots | Resolve loop-knot guidance conflict between historical warning and action-oriented recommendations. |
+| FISH-TODO-019 | P2 | OPEN | KB Equipment | Build Texas Rig page. |
+| FISH-TODO-020 | P3 | OPEN | KB Equipment | Build Carolina Rig page. |
+| FISH-TODO-021 | P3 | OPEN | KB Equipment | Build Alabama Rig page. |
+| FISH-TODO-022 | P3 | OPEN | KB Equipment | Build Neko Rig page; use historical seed references, full authored article needed. |
+| FISH-TODO-023 | P3 | OPEN | KB Equipment | Build Spoons page; inventory/usage exists elsewhere. |
+| FISH-TODO-024 | P3 | OPEN | Locations | Research Lake Bosworth bass. |
+| FISH-TODO-025 | P3 | OPEN | Shopping/local | Visit/check Holiday Sports in Burlington. |
+| FISH-TODO-026 | P3 | OPEN | Community | Research/join fish club. |
+| FISH-TODO-027 | P2 | OPEN | Clothing | Buy/consider NRS ATB Wetshoe size 11. |
+| FISH-TODO-028 | P2 | OPEN | Clothing | Buy/consider NRS Champion Jacket and Bib; jacket requirements include neoprene cuffs, waterproof zipper, articulated hood. |
+| FISH-TODO-029 | P2 | OPEN | Kayak safety/storage | Determine how to tie off bow-hatch items, including tool bag/bilge pump. |
+| FISH-TODO-030 | P3 | DEFERRED | Power/electronics | Evaluate trailer battery for kayak motor/electronics only if motor project returns. |
+| FISH-TODO-031 | P3 | OPEN | Learning | Listen/watch Science of the Strike episodes 8 and 16 (dissolved oxygen/turbidity). |
+| FISH-TODO-032 | P3 | OPEN | Catch Log | Continue structured catch records; no trips/no-bite sessions, no inferred relationships. |
+| FISH-TODO-033 | P3 | OPEN | Safety/regulations | Create regulation recheck checklist: Fish Washington, lake rules, species ID, bait/retention implications. |
+| FISH-TODO-034 | P3 | OPEN | Markdown usability | Spot-check links in GitHub Preview and PWA, especially expanded KB articles. |
+| FISH-TODO-037 | P3 | DEFERRED | PWA multi-user | Generalize for multiple users only after personal version is mature. |
+| FISH-TODO-039 | P2 | OPEN | Catch Log | Record rod/reel setup on new catches when known; do not invent historical null values. |
 
 ## Completed Items
 
 | ID | Completed | Area | Resolution |
 |---|---|---|---|
-| FISH-TODO-060 | 2026-09-07 | PWA / KB authoring | PR #48, final head `85245de2451db97370268e14dfc2c66a53c8c61d`, passed normal PR CI #251 / `34142498510` against main `f05b7ec532d8e45f3fc36c1e0976c5ea40eb9983`. Merge `6d04e29b6770000eaa50f6c449ad82bc88f7326d` passed production #252 / `34142574286`, including the actual Deploy to GitHub Pages step. The production run completed September 7, 2026 at 16:18:08 UTC. The deployed release is ready for user acceptance. All five KB types now have validated Add/Edit, Markdown/Preview, immutable existing IDs/paths, safe reclassification, source-aware image handling and copyable handoff packages. Temporary source-transfer artifacts/workflows removed; permanent regression gates retained. No historical migration or new local database. |
-| FISH-TODO-058 | 2026-09-07 | PWA / Gear authoring release | PR #47 merged at `f05b7ec532d8e45f3fc36c1e0976c5ea40eb9983`. PR CI #239 / `34135260691` and production #240 / `34135326910` passed, including actual Pages deployment. Schema4, ordered links, Equipment/Gear Guides labels, Notes images, picture replacement and permanent regression checks are live and user accepted. Temporary migration artifacts removed. |
-| FISH-TODO-059 | 2026-09-07 | My Gear / media | User uploaded `pwa/assets/gear-source/thkfish-cylinder-weights.jpg`; PR47 registered it while preserving Gear ID `cylinder-weights`, media ID `thkfish-cylinder-weights`, ownership and provenance. User verified the new image appears on the live site. |
-| FISH-TODO-001 | 2026-08-29 | Project migration | OneNote fishing/kayak notebook content migrated into the durable GitHub Markdown knowledge base. |
-| FISH-TODO-002 | 2026-08-29 | Project migration | Migration audit/reconciliation closed by user scope decision: OneNote was the most up-to-date historical source of truth; exhaustive transcript-by-transcript historical-chat reconciliation was not required. Dedicated audit/reconciliation files were retired after closure. |
-| FISH-TODO-003 | 2026-08-29 | Project architecture | GitHub-based new-chat bootstrap prompt completed for normal ongoing project use. |
-| FISH-TODO-004 | 2026-08-29 | Project migration / links | OneNote MHT export used to restore external links inline for GitHub Preview; temporary link-index file deleted afterward. |
-| FISH-TODO-036 | 2026-09-01 | PWA / data model | Superseded Markdown-parser metadata approach for My Gear with explicit stable IDs and structured JSON/IndexedDB records. |
-| FISH-TODO-038 | 2026-08-31 | PWA / GitHub Pages | GitHub Pages enabled with Source = GitHub Actions; Fishing Companion is live at `https://ginosega.github.io/fishing/`. |
-| FISH-TODO-040 | 2026-09-01 | Gear registry | Exact shore/spincast setup identified as Pflueger President Spincast Combo, part `PRESSC-606L2CBO`. |
-| FISH-TODO-041 | 2026-09-01 | PWA / catch history UI | Rods & Reels empty catch-history state standardized. |
-| FISH-TODO-042 | 2026-09-01 | PWA / Line content | Braided-line resources presented as normal user-facing resources rather than OneNote-framed prose. |
-| FISH-TODO-043 | 2026-09-01 | PWA / Knot content | Trilene reverse link to Snaps & Swivels removed and video link normalized. |
-| FISH-TODO-044 | 2026-09-01 | Tackle / PWA data | Cylinder weights corrected to manufacturer THKFISH, model `28 pcs sinkers set`. |
-| FISH-TODO-045 | 2026-09-06 | PWA / My Gear editing | PR #42 replaced the prior browse-only/deferred-editing state with validated Add/Edit authoring forms that generate a copyable `fishing-companion-gear-change-v1` handoff package rather than mutating a divergent local database. Categories/Types remain chat-managed; stable Gear IDs are read-only; Picture/Notes Yes/No flows support adding/removing external media/Markdown; Rods & Reels retain a limited paired-setup edit path. PR #42 exact head `81617e4dcaae92e67444a6a2fd51f6d96ba78b7d` passed PR CI #227 / `34062145243`; merge `ab27f2ff312cc181693aa86c4219b26b6977a274`; production #228 / `34062190429` passed build, tests, bundle verification, Pages artifact upload, and actual GitHub Pages deployment. |
-| FISH-TODO-048 | 2026-09-01 | PWA / My Gear routing | Sev 1 post-refactor routing/layout regression fixed in PR #10; structured My Gear owns all `#/inventory` routes and regression tests guard the boundary. |
-| FISH-TODO-035 | 2026-09-02 | Fishing Companion PWA | User accepted the complete post-PR #10 My Gear browse flow as working correctly. |
-| FISH-TODO-046 | 2026-09-02 | PWA / Knowledge Base architecture | Adopted and implemented unified indexed-Markdown KB entity architecture with stable IDs; later extended with flat Equipment peer type while preserving the same envelope. |
-| FISH-TODO-047 | 2026-09-02 | PWA / Catch Log | Migrated five historical catches to structured records with exact stable relationships where known and nulls where not recorded. |
-| FISH-TODO-049 | 2026-09-02 | Project handoff / operating mode | Reconciled state after unified KB release and added durable Chat-mode-by-default instruction. |
-| FISH-TODO-050 | 2026-09-03 | PWA / media reliability | Recovered from repeated image-transfer failures. PR #26 established repository-local image validation/materialization; user-supplied binaries are now uploaded directly to GitHub rather than transported through ChatGPT tool calls. Merge `9af96810cb02c81da2a0e3f5463071e020ae6cfc`; production run #113 / `33833494282` succeeded. |
-| FISH-TODO-051 | 2026-09-04 | Fishing Companion final content batch | PR #27 completed Recovery B Gear/browse updates, then PR #28 added/refreshed final Equipment/Technique articles, direct local rig/species images, authored cross-links, lure-type renames, Search/filter alignment fix, and South Bend spec cleanup. PR #28 exact-head CI #120 / `33840154633` passed; merge `093139e5314af55691e608277b68b79b2d369166`; production #121 / `33840208952` completed build and GitHub Pages deployment successfully. |
-| FISH-TODO-052 | 2026-09-04 | Fishing Companion acceptance / Markdown | User completed the PR #28 Equipment/Technique formatting cleanup. Final review covered all 15 modified article files, fixed residual Chatterbait/Jerkbait list nesting, Inline Trolling Rig hard wraps, and Spring Fishing export artifacts, updated the final-content regression to validate stable-ID links rather than a `## Related` heading, and validated replacement Largemouth/Smallmouth Bass images. PR #32 head `973b8cb0294cfbab789b2f9dde69830199c5b83a` passed CI #151 / `33848718142`; merge `356174e1376d591e9b33bef06e52e9fdb5c3d31c`; production #152 / `33848766888` passed build, local-media validation, bundle verification, artifact upload, and Pages deployment. |
-| FISH-TODO-053 | 2026-09-04 | PWA / production recovery | Diagnosed and fixed the Fishing Companion startup outage caused by Gear-backed KB picture paths being rejected at runtime. PR #30 exact head `ffa4c500f2bf23be8d883736aed235a1e1011677` passed PR CI #124 / `33843072806`; merge `f64217485df024ebebf15af5adfb9bbd7018be5d`; production #125 / `33843111957` passed build, transformed-data validation, Pages artifact upload, and deployment. User verified the site healthy afterward. |
-| FISH-TODO-054 | 2026-09-04 | Project recovery / handoff | Reconstructed the interrupted-chat build sequence from repository history and recovered prior context. No distinct post-PR #29 feature branch/commit/PR or recoverable unmerged application change was found. Recovered application/content functionality is closed through PR #32; PR #33 was documentation reconciliation, and PR #34 was a later separate Markdown-renderer fix discovered during live acceptance. |
-| FISH-TODO-055 | 2026-09-04 | PWA / Markdown renderer | Fixed the discrepancy where correctly indented nested Markdown lists rendered flat in Fishing Companion although GitHub Preview was correct. PR #34 added indentation-aware nested unordered/ordered list rendering plus regression tests; merge `82601038f0e931f6ef1bee4c8f5e062a73c793c5`; production #159 / `33850049987` succeeded. User confirmed Chatterbait and Jerkbait nested lists render correctly in production. |
-| FISH-TODO-056 | 2026-09-04 | PWA / UX polish | PR #36 changed the user-facing My Gear lure label from `Trolling lures` to **Trolling** without a data migration, made Gear/KB/Catch card thumbnails square with white `object-fit: contain` letterboxing so wide images are not cropped, and fixed root My Gear/KB Search so category cards disappear while results are shown directly below the page controls. Exact head `30c8fb265b66d9287efe7fe3c34f732f98f9f7ca` passed PR CI #176 / `33893140327`; merge `15c5ac6f8f3d37ad8b884436c6312083b1939921`; production #177 / `33893200789` passed all tests, build, transformed/local-media validation, bundle verification, Pages artifact upload, and deployment. |
-| FISH-TODO-057 | 2026-09-04 | PWA / authored Notes architecture | PR #38 established external My Gear Markdown Notes; PR #39 completed the cleanup by moving My Gear to schema v3 with no inline `notes`, moving Catch Log to schema v2 with the five user-authored Exact Spot Notes preserved verbatim as `pwa/catch-content/<catch-id>.md`, retiring generated Catch Notes and Provenance/source, and rendering one optional Catch Notes card through the shared authored-Notes pipeline. PR #39 exact head `77ec40db223b275366a73091974ecd4d421a2c90` passed CI #196 / `33907218850`; merge `e997492b995f7e7cb8fa4af21ef1f2953df63a78`; production #197 / `33907284576` passed all tests, build, authored-Notes/local-media validation, bundle verification, Pages artifact upload, and deployment. |
-| ARCHIVE-2026-09-06-HANDOFF | 2026-09-06 | Project handoff | Preserved the exact unmerged Gear release and reconciled canonical state for a new Chat-mode conversation. The release itself was subsequently deployed under FISH-TODO-058. This historical row was originally numbered FISH-TODO-060 in error; the duplicate identifier is retired without assigning a new canonical task number. |
+| FISH-TODO-061 | 2026-09-07 | Project/production recovery | PR50 fixed the frozen Bonafide Notes regression and incorporated the full audit branch. Head `6b5f9221803c265a78c5d4f391813c9517a9ebc0`; normal CI #259 / `34184091548` passed; merge `fcf28f34b89f68c22e8a2200e8410509801ff801`; production #260 / `34184126036` passed including actual Pages deployment. Latest user edits/images preserved; permanent tests retained; no migration. Documentation reconciled and pre-recovery records archived. See `Fishing_Recovery_Closeout_2026-09-07.md`. |
+| FISH-TODO-060 | 2026-09-07 | KB authoring | PR48 deployed Add/Edit for all five KB types, complete Markdown/Preview, immutable IDs/paths, source-aware media and validated handoffs. Head `85245de2451db97370268e14dfc2c66a53c8c61d`; CI #251 / `34142498510`; merge `6d04e29b6770000eaa50f6c449ad82bc88f7326d`; production #252 / `34142574286` succeeded. PR49 reconciled release records, merge `024bec08a51c103e98c9913e786db2de40155b64`, production #254 / `34159581055`. |
+| FISH-TODO-058 | 2026-09-07 | Gear schema4 | PR47 merge `f05b7ec532d8e45f3fc36c1e0976c5ea40eb9983`; CI #239 / `34135260691`; production #240 / `34135326910` passed. Ordered links, Equipment/Gear Guides, Notes images, picture replacement and permanent regression gates deployed/user accepted. |
+| FISH-TODO-059 | 2026-09-07 | Cylinder Weights media | User-uploaded `thkfish-cylinder-weights.jpg` registered with original ID/owner/provenance; user verified image live. |
+
+The complete prior completed-task table, including FISH001–004, 035–057 and the historical duplicate-number handoff row, is preserved in `History/2026-09-07-pre-recovery/Fishing_TODO.md`. No completed task has been reopened or discarded. The duplicate historical FISH060 handoff identifier remains retired as `ARCHIVE-2026-09-06-HANDOFF`. The next new canonical task ID is FISH-TODO-062. Future work begins from current main and this backlog; do not resume closed release branches or one-time migrations.
