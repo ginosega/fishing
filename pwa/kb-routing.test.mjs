@@ -10,10 +10,24 @@ const index = fs.readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 for (const type of ['location', 'species', 'equipment', 'technique', 'knot']) assert.ok(kbApp.includes(`${type}:`), `Knowledge Base app must expose the ${type} type.`);
 for (const route of ['#/kb/catches', '#/kb/catch/', '#/kb/entity/']) assert.ok(kbApp.includes(route), `Knowledge Base app must expose ${route}.`);
 assert.match(kbApp, /`#\/kb\/\$\{plural\(type\)\}`/, 'Entity categories must route from the unified type discriminator.');
-assert.match(kbApp, /equipment: \{ label:'Gear Guides', icon:'🧰', description:'Equipment, rigs, and presentations reference' \}/,
+assert.match(kbApp, /equipment: \{ label:'Gear Guides', icon:'🧰', description:'Equipment, rig, and presentation reference' \}/,
   'Equipment card must use the approved description.');
-assert.match(kbApp, /technique: \{ label:'Techniques', icon:'🧭', description:'Strategy, conditions, and species reference\.' \}/,
+assert.match(kbApp, /technique: \{ label:'Techniques', icon:'🧭', description:'Strategy, conditions, and species reference' \}/,
   'Techniques card must use the approved description.');
+assert.match(kbApp, /const KB_SUBTITLE = 'Fishing reference and catch log';/);
+assert.match(kbApp, /const CATCH_SUBTITLE = 'Recorded catches';/);
+assert.match(kbApp, /<strong>Knowledge Base<\/strong><p>\$\{KB_SUBTITLE\}<\/p>/,
+  'The home Knowledge Base card must share the page subtitle.');
+assert.match(kbApp, /pageHeader\('Knowledge Base', KB_SUBTITLE, '#\/home'/,
+  'The Knowledge Base page must use the shared subtitle.');
+assert.match(kbApp, /categoryCard\('🗒️', 'Catch Log', CATCH_SUBTITLE, '#\/kb\/catches'/,
+  'The Catch Log category card must use the shared subtitle.');
+assert.match(kbApp, /pageHeader\('Catch Log', CATCH_SUBTITLE, '#\/kb'\)/,
+  'The Catch Log page must use the shared subtitle.');
+assert.match(kbApp, /pageHeader\(meta.label, meta.description, '#\/kb'/,
+  'Category page subtitles must reuse the category card descriptions.');
+assert.doesNotMatch(kbApp, /Equipment, rigs, and presentations reference|Strategy, conditions, and species reference\.|Recorded catches with exact structured relationships\.|Recorded catches with stable links to species|Browse your fishing reference by subject\.|Browse locations, species, equipment, techniques, knots, and catches/,
+  'Superseded page copy must not remain.');
 assert.match(kbApp, /const SEARCH_THRESHOLD = 10;/, 'Browsable KB lists must use the durable 10-entry Search threshold.');
 assert.match(kbApp, /const searchable = entities\.length >= SEARCH_THRESHOLD;/,
   'KB Search must be based on list size rather than special-casing a type.');
