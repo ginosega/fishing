@@ -1,0 +1,32 @@
+name: Fishing audit source snapshot
+on:
+  push:
+    branches: [docs/full-reconciliation-2026-09-07]
+    paths: ['.github/workflows/fishing-audit-snapshot.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  snapshot:
+    if: github.repository == 'ginosega/fishing' && github.ref == 'refs/heads/docs/full-reconciliation-2026-09-07'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Export exact checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rev-parse HEAD > commit.txt
+          tar --exclude=.git --exclude=pwa/dist --exclude=commit.txt -czf source.tar.gz .
+          sha256sum source.tar.gz > source.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fishing-audit-source
+          path: |
+            commit.txt
+            source.tar.gz
+            source.sha256
+          retention-days: 1
