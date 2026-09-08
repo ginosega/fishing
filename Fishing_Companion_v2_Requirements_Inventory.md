@@ -78,11 +78,11 @@ The latest inspected production run #312 succeeded. Run #311 failed after deleti
 
 | ID | Topic | Proposed default / requirement | Question for you | Response |
 |---|---|---|---|---|
-| C1 | Purpose | Individual fish, not trips or no-catch sessions. | Confirm this scope. |  |
-| C2 | Editing | Straightforward Add/Edit if Catch is included at launch. | Should catches be authored in the browser or through ChatGPT/repository changes? |  |
-| C3 | Date/time | Date required, time optional, no unnecessary timezone transformations. | Do you need exact timestamps or just local date/time? |  |
-| C4 | Species/location | Exact KB references when known; preserve unknown historical facts. | Must new catches select existing KB entries? Can a missing entry be created during capture? |  |
-| C5 | Size | Preserve original measurements and units without false precision. | Which length/weight fields and metric support do you need? |  |
+| C1 | Purpose | Individual fish, not trips or no-catch sessions. | Confirm this scope. | Confirmed. |
+| C2 | Editing | Straightforward Add/Edit if Catch is included at launch. | Should catches be authored in the browser or through ChatGPT/repository changes? | Adding a catch in the browser is a P2 for launch; adding it via chat is fine. |
+| C3 | Date/time | Date required, time optional, no unnecessary timezone transformations. | Do you need exact timestamps or just local date/time? | Local date/time. |
+| C4 | Species/location | Exact KB references when known; preserve unknown historical facts. | Must new catches select existing KB entries? Can a missing entry be created during capture? | Creating a missing Species entry during capture is a P2. note that I might not know the species when I catch it, so "Unknown" is a viable value. |
+| C5 | Size | Preserve original measurements and units without false precision. | Which length/weight fields and metric support do you need? | The Size field that we currently have is fine. Leave it as a text field and I can add weight in the future if I want to. |
 | C6 | Lure/bait | Reconsider mandatory owned-Gear reference. | Should free text be allowed? Can there be no lure/bait or more than one? |  |
 | C7 | Equipment references | Optional exact known setup and technique references. | Which additional gear, line, leader, or trailer references are useful? |  |
 | C8 | Conditions | Keep spot/depth/structure/conditions in Markdown unless filters require fields. | Which conditions, if any, should be structured for reporting? |  |
