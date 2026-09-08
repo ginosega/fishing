@@ -45,6 +45,7 @@ jobs:
       - name: Validate JavaScript syntax
         run: |
           node --check pwa/accepted-2026-09-08.test.mjs
+          node --check pwa/accepted-2026-09-08-joyride-caption.test.mjs
           node --check pwa/dagger-axis.test.mjs
           node --check pwa/gear-app.js
           node --check pwa/kb-app.js
@@ -68,6 +69,8 @@ jobs:
           node --check pwa/serve.mjs
       - name: Test accepted kayak correction and KB images
         run: node pwa/accepted-2026-09-08.test.mjs
+      - name: Test Perception Joyride and Rods caption
+        run: node pwa/accepted-2026-09-08-joyride-caption.test.mjs
       - name: Test Dagger Axis source and ownership
         run: node pwa/dagger-axis.test.mjs
       - name: Test structured My Gear model
@@ -98,6 +101,8 @@ jobs:
         run: node pwa/dagger-axis.test.mjs --dist
       - name: Verify accepted KB image bytes and final data
         run: node pwa/accepted-2026-09-08.test.mjs --dist
+      - name: Verify Joyride media and Rods caption in final data
+        run: node pwa/accepted-2026-09-08-joyride-caption.test.mjs --dist
       - name: Verify bundle
         run: |
           test -f pwa/dist/index.html
@@ -175,6 +180,7 @@ jobs:
           test -f pwa/dist/assets/gear/south-bend-hook-assortment.png
           test -f pwa/dist/assets/gear/thkfish-cylinder-weights.jpg
           test -f pwa/dist/assets/gear/dagger-axis-10-5.png
+          test -f pwa/dist/assets/gear/perception-joyride-10-0.png
           grep -q 'gear-app.js?v=' pwa/dist/index.html
           grep -q 'kb-app.js?v=' pwa/dist/index.html
           grep -q 'media-ui.js?v=' pwa/dist/index.html
@@ -188,8 +194,8 @@ jobs:
           grep -q 'largemouth-bass.png' pwa/dist/data/kb.seed.json
           grep -q 'booyah-pad-crasher.jpg' pwa/dist/data/kb.seed.json
           ! grep -q 'kokanee-phases.webp' pwa/dist/data/kb.seed.json
-          grep -q '2026-09-08-my-gear-v4-dagger-length-1' pwa/dist/data/gear.seed.json
-          grep -q '2026-09-08-kb-v1-three-hero-images-1' pwa/dist/data/kb.seed.json
+          grep -q '2026-09-08-my-gear-v4-perception-joyride-1' pwa/dist/data/gear.seed.json
+          grep -q '2026-09-08-kb-v1-rods-reels-caption-1' pwa/dist/data/kb.seed.json
           grep -q '2026-09-04-catches-v2-external-notes-1' pwa/dist/data/catches.seed.json
           ! grep -q '"notes":' pwa/dist/data/gear.seed.json
           ! grep -q '"exactSpotNotes":' pwa/dist/data/catches.seed.json
@@ -210,6 +216,7 @@ jobs:
           grep -q 'strike-king-tour-grade-football-jig' pwa/dist/data/kb.seed.json
           grep -q 'South Bend 125-Piece Removable Split Shot Sinkers' pwa/dist/data/gear.seed.json
           grep -q 'South Bend 24-Piece Assorted Brass Swivels' pwa/dist/data/gear.seed.json
+          grep -q 'Perception Joyride 10.0' pwa/dist/data/gear.seed.json
           grep -q '"localSource": true' pwa/dist/gear-media.json
       - name: Upload CI artifact
         uses: actions/upload-artifact@v4
