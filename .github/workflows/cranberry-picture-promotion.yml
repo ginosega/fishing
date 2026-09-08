@@ -9,7 +9,7 @@ permissions:
   contents: write
 jobs:
   promote:
-    if: github.event.head_commit.message == 'Stage Cranberry Lake picture promotion'
+    if: github.event.head_commit.message == 'Stage Cranberry Lake picture promotion with current media'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,6 +18,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Build current media for source-aware validation
+        run: |
+          node pwa/build.mjs
+          node pwa/apply-authored-notes.mjs
+          node pwa/apply-local-media.mjs
       - name: Validate and apply the exact authored handoff
         run: |
           node --input-type=module <<'NODE'
