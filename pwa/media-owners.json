@@ -497,6 +497,14 @@
           "gearItemId": "dagger-axis-10-5"
         }
       ]
+    },
+    {
+      "mediaId": "perception-joyride-10-0",
+      "owners": [
+        {
+          "gearItemId": "perception-joyride-10-0"
+        }
+      ]
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "dataVersion": "2026-09-08-kb-v1-three-hero-images-1",
+  "dataVersion": "2026-09-08-kb-v1-rods-reels-caption-1",
   "entities": [
     {
       "id": "location-lake-washington",
@@ -113,7 +113,7 @@
       "picture": {
         "src": "./assets/kb/entries/technique-rods-reels.png",
         "alt": "Baitcasting reel",
-        "caption": null,
+        "caption": "Baitcasting reel",
         "credit": null,
         "sourceUrl": null
       },
