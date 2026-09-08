@@ -24,65 +24,50 @@ jobs:
         run: |
           set -euo pipefail
           node <<'NODE'
-          const fs = require('fs');
-          const crypto = require('crypto');
-          const read = p => JSON.parse(fs.readFileSync(p, 'utf8'));
-          const write = (p,v) => fs.writeFileSync(p, JSON.stringify(v,null,2)+'\n');
-          const gearPath='pwa/data/gear.seed.json';
-          const kbPath='pwa/data/kb.seed.json';
-          const localPath='pwa/local-media.json';
-          const sourcesPath='pwa/media-sources.json';
-          const ownersPath='pwa/media-owners.json';
-          const gear=read(gearPath), kb=read(kbPath), local=read(localPath), sources=read(sourcesPath), owners=read(ownersPath);
-          if(gear.schemaVersion!==4 || gear.dataVersion!=='2026-09-08-my-gear-v4-dagger-length-1') throw new Error('Unexpected Gear base');
-          if(kb.schemaVersion!==1 || kb.dataVersion!=='2026-09-08-kb-v1-three-hero-images-1') throw new Error('Unexpected KB base');
+          const fs=require('fs');
+          const read=p=>JSON.parse(fs.readFileSync(p,'utf8'));
+          const write=(p,v)=>fs.writeFileSync(p,JSON.stringify(v,null,2)+'\n');
+          const gear=read('pwa/data/gear.seed.json');
+          const kb=read('pwa/data/kb.seed.json');
+          const local=read('pwa/local-media.json');
+          const sources=read('pwa/media-sources.json');
+          const owners=read('pwa/media-owners.json');
+          if(gear.schemaVersion!==4||gear.dataVersion!=='2026-09-08-my-gear-v4-dagger-length-1') throw Error('Unexpected Gear base');
+          if(kb.schemaVersion!==1||kb.dataVersion!=='2026-09-08-kb-v1-three-hero-images-1') throw Error('Unexpected KB base');
           const id='perception-joyride-10-0';
-          if(gear.items.some(x=>x.id===id)) throw new Error('Joyride ID already exists');
-          const item={
-            id,
-            category:'accessories',
-            type:'Accessories',
-            name:'Perception Joyride 10.0',
-            manufacturer:{name:'Perception'},
-            model:'Joyride 10.0',
-            specifications:[
-              {label:'Length',value:"10'"},
-              {label:'Height',value:'15.25"'},
-              {label:'Width',value:'28.5"'},
-              {label:'Weight',value:'50 lb'},
-              {label:'Color',value:'Funkadelic'}
-            ],
-            links:[{label:'Perception',url:'https://www.perception-kayaks.com/product/perception-joyride-10-sit-inside-kayak-for-adults-and-kids-recreational-and-multi-water-kayak-with-selfie-slot-10dapper/'}]
-          };
+          const url='https://www.perception-kayaks.com/product/perception-joyride-10-sit-inside-kayak-for-adults-and-kids-recreational-and-multi-water-kayak-with-selfie-slot-10dapper/';
+          const item={id,category:'accessories',type:'Accessories',name:'Perception Joyride 10.0',manufacturer:{name:'Perception'},model:'Joyride 10.0',specifications:[{label:'Length',value:"10'"},{label:'Height',value:'15.25"'},{label:'Width',value:'28.5"'},{label:'Weight',value:'50 lb'},{label:'Color',value:'Funkadelic'}],links:[{label:'Perception',url}]};
+          if(gear.items.some(x=>x.id===id)) throw Error('Joyride ID already exists');
           gear.items.push(item);
           gear.dataVersion='2026-09-08-my-gear-v4-perception-joyride-1';
-          const url=item.links[0].url;
-          if(sources.items.some(x=>x.id===id) || owners.items.some(x=>x.mediaId===id) || local.gear.some(x=>x.mediaId===id)) throw new Error('Joyride media ID already registered');
+          if(sources.items.some(x=>x.id===id)||owners.items.some(x=>x.mediaId===id)||local.gear.some(x=>x.mediaId===id)) throw Error('Joyride media already registered');
           sources.items.push({id,aliases:['Perception Joyride 10.0','Joyride 10.0'],sourcePage:url,destination:url,alt:'Perception Joyride 10.0 kayak'});
           owners.items.push({mediaId:id,owners:[{gearItemId:id}]});
           local.gear.push({mediaId:id,source:'./assets/gear-source/perception-joyride-10.png',alt:'Perception Joyride 10.0 kayak',destination:url,sourcePage:url,owners:[{gearItemId:id}]});
           const rods=kb.entities.find(x=>x.id==='technique-rods-reels');
-          if(!rods || !rods.picture || rods.picture.src!=='./assets/kb/entries/technique-rods-reels.png') throw new Error('Unexpected Rods & Reels source entity');
-          rods.picture={...rods.picture,caption:'Baitcasting reel'};
           const rodsLocal=local.kb.find(x=>x.entityId==='technique-rods-reels');
-          if(!rodsLocal || rodsLocal.source!=='./assets/kb/entries/technique-rods-reels.png') throw new Error('Unexpected Rods & Reels local media');
+          if(!rods||!rods.picture||rods.picture.src!=='./assets/kb/entries/technique-rods-reels.png'||!rodsLocal) throw Error('Unexpected Rods & Reels base');
+          rods.picture.caption='Baitcasting reel';
           rodsLocal.caption='Baitcasting reel';
           kb.dataVersion='2026-09-08-kb-v1-rods-reels-caption-1';
-          write(gearPath,gear); write(kbPath,kb); write(localPath,local); write(sourcesPath,sources); write(ownersPath,owners);
-          const replacements=[
-            ['pwa/dagger-axis.test.mjs','2026-09-08-my-gear-v4-dagger-length-1','2026-09-08-my-gear-v4-perception-joyride-1'],
-            ['pwa/accepted-2026-09-08.test.mjs','2026-09-08-my-gear-v4-dagger-length-1','2026-09-08-my-gear-v4-perception-joyride-1'],
-            ['pwa/gear-model.test.mjs','2026-09-08-my-gear-v4-dagger-length-1','2026-09-08-my-gear-v4-perception-joyride-1'],
-            ['pwa/final-content.test.mjs','2026-09-08-my-gear-v4-dagger-length-1','2026-09-08-my-gear-v4-perception-joyride-1'],
-            ['pwa/accepted-2026-09-08.test.mjs','2026-09-08-kb-v1-three-hero-images-1','2026-09-08-kb-v1-rods-reels-caption-1'],
-            ['pwa/final-content.test.mjs','2026-09-08-kb-v1-three-hero-images-1','2026-09-08-kb-v1-rods-reels-caption-1']
-          ];
-          for(const [p,a,b] of replacements){let s=fs.readFileSync(p,'utf8'); if(!s.includes(a)) throw new Error(`Missing ${a} in ${p}`); fs.writeFileSync(p,s.split(a).join(b));}
-          for(const p of ['pwa/dagger-axis.test.mjs','pwa/accepted-2026-09-08.test.mjs']){let s=fs.readFileSync(p,'utf8'); if(!s.includes('items.length,65')) throw new Error(`Missing old count in ${p}`); fs.writeFileSync(p,s.replace('items.length,65','items.length,66'));}
-          const test=`import assert from 'node:assert/strict';\nimport fs from 'node:fs';\nimport crypto from 'node:crypto';\nimport {fileURLToPath} from 'node:url';\nimport {validateGearBundle} from './gear-model.js';\nimport {validateKbBundle,validateCatchBundle} from './kb-model.js';\nimport {readValidatedImage} from './image-validation.mjs';\nconst read=p=>JSON.parse(fs.readFileSync(new URL(p,import.meta.url),'utf8'));\nconst gear=read('./data/gear.seed.json');\nconst kb=read('./data/kb.seed.json');\nconst catches=read('./data/catches.seed.json');\nconst sources=read('./media-sources.json');\nconst owners=read('./media-owners.json');\nconst local=read('./local-media.json');\nassert.ok(validateGearBundle(gear).valid);\nassert.ok(validateKbBundle(kb).valid);\nassert.ok(validateCatchBundle(catches,kb,gear).valid);\nassert.equal(gear.dataVersion,'2026-09-08-my-gear-v4-perception-joyride-1');\nassert.equal(kb.dataVersion,'2026-09-08-kb-v1-rods-reels-caption-1');\nassert.equal(gear.items.length,66);\nconst id='perception-joyride-10-0';\nconst expected=${JSON.stringify(item)};\nassert.deepEqual(gear.items.filter(x=>x.id===id),[expected]);\nassert.equal(fs.existsSync(new URL('./gear-content/'+id+'.md',import.meta.url)),false);\nassert.deepEqual(owners.items.find(x=>x.mediaId===id).owners,[{gearItemId:id}]);\nconst source=sources.items.find(x=>x.id===id);\nassert.equal(source.destination,expected.links[0].url);\nassert.equal(source.sourcePage,expected.links[0].url);\nconst entry=local.gear.find(x=>x.mediaId===id);\nassert.equal(entry.source,'./assets/gear-source/perception-joyride-10.png');\nassert.deepEqual(entry.owners,[{gearItemId:id}]);\nconst bytes=await readValidatedImage(fileURLToPath(new URL(entry.source,import.meta.url)));\nconst blob=crypto.createHash('sha1').update('blob '+bytes.length+'\\0').update(bytes).digest('hex');\nassert.equal(blob,'f24403f79788755e267ee721f5e93c34c3f8f472');\nassert.equal(bytes.length,562530);\nconst rods=kb.entities.find(x=>x.id==='technique-rods-reels');\nassert.equal(rods.picture.caption,'Baitcasting reel');\nassert.equal(rods.picture.alt,'Baitcasting reel');\nassert.equal(local.kb.find(x=>x.entityId==='technique-rods-reels').caption,'Baitcasting reel');\nif(process.argv.includes('--dist')){\n const builtGear=read('./dist/data/gear.seed.json');\n const builtKb=read('./dist/data/kb.seed.json');\n assert.deepEqual(builtGear.items.find(x=>x.id===id),expected);\n assert.equal(builtKb.entities.find(x=>x.id==='technique-rods-reels').picture.caption,'Baitcasting reel');\n const media=read('./dist/gear-media.json').find(x=>x.id===id);\n assert.ok(media);\n assert.equal(media.asset,'./assets/gear/perception-joyride-10-0.png');\n assert.deepEqual(media.owners,[{gearItemId:id}]);\n assert.equal(media.localSource,true);\n assert.equal(media.sourcePath,'pwa/assets/gear-source/perception-joyride-10.png');\n assert.deepEqual(fs.readFileSync(new URL('./dist/assets/gear/perception-joyride-10-0.png',import.meta.url)),bytes);\n}\nconsole.log('Perception Joyride add and Rods & Reels caption checks passed.');\n`;
+          write('pwa/data/gear.seed.json',gear); write('pwa/data/kb.seed.json',kb); write('pwa/local-media.json',local); write('pwa/media-sources.json',sources); write('pwa/media-owners.json',owners);
+
+          const replaceAll=(p,a,b)=>{let s=fs.readFileSync(p,'utf8'); if(!s.includes(a)) throw Error(`Missing ${a} in ${p}`); fs.writeFileSync(p,s.split(a).join(b));};
+          for(const p of ['pwa/dagger-axis.test.mjs','pwa/accepted-2026-09-08.test.mjs','pwa/gear-model.test.mjs','pwa/final-content.test.mjs']) replaceAll(p,'2026-09-08-my-gear-v4-dagger-length-1','2026-09-08-my-gear-v4-perception-joyride-1');
+          for(const p of ['pwa/accepted-2026-09-08.test.mjs','pwa/final-content.test.mjs']) replaceAll(p,'2026-09-08-kb-v1-three-hero-images-1','2026-09-08-kb-v1-rods-reels-caption-1');
+          for(const p of ['pwa/dagger-axis.test.mjs','pwa/accepted-2026-09-08.test.mjs']) replaceAll(p,'items.length,65','items.length,66');
+          let accepted=fs.readFileSync('pwa/accepted-2026-09-08.test.mjs','utf8');
+          accepted=accepted.replace('"id":"technique-rods-reels","name":"Rods & Reels","description":"Spinning and baitcasting selection, setup, adjustment, and casting guidance.","path":"./kb-content/techniques/rods-reels.md","filename":"technique-rods-reels.png","alt":"Baitcasting reel","markdownBlob"','"id":"technique-rods-reels","name":"Rods & Reels","description":"Spinning and baitcasting selection, setup, adjustment, and casting guidance.","path":"./kb-content/techniques/rods-reels.md","filename":"technique-rods-reels.png","alt":"Baitcasting reel","caption":"Baitcasting reel","markdownBlob"');
+          accepted=accepted.replace('const desired={src,alt:p.alt,caption:null,credit:null,sourceUrl:null,...(p.gearItemId?{gearItemId:p.gearItemId}:{})};','const desired={src,alt:p.alt,caption:p.caption??null,credit:null,sourceUrl:null,...(p.gearItemId?{gearItemId:p.gearItemId}:{})};');
+          accepted=accepted.replace('assert.deepEqual(local.kb.filter(x=>x.entityId===p.id),[{entityId:p.id,source:src,alt:p.alt,caption:null,credit:null,sourceUrl:null,...(p.gearItemId?{gearItemId:p.gearItemId}:{})}]);','assert.deepEqual(local.kb.filter(x=>x.entityId===p.id),[{entityId:p.id,source:src,alt:p.alt,caption:p.caption??null,credit:null,sourceUrl:null,...(p.gearItemId?{gearItemId:p.gearItemId}:{})}]);');
+          if(!accepted.includes('"caption":"Baitcasting reel","markdownBlob"')||!accepted.includes('caption:p.caption??null')) throw Error('Failed to update accepted image regression');
+          fs.writeFileSync('pwa/accepted-2026-09-08.test.mjs',accepted);
+
+          const test=`import assert from 'node:assert/strict';\nimport fs from 'node:fs';\nimport crypto from 'node:crypto';\nimport {fileURLToPath} from 'node:url';\nimport {validateGearBundle} from './gear-model.js';\nimport {validateKbBundle,validateCatchBundle} from './kb-model.js';\nimport {readValidatedImage} from './image-validation.mjs';\nconst read=p=>JSON.parse(fs.readFileSync(new URL(p,import.meta.url),'utf8'));\nconst gear=read('./data/gear.seed.json'),kb=read('./data/kb.seed.json'),catches=read('./data/catches.seed.json'),sources=read('./media-sources.json'),owners=read('./media-owners.json'),local=read('./local-media.json');\nassert.ok(validateGearBundle(gear).valid); assert.ok(validateKbBundle(kb).valid); assert.ok(validateCatchBundle(catches,kb,gear).valid);\nassert.equal(gear.dataVersion,'2026-09-08-my-gear-v4-perception-joyride-1'); assert.equal(kb.dataVersion,'2026-09-08-kb-v1-rods-reels-caption-1'); assert.equal(gear.items.length,66);\nconst id='perception-joyride-10-0'; const expected=${JSON.stringify(item)}; assert.deepEqual(gear.items.filter(x=>x.id===id),[expected]); assert.equal(fs.existsSync(new URL('./gear-content/'+id+'.md',import.meta.url)),false);\nassert.deepEqual(owners.items.find(x=>x.mediaId===id).owners,[{gearItemId:id}]); const source=sources.items.find(x=>x.id===id); assert.equal(source.destination,expected.links[0].url); assert.equal(source.sourcePage,expected.links[0].url);\nconst entry=local.gear.find(x=>x.mediaId===id); assert.equal(entry.source,'./assets/gear-source/perception-joyride-10.png'); assert.deepEqual(entry.owners,[{gearItemId:id}]);\nconst bytes=await readValidatedImage(fileURLToPath(new URL(entry.source,import.meta.url))); const blob=crypto.createHash('sha1').update('blob '+bytes.length+'\\0').update(bytes).digest('hex'); assert.equal(blob,'f24403f79788755e267ee721f5e93c34c3f8f472'); assert.equal(bytes.length,562530);\nconst rods=kb.entities.find(x=>x.id==='technique-rods-reels'); assert.equal(rods.picture.caption,'Baitcasting reel'); assert.equal(rods.picture.alt,'Baitcasting reel'); assert.equal(local.kb.find(x=>x.entityId==='technique-rods-reels').caption,'Baitcasting reel');\nif(process.argv.includes('--dist')){const builtGear=read('./dist/data/gear.seed.json'),builtKb=read('./dist/data/kb.seed.json'); assert.deepEqual(builtGear.items.find(x=>x.id===id),expected); assert.equal(builtKb.entities.find(x=>x.id==='technique-rods-reels').picture.caption,'Baitcasting reel'); const media=read('./dist/gear-media.json').find(x=>x.id===id); assert.ok(media); assert.equal(media.asset,'./assets/gear/perception-joyride-10-0.png'); assert.deepEqual(media.owners,[{gearItemId:id}]); assert.equal(media.localSource,true); assert.equal(media.sourcePath,'pwa/assets/gear-source/perception-joyride-10.png'); assert.deepEqual(fs.readFileSync(new URL('./dist/assets/gear/perception-joyride-10-0.png',import.meta.url)),bytes);}\nconsole.log('Perception Joyride add and Rods & Reels caption checks passed.');\n`;
           fs.writeFileSync('pwa/accepted-2026-09-08-joyride-caption.test.mjs',test);
           NODE
           node pwa/accepted-2026-09-08-joyride-caption.test.mjs
+          node pwa/accepted-2026-09-08.test.mjs
           node pwa/dagger-axis.test.mjs
           node pwa/gear-model.test.mjs
           node pwa/kb-model.test.mjs
