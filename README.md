@@ -4,13 +4,11 @@ Durable project repository for personal fishing/kayak knowledge, owned gear, cat
 
 ## Current state
 
-**Production healthy; Perception Joyride and Rods & Reels caption deployed.** PR58, merge `8cceecc42d7ffab1c672e6991378d032136145b4`, passed normal PR CI #297 / `34189898597` and production #298 / `34189948481`, including actual GitHub Pages deployment on September 8, 2026.
+**Production healthy; Cranberry Lake picture and page-copy corrections deployed.** PR60, final head `cd47dc9ce39660840de493346e7df9fda72a14e5`, normal CI #307 / `34191643311`, merge `ecd9f3d52ca8180ea4f48ec888e7574105deafda`, production #308 / `34191692935`, including actual GitHub Pages deployment. Gear schema4/66 uses `2026-09-08-my-gear-v4-perception-joyride-1`; KB schema1/54 uses `2026-09-08-kb-v1-cranberry-lake-picture-1`; Catch schema2/5 remains `2026-09-04-catches-v2-external-notes-1`. FISH069 and FISH070 are DONE; FISH063 remains OPEN. No application release is pending. See `pwa/RELEASE_2026-09-08_CRANBERRY_COPY.md`.
 
-PR58 added the user-supplied owned Gear record `perception-joyride-10-0` (Perception Joyride 10.0) exactly as submitted, registered the already-uploaded `pwa/assets/gear-source/perception-joyride-10.png` with explicit ownership, and created no Notes. It also changed only the existing Rods & Reels hero-picture caption to `Baitcasting reel`; the picture bytes, alt text, content path and complete authored Markdown were preserved. The Dagger Axis 10.5 remains at the confirmed `10' 6"` and its latest user-replaced source image remains preserved. FISH-TODO-068 is DONE. FISH-TODO-063 remains OPEN for KB image-filename/upload-destination usability.
+PR60 registered the user-uploaded Cranberry Lake PNG and its exact alt/caption, preserving all authored Markdown and other entity facts. Home/KB, Gear Guides, Techniques and Catch Log subtitles now match the requested wording. Earlier Joyride, Dagger, hero-media and Gear/Catch data remain preserved. No Planner or speculative relationships were added.
 
-Current sources: Gear schema4/66 records, dataVersion `2026-09-08-my-gear-v4-perception-joyride-1`; KB schema1/54 entities, dataVersion `2026-09-08-kb-v1-rods-reels-caption-1`; Catch schema2/five historical records, dataVersion `2026-09-04-catches-v2-external-notes-1`. No application release is pending.
-
-Live site: [Fishing Companion](https://ginosega.github.io/fishing/). See [latest release closeout](pwa/RELEASE_2026-09-08_JOYRIDE_RODS_CAPTION.md) for exact implementation and deployment evidence. Earlier PR47–57 release records remain historical evidence.
+Live site: [Fishing Companion](https://ginosega.github.io/fishing/). See [latest release closeout](pwa/RELEASE_2026-09-08_CRANBERRY_COPY.md) for exact evidence. Previous PR58 and earlier records remain historical evidence.
 
 ## Authoritative project records
 
@@ -19,7 +17,8 @@ Live site: [Fishing Companion](https://ginosega.github.io/fishing/). See [latest
 - [Decision Log](Fishing_Decision_Log.md) — accepted decisions and standing process.
 - [New-chat bootstrap](Fishing_New_Chat_Bootstrap_Prompt.md) — restore instructions and latest verified baseline.
 - [PWA README](pwa/README.md) — runtime architecture, build/test commands and deployment.
-- [Latest release](pwa/RELEASE_2026-09-08_JOYRIDE_RODS_CAPTION.md) — PR58 Joyride/caption release.
+- [Latest release](pwa/RELEASE_2026-09-08_CRANBERRY_COPY.md) — PR60 Cranberry Lake picture and page-copy release.
+- [Previous Joyride/caption release](pwa/RELEASE_2026-09-08_JOYRIDE_RODS_CAPTION.md) — PR58 historical evidence.
 - [Previous kayak/KB image release](pwa/RELEASE_2026-09-08_KAYAK_KB_IMAGES.md) — PR56 correction and three pictures.
 - [Historical documentation](History/) — exact prior versions, not competing current authority.
 

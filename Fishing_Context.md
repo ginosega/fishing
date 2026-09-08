@@ -1,6 +1,6 @@
 # Fishing Context
 
-**Status: ACTIVE / production healthy.** Reconciled September 8, 2026. Latest content release is PR58, merge `8cceecc42d7ffab1c672e6991378d032136145b4`, production #298 / `34189948481`, successful including actual GitHub Pages deployment. See `pwa/RELEASE_2026-09-08_JOYRIDE_RODS_CAPTION.md`. No application release is pending.
+**Status: ACTIVE / production healthy.** Reconciled September 8, 2026. Latest application release: PR60, final head `cd47dc9ce39660840de493346e7df9fda72a14e5`, normal CI #307 / `34191643311`, merge `ecd9f3d52ca8180ea4f48ec888e7574105deafda`, production #308 / `34191692935`, including actual GitHub Pages deployment. Gear schema4/66 uses `2026-09-08-my-gear-v4-perception-joyride-1`; KB schema1/54 uses `2026-09-08-kb-v1-cranberry-lake-picture-1`; Catch schema2/5 remains `2026-09-04-catches-v2-external-notes-1`. FISH069 and FISH070 are DONE; FISH063 remains OPEN. No application release is pending. See `pwa/RELEASE_2026-09-08_CRANBERRY_COPY.md`.
 
 ## Authority and operating mode
 
@@ -14,7 +14,7 @@ Fishing Companion is single-user and offline-capable, with three durable domains
 
 **My Gear:** Schema4, 66 source records, dataVersion `2026-09-08-my-gear-v4-perception-joyride-1`. Structured JSON/IndexedDB owns facts; optional stable-ID Markdown owns Notes. Manufacturer `{name}`, optional Model and Specifications, ordered Links `{label,url}` without classifications. No inline Notes, profiles, usage/connections, knowledgeRefs or setup mainLine/leader. Equipment is the display label for internal category `accessories`, with Kayaks, Tools, Tackle Management, Electronics, Storage and Accessories. All existing IDs and non-seed local records must be preserved.
 
-**Knowledge Base:** Schema1, 54 entities, dataVersion `2026-09-08-kb-v1-rods-reels-caption-1`. Flat types location/species/equipment/technique/knot, with complete authored Markdown Content and optional description/picture. Equipment displays Gear Guides. Type—not an ID prefix or directory—controls taxonomy. No nested atomic guidance schema or duplicate local KB database.
+**Knowledge Base:** Schema1, 54 entities, dataVersion `2026-09-08-kb-v1-cranberry-lake-picture-1`. Flat types location/species/equipment/technique/knot, with complete authored Markdown Content and optional description/picture. Equipment displays Gear Guides. Type—not an ID prefix or directory—controls taxonomy. No nested atomic guidance schema or duplicate local KB database.
 
 **Catch Log:** Schema2, five historical catches, dataVersion `2026-09-04-catches-v2-external-notes-1`. Exact known Species/Location, one Lure/Bait and optional known setup/presentation; no inferred relationships. Structured facts and forward references own relationships, backlinks are derived, optional Markdown owns narrative. No Planner, sessions, trip history, accounts, sync or multi-user expansion.
 
@@ -30,8 +30,14 @@ Browser Gear/KB Add/Edit prepares validated copyable packages for chat/repositor
 
 The existing Bonafide RVR119 and its Notes, all other Gear ownership, previous Buzzbait/Jack Hammer images and all Catch records remain preserved. FISH-TODO-063 separately tracks clearer KB image filename/upload-destination guidance.
 
+## Current Cranberry Lake and page-copy release
+
+Cranberry Lake retains stable ID `location-cranberry-lake-deception-pass`, its original description/content path and complete authored Markdown. Its new picture is `./assets/kb/entries/location-cranberry-lake-deception-pass.png`, alt/caption `Cranberry Lake`, null credit/sourceUrl; matching local-media registration, no inferred ownership. The source PNG is blob `201852612f8985fba057bfe224292bfe2a24d69d` (1,981,945 bytes). The source and published bytes are validated without a permanent historical hash lock.
+
+Home and KB root share `Fishing reference and catch log`; Gear Guides uses `Equipment, rig, and presentation reference`; Catch Log uses `Recorded catches`; Techniques uses `Strategy, conditions, and species reference` without a final period. Category metadata is shared by card/page. No other runtime facts or authored narrative changed. FISH069/070 DONE, FISH063 OPEN.
+
 ## Release and validation
 
-PR58 final head `001249eeb3fb3a17cdc7ffc668fe289d3eb58084` passed normal PR CI #297 / `34189898597` against main `c82be4b253d2703830aff7b7e7db9131b4f031ba`. Merge `8cceecc42d7ffab1c672e6991378d032136145b4` passed production #298 / `34189948481`, including actual Pages deployment. Permanent tests validate the exact Joyride structured record, explicit media owner, source format/blob/size, no Notes, byte-identical final image, Rods & Reels caption in source and transformed data, prior Dagger behavior, all previous three-KB-image facts, and the full existing model/routing/authoring/media/content suite. Temporary promotion workflow was removed before PR CI. No one-time migration was rerun and no permanent test was bypassed.
+PR60 final head `cd47dc9ce39660840de493346e7df9fda72a14e5` passed normal CI #307 / `34191643311` against main `894586f3aac1c4f44a00917ad4071ee5ace2f9c4`. Merge `ecd9f3d52ca8180ea4f48ec888e7574105deafda` passed production #308 / `34191692935`, including the actual Pages deploy. All existing permanent tests, build, authored media/Notes, transformed-data checks and final-bundle validation passed. Temporary promotion machinery was removed before PR CI; no migration was rerun. Prior PR58 and earlier release evidence remains in historical release files.
 
-The live site is `https://ginosega.github.io/fishing/`. Start future work from current main and the canonical TODO. Preserve direct-main edits and coordinate releases around `fishing-pages` concurrency. Exact evidence is in the latest release closeout; prior release files remain historical evidence.
+The live site is `https://ginosega.github.io/fishing/`. GitHub Pages deployment is verified; independent browser/HTTP acceptance is not claimed. Start future work from current main and the canonical TODO. Preserve direct-main edits and coordinate releases around `fishing-pages` concurrency. Exact evidence is in `pwa/RELEASE_2026-09-08_CRANBERRY_COPY.md`; prior release files remain historical.

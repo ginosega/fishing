@@ -4,12 +4,15 @@
 
 ## Release authority
 
-The latest content release is PR58, final head `001249eeb3fb3a17cdc7ffc668fe289d3eb58084`, normal CI #297 / `34189898597`, merge `8cceecc42d7ffab1c672e6991378d032136145b4`, production #298 / `34189948481`, including actual Pages deployment. Gear schema4/66 uses `2026-09-08-my-gear-v4-perception-joyride-1`; KB schema1/54 uses `2026-09-08-kb-v1-rods-reels-caption-1`; Catch schema2/5 is unchanged. FISH068 DONE; FISH063 OPEN. See `pwa/RELEASE_2026-09-08_JOYRIDE_RODS_CAPTION.md`. No application release is pending. Previous PR47–57 releases remain historical evidence.
+The latest application release is PR60, final head `cd47dc9ce39660840de493346e7df9fda72a14e5`, normal CI #307 / `34191643311`, merge `ecd9f3d52ca8180ea4f48ec888e7574105deafda`, production #308 / `34191692935`, including actual GitHub Pages deployment. Gear schema4/66 uses `2026-09-08-my-gear-v4-perception-joyride-1`; KB schema1/54 uses `2026-09-08-kb-v1-cranberry-lake-picture-1`; Catch schema2/5 remains `2026-09-04-catches-v2-external-notes-1`. FISH069 and FISH070 are DONE; FISH063 remains OPEN. No application release is pending. See `pwa/RELEASE_2026-09-08_CRANBERRY_COPY.md`.
+ Previous PR58 and earlier releases remain historical evidence.
 
 ## Current decisions
 
 | Date | Area | Decision / status |
 |---|---|---|
+| 2026-09-08 | Cranberry Lake picture | Accept the exact user-authored add-picture handoff for `location-cranberry-lake-deception-pass`. Preserve all existing facts and complete Markdown; register the validated uploaded PNG with alt/caption `Cranberry Lake`, null credit/sourceUrl and no inferred ownership. Advance KB dataVersion to `2026-09-08-kb-v1-cranberry-lake-picture-1`. PR60/FISH069 DONE. |
+| 2026-09-08 | Page-copy consistency | Home/KB root share `Fishing reference and catch log`; Gear Guides uses `Equipment, rig, and presentation reference`; Catch Log uses `Recorded catches`; Techniques uses `Strategy, conditions, and species reference` without a period. Reuse category metadata on card/page and retain permanent regression coverage. PR60/FISH070 DONE. |
 | 2026-09-08 | Perception Joyride | Accept the user's Gear add handoff exactly: stable Gear/media ID `perception-joyride-10-0`, internal category `accessories`, submitted type `Accessories`, name/manufacturer/model/specifications/link unchanged, no Notes. Register the already-uploaded source `pwa/assets/gear-source/perception-joyride-10.png` with explicit owner `perception-joyride-10-0`; do not infer additional relationships. PR58/FISH068 DONE. |
 | 2026-09-08 | Rods & Reels hero caption | Change only `technique-rods-reels` picture caption to `Baitcasting reel`. Preserve src, alt, credit/sourceUrl, complete authored Markdown and image bytes. Advance KB dataVersion for the accepted seed change. PR58/FISH068 DONE. |
 | 2026-09-08 | Mutable source media | A user-maintained image is not a frozen historical hash fixture. Validate actual format, size, stable identity, explicit owner and exact transformed bytes. Preserve accepted prior hashes in release history. PR57/FISH067. |

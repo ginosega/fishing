@@ -14,22 +14,22 @@ Read these files from current main in order:
 3. `Fishing_TODO.md`
 4. `Fishing_Decision_Log.md`
 5. `pwa/README.md`
-6. `pwa/RELEASE_2026-09-08_JOYRIDE_RODS_CAPTION.md` (latest release evidence)
+6. `pwa/RELEASE_2026-09-08_CRANBERRY_COPY.md` (latest release evidence)
 7. Older release/history records only when needed.
 
 Then fetch current main, relevant feature branch/PR and actual CI/deployment status. Preserve direct user edits; latest repository facts override this prompt. Complete earlier documentation is preserved in Git history and `History/`; it is historical, not competing current authority. Do not restart an old release or migration from an archival checkpoint.
 
 ## Verified baseline
 
-As of September 8, 2026, the latest content release is PR58. Final head `001249eeb3fb3a17cdc7ffc668fe289d3eb58084` passed normal PR CI #297 / `34189898597` against main `c82be4b253d2703830aff7b7e7db9131b4f031ba`. Merge `8cceecc42d7ffab1c672e6991378d032136145b4` passed production #298 / `34189948481`, including actual GitHub Pages deployment. Live site: `https://ginosega.github.io/fishing/`. FISH068 is DONE; FISH063 remains OPEN. No application release is pending.
+As of September 8, 2026, the latest application release is PR60, final head `cd47dc9ce39660840de493346e7df9fda72a14e5`, normal CI #307 / `34191643311`, merge `ecd9f3d52ca8180ea4f48ec888e7574105deafda`, production #308 / `34191692935`, including actual GitHub Pages deployment. Gear schema4/66 uses `2026-09-08-my-gear-v4-perception-joyride-1`; KB schema1/54 uses `2026-09-08-kb-v1-cranberry-lake-picture-1`; Catch schema2/5 remains `2026-09-04-catches-v2-external-notes-1`. FISH069 and FISH070 are DONE; FISH063 remains OPEN. No application release is pending. See `pwa/RELEASE_2026-09-08_CRANBERRY_COPY.md`.
 
-PR58 added owned Gear/media ID `perception-joyride-10-0` exactly as supplied: internal category `accessories`, type `Accessories`, name Perception Joyride 10.0, manufacturer/model/specifications/link unchanged, no Notes. Its already-uploaded source is `pwa/assets/gear-source/perception-joyride-10.png`, Git blob `f24403f79788755e267ee721f5e93c34c3f8f472` (562530 bytes), explicitly owned by the new Gear ID. PR58 also changed only the existing Rods & Reels hero caption to `Baitcasting reel`, preserving its src, alt, image bytes and complete Markdown.
+PR60 registered the exact Cranberry Lake picture handoff at `pwa/assets/kb/entries/location-cranberry-lake-deception-pass.png`, blob `201852612f8985fba057bfe224292bfe2a24d69d` (1,981,945 bytes), alt/caption `Cranberry Lake`, with no inferred owner or provenance. Its existing facts and complete authored Markdown are preserved. Home/KB root, Gear Guides, Techniques and Catch Log copy now matches the requested wording.
 
-The Dagger Axis 10.5 remains owned Gear/media ID `dagger-axis-10-5`, confirmed Length `10' 6"`, with its latest direct user source replacement preserved. Earlier PR56 registered Fishing Line, Walking Bait and Rods & Reels hero images; only Fishing Line explicitly associates its picture with `sufix-832-15`. PR57 fixed mutable-source regression behavior. Earlier PR47–55 remain closed historical evidence.
+Previous PR58 added owned Gear/media ID `perception-joyride-10-0` exactly as supplied, with no Notes, and changed only the Rods & Reels hero caption to `Baitcasting reel`. Its historical source blob was `f24403f79788755e267ee721f5e93c34c3f8f472` (562530 bytes); current media must be validated rather than compared with a frozen historical hash. Dagger Axis 10.5 remains at confirmed Length `10' 6"`, with the latest user source replacement preserved. Earlier hero images and explicit ownership remain unchanged. PR58 and all earlier release details remain in their historical records.
 
 ## Architecture and safety
 
-Fishing Companion is single-user/offline-capable with three durable domains. Gear schema4 has 66 records, dataVersion `2026-09-08-my-gear-v4-perception-joyride-1`, strict structured facts/IndexedDB and optional stable-ID Markdown Notes. KB schema1 has 54 entities, dataVersion `2026-09-08-kb-v1-rods-reels-caption-1`, a flat type index and complete authored Markdown. Catch schema2 has five historical records, dataVersion `2026-09-04-catches-v2-external-notes-1`, exact known relationships and optional Markdown Notes. Share identity, ownership, validation and authored-link principles without forcing identical schemas/storage. No Planner, sessions or multi-user expansion.
+Fishing Companion is single-user/offline-capable with three durable domains. Gear schema4 has 66 records, dataVersion `2026-09-08-my-gear-v4-perception-joyride-1`, strict structured facts/IndexedDB and optional stable-ID Markdown Notes. KB schema1 has 54 entities, dataVersion `2026-09-08-kb-v1-cranberry-lake-picture-1`, a flat type index and complete authored Markdown. Catch schema2 has five historical records, dataVersion `2026-09-04-catches-v2-external-notes-1`, exact known relationships and optional Markdown Notes. Share identity, ownership, validation and authored-link principles without forcing identical schemas/storage. No Planner, sessions or multi-user expansion.
 
 Gear displays Equipment (key `accessories`); KB displays Gear Guides (type `equipment`). Preserve stable IDs, user facts, authored text, historical relationships, image bytes and provenance. No inferred ownership or Catch attribution. `gear://` and `kb://` are authored navigation, not a speculative relationship graph.
 
