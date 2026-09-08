@@ -24,7 +24,7 @@ Browser Gear/KB Add/Edit prepares validated copyable packages for chat/repositor
 
 The owned Dagger Axis 10.5 is Gear/media ID `dagger-axis-10-5`, category Equipment/Kayaks. The user-confirmed Length is `10' 6"`; Height `15.25"`, Width `28.5"`, Weight `50 lb`, and Cockpit opening `52.5"x23.5" (6.0 deck)` remain as submitted. No Notes were requested or created. FISH-TODO-065 is resolved.
 
-The current Dagger source is `pwa/assets/gear-source/dagger-axis-10-5.png`, Git blob `17ad66ac19cc0a71f3ca4c3fd4ea6ec5e881ac51`, 393226 bytes. Its owner is explicit. The previous Dagger source remains preserved in Git history. The media pipeline validates type/extension/size and copies source bytes without recompression.
+The current Dagger source path is `pwa/assets/gear-source/dagger-axis-10-5.png`, with explicit owner `dagger-axis-10-5`. Direct user replacements at that exact source path must be preserved; prior source versions remain in Git history. The media pipeline validates actual format/extension/size and copies source bytes without recompression into the built Gear asset.
 
 PR56 also registered three KB hero pictures from the exact user-uploaded repository files:
 - `technique-fishing-line` → `./assets/kb/entries/technique-fishing-line.jpg`, alt `Sufix 832 fishing line`, explicit Gear association `sufix-832-15`.

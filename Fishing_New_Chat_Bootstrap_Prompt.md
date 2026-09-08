@@ -35,12 +35,14 @@ Gear displays Equipment (key `accessories`); KB displays Gear Guides (type `equi
 
 Browser Add/Edit prepares validated packages for chat/repository promotion; it does not write GitHub or maintain a competing local database. User images are uploaded directly to exact GitHub branch/path/filenames. Do not transport image bytes through the connector. Do not delete current media before replacement validation. Revalidate final transformed data after all media stages. User-maintained Markdown is not a frozen full-text test fixture; preserve durable facts and authored links while allowing legitimate content edits.
 
-Dagger Axis uses Gear/media ID `dagger-axis-10-5`, local source `pwa/assets/gear-source/dagger-axis-10-5.png`, explicit owner and no Notes. Current Length is `10' 6"`. The current source image is Git blob `17ad66ac19cc0a71f3ca4c3fd4ea6ec5e881ac51`; prior source versions remain in Git history.
+Dagger Axis uses Gear/media ID `dagger-axis-10-5`, local source `pwa/assets/gear-source/dagger-axis-10-5.png`, explicit owner and no Notes. Current Length is `10' 6"`. Preserve the latest direct user replacement at that exact path; prior source versions remain in Git history. The exact current source identity is pinned by the permanent Dagger regression test and must be updated only when the user deliberately replaces that source again.
 
 Current KB hero images added by PR56:
 - `technique-fishing-line` → `pwa/assets/kb/entries/technique-fishing-line.jpg`, alt `Sufix 832 fishing line`, Gear association `sufix-832-15`.
 - `technique-walking-bait` → `pwa/assets/kb/entries/technique-walking-bait.jpg`, alt `Heddon Zara Spook`, no inferred owner/provenance.
 - `technique-rods-reels` → `pwa/assets/kb/entries/technique-rods-reels.png`, alt `Baitcasting reel`, no inferred owner/provenance.
+
+A direct-main `pwa/assets/gear-source/perception-joyride-10.png` upload is preserved as source media only. Do not infer that it is owned Gear or register it to any item without an explicit user handoff.
 
 ## Release and handoff discipline
 

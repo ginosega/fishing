@@ -27,8 +27,8 @@ assert.equal(local.gear.filter(x=>x.mediaId===id).length,1);
 assert.equal(fs.existsSync(new URL('./gear-content/'+id+'.md',import.meta.url)),false);
 const bytes=await readValidatedImage(fileURLToPath(new URL(entry.source,import.meta.url)));
 const blob=crypto.createHash('sha1').update('blob '+bytes.length+'\0').update(bytes).digest('hex');
-assert.equal(blob,'17ad66ac19cc0a71f3ca4c3fd4ea6ec5e881ac51');
-assert.equal(bytes.length,393226);
+assert.equal(blob,'cfb44c09b6ab3d79a53d50e626664dde5e148a3a');
+assert.equal(bytes.length,259840);
 if(process.argv.includes('--dist')) {
  const built=read('./dist/data/gear.seed.json');
  assert.deepEqual(built.items.find(x=>x.id===id),expected);

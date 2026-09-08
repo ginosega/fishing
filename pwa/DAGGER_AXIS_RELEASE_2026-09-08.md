@@ -22,7 +22,7 @@ Correction and three KB hero pictures:
 
 The owned Dagger Axis 10.5 remains Gear ID and media ID `dagger-axis-10-5`, category `accessories`, type `Kayaks`. The user confirmed the Length is `10' 6"`; the earlier `12' 6"` value is superseded. Height `15.25"`, Width `28.5"`, Weight `50 lb`, Cockpit opening `52.5"x23.5" (6.0 deck)`, manufacturer/model/link ordering, stable ID, explicit image owner and no-Notes state remain unchanged.
 
-Gear remains schema4 with 65 source records and dataVersion `2026-09-08-my-gear-v4-dagger-length-1`. The current source image is `pwa/assets/gear-source/dagger-axis-10-5.png`, Git blob `17ad66ac19cc0a71f3ca4c3fd4ea6ec5e881ac51`, 393226 bytes. The previous source remains preserved in Git history. The build continues to validate and copy exact source bytes without recompression to the built Gear asset.
+Gear remains schema4 with 65 source records and dataVersion `2026-09-08-my-gear-v4-dagger-length-1`. The source path remains `pwa/assets/gear-source/dagger-axis-10-5.png`. Direct user replacements at that exact path are preserved; previous source versions remain in Git history. The permanent Dagger regression test pins the exact current source image identity and verifies the built Gear image remains byte-identical while retaining the same media ID and explicit owner.
 
 ## Three KB hero pictures
 
@@ -34,9 +34,13 @@ PR56 promoted the three source-aware browser handoffs while keeping the submitte
 
 KB remains schema1 with 54 entities and dataVersion `2026-09-08-kb-v1-three-hero-images-1`. Catch remains schema2 with five historical records and is unchanged. Existing IDs, names, descriptions, content paths, Markdown, pictures, Gear records, ownership and historical relationships were preserved.
 
+## Later direct source uploads
+
+After PR56, the user deliberately replaced `pwa/assets/gear-source/dagger-axis-10-5.png` again and uploaded `pwa/assets/gear-source/perception-joyride-10.png`. Both source files are preserved. The Dagger regression is reconciled to the latest source replacement without changing the Dagger record or ownership. The Perception file remains unregistered source media only: no ownership or Gear record is inferred from its filename, and it should remain untouched until an explicit handoff is supplied.
+
 ## Cleanup and remaining work
 
-No one-time migration was rerun, no permanent validation gate was bypassed, and no source media was deleted as a side effect. The standard workflow retains permanent regression coverage for the accepted Dagger correction and the three KB hero pictures, including source/final identity and byte validation.
+No one-time migration was rerun, no permanent validation gate was bypassed, and no source media was deleted as a side effect of the accepted release. Standard workflow regression coverage remains for the Dagger correction and three KB hero pictures, including source/final validation.
 
 FISH-TODO-065 is closed by the confirmed `10' 6"` correction. FISH-TODO-063 remains OPEN and separately tracks clearer KB editor filename/upload-destination guidance; it does not invalidate this release.
 

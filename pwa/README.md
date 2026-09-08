@@ -22,12 +22,14 @@ The production build is deployed by `.github/workflows/fishing-pwa-build.yml` on
 
 My Gear media is registered in `media-sources.json`, `media-owners.json`, `media-overrides.json` and `local-media.json`. Canonical source and transformed display asset are distinct. Local Gear images belong under `assets/gear-source/`, while built display assets belong under `assets/gear/`. KB images use approved `assets/kb/` locations or validated authored-content paths. Preserve original bytes, stable ownership and provenance; never infer an owner from a filename or discard old source bytes as a replacement side effect.
 
-The Dagger Axis 10.5 is ID/media ID `dagger-axis-10-5`, with source `assets/gear-source/dagger-axis-10-5.png` and built asset `assets/gear/dagger-axis-10-5.png`. Its explicit owner is the same Gear ID. Current Length is `10' 6"`; the other submitted fields and link order remain unchanged, and no Notes were created. Current source Git blob is `17ad66ac19cc0a71f3ca4c3fd4ea6ec5e881ac51` (393226 bytes); prior source versions remain preserved in Git history.
+The Dagger Axis 10.5 is ID/media ID `dagger-axis-10-5`, with source `assets/gear-source/dagger-axis-10-5.png` and built asset `assets/gear/dagger-axis-10-5.png`. Its explicit owner is the same Gear ID. Current Length is `10' 6"`; the other submitted fields and link order remain unchanged, and no Notes were created. Preserve the latest direct user replacement at the source path; previous source versions remain in Git history. The permanent Dagger regression test pins the exact current source image identity and final byte-equivalence without changing ownership or metadata.
 
 PR56 registered these KB hero images without changing authored Markdown:
 - Fishing Line: `assets/kb/entries/technique-fishing-line.jpg`, alt `Sufix 832 fishing line`, explicit Gear association `sufix-832-15`.
 - Walking Bait: `assets/kb/entries/technique-walking-bait.jpg`, alt `Heddon Zara Spook`, no inferred owner/provenance.
 - Rods & Reels: `assets/kb/entries/technique-rods-reels.png`, alt `Baitcasting reel`, no inferred owner/provenance.
+
+A direct-main `assets/gear-source/perception-joyride-10.png` upload is currently preserved as unregistered source media. Do not infer ownership or create a Gear record from the filename alone; wait for an explicit user handoff.
 
 PR52 previously registered Buzzbait and Jack Hammer pictures. Its source-aware metadata and historical provenance remain intact. The separate filename-usability issue FISH063 remains open. See `DAGGER_AXIS_RELEASE_2026-09-08.md` for exact latest release evidence.
 
