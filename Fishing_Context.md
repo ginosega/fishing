@@ -1,8 +1,8 @@
-**Status: ACTIVE / production healthy / KB Add/Edit deployed.** Reconciled September 7, 2026 against PR48 and the completed production deployment.
+**Status: ACTIVE / production healthy / KB Add/Edit deployed.** Reconciled September 7, 2026 against the deployed PR48 application release and PR49 documentation closeout.
 
 ## Immediate release checkpoint
 
-PR #48, final head `85245de2451db97370268e14dfc2c66a53c8c61d`, passed normal PR CI #251 / `34142498510` against main `f05b7ec532d8e45f3fc36c1e0976c5ea40eb9983`. Merge `6d04e29b6770000eaa50f6c449ad82bc88f7326d` passed production #252 / `34142574286`, including the actual Deploy to GitHub Pages step. The production run completed September 7, 2026 at 16:18:08 UTC. The deployed release is ready for user acceptance.
+PR #48, final head `85245de2451db97370268e14dfc2c66a53c8c61d`, passed normal PR CI #251 / `34142498510` against main `f05b7ec532d8e45f3fc36c1e0976c5ea40eb9983`. Merge `6d04e29b6770000eaa50f6c449ad82bc88f7326d` passed production #252 / `34142574286`, including the actual Deploy to GitHub Pages step. The production run completed September 7, 2026 at 16:18:08 UTC. This remains the latest application-feature release. PR #49 then closed the release records; merge `024bec08a51c103e98c9913e786db2de40155b64` passed production #254 / `34159581055`.
 
 PR47 is the preceding user-accepted Gear release, merge `f05b7ec532d8e45f3fc36c1e0976c5ea40eb9983`, production #240 / `34135326910`. Gear schema4 and the user-uploaded Cylinder Weights image were verified by the user. FISH-TODO-058, 059 and 060 are DONE. The September 6 handoff is historical recovery evidence, not an open release instruction. No historical migration is to be rerun.
 
@@ -11,6 +11,8 @@ There is no pending application release. The remaining backlog is maintained in 
 ## Operating mode and source authority
 
 Use Chat mode by default. Do not recommend Work for complexity, duration, file volume, analysis, research, or artifact creation. Recommend it only for a specific Work-only capability, explain the need, and obtain user approval.
+
+For an authorized change, continue end-to-end until the requested implementation, validation, release, production verification, cleanup, and authoritative-document reconciliation are complete. Intermediate findings or progress reports are not approval gates and must not end active work. Stop only for a genuine blocker requiring user input/permission or when the requested scope is actually complete.
 
 The durable repository is `ginosega/fishing`; restore latest main and relevant branch state before acting. GitHub Markdown is the project knowledge base, but runtime data is owned by the structured PWA sources described below. Historical OneNote/PDF, migrated Topics, Gear Registry, and Tackle Inventory remain references, not parallel runtime databases. The old migration audit and PR #28 content acceptance are closed. Do not reopen them without a specific new discrepancy.
 
@@ -76,4 +78,4 @@ Use `Fishing_TODO.md` for the full backlog. Important unresolved items include f
 
 PR39 established external Gear/Catch Notes; PR41 fixed loose ordered lists; PR42 deployed Gear Add/Edit; PR44 fixed module caching and was user-confirmed; PR45 added the Bonafide RVR119; PR46 reconciled the interrupted handoff; PR47 deployed schema4 and Cylinder Weights; PR48 deployed KB Add/Edit. Production #252 completed successfully on September 7, 2026. Historical content acceptance and migration audits remain closed.
 
-The current production baseline is `6d04e29b6770000eaa50f6c449ad82bc88f7326d`. Preserve all 64 Gear, 54 KB and five Catch records; do not reintroduce Planner/sessions, inferred relationships, raw JSON editing, or duplicate storage. Future changes start from current main and the canonical backlog. Keep Context, TODO, Decision Log, bootstrap and PWA README consistent with actual release evidence.
+The current application-code baseline is PR48 merge `6d04e29b6770000eaa50f6c449ad82bc88f7326d`; later documentation-only reconciliations do not change the application model or record counts. Preserve all 64 Gear, 54 KB and five Catch records; do not reintroduce Planner/sessions, inferred relationships, raw JSON editing, or duplicate storage. Future changes start from current main and the canonical backlog. Keep Context, TODO, Decision Log, bootstrap and PWA README consistent with actual release evidence.

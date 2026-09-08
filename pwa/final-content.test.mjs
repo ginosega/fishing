@@ -44,7 +44,25 @@ for (const filename of externalNoteFiles) {
   assert.ok(gear.items.some(item => item.id === id), `${filename} must map to a current Gear stable ID.`);
 }
 assert.ok(externalNoteFiles.length >= 41, 'The original 41 authored Gear Notes must remain externalized.');
-assert.equal(gearNotes(gear.items.find(item => item.id === 'bonafide-rvr119')), '# Accessories\n- Bow hatch\n  - Tool bag: Phillips screwdriver, 7/16 box wrench for seat nuts, hex wrench for studs\n  - How to tie this off?\n'.replaceAll('\\n','\n'));
+// Authored Notes are user-maintained content, not a frozen release fixture.
+// Guard durable facts without rejecting legitimate additions or formatting.
+const assertRvr119Notes = markdown => {
+  assert.ok(markdown.trim(), 'The Bonafide RVR119 authored Notes must remain available.');
+  for (const [label, pattern] of [
+    ['bow hatch', /bow hatch/i],
+    ['tool bag', /tool bag/i],
+    ['Phillips screwdriver', /Phillips screwdriver/i],
+    ['seat wrench', /7\/16/i],
+    ['hex wrench', /hex wrench/i],
+    ['tie-off question', /tie.{0,12}off/i]
+  ]) assert.match(markdown, pattern, `Bonafide Notes must preserve the original ${label} information.`);
+};
+const rvr119Notes = gearNotes(gear.items.find(item => item.id === 'bonafide-rvr119'));
+assertRvr119Notes(rvr119Notes);
+// Both the original and legitimately expanded document must satisfy the same contract.
+const originalRvr119Notes = '# Accessories\n- Bow hatch\n  - Tool bag: Phillips screwdriver, 7/16 box wrench for seat nuts, hex wrench for studs\n  - How to tie this off?\n';
+assertRvr119Notes(originalRvr119Notes);
+assertRvr119Notes('# Accessories (Have)\n- Paddle holder\n\n# Accessories (Need)\n' + originalRvr119Notes);
 const catchNoteFiles = fs.readdirSync(new URL('./catch-content/', import.meta.url)).filter(name => name.endsWith('.md'));
 assert.equal(catchNoteFiles.length, 5, 'Expected the five authored Catch Exact Spot Notes to be externalized.');
 for (const filename of catchNoteFiles) {
