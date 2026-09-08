@@ -4,20 +4,22 @@ Durable project repository for personal fishing/kayak knowledge, owned gear, cat
 
 ## Current state
 
-**Production healthy; Dagger Axis addition deployed.** PR54 merged as `0c07816b33c282cbc31e162812ad15c45d3a4bbe`. Normal CI #273 / `34187137697` passed against current main, and production #274 / `34187188334` passed all tests, build, media/final-bundle validation and the actual GitHub Pages deployment on September 8, 2026. The Dagger Axis 10.5 is registered under My Gear → Equipment → Kayaks with its uploaded picture. FISH-TODO-064 is DONE. The submitted length awaits confirmation under FISH-TODO-065; the stored value has not been changed. Browser acceptance and independent live HTTP verification are not claimed.
+**Production healthy; latest maintenance release is PR56.** PR56 merged as `531f04a84c0d75e2a7f23dc368149de5026b607b`. Normal PR CI #284 / `34188600391` passed against main `5265a393cce601a59540de2a17f5b7c56b4d3535`, and production #285 / `34188668110` passed all tests, build, media/final-bundle validation and the actual GitHub Pages deployment on September 8, 2026.
 
-The latest application-feature release remains PR48 (KB Add/Edit). PR47 deployed Gear schema4/Cylinder Weights, PR49 closed its records, PR50 recovered the content regression, PR51 reconciled recovery, PR52 deployed Buzzbait/Jack Hammer images and PR53 closed those records. Current source counts are Gear schema4/65, KB schema1/54 and Catch schema2/5. No application release is pending. The separate KB filename usability issue FISH063 remains open.
+PR56 corrected the Dagger Axis 10.5 Length to the user-confirmed `10' 6"` and registered the three user-supplied KB hero pictures for Fishing Line, Walking Bait and Rods & Reels. Fishing Line keeps its explicit `sufix-832-15` Gear association; no ownership/provenance was inferred for the other two images. All authored Markdown and unrelated data/media were preserved. Gear remains schema4/65 records with dataVersion `2026-09-08-my-gear-v4-dagger-length-1`. KB remains schema1/54 entities with dataVersion `2026-09-08-kb-v1-three-hero-images-1`. Catch remains schema2/5 historical records. FISH-TODO-065 is DONE. FISH-TODO-063, the KB image filename/destination usability issue, remains OPEN.
 
-Live site: [Fishing Companion](https://ginosega.github.io/fishing/). See [Dagger release closeout](pwa/DAGGER_AXIS_RELEASE_2026-09-08.md) for exact evidence and preservation, and [previous image release](pwa/IMAGE_RELEASE_2026-09-07.md) for prior media changes.
+The latest application-feature release remains PR48 (KB Add/Edit). PR47 deployed Gear schema4/Cylinder Weights, PR49 closed its records, PR50 recovered the content regression, PR51 reconciled recovery, PR52 deployed Buzzbait/Jack Hammer images, PR53 closed those records, PR54 added the Dagger Axis 10.5 and PR55 closed that release's records.
+
+Live site: [Fishing Companion](https://ginosega.github.io/fishing/). See [Dagger/KB image closeout](pwa/DAGGER_AXIS_RELEASE_2026-09-08.md) for current release evidence and preservation details.
 
 ## Authoritative project records
 
 - [Context](Fishing_Context.md) — current architecture, equipment and project state.
-- [TODO](Fishing_TODO.md) — one canonical backlog, including FISH064 completion and FISH065 confirmation.
+- [TODO](Fishing_TODO.md) — one canonical backlog.
 - [Decision Log](Fishing_Decision_Log.md) — accepted decisions and standing process.
 - [New-chat bootstrap](Fishing_New_Chat_Bootstrap_Prompt.md) — restore instructions and latest release baseline.
 - [PWA README](pwa/README.md) — runtime architecture, build/test commands and deployment.
-- [Dagger closeout](pwa/DAGGER_AXIS_RELEASE_2026-09-08.md) — latest application release evidence.
+- [Dagger/KB image closeout](pwa/DAGGER_AXIS_RELEASE_2026-09-08.md) — latest maintenance release evidence.
 - [Historical documentation](History/) — exact prior versions, not competing current authority.
 
 Gear Registry, Tackle Inventory, Topics, original OneNote/PDF material, decision history and older release records remain reference/history. Runtime domain owners are the structured PWA sources and stable-ID authored Markdown. Do not treat historical inventory/candidate research as current ownership without confirmation.

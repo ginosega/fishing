@@ -1,29 +1,43 @@
-# Dagger Axis 10.5 addition — release closeout
+# Dagger Axis 10.5 / KB hero images — release closeout
 
-**Status: DEPLOYED / CLOSED.** September 8, 2026. FISH-TODO-064 DONE. User browser acceptance remains separate; no independent live HTTP response is claimed.
+**Status: DEPLOYED / CLOSED.** September 8, 2026. FISH-TODO-064 and FISH-TODO-065 are DONE. User browser acceptance remains separate; verified GitHub Pages deployment is complete.
 
 ## Release evidence
 
+Initial Dagger addition:
 - PR54: https://github.com/ginosega/fishing/pull/54
-- Final feature head: `bb13ca083b2f99c0fc6006ff7a1362b73f993912`.
-- Normal PR CI: #273 / `34187137697`, success against main `0f3107d8279ccca75ccb74f907391f370041c9e3`.
-- Merge: `0c07816b33c282cbc31e162812ad15c45d3a4bbe`.
-- Production: #274 / `34187188334`, success. All existing and new model, routing, authoring, media and content tests passed, followed by build, authored-Notes materialization, local-media materialization, final transformed-bundle validation, exact Dagger image-byte verification, artifact uploads and the actual Deploy to GitHub Pages step.
-- Production workflow: https://github.com/ginosega/fishing/actions/runs/34187188334
+- Merge: `0c07816b33c282cbc31e162812ad15c45d3a4bbe`
+- Production: #274 / `34187188334`, success including actual Pages deployment.
+
+Correction and three KB hero pictures:
+- PR56: https://github.com/ginosega/fishing/pull/56
+- Final feature head: `d17d7b0c52955c06ef55659d6062e8b6f4a44759`
+- Normal PR CI: #284 / `34188600391`, success against main `5265a393cce601a59540de2a17f5b7c56b4d3535`
+- Merge: `531f04a84c0d75e2a7f23dc368149de5026b607b`
+- Production: #285 / `34188668110`, success. The accepted kayak correction/KB image gate, Dagger source/ownership tests, all existing Gear/KB/Catch model/routing/authoring/media tests, build, authored Notes materialization, local-media materialization, transformed-bundle validation, exact accepted KB-image byte checks, artifact uploads and actual Deploy to GitHub Pages all succeeded.
+- Production workflow: https://github.com/ginosega/fishing/actions/runs/34188668110
 - Live site: https://ginosega.github.io/fishing/
 
-## Scope and source preservation
+## Dagger Axis correction
 
-The user-authorized add package was promoted as Gear ID and media ID `dagger-axis-10-5`, category `accessories`, type `Kayaks`. The exact submitted name, manufacturer, model, ordered specifications and manufacturer link are preserved. No Notes were created. Gear remains schema4, with 65 source records and dataVersion `2026-09-08-my-gear-v4-dagger-axis-1`. KB schema1/54 entities and Catch schema2/five historical records remain unchanged. All 64 existing Gear records, IDs, facts, ownership and Notes are retained. No migration, speculative relationship or Catch attribution was introduced.
+The owned Dagger Axis 10.5 remains Gear ID and media ID `dagger-axis-10-5`, category `accessories`, type `Kayaks`. The user confirmed the Length is `10' 6"`; the earlier `12' 6"` value is superseded. Height `15.25"`, Width `28.5"`, Weight `50 lb`, Cockpit opening `52.5"x23.5" (6.0 deck)`, manufacturer/model/link ordering, stable ID, explicit image owner and no-Notes state remain unchanged.
 
-The uploaded source is `pwa/assets/gear-source/dagger-axis-10-5.png`, Git blob `b6b9c96057adda124b7369952e851b13cf2f3b7b`, 563763 bytes. Actual PNG format, extension and size were validated. The source is registered under its stable media ID with explicit owner `dagger-axis-10-5`, sourcePage/destination equal to the submitted manufacturer URL, and alt `Dagger Axis 10.5 crossover kayak`. The external origin of the uploaded PNG is not inferred. The existing local-media pipeline copies exact bytes without recompression to `./assets/gear/dagger-axis-10-5.png` and includes the media in the offline bundle. The final-bundle test verifies exact source and built bytes, media identity, owner, sourcePath and localSource. No prior source image was deleted.
+Gear remains schema4 with 65 source records and dataVersion `2026-09-08-my-gear-v4-dagger-length-1`. The current source image is `pwa/assets/gear-source/dagger-axis-10-5.png`, Git blob `17ad66ac19cc0a71f3ca4c3fd4ea6ec5e881ac51`, 393226 bytes. The previous source remains preserved in Git history. The build continues to validate and copy exact source bytes without recompression to the built Gear asset.
 
-During this release, the user independently uploaded `pwa/assets/kb/entries/technique-fishing-line.jpg` on main `0f3107d8279ccca75ccb74f907391f370041c9e3`, blob `6bbf79095fb60cda21ea086553a1ec3bf64132cb`. That direct-main addition was preserved in the final feature merge and production. It was not registered to an unrelated KB entry or assigned ownership by inference.
+## Three KB hero pictures
 
-## Verification, cleanup and open facts
+PR56 promoted the three source-aware browser handoffs while keeping the submitted authored Markdown unchanged:
 
-The initial source-promotion runner validated the data but was denied permission to update the CI workflow. The permission was respected: a source-only retry succeeded, and the authorized GitHub connector committed the permanent CI changes separately. Both disposable promotion workflows were removed before PR54 CI. No one-time migration was rerun. Permanent Dagger source and final-bundle regression gates remain in the standard workflow; no test was bypassed.
+- `technique-fishing-line`: picture `./assets/kb/entries/technique-fishing-line.jpg`, alt `Sufix 832 fishing line`, explicit `gearItemId: sufix-832-15`. No additional provenance was inferred.
+- `technique-walking-bait`: picture `./assets/kb/entries/technique-walking-bait.jpg`, alt `Heddon Zara Spook`, no Gear owner or provenance inferred.
+- `technique-rods-reels`: picture `./assets/kb/entries/technique-rods-reels.png`, alt `Baitcasting reel`, no Gear owner or provenance inferred.
 
-The submitted Length `12' 6"` appears inconsistent with the Axis 10.5 model designation. It remains verbatim in the deployed record. FISH-TODO-065 is WAITING ON USER to confirm the actual length; do not silently substitute an assumed value. The existing FISH-TODO-063 filename-usability issue remains OPEN and is unrelated to this addition.
+KB remains schema1 with 54 entities and dataVersion `2026-09-08-kb-v1-three-hero-images-1`. Catch remains schema2 with five historical records and is unchanged. Existing IDs, names, descriptions, content paths, Markdown, pictures, Gear records, ownership and historical relationships were preserved.
 
-The authoritative README, Context, TODO, Decision Log, PWA README and bootstrap have been reconciled through the documentation closeout. Their exact pre-addition versions are preserved under `History/2026-09-08-pre-dagger-addition/` and in Git history. The deployment is complete; no application release remains pending. Documentation closeout PR55 is administrative and does not introduce another application change.
+## Cleanup and remaining work
+
+No one-time migration was rerun, no permanent validation gate was bypassed, and no source media was deleted as a side effect. The standard workflow retains permanent regression coverage for the accepted Dagger correction and the three KB hero pictures, including source/final identity and byte validation.
+
+FISH-TODO-065 is closed by the confirmed `10' 6"` correction. FISH-TODO-063 remains OPEN and separately tracks clearer KB editor filename/upload-destination guidance; it does not invalidate this release.
+
+The authoritative README, Context, TODO, Decision Log, PWA README and bootstrap are reconciled to this deployed state. Earlier exact records remain available in Git history and `History/`.
