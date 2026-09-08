@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import crypto from 'node:crypto';
+import {fileURLToPath} from 'node:url';
 import {validateGearBundle} from './gear-model.js';
 import {readValidatedImage} from './image-validation.mjs';
 const read=p=>JSON.parse(fs.readFileSync(new URL(p,import.meta.url),'utf8'));
@@ -24,7 +25,7 @@ assert.deepEqual(entry.owners,[{gearItemId:id}]);
 assert.equal(entry.destination,'https://www.confluenceoutdoor.com/products/dagger-axis-105-crossover-kayak-9030515209?_pos=1&_psq=axis&_psid=22657cf47&_ss=e');
 assert.equal(local.gear.filter(x=>x.mediaId===id).length,1);
 assert.equal(fs.existsSync(new URL('./gear-content/'+id+'.md',import.meta.url)),false);
-const bytes=await readValidatedImage(new URL(entry.source,import.meta.url));
+const bytes=await readValidatedImage(fileURLToPath(new URL(entry.source,import.meta.url)));
 const blob=crypto.createHash('sha1').update('blob '+bytes.length+'\0').update(bytes).digest('hex');
 assert.equal(blob,'b6b9c96057adda124b7369952e851b13cf2f3b7b');
 if(process.argv.includes('--dist')) {
