@@ -1,38 +1,23 @@
 # Fishing Companion PWA
 
-**Current addition in progress:** Dagger Axis 10.5, Gear/media ID `dagger-axis-10-5`. Source schema4 now has 65 records; dataVersion `2026-09-08-my-gear-v4-dagger-axis-1`. The user-uploaded PNG and exact supplied facts are registered. See [Dagger release](DAGGER_AXIS_RELEASE_2026-09-08.md). The submitted 12' 6" length is preserved pending confirmation (FISH065). Production is not yet claimed for this addition. Existing release history remains valid.
+**Status: production healthy.** Latest maintenance release PR54, merge `0c07816b33c282cbc31e162812ad15c45d3a4bbe`, production #274 / `34187188334` succeeded September 8, 2026. The Dagger Axis 10.5 addition is deployed. See [Dagger release closeout](DAGGER_AXIS_RELEASE_2026-09-08.md). No application release is pending. Current domain source counts are Gear4/65, KB1/54, Catch2/5.
 
-## Status and architecture
+## Architecture
 
-Production is healthy. PR52 head `28d84e650e0b3e1722a81d4abeeed7cb7572662c` passed normal CI #266 / `34185963172`; merge `91ee0966eff5ef95d6a7d192a95b10940d0b534e` passed production #267 / `34186006471`, including actual Pages deployment. Buzzbait KB and Jack Hammer Gear image changes are deployed; FISH062 DONE. See `IMAGE_RELEASE_2026-09-07.md` for exact evidence and source preservation. PR48 remains the latest application-feature release (KB Add/Edit), PR47 deployed Gear schema4/Cylinder Weights, PR49 closed those records, and PR50/51 recovered/reconciled the project. No pending application release. Earlier complete PWA documentation is preserved in `../History/2026-09-07-pre-recovery/pwa/README.md` and `../History/2026-09-07-pre-image-closeout/pwa/README.md`.
+The application is a single-user, offline-capable Progressive Web App published at https://ginosega.github.io/fishing/. GitHub is the durable source of truth. Structured source JSON, stable-ID authored Markdown, validated media manifests and a versioned build produce the deployed bundle. Historical markdown, Topics, OneNote/PDF and migration records are reference material rather than competing runtime databases.
 
-Fishing Companion is single-user/offline-capable. GitHub is durable source of truth. Three domains share stable identity, explicit ownership, strict validation, exact feature-driven relationships, authored narrative separation and final transformed-data validation without identical schemas/storage. No Planner, sessions, trip history, accounts, sync or multi-user expansion.
+My Gear uses `data/gear.seed.json`, schema4, dataVersion `2026-09-08-my-gear-v4-dagger-axis-1`, with 65 records. The browser's `gear-store.js` provides IndexedDB persistence; seed-managed stores receive accepted version changes, while non-seed local records must be preserved. Structured facts use stable IDs, manufacturer `{name}`, optional model/specifications and ordered links `{label,url}`. Rod/reel setups have explicit component records. Optional Notes are separate `gear-content/<gear-id>.md` files; no inline Notes or retired profiles/connection fields. Internal category `accessories` displays Equipment with six fixed Types, including Kayaks.
 
-### My Gear
+The Knowledge Base uses `data/kb.seed.json`, schema1, 54 entities, dataVersion `2026-09-04-kb-v1-final-content-1`. Flat types are location, species, equipment, technique and knot. Each entry has a stable ID, name, optional description/picture and complete authored Markdown Content in `kb-content/`. Equipment displays Gear Guides. The Catch Log uses `data/catches.seed.json`, schema2, five historical records, dataVersion `2026-09-04-catches-v2-external-notes-1`. Exact known relationships and optional stable-ID narrative are preserved. No Planner, sessions, speculative relationship graph, accounts or multi-user expansion.
 
-Schema4, 64 records, data version `2026-09-06-my-gear-v4-ordered-links-1`. Sources: `data/gear.seed.json`, `gear-model.js`, `gear-store.js`, `gear-app.js`, `gear-content/` and media pipeline. Structured facts use JSON/IndexedDB; optional Notes use `<stable-id>.md`. No inline Notes, profiles, usage/connections, knowledgeRefs or setup mainLine/leader. Gear Add/Edit generates validated `fishing-companion-gear-change-v1` packages; no direct GitHub writes or competing local DB. Existing IDs read-only; taxonomy/paired-setup administration chat-managed. Ordinary Manufacturer, Model, Specifications, Links optional; ordered links have label/url only. Equipment retains internal key `accessories`, with Kayaks, Tools, Tackle Management, Electronics, Storage, Accessories.
+Browser Add/Edit creates validated copyable handoff packages for chat/repository promotion. It does not write GitHub or create another authoritative database. `gear://` and `kb://` are authored navigation. Stable IDs, explicit media ownership, safe paths, source provenance and final transformed-data validation govern all domains.
 
-### Knowledge Base
+## Build and tests
 
-Schema1, 54 entities (8 Locations, 7 Species, 22 Equipment, 7 Techniques, 10 Knots), data version `2026-09-04-kb-v1-final-content-1`. `data/kb.seed.json` indexes complete Markdown documents in `kb-content/`. Envelope id/type/name/optional description/picture/Content path. Flat types location, species, equipment, technique, knot. Equipment displays Gear Guides with subtitle `Equipment, rigs, and presentations reference`. Type, not directory/prefix, controls taxonomy; existing IDs and paths preserved. Add/Edit supports complete Markdown/Preview, source-aware pictures, safe reclassification, validated copyable packages and repository promotion. No atomic guidance schema or duplicate local KB database.
+Use Node.js 22. From the repository root, run the standard test scripts and build in the same order as `.github/workflows/fishing-pwa-build.yml`. The workflow is the authoritative complete gate; do not omit its permanent tests or replace it with an incomplete local approximation.
 
-### Catch Log
-
-Schema2, five historical records, data version `2026-09-04-catches-v2-external-notes-1`. `data/catches.seed.json` owns exact known relationships; `catch-content/<id>.md` owns optional narrative. Species/Location required, exactly one Lure/Bait, optional setup/presentation only when known. No inference, generated Notes, Provenance, Planner or sessions. Backlinks derive from Catch-owned references; exact catch picture overrides Species fallback.
-
-## Media, Markdown and offline behavior
-
-`media-sources.json` owns source/provenance; `media-owners.json` exact Gear associations; `local-media.json` active local sources. `apply-local-media.mjs` validates and materializes images. KB may intentionally reuse built Gear media with exact identity. Preserve source bytes/provenance, validate actual format/extension/path/owner/size, and revalidate complete transformed data. No premature deletion or inferred ownership. User binaries are uploaded directly to exact GitHub branch/path/filenames, never transported through the connector. Gear Notes support safe Gear-ID-prefixed sibling images and legacy paths, with exact-byte copying/offline manifests. Existing-picture Edit supports explicit Keep/Replace and same-filename replacement.
-
-PR52 uses the existing source-aware pipeline. The Buzzbait image is an exact-byte copy into `assets/kb/entries/technique-buzzbait.jpg`, registered through the KB overlay with the supplied metadata. Jack Hammer uses the existing `zman-jack-hammer` media ID and exact Gear owner, with local source `assets/gear-source/zman-jack-hammer.png`. Previous remote provenance remains in `media-overrides.json` and the release record; the new upload's external origin is not guessed. Source JSON schemas, data versions, authored Markdown and historical relationships remain unchanged. Do not move/delete source media as a cleanup shortcut. FISH063 separately tracks clearer filename/destination guidance in the editor.
-
-The shared Markdown renderer supports headings, links, images, code, tables, blockquotes, nested/loose lists and continuation paragraphs. Do not flatten valid Markdown. Stable-ID links may appear under any heading; validate targets rather than requiring Related. Root Gear/KB Search always; nonempty search hides category cards. Browse Search at 10+; filters right-aligned where applicable. Card images use square white contain frames, never cropped source rewrites. Line flat, Rods grouped; no raw JSON editor.
-
-## Build, tests and deployment
-
-From repository root:
-
-```bash
+```sh
+node pwa/dagger-axis.test.mjs
 node pwa/gear-model.test.mjs
 node pwa/my-gear-routing.test.mjs
 node pwa/gear-media-policy.test.mjs
@@ -45,8 +30,21 @@ node pwa/build.mjs
 node pwa/apply-authored-notes.mjs
 node pwa/apply-local-media.mjs
 node pwa/verify-final-bundle.mjs
+node pwa/dagger-axis.test.mjs --dist
 ```
 
-The permanent `.github/workflows/fishing-pwa-build.yml` runs syntax, model, routing, authoring, media, content, build and final-bundle checks. New runtime modules must be included in the build, versioned module graph and service-worker offline manifest. `node pwa/serve.mjs` serves local development at `http://127.0.0.1:4173`.
+The workflow also checks JavaScript syntax and required output files, image assets, stable data versions and historical content invariants. `build.mjs` writes `dist/` and validates structured Gear/KB/Catch sources and authored links. `apply-authored-notes.mjs` copies validated Notes and images. `apply-local-media.mjs` validates local source bytes, explicit owners and KB picture overlays, then materializes final display assets. `verify-final-bundle.mjs` validates the complete transformed bundle after all media stages. The Dagger regression test verifies exact authored fields, source blob/format, owner and byte-identical built image. Do not run old one-time migrations or treat user-maintained Markdown as a frozen full-text fixture.
 
-Meaningful runtime work uses a feature branch, normal CI against current base, expected-head merge and actual production Pages verification. Once authorized, continue through cleanup and authoritative-record reconciliation without intermediate approval gates. Respect workflow permissions, never omit permanent tests or rerun one-time migrations. Shared `fishing-pages` concurrency has cancel-in-progress true; avoid overlapping releases/main content writes. User-maintained Markdown must not be frozen as an exact full-text fixture; validate durable facts, ownership/paths and links while permitting legitimate edits. PR50 fixed that regression. Historical handoffs and audit branches must not be resumed as pending application work.
+The production build is deployed by `.github/workflows/fishing-pwa-build.yml` on main through GitHub Actions and Pages. Meaningful runtime work uses a feature branch/PR, current-base normal CI, exact-head merge and actual Pages deployment verification. The Pages concurrency group is `fishing-pages`, with cancel-in-progress. Coordinate concurrent direct-main uploads and releases. Respect denied workflow permissions; do not bypass them or remove tests to obtain a green build.
+
+## Media and current addition
+
+My Gear media is registered in `media-sources.json`, `media-owners.json`, `media-overrides.json` and `local-media.json`. The canonical source and transformed display asset are distinct. Local Gear images belong under `assets/gear-source/`, while built display assets belong under `assets/gear/`. KB images use approved `assets/kb/` locations or validated authored-content paths. Preserve original bytes, stable ownership and provenance; never infer an owner from a filename or discard old source bytes as a replacement side effect.
+
+The Dagger Axis 10.5 is ID/media ID `dagger-axis-10-5`, with source `assets/gear-source/dagger-axis-10-5.png` and built asset `assets/gear/dagger-axis-10-5.png`. Its explicit owner is the same Gear ID. The source Git blob is `b6b9c96057adda124b7369952e851b13cf2f3b7b` (563763 bytes). All submitted product fields and link order are preserved; no Notes were created. The submitted Length `12' 6"` is retained pending FISH065 confirmation. Previous Gear, KB/Catch, media and authored content are unchanged. The independent user upload `assets/kb/entries/technique-fishing-line.jpg` was preserved without inferred association.
+
+PR52 previously registered the Buzzbait and Jack Hammer pictures. Its source-aware metadata and historical provenance remain intact. The separate filename-usability issue FISH063 is open; it is not a defect in the completed Dagger deployment. See `IMAGE_RELEASE_2026-09-07.md` and `DAGGER_AXIS_RELEASE_2026-09-08.md` for exact release evidence.
+
+## Authoritative records and history
+
+The root README, Context, TODO, Decision Log and bootstrap describe current project state. Complete earlier documentation is preserved in Git history and `History/`, including the exact pre-Dagger copies under `History/2026-09-08-pre-dagger-addition/`. The Dagger release is closed; user browser acceptance and independent live HTTP verification are not claimed merely from successful CI. The next change must restore current main and consult the canonical TODO rather than resuming a historical release branch.
