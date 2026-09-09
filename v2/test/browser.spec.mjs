@@ -69,6 +69,7 @@ async function openReady(page,release=initial){
  await page.goto(base,{waitUntil:'domcontentloaded'});
  await expect.poll(()=>page.evaluate(()=>window.__FISHING_V2__?.releaseId),{timeout:120000}).toBe(release.id);
  await expect(page.locator('#offline-status')).toContainText('Offline ready',{timeout:120000});
+ await expect(page.locator('#offline-status')).not.toContainText('null');
  await expect(page.locator('#app h1').first()).toHaveText('Fishing Companion');
 }
 const heading=(page,name)=>page.locator('#app .page-header h1').filter({hasText:name});
@@ -186,6 +187,7 @@ test('a failed or corrupt update retains the previous complete release',async({p
  state.current='next';const broken='releases/'+next.id+'/content/'+fixture.articlePath;state.corrupt.add(broken);
  await page.getByRole('button',{name:'Update offline library'}).click();
  await expect(page.locator('#offline-status')).toContainText('Offline ready',{timeout:120000});
+ await expect(page.locator('#offline-status')).not.toContainText('null');
  await expect.poll(()=>page.evaluate(()=>navigator.serviceWorker.controller?.scriptURL)).toContain('/sw.js');
  expect(await page.evaluate(()=>window.__FISHING_V2__.releaseId)).toBe(initial.id);
  const failed=await cacheInfo(page);expect(failed.some(x=>x.releaseId===initial.id)).toBe(true);expect(failed.some(x=>x.releaseId===next.id)).toBe(false);
