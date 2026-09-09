@@ -4,49 +4,50 @@
 
 ## Repository and release state
 
-The durable repository is `ginosega/fishing`. Main at the engineering checkpoint was `79f36144abad39a9515b8f2d7710852f1c7e7114`. The implementation branch is `feature/v2-implementation-20260908`, observed head `24f57ca7d72a9751e0935c6eb46e842f61493db2`. Draft PR 64 is open and unmerged. The successful migration commit is `6615ae7296e48d90dceab303b6b5a1fbc041ab80`. No runtime fixes were committed after the failed browser run during this handoff session. The documentation branch is `docs/v2-work-handoff-20260909`; the new Work session must fetch its latest state and integrate the reconciled documentation without overwriting newer work.
-
-The existing production application remains at https://ginosega.github.io/fishing/. The last verified v1 production build is run #312, `34237232075`, source `4f2fe70f47da9cca3704722de87f7282bcc00f83`. The intended v2 preview is `/fishing/v2-preview/`; it has not been published or accepted. The user has authorized the isolated preview, not production cutover or P2 features.
-
-## Verified migration and source preservation
-
-Migration run `34328748390` succeeded on September 9, 2026. It preserves 66 source Gear records as 69 destination records through the approved three-to-six rod/reel split, all 54 KB entries, all five Catches, original authored Markdown bytes, unaffected identities, measurements and actual relationships. The canonical destination SHA-256 values are:
-
-| File | SHA-256 |
+| Item | Verified checkpoint |
 |---|---|
-| `Gear/gear.json` | `e001c82a49c63b8ac21c93b559bc4768a40d267eff8bdf3fb6e73225cac64256` |
-| `KB/kb.json` | `85bbf03d55b98432a21ed67288fc11e72c7fcf660a9af6de59ccf4beaa6268a4` |
-| `Catches/catches.json` | `db97091e484021f0b261b91a27c790bd9f2bd4a8221bbd432e47400e21e9459b` |
+| Repository | `ginosega/fishing` |
+| Main before reconciliation | `79f36144abad39a9515b8f2d7710852f1c7e7114` |
+| Implementation branch | `feature/v2-implementation-20260908` |
+| Observed feature head | `24f57ca7d72a9751e0935c6eb46e842f61493db2` |
+| PR 64 | Open, draft, unmerged; base main |
+| Successful migration | `6615ae7296e48d90dceab303b6b5a1fbc041ab80`, run `34328748390` |
+| First browser acceptance | Run `34330339245`, completed failure, two of six passed |
+| Production v1 | Last verified production build #312 / `34237232075`, source `4f2fe70f47da9cca3704722de87f7282bcc00f83` |
+| V2 preview | Not deployed or accepted |
+| Runtime fixes after failed browser run | None committed by the documentation handoff |
 
-The source is pinned to `79f36144abad39a9515b8f2d7710852f1c7e7114`, archive source `4f2fe70f47da9cca3704722de87f7282bcc00f83`. The full machine evidence is `v2/migration/reconciliation.json`, with `v2/migration/reproduce.py`, `v2/migration/image-decisions.csv`, and the original migration workflow. Do not rerun the one-time migration merely to resume work. A justified current-source refresh must preserve destination edits and reconcile each intentional difference.
+The source audit and technical contracts remain complete in their original form, with separate September 9 addenda. The canonical Context, TODO, Decision Log, README and bootstrap have been reconciled. The documentation-only integration does not authorize or perform a v2 cutover.
 
-The user approved 49 of 51 archived image captures for exact-byte adoption and rejected two. Eight exceptions remain: malformed Tsuridamashii snap-swivels; absent Rapala Original Floating F-3; remote KB pictures for Perch, Popper and Whopper Plopper; rejected Mack's Pee Wee Hoochie and River2Sea Whopper Plopper 60 captures; and one optional generic inline-spinner picture. Seven are required and one optional. The committed report erroneously marks Rapala optional, producing six pending flags; correct its classification and regression checks. No automatic image acquisition or invented replacement is authorized. The rejected capture hashes are `562c1081c6407a306fb8dfd3f1bbed39d39586b4855bc68117689a8c2fb3924f` and `0a62d3625752927423ac1d3d4867d6d9887dbe0ad98a4df36e9c2babb15810ac`. Six KB pictures reuse Gear files; the unused invalid Kokanee WebP was excluded in favor of the valid PNG.
+## Migration and preservation evidence
 
-The user accepted source equivalence and waived a separate device-only IndexedDB export for this baseline. No device inspection was performed. Retain old browser stores and reconcile newly discovered local-only data before retirement. The original approved requirements and fourteen Design Review decisions remain unchanged.
+The pinned migration maps 66 source Gear records to 69, retains 54 KB entries and five Catches, and adopts 49 explicitly approved exact-byte archived images. The full per-file reconciliation and decisions are in `v2/migration/reconciliation.json` and `v2/migration/image-decisions.csv`. The canonical JSON SHA-256 values are:
 
-## Implementation and browser acceptance
+- Gear: `e001c82a49c63b8ac21c93b559bc4768a40d267eff8bdf3fb6e73225cac64256`
+- KB: `85bbf03d55b98432a21ed67288fc11e72c7fcf660a9af6de59ccf4beaa6268a4`
+- Catches: `db97091e484021f0b261b91a27c790bd9f2bd4a8221bbd432e47400e21e9459b`
 
-The feature contains the Node 24/ESM application, three independent domain contracts, strict validation, source-aware Gear/KB handoffs, Markdown sanitizer, image validation/viewer, deterministic builder/verifier, versioned offline service worker, migration tooling and Playwright suite. The lockfile pins Ajv 8.20.0, DOMPurify 3.4.15, markdown-it 15.0.1, esbuild 0.28.2, sharp 0.35.4 and Playwright 1.62.0. Hosted CI passed all 15 core tests, production dependency audit with zero vulnerabilities, and full build verification.
+The eight media exceptions comprise seven required items—Tsuridamashii snap-swivels, Rapala F-3, KB Perch, Popper and Whopper Plopper, Mack's Pee Wee Hoochie, River2Sea Whopper Plopper 60—and one optional generic inline-spinner picture. Rapala is incorrectly optional in the committed report; correct the classification and regression test without rewriting source data. The two rejected capture hashes are `562c1081c6407a306fb8dfd3f1bbed39d39586b4855bc68117689a8c2fb3924f` and `0a62d3625752927423ac1d3d4867d6d9887dbe0ad98a4df36e9c2babb15810ac`. No automatic acquisition or unapproved replacement is permitted.
 
-The first hosted browser acceptance run `34330339245` failed with two of six tests passing. Its job ID is `102397189100`, tested PR merge commit `3b68d951b19f1c51e16c9d6b427ae884168bb5f9`. The successful scenarios are complete-library installation/hash verification/offline reload and mobile layout/isolated worker scope. The four failures are:
+The user accepted source equivalence and waived a separate device-only IndexedDB export for this baseline. No device inspection was performed. Preserve v1 browser stores and reconcile any later-discovered local-only data before retirement.
 
-1. Navigation/viewer test timed out on a button named `Zoom in`. The implementation uses visible `+` text and a title; correct accessible naming or the test selector without weakening viewer coverage.
-2. Editor test uses a broad `#app h1` selector matching both `Edit entry` and `Edit Daiwa Tatula XT`. Use a precise page-heading selector and preserve the actual authoring assertions.
-3. Corrupt-update recovery reached the reload step but continued to report the old release ID rather than the new complete release. Investigate pointer selection, activation, cache versioning and actual update semantics. This is not established as a mere selector issue.
-4. Tampered cached content was rejected, but the repaired article did not reappear in the expected state after restoring connectivity. Investigate retry/navigation state, verified network repair and cached failure handling; do not simply remove the assertion.
+## Browser acceptance and exact next work
 
-The browser suite is `v2/test/browser.spec.mjs`, config `v2/playwright.config.mjs`. Inspect the full source and current implementations of `v2/src/sw.mjs`, `loader.js`, `offline.mjs`, `ui.mjs`, `editor.mjs`, `viewer.mjs` and release validation. Known review points include preserving the last complete cache until replacement is committed, validating complete cache bytes rather than trusting a marker alone, selecting an actually verified release consistently across pointer/manifest/code/content, retaining immutable older URLs for open tabs, safe recovery from cache corruption, and avoiding stale asynchronous editor state. Treat these as investigation leads, not proven conclusions. The browser fixture should preserve the migration reconciliation when building its second release, correctly handle unsaved-form dialogs, use precise accessible selectors, and retry a failed article through a real navigation/reload path. Keep meaningful tests strict.
+Run `34330339245` tested PR 64 merge commit `3b68d951b19f1c51e16c9d6b427ae884168bb5f9`. Hosted Node 24 dependency audit found zero vulnerabilities; 15 core tests passed; build and verification produced release `0258308c62b5d18756edd1edb219eb31`, 195 manifest files and 27,622,722 bytes. Chromium installed successfully. Browser tests passed complete-library offline installation/reload and mobile/service-worker isolation; four failed:
 
-The failed-run artifact `10095686186` contains only release metadata because `.test-output` was excluded as a hidden directory. Update artifact upload to include hidden files so screenshots, videos, traces and HTML reports are retained. The complete job log remains available through GitHub Actions. The evidence artifact expires October 9, 2026. Fix the evidence capture before the next hosted run.
+1. Viewer test waits for accessible name `Zoom in`, while the control is labeled `+` with a title. Add the accessible name and retain the real zoom/reset assertions.
+2. Editor test selector matches both the page heading and nested editor heading. Use a precise, unique page-level/accessible selector and continue the handoff coverage.
+3. After a failed/corrupt update is repaired and Reload is clicked, the application remains on old release `0258308c62b5d18756edd1edb219eb31` rather than new `446b0d41eff82f778c3d6e00bdb8041d`. Investigate worker activation, REPAIR target, loader pointer and release selection. Preserve immutable old releases for existing tabs while selecting the new complete release after explicit reload.
+4. Tampered cached content is correctly rejected offline, but the article does not reappear after network recovery. Investigate same-hash navigation/render retry and verified repair; do not weaken integrity checks.
 
-## Exact next engineering sequence
+The current service worker may delete an existing final cache before copying staging entries. Correct the promotion protocol so a failed copy cannot remove the only complete release. Test failure recovery, release identity, no code/data mixing, dirty-form protection, offline reload, navigation and supported mobile/browser behavior. The artifact upload must include hidden Playwright output or use a nonhidden path; the first evidence artifact omitted screenshots/traces despite their log references.
 
-Restore current main and feature branch, inspect PR 64 and all newer commits, and reconcile the documentation branch. Do not restart the vertical slice or regenerate source records. Correct the media classification and test defects, then implement and verify the release-upgrade/retry fixes. Add regression coverage for complete-cache rollback, corruption rejection/repair, pinned old-release reads, dirty-form protection, and no code/data mixing. Run the full core/build/browser gate and inspect the actual results. Do not claim acceptance from a passing build alone.
+The successful migration evidence is run `34328748390`, artifact `10094858407` (SHA-256 `f3f3fc8637654852951a5a6b9d56292cd8a282db1e847ebe1c9dddd1cb610385`, retained through October 9). The browser evidence artifact is `10095686186` (SHA-256 `fd02948e1c07dd1a8b6fd472fc3cc4cba5de939f0bccaa9d1627881b49731c78`, retained through October 9). The original v1 production bundle artifact `10060378687` (SHA-256 `83100e9cf2788b2d33959b39a6bb63fdd0e78c5e512936a07e46b22632bf7dbf`) is retained through December 7. Source audit artifact `10088691303` is retained through October 9. Git history and committed source must remain the durable authority rather than expiring artifacts.
 
-Once the gate passes, reconcile current main and production source, preserve a recoverable v1 root artifact and hash inventory, and publish only an isolated v2 preview using a safe combined deployment. Verify hosted HTML, pointer, manifest, code, content, representative images and v1 root availability. Provide the live preview and review checklist to the user. Stop before production cutover until explicit preview acceptance and separate cutover approval. P2 Save/auth/uploads/offline sync/Catch authoring remain deferred. Consolidate temporary migration/workspace/acceptance workflows into the normal release path when safe, without deleting needed evidence or meaningful checks.
+## Authorized completion sequence
 
-## Recovery and handoff discipline
+Restore fresh GitHub source and check for any newer or uncommitted work. Do not rerun the one-time migration. Correct the test defects and runtime failures, run core/security/build/verify and full Playwright acceptance until meaningful gates pass, and fix the Rapala accounting. Reconcile actual main, preserve a verified v1 root artifact and rollback checkpoint, then deploy a safe combined artifact with v2 only at `/fishing/v2-preview/` and an isolated worker scope. Verify actual hosted HTML, pointer, manifest, code, content and representative images, and confirm v1 remains usable. Provide the live preview to the user for acceptance; do not merge the draft production cutover or remove v1 until the user separately approves it. P2 direct Save/authentication/integrated uploads/offline edit sync/Catch browser authoring remain deferred.
 
-The production `fishing-pwa` artifact from run `34237232075` is ID `10060378687`, SHA-256 `83100e9cf2788b2d33959b39a6bb63fdd0e78c5e512936a07e46b22632bf7dbf`, retained through December 7, 2026. The migration evidence artifact is `10094858407`, SHA-256 `f3f3fc8637654852951a5a6b9d56292cd8a282db1e847ebe1c9dddd1cb610385`, retained through October 9, 2026. The source-audit artifact is `10088691303`, SHA-256 `ff909f020af9460b8d745a4bed5c46bccd199f695ac84626a8cd8cca65f5d0cb`. Git history and committed source are durable; runner artifacts and temporary chat files are not. Obtain a fresh authenticated workspace rather than relying on a previous container path.
+## Documentation closeout
 
-Chat remains the default. The user explicitly authorized temporary Work for the particular repository/development/browser execution need, not complexity alone. Continue the authorized P1 engineering through the isolated preview without repeated Proceed interruptions. Preserve direct-main changes, original requirements, source bytes and existing user data. The canonical TODO uses FISH-TODO-073 and 075 IN PROGRESS, 074 and 079 DONE, 076 and 078 OPEN, 077 DEFERRED, 080 for this reconciliation, and 081 for browser failures; next unused ID 082. Update the authoritative documents after actual milestones and verify their consistency before returning to Chat.
+The original approved requirements, user-authored Inventory/Design Review, machine schemas, runtime/data files and unrelated fishing backlog are preserved. The documentation reconciliation records 071/072/074/079/080 DONE; 073/075/081 IN PROGRESS; 076/078 OPEN; 077 DEFERRED. The next unused task ID is 082. The permanent Chat-default policy remains in force, with this temporary Work session specifically authorized for development and browser execution. Before any future chat transfer, reconcile current main, feature branch, decisions, TODO, bootstrap and release evidence again. This document's dated hashes are not permanent instructions to reset newer work.
