@@ -81,37 +81,37 @@ The latest inspected production run #312 succeeded. Run #311 failed after deleti
 | C1 | Purpose | Individual fish, not trips or no-catch sessions. | Confirm this scope. | Confirmed. |
 | C2 | Editing | Straightforward Add/Edit if Catch is included at launch. | Should catches be authored in the browser or through ChatGPT/repository changes? | Adding a catch in the browser is a P2 for launch; adding it via chat is fine. |
 | C3 | Date/time | Date required, time optional, no unnecessary timezone transformations. | Do you need exact timestamps or just local date/time? | Local date/time. |
-| C4 | Species/location | Exact KB references when known; preserve unknown historical facts. | Must new catches select existing KB entries? Can a missing entry be created during capture? | Creating a missing Species entry during capture is a P2. note that I might not know the species when I catch it, so "Unknown" is a viable value. |
-| C5 | Size | Preserve original measurements and units without false precision. | Which length/weight fields and metric support do you need? | The Size field that we currently have is fine. Leave it as a text field and I can add weight in the future if I want to. |
-| C6 | Lure/bait | Reconsider mandatory owned-Gear reference. | Should free text be allowed? Can there be no lure/bait or more than one? |  |
-| C7 | Equipment references | Optional exact known setup and technique references. | Which additional gear, line, leader, or trailer references are useful? |  |
-| C8 | Conditions | Keep spot/depth/structure/conditions in Markdown unless filters require fields. | Which conditions, if any, should be structured for reporting? |  |
-| C9 | Pictures | Shared picture structure. | One picture or multiple? Species fallback, generic placeholder, or none? |  |
-| C10 | Browse | Chronological list with useful filters. | Which filters and sorts do you need? |  |
-| C11 | Backlinks | Derive only real references. | Which Gear/KB pages should display Catch history? |  |
-| C12 | Analytics | Defer dashboards and statistics. | Any statistics, maps, or CSV export needed at launch? |  |
-| C13 | History | Preserve all five existing records and Notes exactly. | Confirm no unknown historical facts should be filled by inference. |  |
+| C4 | Species/location | Exact KB references when known; preserve unknown historical facts. | Must new catches select existing KB entries? Can a missing entry be created during capture? | Creating a missing Species entry during capture is a P2. note that I might not know the species when I catch it, so we probably should not make this required. |
+| C5 | Size | Preserve original measurements and units without false precision. | Which length/weight fields and metric support do you need? | The Size field that we currently have is fine. Since it is a text field I can add text for both length and weight if I want to. |
+| C6 | Lure/bait | Reconsider mandatory owned-Gear reference. | Should free text be allowed? Can there be no lure/bait or more than one? | I like the links to owned gear where it exists (and the "My catch history" link back to the catch from that lure or bait Gear page), but like Species I don't think that this should be a required field, and if the catch is made with gear that I don't have in the Gear list, then I'll just leave it blank and add something to the Notes. |
+| C7 | Equipment references | Optional exact known setup and technique references. | Which additional gear, line, leader, or trailer references are useful? | None - just lure or bait. This is because for these Gear items we want to populate the "My Catch History" card. That is also true for Locations KB entries, but we don't need that functionality for other Gear or KB types - if I decide to do that for any other gear used on a catch I would just add that to the Notes for that catch. |
+| C8 | Conditions | Keep spot/depth/structure/conditions in Markdown unless filters require fields. | Which conditions, if any, should be structured for reporting? | None. |
+| C9 | Pictures | Shared picture structure. | One picture or multiple? Species fallback, generic placeholder, or none? | Single picture. If a Species is included in the catch log then use that species' picture. If the Species field is left blank then do not use a picture for the catch. |
+| C10 | Browse | Chronological list with useful filters. | Which filters and sorts do you need? | This is not a P1, but the P2 filters are Species, Location, and Lure/Bait. The P3 filter is Date Range. |
+| C11 | Backlinks | Derive only real references. | Which Gear/KB pages should display Catch history? | Gear: Lure and Bait. KB: Location and Species. |
+| C12 | Analytics | Defer dashboards and statistics. | Any statistics, maps, or CSV export needed at launch? | No. |
+| C13 | History | Preserve all five existing records and Notes exactly. | Confirm no unknown historical facts should be filled by inference. | Confirmed. |
 
 ## 5. Images and media
 
 **Insight:** Eliminate source/provenance/owner metadata from the application. The containing item establishes its representative picture; Git history still protects old files.
 
-| ID | Topic | Proposed default / requirement | Question for you |
-|---|---|---|---|
-| M1 | Picture authority | Accepted direction: one optional picture object on each Gear/KB item, no separate authoritative registry. | Should Catch use exactly the same structure? |
-| M2 | Metadata | Accepted direction: local path, alt text, optional authored caption; no source, provenance, owner, or product destination. | Should alt text be required or default to the item name and remain editable? |
-| M3 | Acquisition | Accepted direction: user-supplied images only; no web sourcing. | Confirm no automatic image retrieval is needed. |
-| M4 | Filenames | Accepted direction: independent of ID; validate safety, not naming convention. | Permit spaces, capitals, and Unicode, or prefer a safe ASCII subset? |
-| M5 | Folders | Clear upload destination with no hidden naming rules. | One shared image folder or separate Gear/KB/Catch/content folders? |
-| M6 | Upload UX | Prefer file selection/upload integrated with chosen authoring architecture. | Must the form upload the file, or is a separate GitHub upload acceptable? |
-| M7 | Replacement | Keep/Replace/Remove, no accidental overwrite or premature deletion. | Keep replaced files only in Git history or also in active assets? |
-| M8 | Sharing | Ordinary explicit path reuse; no ownership graph. | May two items reference the same image file? |
-| M9 | Derivatives | One authoritative picture; generate thumbnails only if performance requires. | Separate optimized thumbnails/full-size images now, or only when demonstrated necessary? |
-| M10 | Viewer | Basic enlarge/close; remove source and product-page UI. | Keep zoom, pan, pinch, and caption display? |
-| M11 | Markdown images | Keep local images in articles/Notes. | Should Catch Notes support them? Do you need representative-image galleries? |
-| M12 | Formats | Validate actual format, extension, existence, safe path, size, and collision. | Which formats and size limit should be supported? |
-| M13 | Transforms | No automatic cropping or changes without approval. | Should uploads be resized/compressed automatically? |
-| M14 | Remote images | Local representative images by default. | Disallow remote images entirely, or only for representative pictures? |
+| ID | Topic | Proposed default / requirement | Question for you | Response |
+|---|---|---|---|---|
+| M1 | Picture authority | Accepted direction: one optional picture object on each Gear/KB item, no separate authoritative registry. | Should Catch use exactly the same structure? | Not exactly. Catch should use the picture for the selected Species. As noted above though, Species should be an optional field for a catch, so a picture may not exist. |
+| M2 | Metadata | Accepted direction: local path, alt text, optional authored caption; no source, provenance, owner, or product destination. | Should alt text be required or default to the item name and remain editable? | I really don't need alt text. If you want to include it you are welcome to, but just make it the picture's caption. I don't want to see an Alt Text field on an Add/Edit Item page. |
+| M3 | Acquisition | Accepted direction: user-supplied images only; no web sourcing. | Confirm no automatic image retrieval is needed. | Confirmed. |
+| M4 | Filenames | Accepted direction: independent of ID; validate safety, not naming convention. | Permit spaces, capitals, and Unicode, or prefer a safe ASCII subset? | I prefer to use spaces and capitals, but if you have concerns about this I am flexible - let me know. |
+| M5 | Folders | Clear upload destination with no hidden naming rules. | One shared image folder or separate Gear/KB/Catch/content folders? | It's helpful to me when the GitHub folder structure aligns with the site architecture. That way, when I am looking for an image or markdown file for a Gear item I would start in a folder named "Gear." Where I think that can get messy though, is if we go too far down that path - since there's a chance we may add or rename Types, for example, we would not want to have folders at that level. I think this is less risky for the Category level (Rods, Reels, Lures, Snaps & Swivels, Species, Knots, Gear Guides, etc.). So my preference is to have Gear\[Category] and KB[Category] folders. Let me know if you agree with that, and if you do then we can discuss the next level - we need to decide where to store the authoritative picture (where applicable), and where to store the content (markdown files and images reference in those files). What do you think of this: Gear\[Category]\assets, Gear\[Category]\content, KB[Category]\assets, KB[Category]\content, and Catches\content? |
+| M6 | Upload UX | Prefer file selection/upload integrated with chosen authoring architecture. | Must the form upload the file, or is a separate GitHub upload acceptable? | A form upload is preferable, but it is not a P1. A GitHub upload is acceptable. |
+| M7 | Replacement | Keep/Replace/Remove, no accidental overwrite or premature deletion. | Keep replaced files only in Git history or also in active assets? | Only in Git history. |
+| M8 | Sharing | Ordinary explicit path reuse; no ownership graph. | May two items reference the same image file? | Yes. |
+| M9 | Derivatives | One authoritative picture; generate thumbnails only if performance requires. | Separate optimized thumbnails/full-size images now, or only when demonstrated necessary? | I *think* only if necessary, but how will we know when that is necessary? |
+| M10 | Viewer | Basic enlarge/close; remove source and product-page UI. | Keep zoom, pan, pinch, and caption display? | Yes, keep zoom, pan, pinch, and caption display. You did a great job with the image viewer. |
+| M11 | Markdown images | Keep local images in articles/Notes. | Should Catch Notes support them? Do you need representative-image galleries? | Yes, Catch Notes should support them. What do you mean by representative-image galleries? |
+| M12 | Formats | Validate actual format, extension, existence, safe path, size, and collision. | Which formats and size limit should be supported? | I'd like you to propose these limits and the rationale for each and I can review and approve. |
+| M13 | Transforms | No automatic cropping or changes without approval. | Should uploads be resized/compressed automatically? | I worry that this is an area that could get too complicated. Is it possible that when we agree to size limits per above we can then just prevent uploads of anything that exceeds them? |
+| M14 | Remote images | Local representative images by default. | Disallow remote images entirely, or only for representative pictures? | Disallow entirely. |
 
 ## 6. Markdown and content
 
