@@ -1,0 +1,158 @@
+name: Publish isolated Fishing v2 preview
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/fishing-v2-preview.yml']
+  pull_request:
+    paths: ['.github/workflows/fishing-v2-preview.yml']
+permissions:
+  contents: read
+  actions: read
+  pages: read
+concurrency:
+  group: ${{ github.event_name == 'pull_request' && github.ref || 'fishing-pages' }}
+  cancel-in-progress: false
+env:
+  V2_REF: 25cc81084f02ec395546f5949023fb0461bc0542
+  V1_REF: cac5b4108a63fcaab498b256afa4420ce2dbbd70
+  V1_ARCHIVE_SHA: fc036dc92dbf25a250917f8236c22099b798be1d5f2aa7274f6df9cb5215396e
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify current v1 and exact feature revision
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(gh api repos/$GITHUB_REPOSITORY/git/ref/heads/feature/v2-implementation-20260908 --jq .object.sha)" = "$V2_REF"
+          git fetch origin "$V2_REF" main
+          git diff --exit-code "$V1_REF" origin/main -- pwa Fishing_Gear_Registry.md Fishing_Tackle_Inventory.md Topics ':!pwa/README_v2_Handoff_2026-09-09.md' ':!pwa/README.md'
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs?head_sha=$V2_REF&status=success" --jq '.workflow_runs[] | select(.name=="V2 browser and offline acceptance") | .id' > /tmp/accepted-runs
+          test -s /tmp/accepted-runs
+          gh api "repos/$GITHUB_REPOSITORY/pages" --jq '{html_url,build_type,status}'
+          git checkout --detach "$V2_REF"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Complete pinned validation and browser gate
+        working-directory: v2
+        run: |
+          npm ci --no-audit --no-fund
+          npm audit --omit=dev --audit-level=high
+          npm test
+          npm run build -- --pending-media --source-revision="$V2_REF"
+          npm run verify
+          npx playwright install --with-deps chromium webkit
+          npm run test:browser
+      - name: Authenticate the verified v1 archive and compare actual hosted bytes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(gh api repos/$GITHUB_REPOSITORY/actions/artifacts/10111367240 --jq .workflow_run.head_sha)" = "$V1_REF"
+          gh api repos/$GITHUB_REPOSITORY/actions/artifacts/10111367240/zip > /tmp/v1-production.zip
+          echo "$V1_ARCHIVE_SHA  /tmp/v1-production.zip" | sha256sum --check
+          gh api repos/$GITHUB_REPOSITORY/actions/artifacts/10060378687/zip > /tmp/v1-migration-source.zip
+          echo '83100e9cf2788b2d33959b39a6bb63fdd0e78c5e512936a07e46b22632bf7dbf  /tmp/v1-migration-source.zip' | sha256sum --check
+          mkdir /tmp/v1-root
+          unzip -q /tmp/v1-production.zip -d /tmp/v1-root
+          node v2/tools/verify-hosted.mjs --v1=/tmp/v1-root --v1-only=true
+          mkdir /tmp/combined
+          cp -a /tmp/v1-root/. /tmp/combined/
+          test ! -e /tmp/combined/v2-preview
+          cp -a v2/dist /tmp/combined/v2-preview
+          diff -qr /tmp/v1-root /tmp/combined --exclude=v2-preview
+      - uses: actions/upload-artifact@v4
+        with:
+          name: combined-preview-and-recovery
+          path: |
+            /tmp/combined/
+            /tmp/v1-production.zip
+            /tmp/v1-migration-source.zip
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: isolated-preview-gate-evidence
+          path: v2/.test-output/
+          include-hidden-files: true
+          retention-days: 30
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: validate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      actions: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: https://ginosega.github.io/fishing/v2-preview/
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v4
+        with:
+          name: combined-preview-and-recovery
+          path: /tmp/publication
+      - name: Preserve durable v1 rollback checkpoint before publication
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(gh api repos/$GITHUB_REPOSITORY/git/ref/heads/main --jq .object.sha)" = "$GITHUB_SHA"
+          test "$(gh api repos/$GITHUB_REPOSITORY/git/ref/heads/feature/v2-implementation-20260908 --jq .object.sha)" = "$V2_REF"
+          echo "$V1_ARCHIVE_SHA  /tmp/publication/v1-production.zip" | sha256sum --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          rollback="checkpoint/v1-before-v2-preview-20260909"
+          if git ls-remote --exit-code --heads origin "$rollback"; then
+            git fetch origin "$rollback"
+            git show FETCH_HEAD:recovery/v1-production.zip | sha256sum | cut -d' ' -f1 > /tmp/existing-sha
+            test "$(cat /tmp/existing-sha)" = "$V1_ARCHIVE_SHA"
+          else
+            git checkout -b "$rollback" "$GITHUB_SHA"
+            mkdir -p recovery
+            cp /tmp/publication/v1-production.zip /tmp/publication/v1-migration-source.zip recovery/
+            printf 'Verified v1 production archive\nSource: %s\nSHA-256: %s\nExtract v1-production.zip at the Pages root to restore v1. v1-migration-source.zip retains the older approved media source bundle. Existing browser stores are retained.\n' "$V1_REF" "$V1_ARCHIVE_SHA" > recovery/README.txt
+            git add recovery
+            git commit -m 'Preserve exact v1 production bundle before isolated v2 preview'
+            git push origin "HEAD:refs/heads/$rollback"
+          fi
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: /tmp/publication/combined
+      - name: Recheck current deployment head
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: test "$(gh api repos/$GITHUB_REPOSITORY/git/ref/heads/main --jq .object.sha)" = "$GITHUB_SHA"
+      - uses: actions/deploy-pages@v4
+      - name: Restore exact verifier
+        run: git checkout --detach "$V2_REF"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify actual hosted preview and preserved v1
+        run: |
+          cd v2
+          npm ci --no-audit --no-fund
+          npx playwright install --with-deps chromium
+          mkdir /tmp/v1-verify
+          unzip -q /tmp/publication/v1-production.zip -d /tmp/v1-verify
+          node tools/verify-hosted.mjs --dist=/tmp/publication/combined/v2-preview --v1=/tmp/v1-verify
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: actual-hosted-preview-verification
+          path: v2/hosted-evidence/
+          retention-days: 90
