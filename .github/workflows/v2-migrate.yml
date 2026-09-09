@@ -1,0 +1,110 @@
+name: V2 pinned migration
+
+on:
+  push:
+    branches: [feature/v2-implementation-20260908]
+    paths:
+      - '.github/workflows/v2-migrate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: fishing-v2-pinned-migration
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    if: github.repository == 'ginosega/fishing' && github.ref == 'refs/heads/feature/v2-implementation-20260908'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - uses: actions/checkout@v4
+        with:
+          ref: 79f36144abad39a9515b8f2d7710852f1c7e7114
+          fetch-depth: 0
+          path: approved-source
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify migration source and apply exact provenance correction
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git apply --check v2/migration/source-fixes.patch
+          git apply v2/migration/source-fixes.patch
+          rm v2/migration/source-fixes.patch
+          python -m pip install --disable-pip-version-check 'Pillow==11.3.0'
+      - name: Download and authenticate pinned source archives
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          download_artifact() {
+            local id="$1" expected="$2" revision="$3" output="$4" actual
+            actual="$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$id" --jq '.workflow_run.head_sha')"
+            test "$actual" = "$revision"
+            curl --fail --location --retry 3 --silent --show-error \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H 'Accept: application/vnd.github+json' \
+              "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/artifacts/$id/zip" -o "$output"
+            echo "$expected  $output" | sha256sum --check --status
+          }
+          download_artifact 10088691303 ff909f020af9460b8d745a4bed5c46bccd199f695ac84626a8cd8cca65f5d0cb c7bb4690a314721c332bd4ef7351c48bb3b743c7 "$RUNNER_TEMP/source-audit.zip"
+          download_artifact 10060378687 83100e9cf2788b2d33959b39a6bb63fdd0e78c5e512936a07e46b22632bf7dbf 4f2fe70f47da9cca3704722de87f7282bcc00f83 "$RUNNER_TEMP/production.zip"
+          download_artifact 10090851445 530050623aa2658150863b41789a1b5d05a5b0a39631843325a58ed24b8c9e84 419c064cf70fd4395f9dc8febdb2435c9073683d "$RUNNER_TEMP/workspace.zip"
+      - name: Restore exact dependency lockfile
+        run: |
+          unzip -p "$RUNNER_TEMP/workspace.zip" package-lock.json > v2/package-lock.json
+          echo '2f96a42dc8b537455015981d83c005b3fe744646f4e12b95bdf06b9de6bd8419  v2/package-lock.json' | sha256sum --check
+          printf 'Pillow==11.3.0\n' > v2/requirements-migration.txt
+      - name: Reproduce migration and verify every approved image
+        run: |
+          python v2/migration/reproduce.py \
+            --audit-zip "$RUNNER_TEMP/source-audit.zip" \
+            --production-zip "$RUNNER_TEMP/production.zip" \
+            --workspace "$RUNNER_TEMP/fishing-v2-input" \
+            --current-source approved-source \
+            --output "$RUNNER_TEMP/fishing-v2-migrated"
+          cp -a "$RUNNER_TEMP/fishing-v2-migrated/Gear" .
+          cp -a "$RUNNER_TEMP/fishing-v2-migrated/KB" .
+          cp -a "$RUNNER_TEMP/fishing-v2-migrated/Catches" .
+          cp "$RUNNER_TEMP/fishing-v2-migrated/v2/migration/reconciliation.json" v2/migration/reconciliation.json
+      - name: Test and verify the complete preview build
+        working-directory: v2
+        run: |
+          npm ci --no-audit --no-fund
+          npm ls --depth=0
+          npm audit --omit=dev --audit-level=high
+          npm test
+          npm run build -- --pending-media --source-revision="$GITHUB_SHA"
+          npm run verify
+      - name: Commit migration with an expected-head guard
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add Gear KB Catches v2/package-lock.json v2/requirements-migration.txt v2/migration/migrate.py v2/migration/reconciliation.json
+          git add -u v2/migration/source-fixes.patch
+          git diff --cached --check
+          git commit -m 'Commit reproduced v2 source and approved exact-byte media'
+          git fetch --no-tags origin feature/v2-implementation-20260908
+          test "$(git rev-parse FETCH_HEAD)" = "$GITHUB_SHA"
+          git push origin HEAD:refs/heads/feature/v2-implementation-20260908
+      - name: Upload verified migration evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: fishing-v2-migration-evidence
+          path: |
+            v2/migration/reconciliation.json
+            v2/dist/release.json
+            v2/dist/releases/*/manifest.json
+          retention-days: 30
