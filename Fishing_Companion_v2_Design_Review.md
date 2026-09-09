@@ -75,11 +75,11 @@ For a future offline outbox, retries must be idempotent: sending the same change
 
 The Update Available question concerns published app/content versions, not editing an item. A form changes nothing authoritative until the explicit Save/Prepare action. A newly deployed repository version may become available separately. The application should not reload over unsaved form work or silently lose a pending edit. For P1 read-only data, a simple version refresh and offline-cache status is sufficient.
 
-**Decision A1:** Accept the staged P1 handoff → optional P2 direct Save → optional P2 offline outbox plan, or do you want to prioritize a different order?
+**Decision A1:** Accept the staged P1 handoff → optional P2 direct Save → optional P2 offline outbox plan, or do you want to prioritize a different order? **[Gino Sega]:** Accepted.
 
-**Decision A2:** For a future direct Save, are you willing to authorize GitHub through a secure login/authorization flow and, if necessary, a small backend service? This does not imply adding a user-account system to the public reading site.
+**Decision A2:** For a future direct Save, are you willing to authorize GitHub through a secure login/authorization flow and, if necessary, a small backend service? This does not imply adding a user-account system to the public reading site. **[Gino Sega]:** That sounds reasonable; we can revisit if and when we address this P2.
 
-**Decision A3:** For last-writer-wins, do you prefer a whole-document replacement when the same Markdown article is edited twice, while structured fields merge independently where safe? My recommendation is yes, with no silent overwrite of unrelated records and a visible failure for deletion/schema conflicts.
+**Decision A3:** For last-writer-wins, do you prefer a whole-document replacement when the same Markdown article is edited twice, while structured fields merge independently where safe? My recommendation is yes, with no silent overwrite of unrelated records and a visible failure for deletion/schema conflicts. **[Gino Sega]:** I agree with your recommendation.
 
 ## 4. Discussion B — Source folders, filenames and media limits
 
@@ -155,13 +155,13 @@ We should measure rather than guess. The first implementation should load repres
 
 A representative-image gallery means several pictures attached to one entry, with next/previous navigation or thumbnails. You have confirmed that one representative picture plus any number of images in Markdown is sufficient, so no gallery data model is needed. Catch Notes should use the same Markdown image support.
 
-**Decision B1:** Approve the category-level folder pattern above, including stable folder names and no automatic file move on reclassification?
+**Decision B1:** Approve the category-level folder pattern above, including stable folder names and no automatic file move on reclassification? **[Gino Sega]:** Approved.
 
-**Decision B2:** Approve the safe human-readable filename approach, including spaces/capitals and no ID matching requirement?
+**Decision B2:** Approve the safe human-readable filename approach, including spaces/capitals and no ID matching requirement? **[Gino Sega]:** Approved.
 
-**Decision B3:** Are JPEG/PNG/WebP/GIF, 10 MiB, and the proposed 6,000-pixel/36-megapixel limit acceptable? I recommend explicit rejection rather than automatic resizing. We will verify the policy against the existing library before final approval.
+**Decision B3:** Are JPEG/PNG/WebP/GIF, 10 MiB, and the proposed 6,000-pixel/36-megapixel limit acceptable? I recommend explicit rejection rather than automatic resizing. We will verify the policy against the existing library before final approval. **[Gino Sega]:** Accepted and approved.
 
-**Decision B4:** Approve one authoritative image with lazy loading and performance measurement before considering generated thumbnails? No galleries or automatic optimization in P1.
+**Decision B4:** Approve one authoritative image with lazy loading and performance measurement before considering generated thumbnails? No galleries or automatic optimization in P1. **[Gino Sega]:** Approved.
 
 ## 5. Discussion C — Rods & Reels and migration of setup data
 
@@ -175,11 +175,11 @@ The likely migration is six individual records, three rods and three reels, repl
 
 You specified five types: Baitcasting rod, Spinning rod, Baitcasting reel, Spinning reel, and Spincasting reel. A sixth type, Spincasting rod, would be a natural way to represent the third rod separately; we should not silently add it without agreement. The original three setup Notes, component facts and pictures must be reconciled into the new items without duplication or lost narrative. Any existing links to a combined setup need a deliberate migration mapping. We will not infer new ownership or equipment identities from historical reference material.
 
-**Decision C1:** Should we add **Spincasting rod** as a sixth Rods & Reels type? If not, which of your five types should contain the spincasting rod?
+**Decision C1:** Should we add **Spincasting rod** as a sixth Rods & Reels type? If not, which of your five types should contain the spincasting rod? **[Gino Sega]:** Yes, add it as a sixth type.
 
-**Decision C2:** For the still-unidentified spincasting rod, should the new record use the known combo description with an unknown model until you identify it? I recommend that rather than inventing a model.
+**Decision C2:** For the still-unidentified spincasting rod, should the new record use the known combo description with an unknown model until you identify it? I recommend that rather than inventing a model. **[Gino Sega]:** Copy the current manufacturer, model, specifications, and links from the current rod and reel items to the new ones. Copy the notes content used for the current setup into two identical markdown files, one for the rod and one for the reel. I will make changes to the specifications and notes using the Edit Gear Item feature on the new rod and reel pages.
 
-**Decision C3:** Do you agree that we should preserve all unaffected IDs, assign new IDs to the individual rod/reel records, and maintain an old-to-new mapping only in the migration report (not as a permanent setup-compatibility system)?
+**Decision C3:** Do you agree that we should preserve all unaffected IDs, assign new IDs to the individual rod/reel records, and maintain an old-to-new mapping only in the migration report (not as a permanent setup-compatibility system)? **[Gino Sega]:** Yes, I agree.
 
 ## 6. Discussion D — Catch simplification and historical preservation
 
@@ -191,9 +191,9 @@ The current five Catch records have null setup/technique references and null exa
 
 The user has explicitly made Species optional because identification may be unknown. I recommend that Location and Lure/Bait also be optional, consistent with the stated goal of avoiding invented or mandatory associations. A missing Species means no representative image; a selected Species without a picture also means no image. A missing owned Lure/Bait reference may still have explanatory Notes, but does not create a backlink to a product that is not recorded as owned.
 
-**Decision D1:** Confirm the exact P1 Catch fields above, including optional Location as well as optional Species and Lure/Bait, and no separate Catch picture.
+**Decision D1:** Confirm the exact P1 Catch fields above, including optional Location as well as optional Species and Lure/Bait, and no separate Catch picture. **[Gino Sega]:** Confirmed.
 
-**Decision D2:** Approve migrating existing structured Size values to plain text while preserving their original units and all current historical facts? No automatic enrichment or guesses.
+**Decision D2:** Approve migrating existing structured Size values to plain text while preserving their original units and all current historical facts? No automatic enrichment or guesses. **[Gino Sega]:** Approved.
 
 ## 7. Discussion E — KB presentation taxonomy and internal links
 
@@ -205,9 +205,9 @@ For example, a Texas rig reference can reasonably be a Gear Guide; a spring bass
 
 I recommend keeping `gear://<stable-id>` and `kb://<stable-id>` links. They are already used in authored content, are independent of display names and physical paths, and give us durable navigation across a file reorganization. The editor can expose a read-only ID and a Copy Link action on each item, so you do not have to manually construct or hunt for a link. Copy Link is a small usability control, not a relationship database. Standard relative Markdown links can remain valid for ordinary local resources, but entity navigation should use the stable-ID convention.
 
-**Decision E1:** Accept the practical Gear Guides/Techniques editorial rule, with ambiguous entries classified by their primary purpose and authored cross-links rather than additional taxonomy fields?
+**Decision E1:** Accept the practical Gear Guides/Techniques editorial rule, with ambiguous entries classified by their primary purpose and authored cross-links rather than additional taxonomy fields? **[Gino Sega]:** Accepted.
 
-**Decision E2:** Keep the current `gear://` / `kb://` convention and add a simple Copy Link control? I recommend this over changing all existing authored links.
+**Decision E2:** Keep the current `gear://` / `kb://` convention and add a simple Copy Link control? I recommend this over changing all existing authored links. **[Gino Sega]:** Agreed.
 
 ## 8. Proposed minimal domain contracts (illustrative, not approved schemas)
 
