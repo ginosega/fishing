@@ -1,8 +1,14 @@
 # Fishing Companion v2 — Work Handoff
 
-**Checkpoint:** September 9, 2026, Pacific time. This is the durable source-backed continuation record for the user-authorized temporary Work session. It is not a completed v2 acceptance or production-release certificate. Restore current GitHub state before acting; the identifiers below are dated evidence, not instructions to reset newer work.
+**Historical checkpoint:** September 9, 2026, Pacific time. This is the durable source-backed continuation record for the user-authorized temporary Work session. It is not a completed v2 acceptance or production-release certificate. Restore current GitHub state before acting; the identifiers below are dated evidence, not instructions to reset newer work.
 
-## Repository and release state
+## Verified preview closeout
+
+P1 engineering and automated browser acceptance are complete. The isolated [v2 preview](https://ginosega.github.io/fishing/v2-preview/) is published and hosted verification passed; user review is pending. V1 remains at the root. Draft PR 64 is unmerged. See [Fishing_v2_Preview_Release_2026-09-09.md](Fishing_v2_Preview_Release_2026-09-09.md) for exact evidence and recovery.
+
+The sections below preserve the initial September 9 engineering handoff and its failure evidence. Their old status labels and next-action instructions are historical, superseded by the preview release record. Do not repeat migration or repaired work from those instructions. The temporary Work phase is complete; continue user review in Chat.
+
+## Historical repository and release state
 
 | Item | Verified checkpoint |
 |---|---|

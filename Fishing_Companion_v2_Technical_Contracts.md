@@ -1,6 +1,6 @@
 # Fishing Companion v2 — Minimal Architecture and Technical Contracts
 
-**Status:** Implementation-ready design contract; no v2 runtime or migration has been executed. The approved requirements remain authoritative.
+**Status:** Original approved design/audit preserved. Migration, P1 engineering and isolated preview publication are now complete; user review and production cutover remain pending. Current evidence: [Fishing_v2_Preview_Release_2026-09-09.md](Fishing_v2_Preview_Release_2026-09-09.md).
 **Date:** September 8, 2026, Pacific time.
 **Source baseline:** `1fa82a0cb653b8205bc8a45a1cf4608a616bf3b2`.
 **Related:** [Approved Baseline](Fishing_Companion_v2_Approved_Baseline.md) · [Source Audit](Fishing_Companion_v2_Source_Audit.md) · [JSON Schema](v2/contracts/schema.json).

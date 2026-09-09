@@ -4,7 +4,7 @@
 
 ## V2 design approval
 
-All fourteen decisions in the user-annotated Design Review are accepted. Decision source: `0bd773366130a302b0e80d5cd085a71731ff9e63`. The original Inventory and Design Review preserve the user's exact wording. The Approved v2 Baseline is the consolidated requirements authority. The source audit and minimal architecture/contracts are complete, with September 9 implementation addenda. The implementation and pinned migration are committed; browser acceptance and preview remain incomplete. P2 features remain separately authorized.
+All fourteen decisions in the user-annotated Design Review are accepted. Decision source: `0bd773366130a302b0e80d5cd085a71731ff9e63`. The original Inventory and Design Review preserve the user's exact wording. The Approved v2 Baseline is the consolidated requirements authority. The source audit and minimal architecture/contracts are complete, with September 9 implementation addenda. P1 engineering and automated browser acceptance are complete. The isolated [v2 preview](https://ginosega.github.io/fishing/v2-preview/) is published and hosted verification passed; user review is pending. V1 remains at the root. Draft PR 64 is unmerged. See [Fishing_v2_Preview_Release_2026-09-09.md](Fishing_v2_Preview_Release_2026-09-09.md) for exact evidence and recovery. P2 features remain separately authorized.
 
 | Area | Accepted decision |
 |---|---|
@@ -31,12 +31,16 @@ The remaining Inventory responses are approved requirements: retain current doma
 |---|---|
 | Scope authorization | The user authorized P1 implementation through browser/offline acceptance and isolated preview. A temporary Work session is approved for authenticated repository/development/browser execution, not complexity alone. The permanent Chat-default policy remains. |
 | Migration | The pinned one-time migration succeeded in run `34328748390`, commit `6615ae7296e48d90dceab303b6b5a1fbc041ab80`. Gear 66 → 69, KB 54, Catches 5; exact approved narrative and image adoption reconciliation preserved. Do not rerun the original migration merely to resume. |
-| Media | Forty-nine archived captures explicitly adopted, two rejected. Seven required exceptions plus one optional generic inline-spinner picture remain. Rapala F-3 is incorrectly optional in the committed report and must be corrected. No automatic acquisition, invented replacement or silent deletion. |
+| Media | Forty-nine archived captures explicitly adopted, two rejected. Seven required exceptions plus one optional generic inline-spinner picture remain. Rapala F-3 is now correctly required in the report and regression coverage. No automatic acquisition, invented replacement or silent deletion. |
 | Device baseline | The user accepted source equivalence and waived a separate device-only IndexedDB export. No device inspection was performed. Preserve old stores and reconcile any newly discovered local-only data before retirement. |
-| Browser acceptance | First hosted run `34330339245` passed two of six. Complete-library offline install/reload and mobile/worker-scope scenarios passed; viewer/editor selectors and update/recovery cases remain. Do not weaken meaningful checks. |
-| Offline integrity | Preserve immutable pinned releases and last-known-good behavior. A successful verified update must select the correct release after explicit reload; failed/corrupt updates must not delete the only complete cache or mix code and data. Treat suspected causes as investigation notes until tests pass. |
+| Browser acceptance | Repaired at `5da786ef121d7cfa39f98a8c69f3b6cf09f8eca6`: 19 core and 16 Chromium/WebKit scenarios pass, plus actual hosted verification. Earlier failed runs remain evidence. No physical-device inspection is claimed. |
+| Offline integrity | Preserve immutable pinned releases and last-known-good behavior. A successful verified update must select the correct release after explicit reload; failed/corrupt updates must not delete the only complete cache or mix code and data. Unique cache generations commit a completion marker only after all bytes verify; failed attempts retain older complete releases. Offline Ready verifies current bytes. |
 | Preview | Publish only at `/fishing/v2-preview/` with isolated service-worker scope, preserving v1 root and a recoverable baseline. Verify actual hosted assets. Explicit preview acceptance and separate production-cutover authorization remain required. |
 | Documentation | Preserve original approved requirements, source audit, technical contracts, machine schemas and historical records. Current Context, TODO, Decision Log and bootstrap must reflect implemented/migrated state. Dated addenda retain original audit/design detail. |
+
+## September 9 verified preview milestone
+
+Workflow-only PR 66 and refresh PR 67 publish the isolated preview with the exact current v1 root, after preserving current and migration-source archives in Git. The [preview release record](Fishing_v2_Preview_Release_2026-09-09.md) records hosted evidence. The authorized temporary Work phase is complete; review continues in Chat. User preview acceptance, required media and separate production cutover remain open. No P2 work or device inspection is implied.
 
 ## Standing decisions
 
@@ -53,7 +57,7 @@ The remaining Inventory responses are approved requirements: retain current doma
 
 ## Current production authority
 
-The last fully documented v1 application release is PR 60, final head `cd47dc9ce39660840de493346e7df9fda72a14e5`, CI #307 / `34191643311`, merge `ecd9f3d52ca8180ea4f48ec888e7574105deafda`, production #308 / `34191692935`. Later direct-main changes exist. The audited source baseline is `1fa82a0cb653b8205bc8a45a1cf4608a616bf3b2`; the latest inspected successful production run is #312 / `34237232075`, source `4f2fe70f47da9cca3704722de87f7282bcc00f83`. Verify actual main/current deployment before acting. V1-specific model/media/authoring rules remain in force until cutover.
+The last fully documented v1 application release is PR 60, final head `cd47dc9ce39660840de493346e7df9fda72a14e5`, CI #307 / `34191643311`, merge `ecd9f3d52ca8180ea4f48ec888e7574105deafda`, production #308 / `34191692935`. Later direct-main changes exist. The audited source baseline is `1fa82a0cb653b8205bc8a45a1cf4608a616bf3b2`; the original migration-media run was #312 / `34237232075`. Current preserved v1 is run #314 / `34369680844`, source `cac5b4108a63fcaab498b256afa4420ce2dbbd70`, published unchanged alongside the isolated preview. Verify actual main/current deployment before acting. V1-specific model/media/authoring rules remain in force until cutover.
 
 ## V1-only architecture (historical during migration)
 
@@ -61,4 +65,4 @@ Gear schema 4 uses JSON/IndexedDB, paired setups, manufacturer objects, ordered 
 
 ## Open work
 
-The canonical TODO contains v2 implementation, browser/offline acceptance, media resolution, isolated preview/cutover and existing fishing/gear research. FISH063's old media-authoring policy and FISH039's setup recording are superseded for v2; they do not justify reintroducing retired structures. PowerBait hook-size and loop-knot guidance remain unresolved. The next unused canonical task ID is FISH-TODO-082. No approved future feature is treated as already deployed.
+The canonical TODO now tracks user preview review, required media resolution, separately authorized cutover and existing fishing/gear research. Engineering, automated acceptance and isolated publication are complete. FISH063's old media-authoring policy and FISH039's setup recording are superseded for v2; they do not justify reintroducing retired structures. PowerBait hook-size and loop-knot guidance remain unresolved. The next unused canonical task ID is FISH-TODO-082. No approved future feature is treated as already deployed.
