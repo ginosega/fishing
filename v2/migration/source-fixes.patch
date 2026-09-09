@@ -1,0 +1,25 @@
+diff --git a/v2/migration/migrate.py b/v2/migration/migrate.py
+index 6c6dc0c..7733b02 100644
+--- a/v2/migration/migrate.py
++++ b/v2/migration/migrate.py
+@@ -34,7 +34,8 @@ def safe(path):
+ 
+ class Migration:
+  def __init__(self,args):
+-  self.a=args;self.source=Path(args.source);self.archive=Path(args.archive);self.out=Path(args.output)
++  self.a=args;self.source=Path(args.source).resolve();self.archive=Path(args.archive).resolve();self.out=Path(args.output).resolve()
++  if self.out.exists() and any(self.out.iterdir()):raise ValueError('Migration output must be an empty directory')
+   self.report={'sourceRevision':args.source_revision,'archiveRevision':ARCHIVE_REVISION,'approval':'pending-media-preview' if args.allow_pending else 'cutover-candidate','counts':{},'files':[],'fieldTransformations':[],'splitMappings':{},'exceptions':[],'references':[]}
+   self.pathmap={};self.media={};self.used={};self.newpaths={};self.mapped_ids={}
+   self.decisions={r['mediaId']:r['decision'] for r in csv.DictReader(open(args.decisions,newline='',encoding='utf-8-sig'))}
+@@ -85,7 +86,9 @@ class Migration:
+   target=self.out/dest;target.parent.mkdir(parents=True,exist_ok=True)
+   if target.exists() and target.read_bytes()!=data:raise ValueError(f'Conflicting file destination: {dest}')
+   target.write_bytes(data)
+-  if not any(r['path']==dest for r in self.report['files']):self.report['files'].append({'path':dest,'bytes':len(data),'sha256':h,'source':rel or str(src)})
++  source_ref=('source:'+rel) if rel else ('production:'+src.relative_to(self.archive).as_posix() if src.is_relative_to(self.archive) else None)
++  if source_ref is None:raise ValueError('Migration input is outside the pinned source and archive')
++  if not any(r['path']==dest for r in self.report['files']):self.report['files'].append({'path':dest,'bytes':len(data),'sha256':h,'source':source_ref})
+   return dest
+  def source_path(self,relative):return self.source/'pwa'/clean(relative)
+  def media_path(self,media_id):
