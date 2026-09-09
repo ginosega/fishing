@@ -1,44 +1,54 @@
-You are continuing my persistent **Fishing** project in a new Work chat. The durable repository is `ginosega/fishing` on GitHub. This prompt is a dated entry point, not a substitute for restoring the latest repository state. My objective is to finish Fishing Companion v2 engineering, publish the isolated preview, and review it before any production cutover.
+You are continuing my persistent **Fishing** project. The durable repository is `ginosega/fishing` on GitHub. This is a dated entry point; restore the latest repository state before acting.
 
-## Operating mode and execution authorization
+## Current objective and operating mode
 
-Chat is the default and permanent project mode. Do not recommend Work merely because a task is complex, lengthy, file-heavy, analytical, involves research/calculations or creates artifacts. I have explicitly authorized this temporary Work session for the specific need for authenticated repository/development/browser execution and continuous implementation through the isolated preview. Return to Chat when this phase is complete unless another specific Work-only need is approved.
+Fishing Companion v2 P1 engineering and isolated preview publication are complete. I am reviewing the [live preview](https://ginosega.github.io/fishing/v2-preview/). The v1 root remains live and unchanged at https://ginosega.github.io/fishing/. Preview acceptance and production cutover have NOT been authorized.
 
-Treat the already-authorized P1 implementation as one end-to-end task. Do not stop for repeated Proceed messages, ask me to reapprove settled requirements, or give status-only terminal responses. Continue through real fixes, meaningful tests, CI, safe preview publication, actual hosted verification and authoritative-record reconciliation. Stop only for a genuine blocker requiring my input/permission or a completed authorized scope. Do not promise background work or a later delivery.
+Chat is the default and permanent project mode. The temporary Work session for authenticated repository/development/browser execution through the verified preview is complete. Continue review in Chat. Do not suggest Work for complexity, duration, file volume, analysis, research, calculations or artifacts. Explain any new specific Work-only execution need and obtain approval before another temporary switch.
 
-## Restore current state before acting
+Do not repeat finished engineering, rerun migration, reset refs, republish an old build or merge draft PR 64 based on a stale handoff. If I authorize a follow-up implementation, carry it through meaningful tests, normal PR/CI, permitted publication, actual hosted verification and authoritative-record reconciliation without repeated Proceed requests. Stop only for a genuine blocker or completed scope; do not promise background delivery.
 
-Read these files from latest main, in order:
+## Restore latest authority
+
+Read from actual latest main in order:
 
 1. `README.md`
 2. `Fishing_Context.md`
 3. `Fishing_TODO.md`
 4. `Fishing_Decision_Log.md`
-5. `Fishing_v2_Work_Handoff_2026-09-09.md`
+5. `Fishing_v2_Preview_Release_2026-09-09.md`, then `Fishing_v2_Work_Handoff_2026-09-09.md` as historical engineering evidence
 6. `Fishing_Companion_v2_Approved_Baseline.md`
-7. `Fishing_Companion_v2_Source_Audit.md` and `Fishing_Companion_v2_Source_Audit_Addendum_2026-09-09.md`
-8. `Fishing_Companion_v2_Technical_Contracts.md`, `Fishing_Companion_v2_Technical_Contracts_Addendum_2026-09-09.md` and `v2/contracts/schema.json`
-9. `Fishing_Companion_v2_Requirements_Inventory.md` and `Fishing_Companion_v2_Design_Review.md` when exact user responses/decisions are needed.
-10. `pwa/README.md`, `pwa/README_v2_Handoff_2026-09-09.md` and the relevant historical release record before modifying or publishing the v1 root.
+7. `Fishing_Companion_v2_Source_Audit.md` and its September 9 addendum
+8. `Fishing_Companion_v2_Technical_Contracts.md`, its September 9 addendum and `v2/contracts/schema.json`
+9. Original Requirements Inventory and Design Review when exact user responses are needed
+10. `pwa/README.md`, `pwa/README_v2_Handoff_2026-09-09.md` and relevant historical release evidence before touching v1; the newer root preview release record supersedes their old deployment checkpoints
 
-Then fetch actual current main, feature branch, PR, CI and Pages state. Preserve any newer user/agent work. Use GitHub as the source of truth; do not rely on a previous chat's temporary filesystem. Do not reset a branch to an old SHA or rerun a one-time migration merely because the bootstrap contains old checkpoints.
+Fetch current main, feature branch, PRs, CI and Pages/deployment state. Preserve newer user/agent work and direct-main edits. GitHub is authoritative, never a prior chat's temporary filesystem.
 
-## Exact engineering continuation
+## Verified preview checkpoint
 
-At the engineering checkpoint, main was `79f36144abad39a9515b8f2d7710852f1c7e7114`, feature branch `feature/v2-implementation-20260908` was `24f57ca7d72a9751e0935c6eb46e842f61493db2`, and draft PR 64 was open/unmerged. The successful migration commit was `6615ae7296e48d90dceab303b6b5a1fbc041ab80`. Latest inspected browser run 34330339245 failed 4/6; core 15/15, dependency audit, build verification, complete-library offline installation/reload, and mobile/worker-scope checks passed. No v2 preview has been published or accepted. The Work Handoff contains exact failures, evidence links, migration hashes, media exceptions and recovery details. The September 9 documentation reconciliation is separate from the engineering checkpoint; always verify the actual current refs.
+- Feature `feature/v2-implementation-20260908`: `5da786ef121d7cfa39f98a8c69f3b6cf09f8eca6`; PR 64 remains draft, open and unmerged.
+- Engineering acceptance run `34376934726`: 19 core and 16 Chromium/WebKit browser scenarios passed. Publication repeats the complete gate at the exact pinned feature revision.
+- Workflow-only PR 66 merged at `5679e1a9c7e829b2745efaf0e42986f07eea6ac0`; footer/workflow refresh PR 67 merged at `1922c8d5f249eaf3e556ee71a26d430791c7b997`; final publication run `34378889165` and actual hosted evidence are recorded in the preview release record.
+- Preview release `b924b223850b4a2741fedb92ce924584`, isolated scope `/fishing/v2-preview/`; 195 manifest assets, 27,623,226 bytes.
+- V1 is exact run #314 / `34369680844`, source `cac5b4108a63fcaab498b256afa4420ce2dbbd70`; all 217 root files retained and verified. The old #312 bundle remains migration-media evidence, not the current v1 root.
+- Durable rollback branch `checkpoint/v1-before-v2-preview-20260909`, commit `4aafcd2f88b35bb34b608e2f85dec1daffc6c1d1`, holds both current-v1 and old migration-source ZIPs. Exact hashes and restore steps are in the release record.
+- Pinned migration `6615ae7296e48d90dceab303b6b5a1fbc041ab80` remains unchanged: Gear 69, KB 54, Catches 5, six independent rod/reel components, 49 approved exact-byte image adoptions and two rejected captures.
 
-Do not restart the vertical slice or recreate migrated records. Continue by fixing the viewer accessible names and test selectors, then investigate the real release-upgrade and failed-content-retry behavior. Keep strict tests for complete verified releases, immutable old versions, corrupt content rejection/repair, last-known-good rollback, dirty-form protection, offline reload, navigation, authoring handoffs, and mobile/scope isolation. Add missing regression coverage and rerun the complete hosted gate. Do not weaken assertions or treat passing build tests as browser acceptance.
+The viewer, selectors, dirty navigation, update/reload race, failed-content retry, atomic cache promotion and honest Offline Ready status have been fixed. Keep strict regression coverage for complete verified releases, immutable older versions, missing/corrupt content, quota/promotion failure, last-known-good recovery, dirty forms, offline reload, navigation, handoffs and mobile/scope isolation. WebKit uses a refused test-origin connection for offline reload because emulated offline reload failed inside its automation engine; integrity/reload assertions remain intact. No physical-device inspection is claimed.
 
-The current migration report incorrectly marks the missing Rapala F-3 picture optional; correct it and enforce seven required media exceptions plus one optional generic inline-spinner exception. The user approved 49 exact-byte archived image adoptions and rejected 2; do not acquire new images automatically. The user accepted source-equivalence evidence and waived a separate device-only IndexedDB export for this baseline. No device inspection is claimed; retain old stores and reconcile any newly discovered data before retirement.
+## Review and remaining gates
 
-Once the engineering gate passes, reconcile current main, preserve the verified v1 root and create an appropriate rollback checkpoint. Publish v2 only at `/fishing/v2-preview/` with its own service-worker scope using the approved safe combined-deployment approach. Verify actual hosted HTML, release pointer, manifest, code, content and representative images, and confirm v1 remains usable. Provide me the live preview URL and a concise review checklist. Stop before production cutover until I explicitly accept the preview and authorize that separate action.
+Review My Gear (including six independent Rods & Reels records), KB articles/images/links, read-only Catch Log and actual historical relationships, and Gear/KB Edit → Prepare/Copy Changes with unsaved-change protection. Wait for Offline ready before trying airplane-mode reload and navigation. P1 handoffs do not directly save to GitHub.
 
-## Scope and source preservation
+Seven required media exceptions remain: Tsuridamashii, Rapala F-3, KB Perch/Popper/Whopper Plopper, Mack's Pee Wee Hoochie and River2Sea Whopper Plopper 60. Generic inline-spinner is the sole optional exception. Rapala's required flag is corrected and tested. The newer v1 archive contains an F-3 image capture, retained as evidence only; do not adopt it or acquire any new image without approval. Preserve all 49 approved captures unchanged until an approved source change.
 
-The Approved Baseline and original user-authored Inventory/Design Review are authoritative. V2 has three independent Gear/KB/Catch domains with shared conventions, not a generic graph. P1 includes read-only Catch Log, full-library offline reading and minimal source-aware Gear/KB Prepare/Copy Changes. P2 direct Save, authentication, integrated uploads, offline editing/outbox/sync and Catch browser authoring remain deferred. No Planner, sessions, paired setup relationships, speculative ownership or media provenance graph, accounts or multi-user expansion.
+I accepted source equivalence and waived a separate device-only IndexedDB export for this baseline. Retain old browser stores and reconcile any later-discovered data before retirement. Do not claim device inspection.
 
-Preserve original Markdown and image bytes, all confirmed facts, stable identities and actual Catch relationships. The approved migration contains Gear 69 / KB 54 / Catches 5 and six independent rod/reel components. Do not infer missing rod models or pictures, purchases or historical Catch attribution. Preserve current user replacements and direct-main edits. Use current source-derived tests rather than permanent whole-article/image hash locks; retain the pinned hashes as migration evidence.
+Only after my explicit preview acceptance AND separate cutover authorization may you integrate PR 64 into production, resolve remaining blocking media, consolidate temporary workflows and remove obsolete active v1 code after successful production verification. Preserve Git history and rollback. Do not run a standalone v1 Pages upload while the combined preview must remain available: it would remove the nested preview. Reconcile current main and rebuild a combined artifact for any authorized preview update; never overlap Pages deployments.
 
-## Release and closeout discipline
+## Scope
 
-Use normal feature-branch/PR integration, exact-head/current-base verification and meaningful CI. Do not bypass permissions, remove a failing test to obtain green, run competing Pages deployments or merge the draft v2 PR into production before the acceptance gate. Consolidate temporary build/migration/acceptance workflows when appropriate without losing evidence. Update Context, Decision Log, TODO, README, affected source/technical/release records and this bootstrap after actual milestones. Perform a final cross-file consistency check before handing back to Chat. Preserve Git history and a recoverable v1 build; never depend on an expiring artifact or this chat's temporary files as the only copy.
+The Approved Baseline and original user responses remain authoritative. V2 has independent Gear/KB/Catch domains with shared conventions, no generic graph. P1 includes read-only Catch Log, full-library offline reading and minimal source-aware Gear/KB Prepare/Copy Changes. P2 direct Save/authentication/uploads/offline editing/outbox/sync and Catch browser authoring remain deferred. No Planner, sessions, paired-setup relationships, speculative ownership/media graph, accounts or multi-user expansion.
+
+Preserve original Markdown and image bytes, confirmed facts, stable identities and actual Catch relationships. Do not infer missing rod models/pictures, purchases or historical attribution. Use current source-derived tests; retain pinned hashes as historical migration evidence, not permanent article locks. Update Context, Decision Log, TODO, README, affected source/technical/release records and this bootstrap after real milestones; cross-check them before handoff.

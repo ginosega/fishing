@@ -1,6 +1,6 @@
 # Fishing Companion v2 — Source, Dependency and Data Audit
 
-**Status:** Repository and verified-build audit complete; external-data and device acceptance gates remain open. This is evidence and a migration plan, not a completed migration or production release.
+**Status:** Original approved design/audit preserved. Migration, P1 engineering and isolated preview publication are now complete; user review and production cutover remain pending. Current evidence: [Fishing_v2_Preview_Release_2026-09-09.md](Fishing_v2_Preview_Release_2026-09-09.md).
 **Audit date:** September 8, 2026, Pacific time.
 **Authoritative source:** `1fa82a0cb653b8205bc8a45a1cf4608a616bf3b2` (approved baseline merge).
 **Verified v1 build:** `4f2fe70f47da9cca3704722de87f7282bcc00f83`, production run #312 / `34237232075`.
