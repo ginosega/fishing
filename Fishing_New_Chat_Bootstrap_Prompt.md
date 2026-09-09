@@ -16,16 +16,16 @@ Read these files from latest main, in order:
 4. `Fishing_Decision_Log.md`
 5. `Fishing_v2_Work_Handoff_2026-09-09.md`
 6. `Fishing_Companion_v2_Approved_Baseline.md`
-7. `Fishing_Companion_v2_Source_Audit.md`
-8. `Fishing_Companion_v2_Technical_Contracts.md` and `v2/contracts/schema.json`
+7. `Fishing_Companion_v2_Source_Audit.md` and `Fishing_Companion_v2_Source_Audit_Addendum_2026-09-09.md`
+8. `Fishing_Companion_v2_Technical_Contracts.md`, `Fishing_Companion_v2_Technical_Contracts_Addendum_2026-09-09.md` and `v2/contracts/schema.json`
 9. `Fishing_Companion_v2_Requirements_Inventory.md` and `Fishing_Companion_v2_Design_Review.md` when exact user responses/decisions are needed.
-10. `pwa/README.md` and the relevant historical release record before modifying or publishing the v1 root.
+10. `pwa/README.md`, `pwa/README_v2_Handoff_2026-09-09.md` and the relevant historical release record before modifying or publishing the v1 root.
 
 Then fetch actual current main, feature branch, PR, CI and Pages state. Preserve any newer user/agent work. Use GitHub as the source of truth; do not rely on a previous chat's temporary filesystem. Do not reset a branch to an old SHA or rerun a one-time migration merely because the bootstrap contains old checkpoints.
 
 ## Exact engineering continuation
 
-At this reconciliation, main was `79f36144abad39a9515b8f2d7710852f1c7e7114`, feature branch `feature/v2-implementation-20260908` was `24f57ca7d72a9751e0935c6eb46e842f61493db2`, and draft PR 64 was open/unmerged. The successful migration commit was `6615ae7296e48d90dceab303b6b5a1fbc041ab80`. Latest inspected browser run 34330339245 failed 4/6; core 15/15, dependency audit, build verification, complete-library offline installation/reload, and mobile/worker-scope checks passed. No v2 preview has been published or accepted. The Work Handoff contains exact failures, evidence links, migration hashes, media exceptions and recovery details.
+At the engineering checkpoint, main was `79f36144abad39a9515b8f2d7710852f1c7e7114`, feature branch `feature/v2-implementation-20260908` was `24f57ca7d72a9751e0935c6eb46e842f61493db2`, and draft PR 64 was open/unmerged. The successful migration commit was `6615ae7296e48d90dceab303b6b5a1fbc041ab80`. Latest inspected browser run 34330339245 failed 4/6; core 15/15, dependency audit, build verification, complete-library offline installation/reload, and mobile/worker-scope checks passed. No v2 preview has been published or accepted. The Work Handoff contains exact failures, evidence links, migration hashes, media exceptions and recovery details. The September 9 documentation reconciliation is separate from the engineering checkpoint; always verify the actual current refs.
 
 Do not restart the vertical slice or recreate migrated records. Continue by fixing the viewer accessible names and test selectors, then investigate the real release-upgrade and failed-content-retry behavior. Keep strict tests for complete verified releases, immutable old versions, corrupt content rejection/repair, last-known-good rollback, dirty-form protection, offline reload, navigation, authoring handoffs, and mobile/scope isolation. Add missing regression coverage and rerun the complete hosted gate. Do not weaken assertions or treat passing build tests as browser acceptance.
 
