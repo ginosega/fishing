@@ -1,0 +1,39 @@
+name: V2 isolated workspace
+on:
+  push:
+    branches: [feature/v2-implementation-20260908]
+    paths:
+      - '.github/workflows/v2-workspace.yml'
+      - 'v2/package.json'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  workspace:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Lock and install exact dependencies
+        run: |
+          cd v2
+          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+          npm ci --no-audit --no-fund
+          npm ls --depth=0
+          npm audit --omit=dev --audit-level=high
+      - name: Package reproducible workspace
+        run: |
+          mkdir -p /tmp/fishing-v2-workspace
+          git bundle create /tmp/fishing-v2-workspace/source.bundle --all
+          cp v2/package-lock.json /tmp/fishing-v2-workspace/package-lock.json
+          tar -czf /tmp/fishing-v2-workspace/node_modules.tar.gz -C v2 node_modules
+          git rev-parse HEAD > /tmp/fishing-v2-workspace/source-revision.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fishing-v2-workspace
+          path: /tmp/fishing-v2-workspace/
+          retention-days: 7
