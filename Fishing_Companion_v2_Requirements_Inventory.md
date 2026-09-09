@@ -117,35 +117,35 @@ The latest inspected production run #312 succeeded. Run #311 failed after deleti
 
 **Insight:** One authoritative document and predictable safe rendering are more valuable than a general-purpose content management system.
 
-| ID | Topic | Proposed default / requirement | Question for you |
-|---|---|---|---|
-| T1 | Narrative authority | Markdown for KB, Gear Notes, and Catch Notes. | Confirm the same narrative format for all three. |
-| T2 | Filenames | One document per entity with stable reference. | Stable-ID, human-readable, or arbitrary Markdown filenames? |
-| T3 | Editor | Simple Markdown editor and preview. | Which toolbar, split view, autosave, or full-screen features matter? |
-| T4 | Internal links | Durable ID-based navigation. | Keep gear:// and kb:// or use standard relative Markdown links? |
-| T5 | External links | Ordinary authored links. | New tabs? Automatic YouTube titles/previews or plain links? |
-| T6 | Markdown features | Common Markdown with safe rendering. | Any required HTML, footnotes, task lists, diagrams, or special syntax? |
-| T7 | Templates | No required article structure. | Optional templates or table of contents needed? |
-| T8 | Deletion | Protect referenced content and report broken links. | Should deletion be blocked while referenced or allow explicit override? |
-| T9 | History | Git history rather than an in-app revision system. | Is ordinary editor undo plus Git sufficient? |
+| ID | Topic | Proposed default / requirement | Question for you | Response |
+|---|---|---|---|---|
+| T1 | Narrative authority | Markdown for KB, Gear Notes, and Catch Notes. | Confirm the same narrative format for all three. | Confirm. |
+| T2 | Filenames | One document per entity with stable reference. | Stable-ID, human-readable, or arbitrary Markdown filenames? | Human-readable. I will need to be able to easily locate it when browsing GitHub, so I suppose it should match the item's name, for example "VMC CRS Crankbait Snaps.md," "Silver Lake, Whatcom County.md," or "Chatterbait.md." |
+| T3 | Editor | Simple Markdown editor and preview. | Which toolbar, split view, autosave, or full-screen features matter? | The current implementation (a "Preview" button but no toolbar, autosave, or full-screen features) is working great. |
+| T4 | Internal links | Durable ID-based navigation. | Keep gear:// and kb:// or use standard relative Markdown links? | I like the current links, but I have not used any yet so if you want to propose a change, I am willing to hear it. |
+| T5 | External links | Ordinary authored links. | New tabs? Automatic YouTube titles/previews or plain links? | No new tabs, no automatic titles or previews. Just plain links. |
+| T6 | Markdown features | Common Markdown with safe rendering. | Any required HTML, footnotes, task lists, diagrams, or special syntax? | Nothing special required - keep as-is. |
+| T7 | Templates | No required article structure. | Optional templates or table of contents needed? | None needed, or wanted. |
+| T8 | Deletion | Protect referenced content and report broken links. | Should deletion be blocked while referenced or allow explicit override? | I worry that detecting and preventing deletion could introduce unnecessary complexity, so I would say leave this out of scope. If I break something, it's on me to find and fix it. |
+| T9 | History | Git history rather than an in-app revision system. | Is ordinary editor undo plus Git sufficient? | Yes. |
 
 ## 7. Browsing and UI
 
 **Insight:** Preserve useful behavior, not post-render patches, duplicate route handlers, or historical implementation mechanisms.
 
-| ID | Topic | Proposed default / requirement | Question for you |
-|---|---|---|---|
-| U1 | Home | Three domain entry points; no unused navigation. | Are these the only home cards? |
-| U2 | Gear layouts | Preserve useful layouts, not their old implementation. | Which pages should remain exactly as they are, and which should change? |
-| U3 | KB layouts | Five flat category cards and familiar article pages. | Any KB navigation/layout changes? |
-| U4 | Search | Simple domain search, with global search only if useful. | One site-wide search, separate searches, or both? Which content must be indexed? |
-| U5 | Filters | Context-specific, not a blanket site-wide rule. | Keep the ten-item threshold? Which pages need filters and which should not have them? |
-| U6 | Grouping | Explicit meaningful grouping and predictable sorting. | Which pages should be grouped? User-controlled sort order? |
-| U7 | Cards | Consistent square contain images without cropping. | Do you need compact/dense list modes? |
-| U8 | Details | Shared header, facts, picture, narrative, links, relevant catch history. | Which sections/order matter on each domain's detail page? |
-| U9 | Navigation | Stable deep links, back behavior, clear missing-item handling. | Should search/filter state survive navigation and refresh? |
-| U10 | Accessibility | Responsive, keyboard accessible, readable, no horizontal overflow. | Any specific accessibility or font-size requirements? |
-| U11 | Appearance | Reuse approved visual language unless redesign has a clear benefit. | Should v2 look essentially like v1 or receive a visual redesign? |
+| ID | Topic | Proposed default / requirement | Question for you | Response |
+|---|---|---|---|---|
+| U1 | Home | Three domain entry points; no unused navigation. | Are these the only home cards? | Yes, and I like your suggestion to add "Catch Log" as a third card. |
+| U2 | Gear layouts | Preserve useful layouts, not their old implementation. | Which pages should remain exactly as they are, and which should change? | Rods & Reels should change to be split into separate rod and reel pages - we've discussed that above. The rest of the Gear pages are fine, no changes needed. The New Gear Item and Edit Gear Item pages will need to change though, per the decisions we've made in this document. |
+| U3 | KB layouts | Five flat category cards and familiar article pages. | Any KB navigation/layout changes? | We don't need the "[#] entries" labels on the category cards. No changes needed to the other KB pages, although we will need to change the New KB Entry and Edit KB Entry pages per the decisions we've made in this document. |
+| U4 | Search | Simple domain search, with global search only if useful. | One site-wide search, separate searches, or both? Which content must be indexed? |  |
+| U5 | Filters | Context-specific, not a blanket site-wide rule. | Keep the ten-item threshold? Which pages need filters and which should not have them? |  |
+| U6 | Grouping | Explicit meaningful grouping and predictable sorting. | Which pages should be grouped? User-controlled sort order? |  |
+| U7 | Cards | Consistent square contain images without cropping. | Do you need compact/dense list modes? |  |
+| U8 | Details | Shared header, facts, picture, narrative, links, relevant catch history. | Which sections/order matter on each domain's detail page? |  |
+| U9 | Navigation | Stable deep links, back behavior, clear missing-item handling. | Should search/filter state survive navigation and refresh? |  |
+| U10 | Accessibility | Responsive, keyboard accessible, readable, no horizontal overflow. | Any specific accessibility or font-size requirements? |  |
+| U11 | Appearance | Reuse approved visual language unless redesign has a clear benefit. | Should v2 look essentially like v1 or receive a visual redesign? |  |
 
 ## 8. Authoring and source of truth
 
