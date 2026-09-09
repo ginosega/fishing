@@ -1304,7 +1304,7 @@
       "kind": "missing-original-picture",
       "id": "rapala-original-floating-f3",
       "gearId": "rapala-original-floating",
-      "optional": true
+      "optional": false
     },
     {
       "kind": "remote-kb-picture",

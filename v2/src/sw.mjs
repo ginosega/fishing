@@ -5,7 +5,7 @@ const RELEASE_ID=__RELEASE_ID__;
 const scope=self.registration.scope;
 const base=new URL(scope).pathname;
 const prefix='fishing-v2:'+base+':';
-const cacheName=prefix+RELEASE_ID,stageName=cacheName+':staging';
+
 const marker=new URL('__fishing_complete__',scope).href;
 const absolute=relative=>new URL(encodedPath(relative),scope).href;
 let operation=null;
@@ -37,7 +37,7 @@ async function completed(){
  return result;
 }
 async function state(failure){
- const entries=await completed(),current=entries.find(x=>x.name===cacheName)||entries.at(-1);
+ const entries=await completed(),current=entries.findLast(x=>x.meta.releaseId===RELEASE_ID)||entries.at(-1);
  return current?{state:'Ready',releaseId:current.meta.releaseId,files:current.meta.files,bytes:current.meta.bytes,failed:failure?.failed||[],message:failure?.message||''}:{state:'Incomplete',releaseId:null,files:0,bytes:0,failed:failure?.failed||[],message:failure?.message||''};
 }
 async function verifyCache(entry){
@@ -50,14 +50,16 @@ async function verifyCache(entry){
 async function ensureRelease(){
  if(operation)return operation;
  operation=(async()=>{
-  let failed='release.json';
+  let failed='release.json',stageName=null;
   try{
-   const existing=(await completed()).find(x=>x.name===cacheName);
+   const existing=(await completed()).findLast(x=>x.meta.releaseId===RELEASE_ID);
    if(existing){try{await verifyCache(existing);await broadcast('FISHING_V2_STATUS',await state());return;}catch{}}
    const pointerBytes=await network('release.json');const pointer=validatePointer(JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(pointerBytes)));
    if(pointer.id!==RELEASE_ID)throw new Error('A newer release is available. Update the application before repairing this release.');
    failed=pointer.manifest;const {manifest,entries,bytes:manifestBytes}=await manifestFor(pointer);
-   await caches.delete(stageName);const staging=await caches.open(stageName);
+   // Each attempt has its own generation. The verified marker commits it in one write.
+   // Never copy over or delete a prior complete generation, even during repair.
+   stageName=prefix+crypto.randomUUID()+':'+RELEASE_ID;const staging=await caches.open(stageName);
    let completedFiles=0,totalBytes=0;
    await broadcast('FISHING_V2_PROGRESS',{state:'Downloading',releaseId:RELEASE_ID,files:entries.size,completed:0,bytes:0});
    for(const file of entries.values()){
@@ -70,11 +72,8 @@ async function ensureRelease(){
    const pointerSha256=await crypto.subtle.digest('SHA-256',pointerBytes).then(b=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''));
    const meta={releaseId:RELEASE_ID,manifestSha256:pointer.manifestSha256,pointerSha256,files:entries.size,bytes:totalBytes,complete:true};
    await staging.put(marker,new Response(JSON.stringify(meta),{headers:{'Content-Type':'application/json'}}));
-   await caches.delete(cacheName);const finalCache=await caches.open(cacheName);
-   for(const request of await staging.keys())if(request.url!==marker)await finalCache.put(request,await staging.match(request));
-   await finalCache.put(marker,await staging.match(marker));
-   await caches.delete(stageName);await broadcast('FISHING_V2_STATUS',await state());
-  }catch(error){await caches.delete(stageName);await broadcast('FISHING_V2_STATUS',await state({message:'Update incomplete; any previous complete release is retained. '+error.message,failed:[failed]}));throw error;}
+   stageName=null;await broadcast('FISHING_V2_STATUS',await state());
+  }catch(error){if(stageName)await caches.delete(stageName);await broadcast('FISHING_V2_STATUS',await state({message:'Update incomplete; any previous complete release is retained. '+error.message,failed:[failed]}));throw error;}
  })();
  try{return await operation;}finally{operation=null;}
 }
@@ -89,12 +88,12 @@ self.addEventListener('fetch',event=>{
  const request=event.request,url=new URL(request.url),scopeUrl=new URL(scope);
  if(request.method!=='GET'||url.origin!==scopeUrl.origin||!url.pathname.startsWith(scopeUrl.pathname))return;
  event.respondWith((async()=>{
-  const entries=await completed(),current=entries.find(x=>x.name===cacheName)||entries.at(-1);
+  const entries=await completed(),current=entries.findLast(x=>x.meta.releaseId===RELEASE_ID)||entries.at(-1);
   let relative;try{relative=decodeURIComponent(url.pathname.slice(scopeUrl.pathname.length));}catch{return new Response('Invalid resource path',{status:400});}
   if(relative==='__fishing_complete__')return new Response('Not found',{status:404});
   const target=request.mode==='navigate'&&(!relative||relative==='index.html')?'index.html':relative;
   const pinned=/^releases\/([a-f0-9]{32})\//.exec(relative);
-  const selected=pinned?entries.find(x=>x.meta.releaseId===pinned[1]):current;
+  const selected=pinned?entries.findLast(x=>x.meta.releaseId===pinned[1]):current;
   if(selected){
    let requested=target;
    const canonical=[...selected.entries.keys()].find(p=>absolute(p)===request.url);

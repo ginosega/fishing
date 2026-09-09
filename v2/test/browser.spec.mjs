@@ -59,7 +59,7 @@ async function openReady(page,release=initial){
  await expect(page.locator('#offline-status')).toContainText('Offline ready',{timeout:120000});
  await expect(page.locator('#app h1').first()).toHaveText('Fishing Companion');
 }
-const heading=(page,name)=>page.locator('#app h1').filter({hasText:name});
+const heading=(page,name)=>page.locator('#app .page-header h1').filter({hasText:name});
 async function route(page,hash,title){await page.goto(base+hash,{waitUntil:'domcontentloaded'});await expect(heading(page,title)).toBeVisible();}
 async function packageFrom(page){await page.getByRole('button',{name:'Prepare Changes'}).click();await expect(page.locator('.package-text')).toBeVisible();return JSON.parse(await page.locator('.package-text').inputValue());}
 async function cacheInfo(page){return page.evaluate(async()=>{const names=(await caches.keys()).filter(x=>x.startsWith('fishing-v2:'));const result=[];for(const name of names){const c=await caches.open(name);const r=await c.match(new URL('__fishing_complete__',location.href));if(r)result.push(await r.json());}return result;});}
@@ -179,6 +179,7 @@ test('a failed or corrupt update retains the previous complete release',async({p
  await context.setOffline(false);state.corrupt.clear();
  await page.getByRole('button',{name:'Update offline library'}).click();
  await expect.poll(()=>page.evaluate(()=>navigator.serviceWorker.controller?.scriptURL),{timeout:120000}).toContain('/sw.js');
+ await expect(page.locator('#offline-status')).toHaveAttribute('data-release-id',next.id,{timeout:120000});
  await page.getByRole('button',{name:'Reload'}).click();
  await expect.poll(()=>page.evaluate(()=>window.__FISHING_V2__?.releaseId),{timeout:120000}).toBe(next.id);
  await route(page,'#/kb/'+fixture.articleId,'');
@@ -198,7 +199,7 @@ test('tampered cached content is rejected and repaired only from verified bytes'
  await expect(page.locator('#app')).toContainText('Unable to display this page');
  await expect(page.locator('#app')).not.toContainText('tampered content');
  await context.setOffline(false);state.fail.clear();
- await route(page,'#/kb/'+fixture.articleId,'');
+ await page.getByRole('button',{name:'Retry',exact:true}).click();
  await expect(page.locator('.markdown-body')).toBeVisible();
  await expect(page.locator('#app')).not.toContainText('tampered content');
 });

@@ -64,5 +64,6 @@ jobs:
             v2/.test-output/
             v2/dist/release.json
             v2/dist/releases/*/manifest.json
+          include-hidden-files: true
           if-no-files-found: warn
           retention-days: 30

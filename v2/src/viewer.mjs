@@ -6,7 +6,7 @@ export function openViewer(src,alt,caption=''){
  function zoom(next){scale=Math.max(1,Math.min(8,next));if(scale===1){x=0;y=0;}apply();}
  const zoomLabel=text('span','100%','zoom-label');
  const close=()=>dialog.close();
- const controls=el('div',{class:'viewer-controls'},button('−',()=>zoom(scale/1.3),{title:'Zoom out'}),zoomLabel,button('+',()=>zoom(scale*1.3),{title:'Zoom in'}),button('Reset',()=>zoom(1)),button('Close',close,{variant:'primary'}));
+ const controls=el('div',{class:'viewer-controls'},button('−',()=>zoom(scale/1.3),{title:'Zoom out','aria-label':'Zoom out'}),zoomLabel,button('+',()=>zoom(scale*1.3),{title:'Zoom in','aria-label':'Zoom in'}),button('Reset',()=>zoom(1)),button('Close',close,{variant:'primary'}));
  stage.append(img);
  stage.addEventListener('pointerdown',event=>{stage.setPointerCapture(event.pointerId);pointers.set(event.pointerId,{x:event.clientX,y:event.clientY});if(pointers.size===1)origin={x:event.clientX,y:event.clientY,tx:x,ty:y};if(pointers.size===2){const [a,b]=[...pointers.values()];pinch={distance:Math.hypot(a.x-b.x,a.y-b.y),scale};}});
  stage.addEventListener('pointermove',event=>{if(!pointers.has(event.pointerId))return;pointers.set(event.pointerId,{x:event.clientX,y:event.clientY});if(pointers.size===2&&pinch){const [a,b]=[...pointers.values()];scale=Math.max(1,Math.min(8,pinch.scale*Math.hypot(a.x-b.x,a.y-b.y)/Math.max(1,pinch.distance)));apply();}else if(pointers.size===1&&origin&&scale>1){x=origin.tx+event.clientX-origin.x;y=origin.ty+event.clientY-origin.y;apply();}});

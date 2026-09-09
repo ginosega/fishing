@@ -164,7 +164,7 @@ class Migration:
    self.gear.append(item)
   for r in self.local['gear']:
    if r['mediaId']=='tsuridamashii-snap-swivels':self.exception('malformed-active-image',r['mediaId'],{'source':r['source']})
-  self.exception('missing-original-picture','rapala-original-floating-f3',{'gearId':'rapala-original-floating','optional':True})
+  self.exception('missing-original-picture','rapala-original-floating-f3',{'gearId':'rapala-original-floating','optional':False})
   self.exception('absent-original-picture','generic-1-inline-spinner',{'optional':True})
   self.report['counts']['gear']={'source':len(self.gear_source),'destination':len(self.gear)}
  def migrate_kb(self):
