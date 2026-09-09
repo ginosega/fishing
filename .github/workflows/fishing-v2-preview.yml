@@ -17,6 +17,17 @@ env:
   V1_REF: 4f2fe70f47da9cca3704722de87f7282bcc00f83
   V1_ARCHIVE_SHA: 83100e9cf2788b2d33959b39a6bb63fdd0e78c5e512936a07e46b22632bf7dbf
 jobs:
+  inspect-production:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Read current production deployment and build identity
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/actions/workflows/fishing-pwa-build.yml/runs?status=success&per_page=8" --jq '.workflow_runs[] | {id,head_sha,event,head_branch,run_number,conclusion}'
+          gh api "repos/$GITHUB_REPOSITORY/deployments?environment=github-pages&per_page=5" --jq '.[] | {id,sha,ref,created_at,statuses_url}'
+          curl --fail --silent --show-error https://ginosega.github.io/fishing/build.json
+          curl --fail --silent --show-error https://ginosega.github.io/fishing/gear-media.json | jq '.[] | select(.id=="eagle-claw-trolling-sinker")'
   validate:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
@@ -153,3 +164,4 @@ jobs:
           name: actual-hosted-preview-verification
           path: v2/hosted-evidence/
           retention-days: 90
+
