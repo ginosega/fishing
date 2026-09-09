@@ -1,58 +1,41 @@
 # Fishing
 
-Durable repository for personal fishing/kayak knowledge, owned Gear, catches and Fishing Companion. GitHub is authoritative. Historical records remain in Git and `History/`, not in competing current databases.
+Durable repository for personal fishing/kayak knowledge, owned Gear, catches and Fishing Companion. GitHub is authoritative. Historical records are retained in Git and `History/`, not maintained as competing current databases.
 
-## Current state — September 9, 2026
+## Current state
 
-**V1 is the production application. V2 implementation and its pinned one-time migration are committed on an isolated feature branch. Browser/offline acceptance is incomplete; the v2 preview has not been published or accepted.** The current handoff is [Fishing v2 Work Handoff](Fishing_v2_Work_Handoff_2026-09-09.md). Do not resume from the older design-only checkpoint.
+**V2 implementation and pinned migration are committed; browser/offline acceptance and isolated preview remain open.** The approved requirements, fourteen user decisions and technical design are complete. The current engineering continuation is documented in [Fishing Companion v2 Work Handoff](Fishing_v2_Work_Handoff_2026-09-09.md). Do not restart the vertical slice or rerun the one-time migration simply because an older document describes it as planned.
 
-The user has approved a temporary Work session for the specific need to run an authenticated development environment, inspect browser failures, implement corrections and carry the authorized work through the isolated preview. Chat remains the default project mode. This is not authorization for production cutover or P2 features.
-
-| Authority | Current checkpoint |
-|---|---|
-| Main at reconciliation | `79f36144abad39a9515b8f2d7710852f1c7e7114` |
-| V2 implementation branch | `feature/v2-implementation-20260908`, head `24f57ca7d72a9751e0935c6eb46e842f61493db2` |
-| Draft integration PR | [#64](https://github.com/ginosega/fishing/pull/64), open and unmerged |
-| Verified migration | `6615ae7296e48d90dceab303b6b5a1fbc041ab80`, run [34328748390](https://github.com/ginosega/fishing/actions/runs/34328748390) succeeded |
-| Latest inspected browser gate | [34330339245](https://github.com/ginosega/fishing/actions/runs/34330339245), failed: 2 passed, 4 failed |
-| Production | [Fishing Companion v1](https://ginosega.github.io/fishing/), latest verified build run #312 / `34237232075` |
-| Intended preview | `/fishing/v2-preview/`, not yet deployed |
-
-The approved migration contains 69 Gear records, 54 KB entries and five Catches; 49 explicitly approved archived images were adopted byte-for-byte. Eight media exceptions remain documented. The current report incorrectly marks the missing Rapala F-3 picture optional; that classification requires correction before acceptance. No source data should be silently discarded or the migration rerun merely because a later chat starts.
-
-## Start or resume work
-
-Read [Fishing_Context.md](Fishing_Context.md), [Fishing_TODO.md](Fishing_TODO.md), [Fishing_Decision_Log.md](Fishing_Decision_Log.md), and the [new-chat bootstrap](Fishing_New_Chat_Bootstrap_Prompt.md). The handoff contains exact CI failures, source hashes, recovery artifacts, and the next engineering actions. Always fetch current GitHub state before making changes; the commit IDs above are a dated checkpoint, not an instruction to reset newer work.
+The existing v1 site remains live at https://ginosega.github.io/fishing/. The latest inspected successful v1 production run is #312 (`34237232075`), source `4f2fe70f47da9cca3704722de87f7282bcc00f83`. The implementation is isolated on `feature/v2-implementation-20260908`, draft PR 64. The pinned migration succeeded at `6615ae7296e48d90dceab303b6b5a1fbc041ab80`. The first hosted browser run `34330339245` passed 2/6 tests; no v2 preview or production cutover has been accepted. Restore actual latest main and branch before acting.
 
 ## Collaborative v2 documents
 
-- [Approved requirements and architecture baseline](Fishing_Companion_v2_Approved_Baseline.md) — accepted product scope and phase gates.
+- [Approved requirements and architecture baseline](Fishing_Companion_v2_Approved_Baseline.md) — accepted product requirements and phase gates.
 - [Requirements Inventory](Fishing_Companion_v2_Requirements_Inventory.md) — original user-authored Response column, preserved verbatim.
 - [Design Review](Fishing_Companion_v2_Design_Review.md) — all fourteen accepted **[Gino Sega]:** decisions.
-- [Source, Dependency and Data Audit](Fishing_Companion_v2_Source_Audit.md) — original audit plus current migration evidence and exceptions.
-- [Minimal Architecture and Technical Contracts](Fishing_Companion_v2_Technical_Contracts.md) — binding design and current implementation addendum.
-- [Machine-readable schema](v2/contracts/schema.json) — draft-2020-12 contracts for the three v2 domains.
-- [Migration reconciliation](v2/migration/reconciliation.json) — exact transformation, files, SHA-256 and unresolved exceptions on the feature branch.
+- [Source, Dependency and Data Audit](Fishing_Companion_v2_Source_Audit.md) — original audit plus the implementation reconciliation, migration evidence and media exceptions.
+- [Minimal Architecture and Technical Contracts](Fishing_Companion_v2_Technical_Contracts.md) — approved design plus the executable implementation and acceptance addendum.
+- [Machine-readable schema](v2/contracts/schema.json) — draft-2020-12 structure for the three v2 domains.
+- [Work Handoff](Fishing_v2_Work_Handoff_2026-09-09.md) — exact commits, failed browser scenarios, preserved artifacts and next engineering sequence.
 
-Original user responses take precedence over summaries. The approved v2 design supersedes conflicting historical architecture for the future application, not the still-live v1 runtime.
+Original user responses take precedence over summaries. The approved v2 design supersedes conflicting historical architectural requirements for the future application, not the still-live v1 runtime.
 
 ## Authoritative project records
 
-- [Context](Fishing_Context.md) — current state, preservation and phase boundaries.
-- [TODO](Fishing_TODO.md) — canonical open work and current task statuses.
+- [Context](Fishing_Context.md) — current source, migration and release status.
+- [TODO](Fishing_TODO.md) — canonical open work; implementation and browser acceptance are in progress, migration complete, preview and media resolution open.
 - [Decision Log](Fishing_Decision_Log.md) — accepted decisions and standing process.
-- [Work Handoff](Fishing_v2_Work_Handoff_2026-09-09.md) — dated recovery/continuation checkpoint for this chat transfer.
-- [New-chat bootstrap](Fishing_New_Chat_Bootstrap_Prompt.md) — copy-ready restoration instructions.
-- [PWA README](pwa/README.md) — still-live v1 implementation and build commands.
-- [Latest documented v1 feature release](pwa/RELEASE_2026-09-08_CRANBERRY_COPY.md) — historical release evidence, not a substitute for later source/CI verification.
-- [History](History/) and Git history — archived source, decisions, tests and releases.
+- [New-chat bootstrap](Fishing_New_Chat_Bootstrap_Prompt.md) — current restoration and temporary Work continuation instructions.
+- [PWA README](pwa/README.md) — current v1 implementation and build commands, with v2 handoff context.
+- [Latest documented v1 release](pwa/RELEASE_2026-09-08_CRANBERRY_COPY.md) — release evidence, not the final word on later direct-main changes.
+- [History](History/) and Git history — archived source, decisions, tests and release evidence.
 
-Root Gear Registry, Tackle Inventory, Topics and former OneNote/PDF material remain historical/reference sources. Structured runtime files and authored Markdown own current facts. Never infer ownership or catches from reference material.
+Root Gear Registry, Tackle Inventory, Topics and former OneNote/PDF material remain historical/reference sources. Structured runtime files and authored Markdown own current facts. Never infer ownership or historical catches from reference material.
 
 ## Operating and release discipline
 
-Use Chat by default. Recommend temporary Work only for a specific Work-only capability with explanation and user approval; complexity, duration, research, calculations, files or artifacts alone are not reasons. The current temporary Work authorization applies to the v2 engineering/preview phase only.
+Use Chat mode by default. Do not recommend Work for complexity, duration, file volume, research, calculations, analysis or artifact creation. Recommend temporary Work only for a specific Work-only capability, explain the need and obtain approval. The user has authorized a temporary Work session for authenticated repository/development/browser execution through the isolated v2 preview. This does not authorize P2 features or production cutover.
 
-Restore latest main and relevant branches before acting. Preserve user-authored files, direct-main changes and exact source bytes. An authorized implementation proceeds end-to-end through validation, PR/CI, deployment verification and reconciliation without repeated approval gates. Progress updates are informational. Stop only for genuine blockers or completed scope. Never claim a test or deployment passed without evidence; do not weaken meaningful tests, bypass permissions, or rerun one-time migrations without a justified preservation need.
+Restore latest main and relevant branches before acting. Preserve user-authored files and direct-main changes. An authorized implementation proceeds end-to-end through validation, normal PR/CI, actual deployment verification and reconciliation without repeated approval gates. Progress updates are informational. Stop only for genuine blockers or completed scope. Respect denied permissions, do not weaken meaningful tests to obtain green, do not rerun one-time migrations, and avoid overlapping Pages releases.
 
-V2 is a static, single-user, GitHub-backed application with full offline reading and minimal Gear/KB authoring handoffs. P2 direct Save, authentication, integrated uploads, offline editing/sync and Catch browser authoring remain deferred. Preserve v1 until an isolated preview is accepted and a separate production-cutover approval is given. Maintain a recoverable v1 checkpoint and avoid overlapping Pages releases. Only the accepted final cutover may remove obsolete active v1 runtime code; retain Git history and a rollback artifact.
+V2 is a clean architecture, not a license to discard data. The initial release is static, single-user and GitHub-backed, with full offline reading and minimal Gear/KB authoring handoffs. The one-time cutover uses a separate preview URL and recoverable v1 baseline. The migration retained exact source content and approved image bytes; seven required media exceptions and one optional missing picture remain. The original device-only export was waived by the user based on source-equivalence evidence; no device inspection is claimed. Preserve the old browser stores. Do not restart an old migration or release from a historical chat.
