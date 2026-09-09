@@ -13,7 +13,7 @@ concurrency:
   group: ${{ github.event_name == 'pull_request' && github.ref || 'fishing-pages' }}
   cancel-in-progress: false
 env:
-  V2_REF: 25cc81084f02ec395546f5949023fb0461bc0542
+  V2_REF: 5da786ef121d7cfa39f98a8c69f3b6cf09f8eca6
   V1_REF: cac5b4108a63fcaab498b256afa4420ce2dbbd70
   V1_ARCHIVE_SHA: fc036dc92dbf25a250917f8236c22099b798be1d5f2aa7274f6df9cb5215396e
 jobs:
