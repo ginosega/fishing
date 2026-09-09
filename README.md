@@ -13,8 +13,8 @@ The existing v1 site remains live at https://ginosega.github.io/fishing/. The la
 - [Approved requirements and architecture baseline](Fishing_Companion_v2_Approved_Baseline.md) — accepted product requirements and phase gates.
 - [Requirements Inventory](Fishing_Companion_v2_Requirements_Inventory.md) — original user-authored Response column, preserved verbatim.
 - [Design Review](Fishing_Companion_v2_Design_Review.md) — all fourteen accepted **[Gino Sega]:** decisions.
-- [Source, Dependency and Data Audit](Fishing_Companion_v2_Source_Audit.md) — original audit plus the implementation reconciliation, migration evidence and media exceptions.
-- [Minimal Architecture and Technical Contracts](Fishing_Companion_v2_Technical_Contracts.md) — approved design plus the executable implementation and acceptance addendum.
+- [Source, Dependency and Data Audit](Fishing_Companion_v2_Source_Audit.md) — complete original audit and preservation evidence; [September 9 addendum](Fishing_Companion_v2_Source_Audit_Addendum_2026-09-09.md) records migration and acceptance state.
+- [Minimal Architecture and Technical Contracts](Fishing_Companion_v2_Technical_Contracts.md) — complete approved design; [September 9 addendum](Fishing_Companion_v2_Technical_Contracts_Addendum_2026-09-09.md) records executable implementation and remaining engineering gates.
 - [Machine-readable schema](v2/contracts/schema.json) — draft-2020-12 structure for the three v2 domains.
 - [Work Handoff](Fishing_v2_Work_Handoff_2026-09-09.md) — exact commits, failed browser scenarios, preserved artifacts and next engineering sequence.
 
@@ -26,7 +26,7 @@ Original user responses take precedence over summaries. The approved v2 design s
 - [TODO](Fishing_TODO.md) — canonical open work; implementation and browser acceptance are in progress, migration complete, preview and media resolution open.
 - [Decision Log](Fishing_Decision_Log.md) — accepted decisions and standing process.
 - [New-chat bootstrap](Fishing_New_Chat_Bootstrap_Prompt.md) — current restoration and temporary Work continuation instructions.
-- [PWA README](pwa/README.md) — current v1 implementation and build commands, with v2 handoff context.
+- [PWA README](pwa/README.md) — current v1 implementation and build commands; [v2 handoff note](pwa/README_v2_Handoff_2026-09-09.md) records the preservation boundary.
 - [Latest documented v1 release](pwa/RELEASE_2026-09-08_CRANBERRY_COPY.md) — release evidence, not the final word on later direct-main changes.
 - [History](History/) and Git history — archived source, decisions, tests and release evidence.
 
