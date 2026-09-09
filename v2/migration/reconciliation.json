@@ -1,0 +1,1885 @@
+{
+  "sourceRevision": "79f36144abad39a9515b8f2d7710852f1c7e7114",
+  "archiveRevision": "4f2fe70f47da9cca3704722de87f7282bcc00f83",
+  "approval": "pending-media-preview",
+  "counts": {
+    "gear": {
+      "source": 66,
+      "destination": 69
+    },
+    "kb": {
+      "source": 54,
+      "destination": 54
+    },
+    "catches": {
+      "source": 5,
+      "destination": 5
+    }
+  },
+  "files": [
+    {
+      "path": "Catches/content/catch-2026-07-27-silver-lake-largemouth-01.md",
+      "bytes": 91,
+      "sha256": "de8677d0605e5c43153172d9eb42a0c63b1d95f785acb3d0d895a6db7bf52989",
+      "source": "source:pwa/catch-content/catch-2026-07-27-silver-lake-largemouth-01.md"
+    },
+    {
+      "path": "Catches/content/catch-2026-08-04-lake-sammamish-largemouth-01.md",
+      "bytes": 109,
+      "sha256": "4753afc6847561aa035cf0f99f157eb92fe431af0b56fd495d5cb52f6e8b161f",
+      "source": "source:pwa/catch-content/catch-2026-08-04-lake-sammamish-largemouth-01.md"
+    },
+    {
+      "path": "Catches/content/catch-2026-08-04-lake-sammamish-perch-01.md",
+      "bytes": 109,
+      "sha256": "4753afc6847561aa035cf0f99f157eb92fe431af0b56fd495d5cb52f6e8b161f",
+      "source": "source:pwa/catch-content/catch-2026-08-04-lake-sammamish-perch-01.md"
+    },
+    {
+      "path": "Catches/content/catch-2026-08-19-mayfield-pikeminnow-01.md",
+      "bytes": 98,
+      "sha256": "474d960c4ffe640a3f03045c741518791dd47e4c920647ee521d77982e5eca54",
+      "source": "source:pwa/catch-content/catch-2026-08-19-mayfield-pikeminnow-01.md"
+    },
+    {
+      "path": "Catches/content/catch-2026-08-20-mayfield-pikeminnow-01.md",
+      "bytes": 80,
+      "sha256": "973423cb6424152523c950c872a9bbcd53ef708fab182aa538b5e2f4d927a24b",
+      "source": "source:pwa/catch-content/catch-2026-08-20-mayfield-pikeminnow-01.md"
+    },
+    {
+      "path": "Gear/Bait/assets/berkley-magnum-power-eggs.webp",
+      "bytes": 84742,
+      "sha256": "da01ace6fd9acf1f15341575bf8abbdfbaa92ba5be5d21988a7e70483e0b4c01",
+      "source": "production:assets/gear/berkley-magnum-power-eggs.webp"
+    },
+    {
+      "path": "Gear/Bait/assets/berkley-powerbait-trout-dough.jpg",
+      "bytes": 185788,
+      "sha256": "bb72901fa1d2aee221fc287e204b7d2b97128d03ded2d2a93de5b165d977d5b6",
+      "source": "production:assets/gear/berkley-powerbait-trout-dough.jpg"
+    },
+    {
+      "path": "Gear/Bait/assets/berkley-powerbait-trout-nuggets.webp",
+      "bytes": 306082,
+      "sha256": "ef242cccda866bb842e0c53d88cc01a7bfbd75490e3014cb22664a5f42b3e3d5",
+      "source": "production:assets/gear/berkley-powerbait-trout-nuggets.webp"
+    },
+    {
+      "path": "Gear/Equipment/assets/bonafide-rvr119.png",
+      "bytes": 1439732,
+      "sha256": "79b0f1c0b2ca35fc455d37580dd25a45de7039a3daf8af4adfaa0b0f01bf4819",
+      "source": "source:pwa/assets/gear-source/bonafide-rvr119.png"
+    },
+    {
+      "path": "Gear/Equipment/assets/dagger-axis-10-5.png",
+      "bytes": 1277189,
+      "sha256": "90f7833418796126218e69b0c9cd9ae8aa58f79f13f4847301a6e8ee0b1e049e",
+      "source": "source:pwa/assets/gear-source/dagger-axis-10-5.png"
+    },
+    {
+      "path": "Gear/Equipment/assets/perception-joyride-10.png",
+      "bytes": 1641966,
+      "sha256": "1703fdcdbef54d266a16dbfcdfdc85924ab43345a392fa480f8c6d0a69ff5b48",
+      "source": "source:pwa/assets/gear-source/perception-joyride-10.png"
+    },
+    {
+      "path": "Gear/Equipment/content/bonafide-rvr119.md",
+      "bytes": 3484,
+      "sha256": "17249b4c353c76e109fda294fb62b5d1ecf9b027550edf6e6bd05e2b5ed31bb8",
+      "source": "source:pwa/gear-content/bonafide-rvr119.md"
+    },
+    {
+      "path": "Gear/Hooks/assets/gamakatsu-ewg-worm-hook.jpg",
+      "bytes": 26144,
+      "sha256": "da83f436ee2cfcaba04efd05aeb097a3a99a11fc85a501e40bb32c7a5a126e05",
+      "source": "production:assets/gear/gamakatsu-ewg-worm-hook.jpg"
+    },
+    {
+      "path": "Gear/Hooks/assets/gamakatsu-g-finesse-drop-shot.jpg",
+      "bytes": 16167,
+      "sha256": "dd7bbaee9f0c11ef82823508f3efed920a5dc1c511262f00634972610849b63e",
+      "source": "production:assets/gear/gamakatsu-g-finesse-drop-shot.jpg"
+    },
+    {
+      "path": "Gear/Hooks/assets/gamakatsu-octopus-hook.jpg",
+      "bytes": 16379,
+      "sha256": "dba2863c513a6088e43ef4959139bcc62269fb6e8492a94f8907a8263f8110f3",
+      "source": "production:assets/gear/gamakatsu-octopus-hook.jpg"
+    },
+    {
+      "path": "Gear/Hooks/assets/owner-twistlock.jpg",
+      "bytes": 32433,
+      "sha256": "5d5dfaccb9a3d275edaff16a8ee62c3beff93ee022c4d7f34e8b864bda1c647a",
+      "source": "production:assets/gear/owner-twistlock.jpg"
+    },
+    {
+      "path": "Gear/Hooks/assets/south-bend-hook-assortment.png",
+      "bytes": 1142916,
+      "sha256": "12e984a6d182eb227ef0ececb659d6d42a88c5b23d81d9abe98fc7d0b6091de2",
+      "source": "source:pwa/assets/gear-source/south-bend-hook-assortment.png"
+    },
+    {
+      "path": "Gear/Hooks/assets/vmc-crossover-rings.png",
+      "bytes": 322053,
+      "sha256": "bbda51e230364ea4f4f9ec128c5f270129ed1750fc87fa3f50ec2c1dce9e8825",
+      "source": "production:assets/gear/vmc-crossover-rings.png"
+    },
+    {
+      "path": "Gear/Hooks/assets/vmc-redline-weedless-wacky-neko.webp",
+      "bytes": 29640,
+      "sha256": "3215c9abd6164f03dbf9362c20d589402e23bcf072c7c66daed1d644336f4eb8",
+      "source": "production:assets/gear/vmc-redline-weedless-wacky-neko.webp"
+    },
+    {
+      "path": "Gear/Hooks/assets/vmc-swimbait-jig.png",
+      "bytes": 128762,
+      "sha256": "ba2f39895a304e682f1a5479293dbdc16d8a4ad1a7dfc660de04817178513c9c",
+      "source": "source:pwa/assets/gear-source/vmc-swimbait-jig.png"
+    },
+    {
+      "path": "Gear/Hooks/assets/zman-finesse-shroomz.jpg",
+      "bytes": 17934,
+      "sha256": "8cff709d8f044879916db76a34d41a3f8607dd5284518bfe193b4f513e72161f",
+      "source": "production:assets/gear/zman-finesse-shroomz.jpg"
+    },
+    {
+      "path": "Gear/Line/assets/powerpro-super8-slick-v2.webp",
+      "bytes": 38742,
+      "sha256": "3d806e9d070064aae41d76cae1dbcbf040297db91113db18c9ba495153c03ab4",
+      "source": "production:assets/gear/powerpro-super8-slick-v2.webp"
+    },
+    {
+      "path": "Gear/Line/assets/seaguar-invizx.webp",
+      "bytes": 46502,
+      "sha256": "27d2cc11ba7d0b236ffa3880467d894fb2f3c545fdc2574d75deb4831115bc2c",
+      "source": "production:assets/gear/seaguar-invizx.webp"
+    },
+    {
+      "path": "Gear/Line/assets/technique-fishing-line.jpg",
+      "bytes": 34540,
+      "sha256": "b433dad24e9dca40c2b172d7621ee6260c25b0a5f35b554a3cd7d3d6ab981b97",
+      "source": "source:pwa/assets/kb/entries/technique-fishing-line.jpg"
+    },
+    {
+      "path": "Gear/Line/content/powerpro-super8-slick-v2-30.md",
+      "bytes": 124,
+      "sha256": "c5062c9ba7feac2424b805194a1d5f17077817625874442511d37ab13ebe5ed1",
+      "source": "source:pwa/gear-content/powerpro-super8-slick-v2-30.md"
+    },
+    {
+      "path": "Gear/Line/content/seaguar-invizx-12.md",
+      "bytes": 167,
+      "sha256": "5a7e2be12e9debdb1253680d5f8dcce2c6acd0a63f39c913c8fa6ef1c934c519",
+      "source": "source:pwa/gear-content/seaguar-invizx-12.md"
+    },
+    {
+      "path": "Gear/Line/content/seaguar-invizx-8.md",
+      "bytes": 167,
+      "sha256": "5a7e2be12e9debdb1253680d5f8dcce2c6acd0a63f39c913c8fa6ef1c934c519",
+      "source": "source:pwa/gear-content/seaguar-invizx-8.md"
+    },
+    {
+      "path": "Gear/Line/content/sufix-832-15.md",
+      "bytes": 124,
+      "sha256": "c5062c9ba7feac2424b805194a1d5f17077817625874442511d37ab13ebe5ed1",
+      "source": "source:pwa/gear-content/sufix-832-15.md"
+    },
+    {
+      "path": "Gear/Lures/assets/berkley-flicker-shad-5.jpg",
+      "bytes": 52430,
+      "sha256": "defc3853fb7568a696178c3b68fb591f23a37434701b67fdfccfa44afe77e588",
+      "source": "production:assets/gear/berkley-flicker-shad-5.jpg"
+    },
+    {
+      "path": "Gear/Lures/assets/berkley-gulp-minnow.webp",
+      "bytes": 18832,
+      "sha256": "c46b4e55fee12a8e72b6adc1c5d60eed7c4664ac05dd9c52b8fd0b63fd47220e",
+      "source": "production:assets/gear/berkley-gulp-minnow.webp"
+    },
+    {
+      "path": "Gear/Lures/assets/berkley-money-badger.webp",
+      "bytes": 241576,
+      "sha256": "09d6bd6bf2a74b880c3a215f6407a8e208f522a1c93d94e8645afa016ff31216",
+      "source": "production:assets/gear/berkley-money-badger.webp"
+    },
+    {
+      "path": "Gear/Lures/assets/berkley-power-jerk-shad.jpg",
+      "bytes": 9209,
+      "sha256": "9710fca58871280cf72ffd69446f76fcf44294479d17f641941bf4e77333b05f",
+      "source": "production:assets/gear/berkley-power-jerk-shad.jpg"
+    },
+    {
+      "path": "Gear/Lures/assets/berkley-stunna.webp",
+      "bytes": 44972,
+      "sha256": "e49da4667471f303e6d6c9e1de7b1d411eef86d18a5893a1697aabe819080fdb",
+      "source": "production:assets/gear/berkley-stunna.webp"
+    },
+    {
+      "path": "Gear/Lures/assets/booyah-pad-crasher.jpg",
+      "bytes": 120180,
+      "sha256": "1b7f3cd7db26e17b6107a9385b23bf3d7525793780c0084e7d8bc47cbd39a059",
+      "source": "source:pwa/assets/gear-source/booyah-pad-crasher.jpg"
+    },
+    {
+      "path": "Gear/Lures/assets/dick-nite-spoon.webp",
+      "bytes": 18204,
+      "sha256": "020c75908611fe91769034f54f7b97078d3fe55488945d52c3cc38fbdbe16487",
+      "source": "production:assets/gear/dick-nite-spoon.webp"
+    },
+    {
+      "path": "Gear/Lures/assets/fin-sanity-bluegill.webp",
+      "bytes": 49718,
+      "sha256": "1efc15a045b78a214cec0708d43816aeecbd7c2e4e01040c13600eb7758b254c",
+      "source": "production:assets/gear/fin-sanity-bluegill.webp"
+    },
+    {
+      "path": "Gear/Lures/assets/kastmaster.webp",
+      "bytes": 52006,
+      "sha256": "88a75e4cc11f14cd48da81fcd6422d155b81abfcfc665819f1791cadb5e3128c",
+      "source": "production:assets/gear/kastmaster.webp"
+    },
+    {
+      "path": "Gear/Lures/assets/luhr-jensen-dodger.jpg",
+      "bytes": 71658,
+      "sha256": "ee1d1135e3eff3f2fb91204a7b1929d284a9cb3512492424b51ca31b22c2f802",
+      "source": "production:assets/gear/luhr-jensen-dodger.jpg"
+    },
+    {
+      "path": "Gear/Lures/assets/macks-wedding-ring.jpg",
+      "bytes": 13488,
+      "sha256": "eee573027b7a25a72b5c001ee09ea954532ebf7e7420983ccd3476d318bb8a95",
+      "source": "production:assets/gear/macks-wedding-ring.jpg"
+    },
+    {
+      "path": "Gear/Lures/assets/mepps-aglia-3.jpg",
+      "bytes": 22780,
+      "sha256": "f94ce95b425ef979f0576057725e64d29b8abb37c2625d58a3258ec7487016de",
+      "source": "production:assets/gear/mepps-aglia-3.jpg"
+    },
+    {
+      "path": "Gear/Lures/assets/rapala-dt06.webp",
+      "bytes": 17544,
+      "sha256": "de3f2a5f6fda763388948020d69169afc859cab50573c56a624f5c239075283c",
+      "source": "production:assets/gear/rapala-dt06.webp"
+    },
+    {
+      "path": "Gear/Lures/assets/rapala-husky-jerk.jpg",
+      "bytes": 11852,
+      "sha256": "e8d83e75f4f3678f58039af8c2f4f919b464f46f581c082a1539b12035c249ba",
+      "source": "production:assets/gear/rapala-husky-jerk.jpg"
+    },
+    {
+      "path": "Gear/Lures/assets/rapala-ripstop.webp",
+      "bytes": 96842,
+      "sha256": "b3d016d29a483107114a373b57b1304c06d0158424262d82c6a1fbd20f0aef79",
+      "source": "production:assets/gear/rapala-ripstop.webp"
+    },
+    {
+      "path": "Gear/Lures/assets/rebel-crawfish.jpg",
+      "bytes": 15288,
+      "sha256": "770766b794791f89df4faf7159d7f509bc410d6d333d0417b12c4f79640ed6d0",
+      "source": "production:assets/gear/rebel-crawfish.jpg"
+    },
+    {
+      "path": "Gear/Lures/assets/rebel-pop-r.webp",
+      "bytes": 2624,
+      "sha256": "d1af1fa2d0756f95e0f8b41a53e2bca7d726966b3f990e62a320b5e563450c2e",
+      "source": "production:assets/gear/rebel-pop-r.webp"
+    },
+    {
+      "path": "Gear/Lures/assets/sixth-sense-divine-spinnerbait.webp",
+      "bytes": 17250,
+      "sha256": "3fad203c8f3b02db3591566e7379c411386c6c4dfa325fa545e0e1b298ba329d",
+      "source": "production:assets/gear/sixth-sense-divine-spinnerbait.webp"
+    },
+    {
+      "path": "Gear/Lures/assets/sixth-sense-divine-swimbait.webp",
+      "bytes": 35050,
+      "sha256": "344ff5b2595d6130cf9f58fb20266ab0bccaaa76970a9abfd906de04e86ec75d",
+      "source": "production:assets/gear/sixth-sense-divine-swimbait.webp"
+    },
+    {
+      "path": "Gear/Lures/assets/south-bend-dressed-spinners.jpg",
+      "bytes": 54467,
+      "sha256": "5f45ee1f42b1830de6b46995af55be226cef7eb477edeb6d6ef214abd82482d6",
+      "source": "source:pwa/assets/gear-source/south-bend-dressed-spinners.jpg"
+    },
+    {
+      "path": "Gear/Lures/assets/strike-king-kvd-square-bill-1.webp",
+      "bytes": 30534,
+      "sha256": "8bb84da6b09c914afb9eee6b84ed6b16d8e594e125a6c6b261c8702061378710",
+      "source": "production:assets/gear/strike-king-kvd-square-bill-1.webp"
+    },
+    {
+      "path": "Gear/Lures/assets/strike-king-premier-pro-model-jig.webp",
+      "bytes": 161718,
+      "sha256": "bb31a64a2e1686cb14b0fe95a557dabeea93f4b81d916a00bacc2272f0df8119",
+      "source": "production:assets/gear/strike-king-premier-pro-model-jig.webp"
+    },
+    {
+      "path": "Gear/Lures/assets/strike-king-rage-craw.png",
+      "bytes": 1415237,
+      "sha256": "ab47aca050a815b0a514c8bd4738827c9d47d48a52890741a8efbc2cda07ce32",
+      "source": "production:assets/gear/strike-king-rage-craw.png"
+    },
+    {
+      "path": "Gear/Lures/assets/strike-king-red-eyed-special.png",
+      "bytes": 1632906,
+      "sha256": "aa76eb57367024c5c899ff948b8a3215a1f1cbc5c2d663b9da5239e5f1074af4",
+      "source": "production:assets/gear/strike-king-red-eyed-special.png"
+    },
+    {
+      "path": "Gear/Lures/assets/strike-king-tour-grade-football-jig.jpg",
+      "bytes": 835452,
+      "sha256": "ffd419b9c6cb5747e0898d3cd0e86387c8348e33e80d8557b7c1842880f056ca",
+      "source": "production:assets/gear/strike-king-tour-grade-football-jig.jpg"
+    },
+    {
+      "path": "Gear/Lures/assets/yamamoto-senko.webp",
+      "bytes": 47100,
+      "sha256": "32b1e158bd603234370786a4a2b35c01c73f00a1bda2e590ecceb3870787875b",
+      "source": "production:assets/gear/yamamoto-senko.webp"
+    },
+    {
+      "path": "Gear/Lures/assets/yum-christie-craw.webp",
+      "bytes": 3840,
+      "sha256": "18bc7ddd8830d3a586dfd2e11dbd6b3998b18c0ca0f0261f1e6e750e5c176265",
+      "source": "production:assets/gear/yum-christie-craw.webp"
+    },
+    {
+      "path": "Gear/Lures/assets/zman-elite-evo.jpg",
+      "bytes": 184294,
+      "sha256": "cfba683fac9a8a66f9a9a4cea586fbb0627af1da69e14c6c964fb416497cb619",
+      "source": "production:assets/gear/zman-elite-evo.jpg"
+    },
+    {
+      "path": "Gear/Lures/assets/zman-jack-hammer.png",
+      "bytes": 2787253,
+      "sha256": "19065b513c1a7acd974b290cd9538d980bc9600b6068ca297a027038d554d0b3",
+      "source": "source:pwa/assets/gear-source/zman-jack-hammer.png"
+    },
+    {
+      "path": "Gear/Lures/assets/zman-ned-rig-kit.jpg",
+      "bytes": 377585,
+      "sha256": "12c552f6f1e2d542e73f1fd8343500819b7b01825343fe8277656bc394f99770",
+      "source": "production:assets/gear/zman-ned-rig-kit.jpg"
+    },
+    {
+      "path": "Gear/Lures/assets/zman-original-chatterbait.webp",
+      "bytes": 62136,
+      "sha256": "6cb91b4cdb39008f90c15630ab7cde4a926641e7a7f959d8c5cb00b58be35363",
+      "source": "production:assets/gear/zman-original-chatterbait.webp"
+    },
+    {
+      "path": "Gear/Lures/content/berkley-flicker-shad-5.md",
+      "bytes": 67,
+      "sha256": "99cce89eb32e90c848c4a3d483906885859e4155f90638e5ad3c196fa0b56433",
+      "source": "source:pwa/gear-content/berkley-flicker-shad-5.md"
+    },
+    {
+      "path": "Gear/Lures/content/berkley-money-badger.md",
+      "bytes": 67,
+      "sha256": "99cce89eb32e90c848c4a3d483906885859e4155f90638e5ad3c196fa0b56433",
+      "source": "source:pwa/gear-content/berkley-money-badger.md"
+    },
+    {
+      "path": "Gear/Lures/content/berkley-powerbait-power-jerk-shad.md",
+      "bytes": 80,
+      "sha256": "a492da8489e10e8e4ea0031f426b2bae53e9d0ae8874b539cc1d0cb295361b57",
+      "source": "source:pwa/gear-content/berkley-powerbait-power-jerk-shad.md"
+    },
+    {
+      "path": "Gear/Lures/content/berkley-stunna.md",
+      "bytes": 65,
+      "sha256": "a6ae66138f618255abe58051d992d52763d96ab54581ae440da88e510bf768e0",
+      "source": "source:pwa/gear-content/berkley-stunna.md"
+    },
+    {
+      "path": "Gear/Lures/content/booyah-pad-crasher.md",
+      "bytes": 146,
+      "sha256": "ee05e45f761f430f04c85ce940f02d1b08b0e2fc83722dbd9e54713dbce2bafd",
+      "source": "source:pwa/gear-content/booyah-pad-crasher.md"
+    },
+    {
+      "path": "Gear/Lures/content/dick-nite-spoon.md",
+      "bytes": 126,
+      "sha256": "1aa88ae713622705f4624ea5b56f80817fc077b46d02a86d969ee94f07933322",
+      "source": "source:pwa/gear-content/dick-nite-spoon.md"
+    },
+    {
+      "path": "Gear/Lures/content/fin-sanity-bluegill.md",
+      "bytes": 203,
+      "sha256": "e9ed9f6e821e2a321c04a67b672dc8b5f9a877b10a7ddbf62f0a8a216ebb8a2a",
+      "source": "source:pwa/gear-content/fin-sanity-bluegill.md"
+    },
+    {
+      "path": "Gear/Lures/content/generic-0-inline-spinner-assortment.md",
+      "bytes": 77,
+      "sha256": "8a1ad8b976e970bd3a22e12cb5fcbe2bba4fbf32b86549c3ca738e526dac38c4",
+      "source": "source:pwa/gear-content/generic-0-inline-spinner-assortment.md"
+    },
+    {
+      "path": "Gear/Lures/content/generic-1-inline-spinner.md",
+      "bytes": 77,
+      "sha256": "8a1ad8b976e970bd3a22e12cb5fcbe2bba4fbf32b86549c3ca738e526dac38c4",
+      "source": "source:pwa/gear-content/generic-1-inline-spinner.md"
+    },
+    {
+      "path": "Gear/Lures/content/macks-wedding-ring.md",
+      "bytes": 77,
+      "sha256": "8a1ad8b976e970bd3a22e12cb5fcbe2bba4fbf32b86549c3ca738e526dac38c4",
+      "source": "source:pwa/gear-content/macks-wedding-ring.md"
+    },
+    {
+      "path": "Gear/Lures/content/mepps-aglia-3.md",
+      "bytes": 77,
+      "sha256": "8a1ad8b976e970bd3a22e12cb5fcbe2bba4fbf32b86549c3ca738e526dac38c4",
+      "source": "source:pwa/gear-content/mepps-aglia-3.md"
+    },
+    {
+      "path": "Gear/Lures/content/rapala-dt.md",
+      "bytes": 67,
+      "sha256": "99cce89eb32e90c848c4a3d483906885859e4155f90638e5ad3c196fa0b56433",
+      "source": "source:pwa/gear-content/rapala-dt.md"
+    },
+    {
+      "path": "Gear/Lures/content/rapala-husky-jerk.md",
+      "bytes": 65,
+      "sha256": "a6ae66138f618255abe58051d992d52763d96ab54581ae440da88e510bf768e0",
+      "source": "source:pwa/gear-content/rapala-husky-jerk.md"
+    },
+    {
+      "path": "Gear/Lures/content/rapala-original-floating.md",
+      "bytes": 65,
+      "sha256": "a6ae66138f618255abe58051d992d52763d96ab54581ae440da88e510bf768e0",
+      "source": "source:pwa/gear-content/rapala-original-floating.md"
+    },
+    {
+      "path": "Gear/Lures/content/rapala-ripstop.md",
+      "bytes": 65,
+      "sha256": "a6ae66138f618255abe58051d992d52763d96ab54581ae440da88e510bf768e0",
+      "source": "source:pwa/gear-content/rapala-ripstop.md"
+    },
+    {
+      "path": "Gear/Lures/content/rebel-crawfish.md",
+      "bytes": 67,
+      "sha256": "99cce89eb32e90c848c4a3d483906885859e4155f90638e5ad3c196fa0b56433",
+      "source": "source:pwa/gear-content/rebel-crawfish.md"
+    },
+    {
+      "path": "Gear/Lures/content/rebel-pop-r.md",
+      "bytes": 135,
+      "sha256": "da2e6c5e3d19e31d93848dd7ff2596931030217b73ff16da1f3df89162e2b3b7",
+      "source": "source:pwa/gear-content/rebel-pop-r.md"
+    },
+    {
+      "path": "Gear/Lures/content/river2sea-whopper-plopper-60.md",
+      "bytes": 123,
+      "sha256": "20b82837b8d5b5824c7ac6fa3adee7b7b46988939da116ecf0a629189b8d2287",
+      "source": "source:pwa/gear-content/river2sea-whopper-plopper-60.md"
+    },
+    {
+      "path": "Gear/Lures/content/sixth-sense-divine-spinnerbait.md",
+      "bytes": 71,
+      "sha256": "4ef9efc1b1746e93849ac4121cdae858a0a2381e9f3d79f8e04437103d50b65c",
+      "source": "source:pwa/gear-content/sixth-sense-divine-spinnerbait.md"
+    },
+    {
+      "path": "Gear/Lures/content/sixth-sense-divine-swimbait.md",
+      "bytes": 80,
+      "sha256": "a492da8489e10e8e4ea0031f426b2bae53e9d0ae8874b539cc1d0cb295361b57",
+      "source": "source:pwa/gear-content/sixth-sense-divine-swimbait.md"
+    },
+    {
+      "path": "Gear/Lures/content/strike-king-kvd-square-bill-1.md",
+      "bytes": 67,
+      "sha256": "99cce89eb32e90c848c4a3d483906885859e4155f90638e5ad3c196fa0b56433",
+      "source": "source:pwa/gear-content/strike-king-kvd-square-bill-1.md"
+    },
+    {
+      "path": "Gear/Lures/content/strike-king-premier-pro-model-jig.md",
+      "bytes": 56,
+      "sha256": "a1a658c5ec7902a1f76053da5e0ed67c46962f597afdea17e1db5dc733ea3408",
+      "source": "source:pwa/gear-content/strike-king-premier-pro-model-jig.md"
+    },
+    {
+      "path": "Gear/Lures/content/strike-king-red-eyed-special.md",
+      "bytes": 71,
+      "sha256": "4ef9efc1b1746e93849ac4121cdae858a0a2381e9f3d79f8e04437103d50b65c",
+      "source": "source:pwa/gear-content/strike-king-red-eyed-special.md"
+    },
+    {
+      "path": "Gear/Lures/content/strike-king-tour-grade-football-jig.md",
+      "bytes": 56,
+      "sha256": "a1a658c5ec7902a1f76053da5e0ed67c46962f597afdea17e1db5dc733ea3408",
+      "source": "source:pwa/gear-content/strike-king-tour-grade-football-jig.md"
+    },
+    {
+      "path": "Gear/Lures/content/yamamoto-senko.md",
+      "bytes": 69,
+      "sha256": "03a7f63651f099ba763773c4e1243d1d6f2cccf7288b243d834bd734c4058294",
+      "source": "source:pwa/gear-content/yamamoto-senko.md"
+    },
+    {
+      "path": "Gear/Lures/content/zman-elite-evo.md",
+      "bytes": 82,
+      "sha256": "31a08b380cc8318f768c7590ee4414c8178ef2b2cd385e20fee868708a1caabd",
+      "source": "source:pwa/gear-content/zman-elite-evo.md"
+    },
+    {
+      "path": "Gear/Lures/content/zman-jack-hammer.md",
+      "bytes": 82,
+      "sha256": "31a08b380cc8318f768c7590ee4414c8178ef2b2cd385e20fee868708a1caabd",
+      "source": "source:pwa/gear-content/zman-jack-hammer.md"
+    },
+    {
+      "path": "Gear/Lures/content/zman-ned-rig-kit.md",
+      "bytes": 63,
+      "sha256": "94bbf19759ecde0a8799d17b2ffbefc2c8c8df8ea0e9551cf75d953f00f1c8f2",
+      "source": "source:pwa/gear-content/zman-ned-rig-kit.md"
+    },
+    {
+      "path": "Gear/Lures/content/zman-original-chatterbait.md",
+      "bytes": 82,
+      "sha256": "31a08b380cc8318f768c7590ee4414c8178ef2b2cd385e20fee868708a1caabd",
+      "source": "source:pwa/gear-content/zman-original-chatterbait.md"
+    },
+    {
+      "path": "Gear/Rods-Reels/assets/daiwa-exceler-lt.webp",
+      "bytes": 87292,
+      "sha256": "1769305c830a8fecc44968bc2ab19fc58080e2b156eaabfbfd263b28e5b7e782",
+      "source": "production:assets/gear/daiwa-exceler-lt.webp"
+    },
+    {
+      "path": "Gear/Rods-Reels/assets/daiwa-tatula-xt.webp",
+      "bytes": 13400,
+      "sha256": "871d253852e4d446f2491cda03fa387147b6ab13c8d76217260c2cf1207131a4",
+      "source": "production:assets/gear/daiwa-tatula-xt.webp"
+    },
+    {
+      "path": "Gear/Rods-Reels/assets/pflueger-president-spincast.webp",
+      "bytes": 81882,
+      "sha256": "1d2cc04c37ad4270dd9b319a13f8f8250cec8ca9838e994d68ca46719c85d88a",
+      "source": "production:assets/gear/pflueger-president-spincast.webp"
+    },
+    {
+      "path": "Gear/Rods-Reels/assets/shimano-slx-dc-xt-71hg.webp",
+      "bytes": 28508,
+      "sha256": "e33ffe6b06af94c73d58dc300aceafb18e4a3cd64a5c53c34fd24e38314e403a",
+      "source": "production:assets/gear/shimano-slx-dc-xt-71hg.webp"
+    },
+    {
+      "path": "Gear/Rods-Reels/assets/shimano-zodias.jpg",
+      "bytes": 17521,
+      "sha256": "958e831b1eb80abadde5499651d6410a10816d7c648ea2288a9f7ee38dbff20c",
+      "source": "production:assets/gear/shimano-zodias.jpg"
+    },
+    {
+      "path": "Gear/Rods-Reels/content/Daiwa Exceler LT.md",
+      "bytes": 565,
+      "sha256": "8e67259e0059fc512ff05f711e935e7cc2286b28ea2b550e79eecfd50c6b4951",
+      "source": "source:pwa/gear-content/setup-spinning.md"
+    },
+    {
+      "path": "Gear/Rods-Reels/content/Daiwa Tatula XT.md",
+      "bytes": 565,
+      "sha256": "8e67259e0059fc512ff05f711e935e7cc2286b28ea2b550e79eecfd50c6b4951",
+      "source": "source:pwa/gear-content/setup-spinning.md"
+    },
+    {
+      "path": "Gear/Rods-Reels/content/Pflueger President Spincast Combo - Reel.md",
+      "bytes": 4093,
+      "sha256": "da0622e1c454b88cb28c3e6a6c8476a3ac5598ad6affaa946e88ceac701ca3da",
+      "source": "source:pwa/gear-content/setup-spincasting.md"
+    },
+    {
+      "path": "Gear/Rods-Reels/content/Pflueger President Spincast Combo - Rod.md",
+      "bytes": 4093,
+      "sha256": "da0622e1c454b88cb28c3e6a6c8476a3ac5598ad6affaa946e88ceac701ca3da",
+      "source": "source:pwa/gear-content/setup-spincasting.md"
+    },
+    {
+      "path": "Gear/Rods-Reels/content/Shimano 22 SLX DC XT 71HG.md",
+      "bytes": 899,
+      "sha256": "8e10ce9530a6bec7b27c272139fb87f85b39456527ca1a8e27760c769159d986",
+      "source": "source:pwa/gear-content/setup-baitcasting.md"
+    },
+    {
+      "path": "Gear/Rods-Reels/content/Shimano Zodias.md",
+      "bytes": 899,
+      "sha256": "8e10ce9530a6bec7b27c272139fb87f85b39456527ca1a8e27760c769159d986",
+      "source": "source:pwa/gear-content/setup-baitcasting.md"
+    },
+    {
+      "path": "Gear/Snaps-Swivels/assets/south-bend-brass-swivels.png",
+      "bytes": 1368909,
+      "sha256": "b79493be53e5b92b880915764d03f5a677eaec009651eab2ca0f300d859a627b",
+      "source": "source:pwa/assets/gear-source/south-bend-brass-swivels.png"
+    },
+    {
+      "path": "Gear/Snaps-Swivels/assets/tsuridamashii-ball-bearing-swivels.webp",
+      "bytes": 14152,
+      "sha256": "e202cd03cc8959b3da812ed40b64b30ba076037a123c96e14165fdc91ae6efba",
+      "source": "source:pwa/assets/gear-source/tsuridamashii-ball-bearing-swivels.webp"
+    },
+    {
+      "path": "Gear/Snaps-Swivels/assets/vmc-crankbait-snaps.webp",
+      "bytes": 57698,
+      "sha256": "291dd8df26a3b890d20060d72a15a924c003a663dc0afe04f08b1f0e1eea5267",
+      "source": "production:assets/gear/vmc-crankbait-snaps.webp"
+    },
+    {
+      "path": "Gear/Snaps-Swivels/content/south-bend-assorted-brass-swivels.md",
+      "bytes": 77,
+      "sha256": "e432b88be289502f3ca9a8f952e8e5240db673df7badc08aaa753a495b70d2d8",
+      "source": "source:pwa/gear-content/south-bend-assorted-brass-swivels.md"
+    },
+    {
+      "path": "Gear/Snaps-Swivels/content/tsuridamashii-ball-bearing-snap-swivels.md",
+      "bytes": 77,
+      "sha256": "e432b88be289502f3ca9a8f952e8e5240db673df7badc08aaa753a495b70d2d8",
+      "source": "source:pwa/gear-content/tsuridamashii-ball-bearing-snap-swivels.md"
+    },
+    {
+      "path": "Gear/Snaps-Swivels/content/tsuridamashii-ball-bearing-swivels.md",
+      "bytes": 77,
+      "sha256": "e432b88be289502f3ca9a8f952e8e5240db673df7badc08aaa753a495b70d2d8",
+      "source": "source:pwa/gear-content/tsuridamashii-ball-bearing-swivels.md"
+    },
+    {
+      "path": "Gear/Snaps-Swivels/content/vmc-crs-crankbait-snaps.md",
+      "bytes": 77,
+      "sha256": "e432b88be289502f3ca9a8f952e8e5240db673df7badc08aaa753a495b70d2d8",
+      "source": "source:pwa/gear-content/vmc-crs-crankbait-snaps.md"
+    },
+    {
+      "path": "Gear/Weights/assets/eagle-claw-egg-sinkers.webp",
+      "bytes": 21888,
+      "sha256": "b48d9fbc9c14d58a4eeca7504992f82e7d1e35e53f144886fa013a5995146b68",
+      "source": "production:assets/gear/eagle-claw-egg-sinkers.webp"
+    },
+    {
+      "path": "Gear/Weights/assets/eagle-claw-trolling-sinker.webp",
+      "bytes": 18994,
+      "sha256": "70fc5c04a1a7d00ce555209042be4863c2da217ad5791fa815072642593b4c65",
+      "source": "production:assets/gear/eagle-claw-trolling-sinker.webp"
+    },
+    {
+      "path": "Gear/Weights/assets/south-bend-split-shot.png",
+      "bytes": 1590742,
+      "sha256": "dcdd15486ff840d3ac1385a87d9bb3cd0b2c9952eba4519efcc2bcdd8e5623fa",
+      "source": "source:pwa/assets/gear-source/south-bend-split-shot.png"
+    },
+    {
+      "path": "Gear/Weights/assets/thkfish-cylinder-weights.jpg",
+      "bytes": 140543,
+      "sha256": "a6e7fb570bad247427d08d32089f96bc22624213bd413c79383dadb1a249af0a",
+      "source": "source:pwa/assets/gear-source/thkfish-cylinder-weights.jpg"
+    },
+    {
+      "path": "Gear/Weights/assets/top-brass-glass-beads.webp",
+      "bytes": 18102,
+      "sha256": "9a58f1787f29d7ad37b21aa5ba3fc790ba2b3cf354f879586a54e746c5684a0d",
+      "source": "production:assets/gear/top-brass-glass-beads.webp"
+    },
+    {
+      "path": "Gear/Weights/content/swiveling-trolling-sinkers.md",
+      "bytes": 139,
+      "sha256": "355f984bbec0ec448e331f2ffc8195d5ef3ef48731cfbe89c26002088a534bff",
+      "source": "source:pwa/gear-content/swiveling-trolling-sinkers.md"
+    },
+    {
+      "path": "KB/Gear-Guides/assets/bobber-rig.png",
+      "bytes": 96131,
+      "sha256": "b59c8b96034b9904b8395cfc4b90459f5ac8d70574920bd33be31df8834644ad",
+      "source": "source:pwa/assets/kb/equipment/bobber-rig.png"
+    },
+    {
+      "path": "KB/Gear-Guides/assets/drop-shot.png",
+      "bytes": 153252,
+      "sha256": "ab3ffa533e135ce9759daa48f78e3d34d5ce0be4adc30fcc79cca25667505ca5",
+      "source": "source:pwa/assets/kb/equipment/drop-shot.png"
+    },
+    {
+      "path": "KB/Gear-Guides/assets/flasher-rig.png",
+      "bytes": 56266,
+      "sha256": "24dd0ba2ed6ad499bf301e5025827f8c9ac6e94fd6f95d42acd5b9973d1e694f",
+      "source": "source:pwa/assets/kb/equipment/flasher-rig.png"
+    },
+    {
+      "path": "KB/Gear-Guides/assets/inline-spinner-rig.png",
+      "bytes": 39224,
+      "sha256": "8dd7b56b02af8364ff0a678bbacc76b0eb12805925ca80987436a5640ad12cac",
+      "source": "source:pwa/assets/kb/equipment/inline-spinner-rig.png"
+    },
+    {
+      "path": "KB/Gear-Guides/assets/inline-trolling-rig.png",
+      "bytes": 42027,
+      "sha256": "23b80d6deaf7afcadafb9d84c93344fa904c670d80677a33679306634ae192f4",
+      "source": "source:pwa/assets/kb/equipment/inline-trolling-rig.png"
+    },
+    {
+      "path": "KB/Gear-Guides/assets/ned-rig.png",
+      "bytes": 160225,
+      "sha256": "171cccf8aef9361a8a2df3cc87da50e4866c5b921d702a2bcab76336f498dc65",
+      "source": "source:pwa/assets/kb/equipment/ned-rig.png"
+    },
+    {
+      "path": "KB/Gear-Guides/assets/slip-sinker-rig.png",
+      "bytes": 49065,
+      "sha256": "5e8a60afd7b3111b84fce7e33f66866565f7cbf4f455d9aa29a9feaa8e5a9edd",
+      "source": "source:pwa/assets/kb/equipment/slip-sinker-rig.png"
+    },
+    {
+      "path": "KB/Gear-Guides/assets/snap-swivel.png",
+      "bytes": 481859,
+      "sha256": "ce8bab0f1867fbb506f37d0af5ce049e7e3b5efdf5f102bb7af76c09058d4d9f",
+      "source": "source:pwa/assets/kb/equipment/snap-swivel.png"
+    },
+    {
+      "path": "KB/Gear-Guides/assets/technique-buzzbait.jpg",
+      "bytes": 137372,
+      "sha256": "441ac9c92a66747a65fe2781bfaa730cd4f12e085a361a9b4c9f86c418628f52",
+      "source": "source:pwa/assets/kb/entries/technique-buzzbait.jpg"
+    },
+    {
+      "path": "KB/Gear-Guides/assets/technique-rods-reels.png",
+      "bytes": 133226,
+      "sha256": "9ee744278c7656695d0729d47913122a88300fcda49eb05fb67cda8aa45a877b",
+      "source": "source:pwa/assets/kb/entries/technique-rods-reels.png"
+    },
+    {
+      "path": "KB/Gear-Guides/assets/technique-walking-bait.jpg",
+      "bytes": 65306,
+      "sha256": "5b77b078bc2b0d178506a2c2f36fbe0b1b41d24dc473e68a20b28cc422ce73ed",
+      "source": "source:pwa/assets/kb/entries/technique-walking-bait.jpg"
+    },
+    {
+      "path": "KB/Gear-Guides/assets/wacky-worm.png",
+      "bytes": 212275,
+      "sha256": "8a44f9e2e4f21656ff5d592ec0a769ef0f06cff3a98a20259d6e68742c71f1ac",
+      "source": "source:pwa/assets/kb/equipment/wacky-worm.png"
+    },
+    {
+      "path": "KB/Gear-Guides/content/bobber-rig.md",
+      "bytes": 525,
+      "sha256": "544d2931cb827a4aeea5d200a1a4750940350dfc2c45cc74b0f0f047bee766fa",
+      "source": "source:pwa/kb-content/techniques/bobber-rig.md"
+    },
+    {
+      "path": "KB/Gear-Guides/content/buzzbait.md",
+      "bytes": 2358,
+      "sha256": "3751e9a50fe05697c9b41c2fed3794e5c075020bad930ccf4bbc0fc150eacf6a",
+      "source": "source:pwa/kb-content/techniques/buzzbait.md"
+    },
+    {
+      "path": "KB/Gear-Guides/content/chatterbait-bladed-jig.md",
+      "bytes": 4495,
+      "sha256": "4e09101f7c6e21e7b89e89d220cf66202785f647e599586010f32e4720d0f0d7",
+      "source": "source:pwa/kb-content/techniques/chatterbait-bladed-jig.md"
+    },
+    {
+      "path": "KB/Gear-Guides/content/crankbait.md",
+      "bytes": 7104,
+      "sha256": "0acc53aebea9cea1d50b5dbb0def817aa467b6470682d46878be1a1a69933d69",
+      "source": "source:pwa/kb-content/techniques/crankbait.md"
+    },
+    {
+      "path": "KB/Gear-Guides/content/drop-shot.md",
+      "bytes": 2571,
+      "sha256": "c95520dd02843ae1fee6ab2fe3289fcf38bacd30ee44497f4721c5bd7affb9a3",
+      "source": "source:pwa/kb-content/techniques/drop-shot.md"
+    },
+    {
+      "path": "KB/Gear-Guides/content/fishing-line.md",
+      "bytes": 3659,
+      "sha256": "adc6ad385958e774cd5cb092b76457a909a35483198b0286b3d164bdff344c5b",
+      "source": "source:pwa/kb-content/techniques/fishing-line.md"
+    },
+    {
+      "path": "KB/Gear-Guides/content/flasher-rig.md",
+      "bytes": 820,
+      "sha256": "f3dbcd06a44cbe8f8535e7bcac85acb1d0fd0164cae6bbf6208ac4ec5c603c41",
+      "source": "source:pwa/kb-content/techniques/flasher-rig.md"
+    },
+    {
+      "path": "KB/Gear-Guides/content/frogs.md",
+      "bytes": 2732,
+      "sha256": "2fd42466640c98924191598c5ef204ebde21b63243dd4ef7bfbb876c2a7e758b",
+      "source": "source:pwa/kb-content/techniques/frogs.md"
+    },
+    {
+      "path": "KB/Gear-Guides/content/inline-spinner.md",
+      "bytes": 5233,
+      "sha256": "41c139beabaa269438285fdf1f6ca2061d1b3e9c296eadb00b4aa429254ee502",
+      "source": "source:pwa/kb-content/techniques/inline-spinner.md"
+    },
+    {
+      "path": "KB/Gear-Guides/content/inline-trolling-rig.md",
+      "bytes": 642,
+      "sha256": "24117b482305ccd97becabb66b3744b6602911678e3971e485ac988bcd825ebe",
+      "source": "source:pwa/kb-content/techniques/inline-trolling-rig.md"
+    },
+    {
+      "path": "KB/Gear-Guides/content/jerkbait.md",
+      "bytes": 4030,
+      "sha256": "a06408a4bad61f481d98eee5f1dc27ddc258647fe9bf769e154743e71c4827ce",
+      "source": "source:pwa/kb-content/techniques/jerkbait.md"
+    },
+    {
+      "path": "KB/Gear-Guides/content/jigs.md",
+      "bytes": 3224,
+      "sha256": "4e8da128e1798359230a3cc6c9bc91eb5ec5d4eb6c5176c695b89d889fdfe0ed",
+      "source": "source:pwa/kb-content/techniques/jigs.md"
+    },
+    {
+      "path": "KB/Gear-Guides/content/ned-rig.md",
+      "bytes": 2278,
+      "sha256": "7e63245f888a61a464e0e628a8325ab58950aa7b0b634d6307e6cdae4a699219",
+      "source": "source:pwa/kb-content/techniques/ned-rig.md"
+    },
+    {
+      "path": "KB/Gear-Guides/content/popper.md",
+      "bytes": 931,
+      "sha256": "84732871c0badeb73aa0a4e30de7e4af5093fd5fb1836a62c288f2eaeb2e027a",
+      "source": "source:pwa/kb-content/techniques/popper.md"
+    },
+    {
+      "path": "KB/Gear-Guides/content/rods-reels.md",
+      "bytes": 3183,
+      "sha256": "45ff99ef3b861fae0a19b82c82e738085bde7ba34a94bbb87afcfb424f879770",
+      "source": "source:pwa/kb-content/techniques/rods-reels.md"
+    },
+    {
+      "path": "KB/Gear-Guides/content/slip-sinker-rig.md",
+      "bytes": 587,
+      "sha256": "a50447f835d63251d4c3457c63adc289fa24a745a8f553f3f8bdccc38901251b",
+      "source": "source:pwa/kb-content/techniques/slip-sinker-rig.md"
+    },
+    {
+      "path": "KB/Gear-Guides/content/snaps-swivels.md",
+      "bytes": 1932,
+      "sha256": "593f6b76124c2b80d1de465cac1e22e53cd68b007c8e5837986643cf952c2670",
+      "source": "source:pwa/kb-content/techniques/snaps-swivels.md"
+    },
+    {
+      "path": "KB/Gear-Guides/content/spinnerbait.md",
+      "bytes": 5857,
+      "sha256": "63a75010ccb6aed9e9b453a5641f9aa6d4975945aa62d7326dd7a54cf628be41",
+      "source": "source:pwa/kb-content/techniques/spinnerbait.md"
+    },
+    {
+      "path": "KB/Gear-Guides/content/swimbait-soft-jerk-shad.md",
+      "bytes": 3684,
+      "sha256": "be068f11f69c821e74c18c15a0bc8de8aaf2d9373b75eb4dda7fd58614f7d15a",
+      "source": "source:pwa/kb-content/techniques/swimbait-soft-jerk-shad.md"
+    },
+    {
+      "path": "KB/Gear-Guides/content/wacky-worm.md",
+      "bytes": 1949,
+      "sha256": "4278cbce1274497452a2aa6164eecc1a8bd4f621453e066a916ff03ba651714c",
+      "source": "source:pwa/kb-content/techniques/wacky-worm.md"
+    },
+    {
+      "path": "KB/Gear-Guides/content/walking-bait.md",
+      "bytes": 1738,
+      "sha256": "8d27007b461b4cafc486be5a7d7905dbcabd72cbe06e3b8a013035141f53ebf2",
+      "source": "source:pwa/kb-content/techniques/walking-bait.md"
+    },
+    {
+      "path": "KB/Gear-Guides/content/whopper-plopper.md",
+      "bytes": 1245,
+      "sha256": "8b21f330acd84d4967af33ad511ae209c450b11b238d01975c7716f626d1d5ae",
+      "source": "source:pwa/kb-content/techniques/whopper-plopper.md"
+    },
+    {
+      "path": "KB/Knots/content/albright.md",
+      "bytes": 146,
+      "sha256": "0fb15579c19cdb5d90cd115e6c691fe78d79f9bb668bfa54c765dc2022de7188",
+      "source": "source:pwa/kb-content/knots/albright.md"
+    },
+    {
+      "path": "KB/Knots/content/arbor.md",
+      "bytes": 120,
+      "sha256": "5759a563969f616f486e1f969ea063d38b104b814391a3e2e5d41ef22643f601",
+      "source": "source:pwa/kb-content/knots/arbor.md"
+    },
+    {
+      "path": "KB/Knots/content/double-uni.md",
+      "bytes": 152,
+      "sha256": "63899006837859dce0181f5e45eb21bb456d199659dc2c0eff6a4bc88a5dc1a6",
+      "source": "source:pwa/kb-content/knots/double-uni.md"
+    },
+    {
+      "path": "KB/Knots/content/fg.md",
+      "bytes": 353,
+      "sha256": "bb266fe948456371a4dfc3b13dfac57ad84c4d302d0db6a3fa59b400970be54d",
+      "source": "source:pwa/kb-content/knots/fg.md"
+    },
+    {
+      "path": "KB/Knots/content/improved-clinch.md",
+      "bytes": 190,
+      "sha256": "42e05b0633012d9cbc1f5ad1b57223edd89af9f40f0d3cd943b1aeb2d76e90f3",
+      "source": "source:pwa/kb-content/knots/improved-clinch.md"
+    },
+    {
+      "path": "KB/Knots/content/loop-non-slip-loop.md",
+      "bytes": 223,
+      "sha256": "3dccffced4c43b67ab52b8ab8bd05c24e0c110af1c2642d950f4667c6341c3e0",
+      "source": "source:pwa/kb-content/knots/loop-non-slip-loop.md"
+    },
+    {
+      "path": "KB/Knots/content/modified-uni.md",
+      "bytes": 118,
+      "sha256": "a8aa7123952c74f310fe135fe203afed40354f6184e6d93d2aedf05e6d862045",
+      "source": "source:pwa/kb-content/knots/modified-uni.md"
+    },
+    {
+      "path": "KB/Knots/content/palomar.md",
+      "bytes": 561,
+      "sha256": "4ec55ba06e0898e2b43651c6ab25cadce31b87e62204c33de8eebaca117e6a5f",
+      "source": "source:pwa/kb-content/knots/palomar.md"
+    },
+    {
+      "path": "KB/Knots/content/single-uni.md",
+      "bytes": 118,
+      "sha256": "35d687899a529dfeab8aab76556e1fe087578ea8a9bd20461556d2356bea9840",
+      "source": "source:pwa/kb-content/knots/single-uni.md"
+    },
+    {
+      "path": "KB/Knots/content/trilene.md",
+      "bytes": 217,
+      "sha256": "b9c64037477adcd6021d373bfe703be9f87353623c3a2aa3461a8c86f60a4757",
+      "source": "source:pwa/kb-content/knots/trilene.md"
+    },
+    {
+      "path": "KB/Locations/assets/location-cranberry-lake-deception-pass.png",
+      "bytes": 1981945,
+      "sha256": "6c69c964d3244e91aedab0f7c04e331e15537789a19a2aa428fee92918489c3b",
+      "source": "source:pwa/assets/kb/entries/location-cranberry-lake-deception-pass.png"
+    },
+    {
+      "path": "KB/Locations/content/cranberry-lake-deception-pass.md",
+      "bytes": 626,
+      "sha256": "9306300acb17e8ca90371ae784821ab7f2b24715c9be82b94b10bc468143053b",
+      "source": "source:pwa/kb-content/locations/cranberry-lake-deception-pass.md"
+    },
+    {
+      "path": "KB/Locations/content/lake-bosworth.md",
+      "bytes": 292,
+      "sha256": "1681a9b42da0067932d90f95cded4ccc70c1d1954aebc37ead5b40e76349e9ab",
+      "source": "source:pwa/kb-content/locations/lake-bosworth.md"
+    },
+    {
+      "path": "KB/Locations/content/lake-chelan.md",
+      "bytes": 539,
+      "sha256": "184a8f7e335c5dd138d61a3d22384c0febc11a8175e4e1745c65acf9d85af024",
+      "source": "source:pwa/kb-content/locations/lake-chelan.md"
+    },
+    {
+      "path": "KB/Locations/content/lake-cle-elum.md",
+      "bytes": 391,
+      "sha256": "d2eeca4387a4ed399b393b29881eece89b7afadb58517c5ac5a0d9be96081ee3",
+      "source": "source:pwa/kb-content/locations/lake-cle-elum.md"
+    },
+    {
+      "path": "KB/Locations/content/lake-sammamish.md",
+      "bytes": 2055,
+      "sha256": "4c2376af414f199fc9b2df9c7673029274fee082f205b281e7e86ab8be6c19ae",
+      "source": "source:pwa/kb-content/locations/lake-sammamish.md"
+    },
+    {
+      "path": "KB/Locations/content/lake-washington.md",
+      "bytes": 2293,
+      "sha256": "ed40351ee8952c621694ba5b4b16aa49647ac8a9c0f5d9ac546b459cce13e61c",
+      "source": "source:pwa/kb-content/locations/lake-washington.md"
+    },
+    {
+      "path": "KB/Locations/content/mayfield-lake.md",
+      "bytes": 2427,
+      "sha256": "6985b95aec6d4ea42e54fea57e1e5f9510a96a8e56839752f359c49703ba3dd8",
+      "source": "source:pwa/kb-content/locations/mayfield-lake.md"
+    },
+    {
+      "path": "KB/Locations/content/silver-lake-whatcom.md",
+      "bytes": 846,
+      "sha256": "5fe228917bb283e2de5c81fbfc7ffa9b11b3642b194c36e6993732d80b063342",
+      "source": "source:pwa/kb-content/locations/silver-lake-whatcom.md"
+    },
+    {
+      "path": "KB/Species/assets/coastal-cutthroat-trout.png",
+      "bytes": 1637395,
+      "sha256": "1b9de49104ba060f1ba8f9ed9c9429cce62d911ebddd5be7559e8e4b5b390c23",
+      "source": "source:pwa/assets/kb/species/coastal-cutthroat-trout.png"
+    },
+    {
+      "path": "KB/Species/assets/kokanee-phases.png",
+      "bytes": 1307412,
+      "sha256": "ce4346af3e779162650d3f7c0dbdd56a1d9d3dce26997b5d4881cbc46ce56df9",
+      "source": "source:pwa/assets/kb/species/kokanee-phases.png"
+    },
+    {
+      "path": "KB/Species/assets/largemouth-bass.png",
+      "bytes": 447750,
+      "sha256": "4ad33c07e75dd761cd446b3cb78189a05efcac2bcd8ccf58dc47beb78ee6d785",
+      "source": "source:pwa/assets/kb/species/largemouth-bass.png"
+    },
+    {
+      "path": "KB/Species/assets/northern-pikeminnow.png",
+      "bytes": 284154,
+      "sha256": "636c71c0608e8a19357e22af6929e450501699513f216f0e115bed9c05e52fc4",
+      "source": "source:pwa/assets/kb/species/northern-pikeminnow.png"
+    },
+    {
+      "path": "KB/Species/assets/rainbow-trout.png",
+      "bytes": 543757,
+      "sha256": "71ab74c9f644b4f260711fe0b9fcc644509ad1d3de00507b6bd6a95892fca487",
+      "source": "source:pwa/assets/kb/species/rainbow-trout.png"
+    },
+    {
+      "path": "KB/Species/assets/smallmouth-bass.png",
+      "bytes": 528679,
+      "sha256": "7f33ebf3cd59869d7bd4b882ed60250ffd94371a9e317efeb333dda581142a46",
+      "source": "source:pwa/assets/kb/species/smallmouth-bass.png"
+    },
+    {
+      "path": "KB/Species/content/coastal-cutthroat-trout.md",
+      "bytes": 173,
+      "sha256": "1252c8c5523aa11305eb8a29fe8fc34c1cc1a1b743316e21d0a8a5ea3f94f59a",
+      "source": "source:pwa/kb-content/species/coastal-cutthroat-trout.md"
+    },
+    {
+      "path": "KB/Species/content/kokanee.md",
+      "bytes": 174,
+      "sha256": "3d3db1a82b35b35b87c421ae023ffa015fd171e8af7565b30607ebf1664b1aa6",
+      "source": "source:pwa/kb-content/species/kokanee.md"
+    },
+    {
+      "path": "KB/Species/content/largemouth-bass.md",
+      "bytes": 356,
+      "sha256": "7c80437fc258876b41646b92731e6874508797a404b79354a27ba1382bc8efa0",
+      "source": "source:pwa/kb-content/species/largemouth-bass.md"
+    },
+    {
+      "path": "KB/Species/content/northern-pikeminnow.md",
+      "bytes": 214,
+      "sha256": "bedb6e38ed21c494b48d1ce95d6b268787697167e31534835c5ee4011a3cb406",
+      "source": "source:pwa/kb-content/species/northern-pikeminnow.md"
+    },
+    {
+      "path": "KB/Species/content/perch.md",
+      "bytes": 218,
+      "sha256": "b65ef06da88ce97f0f50fe620b4419954507b16bb6404b7ef1078e03132de796",
+      "source": "source:pwa/kb-content/species/perch.md"
+    },
+    {
+      "path": "KB/Species/content/rainbow-trout.md",
+      "bytes": 239,
+      "sha256": "85ea0adacc162592a5242b9a2ced6d302e35d7445f43e423919506d14ea8bb2b",
+      "source": "source:pwa/kb-content/species/rainbow-trout.md"
+    },
+    {
+      "path": "KB/Species/content/smallmouth-bass.md",
+      "bytes": 282,
+      "sha256": "c17ca1163bf726c83a5df1f924624f3dc0c683f18ec76f4f4e0be0a00968c76f",
+      "source": "source:pwa/kb-content/species/smallmouth-bass.md"
+    },
+    {
+      "path": "KB/Techniques/content/bass-power-search-overview.md",
+      "bytes": 573,
+      "sha256": "28711b469a42a0c96bf8db75e67c19cd7e516b2a02b9a68175e76ed81447380e",
+      "source": "source:pwa/kb-content/techniques/bass-power-search-overview.md"
+    },
+    {
+      "path": "KB/Techniques/content/color-and-scent.md",
+      "bytes": 486,
+      "sha256": "164ed9e5f6bd03b194acc42ac2fbdc4fabc0edea79ec154c77af9aee0f43df6f",
+      "source": "source:pwa/kb-content/techniques/color-and-scent.md"
+    },
+    {
+      "path": "KB/Techniques/content/paddle-only-kayak-strategy.md",
+      "bytes": 407,
+      "sha256": "18f649f55335ea933be7f35dd2766b9c31996858c734ae5648dbe87191c34db8",
+      "source": "source:pwa/kb-content/techniques/paddle-only-kayak-strategy.md"
+    },
+    {
+      "path": "KB/Techniques/content/seasonal-bass-guidance.md",
+      "bytes": 1687,
+      "sha256": "69771d762d2c41c360f202478f175e5472dac6ca4067cedad0873f6e616c50f3",
+      "source": "source:pwa/kb-content/techniques/seasonal-bass-guidance.md"
+    },
+    {
+      "path": "KB/Techniques/content/spring-fishing.md",
+      "bytes": 3110,
+      "sha256": "860ea8a06472bfc62113f38edec1c6fdd7c7e2f22e7864e1fadf85ea1c7f34f2",
+      "source": "source:pwa/kb-content/techniques/spring-fishing.md"
+    },
+    {
+      "path": "KB/Techniques/content/trout-fishing.md",
+      "bytes": 4788,
+      "sha256": "3bfe31194ebc32b56d20540eb9fe0612cd3b39605e1ca55733b9844af20dc3de",
+      "source": "source:pwa/kb-content/techniques/trout-fishing.md"
+    },
+    {
+      "path": "KB/Techniques/content/water-visibility.md",
+      "bytes": 216,
+      "sha256": "a13afa8e843cc37b64798c4557d6562eb1c8c65dd1831c4fa48e212b4d49164a",
+      "source": "source:pwa/kb-content/techniques/water-visibility.md"
+    }
+  ],
+  "fieldTransformations": [
+    {
+      "from": "setup-spinning.rod.manufacturer",
+      "to": "daiwa-tatula-xt-rod.manufacturer",
+      "preservation": "exact"
+    },
+    {
+      "from": "setup-spinning.rod.model",
+      "to": "daiwa-tatula-xt-rod.model",
+      "preservation": "exact"
+    },
+    {
+      "from": "setup-spinning.rod.specifications",
+      "to": "daiwa-tatula-xt-rod.specifications",
+      "preservation": "exact"
+    },
+    {
+      "from": "setup-spinning.rod.links",
+      "to": "daiwa-tatula-xt-rod.links",
+      "preservation": "exact"
+    },
+    {
+      "from": "setup-spinning.reel.manufacturer",
+      "to": "daiwa-exceler-lt-reel.manufacturer",
+      "preservation": "exact"
+    },
+    {
+      "from": "setup-spinning.reel.model",
+      "to": "daiwa-exceler-lt-reel.model",
+      "preservation": "exact"
+    },
+    {
+      "from": "setup-spinning.reel.specifications",
+      "to": "daiwa-exceler-lt-reel.specifications",
+      "preservation": "exact"
+    },
+    {
+      "from": "setup-spinning.reel.links",
+      "to": "daiwa-exceler-lt-reel.links",
+      "preservation": "exact"
+    },
+    {
+      "from": "setup-baitcasting.rod.manufacturer",
+      "to": "shimano-zodias-rod.manufacturer",
+      "preservation": "exact"
+    },
+    {
+      "from": "setup-baitcasting.rod.model",
+      "to": "shimano-zodias-rod.model",
+      "preservation": "exact"
+    },
+    {
+      "from": "setup-baitcasting.rod.specifications",
+      "to": "shimano-zodias-rod.specifications",
+      "preservation": "exact"
+    },
+    {
+      "from": "setup-baitcasting.rod.links",
+      "to": "shimano-zodias-rod.links",
+      "preservation": "exact"
+    },
+    {
+      "from": "setup-baitcasting.reel.manufacturer",
+      "to": "shimano-slx-dc-xt-71hg-reel.manufacturer",
+      "preservation": "exact"
+    },
+    {
+      "from": "setup-baitcasting.reel.model",
+      "to": "shimano-slx-dc-xt-71hg-reel.model",
+      "preservation": "exact"
+    },
+    {
+      "from": "setup-baitcasting.reel.specifications",
+      "to": "shimano-slx-dc-xt-71hg-reel.specifications",
+      "preservation": "exact"
+    },
+    {
+      "from": "setup-baitcasting.reel.links",
+      "to": "shimano-slx-dc-xt-71hg-reel.links",
+      "preservation": "exact"
+    },
+    {
+      "from": "setup-spincasting.rod.manufacturer",
+      "to": "pflueger-president-spincast-rod.manufacturer",
+      "preservation": "exact"
+    },
+    {
+      "from": "setup-spincasting.rod.model",
+      "to": "pflueger-president-spincast-rod.model",
+      "preservation": "exact"
+    },
+    {
+      "from": "setup-spincasting.rod.specifications",
+      "to": "pflueger-president-spincast-rod.specifications",
+      "preservation": "exact"
+    },
+    {
+      "from": "setup-spincasting.rod.links",
+      "to": "pflueger-president-spincast-rod.links",
+      "preservation": "exact"
+    },
+    {
+      "from": "setup-spincasting.reel.manufacturer",
+      "to": "pflueger-president-spincast-reel.manufacturer",
+      "preservation": "exact"
+    },
+    {
+      "from": "setup-spincasting.reel.model",
+      "to": "pflueger-president-spincast-reel.model",
+      "preservation": "exact"
+    },
+    {
+      "from": "setup-spincasting.reel.specifications",
+      "to": "pflueger-president-spincast-reel.specifications",
+      "preservation": "exact"
+    },
+    {
+      "from": "setup-spincasting.reel.links",
+      "to": "pflueger-president-spincast-reel.links",
+      "preservation": "exact"
+    },
+    {
+      "from": "catch-2026-07-27-silver-lake-largemouth-01.size",
+      "to": "13 in",
+      "preservation": "original measurement values/units; original object retained in archive"
+    },
+    {
+      "from": "catch-2026-08-04-lake-sammamish-perch-01.size",
+      "to": "10 in",
+      "preservation": "original measurement values/units; original object retained in archive"
+    },
+    {
+      "from": "catch-2026-08-04-lake-sammamish-largemouth-01.size",
+      "to": "12 in",
+      "preservation": "original measurement values/units; original object retained in archive"
+    },
+    {
+      "from": "catch-2026-08-19-mayfield-pikeminnow-01.size",
+      "to": "12 in",
+      "preservation": "original measurement values/units; original object retained in archive"
+    },
+    {
+      "from": "catch-2026-08-20-mayfield-pikeminnow-01.size",
+      "to": "12 in",
+      "preservation": "original measurement values/units; original object retained in archive"
+    }
+  ],
+  "splitMappings": {
+    "setup-spinning": [
+      "daiwa-tatula-xt-rod",
+      "daiwa-exceler-lt-reel"
+    ],
+    "setup-baitcasting": [
+      "shimano-zodias-rod",
+      "shimano-slx-dc-xt-71hg-reel"
+    ],
+    "setup-spincasting": [
+      "pflueger-president-spincast-rod",
+      "pflueger-president-spincast-reel"
+    ]
+  },
+  "exceptions": [
+    {
+      "kind": "absent-original-picture",
+      "id": "generic-1-inline-spinner",
+      "optional": true
+    },
+    {
+      "kind": "malformed-active-image",
+      "id": "tsuridamashii-snap-swivels",
+      "source": "pwa/assets/gear-source/tsuridamashii-snap-swivels.webp"
+    },
+    {
+      "kind": "missing-original-picture",
+      "id": "rapala-original-floating-f3",
+      "gearId": "rapala-original-floating",
+      "optional": true
+    },
+    {
+      "kind": "remote-kb-picture",
+      "id": "species-perch",
+      "source": "https://upload.wikimedia.org/wikipedia/commons/7/71/Yellow_perch_fish_perca_flavescens.jpg"
+    },
+    {
+      "kind": "remote-kb-picture",
+      "id": "technique-popper",
+      "source": "https://img.tacklewarehouse.com/watermark/rs.php?path=RPR-PBK-1.jpg"
+    },
+    {
+      "kind": "remote-kb-picture",
+      "id": "technique-whopper-plopper",
+      "source": "https://media.mwstatic.com/product-images/src/primary/847/847202.jpg"
+    },
+    {
+      "kind": "replacement-required",
+      "id": "macks-pee-wee-hoochie",
+      "archivedSha256": "562c1081c6407a306fb8dfd3f1bbed39d39586b4855bc68117689a8c2fb3924f",
+      "source": "./assets/gear/macks-pee-wee-hoochie.webp"
+    },
+    {
+      "kind": "replacement-required",
+      "id": "river2sea-whopper-plopper-60",
+      "archivedSha256": "0a62d3625752927423ac1d3d4867d6d9887dbe0ad98a4df36e9c2babb15810ac",
+      "source": "./assets/gear/river2sea-whopper-plopper-60.avif"
+    }
+  ],
+  "references": [],
+  "sourceIds": {
+    "gear": [
+      "setup-spinning",
+      "setup-baitcasting",
+      "setup-spincasting",
+      "sufix-832-15",
+      "powerpro-super8-slick-v2-30",
+      "seaguar-invizx-8",
+      "seaguar-invizx-12",
+      "cylinder-weights",
+      "egg-sinkers",
+      "swiveling-trolling-sinkers",
+      "glass-beads",
+      "south-bend-removable-split-shot-sinkers",
+      "vmc-crs-crankbait-snaps",
+      "tsuridamashii-ball-bearing-swivels",
+      "tsuridamashii-ball-bearing-snap-swivels",
+      "south-bend-assorted-brass-swivels",
+      "gamakatsu-octopus-hook",
+      "vmc-redline-weedless-wacky-neko",
+      "vmc-crossover-rings",
+      "zman-finesse-shroomz",
+      "gamakatsu-g-finesse-drop-shot-hook",
+      "owner-twistlock-black-chrome-centering-pin-hook",
+      "gamakatsu-ewg-worm-offset-hook",
+      "vmc-swimbait-jig",
+      "south-bend-hook-assortment",
+      "zman-original-chatterbait",
+      "zman-elite-evo",
+      "zman-jack-hammer",
+      "strike-king-red-eyed-special",
+      "sixth-sense-divine-spinnerbait",
+      "rebel-crawfish",
+      "berkley-flicker-shad-5",
+      "strike-king-kvd-square-bill-1",
+      "berkley-money-badger",
+      "berkley-stunna",
+      "rapala-original-floating",
+      "rapala-dt",
+      "rapala-ripstop",
+      "rapala-husky-jerk",
+      "mepps-aglia-3",
+      "generic-0-inline-spinner-assortment",
+      "generic-1-inline-spinner",
+      "macks-wedding-ring",
+      "kastmaster",
+      "dick-nite-spoon",
+      "luhr-jensen-trout-kokanee-dodger",
+      "macks-pee-wee-hoochie",
+      "booyah-pad-crasher",
+      "rebel-pop-r",
+      "river2sea-whopper-plopper-60",
+      "strike-king-premier-pro-model-jig",
+      "strike-king-tour-grade-football-jig",
+      "yum-christie-craw",
+      "strike-king-rage-craw",
+      "sixth-sense-divine-swimbait",
+      "berkley-powerbait-power-jerk-shad",
+      "fin-sanity-bluegill",
+      "yamamoto-senko",
+      "zman-ned-rig-kit",
+      "berkley-gulp-minnow",
+      "berkley-powerbait-trout-dough",
+      "berkley-powerbait-trout-nuggets",
+      "berkley-powerbait-magnum-floating-power-eggs",
+      "bonafide-rvr119",
+      "dagger-axis-10-5",
+      "perception-joyride-10-0"
+    ],
+    "kb": [
+      "location-lake-washington",
+      "location-lake-sammamish",
+      "location-silver-lake-whatcom",
+      "location-cranberry-lake-deception-pass",
+      "location-mayfield-lake",
+      "location-lake-chelan",
+      "location-lake-cle-elum",
+      "location-lake-bosworth",
+      "technique-bass-power-search-overview",
+      "technique-paddle-only-kayak-strategy",
+      "technique-trout-fishing",
+      "technique-fishing-line",
+      "technique-rods-reels",
+      "technique-wacky-worm",
+      "technique-ned-rig",
+      "technique-drop-shot",
+      "technique-jigs",
+      "technique-spinnerbait",
+      "technique-chatterbait-bladed-jig",
+      "technique-crankbait",
+      "technique-jerkbait",
+      "technique-swimbait-soft-jerk-shad",
+      "technique-buzzbait",
+      "technique-frogs",
+      "technique-popper",
+      "technique-walking-bait",
+      "technique-whopper-plopper",
+      "technique-seasonal-bass-guidance",
+      "technique-color-and-scent",
+      "technique-water-visibility",
+      "species-largemouth-bass",
+      "species-perch",
+      "species-northern-pikeminnow",
+      "species-smallmouth-bass",
+      "species-rainbow-trout",
+      "species-coastal-cutthroat-trout",
+      "species-kokanee",
+      "knot-palomar",
+      "knot-fg",
+      "knot-albright",
+      "knot-trilene",
+      "knot-improved-clinch",
+      "knot-modified-uni",
+      "knot-double-uni",
+      "knot-loop-non-slip-loop",
+      "knot-single-uni",
+      "knot-arbor",
+      "technique-inline-spinner",
+      "technique-snaps-swivels",
+      "technique-flasher-rig",
+      "technique-inline-trolling-rig",
+      "technique-bobber-rig",
+      "technique-slip-sinker-rig",
+      "technique-spring-fishing"
+    ],
+    "catches": [
+      "catch-2026-07-27-silver-lake-largemouth-01",
+      "catch-2026-08-04-lake-sammamish-perch-01",
+      "catch-2026-08-04-lake-sammamish-largemouth-01",
+      "catch-2026-08-19-mayfield-pikeminnow-01",
+      "catch-2026-08-20-mayfield-pikeminnow-01"
+    ]
+  },
+  "destinationIds": {
+    "gear": [
+      "daiwa-tatula-xt-rod",
+      "daiwa-exceler-lt-reel",
+      "shimano-zodias-rod",
+      "shimano-slx-dc-xt-71hg-reel",
+      "pflueger-president-spincast-rod",
+      "pflueger-president-spincast-reel",
+      "sufix-832-15",
+      "powerpro-super8-slick-v2-30",
+      "seaguar-invizx-8",
+      "seaguar-invizx-12",
+      "cylinder-weights",
+      "egg-sinkers",
+      "swiveling-trolling-sinkers",
+      "glass-beads",
+      "south-bend-removable-split-shot-sinkers",
+      "vmc-crs-crankbait-snaps",
+      "tsuridamashii-ball-bearing-swivels",
+      "tsuridamashii-ball-bearing-snap-swivels",
+      "south-bend-assorted-brass-swivels",
+      "gamakatsu-octopus-hook",
+      "vmc-redline-weedless-wacky-neko",
+      "vmc-crossover-rings",
+      "zman-finesse-shroomz",
+      "gamakatsu-g-finesse-drop-shot-hook",
+      "owner-twistlock-black-chrome-centering-pin-hook",
+      "gamakatsu-ewg-worm-offset-hook",
+      "vmc-swimbait-jig",
+      "south-bend-hook-assortment",
+      "zman-original-chatterbait",
+      "zman-elite-evo",
+      "zman-jack-hammer",
+      "strike-king-red-eyed-special",
+      "sixth-sense-divine-spinnerbait",
+      "rebel-crawfish",
+      "berkley-flicker-shad-5",
+      "strike-king-kvd-square-bill-1",
+      "berkley-money-badger",
+      "berkley-stunna",
+      "rapala-original-floating",
+      "rapala-dt",
+      "rapala-ripstop",
+      "rapala-husky-jerk",
+      "mepps-aglia-3",
+      "generic-0-inline-spinner-assortment",
+      "generic-1-inline-spinner",
+      "macks-wedding-ring",
+      "kastmaster",
+      "dick-nite-spoon",
+      "luhr-jensen-trout-kokanee-dodger",
+      "macks-pee-wee-hoochie",
+      "booyah-pad-crasher",
+      "rebel-pop-r",
+      "river2sea-whopper-plopper-60",
+      "strike-king-premier-pro-model-jig",
+      "strike-king-tour-grade-football-jig",
+      "yum-christie-craw",
+      "strike-king-rage-craw",
+      "sixth-sense-divine-swimbait",
+      "berkley-powerbait-power-jerk-shad",
+      "fin-sanity-bluegill",
+      "yamamoto-senko",
+      "zman-ned-rig-kit",
+      "berkley-gulp-minnow",
+      "berkley-powerbait-trout-dough",
+      "berkley-powerbait-trout-nuggets",
+      "berkley-powerbait-magnum-floating-power-eggs",
+      "bonafide-rvr119",
+      "dagger-axis-10-5",
+      "perception-joyride-10-0"
+    ],
+    "kb": [
+      "location-lake-washington",
+      "location-lake-sammamish",
+      "location-silver-lake-whatcom",
+      "location-cranberry-lake-deception-pass",
+      "location-mayfield-lake",
+      "location-lake-chelan",
+      "location-lake-cle-elum",
+      "location-lake-bosworth",
+      "technique-bass-power-search-overview",
+      "technique-paddle-only-kayak-strategy",
+      "technique-trout-fishing",
+      "technique-fishing-line",
+      "technique-rods-reels",
+      "technique-wacky-worm",
+      "technique-ned-rig",
+      "technique-drop-shot",
+      "technique-jigs",
+      "technique-spinnerbait",
+      "technique-chatterbait-bladed-jig",
+      "technique-crankbait",
+      "technique-jerkbait",
+      "technique-swimbait-soft-jerk-shad",
+      "technique-buzzbait",
+      "technique-frogs",
+      "technique-popper",
+      "technique-walking-bait",
+      "technique-whopper-plopper",
+      "technique-seasonal-bass-guidance",
+      "technique-color-and-scent",
+      "technique-water-visibility",
+      "species-largemouth-bass",
+      "species-perch",
+      "species-northern-pikeminnow",
+      "species-smallmouth-bass",
+      "species-rainbow-trout",
+      "species-coastal-cutthroat-trout",
+      "species-kokanee",
+      "knot-palomar",
+      "knot-fg",
+      "knot-albright",
+      "knot-trilene",
+      "knot-improved-clinch",
+      "knot-modified-uni",
+      "knot-double-uni",
+      "knot-loop-non-slip-loop",
+      "knot-single-uni",
+      "knot-arbor",
+      "technique-inline-spinner",
+      "technique-snaps-swivels",
+      "technique-flasher-rig",
+      "technique-inline-trolling-rig",
+      "technique-bobber-rig",
+      "technique-slip-sinker-rig",
+      "technique-spring-fishing"
+    ],
+    "catches": [
+      "catch-2026-07-27-silver-lake-largemouth-01",
+      "catch-2026-08-04-lake-sammamish-perch-01",
+      "catch-2026-08-04-lake-sammamish-largemouth-01",
+      "catch-2026-08-19-mayfield-pikeminnow-01",
+      "catch-2026-08-20-mayfield-pikeminnow-01"
+    ]
+  },
+  "pathMappings": {
+    "pwa/gear-content/setup-spinning.md": "Gear/Rods-Reels/content/Daiwa Exceler LT.md",
+    "pwa/gear-content/setup-baitcasting.md": "Gear/Rods-Reels/content/Shimano 22 SLX DC XT 71HG.md",
+    "pwa/gear-content/setup-spincasting.md": "Gear/Rods-Reels/content/Pflueger President Spincast Combo - Reel.md",
+    "pwa/gear-content/sufix-832-15.md": "Gear/Line/content/sufix-832-15.md",
+    "pwa/gear-content/powerpro-super8-slick-v2-30.md": "Gear/Line/content/powerpro-super8-slick-v2-30.md",
+    "pwa/gear-content/seaguar-invizx-8.md": "Gear/Line/content/seaguar-invizx-8.md",
+    "pwa/gear-content/seaguar-invizx-12.md": "Gear/Line/content/seaguar-invizx-12.md",
+    "pwa/gear-content/swiveling-trolling-sinkers.md": "Gear/Weights/content/swiveling-trolling-sinkers.md",
+    "pwa/gear-content/vmc-crs-crankbait-snaps.md": "Gear/Snaps-Swivels/content/vmc-crs-crankbait-snaps.md",
+    "pwa/gear-content/tsuridamashii-ball-bearing-swivels.md": "Gear/Snaps-Swivels/content/tsuridamashii-ball-bearing-swivels.md",
+    "pwa/gear-content/tsuridamashii-ball-bearing-snap-swivels.md": "Gear/Snaps-Swivels/content/tsuridamashii-ball-bearing-snap-swivels.md",
+    "pwa/gear-content/south-bend-assorted-brass-swivels.md": "Gear/Snaps-Swivels/content/south-bend-assorted-brass-swivels.md",
+    "pwa/gear-content/zman-original-chatterbait.md": "Gear/Lures/content/zman-original-chatterbait.md",
+    "pwa/gear-content/zman-elite-evo.md": "Gear/Lures/content/zman-elite-evo.md",
+    "pwa/gear-content/zman-jack-hammer.md": "Gear/Lures/content/zman-jack-hammer.md",
+    "pwa/gear-content/strike-king-red-eyed-special.md": "Gear/Lures/content/strike-king-red-eyed-special.md",
+    "pwa/gear-content/sixth-sense-divine-spinnerbait.md": "Gear/Lures/content/sixth-sense-divine-spinnerbait.md",
+    "pwa/gear-content/rebel-crawfish.md": "Gear/Lures/content/rebel-crawfish.md",
+    "pwa/gear-content/berkley-flicker-shad-5.md": "Gear/Lures/content/berkley-flicker-shad-5.md",
+    "pwa/gear-content/strike-king-kvd-square-bill-1.md": "Gear/Lures/content/strike-king-kvd-square-bill-1.md",
+    "pwa/gear-content/berkley-money-badger.md": "Gear/Lures/content/berkley-money-badger.md",
+    "pwa/gear-content/berkley-stunna.md": "Gear/Lures/content/berkley-stunna.md",
+    "pwa/gear-content/rapala-original-floating.md": "Gear/Lures/content/rapala-original-floating.md",
+    "pwa/gear-content/rapala-dt.md": "Gear/Lures/content/rapala-dt.md",
+    "pwa/gear-content/rapala-ripstop.md": "Gear/Lures/content/rapala-ripstop.md",
+    "pwa/gear-content/rapala-husky-jerk.md": "Gear/Lures/content/rapala-husky-jerk.md",
+    "pwa/gear-content/mepps-aglia-3.md": "Gear/Lures/content/mepps-aglia-3.md",
+    "pwa/gear-content/generic-0-inline-spinner-assortment.md": "Gear/Lures/content/generic-0-inline-spinner-assortment.md",
+    "pwa/gear-content/generic-1-inline-spinner.md": "Gear/Lures/content/generic-1-inline-spinner.md",
+    "pwa/gear-content/macks-wedding-ring.md": "Gear/Lures/content/macks-wedding-ring.md",
+    "pwa/gear-content/dick-nite-spoon.md": "Gear/Lures/content/dick-nite-spoon.md",
+    "pwa/gear-content/booyah-pad-crasher.md": "Gear/Lures/content/booyah-pad-crasher.md",
+    "pwa/gear-content/rebel-pop-r.md": "Gear/Lures/content/rebel-pop-r.md",
+    "pwa/gear-content/river2sea-whopper-plopper-60.md": "Gear/Lures/content/river2sea-whopper-plopper-60.md",
+    "pwa/gear-content/strike-king-premier-pro-model-jig.md": "Gear/Lures/content/strike-king-premier-pro-model-jig.md",
+    "pwa/gear-content/strike-king-tour-grade-football-jig.md": "Gear/Lures/content/strike-king-tour-grade-football-jig.md",
+    "pwa/gear-content/sixth-sense-divine-swimbait.md": "Gear/Lures/content/sixth-sense-divine-swimbait.md",
+    "pwa/gear-content/berkley-powerbait-power-jerk-shad.md": "Gear/Lures/content/berkley-powerbait-power-jerk-shad.md",
+    "pwa/gear-content/fin-sanity-bluegill.md": "Gear/Lures/content/fin-sanity-bluegill.md",
+    "pwa/gear-content/yamamoto-senko.md": "Gear/Lures/content/yamamoto-senko.md",
+    "pwa/gear-content/zman-ned-rig-kit.md": "Gear/Lures/content/zman-ned-rig-kit.md",
+    "pwa/gear-content/bonafide-rvr119.md": "Gear/Equipment/content/bonafide-rvr119.md",
+    "pwa/kb-content/locations/lake-washington.md": "KB/Locations/content/lake-washington.md",
+    "pwa/kb-content/locations/lake-sammamish.md": "KB/Locations/content/lake-sammamish.md",
+    "pwa/kb-content/locations/silver-lake-whatcom.md": "KB/Locations/content/silver-lake-whatcom.md",
+    "pwa/kb-content/locations/cranberry-lake-deception-pass.md": "KB/Locations/content/cranberry-lake-deception-pass.md",
+    "pwa/kb-content/locations/mayfield-lake.md": "KB/Locations/content/mayfield-lake.md",
+    "pwa/kb-content/locations/lake-chelan.md": "KB/Locations/content/lake-chelan.md",
+    "pwa/kb-content/locations/lake-cle-elum.md": "KB/Locations/content/lake-cle-elum.md",
+    "pwa/kb-content/locations/lake-bosworth.md": "KB/Locations/content/lake-bosworth.md",
+    "pwa/kb-content/techniques/bass-power-search-overview.md": "KB/Techniques/content/bass-power-search-overview.md",
+    "pwa/kb-content/techniques/paddle-only-kayak-strategy.md": "KB/Techniques/content/paddle-only-kayak-strategy.md",
+    "pwa/kb-content/techniques/trout-fishing.md": "KB/Techniques/content/trout-fishing.md",
+    "pwa/kb-content/techniques/fishing-line.md": "KB/Gear-Guides/content/fishing-line.md",
+    "pwa/kb-content/techniques/rods-reels.md": "KB/Gear-Guides/content/rods-reels.md",
+    "pwa/kb-content/techniques/wacky-worm.md": "KB/Gear-Guides/content/wacky-worm.md",
+    "pwa/kb-content/techniques/ned-rig.md": "KB/Gear-Guides/content/ned-rig.md",
+    "pwa/kb-content/techniques/drop-shot.md": "KB/Gear-Guides/content/drop-shot.md",
+    "pwa/kb-content/techniques/jigs.md": "KB/Gear-Guides/content/jigs.md",
+    "pwa/kb-content/techniques/spinnerbait.md": "KB/Gear-Guides/content/spinnerbait.md",
+    "pwa/kb-content/techniques/chatterbait-bladed-jig.md": "KB/Gear-Guides/content/chatterbait-bladed-jig.md",
+    "pwa/kb-content/techniques/crankbait.md": "KB/Gear-Guides/content/crankbait.md",
+    "pwa/kb-content/techniques/jerkbait.md": "KB/Gear-Guides/content/jerkbait.md",
+    "pwa/kb-content/techniques/swimbait-soft-jerk-shad.md": "KB/Gear-Guides/content/swimbait-soft-jerk-shad.md",
+    "pwa/kb-content/techniques/buzzbait.md": "KB/Gear-Guides/content/buzzbait.md",
+    "pwa/kb-content/techniques/frogs.md": "KB/Gear-Guides/content/frogs.md",
+    "pwa/kb-content/techniques/popper.md": "KB/Gear-Guides/content/popper.md",
+    "pwa/kb-content/techniques/walking-bait.md": "KB/Gear-Guides/content/walking-bait.md",
+    "pwa/kb-content/techniques/whopper-plopper.md": "KB/Gear-Guides/content/whopper-plopper.md",
+    "pwa/kb-content/techniques/seasonal-bass-guidance.md": "KB/Techniques/content/seasonal-bass-guidance.md",
+    "pwa/kb-content/techniques/color-and-scent.md": "KB/Techniques/content/color-and-scent.md",
+    "pwa/kb-content/techniques/water-visibility.md": "KB/Techniques/content/water-visibility.md",
+    "pwa/kb-content/species/largemouth-bass.md": "KB/Species/content/largemouth-bass.md",
+    "pwa/kb-content/species/perch.md": "KB/Species/content/perch.md",
+    "pwa/kb-content/species/northern-pikeminnow.md": "KB/Species/content/northern-pikeminnow.md",
+    "pwa/kb-content/species/smallmouth-bass.md": "KB/Species/content/smallmouth-bass.md",
+    "pwa/kb-content/species/rainbow-trout.md": "KB/Species/content/rainbow-trout.md",
+    "pwa/kb-content/species/coastal-cutthroat-trout.md": "KB/Species/content/coastal-cutthroat-trout.md",
+    "pwa/kb-content/species/kokanee.md": "KB/Species/content/kokanee.md",
+    "pwa/kb-content/knots/palomar.md": "KB/Knots/content/palomar.md",
+    "pwa/kb-content/knots/fg.md": "KB/Knots/content/fg.md",
+    "pwa/kb-content/knots/albright.md": "KB/Knots/content/albright.md",
+    "pwa/kb-content/knots/trilene.md": "KB/Knots/content/trilene.md",
+    "pwa/kb-content/knots/improved-clinch.md": "KB/Knots/content/improved-clinch.md",
+    "pwa/kb-content/knots/modified-uni.md": "KB/Knots/content/modified-uni.md",
+    "pwa/kb-content/knots/double-uni.md": "KB/Knots/content/double-uni.md",
+    "pwa/kb-content/knots/loop-non-slip-loop.md": "KB/Knots/content/loop-non-slip-loop.md",
+    "pwa/kb-content/knots/single-uni.md": "KB/Knots/content/single-uni.md",
+    "pwa/kb-content/knots/arbor.md": "KB/Knots/content/arbor.md",
+    "pwa/kb-content/techniques/inline-spinner.md": "KB/Gear-Guides/content/inline-spinner.md",
+    "pwa/kb-content/techniques/snaps-swivels.md": "KB/Gear-Guides/content/snaps-swivels.md",
+    "pwa/kb-content/techniques/flasher-rig.md": "KB/Gear-Guides/content/flasher-rig.md",
+    "pwa/kb-content/techniques/inline-trolling-rig.md": "KB/Gear-Guides/content/inline-trolling-rig.md",
+    "pwa/kb-content/techniques/bobber-rig.md": "KB/Gear-Guides/content/bobber-rig.md",
+    "pwa/kb-content/techniques/slip-sinker-rig.md": "KB/Gear-Guides/content/slip-sinker-rig.md",
+    "pwa/kb-content/techniques/spring-fishing.md": "KB/Techniques/content/spring-fishing.md",
+    "pwa/catch-content/catch-2026-07-27-silver-lake-largemouth-01.md": "Catches/content/catch-2026-07-27-silver-lake-largemouth-01.md",
+    "pwa/catch-content/catch-2026-08-04-lake-sammamish-perch-01.md": "Catches/content/catch-2026-08-04-lake-sammamish-perch-01.md",
+    "pwa/catch-content/catch-2026-08-04-lake-sammamish-largemouth-01.md": "Catches/content/catch-2026-08-04-lake-sammamish-largemouth-01.md",
+    "pwa/catch-content/catch-2026-08-19-mayfield-pikeminnow-01.md": "Catches/content/catch-2026-08-19-mayfield-pikeminnow-01.md",
+    "pwa/catch-content/catch-2026-08-20-mayfield-pikeminnow-01.md": "Catches/content/catch-2026-08-20-mayfield-pikeminnow-01.md"
+  },
+  "mediaDecisions": {
+    "daiwa-tatula-xt": "ADOPT",
+    "daiwa-exceler-lt": "ADOPT",
+    "shimano-zodias": "ADOPT",
+    "shimano-slx-dc-xt-71hg": "ADOPT",
+    "pflueger-president-spincast": "ADOPT",
+    "powerpro-super8-slick-v2": "ADOPT",
+    "seaguar-invizx": "ADOPT",
+    "eagle-claw-egg-sinkers": "ADOPT",
+    "eagle-claw-trolling-sinker": "ADOPT",
+    "top-brass-glass-beads": "ADOPT",
+    "vmc-crankbait-snaps": "ADOPT",
+    "gamakatsu-octopus-hook": "ADOPT",
+    "vmc-redline-weedless-wacky-neko": "ADOPT",
+    "vmc-crossover-rings": "ADOPT",
+    "zman-finesse-shroomz": "ADOPT",
+    "gamakatsu-g-finesse-drop-shot": "ADOPT",
+    "owner-twistlock": "ADOPT",
+    "gamakatsu-ewg-worm-hook": "ADOPT",
+    "zman-original-chatterbait": "ADOPT",
+    "zman-elite-evo": "ADOPT",
+    "strike-king-red-eyed-special": "ADOPT",
+    "sixth-sense-divine-spinnerbait": "ADOPT",
+    "rebel-crawfish": "ADOPT",
+    "berkley-flicker-shad-5": "ADOPT",
+    "strike-king-kvd-square-bill-1": "ADOPT",
+    "berkley-money-badger": "ADOPT",
+    "berkley-stunna": "ADOPT",
+    "rapala-dt06": "ADOPT",
+    "rapala-ripstop": "ADOPT",
+    "rapala-husky-jerk": "ADOPT",
+    "mepps-aglia-3": "ADOPT",
+    "macks-wedding-ring": "ADOPT",
+    "kastmaster": "ADOPT",
+    "dick-nite-spoon": "ADOPT",
+    "luhr-jensen-dodger": "ADOPT",
+    "macks-pee-wee-hoochie": "REPLACE",
+    "rebel-pop-r": "ADOPT",
+    "river2sea-whopper-plopper-60": "REPLACE",
+    "strike-king-premier-pro-model-jig": "ADOPT",
+    "strike-king-tour-grade-football-jig": "ADOPT",
+    "yum-christie-craw": "ADOPT",
+    "strike-king-rage-craw": "ADOPT",
+    "sixth-sense-divine-swimbait": "ADOPT",
+    "berkley-power-jerk-shad": "ADOPT",
+    "fin-sanity-bluegill": "ADOPT",
+    "yamamoto-senko": "ADOPT",
+    "zman-ned-rig-kit": "ADOPT",
+    "berkley-gulp-minnow": "ADOPT",
+    "berkley-powerbait-trout-dough": "ADOPT",
+    "berkley-powerbait-trout-nuggets": "ADOPT",
+    "berkley-magnum-power-eggs": "ADOPT"
+  },
+  "originalCatches": [
+    {
+      "id": "catch-2026-07-27-silver-lake-largemouth-01",
+      "date": "2026-07-27",
+      "time": "20:00",
+      "size": {
+        "length": {
+          "value": 13,
+          "unit": "in"
+        },
+        "weight": null,
+        "display": null
+      },
+      "speciesId": "species-largemouth-bass",
+      "locationId": "location-silver-lake-whatcom",
+      "rodReelSetupId": null,
+      "techniqueId": null,
+      "lureOrBait": {
+        "type": "lure",
+        "itemId": "berkley-flicker-shad-5",
+        "nameSnapshot": "Berkley Flicker Shad 5"
+      },
+      "picture": null
+    },
+    {
+      "id": "catch-2026-08-04-lake-sammamish-perch-01",
+      "date": "2026-08-04",
+      "time": null,
+      "size": {
+        "length": {
+          "value": 10,
+          "unit": "in"
+        },
+        "weight": null,
+        "display": null
+      },
+      "speciesId": "species-perch",
+      "locationId": "location-lake-sammamish",
+      "rodReelSetupId": null,
+      "techniqueId": null,
+      "lureOrBait": {
+        "type": "lure",
+        "itemId": "strike-king-kvd-square-bill-1",
+        "nameSnapshot": "Strike King KVD Square Bill 1.0"
+      },
+      "picture": null
+    },
+    {
+      "id": "catch-2026-08-04-lake-sammamish-largemouth-01",
+      "date": "2026-08-04",
+      "time": null,
+      "size": {
+        "length": {
+          "value": 12,
+          "unit": "in"
+        },
+        "weight": null,
+        "display": null
+      },
+      "speciesId": "species-largemouth-bass",
+      "locationId": "location-lake-sammamish",
+      "rodReelSetupId": null,
+      "techniqueId": null,
+      "lureOrBait": {
+        "type": "lure",
+        "itemId": "strike-king-kvd-square-bill-1",
+        "nameSnapshot": "Strike King KVD Square Bill 1.0"
+      },
+      "picture": null
+    },
+    {
+      "id": "catch-2026-08-19-mayfield-pikeminnow-01",
+      "date": "2026-08-19",
+      "time": null,
+      "size": {
+        "length": {
+          "value": 12,
+          "unit": "in"
+        },
+        "weight": null,
+        "display": null
+      },
+      "speciesId": "species-northern-pikeminnow",
+      "locationId": "location-mayfield-lake",
+      "rodReelSetupId": null,
+      "techniqueId": null,
+      "lureOrBait": {
+        "type": "lure",
+        "itemId": "berkley-flicker-shad-5",
+        "nameSnapshot": "Berkley Flicker Shad 5"
+      },
+      "picture": null
+    },
+    {
+      "id": "catch-2026-08-20-mayfield-pikeminnow-01",
+      "date": "2026-08-20",
+      "time": null,
+      "size": {
+        "length": {
+          "value": 12,
+          "unit": "in"
+        },
+        "weight": null,
+        "display": null
+      },
+      "speciesId": "species-northern-pikeminnow",
+      "locationId": "location-mayfield-lake",
+      "rodReelSetupId": null,
+      "techniqueId": null,
+      "lureOrBait": {
+        "type": "lure",
+        "itemId": "berkley-flicker-shad-5",
+        "nameSnapshot": "Berkley Flicker Shad 5"
+      },
+      "picture": null
+    }
+  ],
+  "sourceStructuredHashes": {
+    "gear": "a98b3c409c9c829b8288b923dc73680eec008d7cd00b2a7dd37a864207e8526e",
+    "kb": "0a689bd42cf4434e88f140ee297a0c369cc5c22e311e12f400ced01a1a06832c",
+    "catches": "c5ab434e0f68ec626a50e9f4bfe8bac69a3802bc7f21fa8cbda19e80497115bc"
+  }
+}
