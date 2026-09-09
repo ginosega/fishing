@@ -211,10 +211,12 @@ test('tampered cached content is rejected and repaired only from verified bytes'
  state.fail.add(relative);await disconnect(context,true);
  await route(page,'#/kb/'+fixture.articleId,'');
  await expect(page.locator('#app')).toContainText('Unable to display this page');
+ await expect(page.locator('#offline-status')).toHaveAttribute('data-state','Incomplete');
  await expect(page.locator('#app')).not.toContainText('tampered content');
  await disconnect(context,false);state.fail.clear();
  await page.getByRole('button',{name:'Retry',exact:true}).click();
  await expect(page.locator('.markdown-body')).toBeVisible();
+ await expect(page.locator('#offline-status')).toHaveAttribute('data-state','Ready');
  await expect(page.locator('#app')).not.toContainText('tampered content');
 });
 

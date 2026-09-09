@@ -38,7 +38,9 @@ async function completed(){
 }
 async function state(failure){
  const entries=await completed(),current=entries.findLast(x=>x.meta.releaseId===RELEASE_ID)||entries.at(-1);
- return current?{state:'Ready',releaseId:current.meta.releaseId,files:current.meta.files,bytes:current.meta.bytes,failed:failure?.failed||[],message:failure?.message||''}:{state:'Incomplete',releaseId:null,files:0,bytes:0,failed:failure?.failed||[],message:failure?.message||''};
+ if(!current)return {state:'Incomplete',releaseId:null,files:0,bytes:0,failed:failure?.failed||[],message:failure?.message||''};
+ let integrityError=null;try{await verifyCache(current);}catch(error){integrityError=error;}
+ return {state:integrityError?'Incomplete':'Ready',releaseId:current.meta.releaseId,files:current.meta.files,bytes:current.meta.bytes,failed:failure?.failed||[],message:integrityError?'The cached library needs repair. '+integrityError.message:failure?.message||''};
 }
 async function verifyCache(entry){
  for(const file of entry.entries.values()){
