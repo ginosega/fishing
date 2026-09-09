@@ -1,35 +1,37 @@
 # Fishing
 
-Durable project repository for personal fishing/kayak knowledge, owned gear, catch records and Fishing Companion. GitHub is authoritative; earlier complete documentation is preserved in Git history and `History/`, not maintained as parallel current databases.
+Durable repository for personal fishing/kayak knowledge, owned Gear, catches and Fishing Companion. GitHub is authoritative. Historical records are retained in Git and `History/`, not maintained as competing current databases.
 
 ## Current state
 
-**Production healthy; Cranberry Lake picture and page-copy corrections deployed.** PR60, final head `cd47dc9ce39660840de493346e7df9fda72a14e5`, normal CI #307 / `34191643311`, merge `ecd9f3d52ca8180ea4f48ec888e7574105deafda`, production #308 / `34191692935`, including actual GitHub Pages deployment. Gear schema4/66 uses `2026-09-08-my-gear-v4-perception-joyride-1`; KB schema1/54 uses `2026-09-08-kb-v1-cranberry-lake-picture-1`; Catch schema2/5 remains `2026-09-04-catches-v2-external-notes-1`. FISH069 and FISH070 are DONE; FISH063 remains OPEN. No application release is pending. See `pwa/RELEASE_2026-09-08_CRANBERRY_COPY.md`.
+**V2 requirements approved; application implementation not started.** The latest user decision commit is `0bd773366130a302b0e80d5cd085a71731ff9e63`. All fourteen design-review decisions are resolved. The next work is the read-only source/dependency/data audit and implementation-ready technical contracts. No P2 synchronization or direct-save infrastructure is authorized for P1.
 
-PR60 registered the user-uploaded Cranberry Lake PNG and its exact alt/caption, preserving all authored Markdown and other entity facts. Home/KB, Gear Guides, Techniques and Catch Log subtitles now match the requested wording. Earlier Joyride, Dagger, hero-media and Gear/Catch data remain preserved. No Planner or speculative relationships were added.
+The existing v1 site remains the live application at https://ginosega.github.io/fishing/. Its last fully documented runtime release is PR60, merged as `ecd9f3d52ca8180ea4f48ec888e7574105deafda`, production run `34191692935`. Subsequent direct-main uploads and builds must be inspected from current main, not assumed to match that release. The latest previously inspected completed production run was #312 (`34237232075`), successful. See the current Context and release records for evidence. No v2 code, data or media has been deployed.
 
-Live site: [Fishing Companion](https://ginosega.github.io/fishing/). See [latest release closeout](pwa/RELEASE_2026-09-08_CRANBERRY_COPY.md) for exact evidence. Previous PR58 and earlier records remain historical evidence.
+## Collaborative v2 documents
+
+- [Approved requirements and architecture baseline](Fishing_Companion_v2_Approved_Baseline.md) — consolidated accepted requirements, technical contract, migration gates and roadmap.
+- [Requirements Inventory](Fishing_Companion_v2_Requirements_Inventory.md) — original user-authored Response column; preserved verbatim.
+- [Design Review](Fishing_Companion_v2_Design_Review.md) — all fourteen accepted **[Gino Sega]:** decisions and the source-grounded preliminary architecture assessment.
+
+The original user responses take precedence over summaries if a discrepancy is found. The approved v2 design supersedes conflicting historical architectural requirements for the future application, not the still-live v1 runtime.
 
 ## Authoritative project records
 
-- [Context](Fishing_Context.md) — current architecture, source versions, equipment and media state.
-- [TODO](Fishing_TODO.md) — one canonical backlog, including completed and unresolved tasks.
+- [Context](Fishing_Context.md) — actual current runtime and pending v2 state.
+- [TODO](Fishing_TODO.md) — canonical open work and v2 implementation phases.
 - [Decision Log](Fishing_Decision_Log.md) — accepted decisions and standing process.
-- [New-chat bootstrap](Fishing_New_Chat_Bootstrap_Prompt.md) — restore instructions and latest verified baseline.
-- [PWA README](pwa/README.md) — runtime architecture, build/test commands and deployment.
-- [Latest release](pwa/RELEASE_2026-09-08_CRANBERRY_COPY.md) — PR60 Cranberry Lake picture and page-copy release.
-- [Previous Joyride/caption release](pwa/RELEASE_2026-09-08_JOYRIDE_RODS_CAPTION.md) — PR58 historical evidence.
-- [Previous kayak/KB image release](pwa/RELEASE_2026-09-08_KAYAK_KB_IMAGES.md) — PR56 correction and three pictures.
-- [Historical documentation](History/) — exact prior versions, not competing current authority.
+- [New-chat bootstrap](Fishing_New_Chat_Bootstrap_Prompt.md) — restoration instructions.
+- [PWA README](pwa/README.md) — current v1 implementation and build commands.
+- [Latest documented v1 release](pwa/RELEASE_2026-09-08_CRANBERRY_COPY.md) — release evidence, not the final word on later direct-main changes.
+- [History](History/) and Git history — archived source, decisions, tests and release evidence.
 
-Gear Registry, Tackle Inventory, Topics, original OneNote/PDF material, decision history and older release records remain reference/history. Structured PWA sources and stable-ID authored Markdown own current runtime facts. Do not infer ownership or historical catch relationships from reference material.
+Root Gear Registry, Tackle Inventory, Topics and former OneNote/PDF material remain historical/reference sources. Structured runtime files and authored Markdown own current facts. Never infer ownership or historical catches from reference material.
 
 ## Operating and release discipline
 
-Use Chat mode by default. Do not recommend Work for complexity, duration, file volume, research, calculations, analysis or artifact creation. Recommend a temporary switch only for a specific Work-only capability, explain the need and obtain approval.
+Use Chat mode by default. Do not recommend Work for complexity, duration, file volume, research, calculations, analysis or artifact creation. Recommend temporary Work only for a specific Work-only capability, explain the need and obtain approval.
 
-An authorized change is one end-to-end transaction. Continue through implementation, validation, PR/CI, merge, production verification, cleanup and authoritative-record reconciliation without repeated approval gates. Stop only for genuine blockers requiring user input/permission or complete scope. Progress updates are informational.
+Restore latest main and relevant branches before acting. Preserve user-authored files and direct-main changes. An authorized implementation proceeds end-to-end through validation, normal PR/CI, merge, actual deployment verification and reconciliation without repeated approval gates. Stop only for a genuine blocker or completed scope. Respect denied permissions, do not weaken meaningful tests to obtain green, do not rerun one-time migrations, and avoid overlapping Pages releases.
 
-Restore current main and relevant branches before changes; preserve user-authored files and direct-main edits. Meaningful runtime work uses a feature branch, normal exact-head/current-base CI, expected-head merge and verified production Pages deployment. Respect denied permissions, retain permanent tests and never rerun one-time migrations. Validate final transformed data after media stages. User image binaries are uploaded directly to exact GitHub paths, never transported through the connector. Preserve source bytes/provenance and existing ownership. Shared Pages concurrency is `fishing-pages`, cancel-in-progress; avoid overlapping releases/direct-main content writes.
-
-Fishing Companion is single-user/offline-capable. The domains share identity, ownership, validation and authored-link principles without identical schemas. No Planner, sessions, speculative relationships or multi-user expansion. Start new work from current main and the canonical TODO, not retired migration/audit branches.
+V2 is a clean architectural design, not a license to discard data. Its initial release is static, single-user and GitHub-backed, with full offline reading and minimal Gear/KB authoring handoffs. Direct Save and offline synchronization remain separate P2 decisions. The one-time v2 cutover uses a separate preview URL and a recoverable v1 baseline. Do not restart an old migration or release from a historical chat.
