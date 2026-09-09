@@ -41,6 +41,7 @@ async function serve(request,response){
  try{
   if(request.method!=='GET'&&request.method!=='HEAD'){state.writes.push(request.method+' '+request.url);response.writeHead(405);response.end();return;}
   const url=new URL(request.url,'http://localhost');
+  if(url.pathname==='/fishing/legacy-page'){response.writeHead(200,{'Content-Type':'text/html'});response.end('<!doctype html><title>V1 fixture</title><p>v1 scope sentinel</p>');return;}
   if(url.pathname==='/fishing/parent-worker.js'){response.writeHead(200,{'Content-Type':'text/javascript'});response.end(`self.addEventListener('install',e=>e.waitUntil(self.skipWaiting()));self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));self.addEventListener('fetch',e=>{if(new URL(e.request.url).pathname.endsWith('/v2-preview/release.json'))e.respondWith(new Response('unverified parent cache'));});`);return;}
   if(url.pathname==='/fishing/legacy-check'){response.writeHead(200,{'Content-Type':'text/plain'});response.end('v1 scope sentinel');return;}
   if(!url.pathname.startsWith(prefix)){response.writeHead(404);response.end();return;}
@@ -250,15 +251,18 @@ test('new release waits for explicit reload and protects a dirty editor',async({
 });
 
 
-test('preview waits for its own verified worker when a v1 parent worker already controls the page',async({page})=>{
- await page.goto(new URL('/fishing/legacy-check',base).href);
+test('preview waits for its own verified worker when a v1 parent worker already controls the page',async({page,context})=>{
+ await page.goto(new URL('/fishing/legacy-page',base).href);
  await page.evaluate(async()=>{
   await navigator.serviceWorker.register('/fishing/parent-worker.js',{scope:'/fishing/'});
   await navigator.serviceWorker.ready;
   if(!navigator.serviceWorker.controller)await new Promise(resolve=>navigator.serviceWorker.addEventListener('controllerchange',resolve,{once:true}));
-  const cache=await caches.open('fishing-companion-preserved-fixture');await cache.put('/fishing/retained-v1-data',new Response('retain v1 bytes'));
+  const cache=await caches.open('fishing-companion-preserved-fixture');await cache.put(new URL('/fishing/retained-v1-data',location.origin).href,new Response('retain v1 bytes'));
  });
- await openReady(page);
- expect(await page.evaluate(()=>navigator.serviceWorker.controller.scriptURL)).toBe(base+'sw.js');
- expect(await page.evaluate(async()=>{const r=await (await caches.open('fishing-companion-preserved-fixture')).match('/fishing/retained-v1-data');return r.text();})).toBe('retain v1 bytes');
+ const retained=()=>page.evaluate(async()=>{const r=await (await caches.open('fishing-companion-preserved-fixture')).match(new URL('/fishing/retained-v1-data',location.origin).href);return r?.text();});
+ expect(await retained()).toBe('retain v1 bytes');
+ const preview=await context.newPage();await openReady(preview);
+ expect(await preview.evaluate(()=>navigator.serviceWorker.controller.scriptURL)).toBe(base+'sw.js');
+ await page.reload();expect(await retained()).toBe('retain v1 bytes');
+ await preview.close();
 });
