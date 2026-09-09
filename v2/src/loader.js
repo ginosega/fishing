@@ -6,14 +6,15 @@
  if('serviceWorker' in navigator){
   progress('Preparing the complete offline library…');
   const registration=await navigator.serviceWorker.register(new URL('sw.js',root),{scope:root});
-  if(!navigator.serviceWorker.controller)await new Promise((resolve,reject)=>{
+  const controlsPreview=()=>navigator.serviceWorker.controller?.scriptURL===new URL('sw.js',root).href;
+  if(!controlsPreview())await new Promise((resolve,reject)=>{
    let timeout;
    const cleanup=()=>{clearTimeout(timeout);navigator.serviceWorker.removeEventListener('controllerchange',changed);navigator.serviceWorker.removeEventListener('message',message);registration.removeEventListener('updatefound',watch);};
    const finish=error=>{cleanup();error?reject(error):resolve();};
    const reset=()=>{clearTimeout(timeout);timeout=setTimeout(()=>finish(new Error('The complete offline library could not be prepared. Retry while online.')),180000);};
-   const changed=()=>{if(navigator.serviceWorker.controller)finish();};
+   const changed=()=>{if(controlsPreview())finish();};
    const message=event=>{if(event.data?.type==='FISHING_V2_PROGRESS'){const s=event.data.status;progress(`Preparing offline library… ${s.completed||0} of ${s.files||'?'} files`);reset();}else if(event.data?.type==='FISHING_V2_STATUS'&&event.data.status?.state==='Incomplete'&&event.data.status.message)finish(new Error(event.data.status.message));};
-   const watch=()=>{const worker=registration.installing;if(worker)worker.addEventListener('statechange',()=>{if(worker.state==='redundant'&&!navigator.serviceWorker.controller)finish(new Error('Offline installation failed. Retry while online.'));});};
+   const watch=()=>{const worker=registration.installing;if(worker)worker.addEventListener('statechange',()=>{if(worker.state==='redundant'&&!controlsPreview())finish(new Error('Offline installation failed. Retry while online.'));});};
    navigator.serviceWorker.addEventListener('controllerchange',changed);navigator.serviceWorker.addEventListener('message',message);registration.addEventListener('updatefound',watch);watch();reset();changed();
   });
  }

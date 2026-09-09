@@ -12,7 +12,7 @@ const v2=path.join(repo,'v2');
 const prefix='/fishing/v2-preview/';
 const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript','.css':'text/css','.json':'application/json','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.webp':'image/webp','.gif':'image/gif'};
 let server,base,temporary,initial,next,fixture;
-const state={current:'initial',fail:new Set(),corrupt:new Set(),writes:[]};
+const state={disconnected:false,current:'initial',fail:new Set(),corrupt:new Set(),writes:[]};
 const readJson=file=>fs.readFile(file,'utf8').then(JSON.parse);
 const sourceData=async()=>({gear:await readJson(path.join(repo,'Gear/gear.json')),kb:await readJson(path.join(repo,'KB/kb.json')),catches:await readJson(path.join(repo,'Catches/catches.json'))});
 const encoded=value=>value.split('/').map(encodeURIComponent).join('/');
@@ -37,9 +37,11 @@ async function prepare(){
 }
 
 async function serve(request,response){
+ if(state.disconnected){request.socket.destroy();return;}
  try{
   if(request.method!=='GET'&&request.method!=='HEAD'){state.writes.push(request.method+' '+request.url);response.writeHead(405);response.end();return;}
   const url=new URL(request.url,'http://localhost');
+  if(url.pathname==='/fishing/parent-worker.js'){response.writeHead(200,{'Content-Type':'text/javascript'});response.end(`self.addEventListener('install',e=>e.waitUntil(self.skipWaiting()));self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));self.addEventListener('fetch',e=>{if(new URL(e.request.url).pathname.endsWith('/v2-preview/release.json'))e.respondWith(new Response('unverified parent cache'));});`);return;}
   if(url.pathname==='/fishing/legacy-check'){response.writeHead(200,{'Content-Type':'text/plain'});response.end('v1 scope sentinel');return;}
   if(!url.pathname.startsWith(prefix)){response.writeHead(404);response.end();return;}
   const relative=decodeURIComponent(url.pathname.slice(prefix.length))||'index.html';
@@ -51,6 +53,15 @@ async function serve(request,response){
   response.writeHead(200,{'Content-Type':mime[path.extname(file)]||'application/octet-stream','Content-Length':bytes.length,'Cache-Control':'no-store'});
   response.end(request.method==='HEAD'?undefined:bytes);
  }catch{response.writeHead(404);response.end();}
+}
+
+// Chromium additionally receives the browser offline signal. WebKit's emulated
+// offline reload fails inside the automation engine (run 34372041635), so it uses
+// a real refused origin connection. Neither engine can obtain bytes from the server.
+async function disconnect(context,offline){
+ state.disconnected=offline;
+ if(context.browser().browserType().name()!=='webkit')await context.setOffline(offline);
+ if(offline)await expect(fetch(base+'release.json',{signal:AbortSignal.timeout(3000)})).rejects.toThrow();
 }
 
 async function openReady(page,release=initial){
@@ -67,7 +78,7 @@ async function cacheInfo(page){return page.evaluate(async()=>{const names=(await
 // One worker and separate browser contexts keep all service-worker/cache tests isolated.
 test.beforeAll(async()=>{await prepare();server=createServer(serve);await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));base=`http://127.0.0.1:${server.address().port}${prefix}`;});
 test.afterAll(async()=>{if(server)await new Promise(resolve=>server.close(resolve));if(temporary)await fs.rm(temporary,{recursive:true,force:true});});
-test.beforeEach(()=>{state.current='initial';state.fail.clear();state.corrupt.clear();state.writes.length=0;});
+test.beforeEach(()=>{state.disconnected=false;state.current='initial';state.fail.clear();state.corrupt.clear();state.writes.length=0;});
 
 test('complete library installs, verifies and survives an offline reload',async({page,context})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
@@ -80,12 +91,12 @@ test('complete library installs, verifies and survives an offline reload',async(
  },{manifest,prefix});
  expect(integrity).toEqual({files:manifest.files.length,bytes:manifest.totalBytes});
  const info=await cacheInfo(page);expect(info.some(x=>x.releaseId===initial.id&&x.complete)).toBe(true);
- await context.setOffline(true);await page.reload();
+ await disconnect(context,true);await page.reload();
  await expect(heading(page,'Fishing Companion')).toBeVisible();
  await route(page,'#/inventory/item/daiwa-tatula-xt-rod','Daiwa');
  await expect(page.locator('.markdown-body')).not.toBeEmpty();
  expect(errors).toEqual([]);
- await context.setOffline(false);
+ await disconnect(context,false);
 });
 
 test('navigation, filters, stable links, Catch History and image viewer',async({page})=>{
@@ -177,8 +188,8 @@ test('a failed or corrupt update retains the previous complete release',async({p
  await expect.poll(()=>page.evaluate(()=>navigator.serviceWorker.controller?.scriptURL)).toContain('/sw.js');
  expect(await page.evaluate(()=>window.__FISHING_V2__.releaseId)).toBe(initial.id);
  const failed=await cacheInfo(page);expect(failed.some(x=>x.releaseId===initial.id)).toBe(true);expect(failed.some(x=>x.releaseId===next.id)).toBe(false);
- await context.setOffline(true);await page.reload();await expect(heading(page,'Fishing Companion')).toBeVisible();
- await context.setOffline(false);state.corrupt.clear();
+ await disconnect(context,true);await page.reload();await expect(heading(page,'Fishing Companion')).toBeVisible();
+ await disconnect(context,false);state.corrupt.clear();
  await page.getByRole('button',{name:'Update offline library'}).click();
  await expect.poll(()=>page.evaluate(()=>navigator.serviceWorker.controller?.scriptURL),{timeout:120000}).toContain('/sw.js');
  await expect(page.locator('#offline-status')).toHaveAttribute('data-release-id',next.id,{timeout:120000});
@@ -187,7 +198,7 @@ test('a failed or corrupt update retains the previous complete release',async({p
  await route(page,'#/kb/'+fixture.articleId,'');
  await expect(page.locator('.markdown-body')).toContainText(fixture.marker);
  const both=await cacheInfo(page);expect(both.some(x=>x.releaseId===initial.id)).toBe(true);expect(both.some(x=>x.releaseId===next.id)).toBe(true);
- await context.setOffline(true);await page.reload();await expect(page.locator('.markdown-body')).toContainText(fixture.marker);
+ await disconnect(context,true);await page.reload();await expect(page.locator('.markdown-body')).toContainText(fixture.marker);
  const old=await page.evaluate(async url=>{const r=await fetch(url);return {status:r.status,text:await r.text()};},urlFor(initial,fixture.articlePath));
  expect(old.status).toBe(200);expect(old.text).not.toContain(fixture.marker);
 });
@@ -196,11 +207,11 @@ test('tampered cached content is rejected and repaired only from verified bytes'
  await openReady(page);
  const target=urlFor(initial,fixture.articlePath);const relative='releases/'+initial.id+'/content/'+fixture.articlePath;
  await page.evaluate(async url=>{const names=await caches.keys();const name=names.find(x=>x.endsWith(window.__FISHING_V2__.releaseId));const cache=await caches.open(name);await cache.put(url,new Response('tampered content',{headers:{'Content-Type':'text/markdown'}}));},target);
- state.fail.add(relative);await context.setOffline(true);
+ state.fail.add(relative);await disconnect(context,true);
  await route(page,'#/kb/'+fixture.articleId,'');
  await expect(page.locator('#app')).toContainText('Unable to display this page');
  await expect(page.locator('#app')).not.toContainText('tampered content');
- await context.setOffline(false);state.fail.clear();
+ await disconnect(context,false);state.fail.clear();
  await page.getByRole('button',{name:'Retry',exact:true}).click();
  await expect(page.locator('.markdown-body')).toBeVisible();
  await expect(page.locator('#app')).not.toContainText('tampered content');
@@ -236,4 +247,18 @@ test('new release waits for explicit reload and protects a dirty editor',async({
  await page.getByRole('button',{name:'Reload',exact:true}).click();
  await expect.poll(()=>page.evaluate(()=>window.__FISHING_V2__?.releaseId)).toBe(next.id);
  await expect(page.locator('#app')).not.toContainText('Unsaved browser edit');
+});
+
+
+test('preview waits for its own verified worker when a v1 parent worker already controls the page',async({page})=>{
+ await page.goto(new URL('/fishing/legacy-check',base).href);
+ await page.evaluate(async()=>{
+  await navigator.serviceWorker.register('/fishing/parent-worker.js',{scope:'/fishing/'});
+  await navigator.serviceWorker.ready;
+  if(!navigator.serviceWorker.controller)await new Promise(resolve=>navigator.serviceWorker.addEventListener('controllerchange',resolve,{once:true}));
+  const cache=await caches.open('fishing-companion-preserved-fixture');await cache.put('/fishing/retained-v1-data',new Response('retain v1 bytes'));
+ });
+ await openReady(page);
+ expect(await page.evaluate(()=>navigator.serviceWorker.controller.scriptURL)).toBe(base+'sw.js');
+ expect(await page.evaluate(async()=>{const r=await (await caches.open('fishing-companion-preserved-fixture')).match('/fishing/retained-v1-data');return r.text();})).toBe('retain v1 bytes');
 });
