@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ginosega.github.io/fishing/v2/schema.json",
+  "title": "Fishing Companion v2 authoritative data",
+  "oneOf": [
+    { "$ref": "#/$defs/gearBundle" },
+    { "$ref": "#/$defs/kbBundle" },
+    { "$ref": "#/$defs/catchBundle" }
+  ],
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$", "maxLength": 160 },
+    "url": { "type": "string", "pattern": "^https?://", "maxLength": 2000 },
+    "path": { "type": "string", "minLength": 1, "maxLength": 240 },
+    "picture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["src"],
+      "properties": {
+        "src": { "$ref": "#/$defs/path" },
+        "caption": { "type": "string", "minLength": 1, "maxLength": 1000 }
+      }
+    },
+    "specification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value"],
+      "properties": {
+        "label": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "value": { "type": "string", "minLength": 1, "maxLength": 500 }
+      }
+    },
+    "link": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "url"],
+      "properties": {
+        "label": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "url": { "$ref": "#/$defs/url" }
+      }
+    },
+    "gearItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "category", "type", "name"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "category": { "enum": ["rods-reels", "line", "weights", "snaps-swivels", "hooks", "lures", "bait", "accessories"] },
+        "type": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "name": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "manufacturer": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "model": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "specifications": { "type": "array", "items": { "$ref": "#/$defs/specification" } },
+        "links": { "type": "array", "items": { "$ref": "#/$defs/link" } },
+        "picture": { "$ref": "#/$defs/picture" },
+        "notes": { "$ref": "#/$defs/path" }
+      }
+    },
+    "kbEntity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "name", "content"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "type": { "enum": ["location", "species", "equipment", "technique", "knot"] },
+        "name": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "description": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "picture": { "$ref": "#/$defs/picture" },
+        "content": { "$ref": "#/$defs/path" }
+      }
+    },
+    "catch": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "date"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "date": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+        "time": { "type": "string", "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$" },
+        "size": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "speciesId": { "$ref": "#/$defs/id" },
+        "locationId": { "$ref": "#/$defs/id" },
+        "lureOrBaitId": { "$ref": "#/$defs/id" },
+        "notes": { "$ref": "#/$defs/path" }
+      }
+    },
+    "gearBundle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schemaVersion", "items"],
+      "properties": {
+        "schemaVersion": { "const": 2 },
+        "items": { "type": "array", "items": { "$ref": "#/$defs/gearItem" } }
+      }
+    },
+    "kbBundle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schemaVersion", "entities"],
+      "properties": {
+        "schemaVersion": { "const": 2 },
+        "entities": { "type": "array", "items": { "$ref": "#/$defs/kbEntity" } }
+      }
+    },
+    "catchBundle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schemaVersion", "catches"],
+      "properties": {
+        "schemaVersion": { "const": 2 },
+        "catches": { "type": "array", "items": { "$ref": "#/$defs/catch" } }
+      }
+    }
+  }
+}
