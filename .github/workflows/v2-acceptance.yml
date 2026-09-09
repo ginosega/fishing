@@ -51,8 +51,8 @@ jobs:
         run: |
           npm run build -- --pending-media --source-revision="$GITHUB_SHA"
           npm run verify
-      - name: Install Playwright Chromium
-        run: npx playwright install --with-deps chromium
+      - name: Install Playwright Chromium and WebKit
+        run: npx playwright install --with-deps chromium webkit
       - name: Run real-browser acceptance
         run: npm run test:browser
       - name: Preserve browser evidence

@@ -3,6 +3,7 @@ import {defineConfig,devices} from '@playwright/test';
 export default defineConfig({
   testDir:'./test',
   testMatch:'**/*.spec.mjs',
+  projects:[{name:'chromium',use:{browserName:'chromium'}},{name:'webkit',use:{browserName:'webkit',launchOptions:{}}}],
   fullyParallel:false,
   workers:1,
   retries:0,

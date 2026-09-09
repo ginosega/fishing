@@ -13,12 +13,12 @@ const recordTitle=(ctx,domain,record)=>domain==='catches'?`${ctx.maps.kb.get(rec
 export function createApp(ctx){
  const root=document.getElementById('app'),alertHost=document.getElementById('app-notice'),offlineHost=document.getElementById('offline-status');
  const routes=markdownRouteMap(ctx.data),exists=new Set(ctx.manifest.files.filter(x=>x.path.startsWith(`releases/${ctx.release.id}/content/`)).map(x=>x.path.slice(`releases/${ctx.release.id}/content/`.length)));
- let currentHash=location.hash||'#/',route=parseRoute(currentHash),editor=null,serial=0,offline=null;
+ let currentHash=location.hash||'#/',route=parseRoute(currentHash),editor=null,serial=0,offline=null,approvedNavigation=null;
  function notify(message,kind='info'){status(alertHost,message,kind);}
  function dirty(){return Boolean(editor?.isDirty());}
  function canLeave(){return !dirty()||confirm('Your changes have not been saved. Discard this edit and leave?');}
  function disposeEditor(){editor?.dispose?.();editor=null;}
- function navigate(hash){if(hash===currentHash){if(!dirty())render();return;}if(!canLeave())return;location.hash=hash;}
+ function navigate(hash){if(hash===currentHash){if(!dirty())render();return;}if(!canLeave())return;approvedNavigation=hash;location.hash=hash;}
  function anchor(label,href,cls=''){const a=link(label,href,cls);if(href.startsWith('#/'))a.addEventListener('click',event=>{event.preventDefault();navigate(href);});return a;}
  function copyLink(domain,id){const uri=domain+'://'+id;const full=new URL(routeFor(domain,id),ctx.root).href;const box=el('div',{class:'copy-dialog'},text('p','Stable internal link'),el('code',{},uri),text('p','Shareable browser URL'),el('code',{},full),toolbar(button('Copy stable link',()=>copy(uri)),button('Copy browser URL',()=>copy(full))));const dialog=el('dialog',{class:'small-dialog'},box,button('Close',()=>dialog.close()));dialog.addEventListener('close',()=>dialog.remove());document.body.append(dialog);dialog.showModal();}
  async function copy(value){try{await navigator.clipboard.writeText(value);notify('Copied to clipboard.','success');}catch{const area=el('textarea',{readonly:true,value});alertHost.replaceChildren(text('p','Select and copy this text:'),area);area.focus();area.select();}}
@@ -84,10 +84,10 @@ export function createApp(ctx){
    if(route.section){requestAnimationFrame(()=>{const heading=[...page.querySelectorAll('[id]')].find(e=>e.id===route.section);heading?.scrollIntoView({block:'start'});});}
   }catch(error){if(ticket===serial){const page=missing('Unable to display this page: '+error.message);page.append(button('Retry',()=>render(),{variant:'primary'}));root.replaceChildren(page);}console.error(error);}
  }
- window.addEventListener('hashchange',()=>{const requested=location.hash||'#/';if(requested===currentHash)return;if(!canLeave()){history.replaceState(null,'',currentHash);return;}currentHash=requested;alertHost.replaceChildren();render();window.scrollTo(0,0);});
+ window.addEventListener('hashchange',()=>{const requested=location.hash||'#/';if(requested===currentHash)return;if(approvedNavigation!==requested&&!canLeave()){history.replaceState(null,'',currentHash);return;}approvedNavigation=null;currentHash=requested;alertHost.replaceChildren();render();window.scrollTo(0,0);});
  window.addEventListener('beforeunload',event=>{if(dirty()){event.preventDefault();event.returnValue='';}});
  for(const a of document.querySelectorAll('[data-nav]'))a.addEventListener('click',event=>{event.preventDefault();navigate(a.getAttribute('href'));});
- offline=createOffline({root:ctx.root,releaseId:ctx.release.id,onStatus:state=>{const label=state.state==='Ready'?`Offline ready · ${state.files||0} files`:state.state==='Downloading'?`Downloading · ${state.completed||0}/${state.files||'?'} files`:'Offline incomplete';offlineHost.replaceChildren(text('span',label),state.message?text('span',state.message,'hint'):null);offlineHost.dataset.state=state.state;offlineHost.dataset.releaseId=state.releaseId||'';document.getElementById('offline-reload').disabled=state.state==='Downloading';},isDirty:dirty,notify});
+ offline=createOffline({root:ctx.root,releaseId:ctx.release.id,onStatus:state=>{const label=state.state==='Ready'?`Offline ready · ${state.files||0} files`:state.state==='Downloading'?`Downloading · ${state.completed||0}/${state.files||'?'} files`:'Offline incomplete';offlineHost.replaceChildren(text('span',label),state.message?text('span',state.message,'hint'):null);offlineHost.dataset.state=state.state;offlineHost.dataset.releaseId=state.releaseId||'';document.getElementById('offline-reload').disabled=Boolean(state.updating)||state.state==='Downloading';},isDirty:dirty,notify});
  document.getElementById('offline-update').addEventListener('click',()=>offline.update());document.getElementById('offline-reload').addEventListener('click',()=>offline.reload());
  document.getElementById('release-details').textContent=`Release ${ctx.release.id.slice(0,12)} · Source ${ctx.release.sourceRevision.slice(0,12)}${ctx.release.pendingMedia?' · Pending media preview':''}`;
  if(ctx.release.pendingMedia)notify('Preview only: some approved image replacements remain unresolved. This is not a production-cutover candidate.','warning');

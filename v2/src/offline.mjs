@@ -2,7 +2,7 @@
 export function createOffline({root,releaseId,onStatus,isDirty,notify}){
  let registration=null,updating=false;
  let status={state:'Incomplete',releaseId:null,files:0,bytes:0,failed:[]};
- const publish=next=>{status={...status,...next};onStatus(status);};
+ const publish=next=>{status={...status,...next};onStatus({...status,updating});};
  const handler=event=>{const msg=event.data||{};if(msg.type==='FISHING_V2_STATUS'||msg.type==='FISHING_V2_PROGRESS')publish(msg.status);};
  navigator.serviceWorker?.addEventListener('message',handler);
  async function command(type){
@@ -34,7 +34,7 @@ export function createOffline({root,releaseId,onStatus,isDirty,notify}){
     worker.addEventListener('statechange',changed);changed();
    });
    await command('REPAIR');
-  }catch(error){await command('STATUS').catch(()=>{});publish({...status,message:error.message});}finally{updating=false;}
+  }catch(error){await command('STATUS').catch(()=>{});publish({...status,message:error.message});}finally{updating=false;publish(status);}
  }
  function reload(){if(updating){notify('The offline update is still running. Reload when it finishes.');return;}if(isDirty()&&!confirm('Your prepared changes have not been saved. Discard the current edit and reload?'))return;location.reload();}
  function dispose(){navigator.serviceWorker?.removeEventListener('message',handler);}

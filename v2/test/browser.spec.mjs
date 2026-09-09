@@ -159,6 +159,8 @@ test('Gear and KB handoffs preserve identity, minimal changes and unsaved work',
  await route(page,'#/inventory/add/lures','Add');
  await page.locator('.editor-form').getByRole('textbox',{name:'Name',exact:true}).fill('Browser Test Lure');
  const added=await packageFrom(page);expect(added.operation).toBe('add');expect(added.id).toBe('browser-test-lure');expect(added.record?.name||added.item?.name).toBe('Browser Test Lure');
+ page.once('dialog',d=>d.accept());await page.locator('.editor-form').getByRole('button',{name:'Cancel'}).click();
+ await expect(heading(page,'Lures')).toBeVisible();
  await route(page,'#/kb/add/technique','Add');
  await page.locator('.editor-form').getByRole('textbox',{name:'Name',exact:true}).fill('Browser Test Technique');
  await page.locator('.markdown-editor').fill('# Browser Test Technique\n\nA new article.');
@@ -211,4 +213,27 @@ test('mobile layout and isolated worker scope',async({browser})=>{
   const legacy=await page.goto(new URL('/fishing/legacy-check',base).href);expect(await legacy.text()).toBe('v1 scope sentinel');
   expect(await page.evaluate(()=>navigator.serviceWorker.controller)).toBeNull();
  }finally{await context.close();}
+});
+
+
+test('new release waits for explicit reload and protects a dirty editor',async({page})=>{
+ await openReady(page);
+ await route(page,'#/inventory/edit/daiwa-tatula-xt-rod','Edit');
+ const name=page.locator('.editor-form').getByRole('textbox',{name:'Name',exact:true});
+ await name.fill('Unsaved browser edit');
+ state.current='next';
+ await page.getByRole('button',{name:'Update offline library'}).click();
+ await expect(page.locator('#offline-status')).toHaveAttribute('data-release-id',next.id,{timeout:120000});
+ expect(await page.evaluate(()=>window.__FISHING_V2__.releaseId)).toBe(initial.id);
+ await expect(name).toHaveValue('Unsaved browser edit');
+ page.once('dialog',d=>d.dismiss());await page.getByRole('button',{name:'Reload',exact:true}).click();
+ await expect(name).toHaveValue('Unsaved browser edit');
+ expect(await page.evaluate(()=>window.__FISHING_V2__.releaseId)).toBe(initial.id);
+ // Leaving the editor prompts exactly once and does not persist the unsubmitted edit.
+ let dialogs=0;const accept=d=>{dialogs++;return d.accept();};page.on('dialog',accept);
+ await page.locator('.editor-form').getByRole('button',{name:'Cancel'}).click();
+ await expect(heading(page,'Daiwa Tatula')).toBeVisible();page.off('dialog',accept);expect(dialogs).toBe(1);
+ await page.getByRole('button',{name:'Reload',exact:true}).click();
+ await expect.poll(()=>page.evaluate(()=>window.__FISHING_V2__?.releaseId)).toBe(next.id);
+ await expect(page.locator('#app')).not.toContainText('Unsaved browser edit');
 });

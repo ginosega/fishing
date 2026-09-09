@@ -14,7 +14,7 @@ export function el(tag,attributes={},...children){
  return node;
 }
 export const text=(tag,value,cls)=>el(tag,{class:cls,text:value});
-export function button(label,action,{variant='secondary',title='',disabled=false}={}){return el('button',{type:'button',class:'btn '+variant,title,disabled,onclick:action},label);}
+export function button(label,action,{variant='secondary',title='',disabled=false,'aria-label':ariaLabel}={}){return el('button',{type:'button',class:'btn '+variant,title,disabled,'aria-label':ariaLabel,onclick:action},label);}
 export function link(label,href,cls=''){return el('a',{href,class:cls},label);}
 export function field(label,control,hint=''){const id='field-'+Math.random().toString(36).slice(2);control.id=id;return el('div',{class:'field'},el('label',{for:id},label),control,hint?text('p',hint,'hint'):null);}
 export function input(value='',opts={}){return el('input',{type:opts.type||'text',value,placeholder:opts.placeholder||'',maxlength:opts.maxlength,required:opts.required,readonly:opts.readonly});}
