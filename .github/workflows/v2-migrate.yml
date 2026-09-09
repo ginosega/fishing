@@ -94,7 +94,9 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add Gear KB Catches v2/package-lock.json v2/requirements-migration.txt v2/migration/migrate.py v2/migration/reconciliation.json
           git add -u v2/migration/source-fixes.patch
-          git diff --cached --check
+          # Markdown hard line breaks and source whitespace are authoritative bytes.
+          # Keep conflict-marker and malformed-patch checks, but do not normalize content.
+          git -c core.whitespace=-blank-at-eol,-blank-at-eof diff --cached --check
           git commit -m 'Commit reproduced v2 source and approved exact-byte media'
           git fetch --no-tags origin feature/v2-implementation-20260908
           test "$(git rev-parse FETCH_HEAD)" = "$GITHUB_SHA"
