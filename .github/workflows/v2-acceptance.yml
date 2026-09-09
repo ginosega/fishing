@@ -1,0 +1,68 @@
+name: V2 browser and offline acceptance
+
+on:
+  push:
+    branches: [feature/v2-implementation-20260908]
+    paths:
+      - 'v2/**'
+      - 'Gear/**'
+      - 'KB/**'
+      - 'Catches/**'
+      - '.github/workflows/v2-acceptance.yml'
+  pull_request:
+    paths:
+      - 'v2/**'
+      - 'Gear/**'
+      - 'KB/**'
+      - 'Catches/**'
+      - '.github/workflows/v2-acceptance.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fishing-v2-acceptance-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  acceptance:
+    if: github.repository == 'ginosega/fishing'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: v2
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Validate dependencies and core behavior
+        run: |
+          npm ls --depth=0
+          npm audit --omit=dev --audit-level=high
+          npm test
+      - name: Build and verify isolated preview
+        run: |
+          npm run build -- --pending-media --source-revision="$GITHUB_SHA"
+          npm run verify
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run real-browser acceptance
+        run: npm run test:browser
+      - name: Preserve browser evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: fishing-v2-browser-evidence-${{ github.run_id }}
+          path: |
+            v2/.test-output/
+            v2/dist/release.json
+            v2/dist/releases/*/manifest.json
+          if-no-files-found: warn
+          retention-days: 30
