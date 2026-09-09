@@ -138,107 +138,107 @@ The latest inspected production run #312 succeeded. Run #311 failed after deleti
 | U1 | Home | Three domain entry points; no unused navigation. | Are these the only home cards? | Yes, and I like your suggestion to add "Catch Log" as a third card. |
 | U2 | Gear layouts | Preserve useful layouts, not their old implementation. | Which pages should remain exactly as they are, and which should change? | Rods & Reels should change to be split into separate rod and reel pages - we've discussed that above. The rest of the Gear pages are fine, no changes needed. The New Gear Item and Edit Gear Item pages will need to change though, per the decisions we've made in this document. |
 | U3 | KB layouts | Five flat category cards and familiar article pages. | Any KB navigation/layout changes? | We don't need the "[#] entries" labels on the category cards. No changes needed to the other KB pages, although we will need to change the New KB Entry and Edit KB Entry pages per the decisions we've made in this document. |
-| U4 | Search | Simple domain search, with global search only if useful. | One site-wide search, separate searches, or both? Which content must be indexed? |  |
-| U5 | Filters | Context-specific, not a blanket site-wide rule. | Keep the ten-item threshold? Which pages need filters and which should not have them? |  |
-| U6 | Grouping | Explicit meaningful grouping and predictable sorting. | Which pages should be grouped? User-controlled sort order? |  |
-| U7 | Cards | Consistent square contain images without cropping. | Do you need compact/dense list modes? |  |
-| U8 | Details | Shared header, facts, picture, narrative, links, relevant catch history. | Which sections/order matter on each domain's detail page? |  |
-| U9 | Navigation | Stable deep links, back behavior, clear missing-item handling. | Should search/filter state survive navigation and refresh? |  |
-| U10 | Accessibility | Responsive, keyboard accessible, readable, no horizontal overflow. | Any specific accessibility or font-size requirements? |  |
-| U11 | Appearance | Reuse approved visual language unless redesign has a clear benefit. | Should v2 look essentially like v1 or receive a visual redesign? |  |
+| U4 | Search | Simple domain search, with global search only if useful. | One site-wide search, separate searches, or both? Which content must be indexed? | Slight change to current behavior: search at the My Gear and KB level and on the Gear/Lures and KB/Gear Guides pages due to their length. |
+| U5 | Filters | Context-specific, not a blanket site-wide rule. | Keep the ten-item threshold? Which pages need filters and which should not have them? | Let's refine the rule to be > 9 items, *and* >1 types. The second clause prevents filters that would produce the same list. Note that filters are only needed for Gear pages, not KB articles because those don't have types. For Catches, see my response to C10. |
+| U6 | Grouping | Explicit meaningful grouping and predictable sorting. | Which pages should be grouped? User-controlled sort order? | This is where we could easily run into category-specific UI that adds complexity for minimal value, which I'd like to avoid. So for Gear let's just go with what we have today on most Gear pages: sort items first by type (e.g., Chatterbaits above Crankbaits above Inline Spinners) and then by name (e.g., Berkely Flicker Shad above Rapala DT). This means that the Rods & Reels page will lose its Baitcasing, Spinning, and Spincasting groups, which is okay. For the KB, flat lists sorted by Name (current implementation) is fine. For the Catch Log, continue to sort by Date, with the newest date at the top.  |
+| U7 | Cards | Consistent square contain images without cropping. | Do you need compact/dense list modes? | No. Keep the existing UI. |
+| U8 | Details | Shared header, facts, picture, narrative, links, relevant catch history. | Which sections/order matter on each domain's detail page? | No change to existing; the pages look great today. |
+| U9 | Navigation | Stable deep links, back behavior, clear missing-item handling. | Should search/filter state survive navigation and refresh? | No. I like the way the on-page Back button works today in conjunction with the broswer's Back button: If I want to navigating up the site hierarchy I use the on-page button, and if I want to navigate through the page view history I  use  the broswer button. |
+| U10 | Accessibility | Responsive, keyboard accessible, readable, no horizontal overflow. | Any specific accessibility or font-size requirements? | No. Not a concern for me. |
+| U11 | Appearance | Reuse approved visual language unless redesign has a clear benefit. | Should v2 look essentially like v1 or receive a visual redesign? | Like v1. |
 
 ## 8. Authoring and source of truth
 
 **Insight:** The save workflow is a pivotal decision. A minimal handoff, direct authorized repository save, and local-first sync have very different complexity costs.
 
-| ID | Topic | Proposed default / requirement | Question for you |
-|---|---|---|---|
-| A1 | Authority | GitHub remains durable authority unless explicitly changed. | Confirm GitHub owns all Gear, KB, Catch, Markdown, and images. |
-| A2 | Editing coverage | Consistent Add/Edit across domains with domain-specific fields. | Should every domain support browser Add/Edit/Delete? |
-| A3 | Save workflow | Choose a clear repository handoff, authorized direct write, or local-first sync model. | Prefer A: copy to ChatGPT, B: Save updates GitHub, or C: save locally and sync later? |
-| A4 | ChatGPT role | Assistance and complex edits, not necessarily mandatory promotion. | Should ordinary edits be possible without ChatGPT? |
-| A5 | Handoff | If retained, minimal change plus base revision, not full redundant datasets. | What should a handoff contain? Whole article or changed portion? |
-| A6 | Image authoring | Align upload with the selected save workflow. | Direct file upload from form or separate GitHub upload plus path entry? |
-| A7 | Identity/taxonomy | Automatic stable IDs and safe reclassification. | Should all renaming/reclassification be UI-managed? |
-| A8 | Taxonomy administration | Avoid generic admin framework. | Do you need to create/edit types and categories yourself? |
-| A9 | Drafts | Simple unsaved-change protection. | Persistent drafts/autosave or leave-page warning sufficient? |
-| A10 | Conflicts | Never silently overwrite newer edits. | Reload, diff, or merge editor for stale changes? |
-| A11 | Bulk data | No generic merge/replace/import system without actual need. | Do you need ongoing CSV/JSON import/export or just backup? |
-| A12 | Errors | Clear actionable validation/save messages. | What current Add/Edit frustrations must v2 explicitly fix? |
+| ID | Topic | Proposed default / requirement | Question for you | Response |
+|---|---|---|---|---|
+| A1 | Authority | GitHub remains durable authority unless explicitly changed. | Confirm GitHub owns all Gear, KB, Catch, Markdown, and images. | Confirmed. |
+| A2 | Editing coverage | Consistent Add/Edit across domains with domain-specific fields. | Should every domain support browser Add/Edit/Delete? | Yes, modulo the exceptions noted elsewhere in this document. |
+| A3 | Save workflow | Choose a clear repository handoff, authorized direct write, or local-first sync model. | Prefer A: copy to ChatGPT, B: Save updates GitHub, or C: save locally and sync later? | I will preface my answer by saying that this is where we need to be careful not to over-engineer and add unnecessary complexity and potential fragility. You and I must *completely and explicity* agree on the plan for this before doing any work. My preference is to have adds/edits/deletes made in the app, saved locally first (in case of offline usage), and then synced as soon as the network is available; if I am online the sync would happen immediately. *That said* I am flexible here and I consider that a P2, and will accept either saving to GitHub or copying to ChatGPT. I would like to hear your thoughts on this topic and work out the plan - potentially a staged plan - with you.  |
+| A4 | ChatGPT role | Assistance and complex edits, not necessarily mandatory promotion. | Should ordinary edits be possible without ChatGPT? | Ideally yes, but see my comments to A3 above. |
+| A5 | Handoff | If retained, minimal change plus base revision, not full redundant datasets. | What should a handoff contain? Whole article or changed portion? | IMHO, only the changed portion. |
+| A6 | Image authoring | Align upload with the selected save workflow. | Direct file upload from form or separate GitHub upload plus path entry? | Ideally direct file upload from form, but again see my comments to A3 above. |
+| A7 | Identity/taxonomy | Automatic stable IDs and safe reclassification. | Should all renaming/reclassification be UI-managed? | Renaming yes. Reclassification is a P2. |
+| A8 | Taxonomy administration | Avoid generic admin framework. | Do you need to create/edit types and categories yourself? | No, I would expect to have to go through you for that. |
+| A9 | Drafts | Simple unsaved-change protection. | Persistent drafts/autosave or leave-page warning sufficient? | No persistent drafts or auto-saves are needed. |
+| A10 | Conflicts | Never silently overwrite newer edits. | Reload, diff, or merge editor for stale changes? | Last in wins. Let me know if you need more info on specific scenarios. |
+| A11 | Bulk data | No generic merge/replace/import system without actual need. | Do you need ongoing CSV/JSON import/export or just backup? | No import/export needed. |
+| A12 | Errors | Clear actionable validation/save messages. | What current Add/Edit frustrations must v2 explicitly fix? | None that I am aware of. |
 
 ## 9. Persistence, offline, hosting
 
 **Insight:** Offline reading does not imply offline editing. Avoid maintaining two competing authoritative datasets by accident.
 
-| ID | Topic | Proposed default / requirement | Question for you |
-|---|---|---|---|
-| P1 | Runtime source | Read-only generated bundle if local editable storage is unnecessary. | Must the browser maintain editable inventory data? |
-| P2 | IndexedDB | Remove or simplify if not serving an approved feature. | Do you use local import/merge/replace or have browser-only records? |
-| P3 | Offline editing | Defer unless explicitly needed. | Must you create/edit records while disconnected? |
-| P4 | Offline library | Cache required content/images predictably. | Entire library offline or selected/downloaded subsets? |
-| P5 | Updates | Clear update state and no loss of unsaved work. | Automatic update, update control, or manual refresh? |
-| P6 | Versions | Separate structural schema versions from content/build revisions. | Should version numbers be visible to you? |
-| P7 | Legacy compatibility | One-time migration outside normal runtime. | Must old JSON exports remain importable indefinitely? |
-| P8 | Technology | Choose simplest maintainable stack after requirements. | Any preference for plain JS, TypeScript, framework, or hosting? |
-| P9 | Privacy | Static hosting if sufficient; public-but-unadvertised is not private. | Is current public Pages access still acceptable or is authentication required? |
-| P10 | Backup | Git history and verified backups/restores. | Do you want an additional automated off-GitHub backup? |
-| P11 | Local migration | Audit all browser-only data before replacing persistence. | Which devices/browsers may contain uncommitted local data? |
-| P12 | Failures | Clear errors, no silent authoritative replacement. | Error page, last-known-good fallback, or both? |
+| ID | Topic | Proposed default / requirement | Question for you | Response |
+|---|---|---|---|---|
+| P1 | Runtime source | Read-only generated bundle if local editable storage is unnecessary. | Must the browser maintain editable inventory data? | See my response to A3; I consider that a P2. |
+| P2 | IndexedDB | Remove or simplify if not serving an approved feature. | Do you use local import/merge/replace or have browser-only records? | I am not sure what "browser-only records" means.. |
+| P3 | Offline editing | Defer unless explicitly needed. | Must you create/edit records while disconnected? | See my response to A3; I consider that a P2. |
+| P4 | Offline library | Cache required content/images predictably. | Entire library offline or selected/downloaded subsets? | I anticipate using this often when offline (e.g., fishing in remote areas), so having the entire library offline would be good. Let me know if you have concerns with that, and know that I don't expect the library to grow much larger than it is today except for the catch log (which reuses pictures anyway), and a one-time addition of the pictures that are currently sourced from the Web. |
+| P5 | Updates | Clear update state and no loss of unsaved work. | Automatic update, update control, or manual refresh? | I am not sure if I am correctly interpreting the question, but I do not expect a Gear or KB item to be updated until and unless I click a "Save Changes" or "Add Item" button. |
+| P6 | Versions | Separate structural schema versions from content/build revisions. | Should version numbers be visible to you? | No. |
+| P7 | Legacy compatibility | One-time migration outside normal runtime. | Must old JSON exports remain importable indefinitely? | No. |
+| P8 | Technology | Choose simplest maintainable stack after requirements. | Any preference for plain JS, TypeScript, framework, or hosting? | No. |
+| P9 | Privacy | Static hosting if sufficient; public-but-unadvertised is not private. | Is current public Pages access still acceptable or is authentication required? | The current is acceptable. |
+| P10 | Backup | Git history and verified backups/restores. | Do you want an additional automated off-GitHub backup? | No. |
+| P11 | Local migration | Audit all browser-only data before replacing persistence. | Which devices/browsers may contain uncommitted local data? | I think all of them, but let me know if this introduces unintended complexity. |
+| P12 | Failures | Clear errors, no silent authoritative replacement. | Error page, last-known-good fallback, or both? | Both, if that does not introduce unintended complexity. |
 
 ## 10. Build and reliability
 
 **Insight:** Routine content edits should be boring. Tests should protect invariants and behavior without freezing user-maintained content.
 
-| ID | Topic | Proposed default / requirement | Question for you |
-|---|---|---|---|
-| R1 | Release quality | Reproducible validation and verified production. | What confidence level is required before I say ready to verify? |
-| R2 | Pipeline | One normal CI/build pipeline plus deployment; no disposable promotion workflows. | Automatic deploy after approved merge or manual production gate? |
-| R3 | Tests | Protect invariants/behavior, not frozen historical data. | Agree legitimate content edits should not require unrelated test changes? |
-| R4 | Validation | Check records, refs, paths, formats, and generated output. | Any essential integrity rules missing or needless rules to remove? |
-| R5 | Browser tests | Test critical user workflows and approved offline behavior. | Which workflows must have browser-level coverage? |
-| R6 | Deployment | Verify actual Pages deployment and published critical assets. | Require staging acceptance before production cutover? |
-| R7 | Content changes | Validate/deploy app changes; avoid documentation-only production releases. | Should article/image edits deploy automatically after validation? |
-| R8 | Notifications | Diagnose failures and remove obsolete/noisy workflows, not hide real failures. | All failures, production-only failures, or another notification policy? |
-| R9 | Concurrency | Preserve direct edits and avoid overlapping releases. | Would you use a staging branch/folder for images rather than direct main uploads? |
-| R10 | Dependencies | Reproducible builds and minimal necessary tooling. | Any tooling or dependency constraints? |
-| R11 | Records | Concise current documentation plus Git/PR history. | How much separate release documentation do you want? |
-| R12 | Chat process | Shorter transactions, durable checkpoints, no repetitive interruptions. | Any additional working rules? |
+| ID | Topic | Proposed default / requirement | Question for you | Response |
+|---|---|---|---|---|
+| R1 | Release quality | Reproducible validation and verified production. | What confidence level is required before I say ready to verify? | I don't think I have the knowledge and understanding to answer that question, so maybe that should be your call. |
+| R2 | Pipeline | One normal CI/build pipeline plus deployment; no disposable promotion workflows. | Automatic deploy after approved merge or manual production gate? | Your proposal is accepted. |
+| R3 | Tests | Protect invariants/behavior, not frozen historical data. | Agree legitimate content edits should not require unrelated test changes? | Yes. |
+| R4 | Validation | Check records, refs, paths, formats, and generated output. | Any essential integrity rules missing or needless rules to remove? | Your proposal is accepted. |
+| R5 | Browser tests | Test critical user workflows and approved offline behavior. | Which workflows must have browser-level coverage? | Your proposal is accepted. |
+| R6 | Deployment | Verify actual Pages deployment and published critical assets. | Require staging acceptance before production cutover? | I am the only user of this application, so I think that deploying to a staging and having me test on a separate URL is overkill. If we release a bug to production we'll just fix it there. |
+| R7 | Content changes | Validate/deploy app changes; avoid documentation-only production releases. | Should article/image edits deploy automatically after validation? | Yes. |
+| R8 | Notifications | Diagnose failures and remove obsolete/noisy workflows, not hide real failures. | All failures, production-only failures, or another notification policy? | Your proposal is accepted. |
+| R9 | Concurrency | Preserve direct edits and avoid overlapping releases. | Would you use a staging branch/folder for images rather than direct main uploads? | No. |
+| R10 | Dependencies | Reproducible builds and minimal necessary tooling. | Any tooling or dependency constraints? | No. |
+| R11 | Records | Concise current documentation plus Git/PR history. | How much separate release documentation do you want? | Your proposal is accepted. |
+| R12 | Chat process | Shorter transactions, durable checkpoints, no repetitive interruptions. | Any additional working rules? | No. |
 
 ## 11. Migration and launch
 
 **Insight:** Clean slate means architecture, not data loss. V1 remains recoverable until v2 passes migration and production acceptance.
 
-| ID | Topic | Proposed default / requirement | Question for you |
-|---|---|---|---|
-| X1 | Repository | Build v2 alongside preserved v1. | Separate fishing-v2 repository or new directory/branch in existing repo? |
-| X2 | Preservation | All authoritative facts, text, images, and known relationships retained. | Any records explicitly excluded from v2? |
-| X3 | IDs | Preserve stable IDs despite filenames/routes changing. | Confirm existing IDs remain stable. |
-| X4 | Media migration | Map active pictures to simple fields, verify bytes/captions. | When several candidates exist, choose currently displayed picture or review each ambiguity? |
-| X5 | Local data | Export/audit actual browser-only records. | Any known local-only data or imports? |
-| X6 | Reconciliation | Counts, IDs, field diffs, image/content checks, reference validation. | Do you want to approve a migration report before full cutover? |
-| X7 | Cutover | Staging acceptance, rollback, v1 preserved. | Replace existing URL or launch v2 at a separate URL first? |
-| X8 | Cleanup | Remove obsolete runtime machinery after validation, preserve Git history. | Archive old implementation rather than retain compatibility code? |
-| X9 | Done | Approved requirements, preservation, tests, production smoke checks, rollback, reconciled docs. | What additional completion criteria matter? |
+| ID | Topic | Proposed default / requirement | Question for you | Response |
+|---|---|---|---|---|
+| X1 | Repository | Build v2 alongside preserved v1. | Separate fishing-v2 repository or new directory/branch in existing repo? | Your proposal is accepted. |
+| X2 | Preservation | All authoritative facts, text, images, and known relationships retained. | Any records explicitly excluded from v2? | None excluded. |
+| X3 | IDs | Preserve stable IDs despite filenames/routes changing. | Confirm existing IDs remain stable. | I am okay if they remain, and also okay if you decide you want to change them. |
+| X4 | Media migration | Map active pictures to simple fields, verify bytes/captions. | When several candidates exist, choose currently displayed picture or review each ambiguity? | Your proposal is accepted; I can change these later if needed. |
+| X5 | Local data | Export/audit actual browser-only records. | Any known local-only data or imports? | None. |
+| X6 | Reconciliation | Counts, IDs, field diffs, image/content checks, reference validation. | Do you want to approve a migration report before full cutover? | No. |
+| X7 | Cutover | Staging acceptance, rollback, v1 preserved. | Replace existing URL or launch v2 at a separate URL first? | This is one case where we should probably stage v2 on a separate URL, test it, and then replace v1 only when we are confident that v2 is working. |
+| X8 | Cleanup | Remove obsolete runtime machinery after validation, preserve Git history. | Archive old implementation rather than retain compatibility code? | Your proposal is accepted - remove v1, we still have it in Git if needed. |
+| X9 | Done | Approved requirements, preservation, tests, production smoke checks, rollback, reconciled docs. | What additional completion criteria matter? | None. |
 
 ## 12. Explicitly deferred or excluded candidates
 
 These candidates are not assumed to be initial v2 requirements. Promote any that you genuinely need now.
 
-| Candidate | Proposed disposition | Question |
-|---|---|---|
-| Planner, trips, sessions, no-catch outings | Remove | Any exception? |
-| Multi-user accounts, login, synchronization | Defer | Is single-user sufficient? |
-| Automatic web image sourcing and provenance tracking | Remove | Confirm no exception. |
-| Product shopping/deal engine and price updates | P3 | Any current need? |
-| Generic relationship graph and inferred links | Remove | Any exact relationship missing above? |
-| Catch dashboards, maps, advanced analytics | P3 | Promote any to P1/P2? |
-| Inventory transaction ledger, depreciation | P3 | Any current need? |
-| Configurable schemas and taxonomy administration | P3 | Repository-managed taxonomy sufficient? |
-| Rich-text CMS and collaborative approval workflows | Defer | Any current need? |
-| In-app revision browser and merge editor | P3 | Git plus simple conflict prevention sufficient? |
-| Automated research ingestion and video metadata enrichment | P3 | Ordinary authored links sufficient? |
-| Image galleries and automatic optimization | P3 unless required | One picture plus Markdown images sufficient? |
-| Permanent old-schema compatibility adapters | Remove after migration | Any old export format still used? |
+| Candidate | Proposed disposition | Question | Response |
+|---|---|---|---|
+| Planner, trips, sessions, no-catch outings | Remove | Any exception? | None. |
+| Multi-user accounts, login, synchronization | Defer | Is single-user sufficient? | Yes. |
+| Automatic web image sourcing and provenance tracking | Remove | Confirm no exception. | Confirmed. |
+| Product shopping/deal engine and price updates | P3 | Any current need? | No. |
+| Generic relationship graph and inferred links | Remove | Any exact relationship missing above? | Only between a Catch and the Lure/Bait/Location. |
+| Catch dashboards, maps, advanced analytics | P3 | Promote any to P1/P2? | No. |
+| Inventory transaction ledger, depreciation | P3 | Any current need? | No. |
+| Configurable schemas and taxonomy administration | P3 | Repository-managed taxonomy sufficient? | Yes. |
+| Rich-text CMS and collaborative approval workflows | Defer | Any current need? | No. |
+| In-app revision browser and merge editor | P3 | Git plus simple conflict prevention sufficient? | Yes. |
+| Automated research ingestion and video metadata enrichment | P3 | Ordinary authored links sufficient? | Yes. |
+| Image galleries and automatic optimization | P3 unless required | One picture plus Markdown images sufficient? | Yes. |
+| Permanent old-schema compatibility adapters | Remove after migration | Any old export format still used? | No. |
 
 ## 13. Engineering decisions after requirements approval
 
