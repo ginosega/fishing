@@ -10,7 +10,7 @@ permissions:
   actions: read
   pages: read
 concurrency:
-  group: ${{ github.event_name == 'pull_request' && github.ref || 'fishing-pages' }}
+  group: ${{ github.event_name == 'pull_request' && format('preview-validation-{0}', github.ref) || 'fishing-pages' }}
   cancel-in-progress: false
 env:
   V2_REF: 5da786ef121d7cfa39f98a8c69f3b6cf09f8eca6
@@ -40,16 +40,27 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - name: Complete pinned validation and browser gate
+      - name: Install and audit locked dependencies
+        timeout-minutes: 5
         working-directory: v2
         run: |
           npm ci --no-audit --no-fund
           npm audit --omit=dev --audit-level=high
+      - name: Validate core behavior and exact pinned build
+        timeout-minutes: 5
+        working-directory: v2
+        run: |
           npm test
           npm run build -- --pending-media --source-revision="$V2_REF"
           npm run verify
-          npx playwright install --with-deps chromium webkit
-          npm run test:browser
+      - name: Install Chromium and WebKit
+        timeout-minutes: 10
+        working-directory: v2
+        run: npx playwright install --with-deps chromium webkit
+      - name: Complete Chromium and WebKit acceptance
+        timeout-minutes: 10
+        working-directory: v2
+        run: npm run test:browser
       - name: Authenticate the verified v1 archive and compare actual hosted bytes
         env:
           GH_TOKEN: ${{ github.token }}
