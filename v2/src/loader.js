@@ -1,7 +1,12 @@
 (async()=>{
  const root=new URL('./',document.currentScript.src).href;
  const main=document.getElementById('app');
- const progress=message=>{main.textContent=message;};
+ const connection=document.getElementById('connection-status'),dialog=document.getElementById('connection-dialog');
+ const openStatus=()=>dialog.showModal(),closeStatus=()=>dialog.close();
+ const network=()=>{connection.dataset.online=String(navigator.onLine);document.getElementById('connection-network').textContent=navigator.onLine?'Online':'Offline';};
+ connection.addEventListener('click',openStatus);document.getElementById('connection-close').addEventListener('click',closeStatus);network();
+ globalThis.__FISHING_SHELL_CLEANUP__=()=>{connection.removeEventListener('click',openStatus);document.getElementById('connection-close').removeEventListener('click',closeStatus);};
+ const progress=message=>{main.textContent=message;document.getElementById('offline-status').textContent=message;};
  const digest=async bytes=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))].map(x=>x.toString(16).padStart(2,'0')).join('');
  if('serviceWorker' in navigator){
   progress('Preparing the complete offline library…');
