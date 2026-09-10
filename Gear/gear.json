@@ -186,21 +186,21 @@
       "id": "pflueger-president-spincast-reel",
       "category": "rods-reels",
       "type": "Spincasting reel",
-      "name": "Pflueger President Spincast Combo - Reel",
+      "name": "Pflueger President Spincast Reel",
       "manufacturer": "Pflueger",
       "model": "President Spincast Combo",
       "specifications": [
         {
-          "label": "Line weight",
-          "value": "8-14 lb"
+          "value": "3.4:1",
+          "label": "Gear ratio"
         },
         {
-          "label": "Gear ratio",
-          "value": "3.8:1"
+          "value": "90 yds. / 6 lb.",
+          "label": "Capacity"
         },
         {
-          "label": "Part",
-          "value": "PRESSC-606L2CBO"
+          "value": "PRES6SC",
+          "label": "Part #"
         }
       ],
       "links": [
@@ -211,7 +211,8 @@
       ],
       "notes": "Gear/Rods-Reels/content/Pflueger President Spincast Combo - Reel.md",
       "picture": {
-        "src": "Gear/Rods-Reels/assets/pflueger-president-spincast.webp"
+        "src": "Gear/Rods-Reels/assets/pflueger-president-spincast-reel.png",
+        "caption": "Pflueger President Spincast Reel"
       }
     },
     {
