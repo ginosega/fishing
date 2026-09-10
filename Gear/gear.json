@@ -572,7 +572,11 @@
           "url": "https://a.co/d/apPLB6U"
         }
       ],
-      "notes": "Gear/Snaps-Swivels/content/tsuridamashii-ball-bearing-snap-swivels.md"
+      "notes": "Gear/Snaps-Swivels/content/tsuridamashii-ball-bearing-snap-swivels.md",
+      "picture": {
+        "src": "Gear/Snaps-Swivels/assets/Tsuridamashii Ball-Bearing Snap Swivels.png",
+        "caption": "Tsuridamashii ball-bearing snap swivels"
+      }
     },
     {
       "id": "south-bend-assorted-brass-swivels",
