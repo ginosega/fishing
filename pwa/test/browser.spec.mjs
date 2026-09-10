@@ -358,6 +358,6 @@ test('production replaces the actual v1 worker at the same URL and retains its s
  const after=await page.evaluate(()=>caches.keys());for(const name of legacyCaches)expect(after).toContain(name);
  expect(await page.evaluate(async()=>new URL((await navigator.serviceWorker.getRegistration()).scope).pathname)).toBe('/fishing/');
  await disconnect(context,true);await page.reload();await expect(heading(page,'Fishing Companion')).toBeVisible();
- await route(page,'#/kb/species-perch','Yellow Perch');await expect(page.locator('.picture-empty, .picture-button')).toHaveCount(0);
+ await route(page,'#/kb/species-perch','Yellow Perch');await expect(page.locator('.picture-button')).toHaveCount(1);await expect(page.locator('.picture img')).toHaveCount(1);await expect(page.locator('.picture img')).toBeVisible();await expect(page.locator('.picture-empty')).toBeHidden();
  expect(await snapshot()).toEqual(before);
 });
