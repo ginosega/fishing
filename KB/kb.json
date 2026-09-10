@@ -230,7 +230,11 @@
       "type": "equipment",
       "name": "Popper",
       "description": "Popper conditions, tackle, knot guidance, and pop-pause retrieves.",
-      "content": "KB/Gear-Guides/content/popper.md"
+      "content": "KB/Gear-Guides/content/popper.md",
+      "picture": {
+        "src": "KB/Gear-Guides/assets/Rebel Pop-R.png",
+        "caption": "Rebel Pop-R"
+      }
     },
     {
       "id": "technique-walking-bait",
@@ -248,7 +252,11 @@
       "type": "equipment",
       "name": "Whopper Plopper",
       "description": "Plopper tackle, retrieve styles, and lure-size guidance for surface fishing.",
-      "content": "KB/Gear-Guides/content/whopper-plopper.md"
+      "content": "KB/Gear-Guides/content/whopper-plopper.md",
+      "picture": {
+        "src": "KB/Gear-Guides/assets/River2Sea Whopper Plopper 60.jpg",
+        "caption": "River2Sea Whopper Plopper 60"
+      }
     },
     {
       "id": "technique-seasonal-bass-guidance",
