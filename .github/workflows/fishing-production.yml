@@ -2,9 +2,9 @@ name: Fishing production acceptance and deployment
 on:
   push:
     branches: [main, feature/v2-implementation-20260908]
-    paths: ['v2/**', 'Gear/**', 'KB/**', 'Catches/**', '.github/workflows/**']
+    paths: ['pwa/**', '!pwa/docs/**', '!pwa/README.md', 'Gear/**', 'KB/**', 'Catches/**', '.github/workflows/**']
   pull_request:
-    paths: ['v2/**', 'Gear/**', 'KB/**', 'Catches/**', '.github/workflows/**']
+    paths: ['pwa/**', '!pwa/docs/**', '!pwa/README.md', 'Gear/**', 'KB/**', 'Catches/**', '.github/workflows/**']
   workflow_dispatch:
 permissions:
   contents: read
@@ -33,36 +33,36 @@ jobs:
           unzip -q /tmp/v1-production.zip -d /tmp/v1-root
       - name: Install and audit locked dependencies
         timeout-minutes: 5
-        working-directory: v2
+        working-directory: pwa
         run: |
           npm ci --no-audit --no-fund
           npm audit --omit=dev --audit-level=high
       - name: Validate core behavior and preview build
         timeout-minutes: 5
-        working-directory: v2
+        working-directory: pwa
         run: |
           npm test
           npm run build -- --pending-media --source-revision="$GITHUB_SHA"
           npm run verify
       - name: Install Chromium and WebKit
         timeout-minutes: 10
-        working-directory: v2
+        working-directory: pwa
         run: npx playwright install --with-deps chromium webkit
       - name: Preserve preview scope regression coverage
         timeout-minutes: 12
-        working-directory: v2
+        working-directory: pwa
         run: |
           npm run test:browser
           mv .test-output .preview-test-output
       - name: Build and verify production root
         timeout-minutes: 5
-        working-directory: v2
+        working-directory: pwa
         run: |
           npm run build -- --base=/fishing/ --source-revision="$GITHUB_SHA"
           npm run verify
       - name: Complete production browser and real v1 cutover acceptance
         timeout-minutes: 15
-        working-directory: v2
+        working-directory: pwa
         env:
           FISHING_BASE: /fishing/
           FISHING_V1_DIST: /tmp/v1-root
@@ -70,15 +70,15 @@ jobs:
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: production-bundle
-          path: v2/dist/
+          path: pwa/dist/
           retention-days: 30
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
           name: production-acceptance-evidence
           path: |
-            v2/.test-output/
-            v2/.preview-test-output/
+            pwa/.test-output/
+            pwa/.preview-test-output/
           include-hidden-files: true
           retention-days: 90
   deploy:
@@ -100,31 +100,31 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: production-bundle
-          path: v2/dist
+          path: pwa/dist
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '24'
       - name: Prepare hosted verifier before deployment
         timeout-minutes: 10
-        working-directory: v2
+        working-directory: pwa
         run: |
           npm ci --no-audit --no-fund
           npx playwright install --with-deps chromium
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: v2/dist
+          path: pwa/dist
       - name: Guard exact current main
         env:
           GH_TOKEN: ${{ github.token }}
         run: test "$(gh api repos/$GITHUB_REPOSITORY/git/ref/heads/main --jq .object.sha)" = "$GITHUB_SHA"
       - uses: actions/deploy-pages@v4
       - name: Verify actual hosted production bytes and browser behavior
-        working-directory: v2
+        working-directory: pwa
         run: node tools/verify-hosted.mjs --production=true --dist=dist
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
           name: actual-hosted-production-verification
-          path: v2/hosted-evidence/
+          path: pwa/hosted-evidence/
           retention-days: 90

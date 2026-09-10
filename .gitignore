@@ -1,5 +1,5 @@
+pwa/node_modules
 pwa/dist/
-
-v2/node_modules/
-v2/dist/
-v2/.test-output/
+pwa/.test-output/
+pwa/.preview-test-output/
+pwa/hosted-evidence/
