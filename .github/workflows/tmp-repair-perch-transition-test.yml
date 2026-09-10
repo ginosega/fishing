@@ -1,0 +1,33 @@
+name: Temporary repair Perch transition regression
+on:
+  push:
+    branches: [feature/batch-picture-updates-20260910]
+permissions:
+  contents: write
+jobs:
+  repair:
+    if: ${{ github.actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: true
+      - name: Make Perch transition assertion match current source
+        shell: bash
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          p=Path('pwa/test/browser.spec.mjs')
+          s=p.read_text()
+          old=" await route(page,'#/kb/species-perch','Yellow Perch');await expect(page.locator('.picture-empty, .picture-button')).toHaveCount(0);"
+          new=" await route(page,'#/kb/species-perch','Yellow Perch');await expect(page.locator('.picture-button')).toHaveCount(1);await expect(page.locator('.picture img')).toHaveCount(1);await expect(page.locator('.picture img')).toBeVisible();await expect(page.locator('.picture-empty')).toBeHidden();"
+          if s.count(old)!=1: raise SystemExit(f'expected exactly one stale Perch assertion, found {s.count(old)}')
+          p.write_text(s.replace(old,new,1))
+          PY
+          git diff --check
+          git diff -- pwa/test/browser.spec.mjs
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add pwa/test/browser.spec.mjs
+          git commit -m 'Make Perch transition regression source-current'
+          git push origin HEAD:${GITHUB_REF_NAME}
