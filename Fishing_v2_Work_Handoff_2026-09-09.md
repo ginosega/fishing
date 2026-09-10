@@ -1,6 +1,6 @@
 # Fishing Companion v2 — Work Handoff
 
-**Later checkpoint:** [Review corrections and production authorization](Fishing_v2_Review_Release_2026-09-09.md). The evidence below is historical. The corrected implementation is verified but not published; the user has authorized production and waived another preview review. Seven required pictures still block the production build.
+**Superseded by production:** [September10 production release](Fishing_v2_Production_Release_2026-09-10.md). PR64 is merged, root production is verified and seven absent pictures are explicitly deferred. Everything below preserves historical evidence; its old pending gates and URLs do not describe current production.
 
 **Historical checkpoint:** September 9, 2026, Pacific time. This is the durable source-backed continuation record for the user-authorized temporary Work session. It is not a completed v2 acceptance or production-release certificate. Restore current GitHub state before acting; the identifiers below are dated evidence, not instructions to reset newer work.
 

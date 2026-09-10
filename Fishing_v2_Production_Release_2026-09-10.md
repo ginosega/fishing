@@ -1,6 +1,11 @@
 # Fishing Companion v2 production release — September 10, 2026
 
-Status: implementation and acceptance in progress; production publication not yet claimed.
+V2 is published at [Fishing Companion](https://ginosega.github.io/fishing/). Production revision `ceef1df0dd8b204e7aa59c63e95a0d75346f4a92`, release `7ff6f62d921d5e86e0d97ae89b361120`, passed [publication and hosted verification](https://github.com/ginosega/fishing/actions/runs/34441600093). PR64 is merged. The user authorized production and waived another preview review; all seven previously required missing pictures are explicitly deferred. The affected records remain available without pictures. No acceptance or media approval blocks this release.
+
+Validation: 20 core tests, 20 preview-scope and 22 production-scope Chromium/WebKit scenarios, including the actual archived-v1 worker transition and retained browser stores. All 197 hosted files match the verified production build; live navigation, image viewer, offline reload, counts and absent-picture behavior pass. These are automated browser and direct hosted checks, not physical-device inspection.
+
+The sole active pipeline is `.github/workflows/fishing-production.yml`. V1 and the earlier preview are historical; use the production root. V1 sources and exact rollback ZIPs remain in Git. Old browser stores are retained. P2 remains deferred. This authorized Work phase is complete; continue in Chat.
+
 
 ## Authorization and scope
 
@@ -20,4 +25,6 @@ Checkpoint `checkpoint/v1-before-v2-preview-20260909`, commit `4aafcd2f88b35bb34
 
 ## Evidence
 
-Local production build, byte verification and 20 core tests pass. Hosted browser/root-cutover results and publication revision will be recorded after the gate completes.
+Current-base integration gate [34441204142](https://github.com/ginosega/fishing/actions/runs/34441204142) and main publication [34441600093](https://github.com/ginosega/fishing/actions/runs/34441600093) pass. PR64 merged at `ceef1df0dd8b204e7aa59c63e95a0d75346f4a92`; production release `7ff6f62d921d5e86e0d97ae89b361120`. Twenty core tests, 20 preview-scope and 22 production-scope browser scenarios pass. All 197 actual hosted files match; production scope, counts69/54/5, images, viewer, absent-picture pages, offline reload and no release diagnostics verified. Direct cloud-browser review also completed, including the existing v1 session transition. No physical-device inspection is claimed.
+
+The old preview is superseded by the root production URL. The main documentation-only closeout reconciles README, Context, TODO, Decision Log, source/technical addenda and bootstrap without republishing code. Original baseline/user responses and canonical source bytes remain unchanged.

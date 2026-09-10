@@ -1,47 +1,33 @@
 # Fishing TODO
 
-## Production execution — September 10, 2026
+_Last reconciled: September 10, 2026._
 
-The user authorized production cutover and waived another preview review, then explicitly resolved the picture gate: “Yes, omit those, and those gear and KB items can just have no picture. I will add these to the site later.” The seven named pictures are intentionally absent; all Gear/KB records remain. The generic inline-spinner picture remains optional. `v2/migration/media-decisions.json` records this decision separately from the preserved original migration report. No images were acquired or canonical records changed.
-
-Production implementation and root-scope acceptance are in progress. The consolidated `fishing-production.yml` replaces the old v1/preview publishers and one-time workflows; history and the exact v1 rollback ZIPs remain in Git. The root loader now verifies the v2 worker protocol because v1 and v2 share the same `sw.js` URL. Acceptance covers the actual archived v1 worker, retained IndexedDB/cache stores, both browser engines, full offline reading and all prior integrity/editing assertions. Do not claim deployment until the hosted production gate passes. No additional user approval is needed.
-
-The earlier media-blocked and preview-only checkpoints below are historical and superseded by this decision. See [production release](Fishing_v2_Production_Release_2026-09-10.md) for current execution evidence.
-
-
-_Last reconciled: 2026-09-09 (Pacific time)._
-
-This is the canonical backlog. Current facts live in structured source and authored Markdown; historical task descriptions, completed release details and prior versions remain in Git/History. Statuses: OPEN, WAITING ON USER, IN PROGRESS, DEFERRED, DONE, SUPERSEDED. P1 is necessary for the approved core/data integrity; P2 is useful but not required at launch; P3 is optional. Do not infer purchases, ownership or historical Catch attribution.
-
-## Current review correction and production checkpoint
-
-The supplied first-review corrections are implemented at `d5f09f058e298f3852f4bf6d0ca2545984a0d6ab` on `feature/v2-implementation-20260908` (PR 69 merged into that feature only). The [feedback record](Fishing_v2_Review_Feedback_2026-09-09.md) preserves the user wording. Engineering and prepublication validation pass 19 core tests and all 20 Chromium/WebKit scenarios, with all 217 live v1 files matching their preserved archive.
-
-**Latest user authorization:** “take this all the way to production; I don't need to test these changes in preview, let's go ahead with this build.” This authorizes production cutover and waives another user preview-review gate. Do not ask again for general cutover or preview acceptance. It does not explicitly resolve the seven previously required missing-image exceptions. The actual production build failed with `Migration has 7 unresolved media exceptions; pending-media preview only`. A decision to defer those required pictures or approved replacement images is the current blocker.
-
-No correction refresh or production cutover has been published. The existing live v1 root and original preview (`5da786ef…`, release `b924b223850b4a2741fedb92ce924584`) remain unchanged. PR 70 passed prepublication validation but was closed unmerged after the user requested direct production. Its branch retains the verified combined-deployment and durable-archive approach as reference. PR 64 remains draft/unmerged pending media resolution and production integration. No one-time migration was rerun, source data changed, new images acquired or browser stores removed.
-
-See [Review correction checkpoint](Fishing_v2_Review_Release_2026-09-09.md) for exact refs, CI and continuation. This checkpoint supersedes older statements below that still require user preview acceptance/cutover approval. Chat remains the permanent default; the explicitly authorized Work implementation phase is paused only on the required-media decision.
+This is the canonical backlog. Preserve source, ownership uncertainty and unrelated work.
 
 ## V2 project
 
-The approved requirements and fourteen decisions are complete. P1 engineering and automated browser acceptance are complete. The isolated [v2 preview](https://ginosega.github.io/fishing/v2-preview/) is published and hosted verification passed; user review is pending. V1 remains at the root. Draft PR 64 is unmerged. See [Fishing_v2_Preview_Release_2026-09-09.md](Fishing_v2_Preview_Release_2026-09-09.md) for exact evidence and recovery. P2 remains deferred.
+V2 is published at [Fishing Companion](https://ginosega.github.io/fishing/). Production revision `ceef1df0dd8b204e7aa59c63e95a0d75346f4a92`, release `7ff6f62d921d5e86e0d97ae89b361120`, passed [publication and hosted verification](https://github.com/ginosega/fishing/actions/runs/34441600093). PR64 is merged. The user authorized production and waived another preview review; all seven previously required missing pictures are explicitly deferred. The affected records remain available without pictures. No acceptance or media approval blocks this release.
+
+Validation: 20 core tests, 20 preview-scope and 22 production-scope Chromium/WebKit scenarios, including the actual archived-v1 worker transition and retained browser stores. All 197 hosted files match the verified production build; live navigation, image viewer, offline reload, counts and absent-picture behavior pass. These are automated browser and direct hosted checks, not physical-device inspection.
+
+The sole active pipeline is `.github/workflows/fishing-production.yml`. V1 and the earlier preview are historical; use the production root. V1 sources and exact rollback ZIPs remain in Git. Old browser stores are retained. P2 remains deferred. This authorized Work phase is complete; continue in Chat.
+
 
 | ID | Priority | Status | Work item / next action |
 |---|---|---|---|
 | FISH-TODO-071 | P1 | DONE | Reconcile the approved Inventory and fourteen Design Review decisions into the authoritative baseline. Preserve original responses. PR 62. |
 | FISH-TODO-072 | P1 | DONE | Complete the pinned source/dependency/data/media audit and minimal technical contracts. Source and verified-build evidence retained; browser/device gates tracked separately. |
-| FISH-TODO-073 | P1 | DONE | P1 implementation repaired and verified at `5da786ef121d7cfa39f98a8c69f3b6cf09f8eca6` in draft PR 64. Preview published; production integration awaits 076. |
+| FISH-TODO-073 | P1 | DONE | P1 implementation and review corrections integrated through PR64; production evidence is in the September10 release record. |
 | FISH-TODO-074 | P1 | DONE | Pinned one-time migration completed at `6615ae7296e48d90dceab303b6b5a1fbc041ab80`, run 34328748390 success. Gear 66 → 69, KB 54, Catches 5, exact narrative preservation, 49 approved image adoptions and machine reconciliation. Remaining media exceptions are 078; any required current-main source refresh is part of 076. Do not rerun the original migration. |
-| FISH-TODO-075 | P1 | DONE | P1 browser gate passed: 19 core tests and 16 Chromium/WebKit scenarios, including full-library offline reload, source-aware handoffs, viewer, dirty forms, mobile viewport and scope isolation. Actual hosted verification also passed. No physical-device inspection is claimed. |
-| FISH-TODO-076 | P1 | WAITING ON USER | Production cutover and waiver of another preview review explicitly authorized. Corrected implementation `d5f09f0…` passes 19 core / 20 browser tests; production build stops on the seven required media exceptions in 078. Need explicit deferral or approved replacements, then complete production integration/pipeline consolidation, root-scope offline/browser tests, serialized deployment, hosted verification and obsolete-v1 cleanup. No further general cutover approval required. |
+| FISH-TODO-075 | P1 | DONE | 20 core tests, 20 preview-scope and 22 production-scope Chromium/WebKit scenarios pass, plus actual hosted verification. Includes actual-v1 worker transition and retained stores; no physical-device inspection claimed. |
+| FISH-TODO-076 | P1 | DONE | User-authorized production cutover completed through PR64, consolidated single pipeline, root-scope offline/browser acceptance, hosted-byte verification and record reconciliation. V1 rollback preserved in Git; obsolete publishers and one-time workflows retired in history. |
 | FISH-TODO-077 | P2 | DEFERRED | Direct Save/authentication, integrated uploads, Catch browser authoring and offline editing/outbox/sync require separate approval. No P2 infrastructure in P1. |
-| FISH-TODO-078 | P1 | WAITING ON USER | Media: 49 approved captures adopted, 2 rejected. Production-build blocker: obtain explicit deferral or resolve seven required items (Tsuridamashii, Rapala F-3, Perch, Popper, Whopper Plopper KB pictures, Mack's Pee Wee Hoochie, River2Sea Whopper Plopper 60). Generic inline-spinner picture is optional. Rapala's required flag and exact seven-required/one-optional accounting are corrected and tested. The newer v1 archive contains an F-3 capture, retained as evidence only pending approval; it was not adopted into v2. No automatic acquisition, invented replacements or silent deletion. |
+| FISH-TODO-078 | P2 | DEFERRED | User approved leaving all seven formerly required pictures absent and will add them later. All Gear/KB items remain. Generic inline-spinner is optional. Original migration report is preserved; media-decisions.json records the new disposition. No automatic acquisition or adoption of unapproved F-3/new images. |
 | FISH-TODO-079 | P1 | DONE | User accepted source equivalence and waived a separate device-only IndexedDB export for the pinned migration. No device inspection is claimed. Preserve old stores and reconcile any later-discovered local-only data before retirement. |
 | FISH-TODO-080 | P1 | DONE | Reconcile current project records, decisions, TODO, source/technical addenda and bootstrap for temporary Work handoff. Preserve original requirements and complete a cross-file consistency audit. Details in the dated Work Handoff. |
 | FISH-TODO-081 | P1 | DONE | Viewer names/selectors, dirty navigation, update/reload race, failed-content retry, atomic release publication and honest Offline Ready state repaired. Regression tests cover corruption, missing assets, quota/promotion failure, old-release immutability and repair. Full hosted gate passes without weakening integrity assertions. |
-| FISH-TODO-082 | P1 | DONE | Implement supplied layout/authoring review from Word and twelve PNGs; PR 69 merged into v2 feature, 19 core and 20 browser scenarios pass; layout screenshots inspected. Publication is tracked separately under 076 and remains blocked by 078. Verbatim feedback and exact checkpoint are preserved. |
-| FISH-TODO-063 | P2 | SUPERSEDED | Historical v1 KB filename/upload usability issue. V2 approved filename/authoring model replaces old ID-prefix/source-owner requirements; preserve v1 behavior until cutover. |
+| FISH-TODO-082 | P1 | DONE | Supplied Word/twelve-screenshot review implemented in PR69 and published through PR64. Verbatim feedback is retained; layout, loading, missing-picture and clipboard success/failure checks pass. |
+| FISH-TODO-063 | P2 | SUPERSEDED | Historical v1 KB filename/upload usability issue. V2 approved filename/authoring model replaces old ID-prefix/source-owner requirements; v1 is now historical. |
 | FISH-TODO-039 | P2 | SUPERSEDED | Historical structured setup recording on catches. V2 removes setup references; equipment details belong in Catch Notes. |
 
 ## Existing fishing, equipment and content backlog
