@@ -308,7 +308,7 @@
       "id": "species-smallmouth-bass",
       "type": "species",
       "name": "Smallmouth Bass",
-      "description": "Structure-oriented target in Lake Washington, Sammamish, and Chelan.",
+      "description": "Structure-oriented target",
       "content": "KB/Species/content/smallmouth-bass.md",
       "picture": {
         "src": "KB/Species/assets/smallmouth-bass.png",
@@ -344,7 +344,7 @@
       "description": "Specialized regional trolling target in Lake Washington and Mayfield Lake.",
       "content": "KB/Species/content/kokanee.md",
       "picture": {
-        "src": "KB/Species/assets/kokanee-phases.png",
+        "src": "KB/Species/assets/Kokanee.png",
         "caption": "Kokanee shown in non-spawning (silver) and spawning (red) phases"
       }
     },
