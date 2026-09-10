@@ -145,25 +145,29 @@
       "id": "pflueger-president-spincast-rod",
       "category": "rods-reels",
       "type": "Spincasting rod",
-      "name": "Pflueger President Spincast Combo - Rod",
+      "name": "Pflueger President Spincast Rod",
       "manufacturer": "Pflueger",
       "model": "President Spincast Combo",
       "specifications": [
         {
           "label": "Length",
-          "value": "6'6\""
+          "value": "6'"
         },
         {
           "label": "Power",
-          "value": "Medium"
+          "value": "Light"
+        },
+        {
+          "label": "Line Rating",
+          "value": "2-8 lb."
         },
         {
           "label": "Pieces",
           "value": "2"
         },
         {
-          "label": "Part",
-          "value": "PRESSC-606L2CBO"
+          "label": "Part #",
+          "value": "PRESSC60L-2"
         }
       ],
       "links": [
@@ -172,7 +176,11 @@
           "url": "https://pfluegerfishing.com/products/president-spincast-combo-1595561"
         }
       ],
-      "notes": "Gear/Rods-Reels/content/Pflueger President Spincast Combo - Rod.md"
+      "notes": "Gear/Rods-Reels/content/Pflueger President Spincast Combo - Rod.md",
+      "picture": {
+        "src": "Gear/Rods-Reels/assets/pflueger-president-spincast-rod.png",
+        "caption": "Pflueger President Spincast Rod"
+      }
     },
     {
       "id": "pflueger-president-spincast-reel",
