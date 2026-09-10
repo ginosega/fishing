@@ -1,0 +1,121 @@
+name: Temporary apply verified picture batch
+on:
+  push:
+    branches: [feature/batch-picture-updates-20260910]
+permissions:
+  contents: write
+jobs:
+  apply:
+    if: ${{ github.actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: true
+      - name: Apply verified Fishing Companion packages
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const crypto = require('crypto');
+          const canonical = value => {
+            if (value === undefined) return 'undefined';
+            if (Array.isArray(value)) return '[' + value.map(canonical).join(',') + ']';
+            if (value && typeof value === 'object') return '{' + Object.keys(value).sort().map(k => JSON.stringify(k) + ':' + canonical(value[k])).join(',') + '}';
+            return JSON.stringify(value);
+          };
+          const sha256 = value => crypto.createHash('sha256').update(value).digest('hex');
+          const fingerprint = value => sha256(Buffer.from(canonical(value), 'utf8'));
+          const checkImage = (path, bytes, hash) => {
+            const data = fs.readFileSync(path);
+            if (data.length !== bytes) throw new Error(`${path}: byte mismatch ${data.length} != ${bytes}`);
+            const actual = sha256(data);
+            if (actual !== hash) throw new Error(`${path}: SHA-256 mismatch ${actual} != ${hash}`);
+          };
+          const gearPath = 'Gear/gear.json';
+          const kbPath = 'KB/kb.json';
+          const gear = JSON.parse(fs.readFileSync(gearPath, 'utf8'));
+          const kb = JSON.parse(fs.readFileSync(kbPath, 'utf8'));
+          const gearById = new Map(gear.items.map(x => [x.id, x]));
+          const kbById = new Map(kb.entities.map(x => [x.id, x]));
+
+          const specs = [
+            {
+              id: 'rapala-original-floating',
+              expected: 'a703fc6710e9b9d69b5a349ca68c4b84a956a3a0d17fd2624f4a228a53a3f929',
+              action: 'add',
+              path: 'Gear/Lures/assets/Rapala Original Floating.png',
+              caption: 'Rapala Original Floating Lure',
+              bytes: 331112,
+              hash: '41e040cd12c7e0aec65ffbbef77b9ade58dd432866ebfbb84b66755c3e306b9a'
+            },
+            {
+              id: 'river2sea-whopper-plopper-60',
+              expected: 'f88fe7d5fbb6202c76c17ad92485de69e4df0204f1a09113dcf6e5f4335801b6',
+              action: 'add',
+              path: 'Gear/Lures/assets/River2Sea Whopper Plopper 60.jpg',
+              caption: 'River2Sea Whopper Plopper 60 (Bluegill)',
+              bytes: 22301,
+              hash: '74601f6c8bd7a670dc938b4330652ba96e8e93ec607725fa13505ef895e51476'
+            },
+            {
+              id: 'macks-pee-wee-hoochie',
+              expected: '60db41785a52027fbb3bf660a66267f7e286a695dd4f4f007b3de12d007f0036',
+              action: 'add',
+              path: "Gear/Lures/assets/Mack's Pee Wee Hoochie.png",
+              caption: "Mack's Pee Wee Hoochie (Hot Pink Glow)",
+              bytes: 142251,
+              hash: 'e920fbeabfda745c96835c257ef556cf9251a1aa775f16d641fa3de30527edf1'
+            },
+            {
+              id: 'rebel-pop-r',
+              expected: 'a21af366421474f0db7112df77e2b95f5934e1608e627d42e4ca1d416bb7dcb5',
+              action: 'replace',
+              basePicture: {src: 'Gear/Lures/assets/rebel-pop-r.webp'},
+              path: 'Gear/Lures/assets/Rebel Pop-R.png',
+              caption: 'Rebel Pop-R (Silver/Black)',
+              bytes: 523486,
+              hash: 'c5e27e2a50bfc43a8f88e214bda9b9293d52449b725d404d191d8c5df43ea6c4'
+            }
+          ];
+
+          for (const s of specs) {
+            const record = gearById.get(s.id);
+            if (!record) throw new Error(`Missing Gear record ${s.id}`);
+            const actualFingerprint = fingerprint(record);
+            if (actualFingerprint !== s.expected) throw new Error(`${s.id}: base record hash mismatch ${actualFingerprint} != ${s.expected}`);
+            checkImage(s.path, s.bytes, s.hash);
+            if (s.action === 'add') {
+              if (Object.hasOwn(record, 'picture')) throw new Error(`${s.id}: expected picture to be absent`);
+            } else {
+              if (canonical(record.picture) !== canonical(s.basePicture)) throw new Error(`${s.id}: replacement picture base mismatch`);
+            }
+            record.picture = {src: s.path, caption: s.caption};
+          }
+
+          const perch = kbById.get('species-perch');
+          if (!perch) throw new Error('Missing KB record species-perch');
+          const perchFingerprint = fingerprint(perch);
+          const perchExpected = '86b87974f3561a496aa4aa299e8a3bf1b2a057a4b290caa7a49f88d9deb4ed42';
+          if (perchFingerprint !== perchExpected) throw new Error(`species-perch: base record hash mismatch ${perchFingerprint} != ${perchExpected}`);
+          if (Object.hasOwn(perch, 'picture')) throw new Error('species-perch: expected picture to be absent');
+          if (perch.content !== 'KB/Species/content/perch.md') throw new Error(`species-perch: content path mismatch ${perch.content}`);
+          const perchContent = fs.readFileSync(perch.content);
+          const perchBase = sha256(perchContent);
+          const perchExpectedBase = 'b65ef06da88ce97f0f50fe620b4419954507b16bb6404b7ef1078e03132de796';
+          if (perchBase !== perchExpectedBase) throw new Error(`species-perch: content base SHA mismatch ${perchBase} != ${perchExpectedBase}`);
+          const perchImage = 'KB/Species/assets/Yellow Perch.png';
+          checkImage(perchImage, 280657, '46c71cb21cef16ca29713c71c6c2378776f670ea3f9f0cfddc55c053c34d4783');
+          perch.picture = {src: perchImage, caption: 'Yellow Perch'};
+          fs.writeFileSync(perch.content, '#\n');
+
+          fs.writeFileSync(gearPath, JSON.stringify(gear, null, 2) + '\n');
+          fs.writeFileSync(kbPath, JSON.stringify(kb, null, 2) + '\n');
+          NODE
+          git diff --check
+          git diff -- Gear/gear.json KB/kb.json KB/Species/content/perch.md
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add Gear/gear.json KB/kb.json KB/Species/content/perch.md
+          git commit -m 'Apply remaining picture batch [applied]'
+          git push origin HEAD:${GITHUB_REF_NAME}
