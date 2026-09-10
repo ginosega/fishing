@@ -24,6 +24,19 @@ export async function validateImage(bytes,filename){
  for(let page=0;page<frames;page++)await sharp(bytes,{page,pages:1,failOn:'error',limitInputPixels:36000000}).raw().toBuffer();
  return {format:meta.format,width,height,frames};
 }
+export function unresolvedMedia(migration,decisions,data){
+ const exceptions=migration?.exceptions||[],accepted=new Set();
+ for(const item of decisions?.absentPictures||[]){
+  assert(!accepted.has(item.exceptionId),'Duplicate media decision');
+  const exception=exceptions.find(x=>x.id===item.exceptionId);
+  assert(exception&&!exception.optional,'Unknown required media exception: '+item.exceptionId);
+  assert(item.id===(exception.gearId||(exception.id==='tsuridamashii-snap-swivels'?'tsuridamashii-ball-bearing-snap-swivels':exception.id)),'Media decision identity mismatch');
+  const records=item.domain==='gear'?data.gear.items:item.domain==='kb'?data.kb.entities:[];
+  assert(records.some(x=>x.id===item.id),'Media decision record missing: '+item.id);
+  accepted.add(item.exceptionId);
+ }
+ return exceptions.filter(x=>!x.optional&&!accepted.has(x.id));
+}
 export async function inventorySource(root,{pendingMedia=false}={}){
  const data=await loadSource(root),maps=validateRecords(data),routes=validateLibraryPaths(data),files=collectPaths(data),allPaths=[];
  async function scan(dir){for(const entry of await fs.readdir(dir,{withFileTypes:true})){const absolute=path.join(dir,entry.name);if(entry.isDirectory())await scan(absolute);else if(entry.isFile())allPaths.push(path.relative(root,absolute).split(path.sep).join('/'));else throw new Error(`Symlink or special source file: ${absolute}`);}}
@@ -39,7 +52,8 @@ export async function inventorySource(root,{pendingMedia=false}={}){
  }
  for(const file of files)if(/\.(?:jpe?g|png|webp|gif)$/i.test(file)&&!images.has(file))images.set(file,await validateImage(await fs.readFile(await fileUnder(root,file)),file));
  let migration=null;try{migration=JSON.parse(await fs.readFile(path.join(root,'v2/migration/reconciliation.json'),'utf8'));}catch(error){if(error.code!=='ENOENT')throw error;}
- const pending=(migration?.exceptions||[]).filter(x=>!x.optional);
+ let decisions=null;try{decisions=JSON.parse(await fs.readFile(path.join(root,'v2/migration/media-decisions.json'),'utf8'));}catch(error){if(error.code!=='ENOENT')throw error;}
+ const pending=unresolvedMedia(migration,decisions,data);
  if(pending.length&&!pendingMedia)throw new Error(`Migration has ${pending.length} unresolved media exceptions; pending-media preview only`);
  const manifest=[];for(const file of [...files].sort()){const bytes=await fs.readFile(await fileUnder(root,file));manifest.push({path:file,bytes:bytes.length,sha256:digest(bytes)});}
  return {data,maps,files:manifest,images,references,migration,pending,routes};

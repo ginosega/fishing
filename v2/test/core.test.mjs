@@ -7,7 +7,7 @@ import {safePath,pathKey,encodedPath,parseRoute,routeFor,internalLink,catchHisto
 import {validateRecords,validateRecord,validateLibraryPaths,checkPathCollisions} from '../src/validation.mjs';
 import {parseMarkdown,markdownRouteMap} from '../src/markdown.mjs';
 import {prepareChange,promoteChange,ChangeConflictError} from '../src/handoff.mjs';
-import {inventorySource,validateImage,digest} from '../tools/library.mjs';
+import {inventorySource,validateImage,digest,unresolvedMedia} from '../tools/library.mjs';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..');
 const read=async p=>JSON.parse(await fs.readFile(path.join(root,p),'utf8'));
 const data=await (async()=>({gear:await read('Gear/gear.json'),kb:await read('KB/kb.json'),catches:await read('Catches/catches.json')}))();
@@ -103,12 +103,22 @@ test('identity, deletion and schema conflicts do not silently mutate source',asy
 });
 test('the complete source inventory hashes and fully decodes all referenced assets',async()=>{
  const result=await inventorySource(root,{pendingMedia:true});
- assert.equal(result.data.gear.items.length,69);assert.equal(result.images.size,81);assert.equal(result.pending.length,7);
- assert.deepEqual(result.pending.map(x=>x.id).sort(),['tsuridamashii-snap-swivels','rapala-original-floating-f3','species-perch','technique-popper','technique-whopper-plopper','macks-pee-wee-hoochie','river2sea-whopper-plopper-60'].sort());
+ assert.equal(result.data.gear.items.length,69);assert.equal(result.images.size,81);assert.equal(result.pending.length,0);
+ assert.deepEqual(result.migration.exceptions.filter(x=>!x.optional).map(x=>x.id).sort(),['tsuridamashii-snap-swivels','rapala-original-floating-f3','species-perch','technique-popper','technique-whopper-plopper','macks-pee-wee-hoochie','river2sea-whopper-plopper-60'].sort());
  assert.deepEqual(result.migration.exceptions.filter(x=>x.optional).map(x=>x.id),['generic-1-inline-spinner']);assert.equal(result.references.length,235);
  for(const file of result.files){const bytes=await fs.readFile(path.join(root,file.path));assert.equal(digest(bytes),file.sha256);}
 });
 test('malformed images and unsupported formats are rejected',async()=>{
  await assert.rejects(validateImage(Buffer.from('not an image'),'Gear/Lures/assets/bad.png'));
  await assert.rejects(validateImage(Buffer.from('GIF89a'),'Gear/Lures/assets/bad.avif'),/Unsupported/);
+});
+
+test('explicit absent-picture decisions resolve only the approved historical exceptions',async()=>{
+ const migration=await read('v2/migration/reconciliation.json'),decisions=await read('v2/migration/media-decisions.json');
+ assert.equal(unresolvedMedia(migration,null,data).length,7);
+ assert.equal(unresolvedMedia(migration,decisions,data).length,0);
+ const missing=clone(decisions);missing.absentPictures.pop();assert.equal(unresolvedMedia(migration,missing,data).length,1);
+ const invalid=clone(decisions);invalid.absentPictures[0].exceptionId='unapproved';assert.throws(()=>unresolvedMedia(migration,invalid,data),/Unknown required/);
+ const changed=clone(data);changed.gear.items.find(x=>x.id==='rapala-original-floating').picture={src:'Gear/Lures/assets/future-user-picture.png'};
+ assert.equal(unresolvedMedia(migration,decisions,changed).length,0); // Future supplied pictures still pass the normal path/decode checks.
 });

@@ -1,5 +1,7 @@
 # Fishing Companion PWA
 
+**Historical v1 reference.** The authorized production transition and sole active pipeline are recorded in [v2 production release](../Fishing_v2_Production_Release_2026-09-10.md). The build/deployment instructions below are historical; do not run a competing v1 publication. Exact v1 recovery bytes remain in Git.
+
 **Status: production healthy.** Latest application release PR60, final head `cd47dc9ce39660840de493346e7df9fda72a14e5`, normal CI #307 / `34191643311`, merge `ecd9f3d52ca8180ea4f48ec888e7574105deafda`, production #308 / `34191692935`, including actual GitHub Pages deployment. Gear schema4/66 uses `2026-09-08-my-gear-v4-perception-joyride-1`; KB schema1/54 uses `2026-09-08-kb-v1-cranberry-lake-picture-1`; Catch schema2/5 remains `2026-09-04-catches-v2-external-notes-1`. FISH069 and FISH070 are DONE; FISH063 remains OPEN. No application release is pending. See `pwa/RELEASE_2026-09-08_CRANBERRY_COPY.md`.
 
 ## Architecture

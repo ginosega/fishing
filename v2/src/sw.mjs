@@ -83,6 +83,7 @@ self.addEventListener('install',event=>event.waitUntil(ensureRelease().then(()=>
 self.addEventListener('activate',event=>event.waitUntil((async()=>{await self.clients.claim();await broadcast('FISHING_V2_STATUS',await state());})()));
 self.addEventListener('message',event=>{
  const message=event.data||{};
+ if(message.type==='HELLO')event.ports[0]?.postMessage({protocol:'fishing-companion-v2',base});
  if(message.type==='STATUS')event.waitUntil(state().then(status=>event.ports[0]?.postMessage({type:'FISHING_V2_STATUS',status})));
  if(message.type==='REPAIR')event.waitUntil(ensureRelease().then(()=>state(),error=>state({message:error.message,failed:[]})).then(status=>event.ports[0]?.postMessage({type:'FISHING_V2_STATUS',status})));
 });

@@ -9,10 +9,11 @@ import {fileURLToPath} from 'node:url';
 const here=path.dirname(fileURLToPath(import.meta.url));
 const repo=path.resolve(here,'../..');
 const v2=path.join(repo,'v2');
-const prefix='/fishing/v2-preview/';
+const prefix=process.env.FISHING_BASE||'/fishing/v2-preview/';
+const production=prefix==='/fishing/';
 const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript','.css':'text/css','.json':'application/json','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.webp':'image/webp','.gif':'image/gif'};
 let server,base,temporary,initial,next,fixture;
-const state={disconnected:false,current:'initial',fail:new Set(),corrupt:new Set(),writes:[]};
+const state={legacy:false,disconnected:false,current:'initial',fail:new Set(),corrupt:new Set(),writes:[]};
 const readJson=file=>fs.readFile(file,'utf8').then(JSON.parse);
 const sourceData=async()=>({gear:await readJson(path.join(repo,'Gear/gear.json')),kb:await readJson(path.join(repo,'KB/kb.json')),catches:await readJson(path.join(repo,'Catches/catches.json'))});
 const encoded=value=>value.split('/').map(encodeURIComponent).join('/');
@@ -30,7 +31,7 @@ async function prepare(){
  fixture={articleId:article.id,articlePath:article.content,marker:'Browser release upgrade fixture'};
  await fs.appendFile(path.join(source,article.content),'\n\n## '+fixture.marker+'\n\nThe second release is independently verified.\n');
  next={root:path.join(temporary,'next')};
- run(path.join(v2,'tools/build.mjs'),['--pending-media','--source='+source,'--out='+next.root,'--source-revision='+initial.pointer.sourceRevision+'-browser-next']);
+ run(path.join(v2,'tools/build.mjs'),[...(production?[]:['--pending-media']),'--base='+prefix,'--source='+source,'--out='+next.root,'--source-revision='+initial.pointer.sourceRevision+'-browser-next']);
  run(path.join(v2,'tools/verify.mjs'),['--out='+next.root,'--source='+source]);
  next.pointer=await readJson(path.join(next.root,'release.json'));next.id=next.pointer.id;
  if(next.id===initial.id)throw new Error('Upgrade fixture has the same release ID');
@@ -43,10 +44,11 @@ async function serve(request,response){
   const url=new URL(request.url,'http://localhost');
   if(url.pathname==='/fishing/legacy-page'){response.writeHead(200,{'Content-Type':'text/html'});response.end('<!doctype html><title>V1 fixture</title><p>v1 scope sentinel</p>');return;}
   if(url.pathname==='/fishing/parent-worker.js'){response.writeHead(200,{'Content-Type':'text/javascript'});response.end(`self.addEventListener('install',e=>e.waitUntil(self.skipWaiting()));self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));self.addEventListener('fetch',e=>{if(new URL(e.request.url).pathname.endsWith('/v2-preview/release.json'))e.respondWith(new Response('unverified parent cache'));});`);return;}
-  if(url.pathname==='/fishing/legacy-check'){response.writeHead(200,{'Content-Type':'text/plain'});response.end('v1 scope sentinel');return;}
+  if(url.pathname==='/outside-scope/legacy-check'){response.writeHead(200,{'Content-Type':'text/plain'});response.end('v1 scope sentinel');return;}
   if(!url.pathname.startsWith(prefix)){response.writeHead(404);response.end();return;}
   const relative=decodeURIComponent(url.pathname.slice(prefix.length))||'index.html';
   if(relative.includes('\\')||relative.split('/').some(x=>x==='..'))throw new Error('Unsafe test path');
+  if(state.legacy){const bytes=await fs.readFile(path.join(process.env.FISHING_V1_DIST,relative));response.writeHead(200,{'Content-Type':mime[path.extname(relative)]||'application/octet-stream','Cache-Control':'no-store'});response.end(bytes);return;}
   const release=relative.startsWith('releases/'+initial.id+'/')?initial:relative.startsWith('releases/'+next.id+'/')?next:state.current==='next'?next:initial;
   if(state.fail.has(relative)){response.writeHead(503);response.end('Injected unavailable asset');return;}
   const file=path.resolve(release.root,relative);if(!file.startsWith(release.root+path.sep))throw new Error('Unsafe test path');
@@ -82,7 +84,7 @@ async function cacheInfo(page){return page.evaluate(async()=>{const names=(await
 // One worker and separate browser contexts keep all service-worker/cache tests isolated.
 test.beforeAll(async()=>{await prepare();server=createServer(serve);await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));base=`http://127.0.0.1:${server.address().port}${prefix}`;});
 test.afterAll(async()=>{if(server)await new Promise(resolve=>server.close(resolve));if(temporary)await fs.rm(temporary,{recursive:true,force:true});});
-test.beforeEach(()=>{state.disconnected=false;state.current='initial';state.fail.clear();state.corrupt.clear();state.writes.length=0;});
+test.beforeEach(()=>{state.legacy=false;state.disconnected=false;state.current='initial';state.fail.clear();state.corrupt.clear();state.writes.length=0;});
 
 test('complete library installs, verifies and survives an offline reload',async({page,context})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
@@ -229,7 +231,7 @@ test('mobile layout and isolated worker scope',async({browser})=>{
  const context=await browser.newContext({viewport:{width:375,height:812},isMobile:true,hasTouch:true,deviceScaleFactor:2});const page=await context.newPage();
  try{await openReady(page);await route(page,'#/inventory/category/lures','Lures');
   const width=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,client:document.documentElement.clientWidth}));expect(width.scroll).toBeLessThanOrEqual(width.client+1);
-  const legacy=await page.goto(new URL('/fishing/legacy-check',base).href);expect(await legacy.text()).toBe('v1 scope sentinel');
+  const legacy=await page.goto(new URL('/outside-scope/legacy-check',base).href);expect(await legacy.text()).toBe('v1 scope sentinel');
   expect(await page.evaluate(()=>navigator.serviceWorker.controller)).toBeNull();
  }finally{await context.close();}
 });
@@ -270,7 +272,7 @@ test('preview waits for its own verified worker when a v1 parent worker already 
  expect(await retained()).toBe('retain v1 bytes');
  const preview=await context.newPage();await openReady(preview);
  expect(await preview.evaluate(()=>navigator.serviceWorker.controller.scriptURL)).toBe(base+'sw.js');
- await page.reload();expect(await retained()).toBe('retain v1 bytes');
+ if(!production)await page.reload();expect(await retained()).toBe('retain v1 bytes');
  await preview.close();
 });
 
@@ -278,6 +280,7 @@ test('preview waits for its own verified worker when a v1 parent worker already 
 test('reviewed page layouts, missing pictures, forms and copy feedback',async({page},testInfo)=>{
  await page.emulateMedia({colorScheme:'dark'});await openReady(page);
  await expect(page.locator('.site-header nav')).toHaveCount(0);
+ if(production){await expect(page.locator('#release-details')).toHaveCount(0);await expect(page.locator('.preview-banner')).toBeHidden();}
  await expect(page.getByRole('button',{name:'Connection status'})).toHaveAttribute('title','Connection status');
  await page.getByRole('button',{name:'Connection status'}).click();
  await expect(page.getByRole('dialog',{name:'Connection status'})).toBeVisible();
@@ -335,4 +338,26 @@ test('initial loading shell is styled before the library or application can load
   expect(style.background).toBe('rgb(16, 27, 24)');expect(style.font).toContain('system-ui');
   await page.screenshot({path:testInfo.outputPath('initial-shell.png'),fullPage:true});
  }finally{await context.close();}
+});
+
+test('production replaces the actual v1 worker at the same URL and retains its stores',async({page,context})=>{
+ test.skip(!production,'Production-only cutover scenario; preview isolation is covered separately');
+ expect(process.env.FISHING_V1_DIST).toBeTruthy();state.legacy=true;
+ await page.goto(base);await page.getByRole('button',{name:/My Gear Browse/}).waitFor();
+ await page.evaluate(async()=>{await navigator.serviceWorker.ready;if(!navigator.serviceWorker.controller)await new Promise(resolve=>navigator.serviceWorker.addEventListener('controllerchange',resolve,{once:true}));});
+ expect(await page.evaluate(()=>navigator.serviceWorker.controller.scriptURL)).toBe(base+'sw.js');
+ const snapshot=()=>page.evaluate(async()=>{
+  const db=await new Promise((resolve,reject)=>{const q=indexedDB.open('fishing-companion');q.onsuccess=()=>resolve(q.result);q.onerror=()=>reject(q.error);});
+  const result={};for(const name of db.objectStoreNames)result[name]=await new Promise((resolve,reject)=>{const q=db.transaction(name).objectStore(name).getAll();q.onsuccess=()=>resolve(q.result);q.onerror=()=>reject(q.error);});db.close();return result;
+ });
+ await page.getByRole('button',{name:/My Gear Browse/}).click();await page.getByRole('button',{name:'Rods & Reels',exact:true}).waitFor();
+ const before=await snapshot();expect(Object.keys(before).length).toBeGreaterThan(0);
+ const legacyCaches=await page.evaluate(()=>caches.keys());expect(legacyCaches.some(x=>x.startsWith('fishing-companion-'))).toBe(true);
+ state.legacy=false;await openReady(page);
+ expect(await snapshot()).toEqual(before);
+ const after=await page.evaluate(()=>caches.keys());for(const name of legacyCaches)expect(after).toContain(name);
+ expect(await page.evaluate(async()=>new URL((await navigator.serviceWorker.getRegistration()).scope).pathname)).toBe('/fishing/');
+ await disconnect(context,true);await page.reload();await expect(heading(page,'Fishing Companion')).toBeVisible();
+ await route(page,'#/kb/species-perch','Yellow Perch');await expect(page.locator('.picture-empty, .picture-button')).toHaveCount(0);
+ expect(await snapshot()).toEqual(before);
 });
