@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 2,
+  "dataVersion": "2026-09-04-catches-v2-external-notes-1",
+  "catches": [
+    {
+      "id": "catch-2026-07-27-silver-lake-largemouth-01",
+      "date": "2026-07-27",
+      "time": "20:00",
+      "size": {
+        "length": {
+          "value": 13,
+          "unit": "in"
+        },
+        "weight": null,
+        "display": null
+      },
+      "speciesId": "species-largemouth-bass",
+      "locationId": "location-silver-lake-whatcom",
+      "rodReelSetupId": null,
+      "techniqueId": null,
+      "lureOrBait": {
+        "type": "lure",
+        "itemId": "berkley-flicker-shad-5",
+        "nameSnapshot": "Berkley Flicker Shad 5"
+      },
+      "picture": null
+    },
+    {
+      "id": "catch-2026-08-04-lake-sammamish-perch-01",
+      "date": "2026-08-04",
+      "time": null,
+      "size": {
+        "length": {
+          "value": 10,
+          "unit": "in"
+        },
+        "weight": null,
+        "display": null
+      },
+      "speciesId": "species-perch",
+      "locationId": "location-lake-sammamish",
+      "rodReelSetupId": null,
+      "techniqueId": null,
+      "lureOrBait": {
+        "type": "lure",
+        "itemId": "strike-king-kvd-square-bill-1",
+        "nameSnapshot": "Strike King KVD Square Bill 1.0"
+      },
+      "picture": null
+    },
+    {
+      "id": "catch-2026-08-04-lake-sammamish-largemouth-01",
+      "date": "2026-08-04",
+      "time": null,
+      "size": {
+        "length": {
+          "value": 12,
+          "unit": "in"
+        },
+        "weight": null,
+        "display": null
+      },
+      "speciesId": "species-largemouth-bass",
+      "locationId": "location-lake-sammamish",
+      "rodReelSetupId": null,
+      "techniqueId": null,
+      "lureOrBait": {
+        "type": "lure",
+        "itemId": "strike-king-kvd-square-bill-1",
+        "nameSnapshot": "Strike King KVD Square Bill 1.0"
+      },
+      "picture": null
+    },
+    {
+      "id": "catch-2026-08-19-mayfield-pikeminnow-01",
+      "date": "2026-08-19",
+      "time": null,
+      "size": {
+        "length": {
+          "value": 12,
+          "unit": "in"
+        },
+        "weight": null,
+        "display": null
+      },
+      "speciesId": "species-northern-pikeminnow",
+      "locationId": "location-mayfield-lake",
+      "rodReelSetupId": null,
+      "techniqueId": null,
+      "lureOrBait": {
+        "type": "lure",
+        "itemId": "berkley-flicker-shad-5",
+        "nameSnapshot": "Berkley Flicker Shad 5"
+      },
+      "picture": null
+    },
+    {
+      "id": "catch-2026-08-20-mayfield-pikeminnow-01",
+      "date": "2026-08-20",
+      "time": null,
+      "size": {
+        "length": {
+          "value": 12,
+          "unit": "in"
+        },
+        "weight": null,
+        "display": null
+      },
+      "speciesId": "species-northern-pikeminnow",
+      "locationId": "location-mayfield-lake",
+      "rodReelSetupId": null,
+      "techniqueId": null,
+      "lureOrBait": {
+        "type": "lure",
+        "itemId": "berkley-flicker-shad-5",
+        "nameSnapshot": "Berkley Flicker Shad 5"
+      },
+      "picture": null
+    }
+  ]
+}
