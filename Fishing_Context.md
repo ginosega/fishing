@@ -1,5 +1,9 @@
 # Fishing Context
 
+## Current production state — September 10, 2026
+
+Current Fishing Companion production source is `26e6c9b3dcad25b10eae891871a7d8d873fdfedb`, published and hosted-verified by [run 34518842561](https://github.com/ginosega/fishing/actions/runs/34518842561). Post-production site-authored changes are PR75 (Pflueger spincast rod), PR76 (Pflueger spincast reel), and PR77 (Tsuridamashii ball-bearing snap-swivels picture). The supplied Tsuridamashii picture is now canonical and live. Six originally deferred required pictures remain: Gear Rapala Original Floating F-3, Mack's Pee Wee Hoochie and River2Sea Whopper Plopper60; KB Perch, Popper and Whopper Plopper. Generic inline-spinner remains optional. P2 remains deferred. Earlier cleanup/initial-release sections below remain dated historical evidence.
+
 ## Repository cleanup — September 10, 2026
 
 The user approved the new site's appearance and behavior, then requested repository cleanup. Production source, tests, contracts and migration evidence have moved from root `v2/` into `pwa/`; the preserved icon was the only build dependency on the former v1 `pwa/`. Retained v2 specifications/release references are in `pwa/docs/`. Root `History/`, `Topics/`, obsolete registries/handoffs and v1 runtime/assets/per-item helpers are removed from main, recoverable at `checkpoint/pre-repo-cleanup-20260910` (`edca2a3f04fc8c32dec65b9330d43944be1a561c`). Canonical Gear/KB/Catch bytes, including the newer unreferenced Pflueger image upload, are unchanged. No image adoption or migration rerun.
@@ -23,7 +27,7 @@ The pinned canonical migration hashes remain Gear `e001c82a49c63b8ac21c93b559bc4
 
 ## Pictures and browser data
 
-The user explicitly approved absent pictures for Gear Tsuridamashii ball-bearing snap swivels, Rapala Original Floating F-3, Mack's Pee Wee Hoochie and River2Sea Whopper Plopper60, and KB Perch, Popper and Whopper Plopper. `pwa/migration/media-decisions.json` records that approval separately from the original seven-required/one-optional reconciliation report. Generic inline-spinner remains optional. The user will add pictures later. No automatic acquisition or adoption of the newer unapproved F-3 capture.
+The original production decision explicitly approved absence of seven required pictures and remains preserved in `pwa/migration/media-decisions.json` as historical migration disposition. The user later supplied and published the Tsuridamashii ball-bearing snap-swivels picture through PR77. Six required pictures remain deferred: Gear Rapala Original Floating F-3, Mack's Pee Wee Hoochie and River2Sea Whopper Plopper60, and KB Perch, Popper and Whopper Plopper. Generic inline-spinner remains optional. The user will supply pictures later; do not acquire them automatically or adopt the unapproved F-3 capture.
 
 The user accepted source-equivalence evidence and waived a separate device-only IndexedDB export. No device inspection is claimed. Old v1 IndexedDB and caches remain; reconcile any later-discovered local-only records before retirement.
 
@@ -37,4 +41,4 @@ Complete releases are verified before readiness; corrupt or incomplete content i
 
 ## Backlog and next chat
 
-FISH071–076,079–082 are DONE; FISH077 is DEFERRED. FISH078 optional future picture additions are DEFERRED by user instruction. Unrelated fishing/equipment/content backlog is preserved; next unused ID is084. Continue in Chat using the current bootstrap. New work must restore actual latest main, use normal PR/CI for runtime changes and update authoritative records after actual milestones.
+FISH071–076,079–083 are DONE; FISH077 is DEFERRED. FISH078 remains DEFERRED for the six still-missing required pictures; the Tsuridamashii snap-swivels picture was supplied and published through PR77. Unrelated fishing/equipment/content backlog is preserved; next unused ID is084. Continue in Chat using the current bootstrap. New work must restore actual latest main, use normal PR/CI for runtime changes and update authoritative records after actual milestones.
