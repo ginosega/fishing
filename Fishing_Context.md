@@ -2,7 +2,7 @@
 
 ## Current production state — September 10, 2026
 
-Current Fishing Companion production source is `26e6c9b3dcad25b10eae891871a7d8d873fdfedb`, published and hosted-verified by [run 34518842561](https://github.com/ginosega/fishing/actions/runs/34518842561). Post-production site-authored changes are PR75 (Pflueger spincast rod), PR76 (Pflueger spincast reel), and PR77 (Tsuridamashii ball-bearing snap-swivels picture). The supplied Tsuridamashii picture is now canonical and live. Six originally deferred required pictures remain: Gear Rapala Original Floating F-3, Mack's Pee Wee Hoochie and River2Sea Whopper Plopper60; KB Perch, Popper and Whopper Plopper. Generic inline-spinner remains optional. P2 remains deferred. Earlier cleanup/initial-release sections below remain dated historical evidence.
+Current Fishing Companion production source is `00afdd15649d7f6b0231beb0ed4febc2bd495a4b`, published and hosted-verified by [run 34540254684](https://github.com/ginosega/fishing/actions/runs/34540254684); release `fe99694ea8dce031bb9a149fac8440dd` matched all 203 hosted files and passed production navigation, image-viewer, complete-offline-reload and record-count checks. Post-production site-authored changes now include PR75/PR76 (Pflueger spincast rod/reel), PR77 (Tsuridamashii snap-swivels picture), PR79 (four previously deferred pictures plus the Rebel Pop-R replacement), and PR81 (Kokanee, Largemouth Bass and Smallmouth Bass Species picture/content updates). Only two originally deferred required pictures remain: KB Popper and KB Whopper Plopper. Generic inline-spinner remains optional. P2 remains deferred. Earlier cleanup/initial-release sections below remain dated historical evidence.
 
 ## Repository cleanup — September 10, 2026
 
@@ -27,7 +27,7 @@ The pinned canonical migration hashes remain Gear `e001c82a49c63b8ac21c93b559bc4
 
 ## Pictures and browser data
 
-The original production decision explicitly approved absence of seven required pictures and remains preserved in `pwa/migration/media-decisions.json` as historical migration disposition. The user later supplied and published the Tsuridamashii ball-bearing snap-swivels picture through PR77. Six required pictures remain deferred: Gear Rapala Original Floating F-3, Mack's Pee Wee Hoochie and River2Sea Whopper Plopper60, and KB Perch, Popper and Whopper Plopper. Generic inline-spinner remains optional. The user will supply pictures later; do not acquire them automatically or adopt the unapproved F-3 capture.
+The original production decision explicitly approved absence of seven required pictures and remains preserved in `pwa/migration/media-decisions.json` as historical migration disposition. The user later supplied Tsuridamashii through PR77 and Rapala Original Floating, Mack's Pee Wee Hoochie, River2Sea Whopper Plopper 60 and Yellow Perch through PR79. Only two required pictures remain deferred: KB Popper and KB Whopper Plopper. Generic inline-spinner remains optional. The user will supply remaining pictures later; do not acquire them automatically or reinterpret the historical migration disposition as current absence.
 
 The user accepted source-equivalence evidence and waived a separate device-only IndexedDB export. No device inspection is claimed. Old v1 IndexedDB and caches remain; reconcile any later-discovered local-only records before retirement.
 
@@ -41,4 +41,4 @@ Complete releases are verified before readiness; corrupt or incomplete content i
 
 ## Backlog and next chat
 
-FISH071–076,079–083 are DONE; FISH077 is DEFERRED. FISH078 remains DEFERRED for the six still-missing required pictures; the Tsuridamashii snap-swivels picture was supplied and published through PR77. Unrelated fishing/equipment/content backlog is preserved; next unused ID is084. Continue in Chat using the current bootstrap. New work must restore actual latest main, use normal PR/CI for runtime changes and update authoritative records after actual milestones.
+FISH071–076,079–083 are DONE; FISH077 is DEFERRED. FISH078 remains DEFERRED for the two still-missing required pictures: KB Popper and KB Whopper Plopper. Tsuridamashii was supplied through PR77 and four additional missing pictures through PR79. Unrelated fishing/equipment/content backlog is preserved; next unused ID is084. Continue in Chat using the current bootstrap. New work must restore actual latest main, use normal PR/CI for runtime changes and update authoritative records after actual milestones.
