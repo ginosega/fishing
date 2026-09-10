@@ -1,32 +1,39 @@
 # Fishing Decision Log
 
+## Repository cleanup — September 10, 2026
+
+The user approved the new site's appearance and behavior, then requested repository cleanup. Production source, tests, contracts and migration evidence have moved from root `v2/` into `pwa/`; the preserved icon was the only build dependency on the former v1 `pwa/`. Retained v2 specifications/release references are in `pwa/docs/`. Root `History/`, `Topics/`, obsolete registries/handoffs and v1 runtime/assets/per-item helpers are removed from main, recoverable at `checkpoint/pre-repo-cleanup-20260910` (`edca2a3f04fc8c32dec65b9330d43944be1a561c`). Canonical Gear/KB/Catch bytes, including the newer unreferenced Pflueger image upload, are unchanged. No image adoption or migration rerun.
+
+Add/Edit creates copyable source-change packages, not one-off helper/release files. Routine changes must update canonical files and existing project records; reusable code/tests stay under `pwa/`, and significant release references belong under `pwa/docs/`. No new per-item scripts/release records in either root. The cleanup is undergoing the full build/browser/hosted gate; the prior verified production release remains the release checkpoint until publication completes.
+
+
 ## Production closeout — September10, 2026
 
 V2 is published at [Fishing Companion](https://ginosega.github.io/fishing/). Production revision `ceef1df0dd8b204e7aa59c63e95a0d75346f4a92`, release `7ff6f62d921d5e86e0d97ae89b361120`, passed [publication and hosted verification](https://github.com/ginosega/fishing/actions/runs/34441600093). PR64 is merged. The user authorized production and waived another preview review; all seven previously required missing pictures are explicitly deferred. The affected records remain available without pictures. No acceptance or media approval blocks this release.
 
 Validation: 20 core tests, 20 preview-scope and 22 production-scope Chromium/WebKit scenarios, including the actual archived-v1 worker transition and retained browser stores. All 197 hosted files match the verified production build; live navigation, image viewer, offline reload, counts and absent-picture behavior pass. These are automated browser and direct hosted checks, not physical-device inspection.
 
-The sole active pipeline is `.github/workflows/fishing-production.yml`. V1 and the earlier preview are historical; use the production root. V1 sources and exact rollback ZIPs remain in Git. Old browser stores are retained. P2 remains deferred. This authorized Work phase is complete; continue in Chat.
+The sole active pipeline is `.github/workflows/fishing-production.yml`. V1 and the earlier preview are historical; use the production root. V1 sources are archived in Git history and the pre-cleanup checkpoint; exact rollback ZIPs remain in Git. Old browser stores are retained. P2 remains deferred. This authorized Work phase is complete; continue in Chat.
 
-**Historical evidence follows.** Earlier pending gates below are superseded; see the [production release](Fishing_v2_Production_Release_2026-09-10.md).
+**Historical evidence follows.** Earlier pending gates below are superseded; see the [production release](pwa/docs/Fishing_v2_Production_Release_2026-09-10.md).
 
 
 
 ## Historical review correction and media-blocked checkpoint
 
-The supplied first-review corrections are implemented at `d5f09f058e298f3852f4bf6d0ca2545984a0d6ab` on `feature/v2-implementation-20260908` (PR 69 merged into that feature only). The [feedback record](Fishing_v2_Review_Feedback_2026-09-09.md) preserves the user wording. Engineering and prepublication validation pass 19 core tests and all 20 Chromium/WebKit scenarios, with all 217 live v1 files matching their preserved archive.
+The supplied first-review corrections are implemented at `d5f09f058e298f3852f4bf6d0ca2545984a0d6ab` on `feature/v2-implementation-20260908` (PR 69 merged into that feature only). The [feedback record](pwa/docs/Fishing_v2_Review_Feedback_2026-09-09.md) preserves the user wording. Engineering and prepublication validation pass 19 core tests and all 20 Chromium/WebKit scenarios, with all 217 live v1 files matching their preserved archive.
 
 **Latest user authorization:** “take this all the way to production; I don't need to test these changes in preview, let's go ahead with this build.” This authorizes production cutover and waives another user preview-review gate. Do not ask again for general cutover or preview acceptance. It does not explicitly resolve the seven previously required missing-image exceptions. The actual production build failed with `Migration has 7 unresolved media exceptions; pending-media preview only`. A decision to defer those required pictures or approved replacement images is the current blocker.
 
 No correction refresh or production cutover has been published. The existing live v1 root and original preview (`5da786ef…`, release `b924b223850b4a2741fedb92ce924584`) remain unchanged. PR 70 passed prepublication validation but was closed unmerged after the user requested direct production. Its branch retains the verified combined-deployment and durable-archive approach as reference. PR 64 remains draft/unmerged pending media resolution and production integration. No one-time migration was rerun, source data changed, new images acquired or browser stores removed.
 
-See [Review correction checkpoint](Fishing_v2_Review_Release_2026-09-09.md) for exact refs, CI and continuation. This checkpoint supersedes older statements below that still require user preview acceptance/cutover approval. Chat remains the permanent default; the explicitly authorized Work implementation phase is paused only on the required-media decision.
+See [Review correction checkpoint](pwa/docs/Fishing_v2_Review_Release_2026-09-09.md) for exact refs, CI and continuation. This checkpoint supersedes older statements below that still require user preview acceptance/cutover approval. Chat remains the permanent default; the explicitly authorized Work implementation phase is paused only on the required-media decision.
 
 **Status:** Current decision authority, reconciled September 9, 2026. Complete historical decisions remain in `Fishing_Decision_History_Through_2026-09-06.md`, `History/` and Git history. Previous CURRENT labels do not override the latest approved requirements.
 
 ## V2 design approval
 
-All fourteen decisions in the user-annotated Design Review are accepted. Decision source: `0bd773366130a302b0e80d5cd085a71731ff9e63`. The original Inventory and Design Review preserve the user's exact wording. The Approved v2 Baseline is the consolidated requirements authority. The source audit and minimal architecture/contracts are complete, with September 9 implementation addenda. P1 engineering and automated browser acceptance are complete. The isolated [v2 preview](https://ginosega.github.io/fishing/v2-preview/) is published and hosted verification passed; user review is pending. V1 remains at the root. Draft PR 64 is unmerged. See [Fishing_v2_Preview_Release_2026-09-09.md](Fishing_v2_Preview_Release_2026-09-09.md) for exact evidence and recovery. P2 features remain separately authorized.
+All fourteen decisions in the user-annotated Design Review are accepted. Decision source: `0bd773366130a302b0e80d5cd085a71731ff9e63`. The original Inventory and Design Review preserve the user's exact wording. The Approved v2 Baseline is the consolidated requirements authority. The source audit and minimal architecture/contracts are complete, with September 9 implementation addenda. P1 engineering and automated browser acceptance are complete. The isolated [v2 preview](https://ginosega.github.io/fishing/v2-preview/) is published and hosted verification passed; user review is pending. V1 remains at the root. Draft PR 64 is unmerged. See [Fishing_v2_Preview_Release_2026-09-09.md](pwa/docs/Fishing_v2_Preview_Release_2026-09-09.md) for exact evidence and recovery. P2 features remain separately authorized.
 
 | Area | Accepted decision |
 |---|---|
@@ -62,7 +69,7 @@ The remaining Inventory responses are approved requirements: retain current doma
 
 ## September 9 verified preview milestone
 
-Workflow-only PR 66 and refresh PR 67 publish the isolated preview with the exact current v1 root, after preserving current and migration-source archives in Git. The [preview release record](Fishing_v2_Preview_Release_2026-09-09.md) records hosted evidence. The authorized temporary Work phase is complete; review continues in Chat. User preview acceptance, required media and separate production cutover remain open. No P2 work or device inspection is implied.
+Workflow-only PR 66 and refresh PR 67 publish the isolated preview with the exact current v1 root, after preserving current and migration-source archives in Git. The [preview release record](pwa/docs/Fishing_v2_Preview_Release_2026-09-09.md) records hosted evidence. The authorized temporary Work phase is complete; review continues in Chat. User preview acceptance, required media and separate production cutover remain open. No P2 work or device inspection is implied.
 
 ## Standing decisions
 
@@ -87,4 +94,4 @@ Gear schema 4 uses JSON/IndexedDB, paired setups, manufacturer objects, ordered 
 
 ## Open work
 
-The canonical TODO now tracks user preview review, required media resolution, separately authorized cutover and existing fishing/gear research. Engineering, automated acceptance and isolated publication are complete. FISH063's old media-authoring policy and FISH039's setup recording are superseded for v2; they do not justify reintroducing retired structures. PowerBait hook-size and loop-knot guidance remain unresolved. The next unused canonical task ID is FISH-TODO-083. No approved future feature is treated as already deployed.
+The canonical TODO now tracks user preview review, required media resolution, separately authorized cutover and existing fishing/gear research. Engineering, automated acceptance and isolated publication are complete. FISH063's old media-authoring policy and FISH039's setup recording are superseded for v2; they do not justify reintroducing retired structures. PowerBait hook-size and loop-knot guidance remain unresolved. The next unused canonical task ID is FISH-TODO-084. No approved future feature is treated as already deployed.
