@@ -1,6 +1,6 @@
 # Fishing Companion v2 — Approved Requirements and Architecture Baseline
 
-**Status:** Original approved design/audit preserved. Migration, P1 engineering and isolated preview publication are now complete; user review and production cutover remain pending. Current evidence: [Fishing_v2_Preview_Release_2026-09-09.md](Fishing_v2_Preview_Release_2026-09-09.md).
+**Status:** Original approved body preserved. User-authorized v2 production is published and verified; seven absent pictures are explicitly deferred. Current evidence: [production release](Fishing_v2_Production_Release_2026-09-10.md). Dated phase/status statements in the body below are historical.
 **Reconciled:** September 8, 2026, Pacific time.
 **User decision commit:** `0bd773366130a302b0e80d5cd085a71731ff9e63`.
 

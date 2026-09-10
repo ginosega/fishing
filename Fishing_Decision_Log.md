@@ -1,15 +1,18 @@
 # Fishing Decision Log
 
-## Production execution — September 10, 2026
+## Production closeout — September10, 2026
 
-The user authorized production cutover and waived another preview review, then explicitly resolved the picture gate: “Yes, omit those, and those gear and KB items can just have no picture. I will add these to the site later.” The seven named pictures are intentionally absent; all Gear/KB records remain. The generic inline-spinner picture remains optional. `v2/migration/media-decisions.json` records this decision separately from the preserved original migration report. No images were acquired or canonical records changed.
+V2 is published at [Fishing Companion](https://ginosega.github.io/fishing/). Production revision `ceef1df0dd8b204e7aa59c63e95a0d75346f4a92`, release `7ff6f62d921d5e86e0d97ae89b361120`, passed [publication and hosted verification](https://github.com/ginosega/fishing/actions/runs/34441600093). PR64 is merged. The user authorized production and waived another preview review; all seven previously required missing pictures are explicitly deferred. The affected records remain available without pictures. No acceptance or media approval blocks this release.
 
-Production implementation and root-scope acceptance are in progress. The consolidated `fishing-production.yml` replaces the old v1/preview publishers and one-time workflows; history and the exact v1 rollback ZIPs remain in Git. The root loader now verifies the v2 worker protocol because v1 and v2 share the same `sw.js` URL. Acceptance covers the actual archived v1 worker, retained IndexedDB/cache stores, both browser engines, full offline reading and all prior integrity/editing assertions. Do not claim deployment until the hosted production gate passes. No additional user approval is needed.
+Validation: 20 core tests, 20 preview-scope and 22 production-scope Chromium/WebKit scenarios, including the actual archived-v1 worker transition and retained browser stores. All 197 hosted files match the verified production build; live navigation, image viewer, offline reload, counts and absent-picture behavior pass. These are automated browser and direct hosted checks, not physical-device inspection.
 
-The earlier media-blocked and preview-only checkpoints below are historical and superseded by this decision. See [production release](Fishing_v2_Production_Release_2026-09-10.md) for current execution evidence.
+The sole active pipeline is `.github/workflows/fishing-production.yml`. V1 and the earlier preview are historical; use the production root. V1 sources and exact rollback ZIPs remain in Git. Old browser stores are retained. P2 remains deferred. This authorized Work phase is complete; continue in Chat.
+
+**Historical evidence follows.** Earlier pending gates below are superseded; see the [production release](Fishing_v2_Production_Release_2026-09-10.md).
 
 
-## Current review correction and production checkpoint
+
+## Historical review correction and media-blocked checkpoint
 
 The supplied first-review corrections are implemented at `d5f09f058e298f3852f4bf6d0ca2545984a0d6ab` on `feature/v2-implementation-20260908` (PR 69 merged into that feature only). The [feedback record](Fishing_v2_Review_Feedback_2026-09-09.md) preserves the user wording. Engineering and prepublication validation pass 19 core tests and all 20 Chromium/WebKit scenarios, with all 217 live v1 files matching their preserved archive.
 

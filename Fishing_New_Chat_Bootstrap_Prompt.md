@@ -1,55 +1,44 @@
-You are continuing my persistent **Fishing** project. The durable repository is `ginosega/fishing` on GitHub. This is a dated entry point; restore the latest repository state before acting.
+You are continuing my persistent **Fishing** project. The durable repository is `ginosega/fishing` on GitHub. This is a dated entry point; restore actual latest main before acting.
 
-## Current objective and operating mode
+## Current state and operating mode
 
-The first user-review corrections are implemented and tested. I explicitly instructed: “take this all the way to production; I don't need to test these changes in preview, let's go ahead with this build.” Production cutover is authorized and another user preview review is waived. Do not ask me to reapprove those settled instructions.
+V2 is published at [Fishing Companion](https://ginosega.github.io/fishing/). Production revision `ceef1df0dd8b204e7aa59c63e95a0d75346f4a92`, release `7ff6f62d921d5e86e0d97ae89b361120`, passed [publication and hosted verification](https://github.com/ginosega/fishing/actions/runs/34441600093). PR64 is merged. The user authorized production and waived another preview review; all seven previously required missing pictures are explicitly deferred. The affected records remain available without pictures. No acceptance or media approval blocks this release.
 
-I explicitly approved omitting all seven required pictures: “Yes, omit those, and those gear and KB items can just have no picture. I will add these to the site later.” All items remain available without pictures. The media gate is resolved; do not ask again. Do not infer a media waiver, acquire images automatically, weaken integrity tests or rerun the one-time migration. Once the media gate is resolved, continue end-to-end through production integration, meaningful root-scope browser/offline tests, normal PR/CI, serialized deployment, hosted verification and record reconciliation without repeated Proceed requests.
+Validation: 20 core tests, 20 preview-scope and 22 production-scope Chromium/WebKit scenarios, including the actual archived-v1 worker transition and retained browser stores. All 197 hosted files match the verified production build; live navigation, image viewer, offline reload, counts and absent-picture behavior pass. These are automated browser and direct hosted checks, not physical-device inspection.
 
-Chat remains the permanent default. I explicitly authorized this follow-up Work session for the review corrections and production execution. Complexity alone is not grounds to recommend Work. Production execution is in progress, with no remaining approval gate. No background work is promised.
+The sole active pipeline is `.github/workflows/fishing-production.yml`. V1 and the earlier preview are historical; use the production root. V1 sources and exact rollback ZIPs remain in Git. Old browser stores are retained. P2 remains deferred. This authorized Work phase is complete; continue in Chat.
 
-The old live v1 and original preview remain unchanged. No corrected preview refresh or production cutover has occurred. Do not report the corrected candidate as deployed.
+I explicitly authorized production and waived another preview review, then said: “Yes, omit those, and those gear and KB items can just have no picture. I will add these to the site later.” Do not ask me to reapprove those completed decisions. No migration rerun, image acquisition, speculative source edits or browser-store deletion.
 
-## Restore latest authority
+Chat is the permanent default. The temporary Work production phase is complete. Do not recommend Work for complexity, duration, research/calculations, file volume or artifact creation. Explain a specific unavailable execution capability and obtain temporary Work approval only when needed. Do not promise background work.
 
-Read from actual latest main in order:
+## Restore authority
 
-1. `README.md` and `Fishing_v2_Production_Release_2026-09-10.md`
+Read latest main in order:
+1. `README.md`
 2. `Fishing_Context.md`
 3. `Fishing_TODO.md`
 4. `Fishing_Decision_Log.md`
-5. `Fishing_v2_Review_Release_2026-09-09.md` and `Fishing_v2_Review_Feedback_2026-09-09.md`; the original preview release and Work Handoff are historical evidence
+5. `Fishing_v2_Production_Release_2026-09-10.md` and `Fishing_v2_Review_Feedback_2026-09-09.md`
 6. `Fishing_Companion_v2_Approved_Baseline.md`
-7. `Fishing_Companion_v2_Source_Audit.md` and its September 9 addendum
-8. `Fishing_Companion_v2_Technical_Contracts.md`, its September 9 addendum and `v2/contracts/schema.json`
+7. `Fishing_Companion_v2_Source_Audit.md` and its September9 addendum
+8. `Fishing_Companion_v2_Technical_Contracts.md`, its September9 addendum and `v2/contracts/schema.json`
 9. Original Requirements Inventory and Design Review when exact user responses are needed
-10. `pwa/README.md`, `pwa/README_v2_Handoff_2026-09-09.md` and relevant historical release evidence before touching v1; the newer root preview release record supersedes their old deployment checkpoints
 
-Fetch current main, feature branch, PRs, CI and Pages/deployment state. Preserve newer user/agent work and direct-main edits. GitHub is authoritative, never a prior chat's temporary filesystem.
+Fetch current refs, PR/CI and deployment state when implementation/release work requires them. The review-release checkpoint, initial preview release, Work Handoff and `pwa/` release notes are historical. Do not revive their old media/preview/cutover gates or reset branches to their SHAs. GitHub is authoritative, never a previous chat's temporary files.
 
-## Historical engineering and live-site checkpoint
+## Source and scope
 
-- Corrected feature `feature/v2-implementation-20260908`: `d5f09f058e298f3852f4bf6d0ca2545984a0d6ab`; PR 69 merged into that branch. PR 64 remains draft/unmerged.
-- Merged engineering run `34421093897`: 19 core tests and all 20 Chromium/WebKit scenarios pass. New coverage includes reviewed layouts, loading-shell styling and clipboard success/failure messaging; original offline/integrity/dirty-form/scope assertions remain.
-- Workflow-only PR 70 passed prepublication run `34421296827`, including all 217 hosted v1 byte comparisons, but was closed unmerged following the direct-production instruction. No deployment job ran.
-- Built candidate: `d3d58f0187a17123a3e797568e7c6f61`, 195 assets, 27,644,374 bytes. This is not hosted.
-- Existing live preview remains feature `5da786ef121d7cfa39f98a8c69f3b6cf09f8eca6`, release `b924b223850b4a2741fedb92ce924584`, at `/fishing/v2-preview/`.
-- Existing v1 is exact run #314 / `34369680844`, source `cac5b4108a63fcaab498b256afa4420ce2dbbd70`; all 217 root files remain unchanged.
-- Durable rollback branch `checkpoint/v1-before-v2-preview-20260909`, commit `4aafcd2f88b35bb34b608e2f85dec1daffc6c1d1`, holds both v1 and historical migration-media ZIPs. Hashes/restore guidance are in the original preview release and latest checkpoint.
-- Canonical migration `6615ae7296e48d90dceab303b6b5a1fbc041ab80` remains unchanged: Gear 69 / KB 54 / Catches 5, six independent components, 49 approved exact-byte image adoptions, two rejected captures. Data, authored Markdown, images and schema were not changed by the UI corrections.
+Canonical v2 domains are `Gear/gear.json`, `KB/kb.json` and `Catches/catches.json` with authored Markdown and local image bytes. Original migration `6615ae7296e48d90dceab303b6b5a1fbc041ab80` contains Gear69/KB54/Catches5 and six independent rod/reel components. Forty-nine exact-byte archive adoptions were approved; two rejected. Preserve original confirmed facts, stable IDs, narrative and actual Catch relationships. Do not infer purchases, missing rod models/pictures or historical Catch attribution. Use current-source-derived tests; pinned hashes are historical evidence, not permanent article locks.
 
-## Historical blocker and current production work
+The seven deferred pictures are Gear Tsuridamashii ball-bearing snap swivels, Rapala Original Floating F-3, Mack's Pee Wee Hoochie and River2Sea Whopper Plopper60; KB Perch, Popper and Whopper Plopper. Generic inline-spinner is optional. `v2/migration/media-decisions.json` records explicit acceptance of their absence while the original migration report remains preserved. I will supply pictures later; do not acquire them automatically.
 
-Before the explicit media decision, `node v2/tools/build.mjs --base=/fishing/` failed: `Migration has 7 unresolved media exceptions; pending-media preview only`. This is the approved required-media rule enforced by `v2/tools/library.mjs`, not a missing general cutover approval.
+The Approved Baseline and original user responses remain authoritative. V2 has three independent domains sharing conventions, not a generic graph. P1 includes read-only Catch Log, complete-library offline reading and source-aware Gear/KB Prepare Changes → Copy Changes handoffs for project chat/repository implementation. P2 direct Save/authentication/uploads/offline editing/outbox/sync and Catch browser authoring remain deferred. No Planner, sessions, paired setups, speculative ownership/media graph, accounts or multi-user expansion.
 
-Seven required pictures: Tsuridamashii snap-swivels; Rapala F-3; KB Perch, Popper and Whopper Plopper; Mack's Pee Wee Hoochie; River2Sea Whopper Plopper 60. Generic inline-spinner is optional. Record explicit deferral or approved replacements before production. No automatic acquisition. A newer v1 archive contains an F-3 capture, which has not been approved for v2 adoption.
+## Release and recovery
 
-After that decision, reconcile current main into the feature; prepare/consolidate the production workflow; build for `/fishing/`; verify root-scope replacement of the old v1 worker while retaining browser stores, complete offline reading and dirty-form/update behavior; integrate through normal PR/CI and a serialized Pages cutover; verify actual hosted HTML, pointer, manifest, code/content/images and browser flows; preserve rollback and reconcile records. Production-scope testing is not yet complete. Do not run competing Pages deployments or a standalone v1 upload that removes the preview.
+The only active production pipeline is `.github/workflows/fishing-production.yml`. Normal feature PR/current-base CI, exact-head integration, one serialized Pages deployment and actual hosted verification apply to runtime/source changes. Preserve meaningful integrity, offline, dirty-form and migration-source assertions. Documentation-only changes do not redeploy.
 
-FISH082 (review implementation/testing) is DONE. FISH076 (production) is IN PROGRESS. FISH078 pictures are deferred by explicit user instruction. P2 remains deferred. Existing local-only source-equivalence waiver stands; no physical-device inspection is claimed. Retain v1 stores and reconcile later-discovered local records before retirement.
+V1 runtime sources remain historical. Exact v1 production and migration-media ZIPs are preserved in Git at `checkpoint/v1-before-v2-preview-20260909`, commit `4aafcd2f88b35bb34b608e2f85dec1daffc6c1d1`; the production release has hashes/restore guidance. Do not run old competing publishers. The earlier preview URL is superseded by the production root.
 
-## Scope
-
-The Approved Baseline and original user responses remain authoritative. V2 has independent Gear/KB/Catch domains with shared conventions, no generic graph. P1 includes read-only Catch Log, full-library offline reading and minimal source-aware Gear/KB Prepare/Copy Changes. P2 direct Save/authentication/uploads/offline editing/outbox/sync and Catch browser authoring remain deferred. No Planner, sessions, paired-setup relationships, speculative ownership/media graph, accounts or multi-user expansion.
-
-Preserve original Markdown and image bytes, confirmed facts, stable identities and actual Catch relationships. Do not infer missing rod models/pictures, purchases or historical attribution. Use current source-derived tests; retain pinned hashes as historical migration evidence, not permanent article locks. Update Context, Decision Log, TODO, README, affected source/technical/release records and this bootstrap after real milestones; cross-check them before handoff.
+The source-equivalence waiver stands; no separate physical-device/IndexedDB export or inspection is claimed. Retain old browser stores and reconcile later-discovered local-only data before retirement. FISH076 is DONE; FISH078 picture additions and P2 are DEFERRED. Unrelated backlog remains; next unused task ID083. Update Context, Decision Log, TODO, README, affected source/technical/release records and this bootstrap after actual milestones; cross-check before handoff.
