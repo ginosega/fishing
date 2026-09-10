@@ -1,6 +1,6 @@
 # Fishing Companion production application
 
-This directory contains the active v2 application, replacing the former root `v2/` folder and obsolete v1 PWA files. The site is published at https://ginosega.github.io/fishing/.
+This directory contains the active v2 application, replacing the former root `v2/` folder and obsolete v1 PWA files. The site is published at https://ginosega.github.io/fishing/. Current layout/release evidence: [repository cleanup](docs/Repository_Cleanup_2026-09-10.md).
 
 | Location | Purpose |
 |---|---|
