@@ -1,5 +1,9 @@
 # Fishing Decision Log
 
+## Post-production authoring updates — September 10, 2026
+
+The site-authored Prepare Changes → Copy Changes workflow has now been exercised through three routine production updates: PR75 updated the Pflueger President spincast rod, PR76 updated the matching reel, and PR77 added the user-supplied Tsuridamashii ball-bearing snap-swivels picture. Current production source `26e6c9b3dcad25b10eae891871a7d8d873fdfedb` passed the full production pipeline and hosted verification in [run 34518842561](https://github.com/ginosega/fishing/actions/runs/34518842561). The original decision accepting seven missing required pictures remains historical authority for the production cutover; PR77 subsequently resolved the Tsuridamashii exception. Six required pictures remain deferred: Gear Rapala Original Floating F-3, Mack's Pee Wee Hoochie and River2Sea Whopper Plopper60; KB Perch, Popper and Whopper Plopper. Generic inline-spinner remains optional. FISH078 remains DEFERRED for those six; P2 remains DEFERRED.
+
 ## Repository cleanup — September 10, 2026
 
 The user approved the new site's appearance and behavior, then requested repository cleanup. Production source, tests, contracts and migration evidence have moved from root `v2/` into `pwa/`; the preserved icon was the only build dependency on the former v1 `pwa/`. Retained v2 specifications/release references are in `pwa/docs/`. Root `History/`, `Topics/`, obsolete registries/handoffs and v1 runtime/assets/per-item helpers are removed from main, recoverable at `checkpoint/pre-repo-cleanup-20260910` (`edca2a3f04fc8c32dec65b9330d43944be1a561c`). Canonical Gear/KB/Catch bytes, including the newer unreferenced Pflueger image upload, are unchanged. No image adoption or migration rerun.
@@ -94,4 +98,4 @@ Gear schema 4 uses JSON/IndexedDB, paired setups, manufacturer objects, ordered 
 
 ## Open work
 
-The canonical TODO now tracks user preview review, required media resolution, separately authorized cutover and existing fishing/gear research. Engineering, automated acceptance and isolated publication are complete. FISH063's old media-authoring policy and FISH039's setup recording are superseded for v2; they do not justify reintroducing retired structures. PowerBait hook-size and loop-knot guidance remain unresolved. The next unused canonical task ID is FISH-TODO-084. No approved future feature is treated as already deployed.
+The canonical TODO tracks the six remaining user-supplied deferred pictures, separately authorized P2 work and existing fishing/gear research. Production cutover and automated/hosted acceptance are complete. FISH063's old media-authoring policy and FISH039's setup recording are superseded for v2; they do not justify reintroducing retired structures. PowerBait hook-size and loop-knot guidance remain unresolved. The next unused canonical task ID is FISH-TODO-084. No approved future feature is treated as already deployed.

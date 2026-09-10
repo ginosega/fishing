@@ -1,5 +1,9 @@
 # Fishing
 
+## Current production state — September 10, 2026
+
+Fishing Companion production source `26e6c9b3dcad25b10eae891871a7d8d873fdfedb` is published and hosted-verified by [production run 34518842561](https://github.com/ginosega/fishing/actions/runs/34518842561). Routine site-authored changes after the initial v2 release updated the Pflueger President spincast rod (PR75), updated the matching reel (PR76), and supplied the Tsuridamashii ball-bearing snap-swivels picture (PR77). The Tsuridamashii picture is now part of canonical Gear source and production. Six of the original seven deferred required pictures remain: Gear Rapala Original Floating F-3, Mack's Pee Wee Hoochie and River2Sea Whopper Plopper60; KB Perch, Popper and Whopper Plopper. Generic inline-spinner remains optional. The cleanup and initial-release sections below are dated historical evidence; P2 remains deferred.
+
 ## Repository cleanup — September 10, 2026
 
 The user approved the new site's appearance and behavior, then requested repository cleanup. Production source, tests, contracts and migration evidence have moved from root `v2/` into `pwa/`; the preserved icon was the only build dependency on the former v1 `pwa/`. Retained v2 specifications/release references are in `pwa/docs/`. Root `History/`, `Topics/`, obsolete registries/handoffs and v1 runtime/assets/per-item helpers are removed from main, recoverable at `checkpoint/pre-repo-cleanup-20260910` (`edca2a3f04fc8c32dec65b9330d43944be1a561c`). Canonical Gear/KB/Catch bytes, including the newer unreferenced Pflueger image upload, are unchanged. No image adoption or migration rerun.
