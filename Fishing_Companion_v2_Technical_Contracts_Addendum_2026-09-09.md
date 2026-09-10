@@ -1,5 +1,7 @@
 # Fishing Companion v2 — Implementation and Acceptance Addendum
 
+**Later checkpoint:** [Review corrections and production authorization](Fishing_v2_Review_Release_2026-09-09.md). The evidence below is historical. The corrected implementation is verified but not published; the user has authorized production and waived another preview review. Seven required pictures still block the production build.
+
 **Date:** September 9, 2026. The original Technical Contracts remain the approved design. P1 engineering and isolated preview publication are complete; user review and separate production cutover remain pending. Exact release and recovery evidence: [preview release record](Fishing_v2_Preview_Release_2026-09-09.md).
 
 The verified implementation is `5da786ef121d7cfa39f98a8c69f3b6cf09f8eca6` on `feature/v2-implementation-20260908`, draft PR 64 unmerged. Migration `6615ae7296e48d90dceab303b6b5a1fbc041ab80` was not rerun. P1 retains three independent domains, Node 24 locked dependencies, schema/semantic validation, sanitized Markdown, source-aware Gear/KB Prepare/Copy handoffs and full-library offline reading. Catch is read-only. P2 remains deferred.
