@@ -1254,7 +1254,11 @@
           "url": "https://www.rapala.com/us_en/original-floating?childSku=us-F03S"
         }
       ],
-      "notes": "Gear/Lures/content/rapala-original-floating.md"
+      "notes": "Gear/Lures/content/rapala-original-floating.md",
+      "picture": {
+        "src": "Gear/Lures/assets/Rapala Original Floating.png",
+        "caption": "Rapala Original Floating Lure"
+      }
     },
     {
       "id": "rapala-dt",
@@ -1593,7 +1597,11 @@
           "label": "Mack's",
           "url": "https://mackslure.com/products/pee-wee-hoochie?variant=41955516317942"
         }
-      ]
+      ],
+      "picture": {
+        "src": "Gear/Lures/assets/Mack's Pee Wee Hoochie.png",
+        "caption": "Mack's Pee Wee Hoochie (Hot Pink Glow)"
+      }
     },
     {
       "id": "booyah-pad-crasher",
@@ -1640,7 +1648,8 @@
       ],
       "notes": "Gear/Lures/content/rebel-pop-r.md",
       "picture": {
-        "src": "Gear/Lures/assets/rebel-pop-r.webp"
+        "src": "Gear/Lures/assets/Rebel Pop-R.png",
+        "caption": "Rebel Pop-R (Silver/Black)"
       }
     },
     {
@@ -1666,7 +1675,11 @@
           "url": "https://www.river2seausa.com/product/whopper-plopper-60/"
         }
       ],
-      "notes": "Gear/Lures/content/river2sea-whopper-plopper-60.md"
+      "notes": "Gear/Lures/content/river2sea-whopper-plopper-60.md",
+      "picture": {
+        "src": "Gear/Lures/assets/River2Sea Whopper Plopper 60.jpg",
+        "caption": "River2Sea Whopper Plopper 60 (Bluegill)"
+      }
     },
     {
       "id": "strike-king-premier-pro-model-jig",

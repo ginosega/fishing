@@ -306,7 +306,7 @@ test('reviewed page layouts, missing pictures, forms and copy feedback',async({p
  const cards=await page.locator('.record-grid .nav-card').evaluateAll(cards=>cards.map(c=>({top:c.getBoundingClientRect().top,title:c.querySelector('h2').getBoundingClientRect().top,missing:!!c.querySelector('.card-spacer')})));
  const missing=cards.find(c=>c.missing),neighbor=cards.find(c=>!c.missing&&c.top===missing.top);expect(neighbor).toBeTruthy();expect(Math.abs(missing.title-neighbor.title)).toBeLessThan(2);
  await page.screenshot({path:testInfo.outputPath('lures.png'),fullPage:true});
- await route(page,'#/inventory/item/rapala-original-floating','Rapala');await expect(page.locator('.picture-empty')).toHaveCount(0);
+ await route(page,'#/inventory/item/rapala-original-floating','Rapala');await expect(page.locator('.picture img')).toHaveCount(1);await expect(page.locator('.picture img')).toBeVisible();await expect(page.locator('.picture-empty')).toBeHidden();
  await expect(page.locator('.page-subtitle')).toContainText('Lures – ');await expect(page.getByRole('button',{name:'Copy Link'})).toHaveCount(0);
  await expect(page.locator('.page > :last-child')).toHaveText('Edit item');
  await route(page,'#/inventory/item/cylinder-weights','Cylinder');await page.getByRole('button',{name:/Enlarge/}).click();
@@ -358,6 +358,6 @@ test('production replaces the actual v1 worker at the same URL and retains its s
  const after=await page.evaluate(()=>caches.keys());for(const name of legacyCaches)expect(after).toContain(name);
  expect(await page.evaluate(async()=>new URL((await navigator.serviceWorker.getRegistration()).scope).pathname)).toBe('/fishing/');
  await disconnect(context,true);await page.reload();await expect(heading(page,'Fishing Companion')).toBeVisible();
- await route(page,'#/kb/species-perch','Yellow Perch');await expect(page.locator('.picture-empty, .picture-button')).toHaveCount(0);
+ await route(page,'#/kb/species-perch','Yellow Perch');await expect(page.locator('.picture-button')).toHaveCount(1);await expect(page.locator('.picture img')).toHaveCount(1);await expect(page.locator('.picture img')).toBeVisible();await expect(page.locator('.picture-empty')).toBeHidden();
  expect(await snapshot()).toEqual(before);
 });

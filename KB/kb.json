@@ -287,7 +287,11 @@
       "type": "species",
       "name": "Yellow Perch",
       "description": "Yellow Perch is the default for perch catches unless later corrected.",
-      "content": "KB/Species/content/perch.md"
+      "content": "KB/Species/content/perch.md",
+      "picture": {
+        "src": "KB/Species/assets/Yellow Perch.png",
+        "caption": "Yellow Perch"
+      }
     },
     {
       "id": "species-northern-pikeminnow",
