@@ -1,5 +1,14 @@
 # Fishing Companion v2 — Implementation and Acceptance Addendum
 
+## Production execution — September 10, 2026
+
+The user authorized production cutover and waived another preview review, then explicitly resolved the picture gate: “Yes, omit those, and those gear and KB items can just have no picture. I will add these to the site later.” The seven named pictures are intentionally absent; all Gear/KB records remain. The generic inline-spinner picture remains optional. `v2/migration/media-decisions.json` records this decision separately from the preserved original migration report. No images were acquired or canonical records changed.
+
+Production implementation and root-scope acceptance are in progress. The consolidated `fishing-production.yml` replaces the old v1/preview publishers and one-time workflows; history and the exact v1 rollback ZIPs remain in Git. The root loader now verifies the v2 worker protocol because v1 and v2 share the same `sw.js` URL. Acceptance covers the actual archived v1 worker, retained IndexedDB/cache stores, both browser engines, full offline reading and all prior integrity/editing assertions. Do not claim deployment until the hosted production gate passes. No additional user approval is needed.
+
+The earlier media-blocked and preview-only checkpoints below are historical and superseded by this decision. See [production release](Fishing_v2_Production_Release_2026-09-10.md) for current execution evidence.
+
+
 **Later checkpoint:** [Review corrections and production authorization](Fishing_v2_Review_Release_2026-09-09.md). The evidence below is historical. The corrected implementation is verified but not published; the user has authorized production and waived another preview review. Seven required pictures still block the production build.
 
 **Date:** September 9, 2026. The original Technical Contracts remain the approved design. P1 engineering and isolated preview publication are complete; user review and separate production cutover remain pending. Exact release and recovery evidence: [preview release record](Fishing_v2_Preview_Release_2026-09-09.md).

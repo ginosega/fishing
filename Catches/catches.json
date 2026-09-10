@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 2,
+  "catches": [
+    {
+      "id": "catch-2026-07-27-silver-lake-largemouth-01",
+      "date": "2026-07-27",
+      "time": "20:00",
+      "size": "13 in",
+      "speciesId": "species-largemouth-bass",
+      "locationId": "location-silver-lake-whatcom",
+      "lureOrBaitId": "berkley-flicker-shad-5",
+      "notes": "Catches/content/catch-2026-07-27-silver-lake-largemouth-01.md"
+    },
+    {
+      "id": "catch-2026-08-04-lake-sammamish-perch-01",
+      "date": "2026-08-04",
+      "size": "10 in",
+      "speciesId": "species-perch",
+      "locationId": "location-lake-sammamish",
+      "lureOrBaitId": "strike-king-kvd-square-bill-1",
+      "notes": "Catches/content/catch-2026-08-04-lake-sammamish-perch-01.md"
+    },
+    {
+      "id": "catch-2026-08-04-lake-sammamish-largemouth-01",
+      "date": "2026-08-04",
+      "size": "12 in",
+      "speciesId": "species-largemouth-bass",
+      "locationId": "location-lake-sammamish",
+      "lureOrBaitId": "strike-king-kvd-square-bill-1",
+      "notes": "Catches/content/catch-2026-08-04-lake-sammamish-largemouth-01.md"
+    },
+    {
+      "id": "catch-2026-08-19-mayfield-pikeminnow-01",
+      "date": "2026-08-19",
+      "size": "12 in",
+      "speciesId": "species-northern-pikeminnow",
+      "locationId": "location-mayfield-lake",
+      "lureOrBaitId": "berkley-flicker-shad-5",
+      "notes": "Catches/content/catch-2026-08-19-mayfield-pikeminnow-01.md"
+    },
+    {
+      "id": "catch-2026-08-20-mayfield-pikeminnow-01",
+      "date": "2026-08-20",
+      "size": "12 in",
+      "speciesId": "species-northern-pikeminnow",
+      "locationId": "location-mayfield-lake",
+      "lureOrBaitId": "berkley-flicker-shad-5",
+      "notes": "Catches/content/catch-2026-08-20-mayfield-pikeminnow-01.md"
+    }
+  ]
+}

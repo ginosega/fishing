@@ -1,0 +1,1 @@
+OneNote rule of thumb: lower a lure until you can no longer see it, multiply that depth by four, and avoid fishing deeper than that for bass visibility in that turbidity condition. Treat as heuristic, not hard rule.

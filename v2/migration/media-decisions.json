@@ -1,0 +1,41 @@
+{
+  "date": "2026-09-10",
+  "decision": "Yes, omit those, and those gear and KB items can just have no picture. I will add these to the site later.",
+  "absentPictures": [
+    {
+      "exceptionId": "tsuridamashii-snap-swivels",
+      "domain": "gear",
+      "id": "tsuridamashii-ball-bearing-snap-swivels"
+    },
+    {
+      "exceptionId": "rapala-original-floating-f3",
+      "domain": "gear",
+      "id": "rapala-original-floating"
+    },
+    {
+      "exceptionId": "species-perch",
+      "domain": "kb",
+      "id": "species-perch"
+    },
+    {
+      "exceptionId": "technique-popper",
+      "domain": "kb",
+      "id": "technique-popper"
+    },
+    {
+      "exceptionId": "technique-whopper-plopper",
+      "domain": "kb",
+      "id": "technique-whopper-plopper"
+    },
+    {
+      "exceptionId": "macks-pee-wee-hoochie",
+      "domain": "gear",
+      "id": "macks-pee-wee-hoochie"
+    },
+    {
+      "exceptionId": "river2sea-whopper-plopper-60",
+      "domain": "gear",
+      "id": "river2sea-whopper-plopper-60"
+    }
+  ]
+}

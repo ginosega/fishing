@@ -1,0 +1,491 @@
+{
+  "schemaVersion": 2,
+  "entities": [
+    {
+      "id": "location-lake-washington",
+      "type": "location",
+      "name": "Lake Washington",
+      "description": "Local bass and cutthroat water with distinct north-end and Kirkland patterns.",
+      "content": "KB/Locations/content/lake-washington.md"
+    },
+    {
+      "id": "location-lake-sammamish",
+      "type": "location",
+      "name": "Lake Sammamish",
+      "description": "Bass and trout water with distinct north-, south-, and east-shore patterns.",
+      "content": "KB/Locations/content/lake-sammamish.md"
+    },
+    {
+      "id": "location-silver-lake-whatcom",
+      "type": "location",
+      "name": "Silver Lake, Whatcom County",
+      "description": "Camping and kayak water near Bellingham with trout and bass opportunities.",
+      "content": "KB/Locations/content/silver-lake-whatcom.md"
+    },
+    {
+      "id": "location-cranberry-lake-deception-pass",
+      "type": "location",
+      "name": "Cranberry Lake, Deception Pass State Park",
+      "description": "Freshwater fishing at Deception Pass State Park.",
+      "content": "KB/Locations/content/cranberry-lake-deception-pass.md",
+      "picture": {
+        "src": "KB/Locations/assets/location-cranberry-lake-deception-pass.png",
+        "caption": "Cranberry Lake"
+      }
+    },
+    {
+      "id": "location-mayfield-lake",
+      "type": "location",
+      "name": "Mayfield Lake",
+      "description": "Regional camping and kayak water for trout, kokanee, bass, and pikeminnow.",
+      "content": "KB/Locations/content/mayfield-lake.md"
+    },
+    {
+      "id": "location-lake-chelan",
+      "type": "location",
+      "name": "Lake Chelan",
+      "description": "Deep clear lake for smallmouth and trout from shore, dock, or kayak.",
+      "content": "KB/Locations/content/lake-chelan.md"
+    },
+    {
+      "id": "location-lake-cle-elum",
+      "type": "location",
+      "name": "Lake Cle Elum",
+      "description": "Cold-water reservoir treated as a trout and salmonid destination.",
+      "content": "KB/Locations/content/lake-cle-elum.md"
+    },
+    {
+      "id": "location-lake-bosworth",
+      "type": "location",
+      "name": "Lake Bosworth",
+      "description": "Candidate bass location that still needs research.",
+      "content": "KB/Locations/content/lake-bosworth.md"
+    },
+    {
+      "id": "technique-bass-power-search-overview",
+      "type": "technique",
+      "name": "Bass Power and Search Overview",
+      "description": "General resources for bass moving-bait and power-fishing techniques.",
+      "content": "KB/Techniques/content/bass-power-search-overview.md"
+    },
+    {
+      "id": "technique-paddle-only-kayak-strategy",
+      "type": "technique",
+      "name": "Paddle-only Kayak Strategy",
+      "description": "Route, drift, trolling, electronics, and casting for a paddle-only RVR119.",
+      "content": "KB/Techniques/content/paddle-only-kayak-strategy.md"
+    },
+    {
+      "id": "technique-trout-fishing",
+      "type": "technique",
+      "name": "Trout Fishing",
+      "description": "Casting, bank-fishing, bobber, still-fishing, and kayak-trolling guidance.",
+      "content": "KB/Techniques/content/trout-fishing.md"
+    },
+    {
+      "id": "technique-fishing-line",
+      "type": "equipment",
+      "name": "Fishing Line",
+      "description": "Braid, fluorocarbon, mono, leader, knot, and spooling guidance.",
+      "content": "KB/Gear-Guides/content/fishing-line.md",
+      "picture": {
+        "src": "Gear/Line/assets/technique-fishing-line.jpg",
+        "caption": "Fishing Line"
+      }
+    },
+    {
+      "id": "technique-rods-reels",
+      "type": "equipment",
+      "name": "Rods & Reels",
+      "description": "Spinning and baitcasting selection, setup, adjustment, and casting guidance.",
+      "content": "KB/Gear-Guides/content/rods-reels.md",
+      "picture": {
+        "src": "KB/Gear-Guides/assets/technique-rods-reels.png",
+        "caption": "Baitcasting reel"
+      }
+    },
+    {
+      "id": "technique-wacky-worm",
+      "type": "equipment",
+      "name": "Wacky Worm",
+      "description": "A finesse stickbait presentation with both ends free to move.",
+      "content": "KB/Gear-Guides/content/wacky-worm.md",
+      "picture": {
+        "src": "KB/Gear-Guides/assets/wacky-worm.png",
+        "caption": "Wacky worm rig"
+      }
+    },
+    {
+      "id": "technique-ned-rig",
+      "type": "equipment",
+      "name": "Ned Rig",
+      "description": "A finesse mushroom-jighead presentation with a short buoyant bottom bait.",
+      "content": "KB/Gear-Guides/content/ned-rig.md",
+      "picture": {
+        "src": "KB/Gear-Guides/assets/ned-rig.png",
+        "caption": "Ned rig"
+      }
+    },
+    {
+      "id": "technique-drop-shot",
+      "type": "equipment",
+      "name": "Drop Shot",
+      "description": "A suspended finesse presentation with the hook above the weight.",
+      "content": "KB/Gear-Guides/content/drop-shot.md",
+      "picture": {
+        "src": "KB/Gear-Guides/assets/drop-shot.png",
+        "caption": "Drop shot rig"
+      }
+    },
+    {
+      "id": "technique-jigs",
+      "type": "equipment",
+      "name": "Jig",
+      "description": "Casting, swim, football-head, and finesse jig guidance.",
+      "content": "KB/Gear-Guides/content/jigs.md",
+      "picture": {
+        "src": "Gear/Lures/assets/strike-king-tour-grade-football-jig.jpg",
+        "caption": "Strike King Tour Grade Football Jig"
+      }
+    },
+    {
+      "id": "technique-spinnerbait",
+      "type": "equipment",
+      "name": "Spinnerbait",
+      "description": "A wire-frame moving bait for cover, flash, and vibration.",
+      "content": "KB/Gear-Guides/content/spinnerbait.md",
+      "picture": {
+        "src": "Gear/Lures/assets/strike-king-red-eyed-special.png",
+        "caption": "Strike King Red Eyed Special"
+      }
+    },
+    {
+      "id": "technique-chatterbait-bladed-jig",
+      "type": "equipment",
+      "name": "Chatterbait",
+      "description": "Bladed-jig presentation for grass, stained water, cover, and reaction bites.",
+      "content": "KB/Gear-Guides/content/chatterbait-bladed-jig.md",
+      "picture": {
+        "src": "Gear/Lures/assets/zman-original-chatterbait.webp",
+        "caption": "Z-Man Original ChatterBait"
+      }
+    },
+    {
+      "id": "technique-crankbait",
+      "type": "equipment",
+      "name": "Crankbait",
+      "description": "A hard-plug presentation built around depth, deflection, and retrieve changes.",
+      "content": "KB/Gear-Guides/content/crankbait.md",
+      "picture": {
+        "src": "Gear/Lures/assets/strike-king-kvd-square-bill-1.webp",
+        "caption": "Strike King KVD Square Bill 1.0"
+      }
+    },
+    {
+      "id": "technique-jerkbait",
+      "type": "equipment",
+      "name": "Jerkbait",
+      "description": "A baitfish presentation using darting movement and pauses.",
+      "content": "KB/Gear-Guides/content/jerkbait.md",
+      "picture": {
+        "src": "Gear/Lures/assets/berkley-stunna.webp",
+        "caption": "Berkley Stunna"
+      }
+    },
+    {
+      "id": "technique-swimbait-soft-jerk-shad",
+      "type": "equipment",
+      "name": "Swimbait",
+      "description": "Lifelike baitfish presentations, rigging, retrieves, and swimbait styles.",
+      "content": "KB/Gear-Guides/content/swimbait-soft-jerk-shad.md",
+      "picture": {
+        "src": "Gear/Lures/assets/fin-sanity-bluegill.webp",
+        "caption": "Fin-Sanity Bluegill"
+      }
+    },
+    {
+      "id": "technique-buzzbait",
+      "type": "equipment",
+      "name": "Buzzbait",
+      "description": "Buzzbait tackle, rigging, retrieves, color, trailers, and bait examples.",
+      "content": "KB/Gear-Guides/content/buzzbait.md",
+      "picture": {
+        "src": "KB/Gear-Guides/assets/technique-buzzbait.jpg",
+        "caption": "Booyah Buzz buzzbait"
+      }
+    },
+    {
+      "id": "technique-frogs",
+      "type": "equipment",
+      "name": "Frog",
+      "description": "Frog tackle, retrieves, hook-set timing, lure types, and common modifications.",
+      "content": "KB/Gear-Guides/content/frogs.md",
+      "picture": {
+        "src": "Gear/Lures/assets/booyah-pad-crasher.jpg",
+        "caption": "Booyah Pad Crasher"
+      }
+    },
+    {
+      "id": "technique-popper",
+      "type": "equipment",
+      "name": "Popper",
+      "description": "Popper conditions, tackle, knot guidance, and pop-pause retrieves.",
+      "content": "KB/Gear-Guides/content/popper.md"
+    },
+    {
+      "id": "technique-walking-bait",
+      "type": "equipment",
+      "name": "Walking Bait",
+      "description": "Walk-the-dog tackle, line, cadence, color guidance, and bait examples.",
+      "content": "KB/Gear-Guides/content/walking-bait.md",
+      "picture": {
+        "src": "KB/Gear-Guides/assets/technique-walking-bait.jpg",
+        "caption": "Walking Bait"
+      }
+    },
+    {
+      "id": "technique-whopper-plopper",
+      "type": "equipment",
+      "name": "Whopper Plopper",
+      "description": "Plopper tackle, retrieve styles, and lure-size guidance for surface fishing.",
+      "content": "KB/Gear-Guides/content/whopper-plopper.md"
+    },
+    {
+      "id": "technique-seasonal-bass-guidance",
+      "type": "technique",
+      "name": "Seasonal Bass Guidance",
+      "description": "Spring temperature patterns and fall bass movement notes.",
+      "content": "KB/Techniques/content/seasonal-bass-guidance.md"
+    },
+    {
+      "id": "technique-color-and-scent",
+      "type": "technique",
+      "name": "Color and Scent",
+      "description": "Practical lure-color and scent notes, including items needing verification.",
+      "content": "KB/Techniques/content/color-and-scent.md"
+    },
+    {
+      "id": "technique-water-visibility",
+      "type": "technique",
+      "name": "Water Visibility",
+      "description": "A visibility heuristic with a caution against treating it as a hard rule.",
+      "content": "KB/Techniques/content/water-visibility.md"
+    },
+    {
+      "id": "species-largemouth-bass",
+      "type": "species",
+      "name": "Largemouth Bass",
+      "description": "Primary local warmwater target with catches at Silver Lake and Lake Sammamish.",
+      "content": "KB/Species/content/largemouth-bass.md",
+      "picture": {
+        "src": "KB/Species/assets/largemouth-bass.png",
+        "caption": "Largemouth bass"
+      }
+    },
+    {
+      "id": "species-perch",
+      "type": "species",
+      "name": "Yellow Perch",
+      "description": "Yellow Perch is the default for perch catches unless later corrected.",
+      "content": "KB/Species/content/perch.md"
+    },
+    {
+      "id": "species-northern-pikeminnow",
+      "type": "species",
+      "name": "Northern Pikeminnow",
+      "description": "Predatory native minnow recorded twice at Mayfield Lake.",
+      "content": "KB/Species/content/northern-pikeminnow.md",
+      "picture": {
+        "src": "KB/Species/assets/northern-pikeminnow.png",
+        "caption": "Northern pikeminnow"
+      }
+    },
+    {
+      "id": "species-smallmouth-bass",
+      "type": "species",
+      "name": "Smallmouth Bass",
+      "description": "Structure-oriented target in Lake Washington, Sammamish, and Chelan.",
+      "content": "KB/Species/content/smallmouth-bass.md",
+      "picture": {
+        "src": "KB/Species/assets/smallmouth-bass.png",
+        "caption": "Smallmouth bass"
+      }
+    },
+    {
+      "id": "species-rainbow-trout",
+      "type": "species",
+      "name": "Rainbow Trout",
+      "description": "Regional trout target for casting, trolling, bobber, and still-fishing methods.",
+      "content": "KB/Species/content/rainbow-trout.md",
+      "picture": {
+        "src": "KB/Species/assets/rainbow-trout.png",
+        "caption": "Rainbow trout"
+      }
+    },
+    {
+      "id": "species-coastal-cutthroat-trout",
+      "type": "species",
+      "name": "Coastal Cutthroat Trout",
+      "description": "Lake Washington trout target requiring current regulation checks.",
+      "content": "KB/Species/content/coastal-cutthroat-trout.md",
+      "picture": {
+        "src": "KB/Species/assets/coastal-cutthroat-trout.png",
+        "caption": "Coastal cutthroat trout"
+      }
+    },
+    {
+      "id": "species-kokanee",
+      "type": "species",
+      "name": "Kokanee",
+      "description": "Specialized regional trolling target in Lake Washington and Mayfield Lake.",
+      "content": "KB/Species/content/kokanee.md",
+      "picture": {
+        "src": "KB/Species/assets/kokanee-phases.png",
+        "caption": "Kokanee shown in non-spawning (silver) and spawning (red) phases"
+      }
+    },
+    {
+      "id": "knot-palomar",
+      "type": "knot",
+      "name": "Palomar Knot",
+      "description": "Strong, simple knot for braid, fluoro, or mono; cinch evenly above the eye.",
+      "content": "KB/Knots/content/palomar.md"
+    },
+    {
+      "id": "knot-fg",
+      "type": "knot",
+      "name": "FG Knot",
+      "description": "Preferred braid-to-fluoro leader knot",
+      "content": "KB/Knots/content/fg.md"
+    },
+    {
+      "id": "knot-albright",
+      "type": "knot",
+      "name": "Albright Knot",
+      "description": "Easier on-the-water braid-to-fluoro alternative",
+      "content": "KB/Knots/content/albright.md"
+    },
+    {
+      "id": "knot-trilene",
+      "type": "knot",
+      "name": "Trilene Knot",
+      "description": "Good for tying fluorocarbon to swivels/snaps; wet before tightening",
+      "content": "KB/Knots/content/trilene.md"
+    },
+    {
+      "id": "knot-improved-clinch",
+      "type": "knot",
+      "name": "Improved Clinch Knot",
+      "description": "Mono/fluoro terminal knot; use more wraps with lighter line and wet first.",
+      "content": "KB/Knots/content/improved-clinch.md"
+    },
+    {
+      "id": "knot-modified-uni",
+      "type": "knot",
+      "name": "Modified Uni Knot",
+      "description": "Marked very strong in OneNote",
+      "content": "KB/Knots/content/modified-uni.md"
+    },
+    {
+      "id": "knot-double-uni",
+      "type": "knot",
+      "name": "Double Uni Knot",
+      "description": "Used to connect two lines, but FG preferred for braid-to-leader",
+      "content": "KB/Knots/content/double-uni.md"
+    },
+    {
+      "id": "knot-loop-non-slip-loop",
+      "type": "knot",
+      "name": "Loop / Non-slip Loop Knot",
+      "description": "Conflict: technique pages recommend loop knots; knot note warns against them.",
+      "content": "KB/Knots/content/loop-non-slip-loop.md"
+    },
+    {
+      "id": "knot-single-uni",
+      "type": "knot",
+      "name": "Single Uni Knot",
+      "description": "OneNote says don't use / weak",
+      "content": "KB/Knots/content/single-uni.md"
+    },
+    {
+      "id": "knot-arbor",
+      "type": "knot",
+      "name": "Arbor Knot",
+      "description": "Use for spooling line",
+      "content": "KB/Knots/content/arbor.md"
+    },
+    {
+      "id": "technique-inline-spinner",
+      "type": "equipment",
+      "name": "Inline Spinner",
+      "description": "Casting and retrieve guidance for inline spinners in lakes, rivers, and creeks.",
+      "content": "KB/Gear-Guides/content/inline-spinner.md",
+      "picture": {
+        "src": "KB/Gear-Guides/assets/inline-spinner-rig.png",
+        "caption": "Inline spinner rig"
+      }
+    },
+    {
+      "id": "technique-snaps-swivels",
+      "type": "equipment",
+      "name": "Snaps & Swivels",
+      "description": "When to use snaps, swivels, and snap swivels without hurting lure action.",
+      "content": "KB/Gear-Guides/content/snaps-swivels.md",
+      "picture": {
+        "src": "KB/Gear-Guides/assets/snap-swivel.png",
+        "caption": "Snap swivel"
+      }
+    },
+    {
+      "id": "technique-flasher-rig",
+      "type": "equipment",
+      "name": "Flasher Rig",
+      "description": "Kayak-trolling rig with a dodger, leader, and trout or kokanee lure.",
+      "content": "KB/Gear-Guides/content/flasher-rig.md",
+      "picture": {
+        "src": "KB/Gear-Guides/assets/flasher-rig.png",
+        "caption": "Flasher rig"
+      }
+    },
+    {
+      "id": "technique-inline-trolling-rig",
+      "type": "equipment",
+      "name": "Inline Trolling Rig",
+      "description": "Simple weighted trolling rig for trout and kokanee from a kayak.",
+      "content": "KB/Gear-Guides/content/inline-trolling-rig.md",
+      "picture": {
+        "src": "KB/Gear-Guides/assets/inline-trolling-rig.png",
+        "caption": "Inline trolling rig"
+      }
+    },
+    {
+      "id": "technique-bobber-rig",
+      "type": "equipment",
+      "name": "Bobber Rig",
+      "description": "Float rig with split shot, swivel, leader, and bait for suspended trout.",
+      "content": "KB/Gear-Guides/content/bobber-rig.md",
+      "picture": {
+        "src": "KB/Gear-Guides/assets/bobber-rig.png",
+        "caption": "Bobber rig"
+      }
+    },
+    {
+      "id": "technique-slip-sinker-rig",
+      "type": "equipment",
+      "name": "Slip Sinker Rig",
+      "description": "Bottom-fishing rig with an egg sinker, swivel, leader, and bait.",
+      "content": "KB/Gear-Guides/content/slip-sinker-rig.md",
+      "picture": {
+        "src": "KB/Gear-Guides/assets/slip-sinker-rig.png",
+        "caption": "Slip sinker rig"
+      }
+    },
+    {
+      "id": "technique-spring-fishing",
+      "type": "technique",
+      "name": "Spring Fishing",
+      "description": "Spring bass patterns by temperature, wind, clarity, depth, and presentation.",
+      "content": "KB/Techniques/content/spring-fishing.md"
+    }
+  ]
+}

@@ -1,0 +1,130 @@
+name: Fishing production acceptance and deployment
+on:
+  push:
+    branches: [main, feature/v2-implementation-20260908]
+    paths: ['v2/**', 'Gear/**', 'KB/**', 'Catches/**', '.github/workflows/**']
+  pull_request:
+    paths: ['v2/**', 'Gear/**', 'KB/**', 'Catches/**', '.github/workflows/**']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.ref == 'refs/heads/main' && 'fishing-pages' || format('production-validation-{0}', github.ref) }}
+  cancel-in-progress: false
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Verify durable v1 recovery and prepare actual cutover fixture
+        run: |
+          git show 4aafcd2f88b35bb34b608e2f85dec1daffc6c1d1:recovery/v1-production.zip > /tmp/v1-production.zip
+          echo 'fc036dc92dbf25a250917f8236c22099b798be1d5f2aa7274f6df9cb5215396e  /tmp/v1-production.zip' | sha256sum --check
+          git show 4aafcd2f88b35bb34b608e2f85dec1daffc6c1d1:recovery/v1-migration-source.zip > /tmp/v1-migration-source.zip
+          echo '83100e9cf2788b2d33959b39a6bb63fdd0e78c5e512936a07e46b22632bf7dbf  /tmp/v1-migration-source.zip' | sha256sum --check
+          mkdir /tmp/v1-root
+          unzip -q /tmp/v1-production.zip -d /tmp/v1-root
+      - name: Install and audit locked dependencies
+        timeout-minutes: 5
+        working-directory: v2
+        run: |
+          npm ci --no-audit --no-fund
+          npm audit --omit=dev --audit-level=high
+      - name: Validate core behavior and preview build
+        timeout-minutes: 5
+        working-directory: v2
+        run: |
+          npm test
+          npm run build -- --pending-media --source-revision="$GITHUB_SHA"
+          npm run verify
+      - name: Install Chromium and WebKit
+        timeout-minutes: 10
+        working-directory: v2
+        run: npx playwright install --with-deps chromium webkit
+      - name: Preserve preview scope regression coverage
+        timeout-minutes: 12
+        working-directory: v2
+        run: |
+          npm run test:browser
+          mv .test-output .preview-test-output
+      - name: Build and verify production root
+        timeout-minutes: 5
+        working-directory: v2
+        run: |
+          npm run build -- --base=/fishing/ --source-revision="$GITHUB_SHA"
+          npm run verify
+      - name: Complete production browser and real v1 cutover acceptance
+        timeout-minutes: 15
+        working-directory: v2
+        env:
+          FISHING_BASE: /fishing/
+          FISHING_V1_DIST: /tmp/v1-root
+        run: npm run test:browser
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: production-bundle
+          path: v2/dist/
+          retention-days: 30
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: production-acceptance-evidence
+          path: |
+            v2/.test-output/
+            v2/.preview-test-output/
+          include-hidden-files: true
+          retention-days: 90
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: validate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: https://ginosega.github.io/fishing/
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: production-bundle
+          path: v2/dist
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Prepare hosted verifier before deployment
+        timeout-minutes: 10
+        working-directory: v2
+        run: |
+          npm ci --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: v2/dist
+      - name: Guard exact current main
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: test "$(gh api repos/$GITHUB_REPOSITORY/git/ref/heads/main --jq .object.sha)" = "$GITHUB_SHA"
+      - uses: actions/deploy-pages@v4
+      - name: Verify actual hosted production bytes and browser behavior
+        working-directory: v2
+        run: node tools/verify-hosted.mjs --production=true --dist=dist
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: actual-hosted-production-verification
+          path: v2/hosted-evidence/
+          retention-days: 90

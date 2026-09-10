@@ -1,5 +1,14 @@
 # Fishing Companion v2 review corrections
 
+## Production execution — September 10, 2026
+
+The user authorized production cutover and waived another preview review, then explicitly resolved the picture gate: “Yes, omit those, and those gear and KB items can just have no picture. I will add these to the site later.” The seven named pictures are intentionally absent; all Gear/KB records remain. The generic inline-spinner picture remains optional. `v2/migration/media-decisions.json` records this decision separately from the preserved original migration report. No images were acquired or canonical records changed.
+
+Production implementation and root-scope acceptance are in progress. The consolidated `fishing-production.yml` replaces the old v1/preview publishers and one-time workflows; history and the exact v1 rollback ZIPs remain in Git. The root loader now verifies the v2 worker protocol because v1 and v2 share the same `sw.js` URL. Acceptance covers the actual archived v1 worker, retained IndexedDB/cache stores, both browser engines, full offline reading and all prior integrity/editing assertions. Do not claim deployment until the hosted production gate passes. No additional user approval is needed.
+
+The earlier media-blocked and preview-only checkpoints below are historical and superseded by this decision. See [production release](Fishing_v2_Production_Release_2026-09-10.md) for current execution evidence.
+
+
 Status: engineering and prepublication validation passed; production authorized but blocked by seven required-media exceptions. No corrected preview refresh or production cutover has occurred. The original live v1 and preview remain unchanged. The user explicitly waived another preview review and authorized this build for production; do not ask again for that authorization.
 
 The actual command `node v2/tools/build.mjs --base=/fishing/ --out=/tmp/fishing-production-candidate` failed in `inventorySource` with `Migration has 7 unresolved media exceptions; pending-media preview only`. The binding gate is `v2/tools/library.mjs:43`, enforcing the approved baseline and seven-required/one-optional migration reconciliation. Required-media deferral has not been assumed from general cutover authorization.

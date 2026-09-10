@@ -4,9 +4,9 @@ You are continuing my persistent **Fishing** project. The durable repository is 
 
 The first user-review corrections are implemented and tested. I explicitly instructed: “take this all the way to production; I don't need to test these changes in preview, let's go ahead with this build.” Production cutover is authorized and another user preview review is waived. Do not ask me to reapprove those settled instructions.
 
-The actual production build is blocked by seven required-media exceptions. Ask only whether those required pictures may be deferred, unless I have already answered that in the current session, or implement approved replacements I supply. Do not infer a media waiver, acquire images automatically, weaken integrity tests or rerun the one-time migration. Once the media gate is resolved, continue end-to-end through production integration, meaningful root-scope browser/offline tests, normal PR/CI, serialized deployment, hosted verification and record reconciliation without repeated Proceed requests.
+I explicitly approved omitting all seven required pictures: “Yes, omit those, and those gear and KB items can just have no picture. I will add these to the site later.” All items remain available without pictures. The media gate is resolved; do not ask again. Do not infer a media waiver, acquire images automatically, weaken integrity tests or rerun the one-time migration. Once the media gate is resolved, continue end-to-end through production integration, meaningful root-scope browser/offline tests, normal PR/CI, serialized deployment, hosted verification and record reconciliation without repeated Proceed requests.
 
-Chat remains the permanent default. I explicitly authorized this follow-up Work session for the review corrections and production execution. Complexity alone is not grounds to recommend Work. The execution phase is paused on the specific required-media decision, not on general production approval. No background work is promised.
+Chat remains the permanent default. I explicitly authorized this follow-up Work session for the review corrections and production execution. Complexity alone is not grounds to recommend Work. Production execution is in progress, with no remaining approval gate. No background work is promised.
 
 The old live v1 and original preview remain unchanged. No corrected preview refresh or production cutover has occurred. Do not report the corrected candidate as deployed.
 
@@ -14,7 +14,7 @@ The old live v1 and original preview remain unchanged. No corrected preview refr
 
 Read from actual latest main in order:
 
-1. `README.md`
+1. `README.md` and `Fishing_v2_Production_Release_2026-09-10.md`
 2. `Fishing_Context.md`
 3. `Fishing_TODO.md`
 4. `Fishing_Decision_Log.md`
@@ -27,7 +27,7 @@ Read from actual latest main in order:
 
 Fetch current main, feature branch, PRs, CI and Pages/deployment state. Preserve newer user/agent work and direct-main edits. GitHub is authoritative, never a prior chat's temporary filesystem.
 
-## Verified engineering and live-site checkpoint
+## Historical engineering and live-site checkpoint
 
 - Corrected feature `feature/v2-implementation-20260908`: `d5f09f058e298f3852f4bf6d0ca2545984a0d6ab`; PR 69 merged into that branch. PR 64 remains draft/unmerged.
 - Merged engineering run `34421093897`: 19 core tests and all 20 Chromium/WebKit scenarios pass. New coverage includes reviewed layouts, loading-shell styling and clipboard success/failure messaging; original offline/integrity/dirty-form/scope assertions remain.
@@ -38,15 +38,15 @@ Fetch current main, feature branch, PRs, CI and Pages/deployment state. Preserve
 - Durable rollback branch `checkpoint/v1-before-v2-preview-20260909`, commit `4aafcd2f88b35bb34b608e2f85dec1daffc6c1d1`, holds both v1 and historical migration-media ZIPs. Hashes/restore guidance are in the original preview release and latest checkpoint.
 - Canonical migration `6615ae7296e48d90dceab303b6b5a1fbc041ab80` remains unchanged: Gear 69 / KB 54 / Catches 5, six independent components, 49 approved exact-byte image adoptions, two rejected captures. Data, authored Markdown, images and schema were not changed by the UI corrections.
 
-## Production blocker and exact next work
+## Historical blocker and current production work
 
-`node v2/tools/build.mjs --base=/fishing/` fails: `Migration has 7 unresolved media exceptions; pending-media preview only`. This is the approved required-media rule enforced by `v2/tools/library.mjs`, not a missing general cutover approval.
+Before the explicit media decision, `node v2/tools/build.mjs --base=/fishing/` failed: `Migration has 7 unresolved media exceptions; pending-media preview only`. This is the approved required-media rule enforced by `v2/tools/library.mjs`, not a missing general cutover approval.
 
 Seven required pictures: Tsuridamashii snap-swivels; Rapala F-3; KB Perch, Popper and Whopper Plopper; Mack's Pee Wee Hoochie; River2Sea Whopper Plopper 60. Generic inline-spinner is optional. Record explicit deferral or approved replacements before production. No automatic acquisition. A newer v1 archive contains an F-3 capture, which has not been approved for v2 adoption.
 
 After that decision, reconcile current main into the feature; prepare/consolidate the production workflow; build for `/fishing/`; verify root-scope replacement of the old v1 worker while retaining browser stores, complete offline reading and dirty-form/update behavior; integrate through normal PR/CI and a serialized Pages cutover; verify actual hosted HTML, pointer, manifest, code/content/images and browser flows; preserve rollback and reconcile records. Production-scope testing is not yet complete. Do not run competing Pages deployments or a standalone v1 upload that removes the preview.
 
-FISH082 (review implementation/testing) is DONE. FISH076 (production) is WAITING ON USER only for the media decision tracked in FISH078. P2 remains deferred. Existing local-only source-equivalence waiver stands; no physical-device inspection is claimed. Retain v1 stores and reconcile later-discovered local records before retirement.
+FISH082 (review implementation/testing) is DONE. FISH076 (production) is IN PROGRESS. FISH078 pictures are deferred by explicit user instruction. P2 remains deferred. Existing local-only source-equivalence waiver stands; no physical-device inspection is claimed. Retain v1 stores and reconcile later-discovered local records before retirement.
 
 ## Scope
 
