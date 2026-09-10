@@ -74,6 +74,8 @@ async function openReady(page,release=initial){
 }
 const heading=(page,name)=>page.locator('#app .page-header h1').filter({hasText:name});
 async function route(page,hash,title){await page.goto(base+hash,{waitUntil:'domcontentloaded'});await expect(heading(page,title)).toBeVisible();}
+async function updateLibrary(page){await page.getByRole('button',{name:'Connection status',exact:true}).click();await page.getByRole('button',{name:'Update offline library',exact:true}).click();await page.locator('#connection-close').click();}
+async function reloadLibrary(page){await page.getByRole('button',{name:'Connection status',exact:true}).click();await page.getByRole('button',{name:'Reload',exact:true}).click();if(await page.locator('#connection-dialog').isVisible())await page.locator('#connection-close').click();}
 async function packageFrom(page){await page.getByRole('button',{name:'Prepare Changes'}).click();await expect(page.locator('.package-text')).toBeVisible();return JSON.parse(await page.locator('.package-text').inputValue());}
 async function cacheInfo(page){return page.evaluate(async()=>{const names=(await caches.keys()).filter(x=>x.startsWith('fishing-v2:'));const result=[];for(const name of names){const c=await caches.open(name);const r=await c.match(new URL('__fishing_complete__',location.href));if(r)result.push(await r.json());}return result;});}
 
@@ -109,7 +111,8 @@ test('navigation, filters, stable links, Catch History and image viewer',async({
  await expect(page.locator('.record-grid .nav-card')).toHaveCount(1);
  await page.locator('.record-grid .nav-card').click();
  await expect(heading(page,'Daiwa Tatula')).toBeVisible();
- await page.getByRole('button',{name:'Copy Link'}).click();
+ await page.getByRole('link',{name:'Edit item',exact:true}).click();
+ await page.getByRole('button',{name:'Create Link'}).click();
  await expect(page.getByRole('dialog')).toContainText('gear://daiwa-tatula-xt-rod');
  await page.getByRole('dialog').getByRole('button',{name:'Close'}).click();
  await route(page,'#/inventory/category/rods-reels','Rods & Reels');
@@ -185,7 +188,7 @@ test('a failed or corrupt update retains the previous complete release',async({p
  await openReady(page);
  const first=await cacheInfo(page);expect(first.some(x=>x.releaseId===initial.id)).toBe(true);
  state.current='next';const broken='releases/'+next.id+'/content/'+fixture.articlePath;state.corrupt.add(broken);
- await page.getByRole('button',{name:'Update offline library'}).click();
+ await updateLibrary(page);
  await expect(page.locator('#offline-status')).toContainText('Offline ready',{timeout:120000});
  await expect(page.locator('#offline-status')).not.toContainText('null');
  await expect.poll(()=>page.evaluate(()=>navigator.serviceWorker.controller?.scriptURL)).toContain('/sw.js');
@@ -193,10 +196,10 @@ test('a failed or corrupt update retains the previous complete release',async({p
  const failed=await cacheInfo(page);expect(failed.some(x=>x.releaseId===initial.id)).toBe(true);expect(failed.some(x=>x.releaseId===next.id)).toBe(false);
  await disconnect(context,true);await page.reload();await expect(heading(page,'Fishing Companion')).toBeVisible();
  await disconnect(context,false);state.corrupt.clear();
- await page.getByRole('button',{name:'Update offline library'}).click();
+ await updateLibrary(page);
  await expect.poll(()=>page.evaluate(()=>navigator.serviceWorker.controller?.scriptURL),{timeout:120000}).toContain('/sw.js');
  await expect(page.locator('#offline-status')).toHaveAttribute('data-release-id',next.id,{timeout:120000});
- await page.getByRole('button',{name:'Reload'}).click();
+ await reloadLibrary(page);
  await expect.poll(()=>page.evaluate(()=>window.__FISHING_V2__?.releaseId),{timeout:120000}).toBe(next.id);
  await route(page,'#/kb/'+fixture.articleId,'');
  await expect(page.locator('.markdown-body')).toContainText(fixture.marker);
@@ -238,18 +241,18 @@ test('new release waits for explicit reload and protects a dirty editor',async({
  const name=page.locator('.editor-form').getByRole('textbox',{name:'Name',exact:true});
  await name.fill('Unsaved browser edit');
  state.current='next';
- await page.getByRole('button',{name:'Update offline library'}).click();
+ await updateLibrary(page);
  await expect(page.locator('#offline-status')).toHaveAttribute('data-release-id',next.id,{timeout:120000});
  expect(await page.evaluate(()=>window.__FISHING_V2__.releaseId)).toBe(initial.id);
  await expect(name).toHaveValue('Unsaved browser edit');
- page.once('dialog',d=>d.dismiss());await page.getByRole('button',{name:'Reload',exact:true}).click();
+ page.once('dialog',d=>d.dismiss());await reloadLibrary(page);
  await expect(name).toHaveValue('Unsaved browser edit');
  expect(await page.evaluate(()=>window.__FISHING_V2__.releaseId)).toBe(initial.id);
  // Leaving the editor prompts exactly once and does not persist the unsubmitted edit.
  let dialogs=0;const accept=d=>{dialogs++;return d.accept();};page.on('dialog',accept);
  await page.locator('.editor-form').getByRole('button',{name:'Cancel'}).click();
  await expect(heading(page,'Daiwa Tatula')).toBeVisible();page.off('dialog',accept);expect(dialogs).toBe(1);
- await page.getByRole('button',{name:'Reload',exact:true}).click();
+ await reloadLibrary(page);
  await expect.poll(()=>page.evaluate(()=>window.__FISHING_V2__?.releaseId)).toBe(next.id);
  await expect(page.locator('#app')).not.toContainText('Unsaved browser edit');
 });
@@ -269,4 +272,67 @@ test('preview waits for its own verified worker when a v1 parent worker already 
  expect(await preview.evaluate(()=>navigator.serviceWorker.controller.scriptURL)).toBe(base+'sw.js');
  await page.reload();expect(await retained()).toBe('retain v1 bytes');
  await preview.close();
+});
+
+
+test('reviewed page layouts, missing pictures, forms and copy feedback',async({page},testInfo)=>{
+ await page.emulateMedia({colorScheme:'dark'});await openReady(page);
+ await expect(page.locator('.site-header nav')).toHaveCount(0);
+ await expect(page.getByRole('button',{name:'Connection status'})).toHaveAttribute('title','Connection status');
+ await page.getByRole('button',{name:'Connection status'}).click();
+ await expect(page.getByRole('dialog',{name:'Connection status'})).toBeVisible();
+ await expect(page.locator('#offline-status')).toContainText(/Offline ready.*files/);
+ await expect(page.getByRole('button',{name:'Update offline library'})).toBeEnabled();
+ await page.locator('#connection-close').click();
+ await expect(page.locator('.card-arrow')).toHaveCount(0);
+ const grid=await page.locator('.home-grid').boundingBox(),main=await page.locator('#app').boundingBox();
+ expect(Math.abs(grid.x+grid.width/2-main.x-main.width/2)).toBeLessThan(2);
+ await page.screenshot({path:testInfo.outputPath('home.png'),fullPage:true});
+ for(const [hash,title,subtitle,add] of [['#/inventory','My Gear','Browse your inventory of equipment, tackle, and bait','Add Gear'],['#/kb','Knowledge Base','Fishing reference and catch log','Add Entry']]){
+  await route(page,hash,title);await expect(page.locator('.page-subtitle')).toHaveText(subtitle);
+  await expect(page.locator('.page-header input[type=search]')).toBeVisible();await expect(page.locator('.page-header label')).toHaveCount(0);
+  await expect(page.locator('.page-header').getByRole('button',{name:'← Back'})).toBeVisible();
+  const bottom=page.locator('.page').getByRole('link',{name:add,exact:true});await expect(bottom).toBeVisible();
+  const positions=await page.locator('.page-actions').evaluate(e=>[...e.children].map(c=>c.tagName));expect(positions.at(-1)).toBe('BUTTON');
+  await expect(page.locator('.nav-grid .card-icon')).toHaveCount(hash==='#/inventory'?8:5);
+  if(hash==='#/kb')await expect(page.locator('.nav-grid .nav-card p')).toHaveCount(5);
+  await page.screenshot({path:testInfo.outputPath(title.replaceAll(' ','-')+'.png'),fullPage:true});
+ }
+ await route(page,'#/inventory/category/lures','Lures');
+ await expect(page.locator('.page-header input')).toBeVisible();await expect(page.locator('.page-header select')).toBeVisible();
+ const cards=await page.locator('.record-grid .nav-card').evaluateAll(cards=>cards.map(c=>({top:c.getBoundingClientRect().top,title:c.querySelector('h2').getBoundingClientRect().top,missing:!!c.querySelector('.card-spacer')})));
+ const missing=cards.find(c=>c.missing),neighbor=cards.find(c=>!c.missing&&c.top===missing.top);expect(neighbor).toBeTruthy();expect(Math.abs(missing.title-neighbor.title)).toBeLessThan(2);
+ await page.screenshot({path:testInfo.outputPath('lures.png'),fullPage:true});
+ await route(page,'#/inventory/item/rapala-original-floating','Rapala');await expect(page.locator('.picture-empty')).toHaveCount(0);
+ await expect(page.locator('.page-subtitle')).toContainText('Lures – ');await expect(page.getByRole('button',{name:'Copy Link'})).toHaveCount(0);
+ await expect(page.locator('.page > :last-child')).toHaveText('Edit item');
+ await route(page,'#/inventory/item/cylinder-weights','Cylinder');await page.getByRole('button',{name:/Enlarge/}).click();
+ const viewer=page.getByRole('dialog',{name:'Image viewer'});await expect(viewer.getByRole('button',{name:'Close',exact:true})).toHaveCount(1);await expect(viewer).not.toContainText('null');await viewer.getByRole('button',{name:'Close',exact:true}).click();
+ await route(page,'#/kb/species-largemouth-bass','Largemouth');await expect(page.locator('.page-header .page-subtitle')).toBeVisible();await expect(page.locator('.section>h2').filter({hasText:/^Notes$/})).toBeVisible();
+ await page.getByRole('link',{name:'Edit item',exact:true}).click();await expect(page.locator('#app h1')).toHaveCount(1);await expect(page.locator('#app h1')).toHaveText('Edit Largemouth Bass');
+ await page.getByRole('button',{name:'Create Link'}).click();const links=page.getByRole('dialog',{name:'Create Link'});await expect(links).toContainText('Internal link');await expect(links.getByRole('button',{name:'Copy internal link'})).toBeVisible();await links.getByRole('button',{name:'Close'}).click();
+ await route(page,'#/inventory/add/lures','Add Gear');await expect(page.locator('#app h1')).toHaveCount(1);await expect(page.locator('.picture-empty')).toHaveCount(0);
+ await expect(page.locator('.editor-form > :nth-child(3) > h2')).toHaveText('Picture');await expect(page.getByLabel('Choose a local picture',{exact:true})).toBeVisible();
+ await expect(page.locator('.editor-form')).toContainText('File must be manually uploaded to repository');
+ await page.getByRole('button',{name:'Add specification',exact:true}).click();await page.getByRole('button',{name:'Add link',exact:true}).click();
+ await expect(page.locator('.repeat-row label')).toHaveCount(0);await expect(page.getByPlaceholder('URL',{exact:true})).toBeVisible();
+ await page.getByRole('textbox',{name:'Name',exact:true}).fill('Review test');await page.getByPlaceholder('Value',{exact:true}).fill('Test');await page.getByPlaceholder('Label',{exact:true}).fill('Test');await page.getByPlaceholder('URL',{exact:true}).fill('https://example.com');
+ await page.screenshot({path:testInfo.outputPath('add-gear.png'),fullPage:true});
+ await packageFrom(page);
+ // Browser clipboard support differs; inject a successful clipboard boundary to
+ // verify the click awaits success and displays the confirmation beside the package.
+ await page.evaluate(()=>{window.__copied='';Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async value=>{window.__copied=value;}}});});
+ await page.getByRole('button',{name:'Copy Changes',exact:true}).click();await expect(page.locator('.copy-notice')).toContainText('Changes copied to clipboard');await expect(page.locator('.copy-notice')).toContainText('implementation and deployment');
+ expect(JSON.parse(await page.evaluate(()=>window.__copied)).id).toBe('review-test');
+ await page.evaluate(()=>{Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async()=>{throw Error('denied');}}});});
+ await page.getByRole('button',{name:'Copy Changes',exact:true}).click();await expect(page.locator('.copy-notice')).toContainText('Clipboard unavailable');await expect(page.locator('.copy-notice')).not.toContainText('Changes copied');
+});
+
+test('initial loading shell is styled before the library or application can load',async({browser},testInfo)=>{
+ const context=await browser.newContext({javaScriptEnabled:false,colorScheme:'dark'});const page=await context.newPage();
+ try{await page.goto(base);await expect(page.locator('#app')).toContainText('Loading Fishing Companion');
+  const style=await page.locator('body').evaluate(e=>({background:getComputedStyle(e).backgroundColor,font:getComputedStyle(e).fontFamily}));
+  expect(style.background).toBe('rgb(16, 27, 24)');expect(style.font).toContain('system-ui');
+  await page.screenshot({path:testInfo.outputPath('initial-shell.png'),fullPage:true});
+ }finally{await context.close();}
 });

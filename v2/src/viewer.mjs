@@ -15,6 +15,6 @@ export function openViewer(src,alt,caption=''){
  stage.addEventListener('wheel',event=>{if(event.ctrlKey||event.metaKey){event.preventDefault();zoom(scale*(event.deltaY<0?1.15:1/1.15));}},{passive:false});
  dialog.addEventListener('keydown',event=>{if(event.key==='+'||event.key==='=')zoom(scale*1.3);if(event.key==='-')zoom(scale/1.3);if(event.key==='0')zoom(1);});
  dialog.addEventListener('close',()=>{dialog.remove();prior?.focus();});
- dialog.append(el('div',{class:'viewer-top'},text('strong',alt),button('Close',close)),stage,caption?text('p',caption,'viewer-caption'):null,controls);
+ dialog.append(el('div',{class:'viewer-top'},text('strong',alt)),stage,...(caption?[text('p',caption,'viewer-caption')]:[]),controls);
  document.body.append(dialog);dialog.showModal();apply();
 }

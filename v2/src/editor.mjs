@@ -28,7 +28,7 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
  function requiredControl(label,keyName,options={}){const c=input(record[keyName]||'',{required:true,maxlength:160,...options});c.addEventListener('input',()=>{record[keyName]=c.value;if(keyName==='name'&&!editing&&!idTouched){record.id=newId(c.value,new Set(ctx.data[domain][DOMAIN[domain].array].map(x=>x.id)));idInput.value=record.id;}changed();});return field(label,c);}
  const idInput=input(record.id,{required:true,maxlength:160,readonly:editing});idInput.addEventListener('input',()=>{idTouched=true;record.id=idInput.value;changed();});
  const nameField=requiredControl('Name','name');
- form.append(nameField,field('ID',idInput,editing?'Stable identity; it cannot be edited.':'Stable, unique ID. The suggested value may be changed before preparing.'));
+ form.append(nameField,field('ID',idInput));
  const categoryControls=el('div',{class:'form-grid'});
  if(domain==='gear'){
   const categorySelect=select(GEAR_CATEGORIES.map(r=>[r[0],r[1]]),record.category,()=>{record.category=categorySelect.value;const choices=typesFor(record.category);if(!choices.includes(record.type))record.type=choices[0];typeSelect.replaceChildren(...choices.map(x=>el('option',{value:x},x)));typeSelect.value=record.type;changed();});
@@ -40,13 +40,13 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
    const holder=el('div',{class:'repeater'}),rows=el('div',{});
    function renderRows(){rows.replaceChildren(...(record[keyName]||[]).map((item,index)=>{
     const row=el('div',{class:'repeat-row'});
-    for(const [fieldName,label] of fields){const c=input(item[fieldName]||'',{maxlength:fieldName==='url'?2000:500,placeholder:label});c.addEventListener('input',()=>{item[fieldName]=c.value;changed();});row.append(field(label,c));}
+    for(const [fieldName,label] of fields){const c=input(item[fieldName]||'',{maxlength:fieldName==='url'?2000:500,placeholder:label});c.addEventListener('input',()=>{item[fieldName]=c.value;changed();});c.setAttribute('aria-label',label);row.append(c);}
     const actions=toolbar(button('↑',()=>move(index,-1),{disabled:index===0,title:'Move up'}),button('↓',()=>move(index,1),{disabled:index===record[keyName].length-1,title:'Move down'}),button('Remove',()=>{record[keyName].splice(index,1);renderRows();changed();},{variant:'danger'}));row.append(actions);return row;
    }));}
    function move(index,delta){const array=record[keyName];[array[index],array[index+delta]]=[array[index+delta],array[index]];renderRows();changed();}
    holder.append(text('h3',title),rows,button('Add '+(keyName==='links'?'link':'specification'),()=>{record[keyName].push(Object.fromEntries(fields.map(([k])=>[k,''])));renderRows();changed();}));renderRows();return holder;
   }
-  form.append(repeater('Specifications','specifications',[['label','Label (optional)'],['value','Value']]),repeater('Links','links',[['label','Label'],['url','HTTP(S) URL']]));
+  form.append(repeater('Specifications','specifications',[['label','Label (optional)'],['value','Value']]),repeater('Links','links',[['label','Label'],['url','URL']]));
  }else{
   const typeSelect=select(KB_TYPES.map(r=>[r[0],r[1]]),record.type,()=>{record.type=typeSelect.value;changed();});
   form.append(field('Type',typeSelect),control('Description',record.description||'',value=>update('description',value),{maxlength:80,hint:'Optional, maximum 80 characters.'}));
@@ -67,12 +67,12 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
  function renderPicture(){
   pictureInfo.replaceChildren();
   const src=pictureAction==='remove'?null:previewUrl||((record.picture?.src&&knownPaths(ctx).has(record.picture.src))?ctx.asset(record.picture.src):null);
-  pictureInfo.append(picture(src,record.name||'Picture',captionInput.value,src?()=>openViewer(src,record.name||'Picture',captionInput.value):null));
+  if(src)pictureInfo.append(picture(src,record.name||'Picture',captionInput.value,()=>openViewer(src,record.name||'Picture',captionInput.value)));
   if(fileInfo)pictureInfo.append(text('p',`${fileInfo.name} · ${fileInfo.width} × ${fileInfo.height} · ${fileInfo.bytes.toLocaleString()} bytes`,'hint'));
   if(pictureAction==='remove')pictureInfo.append(text('p','The picture reference will be removed; source bytes are not deleted.','hint'));
  }
- pictureHost.append(field('Picture action',pictureSelect),pictureInfo,field('Choose a local picture for direct repository upload',fileInput,'The handoff includes only the filename, size and hash. The file is not uploaded by this app.'),field('Repository picture path',picturePathInput),field('Caption (optional)',captionInput));renderPicture();
- form.append(section('Picture',pictureHost));
+ pictureHost.append(field('Picture action',pictureSelect),pictureInfo,field('Choose a local picture',fileInput,'File must be manually uploaded to repository'),field('Repository picture path',picturePathInput),field('Caption (optional)',captionInput));renderPicture();
+ form.insertBefore(section('Picture',pictureHost),nameField.nextElementSibling.nextElementSibling);
  const textArea=el('textarea',{rows:14,class:'markdown-editor',value:body,spellcheck:true});textArea.addEventListener('input',()=>{body=textArea.value;changed();});
  const preview=el('div',{class:'markdown-preview',hidden:true});let showPreview=false;
  const previewButton=button('Preview Markdown',()=>{
@@ -81,8 +81,7 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
    preview.innerHTML=sanitizeHtml(parsed.html,window);showPreview=!showPreview;preview.hidden=!showPreview;textArea.hidden=showPreview;previewButton.textContent=showPreview?'Edit Markdown':'Preview Markdown';status(notice,'Markdown preview is local and has not been saved.','info');
   }catch(error){status(notice,error.message,'error');}
  });
- form.append(section(domain==='gear'?'Notes':'Content',field('Markdown',textArea,'Markdown is authoritative. Local images require meaningful alt text and a repository file.'),previewButton,preview));
- const instructions=el('p',{class:'hint'},'Prepare Changes creates a small source-aware package. It does not save or upload anything.');
+ form.append(section('Notes',field('Markdown',textArea),previewButton,preview));
  const prepareButton=button('Prepare Changes',()=>form.requestSubmit(),{variant:'primary'});
  form.addEventListener('submit',async event=>{
   event.preventDefault();try{
@@ -96,7 +95,7 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
    if(pictureAction==='remove')delete candidate.picture;
    if(['add','replace'].includes(pictureAction)){candidate.picture={src:safePath(picturePathInput.value),...(captionInput.value.trim()?{caption:captionInput.value.trim()}:{})};}
    if(!editing){if(body)candidate[key]=narrativePath(domain,candidate);else delete candidate[key];}
-   if(domain==='kb'&&!body.trim())throw new Error('Knowledge Base Content is required.');
+   if(domain==='kb'&&!body.trim())throw new Error('Knowledge Base Notes are required.');
    const result=editorMaps(ctx,domain,candidate);validateRecord(candidate,domain,ctx.data);
    const owner=candidate[key]||narrativePath(domain,candidate);
    const parsed=parseMarkdown(body,{owner,maps:result.maps,assetBase:ctx.base,exists:knownPaths(ctx),pathRoutes:result.routes});
@@ -107,12 +106,13 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
     const existingFile=knownFiles(ctx).get(candidate.picture.src);if(existingFile.sha256!==fileInfo.sha256&&pictureAction!=='replace')throw new Error('A different file already exists at this path. Use an explicit replacement.');
    }
    prepared=await prepareChange({domain,operation:editing?'edit':'add',id:candidate.id,baseRecord,record:candidate,baseText,text:body,sourceRevision:ctx.release.sourceRevision,notesPath:candidate[key]||narrativePath(domain,candidate),baseFileHash:baseHash,pictureAction,picturePath:candidate.picture?.src,pictureFile:fileInfo});
+   const copyNotice=el('div',{'aria-live':'polite',class:'copy-notice'});
    const json=JSON.stringify(prepared,null,2),area=el('textarea',{rows:12,readonly:true,class:'package-text',value:json});
-   output.replaceChildren(text('h3','Prepared change package'),text('p','Copy this JSON into the Fishing project chat for source-aware promotion. Preparing is not saving.','hint'),area,toolbar(button('Copy Changes',async()=>{try{await navigator.clipboard.writeText(json);status(notice,'Package copied. Paste it into the Fishing project chat.','success');}catch{area.focus();area.select();status(notice,'Select and copy the package manually.','warning');}},{variant:'primary'}),button('Select text',()=>{area.focus();area.select();})),...(fileInfo?[text('p','Upload the selected original to the repository path before promotion:','hint'),el('code',{},candidate.picture.src),el('p',{},el('a',{href:linkToUpload(candidate.picture.src),target:'_blank',rel:'noopener noreferrer'},'Open the repository upload folder'))]:[]));
+   output.replaceChildren(text('h3','Prepared change package'),text('p','Copy this JSON into the Fishing project chat for source-aware promotion. Preparing is not saving.','hint'),area,copyNotice,toolbar(button('Copy Changes',async()=>{try{await navigator.clipboard.writeText(json);status(copyNotice,'Changes copied to clipboard. Paste them into the Fishing project chat for implementation and deployment.','success');}catch{area.focus();area.select();status(copyNotice,'Clipboard unavailable. Select and copy the package manually, then paste it into the Fishing project chat for implementation and deployment.','warning');}},{variant:'primary'}),button('Select text',()=>{area.focus();area.select();})),...(fileInfo?[text('p','Upload the selected original to the repository path before promotion:','hint'),el('code',{},candidate.picture.src),el('p',{},el('a',{href:linkToUpload(candidate.picture.src),target:'_blank',rel:'noopener noreferrer'},'Open the repository upload folder'))]:[]));
    status(notice,'Package prepared. Nothing has been saved.','success');onPrepared?.(prepared);output.scrollIntoView({block:'nearest'});
   }catch(error){status(notice,error.message,'error');}
  });
- const actions=toolbar(prepareButton,button('Cancel',onBack));form.append(instructions,actions);
- host.append(text('h1',editing?'Edit '+record.name:'Add '+(domain==='gear'?'Gear':'Knowledge Base entry')),text('p','Changes are prepared for review in chat; they are not saved directly.','muted'),notice,form,output);
+ const actions=toolbar(prepareButton,button('Cancel',onBack));form.append(actions);
+ host.append(notice,form,output);
  return {element:host,isDirty:dirty,dispose:()=>{if(previewUrl)URL.revokeObjectURL(previewUrl);},record};
 }

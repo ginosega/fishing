@@ -22,7 +22,9 @@ try{
  const context=await browser.newContext();const page=await context.newPage();
  await page.goto(root);await page.getByRole('button',{name:/My Gear Browse/}).waitFor();await page.getByRole('button',{name:/My Gear Browse/}).click();await page.getByRole('button',{name:'Rods & Reels',exact:true}).waitFor();
  await page.goto(preview);await page.waitForFunction(id=>window.__FISHING_V2__?.releaseId===id,pointer.id,{timeout:180000});
+ await page.getByRole('button',{name:'Connection status',exact:true}).click();
  await page.locator('#offline-status[data-state="Ready"]').waitFor({timeout:180000});
+ await page.locator('#connection-close').click();
  assert.equal(await page.evaluate(async()=>new URL((await navigator.serviceWorker.getRegistration()).scope).pathname),'/fishing/v2-preview/');
  assert.deepEqual(await page.evaluate(()=>window.__FISHING_V2__.counts),{gear:69,kb:54,catches:5});
  await page.goto(preview+'#/inventory/item/bonafide-rvr119');await page.locator('.markdown-body').waitFor();
