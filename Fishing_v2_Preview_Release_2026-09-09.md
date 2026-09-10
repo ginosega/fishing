@@ -1,5 +1,7 @@
 # Fishing Companion v2 — Isolated Preview Release
 
+**Later checkpoint:** [Review corrections and production authorization](Fishing_v2_Review_Release_2026-09-09.md). The evidence below is historical. The corrected implementation is verified but not published; the user has authorized production and waived another preview review. Seven required pictures still block the production build.
+
 **Status:** Published and actual-hosted verification passed. Awaiting user preview review, required-media resolution and separate production-cutover authorization. The authorized temporary Work phase is complete; continue review in Chat. This is a pending-media preview, not a production acceptance certificate.
 
 ## Live review
