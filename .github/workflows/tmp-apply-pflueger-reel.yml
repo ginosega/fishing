@@ -1,0 +1,53 @@
+name: Temporary apply Pflueger reel package
+on:
+  push:
+    branches: [feature/pflueger-spincast-reel-edit-20260910]
+permissions:
+  contents: write
+jobs:
+  apply:
+    if: ${{ github.actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: true
+      - name: Apply verified record-local change
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const p = 'Gear/gear.json';
+          const data = JSON.parse(fs.readFileSync(p, 'utf8'));
+          const r = data.items.find(x => x.id === 'pflueger-president-spincast-reel');
+          if (!r) throw new Error('Target reel missing');
+          const expected = {
+            name: 'Pflueger President Spincast Combo - Reel',
+            specifications: [
+              {label:'Line weight',value:'8-14 lb'},
+              {label:'Gear ratio',value:'3.8:1'},
+              {label:'Part',value:'PRESSC-606L2CBO'}
+            ],
+            picture: {src:'Gear/Rods-Reels/assets/pflueger-president-spincast.webp'}
+          };
+          for (const k of Object.keys(expected)) {
+            if (JSON.stringify(r[k]) !== JSON.stringify(expected[k])) throw new Error(`Base conflict: ${k}`);
+          }
+          r.name = 'Pflueger President Spincast Reel';
+          r.specifications = [
+            {value:'3.4:1',label:'Gear ratio'},
+            {value:'90 yds. / 6 lb.',label:'Capacity'},
+            {value:'PRES6SC',label:'Part #'}
+          ];
+          r.picture = {
+            src:'Gear/Rods-Reels/assets/pflueger-president-spincast-reel.png',
+            caption:'Pflueger President Spincast Reel'
+          };
+          fs.writeFileSync(p, JSON.stringify(data, null, 2) + '\n');
+          NODE
+          git diff -- Gear/gear.json
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add Gear/gear.json
+          git commit -m 'Update Pflueger President spincast reel record [applied]'
+          git push origin HEAD:${GITHUB_REF_NAME}
