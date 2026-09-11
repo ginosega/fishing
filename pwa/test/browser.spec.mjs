@@ -27,7 +27,7 @@ async function prepare(){
  initial.pointer=await readJson(path.join(initial.root,'release.json'));initial.id=initial.pointer.id;
  const source=path.join(temporary,'source');
  for(const dir of ['Gear','KB','Catches'])await fs.cp(path.join(repo,dir),path.join(source,dir),{recursive:true});
- await fs.mkdir(path.join(source,'pwa'),{recursive:true});await fs.copyFile(path.join(repo,'pwa/revised-icon.png'),path.join(source,'pwa/revised-icon.png'));
+ await fs.mkdir(path.join(source,'pwa'),{recursive:true});await fs.copyFile(path.join(repo,'pwa/icon.png'),path.join(source,'pwa/icon.png'));
  const data=await sourceData();const article=data.kb.entities.find(x=>x.content);
  fixture={articleId:article.id,articlePath:article.content,marker:'Browser release upgrade fixture'};
  await fs.appendFile(path.join(source,article.content),'\n\n## '+fixture.marker+'\n\nThe second release is independently verified.\n');
@@ -369,9 +369,9 @@ test('FISH084 wording, search, catch date and exact icon',async({page})=>{
  await expect(page.locator('a[href="#/kb"]')).toContainText('Fishing reference library');
  await expect(page.locator('a[href="#/catches"] p')).toHaveText('Recorded catches');
  const manifest=await page.evaluate(async()=>await(await fetch('./manifest.webmanifest')).json());
- const sourceIcon=await fs.readFile(path.join(v2,'revised-icon.png')),meta=await sharp(sourceIcon).metadata();
- expect(manifest.icons[0]).toEqual({src:'./revised-icon.png',sizes:`${meta.width}x${meta.height}`,type:'image/png',purpose:'any'});
- const hostedIcon=Buffer.from(await(await page.request.get(base+'revised-icon.png')).body());expect(hostedIcon).toEqual(sourceIcon);
+ const sourceIcon=await fs.readFile(path.join(v2,'icon.png')),meta=await sharp(sourceIcon).metadata();
+ expect(manifest.icons[0]).toEqual({src:'./icon.png',sizes:`${meta.width}x${meta.height}`,type:'image/png',purpose:'any'});
+ const hostedIcon=Buffer.from(await(await page.request.get(base+'icon.png')).body());expect(hostedIcon).toEqual(sourceIcon);
  expect(meta.hasAlpha).toBe(true);
  const {data:rgba,info}=await sharp(hostedIcon).ensureAlpha().raw().toBuffer({resolveWithObject:true});
  const alpha=(x,y)=>rgba[(y*info.width+x)*info.channels+3];
