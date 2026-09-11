@@ -2,7 +2,11 @@
 
 ## Current production state — September 10, 2026
 
-Current Fishing Companion production source is `76094d48055ca9e2363298763cdbf00586fbeb71`, published and hosted-verified by [run 34544432559](https://github.com/ginosega/fishing/actions/runs/34544432559); release `d6334fcb8a34834f1918df95b8f04efd` contains 205 hosted files. PR77 supplied Tsuridamashii; PR79 supplied Rapala Original Floating, Mack's Pee Wee Hoochie, River2Sea Whopper Plopper 60 and Yellow Perch and replaced Rebel Pop-R; PR81 updated Kokanee/Largemouth/Smallmouth; PR84 supplied the final Popper and Whopper Plopper Gear-Guide pictures. All seven originally deferred required pictures are now resolved. FISH078 is DONE. Generic inline-spinner remains optional; no new task ID is consumed.
+Current Fishing Companion production source is `76094d48055ca9e2363298763cdbf00586fbeb71`, published and hosted-verified by [run 34544432559](https://github.com/ginosega/fishing/actions/runs/34544432559); release `d6334fcb8a34834f1918df95b8f04efd` contains 205 hosted files. PR77 supplied Tsuridamashii; PR79 supplied Rapala Original Floating, Mack's Pee Wee Hoochie, River2Sea Whopper Plopper 60 and Yellow Perch and replaced Rebel Pop-R; PR81 updated Kokanee/Largemouth/Smallmouth; PR84 supplied the final Popper and Whopper Plopper Gear-Guide pictures. All seven originally deferred required pictures are now resolved. FISH078 is DONE. Generic inline-spinner remains optional.
+
+## Pending approved UI refinement batch — not yet implemented
+
+FISH-TODO-084 is OPEN for one coordinated post-production UI/authoring refinement batch. Approved scope: replace the app icon with the CSS-matched fish/hook design; place Catch Log date on a regular-weight second line under Species; use `Search [page title]` placeholders site-wide; after Copy Changes show an Exit button that returns to the originating item/page without the dirty-form warning; prepend a plain-language ChatGPT instruction above copied JSON packages; change Knowledge Base subtext/subtitle to `Fishing reference library`; change Catch Log subtext/title to `Recorded catches`; and remove the arrow from Back buttons site-wide. The earlier request to make KB Notes optional was withdrawn and must not be implemented. The batch is approved for future implementation in Chat mode but was intentionally not implemented during this reconciliation. See `pwa/docs/Fishing_UI_Refinement_Approved_Scope_2026-09-10.md`.
 
 ## Repository cleanup — September 10, 2026
 
@@ -15,7 +19,9 @@ _Last reconciled: September 10, 2026._
 
 This is the canonical backlog. Preserve source, ownership uncertainty and unrelated work.
 
-## V2 project
+## Historical V2 production project state
+
+The following section is dated historical evidence from the initial v2 cutover and does not override the current state or open-task table above.
 
 V2 is published at [Fishing Companion](https://ginosega.github.io/fishing/). Production revision `6a64be686cf751720884469b98f2fcc4df94ec6a`, release `d63599a99498d62fdfb1fc22c04643c2`, passed [publication and hosted verification](https://github.com/ginosega/fishing/actions/runs/34490532301). PR64 is merged. The user authorized production and waived another preview review; all seven previously required missing pictures are explicitly deferred. The affected records remain available without pictures. No acceptance or media approval blocks this release.
 
@@ -39,6 +45,7 @@ The sole active pipeline is `.github/workflows/fishing-production.yml`. V1 and t
 | FISH-TODO-081 | P1 | DONE | Viewer names/selectors, dirty navigation, update/reload race, failed-content retry, atomic release publication and honest Offline Ready state repaired. Regression tests cover corruption, missing assets, quota/promotion failure, old-release immutability and repair. Full hosted gate passes without weakening integrity assertions. |
 | FISH-TODO-082 | P1 | DONE | Supplied Word/twelve-screenshot review implemented in PR69 and published through PR64. Verbatim feedback is retained; layout, loading, missing-picture and clipboard success/failure checks pass. |
 | FISH-TODO-083 | P1 | DONE | Consolidated production source/tests and PWA references under pwa; removed obsolete root/history/v1 helpers. Current source uploads and rollback preserved. Full CI and hosted verification pass. Routine Add/Edit must not accumulate per-item scaffolding. |
+| FISH-TODO-084 | P1 | OPEN | Implement the approved Fishing Companion UI/authoring refinement batch as one coordinated feature PR/release in Chat mode: approved CSS-matched fish/hook app icon; Catch Log card date on a regular-weight second line under Species; site-wide `Search [page title]` placeholders; post-Copy Changes Exit button returning to the originating item/page without dirty-form warning; plain-language ChatGPT instruction above copied JSON; Knowledge Base text `Fishing reference library`; Catch Log text `Recorded catches`; and Back buttons without the arrow. KB Notes remain required because the optional-Notes request was withdrawn. Approved scope/reference: `pwa/docs/Fishing_UI_Refinement_Approved_Scope_2026-09-10.md`. Do not treat this reconciliation as implementation. |
 | FISH-TODO-063 | P2 | SUPERSEDED | Historical v1 KB filename/upload usability issue. V2 approved filename/authoring model replaces old ID-prefix/source-owner requirements; v1 is now historical. |
 | FISH-TODO-039 | P2 | SUPERSEDED | Historical structured setup recording on catches. V2 removes setup references; equipment details belong in Catch Notes. |
 
@@ -82,4 +89,4 @@ The following items remain open/deferred independently of the v2 rebuild. Their 
 
 ## Historical completion and release references
 
-FISH069/070 were completed in PR 60; FISH068 in PR 58; FISH067 in PR 57; FISH064–066 in PR 54/56; FISH062 in PR 52; FISH061 in PR 50; FISH060 in PR 48/49; FISH058 in PR 47; FISH059 was the Cylinder Weights media release. Complete evidence and the earlier completed-task table are preserved in Git history, the pre-cleanup checkpoint’s `History/2026-09-07-pre-recovery/Fishing_TODO.md` and the dated release files. The historical duplicate FISH060 handoff ID remains retired as `ARCHIVE-2026-09-06-HANDOFF`. The next unused canonical task ID is FISH-TODO-084. No completed task has been reopened or discarded by this reconciliation.
+FISH069/070 were completed in PR 60; FISH068 in PR 58; FISH067 in PR 57; FISH064–066 in PR 54/56; FISH062 in PR 52; FISH061 in PR 50; FISH060 in PR 48/49; FISH058 in PR 47; FISH059 was the Cylinder Weights media release. Complete evidence and the earlier completed-task table are preserved in Git history, the pre-cleanup checkpoint’s `History/2026-09-07-pre-recovery/Fishing_TODO.md` and the dated release files. The historical duplicate FISH060 handoff ID remains retired as `ARCHIVE-2026-09-06-HANDOFF`. The next unused canonical task ID is FISH-TODO-085. No completed task has been reopened or discarded by this reconciliation.

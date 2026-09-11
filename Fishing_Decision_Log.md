@@ -1,5 +1,11 @@
 # Fishing Decision Log
 
+## Approved pending UI refinement batch — September 10, 2026
+
+The user approved one coordinated Fishing Companion UI/authoring refinement batch, tracked as FISH-TODO-084 and intentionally **not implemented during the subsequent reconciliation/audit**. The exact approved scope is preserved in `pwa/docs/Fishing_UI_Refinement_Approved_Scope_2026-09-10.md`, including the approved CSS-matched fish/hook icon reference at `pwa/docs/assets/Fishing_Companion_Approved_Icon_2026-09-10.png`. Implementation should remain in Chat mode; no Work-only capability has been identified.
+
+The approved batch consists of: Catch Log card date on a regular-weight second line under Species; general `Search [page title]` placeholders; post-Copy Changes Exit behavior with no unsaved-changes warning; a plain-language ChatGPT instruction above copied JSON packages; Knowledge Base wording `Fishing reference library`; Catch Log wording `Recorded catches`; Back buttons without the arrow; and replacement of the runtime app icon with the approved reference. The user's earlier request to make KB Notes optional was withdrawn; no Notes-validation/model change is authorized.
+
 ## Post-production authoring updates — September 10, 2026
 
 The site-authored Prepare Changes → Copy Changes workflow has now been exercised through routine production updates including PR75/PR76 (Pflueger spincast rod/reel), PR77 (Tsuridamashii snap-swivels picture), PR79 (four previously deferred pictures plus Rebel Pop-R replacement), PR81 (Kokanee/Largemouth/Smallmouth Species updates), and PR84 (the final Popper and Whopper Plopper Gear-Guide pictures). Current production source `76094d48055ca9e2363298763cdbf00586fbeb71` passed the full production pipeline and hosted verification in [run 34544432559](https://github.com/ginosega/fishing/actions/runs/34544432559); release `d6334fcb8a34834f1918df95b8f04efd` contains 205 hosted files. The original decision accepting seven missing required pictures remains historical authority for the cutover; all seven exceptions are now resolved by later user-supplied images. FISH078 is DONE. Generic inline-spinner remains optional; P2 remains DEFERRED.
@@ -98,4 +104,4 @@ Gear schema 4 uses JSON/IndexedDB, paired setups, manufacturer objects, ordered 
 
 ## Open work
 
-The canonical TODO tracks the six remaining user-supplied deferred pictures, separately authorized P2 work and existing fishing/gear research. Production cutover and automated/hosted acceptance are complete. FISH063's old media-authoring policy and FISH039's setup recording are superseded for v2; they do not justify reintroducing retired structures. PowerBait hook-size and loop-knot guidance remain unresolved. The next unused canonical task ID is FISH-TODO-084. No approved future feature is treated as already deployed.
+The canonical TODO tracks FISH-TODO-084 as the approved but not-yet-implemented UI/authoring refinement batch, separately authorized P2 work and existing fishing/gear research. All seven originally deferred required pictures are resolved; generic inline-spinner remains optional. Production cutover and automated/hosted acceptance are complete. FISH063's old media-authoring policy and FISH039's setup recording are superseded for v2; they do not justify reintroducing retired structures. PowerBait hook-size and loop-knot guidance remain unresolved. The next unused canonical task ID is FISH-TODO-085. No approved future feature is treated as already deployed.

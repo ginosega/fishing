@@ -11,6 +11,10 @@ Add/Edit creates copyable source-change packages, not one-off helper/release fil
 
 V2 is published at [Fishing Companion](https://ginosega.github.io/fishing/). Current production source `76094d48055ca9e2363298763cdbf00586fbeb71` passed the complete production pipeline and actual hosted verification in [run 34544432559](https://github.com/ginosega/fishing/actions/runs/34544432559); release `d6334fcb8a34834f1918df95b8f04efd` contains 205 hosted files. Post-production site-authored changes include PR75/PR76 (Pflueger spincast rod/reel), PR77 (Tsuridamashii snap-swivels picture), PR79 (four previously deferred pictures plus Rebel Pop-R replacement), PR81 (Kokanee/Largemouth/Smallmouth Species updates), and PR84 (final Popper and Whopper Plopper Gear-Guide pictures). All seven originally deferred required pictures are resolved and live. Generic inline-spinner remains optional. No acceptance or media approval blocks routine releases.
 
+### Pending approved UI refinement batch — not yet implemented
+
+FISH-TODO-084 is OPEN and approved for one coordinated future feature PR/release in Chat mode. Exact scope: approved CSS-matched fish/hook app icon; Catch Log date on a regular-weight second line under Species; general `Search [page title]` placeholders; Exit after Copy Changes returning to the originating item/page without dirty-form warning; plain-language ChatGPT instruction above copied JSON; Knowledge Base text `Fishing reference library`; Catch Log text `Recorded catches`; and removal of the Back-button arrow site-wide. The earlier request to make KB Notes optional was withdrawn; do not implement it. Read `pwa/docs/Fishing_UI_Refinement_Approved_Scope_2026-09-10.md` and use `pwa/docs/assets/Fishing_Companion_Approved_Icon_2026-09-10.png` as the signed-off icon reference. This reconciliation is documentation only; none of FISH084 is deployed yet.
+
 Validation remains the complete core/source build plus preview-scope and production-scope Chromium/WebKit scenarios, including the archived-v1 worker/store transition, followed by exact-current-main Pages deployment and actual hosted-byte/browser verification. These are automated browser/direct hosted checks, not physical-device inspection.
 
 The sole active pipeline is `.github/workflows/fishing-production.yml`. V1 and the earlier preview are historical; use the production root. V1 sources are archived in Git history and the pre-cleanup checkpoint; exact rollback ZIPs remain in Git. Old browser stores are retained. P2 remains deferred. Continue in Chat.
@@ -26,7 +30,7 @@ Read latest main in order:
 2. `Fishing_Context.md`
 3. `Fishing_TODO.md`
 4. `Fishing_Decision_Log.md`
-5. `pwa/docs/Fishing_v2_Production_Release_2026-09-10.md` and `pwa/docs/Fishing_v2_Review_Feedback_2026-09-09.md`
+5. `pwa/docs/Fishing_v2_Production_Release_2026-09-10.md`, `pwa/docs/Fishing_v2_Review_Feedback_2026-09-09.md` and `pwa/docs/Fishing_UI_Refinement_Approved_Scope_2026-09-10.md`
 6. `pwa/docs/Fishing_Companion_v2_Approved_Baseline.md`
 7. `pwa/docs/Fishing_Companion_v2_Source_Audit.md` and its September9 addendum
 8. `pwa/docs/Fishing_Companion_v2_Technical_Contracts.md`, its September9 addendum and `pwa/contracts/schema.json`
@@ -48,4 +52,4 @@ The only active production pipeline is `.github/workflows/fishing-production.yml
 
 V1 runtime sources remain historical. Exact v1 production and migration-media ZIPs are preserved in Git at `checkpoint/v1-before-v2-preview-20260909`, commit `4aafcd2f88b35bb34b608e2f85dec1daffc6c1d1`; the production release has hashes/restore guidance. Do not run old competing publishers. The earlier preview URL is superseded by the production root.
 
-The source-equivalence waiver stands; no separate physical-device/IndexedDB export or inspection is claimed. Retain old browser stores and reconcile later-discovered local-only data before retirement. FISH076, FISH078 and FISH083 are DONE; P2 FISH077 remains DEFERRED. All originally required missing pictures are resolved; generic inline-spinner remains optional. Unrelated backlog remains; next unused task ID084. Update Context, Decision Log, TODO, README, affected source/technical/release records and this bootstrap after actual milestones; cross-check before handoff.
+The source-equivalence waiver stands; no separate physical-device/IndexedDB export or inspection is claimed. Retain old browser stores and reconcile later-discovered local-only data before retirement. FISH076, FISH078 and FISH083 are DONE; P2 FISH077 remains DEFERRED; FISH084 is OPEN for the approved UI/authoring refinement batch. All originally required missing pictures are resolved; generic inline-spinner remains optional. Unrelated backlog remains; next unused task ID085. Update Context, Decision Log, TODO, README, affected source/technical/release records and this bootstrap after actual milestones; cross-check before handoff.
