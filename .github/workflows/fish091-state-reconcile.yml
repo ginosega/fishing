@@ -1,0 +1,52 @@
+name: FISH091 design-state reconciler
+on:
+  push:
+    branches: [docs/fish091-design-state]
+permissions:
+  contents: write
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: true
+      - name: Reconcile current FISH091 state
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          sections = {
+            'README.md': '''## FISH091 requirements approved; design review pending — September 11, 2026\n\nThe FISH091 online-only-default requirements are approved **as written, including S1–S4**. [PR103](https://github.com/ginosega/fishing/pull/103) carries the approved requirements onto current `main` with a durable approval record. The separate abbreviated design is now in draft [PR104](https://github.com/ginosega/fishing/pull/104) for user review. **No runtime implementation is authorized until the user explicitly approves that design.** FISH077/P2 remains DEFERRED, and the next unused canonical task ID remains **FISH-TODO-096**.\n\n''',
+            'Fishing_Context.md': '''## FISH091 requirements approved; design review pending — September 11, 2026\n\nThe user approved the FISH091 online-only-default requirements **as written, including S1–S4**, and authorized the separate abbreviated design phase. PR103 merged the reviewed requirements and approval record onto current `main`. Draft PR104 contains the design only; implementation remains blocked pending explicit user design signoff. FISH077/P2 remains DEFERRED. Next unused canonical task ID: **FISH-TODO-096**.\n\n''',
+            'Fishing_TODO.md': '''## FISH091 design-review state — September 11, 2026\n\nFISH-TODO-091 has completed requirements signoff: the user approved the requirements **as written, including S1–S4**. PR103 records that approval on current `main`; draft PR104 contains the separate abbreviated design. Status is now **DESIGN REVIEW**. No implementation is authorized until explicit user design signoff. FISH077/P2 remains DEFERRED; next unused canonical task ID remains **FISH-TODO-096**.\n\n''',
+            'Fishing_Decision_Log.md': '''## FISH091 requirements signoff / design gate — September 11, 2026\n\n**Decision:** The online-only-default requirements are approved **as written, including S1–S4**. PR103 records the approved requirements on current `main`. The next authorized phase is the separate abbreviated design in draft PR104. No runtime/service-worker/loader/UI/build/test implementation is authorized until the user explicitly approves that design. FISH077/P2 remains DEFERRED; next unused task ID remains **FISH-TODO-096**.\n\n''',
+            'Fishing_New_Chat_Bootstrap_Prompt.md': '''## FISH091 current continuation point — September 11, 2026\n\nThe user approved the FISH091 online-only-default requirements **as written, including S1–S4**. PR103 merged the approved requirements and approval record. Draft PR104 contains the separate abbreviated design and is awaiting user design review/signoff. **Do not implement FISH091 until that design is explicitly approved.** FISH077/P2 remains DEFERRED. Next unused canonical task ID: **FISH-TODO-096**. Restore actual latest `main` before acting.\n\n''',
+            'pwa/README.md': '''## FISH091 design-review state — September 11, 2026\n\nFISH091 requirements are approved **as written, including S1–S4** through PR103. Draft PR104 contains the separate abbreviated online-only-default design. Runtime implementation is not yet authorized; existing production behavior remains unchanged until explicit user design signoff and a later implementation/release.\n\n'''
+          }
+
+          for name, section in sections.items():
+            p = Path(name)
+            text = p.read_text()
+            marker = section.splitlines()[0]
+            if marker not in text:
+              lines = text.splitlines(True)
+              if lines and lines[0].startswith('# '):
+                text = lines[0] + '\n' + section + ''.join(lines[1:])
+              else:
+                text = section + text
+              p.write_text(text)
+
+          todo = Path('Fishing_TODO.md')
+          text = todo.read_text()
+          old = "| FISH-TODO-091 | P1 | WAITING ON USER | Draft PR96 is requirements/change-request review only for an online-only default with explicit offline-library preparation. No runtime, service-worker, loader, UI, build or test implementation is authorized. Next required action is user requirements signoff; then a separate abbreviated design and user design signoff must precede implementation. |"
+          new = "| FISH-TODO-091 | P1 | DESIGN REVIEW | Requirements approved as written, including S1–S4. PR103 records approval on current main; draft PR104 contains the separate abbreviated design. No implementation is authorized until explicit user design signoff. |"
+          if old in text:
+            text = text.replace(old, new)
+          todo.write_text(text)
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add README.md Fishing_Context.md Fishing_TODO.md Fishing_Decision_Log.md Fishing_New_Chat_Bootstrap_Prompt.md pwa/README.md
+          git commit -m 'FISH091: reconcile requirements approval and design state'
+          git push
