@@ -1,5 +1,15 @@
 # Fishing Context
 
+## FISH088 Kingforest inline-spinner production closeout — September 11, 2026
+
+FISH-TODO-088 is DONE through [PR93](https://github.com/ginosega/fishing/pull/93). Production source `364a599a4eeb51457ece46457d738ebb4f0d82f3`, release `97e6a320ed42c432b875de9fe8c2ef25`, passed [production run 34621210887](https://github.com/ginosega/fishing/actions/runs/34621210887): 21 core/source tests, preview- and production-scope Chromium/WebKit acceptance, archived-v1 cutover acceptance, exact-current-main Pages deployment, 206 hosted v2 files and complete hosted byte/browser verification.
+
+The validated Gear change package renamed `generic-1-inline-spinner` to **Kingforest #1 inline spinner**, set manufacturer **Kingforest** and `links: []`, replaced its Notes with the supplied Mayfield Lake/Amazon/internal-technique text, and associated `Gear/Lures/assets/Kingforest Inline Spinner.png` with caption **Kingforest #1 Inline Spinner**. The structured record and Notes base hashes matched. The user-uploaded PNG was already present on the restored current `main`; its exact 430,419 bytes and SHA-256 `57416d3c9d6dcee3e4fabfc324bd281756be5c9ff5cfc2b5a41affbbaaec8b14` matched the package before the record referenced it.
+
+Two source-derived regressions were reconciled without changing product behavior: the complete referenced-source count moved from 235 to 236, and the prior browser check that required a pictureless Lure was replaced because this change gives the last pictureless Lure a picture; absent-picture behavior remains covered by a pictureless KB Location. No schema, architecture, identity, Catch model or P2 authoring scope changed. The historical migration/media decision that the generic inline-spinner picture was optional remains historical evidence; the current record now has the user-supplied picture.
+
+FISH084–088 are DONE. FISH077/P2 remains DEFERRED. All unrelated fishing/equipment/content backlog and purchase uncertainty remain preserved. The next unused canonical task ID is FISH-TODO-089. Continue in Chat using actual latest `main`. This documentation reconciliation is non-runtime and does not redeploy production.
+
 ## FISH087 KB authoring batch production closeout — September 11, 2026
 
 FISH-TODO-087 is DONE through [PR92](https://github.com/ginosega/fishing/pull/92). Production source `dee0ff76f6b15e861fa8864151aad88c8fe28f5e`, release `40c849b4014013f22200843c9d222c2c`, passed [production run 34614884273](https://github.com/ginosega/fishing/actions/runs/34614884273): complete source/core validation, preview- and production-scope browser acceptance, archived-v1 cutover acceptance, exact-current-main Pages deployment, all 205 hosted-file comparisons and hosted browser verification.
@@ -70,7 +80,7 @@ The pinned canonical migration hashes remain Gear `e001c82a49c63b8ac21c93b559bc4
 
 ## Pictures and browser data
 
-The original production decision explicitly approved absence of seven required pictures and remains preserved in `pwa/migration/media-decisions.json` as historical migration disposition. The user later supplied Tsuridamashii through PR77; Rapala Original Floating, Mack's Pee Wee Hoochie, River2Sea Whopper Plopper 60 and Yellow Perch through PR79; and Popper plus Whopper Plopper Gear-Guide pictures through PR84. All seven required picture exceptions are now resolved. Generic inline-spinner remains optional. Do not reinterpret the historical migration disposition as current absence or automatically acquire optional imagery.
+The original production decision explicitly approved absence of seven required pictures and remains preserved in `pwa/migration/media-decisions.json` as historical migration disposition. The user later supplied Tsuridamashii through PR77; Rapala Original Floating, Mack's Pee Wee Hoochie, River2Sea Whopper Plopper 60 and Yellow Perch through PR79; and Popper plus Whopper Plopper Gear-Guide pictures through PR84. All seven required picture exceptions are resolved. The generic inline-spinner was historically optional, and its user-supplied Kingforest picture is now associated through FISH088/PR93. Do not reinterpret historical migration/media dispositions as current absence or automatically acquire imagery.
 
 The user accepted source-equivalence evidence and waived a separate device-only IndexedDB export. No device inspection is claimed. Old v1 IndexedDB and caches remain; reconcile any later-discovered local-only records before retirement.
 
@@ -84,4 +94,4 @@ Complete releases are verified before readiness; corrupt or incomplete content i
 
 ## Backlog and next chat
 
-FISH071–076 and FISH078–087 are DONE; FISH077 is DEFERRED; production evidence is recorded above. FISH078 closed after PR84 supplied the final two required pictures, Popper and Whopper Plopper; all seven originally deferred required pictures are now resolved. Generic inline-spinner remains optional. Obsolete unmerged PR83 was closed as superseded by the already-live PR84; PR89–PR92 are merged; no feature/runtime PR remains open at this reconciliation. Unrelated fishing/equipment/content backlog is preserved; next unused ID is FISH-TODO-088. Continue in Chat using the current bootstrap. New work must restore actual latest main, use normal PR/CI for runtime changes and update authoritative records after actual milestones.
+FISH071–076 and FISH078–088 are DONE; FISH077 is DEFERRED; production evidence is recorded above. FISH078 closed after PR84 supplied the final two required pictures, Popper and Whopper Plopper; all seven originally deferred required pictures remain resolved. The historically optional generic inline-spinner now has the user-supplied Kingforest picture through FISH088/PR93. Obsolete unmerged PR83 was closed as superseded by the already-live PR84; PR89–PR93 are merged; no feature/runtime PR remains open at this reconciliation. Unrelated fishing/equipment/content backlog is preserved; next unused ID is FISH-TODO-089. Continue in Chat using the current bootstrap. New work must restore actual latest main, use normal PR/CI for runtime changes and update authoritative records after actual milestones.

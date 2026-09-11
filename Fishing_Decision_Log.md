@@ -1,5 +1,13 @@
 # Fishing Decision Log
 
+## FISH088 Kingforest inline-spinner production closeout — September 11, 2026
+
+FISH-TODO-088 is DONE through [PR93](https://github.com/ginosega/fishing/pull/93). Production source `364a599a4eeb51457ece46457d738ebb4f0d82f3`, release `97e6a320ed42c432b875de9fe8c2ef25`, passed [production run 34621210887](https://github.com/ginosega/fishing/actions/runs/34621210887) through full validation, exact-current-main Pages deployment, 206 hosted v2 files and complete hosted byte/browser verification.
+
+Decision/result: apply the submitted `fishing-companion-change-v2` Gear edit under the approved source-aware authoring rules because the structured-record and Notes bases matched. The package-specified image was not duplicated: the user had already uploaded `Gear/Lures/assets/Kingforest Inline Spinner.png` on newer current `main`, and its exact 430,419-byte size/SHA-256 matched the package. The record now names Kingforest, has empty structured links, uses the supplied Notes body and references that image. The historical optional-media disposition remains historical evidence rather than current absence.
+
+Two regression assertions were corrected because the requested source change legitimately increased referenced-source inventory 235 → 236 and eliminated the last pictureless Lure. Absent-picture behavior remains tested on a pictureless KB Location. No schema, architecture, direct-Save/P2, Catch or broader authoring decision changed. FISH084–088 are DONE; FISH077/P2 remains DEFERRED; unrelated backlog is unchanged. Next unused canonical task ID: FISH-TODO-089. This reconciliation is non-runtime and does not republish production.
+
 ## FISH087 KB authoring batch production closeout — September 11, 2026
 
 FISH-TODO-087 is DONE through [PR92](https://github.com/ginosega/fishing/pull/92). Production source `dee0ff76f6b15e861fa8864151aad88c8fe28f5e`, release `40c849b4014013f22200843c9d222c2c`, passed [production run 34614884273](https://github.com/ginosega/fishing/actions/runs/34614884273) through full validation, exact-current-main Pages deployment, all 205 hosted-file comparisons and hosted browser verification.
