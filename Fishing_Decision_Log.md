@@ -1,5 +1,13 @@
 # Fishing Decision Log
 
+## FISH089 location-picture production closeout — September 11, 2026
+
+FISH-TODO-089 is DONE through [PR94](https://github.com/ginosega/fishing/pull/94). Production source `5f413021f51a7d48ea8f7f96e99d9a81db9ee0a6`, release `7a7f62759f668cda0eece08125e798b2`, passed [production run 34625693090](https://github.com/ginosega/fishing/actions/runs/34625693090) through full validation, exact-current-main Pages deployment, 209 hosted v2 files and complete hosted byte/browser verification.
+
+Decision/result: apply all four submitted `fishing-companion-change-v2` KB edits under the approved source-aware authoring rules because every structured record hash and picture base matched current source. The four package image files were already present on a newer image-only `main` commit and matched their exact byte counts/SHA-256 values, so they were referenced without rewriting. Notes remained untouched. Cranberry's record association moved to the supplied JPG, while the old PNG bytes were retained because no deletion was requested. Mayfield's description was changed exactly as submitted; no other narrative changed.
+
+No schema, architecture, direct-Save/P2, Catch or broader authoring decision changed. FISH084–089 are DONE; FISH077/P2 remains DEFERRED; unrelated backlog is unchanged. Next unused canonical task ID: FISH-TODO-090. This reconciliation is non-runtime and does not republish production.
+
 ## FISH088 Kingforest inline-spinner production closeout — September 11, 2026
 
 FISH-TODO-088 is DONE through [PR93](https://github.com/ginosega/fishing/pull/93). Production source `364a599a4eeb51457ece46457d738ebb4f0d82f3`, release `97e6a320ed42c432b875de9fe8c2ef25`, passed [production run 34621210887](https://github.com/ginosega/fishing/actions/runs/34621210887) through full validation, exact-current-main Pages deployment, 206 hosted v2 files and complete hosted byte/browser verification.
