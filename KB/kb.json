@@ -13,14 +13,22 @@
       "type": "location",
       "name": "Lake Sammamish",
       "description": "Bass and trout water with distinct north-, south-, and east-shore patterns",
-      "content": "KB/Locations/content/lake-sammamish.md"
+      "content": "KB/Locations/content/lake-sammamish.md",
+      "picture": {
+        "src": "KB/Locations/assets/Lake Sammamish.jpg",
+        "caption": "Lake Sammamish - July 2, 2026"
+      }
     },
     {
       "id": "location-silver-lake-whatcom",
       "type": "location",
       "name": "Silver Lake",
       "description": "Kayak and bank fishing for trout and bass at Silver Lake Park",
-      "content": "KB/Locations/content/silver-lake-whatcom.md"
+      "content": "KB/Locations/content/silver-lake-whatcom.md",
+      "picture": {
+        "src": "KB/Locations/assets/Silver Lake.jpg",
+        "caption": "Silver Lake - July 27, 2026"
+      }
     },
     {
       "id": "location-cranberry-lake-deception-pass",
@@ -29,16 +37,20 @@
       "description": "Freshwater fishing at Deception Pass State Park",
       "content": "KB/Locations/content/cranberry-lake-deception-pass.md",
       "picture": {
-        "src": "KB/Locations/assets/location-cranberry-lake-deception-pass.png",
-        "caption": "Cranberry Lake"
+        "src": "KB/Locations/assets/Cranberry Lake.jpg",
+        "caption": "Cranberry Lake - August 6, 2026"
       }
     },
     {
       "id": "location-mayfield-lake",
       "type": "location",
       "name": "Mayfield Lake",
-      "description": "Regional camping and kayak water for trout, kokanee, bass, and pikeminnow",
-      "content": "KB/Locations/content/mayfield-lake.md"
+      "description": "Trout, kokanee, bass, and muskie fishing at Ike Kinswa State Park",
+      "content": "KB/Locations/content/mayfield-lake.md",
+      "picture": {
+        "src": "KB/Locations/assets/Mayfield Lake.png",
+        "caption": "Mayfield Lake - August 19, 2026"
+      }
     },
     {
       "id": "location-lake-chelan",
