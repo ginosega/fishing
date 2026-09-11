@@ -44,7 +44,7 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
     const actions=toolbar(button('↑',()=>move(index,-1),{disabled:index===0,title:'Move up'}),button('↓',()=>move(index,1),{disabled:index===record[keyName].length-1,title:'Move down'}),button('Remove',()=>{record[keyName].splice(index,1);renderRows();changed();},{variant:'danger'}));row.append(actions);return row;
    }));}
    function move(index,delta){const array=record[keyName];[array[index],array[index+delta]]=[array[index+delta],array[index]];renderRows();changed();}
-   holder.append(text('h3',title),rows,button('Add '+(keyName==='links'?'link':'specification'),()=>{record[keyName].push(Object.fromEntries(fields.map(([k])=>[k,''])));renderRows();changed();}));renderRows();return holder;
+   holder.append(text('h3',title),rows,button('Add '+(keyName==='links'?'link':'specification'),()=>{if(!record[keyName])record[keyName]=[];record[keyName].push(Object.fromEntries(fields.map(([k])=>[k,''])));renderRows();changed();}));renderRows();return holder;
   }
   form.append(repeater('Specifications','specifications',[['label','Label (optional)'],['value','Value']]),repeater('Links','links',[['label','Label'],['url','URL']]));
  }else{
