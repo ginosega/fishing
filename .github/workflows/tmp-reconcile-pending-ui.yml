@@ -1,0 +1,105 @@
+name: Temporary reconcile pending UI state
+on:
+  push:
+    branches:
+      - docs/reconcile-pending-ui-20260910
+permissions:
+  contents: write
+jobs:
+  reconcile:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: true
+      - name: Reconcile authority records
+        shell: bash
+        run: |
+          if [ "$GITHUB_ACTOR" = "github-actions[bot]" ]; then
+            exit 0
+          fi
+          python3 <<'PY'
+          from pathlib import Path
+          pending = "\n".join([
+              "## Pending approved UI refinement batch — not yet implemented",
+              "",
+              "FISH-TODO-084 is OPEN for one coordinated post-production UI/authoring refinement batch. Approved scope: replace the app icon with the CSS-matched fish/hook design; place Catch Log date on a regular-weight second line under Species; use `Search [page title]` placeholders site-wide; after Copy Changes show an Exit button that returns to the originating item/page without the dirty-form warning; prepend a plain-language ChatGPT instruction above copied JSON packages; change Knowledge Base subtext/subtitle to `Fishing reference library`; change Catch Log subtext/title to `Recorded catches`; and remove the arrow from Back buttons site-wide. The earlier request to make KB Notes optional was withdrawn and must not be implemented. The batch is approved for future implementation in Chat mode but was intentionally not implemented during this reconciliation. See `pwa/docs/Fishing_UI_Refinement_Approved_Scope_2026-09-10.md`.",
+          ])
+          p=Path('Fishing_Context.md'); s=p.read_text()
+          marker='Earlier cleanup/initial-release sections below remain dated historical evidence.\n\n## Repository cleanup — September 10, 2026'
+          assert marker in s
+          s=s.replace(marker,'Earlier cleanup/initial-release sections below remain dated historical evidence.\n\n'+pending+'\n\n## Repository cleanup — September 10, 2026',1)
+          hist='See [cleanup/release evidence](pwa/docs/Repository_Cleanup_2026-09-10.md).\n\n\nV2 is published at [Fishing Companion](https://ginosega.github.io/fishing/).'
+          assert hist in s
+          s=s.replace(hist,'See [cleanup/release evidence](pwa/docs/Repository_Cleanup_2026-09-10.md).\n\n## Historical initial v2 production closeout\n\nThe following paragraphs are dated historical evidence from the initial v2 cutover and do not override the current production state above.\n\nV2 is published at [Fishing Companion](https://ginosega.github.io/fishing/).',1)
+          old='FISH071–076 and FISH078–083 are DONE; FISH077 is DEFERRED. FISH078 closed after PR84 supplied the final two required pictures, Popper and Whopper Plopper; all seven originally deferred required pictures are now resolved. Generic inline-spinner remains optional. Unrelated fishing/equipment/content backlog is preserved; next unused ID is084. Continue in Chat using the current bootstrap. New work must restore actual latest main, use normal PR/CI for runtime changes and update authoritative records after actual milestones.'
+          new='FISH071–076 and FISH078–083 are DONE; FISH077 is DEFERRED; FISH084 is OPEN for the approved UI/authoring refinement batch recorded above. FISH078 closed after PR84 supplied the final two required pictures, Popper and Whopper Plopper; all seven originally deferred required pictures are now resolved. Generic inline-spinner remains optional. Unrelated fishing/equipment/content backlog is preserved; next unused ID is085. Continue in Chat using the current bootstrap. New work must restore actual latest main, use normal PR/CI for runtime changes and update authoritative records after actual milestones.'
+          assert old in s
+          p.write_text(s.replace(old,new,1))
+          p=Path('Fishing_TODO.md'); s=p.read_text()
+          marker='Generic inline-spinner remains optional; no new task ID is consumed.\n\n## Repository cleanup — September 10, 2026'
+          assert marker in s
+          s=s.replace(marker,'Generic inline-spinner remains optional.\n\n'+pending+'\n\n## Repository cleanup — September 10, 2026',1)
+          old='## V2 project\n\nV2 is published at [Fishing Companion]'
+          assert old in s
+          s=s.replace(old,'## Historical V2 production project state\n\nThe following section is dated historical evidence from the initial v2 cutover and does not override the current state or open-task table above.\n\nV2 is published at [Fishing Companion]',1)
+          row='| FISH-TODO-083 | P1 | DONE | Consolidated production source/tests and PWA references under pwa; removed obsolete root/history/v1 helpers. Current source uploads and rollback preserved. Full CI and hosted verification pass. Routine Add/Edit must not accumulate per-item scaffolding. |\n'
+          assert row in s
+          add='| FISH-TODO-084 | P1 | OPEN | Implement the approved Fishing Companion UI/authoring refinement batch as one coordinated feature PR/release in Chat mode: approved CSS-matched fish/hook app icon; Catch Log card date on a regular-weight second line under Species; site-wide `Search [page title]` placeholders; post-Copy Changes Exit button returning to the originating item/page without dirty-form warning; plain-language ChatGPT instruction above copied JSON; Knowledge Base text `Fishing reference library`; Catch Log text `Recorded catches`; and Back buttons without the arrow. KB Notes remain required because the optional-Notes request was withdrawn. Approved scope/reference: `pwa/docs/Fishing_UI_Refinement_Approved_Scope_2026-09-10.md`. Do not treat this reconciliation as implementation. |\n'
+          s=s.replace(row,row+add,1)
+          old='The next unused canonical task ID is FISH-TODO-084. No completed task has been reopened or discarded by this reconciliation.'
+          assert old in s
+          s=s.replace(old,'The next unused canonical task ID is FISH-TODO-085. No completed task has been reopened or discarded by this reconciliation.',1)
+          p.write_text(s)
+          p=Path('Fishing_Decision_Log.md'); s=p.read_text()
+          anchor='## Post-production authoring updates — September 10, 2026\n'
+          assert anchor in s
+          decision="\n".join([
+              "## Approved pending UI refinement batch — September 10, 2026",
+              "",
+              "The user approved one coordinated Fishing Companion UI/authoring refinement batch, tracked as FISH-TODO-084 and intentionally **not implemented during the subsequent reconciliation/audit**. The exact approved scope is preserved in `pwa/docs/Fishing_UI_Refinement_Approved_Scope_2026-09-10.md`, including the approved CSS-matched fish/hook icon reference at `pwa/docs/assets/Fishing_Companion_Approved_Icon_2026-09-10.png`. Implementation should remain in Chat mode; no Work-only capability has been identified.",
+              "",
+              "The approved batch consists of: Catch Log card date on a regular-weight second line under Species; general `Search [page title]` placeholders; post-Copy Changes Exit behavior with no unsaved-changes warning; a plain-language ChatGPT instruction above copied JSON packages; Knowledge Base wording `Fishing reference library`; Catch Log wording `Recorded catches`; Back buttons without the arrow; and replacement of the runtime app icon with the approved reference. The user's earlier request to make KB Notes optional was withdrawn; no Notes-validation/model change is authorized.",
+              "",
+              "",
+          ])
+          s=s.replace(anchor,decision+anchor,1)
+          old="The canonical TODO tracks the six remaining user-supplied deferred pictures, separately authorized P2 work and existing fishing/gear research. Production cutover and automated/hosted acceptance are complete. FISH063's old media-authoring policy and FISH039's setup recording are superseded for v2; they do not justify reintroducing retired structures. PowerBait hook-size and loop-knot guidance remain unresolved. The next unused canonical task ID is FISH-TODO-084. No approved future feature is treated as already deployed."
+          new="The canonical TODO tracks FISH-TODO-084 as the approved but not-yet-implemented UI/authoring refinement batch, separately authorized P2 work and existing fishing/gear research. All seven originally deferred required pictures are resolved; generic inline-spinner remains optional. Production cutover and automated/hosted acceptance are complete. FISH063's old media-authoring policy and FISH039's setup recording are superseded for v2; they do not justify reintroducing retired structures. PowerBait hook-size and loop-knot guidance remain unresolved. The next unused canonical task ID is FISH-TODO-085. No approved future feature is treated as already deployed."
+          assert old in s
+          p.write_text(s.replace(old,new,1))
+          p=Path('Fishing_New_Chat_Bootstrap_Prompt.md'); s=p.read_text()
+          marker='No acceptance or media approval blocks routine releases.\n\nValidation remains the complete core/source build'
+          assert marker in s
+          boot="\n".join([
+              "No acceptance or media approval blocks routine releases.",
+              "",
+              "### Pending approved UI refinement batch — not yet implemented",
+              "",
+              "FISH-TODO-084 is OPEN and approved for one coordinated future feature PR/release in Chat mode. Exact scope: approved CSS-matched fish/hook app icon; Catch Log date on a regular-weight second line under Species; general `Search [page title]` placeholders; Exit after Copy Changes returning to the originating item/page without dirty-form warning; plain-language ChatGPT instruction above copied JSON; Knowledge Base text `Fishing reference library`; Catch Log text `Recorded catches`; and removal of the Back-button arrow site-wide. The earlier request to make KB Notes optional was withdrawn; do not implement it. Read `pwa/docs/Fishing_UI_Refinement_Approved_Scope_2026-09-10.md` and use `pwa/docs/assets/Fishing_Companion_Approved_Icon_2026-09-10.png` as the signed-off icon reference. This reconciliation is documentation only; none of FISH084 is deployed yet.",
+              "",
+              "Validation remains the complete core/source build",
+          ])
+          s=s.replace(marker,boot,1)
+          old='FISH076, FISH078 and FISH083 are DONE; P2 FISH077 remains DEFERRED. All originally required missing pictures are resolved; generic inline-spinner remains optional. Unrelated backlog remains; next unused task ID084.'
+          assert old in s
+          s=s.replace(old,'FISH076, FISH078 and FISH083 are DONE; P2 FISH077 remains DEFERRED; FISH084 is OPEN for the approved UI/authoring refinement batch. All originally required missing pictures are resolved; generic inline-spinner remains optional. Unrelated backlog remains; next unused task ID085.',1)
+          old='5. `pwa/docs/Fishing_v2_Production_Release_2026-09-10.md` and `pwa/docs/Fishing_v2_Review_Feedback_2026-09-09.md`\n6. `pwa/docs/Fishing_Companion_v2_Approved_Baseline.md`'
+          assert old in s
+          s=s.replace(old,'5. `pwa/docs/Fishing_v2_Production_Release_2026-09-10.md`, `pwa/docs/Fishing_v2_Review_Feedback_2026-09-09.md` and `pwa/docs/Fishing_UI_Refinement_Approved_Scope_2026-09-10.md`\n6. `pwa/docs/Fishing_Companion_v2_Approved_Baseline.md`',1)
+          p.write_text(s)
+          for f in ['README.md','Fishing_Context.md','Fishing_TODO.md','Fishing_Decision_Log.md','Fishing_New_Chat_Bootstrap_Prompt.md','pwa/docs/Fishing_UI_Refinement_Approved_Scope_2026-09-10.md']:
+              assert 'FISH-TODO-084' in Path(f).read_text() or f=='README.md'
+          assert '| FISH-TODO-084 | P1 | OPEN |' in Path('Fishing_TODO.md').read_text()
+          assert 'next unused canonical task ID is FISH-TODO-085' in Path('Fishing_TODO.md').read_text()
+          assert 'next unused task ID085' in Path('Fishing_New_Chat_Bootstrap_Prompt.md').read_text()
+          assert 'KB Notes optional was withdrawn' in Path('Fishing_New_Chat_Bootstrap_Prompt.md').read_text()
+          assert 'APPROVED / NOT YET IMPLEMENTED' in Path('pwa/docs/Fishing_UI_Refinement_Approved_Scope_2026-09-10.md').read_text()
+          PY
+          git diff --check
+          git status --short
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add Fishing_Context.md Fishing_TODO.md Fishing_Decision_Log.md Fishing_New_Chat_Bootstrap_Prompt.md
+          git commit -m 'Reconcile approved UI refinement authority'
+          git push origin HEAD:${GITHUB_REF_NAME}
