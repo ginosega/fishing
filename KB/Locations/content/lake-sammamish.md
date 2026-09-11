@@ -1,5 +1,3 @@
-### General spring positioning
-
 Lake Sammamish is smaller and more manageable than Lake Washington, warms faster, has more vegetation, and largemouth are generally easier to find in spring. Prespawn fish transition between winter staging areas and emerging weed edges, shallow warming flats, and docks adjacent to deeper water. North-end shallows often warm before the main basin.
 
 ### North end
@@ -29,13 +27,3 @@ Lake Sammamish is smaller and more manageable than Lake Washington, warms faster
 
 - 2026-08-04: 10" perch and 12" largemouth at Lake Sammamish; kayak fishing over a bench west of Tibbetts Beach on south end; caught in <10 ft along edge of cover on Strike King KVD Square Bill 1.0 crankbait.
 - Historical observation: possible smallmouth spawning/juvenile area about half mile north of State Park launch on east side, around 12 ft flat dropping on three sides; larger fish may stage on adjacent deeper edges.
-
-## Before fishing
-
-For every trip, recheck:
-
-- Fish Washington regulations.
-- Emergency rules.
-- Park/dock signage.
-- Parking/launch restrictions.
-- Species-specific retention rules.
