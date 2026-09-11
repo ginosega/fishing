@@ -26,7 +26,7 @@ async function prepare(){
  initial.pointer=await readJson(path.join(initial.root,'release.json'));initial.id=initial.pointer.id;
  const source=path.join(temporary,'source');
  for(const dir of ['Gear','KB','Catches'])await fs.cp(path.join(repo,dir),path.join(source,dir),{recursive:true});
- await fs.mkdir(path.join(source,'pwa'),{recursive:true});await fs.copyFile(path.join(repo,'pwa/icon.svg'),path.join(source,'pwa/icon.svg'));
+ await fs.mkdir(path.join(source,'pwa'),{recursive:true});await fs.copyFile(path.join(repo,'pwa/revised-icon.png'),path.join(source,'pwa/revised-icon.png'));
  const data=await sourceData();const article=data.kb.entities.find(x=>x.content);
  fixture={articleId:article.id,articlePath:article.content,marker:'Browser release upgrade fixture'};
  await fs.appendFile(path.join(source,article.content),'\n\n## '+fixture.marker+'\n\nThe second release is independently verified.\n');
@@ -78,7 +78,8 @@ const heading=(page,name)=>page.locator('#app .page-header h1').filter({hasText:
 async function route(page,hash,title){await page.goto(base+hash,{waitUntil:'domcontentloaded'});await expect(heading(page,title)).toBeVisible();}
 async function updateLibrary(page){await page.getByRole('button',{name:'Connection status',exact:true}).click();await page.getByRole('button',{name:'Update offline library',exact:true}).click();await page.locator('#connection-close').click();}
 async function reloadLibrary(page){await page.getByRole('button',{name:'Connection status',exact:true}).click();await page.getByRole('button',{name:'Reload',exact:true}).click();if(await page.locator('#connection-dialog').isVisible())await page.locator('#connection-close').click();}
-async function packageFrom(page){await page.getByRole('button',{name:'Prepare Changes'}).click();await expect(page.locator('.package-text')).toBeVisible();return JSON.parse(await page.locator('.package-text').inputValue());}
+function parsePackage(value){expect(value).toMatch(/^Fishing Companion change package:/);return JSON.parse(value.slice(value.indexOf('\n\n')+2));}
+async function packageFrom(page){await page.getByRole('button',{name:'Prepare Changes'}).click();await expect(page.locator('.package-text')).toBeVisible();return parsePackage(await page.locator('.package-text').inputValue());}
 async function cacheInfo(page){return page.evaluate(async()=>{const names=(await caches.keys()).filter(x=>x.startsWith('fishing-v2:'));const result=[];for(const name of names){const c=await caches.open(name);const r=await c.match(new URL('__fishing_complete__',location.href));if(r)result.push(await r.json());}return result;});}
 
 // One worker and separate browser contexts keep all service-worker/cache tests isolated.
@@ -109,7 +110,7 @@ test('navigation, filters, stable links, Catch History and image viewer',async({
  const data=await sourceData();await openReady(page);
  await expect(page.locator('.nav-grid .nav-card')).toHaveCount(3);
  await route(page,'#/inventory','My Gear');
- await page.getByPlaceholder('Search all gear').fill('Tatula');
+ await page.getByPlaceholder('Search My Gear').fill('Tatula');
  await expect(page.locator('.record-grid .nav-card')).toHaveCount(1);
  await page.locator('.record-grid .nav-card').click();
  await expect(heading(page,'Daiwa Tatula')).toBeVisible();
@@ -127,12 +128,12 @@ test('navigation, filters, stable links, Catch History and image viewer',async({
  await page.getByRole('combobox',{name:'Type'}).selectOption({label:lure.type});
  await expect(page.locator('.record-grid .nav-card')).toHaveCount(data.gear.items.filter(x=>x.category==='lures'&&x.type===lure.type).length);
  await route(page,'#/kb','Knowledge Base');
- await page.getByPlaceholder('Search all Knowledge Base').fill('Silver Lake');
+ await page.getByPlaceholder('Search Knowledge Base').fill('Silver Lake');
  await expect(page.locator('.record-grid .nav-card').first()).toBeVisible();
  await route(page,'#/kb/species-largemouth-bass','Largemouth Bass');
  await expect(page.locator('#app')).toContainText('Catch History');
  await expect(page.locator('.section').filter({hasText:'Catch History'}).locator('.nav-card')).toHaveCount(data.catches.catches.filter(x=>x.speciesId==='species-largemouth-bass').length);
- await route(page,'#/catches','Catch Log');
+ await route(page,'#/catches','Recorded catches');
  await expect(page.locator('.record-grid .nav-card')).toHaveCount(data.catches.catches.length);
  await route(page,'#/catches/'+data.catches.catches[0].id,' · ');
  await expect(page.getByRole('button',{name:'Edit',exact:true})).toHaveCount(0);
@@ -291,10 +292,10 @@ test('reviewed page layouts, missing pictures, forms and copy feedback',async({p
  const grid=await page.locator('.home-grid').boundingBox(),main=await page.locator('#app').boundingBox();
  expect(Math.abs(grid.x+grid.width/2-main.x-main.width/2)).toBeLessThan(2);
  await page.screenshot({path:testInfo.outputPath('home.png'),fullPage:true});
- for(const [hash,title,subtitle,add] of [['#/inventory','My Gear','Browse your inventory of equipment, tackle, and bait','Add Gear'],['#/kb','Knowledge Base','Fishing reference and catch log','Add Entry']]){
+ for(const [hash,title,subtitle,add] of [['#/inventory','My Gear','Browse your inventory of equipment, tackle, and bait','Add Gear'],['#/kb','Knowledge Base','Fishing reference library','Add Entry']]){
   await route(page,hash,title);await expect(page.locator('.page-subtitle')).toHaveText(subtitle);
   await expect(page.locator('.page-header input[type=search]')).toBeVisible();await expect(page.locator('.page-header label')).toHaveCount(0);
-  await expect(page.locator('.page-header').getByRole('button',{name:'← Back'})).toBeVisible();
+  await expect(page.locator('.page-header').getByRole('button',{name:'Back'})).toBeVisible();
   const bottom=page.locator('.page').getByRole('link',{name:add,exact:true});await expect(bottom).toBeVisible();
   const positions=await page.locator('.page-actions').evaluate(e=>[...e.children].map(c=>c.tagName));expect(positions.at(-1)).toBe('BUTTON');
   await expect(page.locator('.nav-grid .card-icon')).toHaveCount(hash==='#/inventory'?8:5);
@@ -326,7 +327,7 @@ test('reviewed page layouts, missing pictures, forms and copy feedback',async({p
  // verify the click awaits success and displays the confirmation beside the package.
  await page.evaluate(()=>{window.__copied='';Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async value=>{window.__copied=value;}}});});
  await page.getByRole('button',{name:'Copy Changes',exact:true}).click();await expect(page.locator('.copy-notice')).toContainText('Changes copied to clipboard');await expect(page.locator('.copy-notice')).toContainText('implementation and deployment');
- expect(JSON.parse(await page.evaluate(()=>window.__copied)).id).toBe('review-test');
+ expect(parsePackage(await page.evaluate(()=>window.__copied)).id).toBe('review-test');
  await page.evaluate(()=>{Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async()=>{throw Error('denied');}}});});
  await page.getByRole('button',{name:'Copy Changes',exact:true}).click();await expect(page.locator('.copy-notice')).toContainText('Clipboard unavailable');await expect(page.locator('.copy-notice')).not.toContainText('Changes copied');
 });
@@ -360,4 +361,39 @@ test('production replaces the actual v1 worker at the same URL and retains its s
  await disconnect(context,true);await page.reload();await expect(heading(page,'Fishing Companion')).toBeVisible();
  await route(page,'#/kb/species-perch','Yellow Perch');await expect(page.locator('.picture-button')).toHaveCount(1);await expect(page.locator('.picture img')).toHaveCount(1);await expect(page.locator('.picture img')).toBeVisible();await expect(page.locator('.picture-empty')).toBeHidden();
  expect(await snapshot()).toEqual(before);
+});
+
+test('FISH084 wording, search, catch date and exact icon',async({page})=>{
+ await openReady(page);
+ await expect(page.locator('a[href="#/kb"]')).toContainText('Fishing reference library');
+ await expect(page.locator('a[href="#/catches"] p')).toHaveText('Recorded catches');
+ const manifest=await page.evaluate(async()=>await(await fetch('./manifest.webmanifest')).json());
+ expect(manifest.icons[0]).toEqual({src:'./revised-icon.png',sizes:'1254x1254',type:'image/png',purpose:'any'});
+ expect(Buffer.from(await(await page.request.get(base+'revised-icon.png')).body())).toEqual(await fs.readFile(path.join(v2,'revised-icon.png')));
+ for(const [hash,title] of [['#/inventory','My Gear'],['#/inventory/category/lures','Lures'],['#/kb','Knowledge Base'],['#/kb/category/equipment','Gear Guides']]){
+  await route(page,hash,title);await expect(page.getByPlaceholder('Search '+title,{exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Back',exact:true})).toBeVisible();
+ }
+ await route(page,'#/catches','Recorded catches');
+ const data=await sourceData();const catches=data.catches.catches;
+ const cards=page.locator('.record-grid .nav-card');
+ for(let i=0;i<catches.length;i++){
+  const c=catches[i],card=cards.filter({has:page.locator('h2')}).and(page.locator(`a[href="#/catches/${c.id}"]`));await expect(card.locator('h2')).toHaveText(data.kb.entities.find(x=>x.id===c.speciesId)?.name||'Catch');await expect(card.locator('h2 + time')).toHaveText(c.date);await expect(card.locator('time')).toHaveCSS('font-weight','400');
+ }
+});
+
+test('FISH084 copied packages exit to their origin and subsequent edits stay protected',async({page})=>{
+ await openReady(page);let dialogs=0;page.on('dialog',async d=>{dialogs++;await d.dismiss();});
+ await page.evaluate(()=>Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async value=>{window.__copied=value;}}}));
+ for(const [hash,title,add,domain] of [['#/inventory','My Gear','Add Gear','gear'],['#/inventory/category/lures','Lures','Add Gear','gear'],['#/kb','Knowledge Base','Add Entry','kb'],['#/kb/category/technique','Techniques','Add Entry','kb']]){
+  await route(page,hash,title);await page.getByRole('link',{name:add,exact:true}).click();await page.getByRole('textbox',{name:'Name',exact:true}).fill('Exit regression');if(domain==='kb')await page.locator('.markdown-editor').fill('Required notes.');
+  await packageFrom(page);await expect(page.getByRole('button',{name:'Exit',exact:true})).toBeHidden();await page.getByRole('button',{name:'Copy Changes',exact:true}).click();await expect(page.getByRole('button',{name:'Exit',exact:true})).toBeVisible();
+  expect(parsePackage(await page.evaluate(()=>window.__copied)).domain).toBe(domain);await page.getByRole('button',{name:'Exit',exact:true}).click();await expect(page).toHaveURL(new RegExp(hash+'$'));await expect(heading(page,title)).toBeVisible();
+ }
+ const data=await sourceData();
+ for(const [domain,record,prefix] of [['gear',data.gear.items[0],'#/inventory/item/'],['kb',data.kb.entities[0],'#/kb/']]){
+  await route(page,prefix+record.id,record.name);await page.getByRole('link',{name:'Edit item',exact:true}).click();await page.getByRole('textbox',{name:'Name',exact:true}).fill(record.name+' changed');await packageFrom(page);await page.getByRole('button',{name:'Copy Changes',exact:true}).click();await expect(page.getByRole('button',{name:'Exit',exact:true})).toBeVisible();
+  await page.getByRole('textbox',{name:'Name',exact:true}).fill(record.name+' changed again');await expect(page.getByRole('button',{name:'Exit',exact:true})).toHaveCount(0);await page.getByRole('button',{name:'Cancel',exact:true}).click();await expect(heading(page,'Edit')).toBeVisible();
+  await packageFrom(page);await page.getByRole('button',{name:'Copy Changes',exact:true}).click();await page.getByRole('button',{name:'Exit',exact:true}).click();await expect(page).toHaveURL(new RegExp(prefix+record.id+'$'));await expect(heading(page,record.name)).toBeVisible();
+ }
+ expect(dialogs).toBe(2);
 });
