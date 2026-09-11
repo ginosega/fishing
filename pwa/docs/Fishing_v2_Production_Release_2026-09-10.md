@@ -1,5 +1,17 @@
 # Fishing Companion v2 production release — September 10, 2026
 
+## Current verified production — FISH094, September 11, 2026
+
+Current deployed production source is `32759b83305e1dbb3818b676accb0aee3961ddf7`, release `a81d35da0db7b000ed031c17a9387de3`, produced by FISH094/[PR99](https://github.com/ginosega/fishing/pull/99) and fully verified in [production run 34645325275](https://github.com/ginosega/fishing/actions/runs/34645325275). The run passed source/core validation, preview- and production-scope Chromium/WebKit acceptance, archived-v1 cutover acceptance, the exact-current-main guard, Pages deployment, hosted-byte verification and hosted-browser verification. Hosted verification reported 210 v2 files and passed production navigation, counts, image viewer, complete offline reload, absent-picture behavior and no release diagnostics.
+
+FISH094 applied only the validated `technique-trout-fishing` package. The submitted record hash and base description matched current source. The deployed description is `Casting, bank-fishing, still-fishing, and kayak-trolling guidance`; the record references `KB/Techniques/assets/Trout Fishing.png`; no caption was invented; `KB/Techniques/content/trout-fishing.md` remained unchanged. The PNG had already been uploaded separately and was preserved byte-for-byte at 1,867,783 bytes with SHA-256 `7f883a4d7d6bbc5dfba152414ac81513f5bac8c896648769349e85bebd220306`.
+
+Preceding completed production milestones now reconciled into project state: FISH090/[PR95](https://github.com/ginosega/fishing/pull/95), source `470c74472e569010b81659c86fdd60937d6a9159`, run `34634890084`; FISH092/[PR97](https://github.com/ginosega/fishing/pull/97), source `ef883688c3f0786e35821f0baca5394c8f2156a5`, run `34640020315`; and FISH093/[PR98](https://github.com/ginosega/fishing/pull/98), source `347beab04ce60bb372c390bd8820b25c3d7b6314`, successful run `34642839586` attempt 2. FISH090 fixed first-link editing and replaced canonical `pwa/icon.png` with exact user-uploaded bytes (1,541,464 bytes; 1254×1254 RGBA; SHA-256 `055cea4acde10ac18a74cc0a42f03a03190ea4a12df17acc0d5808a1637b822a`). FISH092 normalized durable KB category `content/` + `assets/`; FISH093 normalized durable Gear category `assets/` + `content/`.
+
+FISH091/[draft PR96](https://github.com/ginosega/fishing/pull/96) is requirements-only, WAITING ON USER and **not part of this production release**. No online-only-default runtime/service-worker/loader/UI/build/test implementation is authorized until requirements and a separate abbreviated design receive user signoff. FISH077/P2 remains DEFERRED. Next unused canonical task ID is FISH-TODO-095.
+
+The documentation-only reconciliation after this release does not republish or alter release `a81d35da0db7b000ed031c17a9387de3`.
+
 ## FISH087 KB authoring batch production closeout — September 11, 2026
 
 FISH-TODO-087 is DONE through [PR92](https://github.com/ginosega/fishing/pull/92). Verified production source `dee0ff76f6b15e861fa8864151aad88c8fe28f5e`, release `40c849b4014013f22200843c9d222c2c`, passed [production run 34614884273](https://github.com/ginosega/fishing/actions/runs/34614884273). The run completed source/core validation, preview- and production-scope browser acceptance, archived-v1 cutover acceptance, exact-current-main guard, Pages deployment, all 205 hosted-file comparisons and complete hosted browser verification.
