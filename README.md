@@ -1,5 +1,13 @@
 # Fishing
 
+## FISH087 KB authoring batch production closeout — September 11, 2026
+
+FISH-TODO-087 is DONE through [PR92](https://github.com/ginosega/fishing/pull/92). Production source `dee0ff76f6b15e861fa8864151aad88c8fe28f5e`, release `40c849b4014013f22200843c9d222c2c`, passed [production run 34614884273](https://github.com/ginosega/fishing/actions/runs/34614884273): the complete source/core gate, preview- and production-scope browser acceptance, archived-v1 cutover acceptance, exact-current-main Pages deployment, all 205 hosted-file comparisons and hosted browser verification.
+
+PR92 applied the validated KB location/species change package, preserving the newer unrelated Silver Lake Markdown edit and the restored `KB/Locations/content/lake-bosworth.md`. The only non-content correction was a regression assertion updated to expect no Species subtitle after intentional description removal. No schema, architecture, picture or P2 scope changed.
+
+FISH084–087 are complete; FISH077/P2 remains DEFERRED; all unrelated fishing/equipment/content backlog and purchase uncertainty remain unchanged. The next unused canonical task ID is FISH-TODO-088. Continue in Chat using actual latest main. This documentation reconciliation does not republish the already-verified application release.
+
 ## Icon filename cleanup and current state — September 11, 2026
 
 FISH-TODO-086 is DONE through [PR91](https://github.com/ginosega/fishing/pull/91). Current production source `afd7afc9ee91fb3dc81a15635e14ec932bda2b1b`, release `11789b7bace383d161add0ac7d313579`, passed [production run 34608018650](https://github.com/ginosega/fishing/actions/runs/34608018650): 21 core tests, 24 preview-scope and 26 production-scope Chromium/WebKit scenarios, archived-v1 transition, exact-current-main Pages deployment, all 205 hosted-file comparisons and complete hosted browser verification.
