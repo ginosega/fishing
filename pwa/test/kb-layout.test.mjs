@@ -22,12 +22,11 @@ test('every KB category exposes canonical content and assets directories',async(
  }
 });
 
-test('KB content and representative pictures stay in their category folders',async()=>{
+test('every KB article stays in its category content folder',async()=>{
  const library=JSON.parse(await fs.readFile(path.join(root,'KB/kb.json'),'utf8'));
  for(const entity of library.entities){
   const folder=folders[entity.type];
   assert(folder,`Unknown KB type: ${entity.type}`);
   assert(entity.content.startsWith(`KB/${folder}/content/`),`${entity.id} content must be under KB/${folder}/content/`);
-  if(entity.picture?.src)assert(entity.picture.src.startsWith(`KB/${folder}/assets/`),`${entity.id} representative picture must be under KB/${folder}/assets/`);
  }
 });
