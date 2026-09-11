@@ -2,11 +2,9 @@
 
 ## Approved pending UI refinement batch — September 10, 2026
 
-The user approved one coordinated Fishing Companion UI/authoring refinement batch, tracked as FISH-TODO-084 and intentionally **not implemented during this reconciliation/audit**. The exact approved scope is preserved in `pwa/docs/Fishing_UI_Refinement_Approved_Scope_2026-09-10.md`. The approved CSS-matched fish/hook icon exists only as the signed-off image attachment in the originating Chat; it is intentionally not stored in GitHub yet, and the user will manually upload it after starting the next chat. Do not regenerate or substitute a different icon unless the user asks. Implementation should remain in Chat mode; no Work-only capability has been identified.
+The user approved one coordinated Fishing Companion UI/authoring refinement batch, tracked as FISH-TODO-084 and intentionally **not implemented during the subsequent reconciliation/audit**. The exact approved scope is preserved in `pwa/docs/Fishing_UI_Refinement_Approved_Scope_2026-09-10.md`, including the approved CSS-matched fish/hook icon reference at `pwa/docs/assets/Fishing_Companion_Approved_Icon_2026-09-10.png`. Implementation should remain in Chat mode; no Work-only capability has been identified.
 
 The approved batch consists of: Catch Log card date on a regular-weight second line under Species; general `Search [page title]` placeholders; post-Copy Changes Exit behavior with no unsaved-changes warning; a plain-language ChatGPT instruction above copied JSON packages; Knowledge Base wording `Fishing reference library`; Catch Log wording `Recorded catches`; Back buttons without the arrow; and replacement of the runtime app icon with the approved reference. The user's earlier request to make KB Notes optional was withdrawn; no Notes-validation/model change is authorized.
-
-Audit cleanup closed obsolete unmerged PR83 as superseded by the already-live PR84. Before this documentation reconciliation PR, no feature/runtime PR remained open. The live application source remains `76094d48055ca9e2363298763cdbf00586fbeb71`, hosted-verified by run `34544432559`; documentation reconciliation is not a runtime deployment.
 
 ## Post-production authoring updates — September 10, 2026
 

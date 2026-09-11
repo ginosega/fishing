@@ -8,7 +8,7 @@ This document preserves the exact scope agreed in Chat before implementation. It
 
 ## Approved changes
 
-1. **Application icon.** Replace the current runtime icon with the user-approved fish-and-hook design. The signed-off image currently exists only as an attachment in the originating Chat and is intentionally not stored in GitHub during this reconciliation. The user will manually upload that approved image after starting the next chat. Do not regenerate, redraw or substitute a different icon unless the user asks. The approved version was recolored to complement the actual production CSS dark palette: `#101b18`, `#172722`, `#203b34`, `#344940`, `#80c9b5`, `#247c6d`, `#e4ede8`, `#a2b5aa`.
+1. **Application icon.** Replace the current runtime icon with the user-approved fish-and-hook design. The signed-off reference is [`assets/Fishing_Companion_Approved_Icon_2026-09-10.png`](assets/Fishing_Companion_Approved_Icon_2026-09-10.png), SHA-256 `3245b6768ce1952e5f47d13d1d662de57240e1bf53bcb961643e09328065efab`, 64,790 bytes. It was recolored to complement the actual production CSS dark palette: `#101b18`, `#172722`, `#203b34`, `#344940`, `#80c9b5`, `#247c6d`, `#e4ede8`, `#a2b5aa`. The reference asset under `pwa/docs/` is documentation only; do not treat its presence as runtime icon implementation.
 2. **Catch Log cards.** Species remains first; move date to the second line directly under Species and render the date with normal, not bold, weight.
 3. **Search placeholders.** General site rule: search inputs use `Search [page title]`, e.g. `Search My Gear`, `Search Lures`, `Search Knowledge Base`, `Search Gear Guides`.
 4. **Post-copy Exit.** After Copy Changes on a Gear/KB Add or Edit page, show an `Exit` button. On edit, Exit returns to the original item page. On add, Exit returns to the originating Gear/KB page. This exit must not show the `Changes have not been saved...` warning.
@@ -21,9 +21,9 @@ This document preserves the exact scope agreed in Chat before implementation. It
 
 The earlier request to make KB Notes optional was withdrawn. Do **not** change KB Notes validation, schema or viewer behavior as part of FISH084. The user intends to add Notes to every KB item eventually and may use a placeholder string temporarily when authoring.
 
-## Current implementation state
+## Reconciliation state
 
-None of the changes above are implemented or deployed as of this reconciliation. The live application source remains `76094d48055ca9e2363298763cdbf00586fbeb71`, hosted-verified by production run `34544432559`, release `d6334fcb8a34834f1918df95b8f04efd`. Obsolete unmerged PR83 was closed as superseded by already-live PR84.
+None of FISH084 is implemented or deployed by this reconciliation. The live application source remains `76094d48055ca9e2363298763cdbf00586fbeb71`, hosted-verified by production run `34544432559`, release `d6334fcb8a34834f1918df95b8f04efd`. During the audit, obsolete unmerged PR83 was closed as superseded by the already-live PR84; no feature/runtime PR remained open before the documentation reconciliation PR was created. The approved icon file stored under `pwa/docs/assets/` is reference material only and does not alter the runtime icon.
 
 ## Release discipline
 
