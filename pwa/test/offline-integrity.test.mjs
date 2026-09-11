@@ -1,20 +1,21 @@
 import test from 'node:test';
+import {validateManifest} from '../src/release.mjs';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {webcrypto,createHash} from 'node:crypto';
 import {build} from 'esbuild';
 const scope='https://example.test/fishing/v2-preview/',abs=p=>new URL(p,scope).href;
 const hash=x=>createHash('sha256').update(x).digest('hex');
-function fixture(id){
+function fixture(id,icon='icon.png'){
  const schemaVersions={gear:2,kb:2,catches:2};
- const paths=['index.html','loader.js','sw.js','manifest.webmanifest','icon.svg',`releases/${id}/app.js`,`releases/${id}/styles.css`,...['Gear/gear','KB/kb','Catches/catches'].map(p=>`releases/${id}/content/${p}.json`)];
+ const paths=['index.html','loader.js','sw.js','manifest.webmanifest',icon,`releases/${id}/app.js`,`releases/${id}/styles.css`,...['Gear/gear','KB/kb','Catches/catches'].map(p=>`releases/${id}/content/${p}.json`)];
  const network=new Map(paths.map(p=>[abs(p),Buffer.from(p+' '+id)]));
  const files=paths.map(path=>({path,bytes:network.get(abs(path)).length,sha256:hash(network.get(abs(path)))}));
  const manifest={format:'fishing-companion-release-v2',releaseId:id,sourceRevision:id,base:'/fishing/v2-preview/',schemaVersions,files,totalBytes:files.reduce((n,e)=>n+e.bytes,0)};
  const bytes=Buffer.from(JSON.stringify(manifest));
  const pointer={id,sourceRevision:id,schemaVersions,manifest:`releases/${id}/manifest.json`,manifestSha256:hash(bytes)};
  network.set(abs(pointer.manifest),bytes);network.set(abs('release.json'),Buffer.from(JSON.stringify(pointer)));
- return {id,network};
+ return {id,network,manifest,pointer};
 }
 function storage(){
  const entries=new Map();let fail=()=>false;
@@ -30,7 +31,7 @@ async function worker(release,caches,network){
  vm.runInNewContext(bundle.outputFiles[0].text,{self,caches,crypto:webcrypto,URL,Response,TextDecoder,TextEncoder,Uint8Array,console,fetch:async url=>network.has(url)?new Response(network.get(url)):new Response('Unavailable',{status:503})});
  return {async install(){let p;handlers.install({waitUntil:x=>p=x});return p;},async fetch(path){let p;handlers.fetch({request:{method:'GET',url:abs(path),mode:'cors'},respondWith:x=>p=x});return p;}};
 }
-const old=fixture('a'.repeat(32)),next=fixture('b'.repeat(32));
+const old=fixture('a'.repeat(32),'icon.svg'),next=fixture('b'.repeat(32));
 async function markers(caches){const result=[];for(const name of await caches.keys()){const r=await (await caches.open(name)).match(abs('__fishing_complete__'));if(r)result.push({name,...await r.json()});}return result;}
 test('missing and corrupt updates retain complete old release and immutable bytes',async()=>{
  const caches=storage(),network=new Map(old.network),first=await worker(old,caches,network);await first.install();
@@ -65,4 +66,13 @@ test('failed same-release repair preserves generation; corrupt content is reject
  for(const [url,bytes] of old.network)network.set(url,bytes);
  caches.setFailure(()=>false);await runtime.install();assert.equal((await markers(caches)).length,2);
  network.clear();assert.equal(await (await runtime.fetch(target)).text(),old.network.get(abs(target)).toString());
+});
+
+test('release icon rename accepts cached historical names and still requires an icon',()=>{
+ for(const icon of ['icon.png','revised-icon.png','icon.svg']){
+  const f=fixture('c'.repeat(32),icon);
+  assert(validateManifest(f.manifest,f.pointer,'/fishing/v2-preview/').has(icon));
+ }
+ const f=fixture('d'.repeat(32),'unrecognized.png');
+ assert.throws(()=>validateManifest(f.manifest,f.pointer,'/fishing/v2-preview/'),/Missing required release icon/);
 });

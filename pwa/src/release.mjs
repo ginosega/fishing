@@ -38,7 +38,8 @@ export function validateManifest(manifest,pointer,base){
  }
  assert(manifest.totalBytes===total,'Release byte count mismatch');
  const required=['index.html','loader.js','sw.js','manifest.webmanifest',`releases/${pointer.id}/app.js`,`releases/${pointer.id}/styles.css`,`releases/${pointer.id}/content/Gear/gear.json`,`releases/${pointer.id}/content/KB/kb.json`,`releases/${pointer.id}/content/Catches/catches.json`];
- assert(entries.has('revised-icon.png')||entries.has('icon.svg'),'Missing required release icon');
+ // Historical icon names remain valid for already-cached releases.
+ assert(entries.has('icon.png')||entries.has('revised-icon.png')||entries.has('icon.svg'),'Missing required release icon');
  for(const file of required)assert(entries.has(file),`Missing required release asset: ${file}`);
  return entries;
 }
