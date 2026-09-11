@@ -1,4 +1,5 @@
 import {test,expect} from '@playwright/test';
+import sharp from 'sharp';
 import {createServer} from 'node:http';
 import {spawnSync} from 'node:child_process';
 import fs from 'node:fs/promises';
@@ -368,8 +369,14 @@ test('FISH084 wording, search, catch date and exact icon',async({page})=>{
  await expect(page.locator('a[href="#/kb"]')).toContainText('Fishing reference library');
  await expect(page.locator('a[href="#/catches"] p')).toHaveText('Recorded catches');
  const manifest=await page.evaluate(async()=>await(await fetch('./manifest.webmanifest')).json());
- expect(manifest.icons[0]).toEqual({src:'./revised-icon.png',sizes:'1254x1254',type:'image/png',purpose:'any'});
- expect(Buffer.from(await(await page.request.get(base+'revised-icon.png')).body())).toEqual(await fs.readFile(path.join(v2,'revised-icon.png')));
+ const sourceIcon=await fs.readFile(path.join(v2,'revised-icon.png')),meta=await sharp(sourceIcon).metadata();
+ expect(manifest.icons[0]).toEqual({src:'./revised-icon.png',sizes:`${meta.width}x${meta.height}`,type:'image/png',purpose:'any'});
+ const hostedIcon=Buffer.from(await(await page.request.get(base+'revised-icon.png')).body());expect(hostedIcon).toEqual(sourceIcon);
+ expect(meta.hasAlpha).toBe(true);
+ const {data:rgba,info}=await sharp(hostedIcon).ensureAlpha().raw().toBuffer({resolveWithObject:true});
+ const alpha=(x,y)=>rgba[(y*info.width+x)*info.channels+3];
+ for(const [x,y] of [[0,0],[info.width-1,0],[0,info.height-1],[info.width-1,info.height-1],[Math.floor(info.width/2),0],[0,Math.floor(info.height/2)]])expect(alpha(x,y)).toBe(0);
+ expect(alpha(Math.floor(info.width/2),Math.floor(info.height/2))).toBeGreaterThan(250);
  for(const [hash,title] of [['#/inventory','My Gear'],['#/inventory/category/lures','Lures'],['#/kb','Knowledge Base'],['#/kb/category/equipment','Gear Guides']]){
   await route(page,hash,title);await expect(page.getByPlaceholder('Search '+title,{exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Back',exact:true})).toBeVisible();
  }
