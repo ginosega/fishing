@@ -1,5 +1,10 @@
 # Fishing Decision Log
 
+## FISH091 requirements signoff / design gate — September 11, 2026
+
+**Decision:** The online-only-default requirements are approved **as written, including S1–S4**. PR103 records the approved requirements on current `main`. The next authorized phase is the separate abbreviated design in draft PR104. No runtime/service-worker/loader/UI/build/test implementation is authorized until the user explicitly approves that design. FISH077/P2 remains DEFERRED; next unused task ID remains **FISH-TODO-096**.
+
+
 ## FISH095 validated Technique additions and hosted-verifier repair — September 11, 2026
 
 **Decision / closeout:** Treat the two submitted packages as clean KB adds even though their recorded `sourceRevision` predates current `main`, because neither ID nor requested Notes path existed and the newer intervening main change only supplied the requested image files. Use the existing uploaded image bytes only after exact byte-count and SHA-256 validation; create Notes exactly as `TODO`; do not invent captions or broader Technique content.

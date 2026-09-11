@@ -1,5 +1,10 @@
 # Fishing Context
 
+## FISH091 requirements approved; design review pending — September 11, 2026
+
+The user approved the FISH091 online-only-default requirements **as written, including S1–S4**, and authorized the separate abbreviated design phase. PR103 merged the reviewed requirements and approval record onto current `main`. Draft PR104 contains the design only; implementation remains blocked pending explicit user design signoff. FISH077/P2 remains DEFERRED. Next unused canonical task ID: **FISH-TODO-096**.
+
+
 ## FISH095 current project state — September 11, 2026
 
 FISH-TODO-095 is **DONE**. [PR101](https://github.com/ginosega/fishing/pull/101) applied the two validated Fishing Companion KB add packages for **Topwater Fishing** and **Bass Fishing**. Each new Technique keeps the submitted identity/name/type, has required Notes created with the exact body `TODO`, and references the user-uploaded PNG without an invented caption. Before application, both add bases were clean on restored newer `main`; the two pre-uploaded PNGs were preserved byte-for-byte and validated against the package sizes and SHA-256 values: `Topwater Fishing.png` = 1,813,365 bytes / `e2edbf4e6dbad5fb66f10bfa9752d46316b9f174cc8d4b65798609a5f102448a`; `Bass Fishing.png` = 1,948,010 bytes / `1a711ecc4625d025e6ffe74c2f21c52a3a8eee056c744a7df901b2fb7e4b41f8`.

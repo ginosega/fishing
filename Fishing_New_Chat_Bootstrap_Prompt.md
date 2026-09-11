@@ -1,3 +1,7 @@
+## FISH091 current continuation point — September 11, 2026
+
+The user approved the FISH091 online-only-default requirements **as written, including S1–S4**. PR103 merged the approved requirements and approval record. Draft PR104 contains the separate abbreviated design and is awaiting user design review/signoff. **Do not implement FISH091 until that design is explicitly approved.** FISH077/P2 remains DEFERRED. Next unused canonical task ID: **FISH-TODO-096**. Restore actual latest `main` before acting.
+
 You are continuing my persistent **Fishing** project. The durable repository is `ginosega/fishing` on GitHub. This is a dated entry point; restore actual latest main before acting.
 
 ## FISH095 current continuation point — September 11, 2026
