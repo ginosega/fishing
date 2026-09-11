@@ -2,7 +2,7 @@
 
 > Repository layout: production source/tests/contracts now live under `pwa/`; this document is retained PWA reference. Old `v2/`, v1 `pwa/`, History and Topics paths in dated evidence refer to the [pre-cleanup snapshot](https://github.com/ginosega/fishing/blob/edca2a3f04fc8c32dec65b9330d43944be1a561c/). Current instructions: [PWA README](../README.md).
 
-**Superseded by production:** [September10 production release](Fishing_v2_Production_Release_2026-09-10.md). PR64 is merged, root production is verified and seven absent pictures are explicitly deferred. Everything below preserves historical evidence; its old pending gates and URLs do not describe current production.
+**Superseded by production:** [September10 production release](Fishing_v2_Production_Release_2026-09-10.md). Root production is verified through PR90; all seven originally deferred required pictures are now resolved. Everything below preserves historical evidence; its old pending gates and URLs do not describe current production.
 
 **Historical checkpoint:** September 9, 2026, Pacific time. This is the durable source-backed continuation record for the user-authorized temporary Work session. It is not a completed v2 acceptance or production-release certificate. Restore current GitHub state before acting; the identifiers below are dated evidence, not instructions to reset newer work.
 

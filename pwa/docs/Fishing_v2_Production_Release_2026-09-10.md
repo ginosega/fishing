@@ -1,5 +1,9 @@
 # Fishing Companion v2 production release — September 10, 2026
 
+## Chat handoff audit — September 11, 2026
+
+Rechecked latest main `36d894439632b45aa358c7a93a38b19dff822875` and successful production run `34566907478`. Later commits are documentation only; source `240dbfa67a1810ef51fde24f7bd0fb1d1c867bcf` and release `c15f12f49c4162706fb14eb2791e3204` remain the verified production pair. No release is pending. Current handoff, scope and Chat-default policy: [Context](../../Fishing_Context.md) and [bootstrap](../../Fishing_New_Chat_Bootstrap_Prompt.md).
+
 ## FISH084/FISH085 production closeout — September 11, 2026
 
 FISH-TODO-084 and FISH-TODO-085 are DONE. The eight UI/authoring refinements from PR89 and the user-authorized icon transparency/verifier correction in [PR90](https://github.com/ginosega/fishing/pull/90) are live at production source `240dbfa67a1810ef51fde24f7bd0fb1d1c867bcf`, release `c15f12f49c4162706fb14eb2791e3204`. [Production run 34566907478](https://github.com/ginosega/fishing/actions/runs/34566907478) is green: 20 core tests, 24 preview-scope and 26 production-scope Chromium/WebKit scenarios, archived-v1 worker/store transition, exact-current-main Pages deployment, all 205 hosted-file comparisons and the complete hosted browser verifier passed. PR90 CI [run 34566584530](https://github.com/ginosega/fishing/actions/runs/34566584530) also passed.

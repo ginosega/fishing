@@ -8,9 +8,9 @@ This directory contains the active v2 application, replacing the former root `v2
 | `tools/` | Build, source validation and local/hosted verification |
 | `test/` | Core integrity and Chromium/WebKit acceptance, including retained v1 stores |
 | `contracts/` | Canonical domain schema |
-| `migration/` | Original reconciliation/image approvals and current absent-picture decisions used by validation; no executable migration remains |
+| `migration/` | Original reconciliation/image approvals and historical accepted-absence decisions used by validation; no executable migration remains |
 | `docs/` | Approved requirements, exact user feedback, technical references and historical release/recovery evidence |
-| `revised-icon.png` | Exact user-uploaded runtime app, favicon and Apple touch icon |
+| `revised-icon.png` | User-supplied fish/hook artwork with the authorized transparent exterior; runtime app, favicon and Apple touch icon |
 | `icon.svg` | Historical icon, not included in new builds |
 | `dist/` | Generated build, ignored by Git |
 
@@ -41,3 +41,7 @@ The runtime uses the transparent-background edit of `pwa/revised-icon.png` (1,20
 Catch card dates appear directly below Species at regular weight, including derived Catch History cards. Existing search inputs use `Search [page title]`; no new search inputs were added. Knowledge Base card/subtitle reads `Fishing reference library`; Catch Log home-card subtext and list-page heading read `Recorded catches`. Back buttons retain only `Back`.
 
 After a successful Copy Changes, Exit returns edits to their original item and adds to their originating Gear/KB root or category. Exit alone bypasses the unsaved-changes warning. Further edits invalidate the prepared package and remove Exit; ordinary Back, Cancel, navigation and reload remain guarded. Copy text contains an explicit repository implementation/deployment instruction above valid `fishing-companion-change-v2` JSON; manual-copy fallback includes that same instruction. Preparing/copying is not saving. KB Notes remain required; its schema and viewer behavior are unchanged.
+
+## Chat handoff audit — September 11, 2026
+
+Production and all hosted checks remain green at the release recorded above; FISH084/FISH085 are complete. This handoff changes documentation only. Current continuation and Chat-default policy: [Context](../Fishing_Context.md) and [bootstrap](../Fishing_New_Chat_Bootstrap_Prompt.md).

@@ -2,7 +2,7 @@
 
 > Repository layout: production source/tests/contracts now live under `pwa/`; this document is retained PWA reference. Old `v2/`, v1 `pwa/`, History and Topics paths in dated evidence refer to the [pre-cleanup snapshot](https://github.com/ginosega/fishing/blob/edca2a3f04fc8c32dec65b9330d43944be1a561c/). Current instructions: [PWA README](../README.md).
 
-**Status:** Original approved body preserved. User-authorized v2 production is published and verified; seven absent pictures are explicitly deferred. Current evidence: [production release](Fishing_v2_Production_Release_2026-09-10.md). Dated phase/status statements in the body below are historical.
+**Status:** Original approved body preserved. User-authorized v2 production is published and verified; all seven originally deferred required pictures are now resolved, and FISH084/FISH085 are live and verified. Current evidence: [production release](Fishing_v2_Production_Release_2026-09-10.md). Dated phase/status statements in the body below are historical.
 **Reconciled:** September 8, 2026, Pacific time.
 **User decision commit:** `0bd773366130a302b0e80d5cd085a71731ff9e63`.
 

@@ -2,6 +2,8 @@
 
 > Repository layout: production source/tests/contracts now live under `pwa/`; this document is retained PWA reference. Old `v2/`, v1 `pwa/`, History and Topics paths in dated evidence refer to the [pre-cleanup snapshot](https://github.com/ginosega/fishing/blob/edca2a3f04fc8c32dec65b9330d43944be1a561c/). Current instructions: [PWA README](../README.md).
 
+> Current authority: original user responses below are preserved unchanged and approved through the [Approved Baseline](Fishing_Companion_v2_Approved_Baseline.md). P1 is implemented and published; original draft/approval status lines below are historical. See the [production release](Fishing_v2_Production_Release_2026-09-10.md) for current evidence.
+
 **Status:** Assistant review / proposed design / awaiting joint approval. No v2 implementation authorized.
 **Prepared:** September 8, 2026 (Pacific time).
 **Reviewed repository commit:** `000e2aa121b43e131a9b91a411d8069fcc8bb31a`.

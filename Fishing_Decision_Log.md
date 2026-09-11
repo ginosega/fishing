@@ -1,5 +1,13 @@
 # Fishing Decision Log
 
+## Chat handoff audit — September 11, 2026
+
+Restored and audited GitHub main `36d894439632b45aa358c7a93a38b19dff822875` before this documentation-only handoff. Its changes after production source `240dbfa67a1810ef51fde24f7bd0fb1d1c867bcf` are documentation only; the deployed release remains `c15f12f49c4162706fb14eb2791e3204`. Production run `34566907478` is successful; PR89 and PR90 are merged, no PRs are open and no release jobs are queued or running at this audit. This handoff does not require another build or deployment.
+
+FISH084 and FISH085 are DONE; no UI, icon-transfer, verifier or production-acceptance work remains from this chat. FISH077/P2 stays DEFERRED. All unrelated TODO rows and purchase uncertainties are retained; next unused task ID is FISH-TODO-086. Resume by reading actual latest main, then respond to the user's next requested work rather than restarting a completed release. The bootstrap, Context, TODO, Decision Log, README and affected PWA records were cross-checked for release identity, icon state, completed tasks, deferred scope and Chat-default instructions.
+
+Operating mode: This project uses Chat mode by default. Do not recommend Work unless a task specifically requires a Work-only capability. Never recommend Work merely because the project or task is complex, lengthy, file-heavy, analytical, or involves creating artifacts. Explain the specific need and obtain my approval before recommending a temporary switch. Chat is the permanent default; this temporary Work conversation is complete. Do not promise background work.
+
 ## FISH084/FISH085 production closeout — September 11, 2026
 
 FISH-TODO-084 and FISH-TODO-085 are DONE. The eight UI/authoring refinements from PR89 and the user-authorized icon transparency/verifier correction in [PR90](https://github.com/ginosega/fishing/pull/90) are live at production source `240dbfa67a1810ef51fde24f7bd0fb1d1c867bcf`, release `c15f12f49c4162706fb14eb2791e3204`. [Production run 34566907478](https://github.com/ginosega/fishing/actions/runs/34566907478) is green: 20 core tests, 24 preview-scope and 26 production-scope Chromium/WebKit scenarios, archived-v1 worker/store transition, exact-current-main Pages deployment, all 205 hosted-file comparisons and the complete hosted browser verifier passed. PR90 CI [run 34566584530](https://github.com/ginosega/fishing/actions/runs/34566584530) also passed.
@@ -49,7 +57,7 @@ No correction refresh or production cutover has been published. The existing liv
 
 See [Review correction checkpoint](pwa/docs/Fishing_v2_Review_Release_2026-09-09.md) for exact refs, CI and continuation. This checkpoint supersedes older statements below that still require user preview acceptance/cutover approval. Chat remains the permanent default; the explicitly authorized Work implementation phase is paused only on the required-media decision.
 
-**Status:** Current decision authority, reconciled September 9, 2026. Complete historical decisions remain in `Fishing_Decision_History_Through_2026-09-06.md`, `History/` and Git history. Previous CURRENT labels do not override the latest approved requirements.
+**Status:** Original September 9 decision body preserved. Removed decision-history files and `History/` remain recoverable at the pre-cleanup checkpoint and in Git history. Previous CURRENT labels do not override the latest approved requirements.
 
 ## V2 design approval
 
@@ -100,11 +108,11 @@ Workflow-only PR 66 and refresh PR 67 publish the isolated preview with the exac
 | End-to-end execution | An authorized change continues through validation, PR/CI, actual deployment verification and state reconciliation. Progress is informational, not an approval gate. Stop only for genuine blockers or complete scope. |
 | Preservation | Preserve user-authored text/files, confirmed facts, ownership and actual historical relationships. Do not infer purchases or catch attribution. Preserve direct-main edits and validated source bytes. |
 | Project scope | Personal single-user application; no Planner, sessions, speculative graph or multi-user expansion. |
-| Documentation | Keep concise current authority and one canonical TODO; historical detail remains in Git/History, not parallel current databases. |
+| Documentation | Keep concise current authority and one canonical TODO; historical detail remains in Git history and retained PWA references, not parallel current databases. |
 | Releases | Restore current main; normal exact-head/current-base checks for meaningful runtime work, expected-head merge, actual Pages deployment, no skipped meaningful gates, no one-time migration reruns or permission bypass. Avoid overlapping Pages releases. |
 | V2 scope control | Requirements approval does not automatically authorize P2. Use approved baseline; ask only for genuine new decisions or explicit implementation authorization. |
 
-## Current production authority
+## Historical v1 production authority — superseded
 
 The last fully documented v1 application release is PR 60, final head `cd47dc9ce39660840de493346e7df9fda72a14e5`, CI #307 / `34191643311`, merge `ecd9f3d52ca8180ea4f48ec888e7574105deafda`, production #308 / `34191692935`. Later direct-main changes exist. The audited source baseline is `1fa82a0cb653b8205bc8a45a1cf4608a616bf3b2`; the original migration-media run was #312 / `34237232075`. Current preserved v1 is run #314 / `34369680844`, source `cac5b4108a63fcaab498b256afa4420ce2dbbd70`, published unchanged alongside the isolated preview. Verify actual main/current deployment before acting. V1-specific model/media/authoring rules remain in force until cutover.
 
@@ -114,4 +122,4 @@ Gear schema 4 uses JSON/IndexedDB, paired setups, manufacturer objects, ordered 
 
 ## Open work
 
-FISH-TODO-084 is DONE. The canonical TODO retains deferred P2 and existing fishing/gear research. All seven originally deferred required pictures are resolved; generic inline-spinner remains optional. Production cutover and automated/hosted acceptance are complete. FISH063's old media-authoring policy and FISH039's setup recording are superseded for v2; they do not justify reintroducing retired structures. PowerBait hook-size and loop-knot guidance remain unresolved. The next unused canonical task ID is FISH-TODO-086. No approved future feature is treated as already deployed.
+FISH-TODO-084 and FISH-TODO-085 are DONE. The canonical TODO retains deferred P2 and existing fishing/gear research. All seven originally deferred required pictures are resolved; generic inline-spinner remains optional. Production cutover and automated/hosted acceptance are complete. FISH063's old media-authoring policy and FISH039's setup recording are superseded for v2; they do not justify reintroducing retired structures. PowerBait hook-size and loop-knot guidance remain unresolved. The next unused canonical task ID is FISH-TODO-086. No approved future feature is treated as already deployed.

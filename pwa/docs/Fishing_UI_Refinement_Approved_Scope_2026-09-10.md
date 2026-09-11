@@ -4,7 +4,7 @@
 **Task:** FISH-TODO-084  
 **Status:** IMPLEMENTED / LIVE / VERIFIED — FISH084 and FISH085 DONE
 
-This document preserves the approved scope and the verified PR89 implementation. The user supplied the runtime icon directly in GitHub and explicitly authorized the complete coordinated PR, merge, deployment and hosted verification.
+This document preserves the approved scope and the verified PR89 implementation and PR90 transparency/verifier correction. The user supplied the runtime icon directly in GitHub and explicitly authorized the complete coordinated PR, merge, deployment and hosted verification.
 
 ## Approved changes
 
