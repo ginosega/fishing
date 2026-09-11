@@ -1454,8 +1454,8 @@
       "id": "generic-1-inline-spinner",
       "category": "lures",
       "type": "Inline spinners",
-      "name": "Generic #1 inline spinner",
-      "manufacturer": "Generic",
+      "name": "Kingforest #1 inline spinner",
+      "manufacturer": "Kingforest",
       "model": "#1 inline spinner",
       "specifications": [
         {
@@ -1467,7 +1467,12 @@
           "value": "Green Holo"
         }
       ],
-      "notes": "Gear/Lures/content/generic-1-inline-spinner.md"
+      "notes": "Gear/Lures/content/generic-1-inline-spinner.md",
+      "links": [],
+      "picture": {
+        "src": "Gear/Lures/assets/Kingforest Inline Spinner.png",
+        "caption": "Kingforest #1 Inline Spinner"
+      }
     },
     {
       "id": "macks-wedding-ring",

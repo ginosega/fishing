@@ -305,9 +305,9 @@ test('reviewed page layouts, missing pictures, forms and copy feedback',async({p
  }
  await route(page,'#/inventory/category/lures','Lures');
  await expect(page.locator('.page-header input')).toBeVisible();await expect(page.locator('.page-header select')).toBeVisible();
- const cards=await page.locator('.record-grid .nav-card').evaluateAll(cards=>cards.map(c=>({top:c.getBoundingClientRect().top,title:c.querySelector('h2').getBoundingClientRect().top,missing:!!c.querySelector('.card-spacer')})));
- const missing=cards.find(c=>c.missing),neighbor=cards.find(c=>!c.missing&&c.top===missing.top);expect(neighbor).toBeTruthy();expect(Math.abs(missing.title-neighbor.title)).toBeLessThan(2);
+ await expect(page.locator('.record-grid .nav-card .card-spacer')).toHaveCount(0);
  await page.screenshot({path:testInfo.outputPath('lures.png'),fullPage:true});
+ await route(page,'#/kb/location-lake-washington','Lake Washington');await expect(page.locator('.picture img')).toHaveCount(0);await expect(page.locator('.picture-empty')).toHaveCount(0);
  await route(page,'#/inventory/item/rapala-original-floating','Rapala');await expect(page.locator('.picture img')).toHaveCount(1);await expect(page.locator('.picture img')).toBeVisible();await expect(page.locator('.picture-empty')).toBeHidden();
  await expect(page.locator('.page-subtitle')).toContainText('Lures – ');await expect(page.getByRole('button',{name:'Copy Link'})).toHaveCount(0);
  await expect(page.locator('.page > :last-child')).toHaveText('Edit item');
