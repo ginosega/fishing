@@ -313,7 +313,7 @@ test('reviewed page layouts, missing pictures, forms and copy feedback',async({p
  await expect(page.locator('.page > :last-child')).toHaveText('Edit item');
  await route(page,'#/inventory/item/cylinder-weights','Cylinder');await page.getByRole('button',{name:/Enlarge/}).click();
  const viewer=page.getByRole('dialog',{name:'Image viewer'});await expect(viewer.getByRole('button',{name:'Close',exact:true})).toHaveCount(1);await expect(viewer).not.toContainText('null');await viewer.getByRole('button',{name:'Close',exact:true}).click();
- await route(page,'#/kb/species-largemouth-bass','Largemouth');await expect(page.locator('.page-header .page-subtitle')).toBeVisible();await expect(page.locator('.section>h2').filter({hasText:/^Notes$/})).toBeVisible();
+ await route(page,'#/kb/species-largemouth-bass','Largemouth');await expect(page.locator('.page-header .page-subtitle')).toHaveCount(0);await expect(page.locator('.section>h2').filter({hasText:/^Notes$/})).toBeVisible();
  await page.getByRole('link',{name:'Edit item',exact:true}).click();await expect(page.locator('#app h1')).toHaveCount(1);await expect(page.locator('#app h1')).toHaveText('Edit Largemouth Bass');
  await page.getByRole('button',{name:'Create Link'}).click();const links=page.getByRole('dialog',{name:'Create Link'});await expect(links).toContainText('Internal link');await expect(links.getByRole('button',{name:'Copy internal link'})).toBeVisible();await links.getByRole('button',{name:'Close'}).click();
  await route(page,'#/inventory/add/lures','Add Gear');await expect(page.locator('#app h1')).toHaveCount(1);await expect(page.locator('.picture-empty')).toHaveCount(0);
