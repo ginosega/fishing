@@ -1,5 +1,13 @@
 # Fishing Context
 
+## FISH087 KB authoring batch production closeout — September 11, 2026
+
+FISH-TODO-087 is DONE through [PR92](https://github.com/ginosega/fishing/pull/92). Production source `dee0ff76f6b15e861fa8864151aad88c8fe28f5e`, release `40c849b4014013f22200843c9d222c2c`, passed [production run 34614884273](https://github.com/ginosega/fishing/actions/runs/34614884273): complete source/core validation, preview- and production-scope browser acceptance, archived-v1 cutover acceptance, exact-current-main Pages deployment, all 205 hosted-file comparisons and hosted browser verification.
+
+PR92 applied the validated KB location/species change package. All submitted structured and Markdown base hashes matched when validated. The later unrelated Silver Lake Markdown edit was preserved; the restored `KB/Locations/content/lake-bosworth.md` is present in the deployed release. The only non-content correction was a regression assertion changed to expect no Species subtitle after intentional description removal. No schema, architecture, picture or P2 scope changed.
+
+FISH084–087 are DONE. FISH077/P2 remains DEFERRED. All unrelated fishing/equipment/content backlog and purchase uncertainty remain intact. The next unused canonical task ID is FISH-TODO-088. Continue in Chat using actual latest main. This documentation reconciliation does not redeploy the application.
+
 ## Icon filename cleanup and current state — September 11, 2026
 
 FISH-TODO-086 is DONE through [PR91](https://github.com/ginosega/fishing/pull/91). Current production source `afd7afc9ee91fb3dc81a15635e14ec932bda2b1b`, release `11789b7bace383d161add0ac7d313579`, passed [production run 34608018650](https://github.com/ginosega/fishing/actions/runs/34608018650): 21 core tests, 24 preview-scope and 26 production-scope Chromium/WebKit scenarios, archived-v1 transition, exact-current-main Pages deployment, all 205 hosted-file comparisons and complete hosted browser verification.
@@ -76,4 +84,4 @@ Complete releases are verified before readiness; corrupt or incomplete content i
 
 ## Backlog and next chat
 
-FISH071–076 and FISH078–086 are DONE; FISH077 is DEFERRED; production evidence is recorded above. FISH078 closed after PR84 supplied the final two required pictures, Popper and Whopper Plopper; all seven originally deferred required pictures are now resolved. Generic inline-spinner remains optional. Obsolete unmerged PR83 was closed as superseded by the already-live PR84; PR89–PR91 are merged; no feature/runtime PR remains open at this reconciliation. Unrelated fishing/equipment/content backlog is preserved; next unused ID is087. Continue in Chat using the current bootstrap. New work must restore actual latest main, use normal PR/CI for runtime changes and update authoritative records after actual milestones.
+FISH071–076 and FISH078–087 are DONE; FISH077 is DEFERRED; production evidence is recorded above. FISH078 closed after PR84 supplied the final two required pictures, Popper and Whopper Plopper; all seven originally deferred required pictures are now resolved. Generic inline-spinner remains optional. Obsolete unmerged PR83 was closed as superseded by the already-live PR84; PR89–PR92 are merged; no feature/runtime PR remains open at this reconciliation. Unrelated fishing/equipment/content backlog is preserved; next unused ID is FISH-TODO-088. Continue in Chat using the current bootstrap. New work must restore actual latest main, use normal PR/CI for runtime changes and update authoritative records after actual milestones.
