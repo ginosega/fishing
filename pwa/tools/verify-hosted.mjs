@@ -28,7 +28,7 @@ try{
  await page.locator('#offline-status[data-state="Ready"]').waitFor({timeout:180000});
  await page.locator('#connection-close').click();
  assert.equal(await page.evaluate(async()=>new URL((await navigator.serviceWorker.getRegistration()).scope).pathname),production?'/fishing/':'/fishing/v2-preview/');
- assert.deepEqual(await page.evaluate(()=>window.__FISHING_V2__.counts),{gear:69,kb:54,catches:5});
+ assert.deepEqual(await page.evaluate(()=>window.__FISHING_V2__.counts),{gear:69,kb:56,catches:5});
  await page.goto(preview+'#/inventory/item/bonafide-rvr119');await page.locator('.markdown-body').waitFor();
  const image=page.locator('#app img').first();await image.evaluate(async img=>{await img.decode();if(!img.naturalWidth)throw Error('Picture did not decode');});
  await page.getByRole('button',{name:/Enlarge/}).click();await page.getByRole('dialog',{name:'Image viewer'}).waitFor();await page.getByRole('dialog').getByRole('button',{name:'Close',exact:true}).last().click();
