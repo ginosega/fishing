@@ -91,8 +91,11 @@
       "id": "technique-trout-fishing",
       "type": "technique",
       "name": "Trout Fishing",
-      "description": "Casting, bank-fishing, bobber, still-fishing, and kayak-trolling guidance.",
-      "content": "KB/Techniques/content/trout-fishing.md"
+      "description": "Casting, bank-fishing, still-fishing, and kayak-trolling guidance",
+      "content": "KB/Techniques/content/trout-fishing.md",
+      "picture": {
+        "src": "KB/Techniques/assets/Trout Fishing.png"
+      }
     },
     {
       "id": "technique-fishing-line",
