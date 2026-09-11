@@ -5,28 +5,28 @@
       "id": "location-lake-washington",
       "type": "location",
       "name": "Lake Washington",
-      "description": "Local bass and cutthroat water with distinct north-end and Kirkland patterns.",
+      "description": "Local bass and cutthroat water with distinct north-end and Kirkland patterns",
       "content": "KB/Locations/content/lake-washington.md"
     },
     {
       "id": "location-lake-sammamish",
       "type": "location",
       "name": "Lake Sammamish",
-      "description": "Bass and trout water with distinct north-, south-, and east-shore patterns.",
+      "description": "Bass and trout water with distinct north-, south-, and east-shore patterns",
       "content": "KB/Locations/content/lake-sammamish.md"
     },
     {
       "id": "location-silver-lake-whatcom",
       "type": "location",
-      "name": "Silver Lake, Whatcom County",
-      "description": "Camping and kayak water near Bellingham with trout and bass opportunities.",
+      "name": "Silver Lake",
+      "description": "Kayak and bank fishing for trout and bass at Silver Lake Park",
       "content": "KB/Locations/content/silver-lake-whatcom.md"
     },
     {
       "id": "location-cranberry-lake-deception-pass",
       "type": "location",
       "name": "Cranberry Lake, Deception Pass State Park",
-      "description": "Freshwater fishing at Deception Pass State Park.",
+      "description": "Freshwater fishing at Deception Pass State Park",
       "content": "KB/Locations/content/cranberry-lake-deception-pass.md",
       "picture": {
         "src": "KB/Locations/assets/location-cranberry-lake-deception-pass.png",
@@ -37,21 +37,21 @@
       "id": "location-mayfield-lake",
       "type": "location",
       "name": "Mayfield Lake",
-      "description": "Regional camping and kayak water for trout, kokanee, bass, and pikeminnow.",
+      "description": "Regional camping and kayak water for trout, kokanee, bass, and pikeminnow",
       "content": "KB/Locations/content/mayfield-lake.md"
     },
     {
       "id": "location-lake-chelan",
       "type": "location",
       "name": "Lake Chelan",
-      "description": "Deep clear lake for smallmouth and trout from shore, dock, or kayak.",
+      "description": "Deep clear lake for smallmouth and trout from shore, dock, or kayak",
       "content": "KB/Locations/content/lake-chelan.md"
     },
     {
       "id": "location-lake-cle-elum",
       "type": "location",
       "name": "Lake Cle Elum",
-      "description": "Cold-water reservoir treated as a trout and salmonid destination.",
+      "description": "Cold-water trout and salmonid destination",
       "content": "KB/Locations/content/lake-cle-elum.md"
     },
     {
@@ -283,7 +283,6 @@
       "id": "species-largemouth-bass",
       "type": "species",
       "name": "Largemouth Bass",
-      "description": "Primary local warmwater target with catches at Silver Lake and Lake Sammamish.",
       "content": "KB/Species/content/largemouth-bass.md",
       "picture": {
         "src": "KB/Species/assets/largemouth-bass.png",
@@ -294,7 +293,6 @@
       "id": "species-perch",
       "type": "species",
       "name": "Yellow Perch",
-      "description": "Yellow Perch is the default for perch catches unless later corrected.",
       "content": "KB/Species/content/perch.md",
       "picture": {
         "src": "KB/Species/assets/Yellow Perch.png",
@@ -305,7 +303,6 @@
       "id": "species-northern-pikeminnow",
       "type": "species",
       "name": "Northern Pikeminnow",
-      "description": "Predatory native minnow recorded twice at Mayfield Lake.",
       "content": "KB/Species/content/northern-pikeminnow.md",
       "picture": {
         "src": "KB/Species/assets/northern-pikeminnow.png",
@@ -316,7 +313,6 @@
       "id": "species-smallmouth-bass",
       "type": "species",
       "name": "Smallmouth Bass",
-      "description": "Structure-oriented target",
       "content": "KB/Species/content/smallmouth-bass.md",
       "picture": {
         "src": "KB/Species/assets/smallmouth-bass.png",
@@ -327,7 +323,6 @@
       "id": "species-rainbow-trout",
       "type": "species",
       "name": "Rainbow Trout",
-      "description": "Regional trout target for casting, trolling, bobber, and still-fishing methods.",
       "content": "KB/Species/content/rainbow-trout.md",
       "picture": {
         "src": "KB/Species/assets/rainbow-trout.png",
@@ -338,7 +333,6 @@
       "id": "species-coastal-cutthroat-trout",
       "type": "species",
       "name": "Coastal Cutthroat Trout",
-      "description": "Lake Washington trout target requiring current regulation checks.",
       "content": "KB/Species/content/coastal-cutthroat-trout.md",
       "picture": {
         "src": "KB/Species/assets/coastal-cutthroat-trout.png",
@@ -349,7 +343,6 @@
       "id": "species-kokanee",
       "type": "species",
       "name": "Kokanee",
-      "description": "Specialized regional trolling target in Lake Washington and Mayfield Lake.",
       "content": "KB/Species/content/kokanee.md",
       "picture": {
         "src": "KB/Species/assets/Kokanee.png",
