@@ -1,5 +1,11 @@
 # Fishing TODO
 
+## FISH087 KB authoring batch production closeout — September 11, 2026
+
+FISH-TODO-087 is DONE through [PR92](https://github.com/ginosega/fishing/pull/92). Production source `dee0ff76f6b15e861fa8864151aad88c8fe28f5e`, release `40c849b4014013f22200843c9d222c2c`, passed [production run 34614884273](https://github.com/ginosega/fishing/actions/runs/34614884273), including complete validation, exact-current-main Pages deployment, all 205 hosted-file comparisons and hosted browser verification. The restored `KB/Locations/content/lake-bosworth.md` is present in the deployed release.
+
+FISH084–087 are DONE. FISH077/P2 remains DEFERRED. All unrelated fishing/equipment/content backlog and purchase uncertainty are preserved. The next unused canonical task ID is FISH-TODO-088. This documentation reconciliation does not redeploy the application.
+
 ## Icon filename cleanup and current state — September 11, 2026
 
 FISH-TODO-086 is DONE through [PR91](https://github.com/ginosega/fishing/pull/91). Current production source `afd7afc9ee91fb3dc81a15635e14ec932bda2b1b`, release `11789b7bace383d161add0ac7d313579`, passed [production run 34608018650](https://github.com/ginosega/fishing/actions/runs/34608018650): 21 core tests, 24 preview-scope and 26 production-scope Chromium/WebKit scenarios, archived-v1 transition, exact-current-main Pages deployment, all 205 hosted-file comparisons and complete hosted browser verification.
@@ -76,6 +82,7 @@ The sole active pipeline is `.github/workflows/fishing-production.yml`. V1 and t
 | FISH-TODO-084 | P1 | DONE | All eight UI/authoring refinements from PR89 are live and fully verified after PR90. Origin-aware post-copy Exit, prefixed JSON, Catch dates, search wording, KB/Catch labels and arrow-free Back buttons. Icon transparency correction and verifier closeout completed as FISH085. KB Notes remain required. |
 | FISH-TODO-085 | P1 | DONE | User-authorized PR90 made the icon exterior transparent, added alpha/source-byte regression checks and narrowed the hosted Yellow Perch page-heading selector to level 1. Full CI, Pages deployment and complete hosted-byte/browser verification passed; evidence recorded above. |
 | FISH-TODO-086 | P1 | DONE | PR91 renamed the transparent icon to icon.png without byte changes, removed unused icon.svg, updated build/manifest/favicon/Apple/hosted references and retained historical-name cache compatibility. Full CI and production hosted verification passed; evidence above. |
+| FISH-TODO-087 | P1 | DONE | PR92 applied the validated KB location/species authoring batch and the matching Species-subtitle regression correction. Production source `dee0ff76f6b15e861fa8864151aad88c8fe28f5e`, release `40c849b4014013f22200843c9d222c2c`, run 34614884273 passed full CI, Pages deployment, 205 hosted-file comparisons and hosted browser verification. Lake Bosworth restoration is included in the verified production tree. |
 | FISH-TODO-063 | P2 | SUPERSEDED | Historical v1 KB filename/upload usability issue. V2 approved filename/authoring model replaces old ID-prefix/source-owner requirements; v1 is now historical. |
 | FISH-TODO-039 | P2 | SUPERSEDED | Historical structured setup recording on catches. V2 removes setup references; equipment details belong in Catch Notes. |
 
@@ -119,4 +126,4 @@ The following items remain open/deferred independently of the v2 rebuild. Their 
 
 ## Historical completion and release references
 
-FISH069/070 were completed in PR 60; FISH068 in PR 58; FISH067 in PR 57; FISH064–066 in PR 54/56; FISH062 in PR 52; FISH061 in PR 50; FISH060 in PR 48/49; FISH058 in PR 47; FISH059 was the Cylinder Weights media release. Complete evidence and the earlier completed-task table are preserved in Git history, the pre-cleanup checkpoint’s `History/2026-09-07-pre-recovery/Fishing_TODO.md` and the dated release files. The historical duplicate FISH060 handoff ID remains retired as `ARCHIVE-2026-09-06-HANDOFF`. The next unused canonical task ID is FISH-TODO-087. No completed task has been reopened or discarded by this reconciliation.
+FISH069/070 were completed in PR 60; FISH068 in PR 58; FISH067 in PR 57; FISH064–066 in PR 54/56; FISH062 in PR 52; FISH061 in PR 50; FISH060 in PR 48/49; FISH058 in PR 47; FISH059 was the Cylinder Weights media release. Complete evidence and the earlier completed-task table are preserved in Git history, the pre-cleanup checkpoint’s `History/2026-09-07-pre-recovery/Fishing_TODO.md` and the dated release files. The historical duplicate FISH060 handoff ID remains retired as `ARCHIVE-2026-09-06-HANDOFF`. The next unused canonical task ID is FISH-TODO-088. No completed task has been reopened or discarded by this reconciliation.
