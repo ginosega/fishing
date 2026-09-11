@@ -2,7 +2,7 @@
 
 ## Current production state — September 10, 2026
 
-Current Fishing Companion production source is `00afdd15649d7f6b0231beb0ed4febc2bd495a4b`, published and hosted-verified by [run 34540254684](https://github.com/ginosega/fishing/actions/runs/34540254684); release `fe99694ea8dce031bb9a149fac8440dd` matched all 203 hosted files and passed production navigation, image-viewer, complete-offline-reload and record-count checks. Post-production site-authored changes now include PR75/PR76 (Pflueger spincast rod/reel), PR77 (Tsuridamashii snap-swivels picture), PR79 (four previously deferred pictures plus the Rebel Pop-R replacement), and PR81 (Kokanee, Largemouth Bass and Smallmouth Bass Species picture/content updates). Only two originally deferred required pictures remain: KB Popper and KB Whopper Plopper. Generic inline-spinner remains optional. P2 remains deferred. Earlier cleanup/initial-release sections below remain dated historical evidence.
+Current Fishing Companion production source is `76094d48055ca9e2363298763cdbf00586fbeb71`, published and hosted-verified by [run 34544432559](https://github.com/ginosega/fishing/actions/runs/34544432559); release `d6334fcb8a34834f1918df95b8f04efd` contains 205 hosted files and passed production navigation, image-viewer, complete-offline-reload and record-count checks. Post-production site-authored changes now include PR75/PR76 (Pflueger spincast rod/reel), PR77 (Tsuridamashii snap-swivels picture), PR79 (four previously deferred pictures plus Rebel Pop-R replacement), PR81 (Kokanee/Largemouth/Smallmouth Species updates), and PR84 (Popper and Whopper Plopper Gear-Guide pictures). All seven originally deferred required pictures are now resolved and live. Generic inline-spinner remains optional. FISH078 is DONE; P2 remains deferred. Earlier cleanup/initial-release sections below remain dated historical evidence.
 
 ## Repository cleanup — September 10, 2026
 
@@ -27,7 +27,7 @@ The pinned canonical migration hashes remain Gear `e001c82a49c63b8ac21c93b559bc4
 
 ## Pictures and browser data
 
-The original production decision explicitly approved absence of seven required pictures and remains preserved in `pwa/migration/media-decisions.json` as historical migration disposition. The user later supplied Tsuridamashii through PR77 and Rapala Original Floating, Mack's Pee Wee Hoochie, River2Sea Whopper Plopper 60 and Yellow Perch through PR79. Only two required pictures remain deferred: KB Popper and KB Whopper Plopper. Generic inline-spinner remains optional. The user will supply remaining pictures later; do not acquire them automatically or reinterpret the historical migration disposition as current absence.
+The original production decision explicitly approved absence of seven required pictures and remains preserved in `pwa/migration/media-decisions.json` as historical migration disposition. The user later supplied Tsuridamashii through PR77; Rapala Original Floating, Mack's Pee Wee Hoochie, River2Sea Whopper Plopper 60 and Yellow Perch through PR79; and Popper plus Whopper Plopper Gear-Guide pictures through PR84. All seven required picture exceptions are now resolved. Generic inline-spinner remains optional. Do not reinterpret the historical migration disposition as current absence or automatically acquire optional imagery.
 
 The user accepted source-equivalence evidence and waived a separate device-only IndexedDB export. No device inspection is claimed. Old v1 IndexedDB and caches remain; reconcile any later-discovered local-only records before retirement.
 
@@ -41,4 +41,4 @@ Complete releases are verified before readiness; corrupt or incomplete content i
 
 ## Backlog and next chat
 
-FISH071–076,079–083 are DONE; FISH077 is DEFERRED. FISH078 remains DEFERRED for the two still-missing required pictures: KB Popper and KB Whopper Plopper. Tsuridamashii was supplied through PR77 and four additional missing pictures through PR79. Unrelated fishing/equipment/content backlog is preserved; next unused ID is084. Continue in Chat using the current bootstrap. New work must restore actual latest main, use normal PR/CI for runtime changes and update authoritative records after actual milestones.
+FISH071–076 and FISH078–083 are DONE; FISH077 is DEFERRED. FISH078 closed after PR84 supplied the final two required pictures, Popper and Whopper Plopper; all seven originally deferred required pictures are now resolved. Generic inline-spinner remains optional. Unrelated fishing/equipment/content backlog is preserved; next unused ID is084. Continue in Chat using the current bootstrap. New work must restore actual latest main, use normal PR/CI for runtime changes and update authoritative records after actual milestones.
