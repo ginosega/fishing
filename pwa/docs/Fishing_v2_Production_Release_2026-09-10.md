@@ -1,5 +1,13 @@
 # Fishing Companion v2 production release — September 10, 2026
 
+## FISH087 KB authoring batch production closeout — September 11, 2026
+
+FISH-TODO-087 is DONE through [PR92](https://github.com/ginosega/fishing/pull/92). Verified production source `dee0ff76f6b15e861fa8864151aad88c8fe28f5e`, release `40c849b4014013f22200843c9d222c2c`, passed [production run 34614884273](https://github.com/ginosega/fishing/actions/runs/34614884273). The run completed source/core validation, preview- and production-scope browser acceptance, archived-v1 cutover acceptance, exact-current-main guard, Pages deployment, all 205 hosted-file comparisons and complete hosted browser verification.
+
+Hosted verification reported production navigation, counts, image viewer, complete offline reload, absent-picture behavior and no release diagnostics as passing. The deployed release includes the user-restored `KB/Locations/content/lake-bosworth.md`. PR92 applied the validated KB location/species authoring batch and one matching browser-regression update to expect no Species subtitle after intentional description removal. No schema, architecture, picture, direct-Save/P2 or broader release policy changed.
+
+The later documentation reconciliation updates project records only. It does not republish or alter release `40c849b4014013f22200843c9d222c2c`.
+
 ## Icon filename cleanup and current state — September 11, 2026
 
 FISH-TODO-086 is DONE through [PR91](https://github.com/ginosega/fishing/pull/91). Current production source `afd7afc9ee91fb3dc81a15635e14ec932bda2b1b`, release `11789b7bace383d161add0ac7d313579`, passed [production run 34608018650](https://github.com/ginosega/fishing/actions/runs/34608018650): 21 core tests, 24 preview-scope and 26 production-scope Chromium/WebKit scenarios, archived-v1 transition, exact-current-main Pages deployment, all 205 hosted-file comparisons and complete hosted browser verification.
