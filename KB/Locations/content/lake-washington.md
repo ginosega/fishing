@@ -1,8 +1,6 @@
-### General
-
 Common user targets: bass and coastal cutthroat trout. Kokanee can be present/seasonal in some contexts but should be treated as a specialized target and regulations should be checked.
 
-### Spring notes from OneNote
+### Spring fishing
 
 Lake Washington is more of a smallmouth, structure, transition-zone, electronics/sonar lake than Lake Sammamish. Fish are often deeper and more spread out. Smallmouth may suspend off structure rather than sit directly on bottom, so jerkbait or small swimbait can outperform bottom baits when fish are roaming.
 
@@ -20,10 +18,6 @@ Lake Washington is more of a smallmouth, structure, transition-zone, electronics
 - Spring: suspending jerkbait, Ned rig, small paddletail swimbait; go slow with long 3-8 second pauses.
 - Later spring/warmer water: chatterbaits, spinnerbaits, topwater.
 
-User observation:
-
-- Evening kayak trip near weed edges/channel where Sammamish River meets lake: wacky worm and spinnerbait from 8:30-9:30 p.m.; small fish rising for flying insects; no bites. Future adjustment: subtler baitfish/finesse, fish outside break or predator zones.
-
 ### Kirkland waterfront
 
 - Launch: Kirkland Marina Boat Launch.
@@ -36,13 +30,3 @@ User observation:
 - Classic prespawn smallmouth territory with steep structure, rocky transitions, 10-25 ft staging, steep drop-offs.
 - Fish east-side rocky banks, I-90 bridge riprap, west-side docks and transitions.
 - Use suspending jerkbait/small swimbait, drop shot, Ned rig.
-
-## Before fishing
-
-For every trip, recheck:
-
-- Fish Washington regulations.
-- Emergency rules.
-- Park/dock signage.
-- Parking/launch restrictions.
-- Species-specific retention rules.
