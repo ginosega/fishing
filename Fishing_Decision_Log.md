@@ -1,5 +1,13 @@
 # Fishing Decision Log
 
+## FISH087 KB authoring batch production closeout — September 11, 2026
+
+FISH-TODO-087 is DONE through [PR92](https://github.com/ginosega/fishing/pull/92). Production source `dee0ff76f6b15e861fa8864151aad88c8fe28f5e`, release `40c849b4014013f22200843c9d222c2c`, passed [production run 34614884273](https://github.com/ginosega/fishing/actions/runs/34614884273) through full validation, exact-current-main Pages deployment, all 205 hosted-file comparisons and hosted browser verification.
+
+Decision/result: the submitted KB package was applied under the approved v2 authoring/merge rules. All submitted structured-record and replacement-document base hashes matched current source when validated. The unrelated newer Silver Lake Markdown edit was preserved because the package specified Notes `keep`. The missing Lake Bosworth file was treated as an independent current-main integrity defect; after the user restored it, PR92 was refreshed against that repaired base. A single browser regression was updated to expect no Species subtitle after intentional description removal. No schema, architecture, picture, direct-Save/P2, or broader authoring decision changed.
+
+FISH084–087 are DONE; FISH077/P2 remains DEFERRED; unrelated backlog is unchanged. Next unused canonical task ID: FISH-TODO-088. This documentation reconciliation is non-runtime and does not republish production.
+
 ## Icon filename cleanup and current state — September 11, 2026
 
 FISH-TODO-086 is DONE through [PR91](https://github.com/ginosega/fishing/pull/91). Current production source `afd7afc9ee91fb3dc81a15635e14ec932bda2b1b`, release `11789b7bace383d161add0ac7d313579`, passed [production run 34608018650](https://github.com/ginosega/fishing/actions/runs/34608018650): 21 core tests, 24 preview-scope and 26 production-scope Chromium/WebKit scenarios, archived-v1 transition, exact-current-main Pages deployment, all 205 hosted-file comparisons and complete hosted browser verification.
@@ -130,4 +138,4 @@ Gear schema 4 uses JSON/IndexedDB, paired setups, manufacturer objects, ordered 
 
 ## Open work
 
-FISH-TODO-084, FISH-TODO-085 and FISH-TODO-086 are DONE. The canonical TODO retains deferred P2 and existing fishing/gear research. All seven originally deferred required pictures are resolved; generic inline-spinner remains optional. Production cutover and automated/hosted acceptance are complete. FISH063's old media-authoring policy and FISH039's setup recording are superseded for v2; they do not justify reintroducing retired structures. PowerBait hook-size and loop-knot guidance remain unresolved. The next unused canonical task ID is FISH-TODO-087. No approved future feature is treated as already deployed.
+FISH-TODO-084, FISH-TODO-085, FISH-TODO-086 and FISH-TODO-087 are DONE. The canonical TODO retains deferred P2 and existing fishing/gear research. All seven originally deferred required pictures are resolved; generic inline-spinner remains optional. Production cutover and automated/hosted acceptance are complete. FISH063's old media-authoring policy and FISH039's setup recording are superseded for v2; they do not justify reintroducing retired structures. PowerBait hook-size and loop-knot guidance remain unresolved. The next unused canonical task ID is FISH-TODO-088. No approved future feature is treated as already deployed.
