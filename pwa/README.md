@@ -1,5 +1,15 @@
 # Fishing Companion production application
 
+## Current production and repository-layout state — September 11, 2026
+
+Current deployed production source is `32759b83305e1dbb3818b676accb0aee3961ddf7`, release `a81d35da0db7b000ed031c17a9387de3`, fully verified by [production run 34645325275](https://github.com/ginosega/fishing/actions/runs/34645325275) after FISH094/[PR99](https://github.com/ginosega/fishing/pull/99). The complete source/core, Chromium/WebKit preview and production scopes, archived-v1 cutover, exact-current-main Pages deployment, hosted-byte and hosted-browser gates passed; hosted verification reported 210 v2 files.
+
+FISH090/[PR95](https://github.com/ginosega/fishing/pull/95) is DONE: Edit Gear can create the first link when `links` is absent, and canonical `pwa/icon.png` now contains the exact user-uploaded replacement bytes (1,541,464 bytes; 1254×1254 RGBA; SHA-256 `055cea4acde10ac18a74cc0a42f03a03190ea4a12df17acc0d5808a1637b822a`). FISH091/[draft PR96](https://github.com/ginosega/fishing/pull/96) remains requirements-only, WAITING ON USER and unimplemented; do not infer authorization for online-only-default runtime/service-worker work.
+
+FISH092/[PR97](https://github.com/ginosega/fishing/pull/97) made `content/` and `assets/` durable across all KB categories and documented the convention in `KB/README.md`. FISH093/[PR98](https://github.com/ginosega/fishing/pull/98) made `assets/` and `content/` durable across all Gear categories and documented the convention in `Gear/README.md`. FISH094/[PR99](https://github.com/ginosega/fishing/pull/99) applied only the validated Trout Fishing record change: description `Casting, bank-fishing, still-fishing, and kayak-trolling guidance`, picture `KB/Techniques/assets/Trout Fishing.png`, no invented caption and Notes unchanged. The existing PNG was preserved exactly (1,867,783 bytes; SHA-256 `7f883a4d7d6bbc5dfba152414ac81513f5bac8c896648769349e85bebd220306`).
+
+FISH077/P2 remains DEFERRED. FISH090 and FISH092–094 are DONE; FISH091 remains unimplemented pending requirements signoff. Next unused canonical task ID is FISH-TODO-095. Documentation-only reconciliation does not republish the application.
+
 ## FISH087 KB authoring batch production closeout — September 11, 2026
 
 FISH-TODO-087 is DONE through [PR92](https://github.com/ginosega/fishing/pull/92). Verified production source `dee0ff76f6b15e861fa8864151aad88c8fe28f5e`, release `40c849b4014013f22200843c9d222c2c`, passed [production run 34614884273](https://github.com/ginosega/fishing/actions/runs/34614884273): full validation, archived-v1 cutover acceptance, exact-current-main Pages deployment, all 205 hosted-file comparisons and hosted browser verification.
