@@ -1,5 +1,14 @@
 # Fishing
 
+## FISH095 Technique additions production closeout — September 11, 2026
+
+FISH-TODO-095 is **DONE**. [PR101](https://github.com/ginosega/fishing/pull/101) applied the two validated Fishing Companion KB add packages for **Topwater Fishing** and **Bass Fishing**. Each new Technique keeps the submitted identity/name/type, has required Notes created with the exact body `TODO`, and references the user-uploaded PNG without an invented caption. Before application, both add bases were clean on restored newer `main`; the two pre-uploaded PNGs were preserved byte-for-byte and validated against the package sizes and SHA-256 values: `Topwater Fishing.png` = 1,813,365 bytes / `e2edbf4e6dbad5fb66f10bfa9752d46316b9f174cc8d4b65798609a5f102448a`; `Bass Fishing.png` = 1,948,010 bytes / `1a711ecc4625d025e6ffe74c2f21c52a3a8eee056c744a7df901b2fb7e4b41f8`.
+
+Source-derived regression expectations moved from KB 54 to KB 56 and from 104 to 106 Markdown routes. The first merged content release correctly deployed KB 56, but its hosted verifier still expected KB 54; [PR102](https://github.com/ginosega/fishing/pull/102) changed only that stale verifier expectation. Final production source `620e47943ee9ef38aaa2ff46b0dbe7d4606ef3ba`, release `168554f1b4fe274f0030d389a047fd12`, passed [production run 34656039216](https://github.com/ginosega/fishing/actions/runs/34656039216) through the complete source/core gate, preview- and production-scope Chromium/WebKit acceptance, archived-v1 cutover acceptance, exact-current-main Pages deployment, all **214 hosted v2 file** byte comparisons, and hosted browser/refinement verification.
+
+No schema, domain architecture, Catch behavior, P2/direct-save scope, or FISH091 implementation changed. FISH091 remains **WAITING ON USER / requirements-only / unimplemented**; FISH077/P2 remains **DEFERRED**. All unrelated fishing/equipment/content backlog and purchase uncertainty remain preserved. The next unused canonical task ID is **FISH-TODO-096**. Chat remains the permanent default. This reconciliation is documentation-only and does not republish production release `168554f1b4fe274f0030d389a047fd12`.
+
+
 ## FISH090–094 current production and project-state reconciliation — September 11, 2026
 
 Fishing Companion’s current deployed production source is `32759b83305e1dbb3818b676accb0aee3961ddf7`, release `a81d35da0db7b000ed031c17a9387de3`, verified by [production run 34645325275](https://github.com/ginosega/fishing/actions/runs/34645325275) after [PR99](https://github.com/ginosega/fishing/pull/99). The full source/core, preview- and production-scope Chromium/WebKit, archived-v1 cutover, exact-current-main Pages deployment, hosted-byte and hosted-browser gates passed; the hosted verifier reported 210 v2 files.

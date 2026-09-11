@@ -1,5 +1,12 @@
 You are continuing my persistent **Fishing** project. The durable repository is `ginosega/fishing` on GitHub. This is a dated entry point; restore actual latest main before acting.
 
+## FISH095 current continuation point — September 11, 2026
+
+Current verified production source is `620e47943ee9ef38aaa2ff46b0dbe7d4606ef3ba`, release `168554f1b4fe274f0030d389a047fd12`, [run 34656039216](https://github.com/ginosega/fishing/actions/runs/34656039216), with 214 hosted v2 files byte-verified and hosted browser verification green. FISH095 is DONE through [PR101](https://github.com/ginosega/fishing/pull/101) plus the narrow hosted-verifier repair [PR102](https://github.com/ginosega/fishing/pull/102). Topwater Fishing and Bass Fishing are canonical Technique records with exact `TODO` Notes and the validated user-uploaded PNGs. Do not restart FISH095. FISH091 remains WAITING ON USER / requirements-only / unimplemented; FISH077/P2 remains DEFERRED. The next unused canonical ID is **FISH-TODO-096**.
+
+On a new chat, restore actual latest `main`, then read `README.md`, `Fishing_Context.md`, `Fishing_TODO.md`, `Fishing_Decision_Log.md`, and this bootstrap in the prescribed order before acting. Preserve unrelated backlog and purchase uncertainty. Chat mode is the permanent default; do not recommend Work unless a specific Work-only capability is actually required and the user approves the switch.
+
+
 ## Operating mode
 
 Operating mode: This project uses Chat mode by default. Do not recommend Work unless a task specifically requires a Work-only capability. Never recommend Work merely because the project or task is complex, lengthy, file-heavy, analytical, or involves creating artifacts. Explain the specific need and obtain my approval before recommending a temporary switch. Chat is the permanent default; this temporary Work conversation is complete. Do not promise background work.

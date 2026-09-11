@@ -1,5 +1,10 @@
 # Fishing Companion production application
 
+## FISH095 current production state — September 11, 2026
+
+Current verified production is source `620e47943ee9ef38aaa2ff46b0dbe7d4606ef3ba`, release `168554f1b4fe274f0030d389a047fd12`, [run 34656039216](https://github.com/ginosega/fishing/actions/runs/34656039216), with 214 hosted v2 files byte-matched and hosted browser/refinement verification green. FISH095/[PR101](https://github.com/ginosega/fishing/pull/101) added Topwater Fishing and Bass Fishing as ordinary canonical KB Technique records with required `TODO` Notes and exact pre-uploaded PNGs; [PR102](https://github.com/ginosega/fishing/pull/102) changed only the stale hosted-verifier KB count from 54 to 56. Source-derived tests now expect Gear 69 / KB 56 / Catches 5 and 106 Markdown routes. No runtime architecture, schema, Catch model or P2 authoring scope changed. FISH091 remains requirements-only/unimplemented; FISH077 remains deferred; next unused ID is **FISH-TODO-096**.
+
+
 ## Current production and repository-layout state — September 11, 2026
 
 Current deployed production source is `32759b83305e1dbb3818b676accb0aee3961ddf7`, release `a81d35da0db7b000ed031c17a9387de3`, fully verified by [production run 34645325275](https://github.com/ginosega/fishing/actions/runs/34645325275) after FISH094/[PR99](https://github.com/ginosega/fishing/pull/99). The complete source/core, Chromium/WebKit preview and production scopes, archived-v1 cutover, exact-current-main Pages deployment, hosted-byte and hosted-browser gates passed; hosted verification reported 210 v2 files.

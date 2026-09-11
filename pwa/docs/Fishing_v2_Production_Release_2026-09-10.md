@@ -1,5 +1,14 @@
 # Fishing Companion v2 production release — September 10, 2026
 
+## FISH095 production closeout — September 11, 2026
+
+FISH095 is fully closed in production. [PR101](https://github.com/ginosega/fishing/pull/101) added the Topwater Fishing and Bass Fishing Technique records with exact `TODO` Notes and exact validated pre-uploaded PNG bytes. [PR102](https://github.com/ginosega/fishing/pull/102) repaired the hosted verifier after the first deployment exposed its stale KB=54 expectation; the live content itself was already correct. Final production source `620e47943ee9ef38aaa2ff46b0dbe7d4606ef3ba`, release `168554f1b4fe274f0030d389a047fd12`, [run 34656039216](https://github.com/ginosega/fishing/actions/runs/34656039216) passed the full acceptance pipeline, exact-current-main Pages deployment, **214 hosted v2 file** byte comparisons and hosted browser/refinement verification.
+
+The package images were not rewritten: Topwater Fishing PNG SHA-256 `e2edbf4e6dbad5fb66f10bfa9752d46316b9f174cc8d4b65798609a5f102448a`; Bass Fishing PNG SHA-256 `1a711ecc4625d025e6ffe74c2f21c52a3a8eee056c744a7df901b2fb7e4b41f8`. No captions were invented. Canonical counts are now Gear 69 / KB 56 / Catches 5, with 106 Markdown routes. No schema, architecture, Catch or P2 scope changed.
+
+Later documentation reconciliation is non-runtime and does **not** republish or alter release `168554f1b4fe274f0030d389a047fd12`.
+
+
 ## Current verified production — FISH094, September 11, 2026
 
 Current deployed production source is `32759b83305e1dbb3818b676accb0aee3961ddf7`, release `a81d35da0db7b000ed031c17a9387de3`, produced by FISH094/[PR99](https://github.com/ginosega/fishing/pull/99) and fully verified in [production run 34645325275](https://github.com/ginosega/fishing/actions/runs/34645325275). The run passed source/core validation, preview- and production-scope Chromium/WebKit acceptance, archived-v1 cutover acceptance, the exact-current-main guard, Pages deployment, hosted-byte verification and hosted-browser verification. Hosted verification reported 210 v2 files and passed production navigation, counts, image viewer, complete offline reload, absent-picture behavior and no release diagnostics.

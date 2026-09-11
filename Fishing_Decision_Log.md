@@ -1,5 +1,14 @@
 # Fishing Decision Log
 
+## FISH095 validated Technique additions and hosted-verifier repair — September 11, 2026
+
+**Decision / closeout:** Treat the two submitted packages as clean KB adds even though their recorded `sourceRevision` predates current `main`, because neither ID nor requested Notes path existed and the newer intervening main change only supplied the requested image files. Use the existing uploaded image bytes only after exact byte-count and SHA-256 validation; create Notes exactly as `TODO`; do not invent captions or broader Technique content.
+
+The additions intentionally increase the canonical KB inventory from 54 to 56 and the Markdown route map from 104 to 106, so fixed source-derived regression expectations were updated accordingly. [PR101](https://github.com/ginosega/fishing/pull/101) implemented the content. Its first production deployment was valid, but hosted verification exposed a stale verifier-only KB=54 assertion while the live application correctly reported KB=56. [PR102](https://github.com/ginosega/fishing/pull/102) repaired only that assertion; it made no product/content change. Final source `620e47943ee9ef38aaa2ff46b0dbe7d4606ef3ba`, release `168554f1b4fe274f0030d389a047fd12`, [run 34656039216](https://github.com/ginosega/fishing/actions/runs/34656039216) passed 214 hosted-file byte comparisons and complete hosted browser verification.
+
+FISH095 is DONE. FISH091 remains WAITING ON USER and unimplemented; FISH077/P2 remains DEFERRED. No schema, architecture, identity, Catch, media-policy or P2 design decision changed. Next unused task ID: **FISH-TODO-096**.
+
+
 ## FISH090–094 current decisions and release closeout — September 11, 2026
 
 Current deployed production is source `32759b83305e1dbb3818b676accb0aee3961ddf7`, release `a81d35da0db7b000ed031c17a9387de3`, verified in [run 34645325275](https://github.com/ginosega/fishing/actions/runs/34645325275) after FISH094/[PR99](https://github.com/ginosega/fishing/pull/99). The complete source/core, browser, archived-v1, exact-current-main, Pages and hosted verification gates passed; hosted verification reported 210 v2 files.
