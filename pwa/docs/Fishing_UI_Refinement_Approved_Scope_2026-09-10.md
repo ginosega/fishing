@@ -2,13 +2,13 @@
 
 **Decision date:** September 10, 2026  
 **Task:** FISH-TODO-084  
-**Status:** APPROVED / NOT YET IMPLEMENTED
+**Status:** IMPLEMENTED / LIVE — automated verifier follow-up FISH085 open
 
-This document preserves the exact scope agreed in Chat before implementation. It is a requirements/reference record only and is not evidence that any runtime change has been deployed. Implement the batch as one coordinated feature PR/release in Chat mode unless a genuinely Work-only capability is encountered and separately approved.
+This document preserves the approved scope and the verified PR89 implementation. The user supplied the runtime icon directly in GitHub and explicitly authorized the complete coordinated PR, merge, deployment and hosted verification.
 
 ## Approved changes
 
-1. **Application icon.** Replace the current runtime icon with the user-approved fish-and-hook design. The signed-off reference is [`assets/Fishing_Companion_Approved_Icon_2026-09-10.png`](assets/Fishing_Companion_Approved_Icon_2026-09-10.png), SHA-256 `3245b6768ce1952e5f47d13d1d662de57240e1bf53bcb961643e09328065efab`, 64,790 bytes. It was recolored to complement the actual production CSS dark palette: `#101b18`, `#172722`, `#203b34`, `#344940`, `#80c9b5`, `#247c6d`, `#e4ede8`, `#a2b5aa`. The reference asset under `pwa/docs/` is documentation only; do not treat its presence as runtime icon implementation.
+1. **Application icon.** Use the exact user-uploaded `pwa/revised-icon.png`, SHA-256 `89a81bac58c460cdb6ccc509b6b240ac84937b619990c6ac9b187ddc4b75980c`, 1,243,451 bytes, 1254 × 1254. This latest explicit instruction supersedes the older documentation-only reference. Preserve its artwork and proportions.
 2. **Catch Log cards.** Species remains first; move date to the second line directly under Species and render the date with normal, not bold, weight.
 3. **Search placeholders.** General site rule: search inputs use `Search [page title]`, e.g. `Search My Gear`, `Search Lures`, `Search Knowledge Base`, `Search Gear Guides`.
 4. **Post-copy Exit.** After Copy Changes on a Gear/KB Add or Edit page, show an `Exit` button. On edit, Exit returns to the original item page. On add, Exit returns to the originating Gear/KB page. This exit must not show the `Changes have not been saved...` warning.
@@ -21,9 +21,19 @@ This document preserves the exact scope agreed in Chat before implementation. It
 
 The earlier request to make KB Notes optional was withdrawn. Do **not** change KB Notes validation, schema or viewer behavior as part of FISH084. The user intends to add Notes to every KB item eventually and may use a placeholder string temporarily when authoring.
 
-## Reconciliation state
+## FISH084 production closeout — September 11, 2026
 
-None of FISH084 is implemented or deployed by this reconciliation. The live application source remains `76094d48055ca9e2363298763cdbf00586fbeb71`, hosted-verified by production run `34544432559`, release `d6334fcb8a34834f1918df95b8f04efd`. During the audit, obsolete unmerged PR83 was closed as superseded by the already-live PR84; no feature/runtime PR remained open before the documentation reconciliation PR was created. The approved icon file stored under `pwa/docs/assets/` is reference material only and does not alter the runtime icon.
+FISH-TODO-084's eight UI/authoring changes are implemented and live through the single PR89 production release: source `1f3f6df97390db186303148dcb5fa62ad0ba90e9`, release `7572c94504e4482c9987828b95a653f6`. [Production run 34565111477](https://github.com/ginosega/fishing/actions/runs/34565111477) passed all 20 core tests, 24 preview-scope and 26 production-scope Chromium/WebKit scenarios, the archived-v1 transition, Pages publication and exact comparisons of all 205 hosted files. Its subsequent hosted browser verifier failed on an ambiguous Yellow Perch heading: the page h1 and the new Catch-card h2 now share that text. The workflow is NOT green.
+
+Direct cloud-browser follow-up verified the published home/KB/Catch wording, normal-weight dates below Species, page search, exact runtime icon references, Yellow Perch page/image viewer, Offline Ready for 203 files, real clipboard instruction plus valid JSON, Gear/KB Add Exit to the originating roots and KB Edit Exit to its original item without a warning. The original hosted verifier had already completed actual offline reload before reaching the ambiguous selector. No physical-device inspection or browser-originated repository writes are claimed.
+
+FISH-TODO-085 tracks the permanent verifier-only selector correction (`level:1` for the Yellow Perch page-heading locator) and automated verification closeout. The user's one-PR/one-release instruction prevents silently adding a follow-up PR/release; that exception requires user direction. No second release was made.
+
+The runtime uses the exact user-uploaded `pwa/revised-icon.png` (1,243,451 bytes, 1254 × 1254 PNG; SHA-256 `89a81bac58c460cdb6ccc509b6b240ac84937b619990c6ac9b187ddc4b75980c`). The older documentation reference is historical and was not substituted. The favicon, manifest and Apple touch icon use this image; complete offline release integrity includes it and older SVG-icon releases remain readable for recovery.
+
+Catch card dates appear directly below Species at regular weight, including derived Catch History cards. Existing search inputs use `Search [page title]`; no new search inputs were added. Knowledge Base card/subtitle reads `Fishing reference library`; Catch Log home-card subtext and list-page heading read `Recorded catches`. Back buttons retain only `Back`.
+
+After a successful Copy Changes, Exit returns edits to their original item and adds to their originating Gear/KB root or category. Exit alone bypasses the unsaved-changes warning. Further edits invalidate the prepared package and remove Exit; ordinary Back, Cancel, navigation and reload remain guarded. Copy text contains an explicit repository implementation/deployment instruction above valid `fishing-companion-change-v2` JSON; manual-copy fallback includes that same instruction. Preparing/copying is not saving. KB Notes remain required; its schema and viewer behavior are unchanged.
 
 ## Release discipline
 

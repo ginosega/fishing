@@ -1,10 +1,18 @@
 # Fishing Decision Log
 
-## Approved pending UI refinement batch — September 10, 2026
+## FISH084 production closeout — September 11, 2026
 
-The user approved one coordinated Fishing Companion UI/authoring refinement batch, tracked as FISH-TODO-084 and intentionally **not implemented during the subsequent reconciliation/audit**. The exact approved scope is preserved in `pwa/docs/Fishing_UI_Refinement_Approved_Scope_2026-09-10.md`, including the approved CSS-matched fish/hook icon reference at `pwa/docs/assets/Fishing_Companion_Approved_Icon_2026-09-10.png`. Implementation should remain in Chat mode; no Work-only capability has been identified.
+FISH-TODO-084's eight UI/authoring changes are implemented and live through the single PR89 production release: source `1f3f6df97390db186303148dcb5fa62ad0ba90e9`, release `7572c94504e4482c9987828b95a653f6`. [Production run 34565111477](https://github.com/ginosega/fishing/actions/runs/34565111477) passed all 20 core tests, 24 preview-scope and 26 production-scope Chromium/WebKit scenarios, the archived-v1 transition, Pages publication and exact comparisons of all 205 hosted files. Its subsequent hosted browser verifier failed on an ambiguous Yellow Perch heading: the page h1 and the new Catch-card h2 now share that text. The workflow is NOT green.
 
-The approved batch consists of: Catch Log card date on a regular-weight second line under Species; general `Search [page title]` placeholders; post-Copy Changes Exit behavior with no unsaved-changes warning; a plain-language ChatGPT instruction above copied JSON packages; Knowledge Base wording `Fishing reference library`; Catch Log wording `Recorded catches`; Back buttons without the arrow; and replacement of the runtime app icon with the approved reference. The user's earlier request to make KB Notes optional was withdrawn; no Notes-validation/model change is authorized.
+Direct cloud-browser follow-up verified the published home/KB/Catch wording, normal-weight dates below Species, page search, exact runtime icon references, Yellow Perch page/image viewer, Offline Ready for 203 files, real clipboard instruction plus valid JSON, Gear/KB Add Exit to the originating roots and KB Edit Exit to its original item without a warning. The original hosted verifier had already completed actual offline reload before reaching the ambiguous selector. No physical-device inspection or browser-originated repository writes are claimed.
+
+FISH-TODO-085 tracks the permanent verifier-only selector correction (`level:1` for the Yellow Perch page-heading locator) and automated verification closeout. The user's one-PR/one-release instruction prevents silently adding a follow-up PR/release; that exception requires user direction. No second release was made.
+
+The runtime uses the exact user-uploaded `pwa/revised-icon.png` (1,243,451 bytes, 1254 × 1254 PNG; SHA-256 `89a81bac58c460cdb6ccc509b6b240ac84937b619990c6ac9b187ddc4b75980c`). The older documentation reference is historical and was not substituted. The favicon, manifest and Apple touch icon use this image; complete offline release integrity includes it and older SVG-icon releases remain readable for recovery.
+
+Catch card dates appear directly below Species at regular weight, including derived Catch History cards. Existing search inputs use `Search [page title]`; no new search inputs were added. Knowledge Base card/subtitle reads `Fishing reference library`; Catch Log home-card subtext and list-page heading read `Recorded catches`. Back buttons retain only `Back`.
+
+After a successful Copy Changes, Exit returns edits to their original item and adds to their originating Gear/KB root or category. Exit alone bypasses the unsaved-changes warning. Further edits invalidate the prepared package and remove Exit; ordinary Back, Cancel, navigation and reload remain guarded. Copy text contains an explicit repository implementation/deployment instruction above valid `fishing-companion-change-v2` JSON; manual-copy fallback includes that same instruction. Preparing/copying is not saving. KB Notes remain required; its schema and viewer behavior are unchanged.
 
 ## Post-production authoring updates — September 10, 2026
 
@@ -104,4 +112,4 @@ Gear schema 4 uses JSON/IndexedDB, paired setups, manufacturer objects, ordered 
 
 ## Open work
 
-The canonical TODO tracks FISH-TODO-084 as the approved but not-yet-implemented UI/authoring refinement batch, separately authorized P2 work and existing fishing/gear research. All seven originally deferred required pictures are resolved; generic inline-spinner remains optional. Production cutover and automated/hosted acceptance are complete. FISH063's old media-authoring policy and FISH039's setup recording are superseded for v2; they do not justify reintroducing retired structures. PowerBait hook-size and loop-knot guidance remain unresolved. The next unused canonical task ID is FISH-TODO-085. No approved future feature is treated as already deployed.
+FISH-TODO-084 is DONE. The canonical TODO retains deferred P2 and existing fishing/gear research. All seven originally deferred required pictures are resolved; generic inline-spinner remains optional. Production cutover and automated/hosted acceptance are complete. FISH063's old media-authoring policy and FISH039's setup recording are superseded for v2; they do not justify reintroducing retired structures. PowerBait hook-size and loop-knot guidance remain unresolved. The next unused canonical task ID is FISH-TODO-086. No approved future feature is treated as already deployed.
