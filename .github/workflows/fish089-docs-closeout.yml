@@ -1,0 +1,112 @@
+name: FISH089 documentation reconciler
+
+on:
+  push:
+    branches:
+      - docs/fish089-closeout-20260911
+
+permissions:
+  contents: write
+
+jobs:
+  reconcile:
+    if: github.event.head_commit.message == 'Temporary FISH089 documentation reconciler'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: docs/fish089-closeout-20260911
+          persist-credentials: true
+          fetch-depth: 0
+      - name: Reconcile authoritative records
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          SOURCE='5f413021f51a7d48ea8f7f96e99d9a81db9ee0a6'
+          RELEASE='7a7f62759f668cda0eece08125e798b2'
+          RUN='34625693090'
+
+          def insert_after(path, marker, text):
+              p=Path(path); s=p.read_text(encoding='utf-8')
+              assert '## FISH089 location-picture production closeout' not in s, path
+              assert s.count(marker)==1, (path, s.count(marker))
+              p.write_text(s.replace(marker, marker+text, 1), encoding='utf-8')
+
+          def insert_before(path, marker, text):
+              p=Path(path); s=p.read_text(encoding='utf-8')
+              assert '## FISH089 location-picture production closeout' not in s, path
+              assert s.count(marker)==1, (path, s.count(marker))
+              p.write_text(s.replace(marker, text+marker, 1), encoding='utf-8')
+
+          def replace_one(path, old, new):
+              p=Path(path); s=p.read_text(encoding='utf-8')
+              assert s.count(old)==1, (path, s.count(old), old[:100])
+              p.write_text(s.replace(old,new,1), encoding='utf-8')
+
+          common=(
+              '## FISH089 location-picture production closeout — September 11, 2026\n\n'
+              f'FISH-TODO-089 is DONE through [PR94](https://github.com/ginosega/fishing/pull/94). Production source `{SOURCE}`, release `{RELEASE}`, passed [production run {RUN}](https://github.com/ginosega/fishing/actions/runs/{RUN}) through complete source/core validation, preview- and production-scope Chromium/WebKit acceptance, archived-v1 cutover acceptance, exact-current-main Pages deployment, 209 hosted v2 files and complete hosted byte/browser verification.\n\n'
+              'PR94 applied the four validated KB location-picture packages. Cranberry Lake now references `KB/Locations/assets/Cranberry Lake.jpg` with caption **Cranberry Lake - August 6, 2026**; Lake Sammamish now references `KB/Locations/assets/Lake Sammamish.jpg` with caption **Lake Sammamish - July 2, 2026**; Mayfield Lake now references `KB/Locations/assets/Mayfield Lake.png` with caption **Mayfield Lake - August 19, 2026** and description **Trout, kokanee, bass, and muskie fishing at Ike Kinswa State Park**; Silver Lake now references `KB/Locations/assets/Silver Lake.jpg` with caption **Silver Lake - July 27, 2026**. All four Notes/Markdown files were kept unchanged.\n\n'
+              'All four submitted structured-record hashes and picture bases matched current source before application, including Mayfield\'s prior description. The four user-uploaded image files were already present on newer restored `main` and matched the package byte counts and SHA-256 values exactly, so PR94 referenced those existing bytes instead of rewriting them. The former Cranberry Lake PNG remains in repository source/history because the package replaced the record association but did not request deletion of the old file. No schema, architecture, identity, Catch model or P2 authoring scope changed.\n\n'
+              'FISH084–089 are DONE. FISH077/P2 remains DEFERRED. All unrelated fishing/equipment/content backlog and purchase uncertainty remain preserved. The next unused canonical task ID is FISH-TODO-090. Continue in Chat using actual latest `main`. This documentation reconciliation is non-runtime and does not redeploy production.\n\n'
+          )
+
+          insert_after('README.md', '# Fishing\n\n', common)
+          insert_after('Fishing_Context.md', '# Fishing Context\n\n', common)
+
+          todo=(
+              '## FISH089 location-picture production closeout — September 11, 2026\n\n'
+              f'FISH-TODO-089 is DONE through [PR94](https://github.com/ginosega/fishing/pull/94). Production source `{SOURCE}`, release `{RELEASE}`, passed [production run {RUN}](https://github.com/ginosega/fishing/actions/runs/{RUN}) through the full gate, exact-current-main Pages deployment, 209 hosted v2 files and complete hosted byte/browser verification. The four validated KB packages replaced Cranberry Lake\'s picture association, added pictures for Lake Sammamish, Mayfield Lake and Silver Lake, and applied the requested Mayfield description; all four Notes files were kept unchanged. Exact pre-uploaded image bytes were preserved.\n\n'
+              'FISH084–089 are DONE. FISH077/P2 remains DEFERRED. All unrelated fishing/equipment/content backlog and purchase uncertainty are preserved. The next unused canonical task ID is FISH-TODO-090. This documentation reconciliation does not redeploy the application.\n\n'
+          )
+          insert_after('Fishing_TODO.md', '# Fishing TODO\n\n', todo)
+
+          decision=(
+              '## FISH089 location-picture production closeout — September 11, 2026\n\n'
+              f'FISH-TODO-089 is DONE through [PR94](https://github.com/ginosega/fishing/pull/94). Production source `{SOURCE}`, release `{RELEASE}`, passed [production run {RUN}](https://github.com/ginosega/fishing/actions/runs/{RUN}) through full validation, exact-current-main Pages deployment, 209 hosted v2 files and complete hosted byte/browser verification.\n\n'
+              'Decision/result: apply all four submitted `fishing-companion-change-v2` KB edits under the approved source-aware authoring rules because every structured record hash and picture base matched current source. The four package image files were already present on a newer image-only `main` commit and matched their exact byte counts/SHA-256 values, so they were referenced without rewriting. Notes remained untouched. Cranberry\'s record association moved to the supplied JPG, while the old PNG bytes were retained because no deletion was requested. Mayfield\'s description was changed exactly as submitted; no other narrative changed.\n\n'
+              'No schema, architecture, direct-Save/P2, Catch or broader authoring decision changed. FISH084–089 are DONE; FISH077/P2 remains DEFERRED; unrelated backlog is unchanged. Next unused canonical task ID: FISH-TODO-090. This reconciliation is non-runtime and does not republish production.\n\n'
+          )
+          insert_after('Fishing_Decision_Log.md', '# Fishing Decision Log\n\n', decision)
+
+          bootstrap=(
+              '## FISH089 location-picture production closeout — September 11, 2026\n\n'
+              f'FISH-TODO-089 is DONE through [PR94](https://github.com/ginosega/fishing/pull/94). Verified production source is `{SOURCE}`, release `{RELEASE}`, with successful [production run {RUN}](https://github.com/ginosega/fishing/actions/runs/{RUN}). The full source/core, preview-browser, production-browser, archived-v1, exact-current-main Pages deployment and hosted byte/browser gates passed; the hosted verifier reports 209 v2 files.\n\n'
+              'PR94 applied four validated KB location-picture packages: Cranberry Lake now uses `KB/Locations/assets/Cranberry Lake.jpg`; Lake Sammamish uses `KB/Locations/assets/Lake Sammamish.jpg`; Mayfield Lake uses `KB/Locations/assets/Mayfield Lake.png` and the submitted muskie/Ike Kinswa description; Silver Lake uses `KB/Locations/assets/Silver Lake.jpg`. Captions are the submitted dated captions. All four Notes/Markdown files were kept. The four files were pre-existing newer user uploads on restored `main` and matched the submitted sizes/SHA-256 values exactly. The old Cranberry PNG remains because deletion was not requested. No schema, architecture or P2 scope changed.\n\n'
+              'FISH084–089 are DONE. FISH077/P2 remains DEFERRED. All unrelated backlog and purchase uncertainty remain preserved. The next unused canonical task ID is FISH-TODO-090. Resume from actual latest `main` and the user\'s next requested work; do not restart completed FISH089 release work. This documentation reconciliation does not redeploy production.\n\n'
+          )
+          insert_before('Fishing_New_Chat_Bootstrap_Prompt.md', '## FISH088 Kingforest inline-spinner production closeout — September 11, 2026\n\n', bootstrap)
+
+          old088='| FISH-TODO-088 | P1 | DONE | PR93 applied the validated Kingforest inline-spinner Gear edit, preserving the pre-existing exact user-uploaded PNG and updating only source-derived regression expectations. Production source `364a599a4eeb51457ece46457d738ebb4f0d82f3`, release `97e6a320ed42c432b875de9fe8c2ef25`, run 34621210887 passed full CI, exact-current-main Pages deployment, 206 hosted v2 files and complete hosted byte/browser verification. |'
+          new089=(old088+'\n| FISH-TODO-089 | P1 | DONE | PR94 applied four validated KB location-picture packages: Cranberry Lake picture replacement, Lake Sammamish/Mayfield Lake/Silver Lake picture additions, and the requested Mayfield description. Notes stayed unchanged and exact pre-uploaded image bytes were preserved. Production source `'+SOURCE+'`, release `'+RELEASE+'`, run '+RUN+' passed full CI, exact-current-main Pages deployment, 209 hosted v2 files and complete hosted byte/browser verification. |')
+          replace_one('Fishing_TODO.md', old088, new089)
+
+          replace_one('Fishing_Context.md',
+              'FISH071–076 and FISH078–088 are DONE; FISH077 is DEFERRED; production evidence is recorded above. FISH078 closed after PR84 supplied the final two required pictures, Popper and Whopper Plopper; all seven originally deferred required pictures remain resolved. The historically optional generic inline-spinner now has the user-supplied Kingforest picture through FISH088/PR93. Obsolete unmerged PR83 was closed as superseded by the already-live PR84; PR89–PR93 are merged; no feature/runtime PR remains open at this reconciliation. Unrelated fishing/equipment/content backlog is preserved; next unused ID is FISH-TODO-089. Continue in Chat using the current bootstrap. New work must restore actual latest main, use normal PR/CI for runtime changes and update authoritative records after actual milestones.',
+              'FISH071–076 and FISH078–089 are DONE; FISH077 is DEFERRED; production evidence is recorded above. FISH078 closed after PR84 supplied the final two required pictures, Popper and Whopper Plopper; all seven originally deferred required pictures remain resolved. The historically optional generic inline-spinner has the user-supplied Kingforest picture through FISH088/PR93, and FISH089/PR94 adds the four validated location pictures described above. Obsolete unmerged PR83 was closed as superseded by the already-live PR84; PR89–PR94 are merged; no feature/runtime PR remains open at this reconciliation. Unrelated fishing/equipment/content backlog is preserved; next unused ID is FISH-TODO-090. Continue in Chat using the current bootstrap. New work must restore actual latest main, use normal PR/CI for runtime changes and update authoritative records after actual milestones.')
+
+          replace_one('Fishing_New_Chat_Bootstrap_Prompt.md',
+              'The source-equivalence waiver stands; no separate physical-device/IndexedDB export or inspection is claimed. Retain old browser stores and reconcile later-discovered local-only data before retirement. FISH076, FISH078 and FISH083 are DONE; P2 FISH077 remains DEFERRED; FISH084, FISH085, FISH086, FISH087 and FISH088 are DONE and fully verified in production. All originally required missing pictures are resolved; the historically optional generic inline-spinner now has the user-supplied Kingforest picture through FISH088. Unrelated backlog remains; next unused task ID is FISH-TODO-089. Update Context, Decision Log, TODO, README, affected source/technical/release records and this bootstrap after actual milestones; cross-check before handoff.',
+              'The source-equivalence waiver stands; no separate physical-device/IndexedDB export or inspection is claimed. Retain old browser stores and reconcile later-discovered local-only data before retirement. FISH076, FISH078 and FISH083 are DONE; P2 FISH077 remains DEFERRED; FISH084, FISH085, FISH086, FISH087, FISH088 and FISH089 are DONE and fully verified in production. All originally required missing pictures are resolved; the historically optional generic inline-spinner has the user-supplied Kingforest picture through FISH088, and FISH089 adds the four validated location pictures described above. Unrelated backlog remains; next unused task ID is FISH-TODO-090. Update Context, Decision Log, TODO, README, affected source/technical/release records and this bootstrap after actual milestones; cross-check before handoff.')
+
+          Path('.github/workflows/fish089-docs-closeout.yml').unlink()
+
+          for f in ['README.md','Fishing_Context.md','Fishing_TODO.md','Fishing_Decision_Log.md','Fishing_New_Chat_Bootstrap_Prompt.md']:
+              s=Path(f).read_text(encoding='utf-8')
+              assert SOURCE in s and RELEASE in s and RUN in s, f
+              assert 'FISH-TODO-090' in s, f
+          assert '| FISH-TODO-089 | P1 | DONE |' in Path('Fishing_TODO.md').read_text(encoding='utf-8')
+          assert 'FISH071–076 and FISH078–089 are DONE' in Path('Fishing_Context.md').read_text(encoding='utf-8')
+          assert 'FISH084–089 are DONE' in Path('Fishing_New_Chat_Bootstrap_Prompt.md').read_text(encoding='utf-8')
+          PY
+          git diff --check
+      - name: Commit reconciled records
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add README.md Fishing_Context.md Fishing_TODO.md Fishing_Decision_Log.md Fishing_New_Chat_Bootstrap_Prompt.md .github/workflows/fish089-docs-closeout.yml
+          git commit -m 'Reconcile FISH089 production closeout records'
+          git push origin HEAD:docs/fish089-closeout-20260911
