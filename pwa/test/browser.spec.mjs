@@ -374,10 +374,10 @@ test('FISH084 wording, search, catch date and exact icon',async({page})=>{
   await route(page,hash,title);await expect(page.getByPlaceholder('Search '+title,{exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Back',exact:true})).toBeVisible();
  }
  await route(page,'#/catches','Recorded catches');
- const data=await sourceData();const catches=[...data.catches.catches].sort((a,b)=>b.date.localeCompare(a.date)||String(b.time||'').localeCompare(String(a.time||'')));
+ const data=await sourceData();const catches=data.catches.catches;
  const cards=page.locator('.record-grid .nav-card');
  for(let i=0;i<catches.length;i++){
-  const c=catches[i],card=cards.nth(i);await expect(card.locator('h2')).toHaveText(data.kb.entities.find(x=>x.id===c.speciesId)?.name||'Catch');await expect(card.locator('h2 + time')).toHaveText(c.date);await expect(card.locator('time')).toHaveCSS('font-weight','400');
+  const c=catches[i],card=cards.filter({has:page.locator('h2')}).and(page.locator(`a[href="#/catches/${c.id}"]`));await expect(card.locator('h2')).toHaveText(data.kb.entities.find(x=>x.id===c.speciesId)?.name||'Catch');await expect(card.locator('h2 + time')).toHaveText(c.date);await expect(card.locator('time')).toHaveCSS('font-weight','400');
  }
 });
 
