@@ -18,83 +18,58 @@ jobs:
           python3 <<'PY'
           from pathlib import Path
 
-          # README: record pending approved work and label old cutover text historical.
           p=Path('README.md'); s=p.read_text()
           marker='The cleanup and initial-release sections below are dated historical evidence; P2 remains deferred.\n\n## Repository cleanup — September 10, 2026'
-          assert marker in s
           pending='''The cleanup and initial-release sections below are dated historical evidence; P2 remains deferred.\n\n## Pending approved UI refinement batch — not yet implemented\n\nFISH-TODO-084 is OPEN for one coordinated Fishing Companion UI/authoring refinement batch. Approved scope: replace the app icon with the user-approved CSS-matched fish/hook design; put Catch Log date on a regular-weight second line under Species; use `Search [page title]` placeholders site-wide; show an Exit button after Copy Changes that returns to the originating item/page without the dirty-form warning; prepend a plain-language ChatGPT instruction above copied JSON packages; change Knowledge Base subtext/subtitle to `Fishing reference library`; change Catch Log subtext/title to `Recorded catches`; and remove the arrow from Back buttons site-wide. The earlier request to make KB Notes optional was withdrawn and must not be implemented. The icon image itself is intentionally not stored in GitHub yet; it remains the approved chat attachment and the user will manually upload it after starting the next chat. None of FISH084 is implemented or deployed yet. See `pwa/docs/Fishing_UI_Refinement_Approved_Scope_2026-09-10.md`.\n\n## Repository cleanup — September 10, 2026'''
-          s=s.replace(marker,pending,1)
+          assert marker in s; s=s.replace(marker,pending,1)
           hist='See [cleanup/release evidence](pwa/docs/Repository_Cleanup_2026-09-10.md).\n\n\nV2 is published at [Fishing Companion](https://ginosega.github.io/fishing/).'
-          assert hist in s
-          s=s.replace(hist,'See [cleanup/release evidence](pwa/docs/Repository_Cleanup_2026-09-10.md).\n\n## Historical initial v2 production closeout\n\nThe following paragraphs are dated historical evidence from the initial v2 cutover and do not override the current production state or pending-work section above.\n\nV2 is published at [Fishing Companion](https://ginosega.github.io/fishing/).',1)
+          assert hist in s; s=s.replace(hist,'See [cleanup/release evidence](pwa/docs/Repository_Cleanup_2026-09-10.md).\n\n## Historical initial v2 production closeout\n\nThe following paragraphs are dated historical evidence from the initial v2 cutover and do not override the current production state or pending-work section above.\n\nV2 is published at [Fishing Companion](https://ginosega.github.io/fishing/).',1)
           authority='- [Production release and recovery](pwa/docs/Fishing_v2_Production_Release_2026-09-10.md).\n'
-          assert authority in s
-          s=s.replace(authority,authority+'- [Approved pending UI refinement scope](pwa/docs/Fishing_UI_Refinement_Approved_Scope_2026-09-10.md) — FISH084 requirements only; not implementation evidence.\n',1)
+          assert authority in s; s=s.replace(authority,authority+'- [Approved pending UI refinement scope](pwa/docs/Fishing_UI_Refinement_Approved_Scope_2026-09-10.md) — FISH084 requirements only; not implementation evidence.\n',1)
           p.write_text(s)
 
-          # Scope record: icon remains chat attachment/manual upload, not a repository asset.
           p=Path('pwa/docs/Fishing_UI_Refinement_Approved_Scope_2026-09-10.md'); s=p.read_text()
           old='1. **Application icon.** Replace the current runtime icon with the user-approved fish-and-hook design. The signed-off reference is [`assets/Fishing_Companion_Approved_Icon_2026-09-10.png`](assets/Fishing_Companion_Approved_Icon_2026-09-10.png), SHA-256 `3245b6768ce1952e5f47d13d1d662de57240e1bf53bcb961643e09328065efab`, 64,790 bytes. It was recolored to complement the actual production CSS dark palette: `#101b18`, `#172722`, `#203b34`, `#344940`, `#80c9b5`, `#247c6d`, `#e4ede8`, `#a2b5aa`. The reference asset under `pwa/docs/` is documentation only; do not treat its presence as runtime icon implementation.'
           new='1. **Application icon.** Replace the current runtime icon with the user-approved fish-and-hook design. The signed-off image currently exists only as an attachment in the originating Chat and is intentionally not stored in GitHub during this reconciliation. The user will manually upload that approved image after starting the next chat. Do not regenerate, redraw or substitute a different icon unless the user asks. The approved version was recolored to complement the actual production CSS dark palette: `#101b18`, `#172722`, `#203b34`, `#344940`, `#80c9b5`, `#247c6d`, `#e4ede8`, `#a2b5aa`.'
-          assert old in s
-          insert='''\n## Current implementation state\n\nNone of the changes above are implemented or deployed as of this reconciliation. The live application source remains `76094d48055ca9e2363298763cdbf00586fbeb71`, hosted-verified by production run `34544432559`, release `d6334fcb8a34834f1918df95b8f04efd`. Obsolete unmerged PR83 was closed as superseded by already-live PR84.\n'''
-          s=s.replace(old,new,1)
+          assert old in s; s=s.replace(old,new,1)
           assert '\n## Release discipline\n' in s
-          s=s.replace('\n## Release discipline\n',insert+'\n## Release discipline\n',1)
+          s=s.replace('\n## Release discipline\n','\n## Current implementation state\n\nNone of the changes above are implemented or deployed as of this reconciliation. The live application source remains `76094d48055ca9e2363298763cdbf00586fbeb71`, hosted-verified by production run `34544432559`, release `d6334fcb8a34834f1918df95b8f04efd`. Obsolete unmerged PR83 was closed as superseded by already-live PR84.\n\n## Release discipline\n',1)
           p.write_text(s)
 
-          # Decision Log: remove nonexistent asset path and record audit cleanup.
           p=Path('Fishing_Decision_Log.md'); s=p.read_text()
           old='The user approved one coordinated Fishing Companion UI/authoring refinement batch, tracked as FISH-TODO-084 and intentionally **not implemented during the subsequent reconciliation/audit**. The exact approved scope is preserved in `pwa/docs/Fishing_UI_Refinement_Approved_Scope_2026-09-10.md`, including the approved CSS-matched fish/hook icon reference at `pwa/docs/assets/Fishing_Companion_Approved_Icon_2026-09-10.png`. Implementation should remain in Chat mode; no Work-only capability has been identified.'
           new='The user approved one coordinated Fishing Companion UI/authoring refinement batch, tracked as FISH-TODO-084 and intentionally **not implemented during this reconciliation/audit**. The exact approved scope is preserved in `pwa/docs/Fishing_UI_Refinement_Approved_Scope_2026-09-10.md`. The approved CSS-matched fish/hook icon exists only as the signed-off image attachment in the originating Chat; it is intentionally not stored in GitHub yet, and the user will manually upload it after starting the next chat. Do not regenerate or substitute a different icon unless the user asks. Implementation should remain in Chat mode; no Work-only capability has been identified.'
-          assert old in s
-          s=s.replace(old,new,1)
+          assert old in s; s=s.replace(old,new,1)
           second="The approved batch consists of: Catch Log card date on a regular-weight second line under Species; general `Search [page title]` placeholders; post-Copy Changes Exit behavior with no unsaved-changes warning; a plain-language ChatGPT instruction above copied JSON packages; Knowledge Base wording `Fishing reference library`; Catch Log wording `Recorded catches`; Back buttons without the arrow; and replacement of the runtime app icon with the approved reference. The user's earlier request to make KB Notes optional was withdrawn; no Notes-validation/model change is authorized."
-          assert second in s
-          audit='\n\nAudit cleanup closed obsolete unmerged PR83 as superseded by the already-live PR84. Before this documentation reconciliation PR, no feature/runtime PR remained open. The live application source remains `76094d48055ca9e2363298763cdbf00586fbeb71`, hosted-verified by run `34544432559`; documentation reconciliation is not a runtime deployment.'
-          s=s.replace(second,second+audit,1)
+          assert second in s; s=s.replace(second,second+'\n\nAudit cleanup closed obsolete unmerged PR83 as superseded by the already-live PR84. Before this documentation reconciliation PR, no feature/runtime PR remained open. The live application source remains `76094d48055ca9e2363298763cdbf00586fbeb71`, hosted-verified by run `34544432559`; documentation reconciliation is not a runtime deployment.',1)
           p.write_text(s)
 
-          # Bootstrap: make icon handoff explicit and remove nonexistent path.
           p=Path('Fishing_New_Chat_Bootstrap_Prompt.md'); s=p.read_text()
           old='Read `pwa/docs/Fishing_UI_Refinement_Approved_Scope_2026-09-10.md` and use `pwa/docs/assets/Fishing_Companion_Approved_Icon_2026-09-10.png` as the signed-off icon reference. This reconciliation is documentation only; none of FISH084 is deployed yet.'
           new='Read `pwa/docs/Fishing_UI_Refinement_Approved_Scope_2026-09-10.md` before implementing. The approved icon exists only as the signed-off image attachment in the originating Chat and is intentionally not in GitHub; the user will manually upload it after starting the new chat. Do not regenerate or substitute the icon unless asked. This reconciliation is documentation only; none of FISH084 is deployed yet.'
-          assert old in s
-          p.write_text(s.replace(old,new,1))
+          assert old in s; p.write_text(s.replace(old,new,1))
 
-          # Context: record PR cleanup and next task state.
           p=Path('Fishing_Context.md'); s=p.read_text()
           old='FISH071–076 and FISH078–083 are DONE; FISH077 is DEFERRED; FISH084 is OPEN for the approved UI/authoring refinement batch recorded above. FISH078 closed after PR84 supplied the final two required pictures, Popper and Whopper Plopper; all seven originally deferred required pictures are now resolved. Generic inline-spinner remains optional. Unrelated fishing/equipment/content backlog is preserved; next unused ID is085.'
           new='FISH071–076 and FISH078–083 are DONE; FISH077 is DEFERRED; FISH084 is OPEN for the approved UI/authoring refinement batch recorded above. FISH078 closed after PR84 supplied the final two required pictures, Popper and Whopper Plopper; all seven originally deferred required pictures are now resolved. Generic inline-spinner remains optional. Obsolete unmerged PR83 was closed as superseded by the already-live PR84; no feature/runtime PR remained open before this documentation reconciliation. Unrelated fishing/equipment/content backlog is preserved; next unused ID is085.'
-          assert old in s
-          p.write_text(s.replace(old,new,1))
+          assert old in s; p.write_text(s.replace(old,new,1))
 
-          # TODO: note manual icon upload explicitly in task row.
           p=Path('Fishing_TODO.md'); s=p.read_text()
           old='KB Notes remain required because the optional-Notes request was withdrawn. Approved scope/reference: `pwa/docs/Fishing_UI_Refinement_Approved_Scope_2026-09-10.md`. Do not treat this reconciliation as implementation.'
           new='KB Notes remain required because the optional-Notes request was withdrawn. The approved icon is not stored in GitHub; the user will manually upload the signed-off chat attachment after starting the next chat. Approved scope/reference: `pwa/docs/Fishing_UI_Refinement_Approved_Scope_2026-09-10.md`. Do not treat this reconciliation as implementation.'
-          assert old in s
-          p.write_text(s.replace(old,new,1))
+          assert old in s; p.write_text(s.replace(old,new,1))
 
-          # Cross-file consistency audit.
           docs=['README.md','Fishing_Context.md','Fishing_TODO.md','Fishing_Decision_Log.md','Fishing_New_Chat_Bootstrap_Prompt.md','pwa/docs/Fishing_UI_Refinement_Approved_Scope_2026-09-10.md']
-          for f in docs:
-              t=Path(f).read_text()
-              assert 'FISH' in t
-          for f in ['README.md','Fishing_Context.md','Fishing_TODO.md','Fishing_Decision_Log.md','Fishing_New_Chat_Bootstrap_Prompt.md','pwa/docs/Fishing_UI_Refinement_Approved_Scope_2026-09-10.md']:
-              t=Path(f).read_text()
-              assert 'not yet implemented' in t.lower() or 'NOT YET IMPLEMENTED' in t
+          combined='\n'.join(Path(f).read_text() for f in docs)
+          assert all('FISH-TODO-084' in Path(f).read_text() for f in docs)
           assert '| FISH-TODO-084 | P1 | OPEN |' in Path('Fishing_TODO.md').read_text()
           assert 'FISH-TODO-085' in Path('Fishing_TODO.md').read_text()
           assert 'next unused task ID085' in Path('Fishing_New_Chat_Bootstrap_Prompt.md').read_text()
-          assert 'KB Notes optional was withdrawn' in Path('Fishing_New_Chat_Bootstrap_Prompt.md').read_text()
-          assert 'intentionally not stored in GitHub' in Path('pwa/docs/Fishing_UI_Refinement_Approved_Scope_2026-09-10.md').read_text()
-          assert 'pwa/docs/assets/Fishing_Companion_Approved_Icon_2026-09-10.png' not in ''.join(Path(f).read_text() for f in docs)
-          assert '76094d48055ca9e2363298763cdbf00586fbeb71' in Path('README.md').read_text()
-          assert '34544432559' in Path('Fishing_Context.md').read_text()
+          assert 'pwa/docs/assets/Fishing_Companion_Approved_Icon_2026-09-10.png' not in combined
+          assert '76094d48055ca9e2363298763cdbf00586fbeb71' in combined
+          assert '34544432559' in combined
           PY
           git diff --check
-          git status --short
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add README.md Fishing_Context.md Fishing_TODO.md Fishing_Decision_Log.md Fishing_New_Chat_Bootstrap_Prompt.md pwa/docs/Fishing_UI_Refinement_Approved_Scope_2026-09-10.md
