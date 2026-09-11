@@ -1,6 +1,4 @@
-# Notes
-- Fish early morning/evening, dawn/dusk.
-- Fish boat-launch docks, rocky shoreline, points, riprap, shade lines, and quick drop-offs.
+Fish dawn and dusk at boat-launch docks, rocky shorelines, points, riprap, shade lines, and quick drop-offs.
 
 # Smallmouth Gear
 - Ned rig: green pumpkin, 1/10-1/6 oz.
@@ -13,4 +11,3 @@
 - 1/8-1/4 oz Kastmaster or spoon.
 - Small inline spinner.
 - Slip-sinker rig with PowerBait or worm for relaxing bite chance.
-
