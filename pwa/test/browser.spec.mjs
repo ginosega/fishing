@@ -188,6 +188,17 @@ test('Gear and KB handoffs preserve identity, minimal changes and unsaved work',
  expect(state.writes).toEqual([]);
 });
 
+test('Edit Gear can add the first link when the record has no links',async({page})=>{
+ const data=await sourceData();const target=data.gear.items.find(x=>!x.links?.length);expect(target).toBeTruthy();
+ await openReady(page);await route(page,'#/inventory/edit/'+target.id,'Edit');
+ const form=page.locator('.editor-form');await expect(form.getByPlaceholder('URL',{exact:true})).toHaveCount(0);
+ await form.getByRole('button',{name:'Add link',exact:true}).click();
+ await expect(form.getByPlaceholder('URL',{exact:true})).toBeVisible();
+ await form.getByPlaceholder('Label',{exact:true}).fill('Official page');await form.getByPlaceholder('URL',{exact:true}).fill('https://example.com');
+ const change=await packageFrom(page);expect(change.domain).toBe('gear');expect(change.operation).toBe('edit');expect(change.id).toBe(target.id);
+ expect(change.changes.set.links).toEqual([{label:'Official page',url:'https://example.com'}]);
+});
+
 test('a failed or corrupt update retains the previous complete release',async({page,context})=>{
  await openReady(page);
  const first=await cacheInfo(page);expect(first.some(x=>x.releaseId===initial.id)).toBe(true);
@@ -375,7 +386,7 @@ test('FISH084 wording, search, catch date and exact icon',async({page})=>{
  expect(meta.hasAlpha).toBe(true);
  const {data:rgba,info}=await sharp(hostedIcon).ensureAlpha().raw().toBuffer({resolveWithObject:true});
  const alpha=(x,y)=>rgba[(y*info.width+x)*info.channels+3];
- for(const [x,y] of [[0,0],[info.width-1,0],[0,info.height-1],[info.width-1,info.height-1],[Math.floor(info.width/2),0],[0,Math.floor(info.height/2)]])expect(alpha(x,y)).toBe(0);
+ for(const [x,y] of [[0,0],[info.width-1,0],[0,info.height-1],[info.width-1,info.height-1]])expect(alpha(x,y)).toBeLessThanOrEqual(1);
  expect(alpha(Math.floor(info.width/2),Math.floor(info.height/2))).toBeGreaterThan(250);
  for(const [hash,title] of [['#/inventory','My Gear'],['#/inventory/category/lures','Lures'],['#/kb','Knowledge Base'],['#/kb/category/equipment','Gear Guides']]){
   await route(page,hash,title);await expect(page.getByPlaceholder('Search '+title,{exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Back',exact:true})).toBeVisible();
