@@ -1,0 +1,121 @@
+name: FISH088 documentation reconciler
+
+on:
+  push:
+    branches:
+      - docs/fish088-closeout-20260911
+
+permissions:
+  contents: write
+
+jobs:
+  reconcile:
+    if: github.event.head_commit.message == 'Temporary FISH088 documentation reconciler'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: docs/fish088-closeout-20260911
+          persist-credentials: true
+          fetch-depth: 0
+      - name: Reconcile authoritative records
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          SOURCE='364a599a4eeb51457ece46457d738ebb4f0d82f3'
+          RELEASE='97e6a320ed42c432b875de9fe8c2ef25'
+          RUN='34621210887'
+          IMG_SHA='57416d3c9d6dcee3e4fabfc324bd281756be5c9ff5cfc2b5a41affbbaaec8b14'
+
+          def insert_after(path, marker, text):
+              p=Path(path); s=p.read_text(encoding='utf-8')
+              assert '## FISH088 Kingforest inline-spinner production closeout' not in s, path
+              assert s.count(marker)==1, (path, s.count(marker))
+              p.write_text(s.replace(marker, marker+text, 1), encoding='utf-8')
+
+          def replace_one(path, old, new):
+              p=Path(path); s=p.read_text(encoding='utf-8')
+              assert s.count(old)==1, (path, s.count(old), old[:80])
+              p.write_text(s.replace(old,new,1), encoding='utf-8')
+
+          common=(
+              '## FISH088 Kingforest inline-spinner production closeout — September 11, 2026\n\n'
+              f'FISH-TODO-088 is DONE through [PR93](https://github.com/ginosega/fishing/pull/93). Production source `{SOURCE}`, release `{RELEASE}`, passed [production run {RUN}](https://github.com/ginosega/fishing/actions/runs/{RUN}): 21 core/source tests, preview- and production-scope Chromium/WebKit acceptance, archived-v1 cutover acceptance, exact-current-main Pages deployment, 206 hosted v2 files and complete hosted byte/browser verification.\n\n'
+              'The validated Gear change package renamed `generic-1-inline-spinner` to **Kingforest #1 inline spinner**, set manufacturer **Kingforest** and `links: []`, replaced its Notes with the supplied Mayfield Lake/Amazon/internal-technique text, and associated `Gear/Lures/assets/Kingforest Inline Spinner.png` with caption **Kingforest #1 Inline Spinner**. The structured record and Notes base hashes matched. The user-uploaded PNG was already present on the restored current `main`; its exact 430,419 bytes and SHA-256 `'+IMG_SHA+'` matched the package before the record referenced it.\n\n'
+              'Two source-derived regressions were reconciled without changing product behavior: the complete referenced-source count moved from 235 to 236, and the prior browser check that required a pictureless Lure was replaced because this change gives the last pictureless Lure a picture; absent-picture behavior remains covered by a pictureless KB Location. No schema, architecture, identity, Catch model or P2 authoring scope changed. The historical migration/media decision that the generic inline-spinner picture was optional remains historical evidence; the current record now has the user-supplied picture.\n\n'
+              'FISH084–088 are DONE. FISH077/P2 remains DEFERRED. All unrelated fishing/equipment/content backlog and purchase uncertainty remain preserved. The next unused canonical task ID is FISH-TODO-089. Continue in Chat using actual latest `main`. This documentation reconciliation is non-runtime and does not redeploy production.\n\n'
+          )
+
+          insert_after('README.md', '# Fishing\n\n', common)
+          insert_after('Fishing_Context.md', '# Fishing Context\n\n', common)
+
+          todo=(
+              '## FISH088 Kingforest inline-spinner production closeout — September 11, 2026\n\n'
+              f'FISH-TODO-088 is DONE through [PR93](https://github.com/ginosega/fishing/pull/93). Production source `{SOURCE}`, release `{RELEASE}`, passed [production run {RUN}](https://github.com/ginosega/fishing/actions/runs/{RUN}) through the full gate, exact-current-main Pages deployment, 206 hosted v2 files and complete hosted byte/browser verification. The validated package renamed the inline spinner to Kingforest, replaced Notes, and references the exact user-uploaded 430,419-byte PNG (SHA-256 `{IMG_SHA}`). Source-derived inventory/missing-picture regression expectations were updated accordingly; no schema, architecture or P2 scope changed.\n\n'
+              'FISH084–088 are DONE. FISH077/P2 remains DEFERRED. All unrelated fishing/equipment/content backlog and purchase uncertainty are preserved. The next unused canonical task ID is FISH-TODO-089. This documentation reconciliation does not redeploy the application.\n\n'
+          )
+          insert_after('Fishing_TODO.md', '# Fishing TODO\n\n', todo)
+
+          decision=(
+              '## FISH088 Kingforest inline-spinner production closeout — September 11, 2026\n\n'
+              f'FISH-TODO-088 is DONE through [PR93](https://github.com/ginosega/fishing/pull/93). Production source `{SOURCE}`, release `{RELEASE}`, passed [production run {RUN}](https://github.com/ginosega/fishing/actions/runs/{RUN}) through full validation, exact-current-main Pages deployment, 206 hosted v2 files and complete hosted byte/browser verification.\n\n'
+              'Decision/result: apply the submitted `fishing-companion-change-v2` Gear edit under the approved source-aware authoring rules because the structured-record and Notes bases matched. The package-specified image was not duplicated: the user had already uploaded `Gear/Lures/assets/Kingforest Inline Spinner.png` on newer current `main`, and its exact 430,419-byte size/SHA-256 matched the package. The record now names Kingforest, has empty structured links, uses the supplied Notes body and references that image. The historical optional-media disposition remains historical evidence rather than current absence.\n\n'
+              'Two regression assertions were corrected because the requested source change legitimately increased referenced-source inventory 235 → 236 and eliminated the last pictureless Lure. Absent-picture behavior remains tested on a pictureless KB Location. No schema, architecture, direct-Save/P2, Catch or broader authoring decision changed. FISH084–088 are DONE; FISH077/P2 remains DEFERRED; unrelated backlog is unchanged. Next unused canonical task ID: FISH-TODO-089. This reconciliation is non-runtime and does not republish production.\n\n'
+          )
+          insert_after('Fishing_Decision_Log.md', '# Fishing Decision Log\n\n', decision)
+
+          bootstrap=(
+              '## FISH088 Kingforest inline-spinner production closeout — September 11, 2026\n\n'
+              f'FISH-TODO-088 is DONE through [PR93](https://github.com/ginosega/fishing/pull/93). Verified production source is `{SOURCE}`, release `{RELEASE}`, with successful [production run {RUN}](https://github.com/ginosega/fishing/actions/runs/{RUN}). The full source/core, preview-browser, production-browser, archived-v1, exact-current-main Pages deployment and hosted byte/browser gates passed; the hosted verifier reports 206 v2 files.\n\n'
+              'PR93 applied the validated Gear package for `generic-1-inline-spinner`: current name **Kingforest #1 inline spinner**, manufacturer **Kingforest**, empty structured links, supplied Mayfield Lake/Amazon/internal-technique Notes and picture `Gear/Lures/assets/Kingforest Inline Spinner.png` captioned **Kingforest #1 Inline Spinner**. The image was an existing newer user upload on restored `main` and exactly matched the package (430,419 bytes; SHA-256 `'+IMG_SHA+'`). Regression expectations were updated only for the resulting 235 → 236 referenced-source count and elimination of the last pictureless Lure; absent-picture behavior is still tested on a KB Location. No schema, architecture or P2 scope changed.\n\n'
+              'FISH084–088 are DONE. FISH077/P2 remains DEFERRED. The historical migration decision that the generic inline-spinner image was optional remains evidence only; the current Gear record now has the user-supplied image. All unrelated backlog and purchase uncertainty remain preserved. The next unused canonical task ID is FISH-TODO-089. Resume from actual latest `main` and the user\'s next requested work; do not restart completed FISH088 release work. This documentation reconciliation does not redeploy production.\n\n'
+          )
+          insert_after('Fishing_New_Chat_Bootstrap_Prompt.md', 'Chat is the permanent default; this temporary Work conversation is complete. Do not promise background work.\n\n', bootstrap)
+
+          old078='| FISH-TODO-078 | P2 | DONE | Original production accepted seven required pictures as absent. Tsuridamashii was supplied in PR77; PR79 supplied Rapala Original Floating F-3, Mack\'s Pee Wee Hoochie, River2Sea Whopper Plopper 60 and Yellow Perch; PR84 supplied the final Popper and Whopper Plopper Gear-Guide pictures. All seven required exceptions are resolved. Generic inline-spinner remains optional. Preserve original migration/media decisions as historical disposition. |'
+          new078='| FISH-TODO-078 | P2 | DONE | Original production accepted seven required pictures as absent. Tsuridamashii was supplied in PR77; PR79 supplied Rapala Original Floating F-3, Mack\'s Pee Wee Hoochie, River2Sea Whopper Plopper 60 and Yellow Perch; PR84 supplied the final Popper and Whopper Plopper Gear-Guide pictures. All seven required exceptions are resolved. The historically optional generic inline-spinner picture was later supplied by the user and associated in FISH088/PR93. Preserve original migration/media decisions as historical disposition. |'
+          replace_one('Fishing_TODO.md', old078, new078)
+
+          old087='| FISH-TODO-087 | P1 | DONE | PR92 applied the validated KB location/species authoring batch and the matching Species-subtitle regression correction. Production source `dee0ff76f6b15e861fa8864151aad88c8fe28f5e`, release `40c849b4014013f22200843c9d222c2c`, run 34614884273 passed full CI, Pages deployment, 205 hosted-file comparisons and hosted browser verification. Lake Bosworth restoration is included in the verified production tree. |'
+          new088=(old087+'\n| FISH-TODO-088 | P1 | DONE | PR93 applied the validated Kingforest inline-spinner Gear edit, preserving the pre-existing exact user-uploaded PNG and updating only source-derived regression expectations. Production source `'+SOURCE+'`, release `'+RELEASE+'`, run '+RUN+' passed full CI, exact-current-main Pages deployment, 206 hosted v2 files and complete hosted byte/browser verification. |')
+          replace_one('Fishing_TODO.md', old087, new088)
+
+          replace_one('Fishing_Context.md',
+              'The original production decision explicitly approved absence of seven required pictures and remains preserved in `pwa/migration/media-decisions.json` as historical migration disposition. The user later supplied Tsuridamashii through PR77; Rapala Original Floating, Mack\'s Pee Wee Hoochie, River2Sea Whopper Plopper 60 and Yellow Perch through PR79; and Popper plus Whopper Plopper Gear-Guide pictures through PR84. All seven required picture exceptions are now resolved. Generic inline-spinner remains optional. Do not reinterpret the historical migration disposition as current absence or automatically acquire optional imagery.',
+              'The original production decision explicitly approved absence of seven required pictures and remains preserved in `pwa/migration/media-decisions.json` as historical migration disposition. The user later supplied Tsuridamashii through PR77; Rapala Original Floating, Mack\'s Pee Wee Hoochie, River2Sea Whopper Plopper 60 and Yellow Perch through PR79; and Popper plus Whopper Plopper Gear-Guide pictures through PR84. All seven required picture exceptions are resolved. The generic inline-spinner was historically optional, and its user-supplied Kingforest picture is now associated through FISH088/PR93. Do not reinterpret historical migration/media dispositions as current absence or automatically acquire imagery.')
+
+          replace_one('Fishing_Context.md',
+              'FISH071–076 and FISH078–087 are DONE; FISH077 is DEFERRED; production evidence is recorded above. FISH078 closed after PR84 supplied the final two required pictures, Popper and Whopper Plopper; all seven originally deferred required pictures are now resolved. Generic inline-spinner remains optional. Obsolete unmerged PR83 was closed as superseded by the already-live PR84; PR89–PR92 are merged; no feature/runtime PR remains open at this reconciliation. Unrelated fishing/equipment/content backlog is preserved; next unused ID is FISH-TODO-088. Continue in Chat using the current bootstrap. New work must restore actual latest main, use normal PR/CI for runtime changes and update authoritative records after actual milestones.',
+              'FISH071–076 and FISH078–088 are DONE; FISH077 is DEFERRED; production evidence is recorded above. FISH078 closed after PR84 supplied the final two required pictures, Popper and Whopper Plopper; all seven originally deferred required pictures remain resolved. The historically optional generic inline-spinner now has the user-supplied Kingforest picture through FISH088/PR93. Obsolete unmerged PR83 was closed as superseded by the already-live PR84; PR89–PR93 are merged; no feature/runtime PR remains open at this reconciliation. Unrelated fishing/equipment/content backlog is preserved; next unused ID is FISH-TODO-089. Continue in Chat using the current bootstrap. New work must restore actual latest main, use normal PR/CI for runtime changes and update authoritative records after actual milestones.')
+
+          replace_one('Fishing_New_Chat_Bootstrap_Prompt.md',
+              'The original seven-picture absence decision is historical production-cutover evidence. PR77 supplied Tsuridamashii; PR79 supplied Rapala Original Floating, Mack\'s Pee Wee Hoochie, River2Sea Whopper Plopper 60 and Yellow Perch; PR84 supplied Popper and Whopper Plopper. All seven required picture exceptions are resolved. Generic inline-spinner is optional. `pwa/migration/media-decisions.json` preserves the original accepted-absence disposition; do not reinterpret it as current absence or automatically acquire optional imagery.',
+              'The original seven-picture absence decision is historical production-cutover evidence. PR77 supplied Tsuridamashii; PR79 supplied Rapala Original Floating, Mack\'s Pee Wee Hoochie, River2Sea Whopper Plopper 60 and Yellow Perch; PR84 supplied Popper and Whopper Plopper. All seven required picture exceptions are resolved. The generic inline-spinner was historically optional; its user-supplied Kingforest picture is now associated through FISH088/PR93. `pwa/migration/media-decisions.json` preserves the original accepted-absence disposition; do not reinterpret it as current absence or automatically acquire imagery.')
+
+          replace_one('Fishing_New_Chat_Bootstrap_Prompt.md',
+              'The source-equivalence waiver stands; no separate physical-device/IndexedDB export or inspection is claimed. Retain old browser stores and reconcile later-discovered local-only data before retirement. FISH076, FISH078 and FISH083 are DONE; P2 FISH077 remains DEFERRED; FISH084, FISH085, FISH086 and FISH087 are DONE and fully verified in production. All originally required missing pictures are resolved; generic inline-spinner remains optional. Unrelated backlog remains; next unused task ID is FISH-TODO-088. Update Context, Decision Log, TODO, README, affected source/technical/release records and this bootstrap after actual milestones; cross-check before handoff.',
+              'The source-equivalence waiver stands; no separate physical-device/IndexedDB export or inspection is claimed. Retain old browser stores and reconcile later-discovered local-only data before retirement. FISH076, FISH078 and FISH083 are DONE; P2 FISH077 remains DEFERRED; FISH084, FISH085, FISH086, FISH087 and FISH088 are DONE and fully verified in production. All originally required missing pictures are resolved; the historically optional generic inline-spinner now has the user-supplied Kingforest picture through FISH088. Unrelated backlog remains; next unused task ID is FISH-TODO-089. Update Context, Decision Log, TODO, README, affected source/technical/release records and this bootstrap after actual milestones; cross-check before handoff.')
+
+          # Remove the temporary workflow from the resulting tree.
+          Path('.github/workflows/fish088-docs-closeout.yml').unlink()
+
+          # Cross-file invariants for the handoff.
+          for f in ['README.md','Fishing_Context.md','Fishing_TODO.md','Fishing_Decision_Log.md','Fishing_New_Chat_Bootstrap_Prompt.md']:
+              s=Path(f).read_text(encoding='utf-8')
+              assert SOURCE in s and RELEASE in s and RUN in s, f
+              assert 'FISH-TODO-089' in s, f
+          assert '| FISH-TODO-088 | P1 | DONE |' in Path('Fishing_TODO.md').read_text(encoding='utf-8')
+          assert 'FISH071–076 and FISH078–088 are DONE' in Path('Fishing_Context.md').read_text(encoding='utf-8')
+          assert 'FISH084–088 are DONE' in Path('Fishing_New_Chat_Bootstrap_Prompt.md').read_text(encoding='utf-8')
+          PY
+          git diff --check
+      - name: Commit reconciled records
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add README.md Fishing_Context.md Fishing_TODO.md Fishing_Decision_Log.md Fishing_New_Chat_Bootstrap_Prompt.md .github/workflows/fish088-docs-closeout.yml
+          git commit -m 'Reconcile FISH088 production closeout records'
+          git push origin HEAD:docs/fish088-closeout-20260911
