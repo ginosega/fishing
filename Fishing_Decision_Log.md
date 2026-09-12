@@ -1,5 +1,11 @@
 # Fishing Decision Log
 
+## FISH091 production implementation and release — September 11, 2026
+
+**Decision/status:** DONE and production-verified. The separately approved FISH091 requirements and design were implemented in [PR105](https://github.com/ginosega/fishing/pull/105). Online-only is the default; whole-library preparation/refresh is explicit through **Connection Status → Update offline library**. Existing complete generations remain offline fallback without pinning online browsing, and failed/corrupt explicit updates retain the prior complete generation. No FISH077/P2 scope was added.
+
+**Evidence:** production source `44fa3bcbff289d2a7aa37c4967e0f5f195b53ca0`; release `01c5ed3535d358086032b0985e2af87b`; [workflow run 34676802369](https://github.com/ginosega/fishing/actions/runs/34676802369); 214 hosted v2 files; hosted-verification artifact `10292867385`. Full core/source, Chromium/WebKit, production-browser/v1-cutover, exact-current-main, hosted-byte and hosted-browser gates passed.
+
 ## FISH091 requirements signoff / design gate — September 11, 2026
 
 **Decision:** The online-only-default requirements are approved **as written, including S1–S4**. PR103 records the approved requirements on current `main`. The next authorized phase is the separate abbreviated design in draft PR104. No runtime/service-worker/loader/UI/build/test implementation is authorized until the user explicitly approves that design. FISH077/P2 remains DEFERRED; next unused task ID remains **FISH-TODO-096**.

@@ -1,9 +1,8 @@
 # Fishing TODO
 
-## FISH091 design-review state — September 11, 2026
+## FISH091 production-complete state — September 11, 2026
 
-FISH-TODO-091 has completed requirements signoff: the user approved the requirements **as written, including S1–S4**. PR103 records that approval on current `main`; draft PR104 contains the separate abbreviated design. Status is now **DESIGN REVIEW**. No implementation is authorized until explicit user design signoff. FISH077/P2 remains DEFERRED; next unused canonical task ID remains **FISH-TODO-096**.
-
+**FISH-TODO-091 — DONE.** Requirements and design were separately approved, implementation merged in [PR105](https://github.com/ginosega/fishing/pull/105), and production verification completed from source `44fa3bcbff289d2a7aa37c4967e0f5f195b53ca0` / release `01c5ed3535d358086032b0985e2af87b` / [run 34676802369](https://github.com/ginosega/fishing/actions/runs/34676802369). Online-only is now the default; full offline-library preparation/refresh is explicit through **Connection Status → Update offline library**. Failure retention, existing-library fallback, current-online-production behavior and no-library offline state are covered by automated acceptance and hosted verification. FISH077/P2 remains **DEFERRED**. Next unused canonical task ID remains **FISH-TODO-096**.
 
 ## FISH095 current task-state reconciliation — September 11, 2026
 
@@ -11,7 +10,7 @@ FISH-TODO-095 is **DONE**. [PR101](https://github.com/ginosega/fishing/pull/101)
 
 Source-derived regression expectations moved from KB 54 to KB 56 and from 104 to 106 Markdown routes. The first merged content release correctly deployed KB 56, but its hosted verifier still expected KB 54; [PR102](https://github.com/ginosega/fishing/pull/102) changed only that stale verifier expectation. Final production source `620e47943ee9ef38aaa2ff46b0dbe7d4606ef3ba`, release `168554f1b4fe274f0030d389a047fd12`, passed [production run 34656039216](https://github.com/ginosega/fishing/actions/runs/34656039216) through the complete source/core gate, preview- and production-scope Chromium/WebKit acceptance, archived-v1 cutover acceptance, exact-current-main Pages deployment, all **214 hosted v2 file** byte comparisons, and hosted browser/refinement verification.
 
-No schema, domain architecture, Catch behavior, P2/direct-save scope, or FISH091 implementation changed. FISH091 remains **WAITING ON USER / requirements-only / unimplemented**; FISH077/P2 remains **DEFERRED**. All unrelated fishing/equipment/content backlog and purchase uncertainty remain preserved. The next unused canonical task ID is **FISH-TODO-096**. Chat remains the permanent default. This reconciliation is documentation-only and does not republish production release `168554f1b4fe274f0030d389a047fd12`.
+No schema, domain architecture, Catch behavior, P2/direct-save scope, or FISH091 implementation changed. FISH091 is **DONE / production-verified**; FISH077/P2 remains **DEFERRED**. All unrelated fishing/equipment/content backlog and purchase uncertainty remain preserved. The next unused canonical task ID is **FISH-TODO-096**. Chat remains the permanent default. This reconciliation is documentation-only and does not republish production release `168554f1b4fe274f0030d389a047fd12`.
 
 
 ## FISH090–094 current task-state reconciliation — September 11, 2026
