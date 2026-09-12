@@ -1,6 +1,6 @@
 import Ajv2020 from 'ajv/dist/2020.js';
 import schema from '../contracts/schema.json' with {type:'json'};
-import {DOMAIN,validateSemantics,safePath,pathKey,assert} from './shared.mjs';
+import {DOMAIN,validateSemantics,safePath,pathKey,assert,sequenceFolder} from './shared.mjs';
 import {parseMarkdown,markdownRouteMap} from './markdown.mjs';
 export const TAXONOMY={
  line:['Braided','Fluorocarbon','Monofilament'],
@@ -25,7 +25,13 @@ export function validateRecord(record,domain,otherData){
  data[domain][key]=data[domain][key].filter(x=>x.id!==record.id).concat(record);
  return validateRecords(data);
 }
-export function collectPaths(data){const paths=new Set();for(const [domain,config] of Object.entries(DOMAIN))for(const r of data[domain][config.array])for(const file of [r.notes,r.content,r.picture?.src])if(file)paths.add(safePath(file));return paths;}
+export function collectPaths(data){
+ const paths=new Set();
+ for(const [domain,config] of Object.entries(DOMAIN))for(const r of data[domain][config.array]){
+  for(const file of [r.notes,r.content,r.picture?.src,...(r.pictureSequence||[])])if(file)paths.add(safePath(file));
+ }
+ return paths;
+}
 export function checkPathCollisions(paths){const seen=new Map();for(const file of paths){const key=pathKey(file);if(seen.has(key)&&seen.get(key)!==file)throw new Error(`Case/Unicode path collision: ${seen.get(key)} / ${file}`);seen.set(key,file);}return seen;}
 export function validateMarkdown(text,{owner,maps,exists,assetBase='https://example.invalid/fishing/releases/test/',pathRoutes=new Map()}){return parseMarkdown(text,{owner,maps,exists,assetBase,pathRoutes}).references;}
 export function validateLibraryPaths(data){
@@ -38,6 +44,10 @@ export function validateLibraryPaths(data){
    owned.set(file,record.id);
   }
   if(record.picture){const file=safePath(record.picture.src);assert(/^(Gear|KB)\/.+\/assets\/.+\.(?:jpe?g|png|webp|gif)$/i.test(file),`Invalid picture location: ${file}`);}
+  if(record.pictureSequence){
+   const prefix=sequenceFolder(record)+'/';
+   for(const raw of record.pictureSequence){const file=safePath(raw);assert(file.startsWith(prefix)&&!file.slice(prefix.length).includes('/'),`Invalid sequence location: ${file}`);assert(/\.(?:jpe?g|png|webp|gif)$/i.test(file),`Invalid sequence image extension: ${file}`);}
+  }
  }
  return routeMap;
 }
