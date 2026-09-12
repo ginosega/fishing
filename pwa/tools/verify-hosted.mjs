@@ -3,6 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
+import sharp from 'sharp';
 import {chromium} from '@playwright/test';
 const args=Object.fromEntries(process.argv.slice(2).map(x=>x.replace(/^--/,'').split('=')));
 const root=args.url||'https://ginosega.github.io/fishing/';
@@ -54,6 +55,14 @@ try{
   let dialogs=0;page.on('dialog',async dialog=>{dialogs++;await dialog.dismiss();});await page.getByRole('button',{name:'Exit',exact:true}).click();await page.getByRole('heading',{name:'My Gear',exact:true}).waitFor();assert.equal(dialogs,0);assert.equal(new URL(page.url()).hash,'#/inventory');
   await page.goto(root+'#/catches');await page.getByRole('heading',{name:'Recorded catches',exact:true}).waitFor();assert.equal(await page.locator('.record-grid h2 + time').count(),5);assert.equal(await page.locator('.catch-date').first().evaluate(e=>getComputedStyle(e).fontWeight),'400');await page.getByRole('button',{name:'Back',exact:true}).waitFor();
   report.refinements='Exact icon bytes, manifest, KB/Catch wording, search, Catch date layout, prefixed valid JSON and post-copy Exit passed; clipboard boundary simulated; no source writes';
+
+  // FISH096 hosted acceptance: exercise the deployed sequence authoring and local preview path without adding canonical test data.
+  const seqDir=path.join('hosted-evidence','fish096-sequence');await fs.mkdir(seqDir,{recursive:true});const seqFiles=[];
+  for(let i=1;i<=3;i++){const file=path.join(seqDir,`step-0${i}.png`);await sharp({create:{width:100+i,height:70+i,channels:4,background:{r:30*i,g:90,b:120,alpha:1}}}).png().toFile(file);seqFiles.push(file);}
+  await page.goto(root+'#/kb/add/knot');const form=page.locator('.editor-form');await form.getByRole('textbox',{name:'Name',exact:true}).fill('Hosted Sequence Verification');await form.locator('.markdown-editor').fill('TODO');await form.getByRole('combobox',{name:'Picture action'}).selectOption('add-sequence');await form.getByLabel('Choose local pictures').setInputFiles(seqFiles);await form.getByText('3 pictures selected',{exact:true}).waitFor();assert.equal(await form.getByRole('textbox',{name:'Repository picture path'}).inputValue(),'KB/Knots/assets/hosted-sequence-verification/step-03.png');
+  await form.locator('.picture-button').click();const sequenceDialog=page.getByRole('dialog',{name:'Image sequence viewer'});await sequenceDialog.waitFor();assert.equal(await sequenceDialog.locator('.viewer-frame-indicator').textContent(),'1 of 3');await sequenceDialog.getByRole('button',{name:'Next'}).click();assert.equal(await sequenceDialog.locator('.viewer-frame-indicator').textContent(),'2 of 3');await sequenceDialog.getByRole('button',{name:'Close'}).click();
+  await form.getByRole('button',{name:'Prepare Changes'}).click();await page.locator('.package-text').waitFor();const packageText=await page.locator('.package-text').inputValue(),pkg=JSON.parse(packageText.slice(packageText.indexOf('\n\n')+2));assert.equal(pkg.pictureSequence.action,'set');assert.equal(pkg.pictureSequence.paths.length,3);assert.equal(pkg.picture.path,pkg.pictureSequence.paths.at(-1));const upload=page.getByRole('link',{name:'Open the repository upload folder'});assert.equal(await upload.getAttribute('href'),'https://github.com/ginosega/fishing/upload/main/KB/Knots/assets/hosted-sequence-verification');assert.match(await page.locator('.handoff-output').innerText(),/KB\/Knots\/assets\/hosted-sequence-verification\//);
+  report.fish096='Hosted Add Knot sequence selection, local sequence preview, ordered package metadata and exact per-Knot GitHub upload link passed; no repository write performed';
  }
  await context.close();
 }finally{await browser.close();}
