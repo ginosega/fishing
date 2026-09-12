@@ -72,6 +72,22 @@ PR109 was then merged to `main` as `0782d1fd6ff9a176d94132c4dc962589b9480e32`. P
 
 Hosted verification reported release `23f6839d69df2018aed54fa6d3fc70d4`, source `0782d1fd6ff9a176d94132c4dc962589b9480e32`, 214 v2 files, and artifact `10305125488`.
 
+## Subsequent production advancement on September 12, 2026
+
+After FISH096 had already been production-verified, the user directly uploaded 13 Palomar step PNGs under the Knot assets tree. That source-only upload advanced `main` and triggered the normal production workflow. The resulting production state was independently verified as:
+
+- source `7d43898d1c8e59ec87fcc8913e45c1df01957fd1`;
+- release `921777f82c4216eccfb26d17e1043a57`;
+- [workflow run 34717459805](https://github.com/ginosega/fishing/actions/runs/34717459805);
+- 214 hosted v2 files; and
+- hosted-verification artifact `10305581445`.
+
+All 42 production-browser tests passed, as did source/core validation, preview acceptance, archived-v1 cutover acceptance, exact-current-main deployment protection, Pages deployment and hosted verification.
+
+The 13 uploaded Palomar images are intentionally **unreferenced source assets** at this point. No canonical Palomar `pictureSequence` record change has yet been made, so the build correctly excludes those PNGs from the release manifest. This is expected behavior and directly confirms the FISH096 rule that directory contents alone do not define or publish a sequence; the ordered sequence must be explicit in canonical KB data.
+
+The original FISH096 feature-release identity above remains the authoritative historical closeout for implementation PR109. The later source/release identity is the current production state after the subsequent unreferenced asset upload.
+
 ## Scope preserved
 
 FISH077/P2 remains **DEFERRED**. FISH096 does not add Direct Save, authentication, integrated GitHub uploads, offline authoring, outbox/sync, Catch authoring, generic multi-image galleries, per-frame captions, drag/drop ordering, playback-speed controls or autoplay on viewer open.
