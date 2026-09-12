@@ -1,0 +1,110 @@
+name: FISH097 Apply Palomar Package
+
+on:
+  push:
+    branches:
+      - feature/fish097-palomar-sequence
+    paths:
+      - .github/workflows/fish097-apply-palomar.yml
+
+permissions:
+  contents: write
+
+jobs:
+  validate-and-apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/fish097-palomar-sequence
+          fetch-depth: 0
+      - name: Validate package and apply canonical changes
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, pathlib
+
+          root = pathlib.Path('.')
+          kb_path = root / 'KB/kb.json'
+          notes_path = root / 'KB/Knots/content/palomar.md'
+          workflow_path = root / '.github/workflows/fish097-apply-palomar.yml'
+
+          expected_record_hash = '4c890f1a2b3b98793c565260ce572fa8ed2f40f8792a6a4a68cfd2d1bf367ed2'
+          expected_notes_hash = '4ec55ba06e0898e2b43651c6ab25cadce31b87e62204c33de8eebaca117e6a5f'
+          base_description = 'Strong, simple knot for braid, fluoro, or mono; cinch evenly above the eye.'
+          new_description = 'Strong, simple knot for braid, fluoro, or mono'
+          new_notes = "- Works with braid, fluorocarbon, and mono\n- Very strong, easy to tie even with small hooks or light line, keeps hook straight\n- Double up line, push doubled end through eye from back side of hook, tie an overhand knot above the eye, then push the hook point first through the doubled up end, moisten and tighten\n- Make sure the loop cinches evenly and completely above the eye — don’t cross lines, and don't leave any of the line caught below the eye\n\n## Links\n- Video: [Palomar Knot](https://youtube.com/shorts/IlQDI4bi694?is=zoKRljv9K4l7K5yp)\n"
+
+          files = [
+            ('KB/Knots/assets/knot-palomar/step-01.png',1125782,'373606015e8bdb134ebf5bb7c4ffbecf1934491284d7d5aa2509a2cd3bf4d303'),
+            ('KB/Knots/assets/knot-palomar/step-02.png',1199289,'0466ad6766b98b1bec5695de10d951797acd3d4211fc40ea6c5312d05b74ac04'),
+            ('KB/Knots/assets/knot-palomar/step-03.png',1287563,'1a77b5d7753148de093222919a91e1a52f3a14bdbc822e70a765e4797a656bda'),
+            ('KB/Knots/assets/knot-palomar/step-04.png',1223904,'f29fa591eba6328eb13b0e25928c48daa834c6c292b0412cb94c331f73d3fc4b'),
+            ('KB/Knots/assets/knot-palomar/step-05.png',1172237,'13e8d78ff684e2066456d9b86205a769ee2f67f52ff9fe1486d938c2bce302b1'),
+            ('KB/Knots/assets/knot-palomar/step-06.png',1141764,'28d0c810386fe64fea7ed273b33f0368f2f234bd9589c3814d8d4ac7c660f208'),
+            ('KB/Knots/assets/knot-palomar/step-07.png',1142815,'6a389345f2222568faa0b3eb70e68c4a42ad62d06865bc8266a603fe6b9b4594'),
+            ('KB/Knots/assets/knot-palomar/step-08.png',1151547,'00382fe0565e09c8c2a15c37a9bb05e0f243597d351e4614507d18f3bb640e23'),
+            ('KB/Knots/assets/knot-palomar/step-09.png',1208852,'cf377a8460751d7b803c5560769d2a20ac5614a10bd2d49a646970512bf7e7ba'),
+            ('KB/Knots/assets/knot-palomar/step-10.png',1199384,'7c1ac781437b658092c574f3c5b0c04ef28e8cc83d48714a0a420603ffb441b7'),
+            ('KB/Knots/assets/knot-palomar/step-11.png',1376059,'bcc44dd462fe707221119cfb53aef16e0e2b80aa4f0f698522417655007daedf'),
+            ('KB/Knots/assets/knot-palomar/step-12.png',1329798,'ccc59badaec79fd9a14498ee2e54009e55d4a4476ab65ae5a41a26c6a5c3bcd2'),
+            ('KB/Knots/assets/knot-palomar/step-13.png',1201176,'2ee5ec1847a70b7f52db46106920e8b7f446da0881e47aa14eb4ac1663f0cf5c'),
+          ]
+
+          def canonical(value):
+              if isinstance(value, list):
+                  return '[' + ','.join(canonical(v) for v in value) + ']'
+              if isinstance(value, dict):
+                  return '{' + ','.join(json.dumps(k, ensure_ascii=False) + ':' + canonical(value[k]) for k in sorted(value)) + '}'
+              if value is None:
+                  return 'null'
+              if value is True:
+                  return 'true'
+              if value is False:
+                  return 'false'
+              return json.dumps(value, ensure_ascii=False, separators=(',', ':'))
+
+          data = json.loads(kb_path.read_text(encoding='utf-8'))
+          assert data.get('schemaVersion') == 2, 'KB schemaVersion mismatch'
+          matches = [r for r in data['entities'] if r.get('id') == 'knot-palomar']
+          assert len(matches) == 1, 'Palomar record missing/duplicated'
+          record = matches[0]
+          actual_record_hash = hashlib.sha256(canonical(record).encode('utf-8')).hexdigest()
+          assert actual_record_hash == expected_record_hash, f'recordHash conflict: {actual_record_hash}'
+          assert record.get('description') == base_description, 'description base conflict'
+          assert record.get('content') == 'KB/Knots/content/palomar.md', 'content path conflict'
+          assert 'picture' not in record, 'picture base conflict'
+          assert 'pictureSequence' not in record, 'pictureSequence base conflict'
+
+          notes_bytes = notes_path.read_bytes()
+          actual_notes_hash = hashlib.sha256(notes_bytes).hexdigest()
+          assert actual_notes_hash == expected_notes_hash, f'notes hash conflict: {actual_notes_hash}'
+
+          sequence_paths = []
+          for rel, expected_bytes, expected_sha in files:
+              path = root / rel
+              assert path.is_file(), f'missing sequence frame: {rel}'
+              blob = path.read_bytes()
+              assert len(blob) == expected_bytes, f'byte-count mismatch: {rel}: {len(blob)}'
+              actual_sha = hashlib.sha256(blob).hexdigest()
+              assert actual_sha == expected_sha, f'SHA-256 mismatch: {rel}: {actual_sha}'
+              sequence_paths.append(rel)
+
+          record['description'] = new_description
+          record['picture'] = {'src': sequence_paths[-1], 'caption': 'Palomar knot'}
+          record['pictureSequence'] = sequence_paths
+          kb_path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          notes_path.write_text(new_notes, encoding='utf-8', newline='')
+
+          # Remove this branch-only runner so it cannot enter the feature PR or main.
+          workflow_path.unlink()
+          print('Validated package base state, all 13 exact image hashes, and applied requested canonical changes.')
+          PY
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add KB/kb.json KB/Knots/content/palomar.md .github/workflows/fish097-apply-palomar.yml
+          git diff --cached --check
+          git commit -m "FISH097: Apply Palomar sequence change package"
+          git push origin HEAD:feature/fish097-palomar-sequence
