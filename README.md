@@ -6,18 +6,20 @@ Persistent Fishing project and source repository for Fishing Companion.
 
 FISH-TODO-096 is **DONE / production-verified**. The user-approved Knot step-by-step picture-sequence requirements and design were implemented in [PR109](https://github.com/ginosega/fishing/pull/109) and merged to `main` as `0782d1fd6ff9a176d94132c4dc962589b9480e32`.
 
-Current verified production:
+Current verified production subsequently advanced after the user uploaded 13 Palomar source frames to `main`:
 
 - site: https://ginosega.github.io/fishing/
-- source: `0782d1fd6ff9a176d94132c4dc962589b9480e32`
-- release: `23f6839d69df2018aed54fa6d3fc70d4`
-- production workflow: [run 34716722379](https://github.com/ginosega/fishing/actions/runs/34716722379)
+- source: `7d43898d1c8e59ec87fcc8913e45c1df01957fd1`
+- release: `921777f82c4216eccfb26d17e1043a57`
+- production workflow: [run 34717459805](https://github.com/ginosega/fishing/actions/runs/34717459805)
 - hosted v2 files: **214**
-- hosted-verification artifact: `10305125488`
+- hosted-verification artifact: `10305581445`
 
 The deployment passed source/core validation, Chromium/WebKit preview and production acceptance, archived-v1 cutover acceptance, exact-current-main protection, Pages deployment, all hosted-byte comparisons and hosted browser verification. FISH096 hosted verification exercised Add Knot sequence selection, local sequence preview, ordered handoff metadata and the exact per-Knot GitHub upload link.
 
-See [FISH096 production closeout](pwa/docs/FISH096_Production_Closeout_2026-09-12.md) for the durable release record.
+The 13 uploaded files `KB/Knots/assets/knot-palomar/step-01.png` through `step-13.png` are preserved source assets but are currently **unreferenced**. They are therefore not part of the published release and do not yet make Palomar an active step-by-step sequence. Do not infer or create the Palomar `pictureSequence` record change without an explicit authoring request/package.
+
+See [FISH096 production closeout](pwa/docs/FISH096_Production_Closeout_2026-09-12.md) for the durable feature-release record.
 
 ## Current product behavior
 
