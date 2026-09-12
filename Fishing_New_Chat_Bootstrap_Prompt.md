@@ -18,18 +18,20 @@ Before implementation, release or repository-write work, also confirm current op
 
 ## Current production continuation point — September 12, 2026
 
-FISH-TODO-096 is **DONE / production-verified**. Requirements and design for Knot step-by-step picture sequences were separately approved before implementation. [PR109](https://github.com/ginosega/fishing/pull/109) is merged.
+FISH-TODO-096 is **DONE / production-verified**. Requirements and design for Knot step-by-step picture sequences were separately approved before implementation. [PR109](https://github.com/ginosega/fishing/pull/109) is merged; the feature originally shipped at source `0782d1fd6ff9a176d94132c4dc962589b9480e32`, release `23f6839d69df2018aed54fa6d3fc70d4`.
 
-Current verified production:
+Current verified production is later source state:
 
-- source: `0782d1fd6ff9a176d94132c4dc962589b9480e32`
-- release: `23f6839d69df2018aed54fa6d3fc70d4`
-- production workflow: [run 34716722379](https://github.com/ginosega/fishing/actions/runs/34716722379)
+- source: `7d43898d1c8e59ec87fcc8913e45c1df01957fd1`
+- release: `921777f82c4216eccfb26d17e1043a57`
+- production workflow: [run 34717459805](https://github.com/ginosega/fishing/actions/runs/34717459805)
 - hosted v2 files: 214
-- hosted-verification artifact: `10305125488`
+- hosted-verification artifact: `10305581445`
 - site: https://ginosega.github.io/fishing/
 
-The production run passed source/core validation, Chromium/WebKit preview and production acceptance, actual archived-v1 cutover acceptance, exact-current-main deployment protection, Pages deployment, hosted-byte verification and hosted-browser verification. The authoritative closeout is `pwa/docs/FISH096_Production_Closeout_2026-09-12.md`.
+That later source state includes 13 user-uploaded Palomar step PNGs under `KB/Knots/assets/`. They are currently **unreferenced source assets**, not an active sequence: no Palomar `pictureSequence` has yet been declared in canonical KB data, so the build correctly excludes those files from the published release manifest. Do not infer a sequence from directory contents alone or create the Palomar record change unless the user explicitly supplies/requests that authoring change.
+
+The current production run passed source/core validation, Chromium/WebKit preview and production acceptance, actual archived-v1 cutover acceptance, exact-current-main deployment protection, Pages deployment, hosted-byte verification and hosted-browser verification. The authoritative FISH096 feature closeout is `pwa/docs/FISH096_Production_Closeout_2026-09-12.md`.
 
 Do **not** restart FISH096 implementation/deployment work.
 
