@@ -368,8 +368,27 @@
       "id": "knot-palomar",
       "type": "knot",
       "name": "Palomar Knot",
-      "description": "Strong, simple knot for braid, fluoro, or mono; cinch evenly above the eye.",
-      "content": "KB/Knots/content/palomar.md"
+      "description": "Strong, simple knot for braid, fluoro, or mono",
+      "content": "KB/Knots/content/palomar.md",
+      "picture": {
+        "src": "KB/Knots/assets/knot-palomar/step-13.png",
+        "caption": "Palomar knot"
+      },
+      "pictureSequence": [
+        "KB/Knots/assets/knot-palomar/step-01.png",
+        "KB/Knots/assets/knot-palomar/step-02.png",
+        "KB/Knots/assets/knot-palomar/step-03.png",
+        "KB/Knots/assets/knot-palomar/step-04.png",
+        "KB/Knots/assets/knot-palomar/step-05.png",
+        "KB/Knots/assets/knot-palomar/step-06.png",
+        "KB/Knots/assets/knot-palomar/step-07.png",
+        "KB/Knots/assets/knot-palomar/step-08.png",
+        "KB/Knots/assets/knot-palomar/step-09.png",
+        "KB/Knots/assets/knot-palomar/step-10.png",
+        "KB/Knots/assets/knot-palomar/step-11.png",
+        "KB/Knots/assets/knot-palomar/step-12.png",
+        "KB/Knots/assets/knot-palomar/step-13.png"
+      ]
     },
     {
       "id": "knot-fg",
