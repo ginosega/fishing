@@ -1,11 +1,12 @@
 # FISH091 — Online-Only Default / Explicit Offline Library
 
 **Document type:** Change request and requirements specification  
-**Status:** DRAFT FOR REQUIREMENTS REVIEW AND SIGNOFF  
+**Status:** APPROVED / IMPLEMENTED / PRODUCTION-VERIFIED  
 **Date:** September 11, 2026  
 **Repository:** `ginosega/fishing`  
 **Baseline:** `470c74472e569010b81659c86fdd60937d6a9159`  
-**Implementation authorization:** **None.** This document does not authorize design or runtime changes.
+**Approval/outcome:** Approved as written including S1–S4; subsequent design approval authorized implementation; FISH091 is DONE / production-verified. See `FISH091_Requirements_Approval_2026-09-11.md`, `FISH091_Design_Approval_2026-09-11.md`, and `FISH091_Production_Release_2026-09-11.md`.  
+**Historical gate note:** This requirements document did not itself authorize runtime changes when first reviewed; that gate was later satisfied by the separate design approval.
 
 ## 1. Change request
 
@@ -230,7 +231,7 @@ The following are constraints that the later design must respect; this section d
 
 ## 12. Proposed clarifications requiring requirements signoff
 
-These interpretations are proposed so that the later design has an unambiguous target. They are **not approved until the user signs off this document**.
+These interpretations were proposed for signoff and were subsequently **approved as written in S1–S4**. The original wording is preserved below as the reviewed requirements record.
 
 ### S1 — Meaning of "pick up all changes as soon as deployed"
 
@@ -248,12 +249,8 @@ These interpretations are proposed so that the later design has an unambiguous t
 
 **Proposed requirement interpretation:** retain the existing Connection Status dot/dialog and **Update offline library** action rather than adding a persistent connection-mode switch. Status labels/help text may change only as needed to clearly distinguish **network connectivity** from **offline-library readiness/currentness**.
 
-## 13. Requirements signoff gate
+## 13. Requirements signoff gate — satisfied
 
-The requirements phase is complete only after the user explicitly:
+The requirements gate was satisfied when the user explicitly approved this document as written, resolved S1–S4 by approving them, and authorized creation of the FISH091 design document. That approval is recorded in `FISH091_Requirements_Approval_2026-09-11.md`.
 
-1. approves or revises the requirements in this document;
-2. resolves S1–S4 above; and
-3. authorizes creation of the FISH091 design document.
-
-**No FISH091 runtime implementation is authorized by requirements signoff alone.** After requirements signoff, the next step is a separate abbreviated design document and design review/signoff. Implementation may begin only after that design is explicitly approved.
+Requirements signoff alone did not authorize runtime implementation. The later design was separately approved in `FISH091_Design_Approval_2026-09-11.md`, after which implementation, production deployment, and hosted verification completed as recorded in `FISH091_Production_Release_2026-09-11.md`.
