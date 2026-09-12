@@ -426,6 +426,20 @@ Adding, replacing, or removing a sequence through Add/Edit only prepares a chang
 
 FISH096 does not authorize browser-side repository writes or integrated file upload.
 
+### FISH096-R45A — Sequence upload link targets the per-Knot asset folder
+
+After the user selects **Prepare Changes** for an Add Entry or Edit Entry operation that adds or replaces a step-by-step sequence, the prepared-package area near the Copy Changes controls must include the clickable repository upload-location link used by the existing picture workflow.
+
+For a sequence, that link must target the sequence's dedicated per-Knot upload location:
+
+`KB/Knots/assets/<knot-id>/`
+
+For example, a sequence for `knot-trilene` must direct the user to:
+
+`KB/Knots/assets/knot-trilene/`
+
+The link must not target only the parent `KB/Knots/assets/` folder, the Knot content folder, or an individual frame path. The later design must make this direct per-Knot upload destination work both when the subfolder already exists and when it is being created for the first sequence upload.
+
 ## 11. Build, release, and offline requirements
 
 ### FISH096-R46 — Every referenced frame is production content
@@ -540,6 +554,7 @@ The eventual implementation must demonstrate at least the following behaviors.
 | A26 | Prepared library, device offline | Knot sequence viewer, manual navigation, caption, and playback work offline. |
 | A27 | Chromium and WebKit automated suites | Sequence behavior passes alongside existing static viewer, authoring, release-integrity, and offline regressions. |
 | A28 | Hosted production verification | Deployed Knot sequence behavior is verified against the exact production source/release. |
+| A29 | Add or Edit sequence → Prepare Changes | The clickable repository upload link near the prepared-package/Copy Changes controls opens the direct `KB/Knots/assets/<knot-id>/` upload location, including for a first-time sequence folder. |
 
 ## 15. Out of scope
 
@@ -636,12 +651,16 @@ Manual Previous/Next does not wrap. Automatic Play loops. Existing zoom/pan gest
 
 **Proposed requirement interpretation:** replacing/removing a static picture or sequence changes authoritative references but does not implicitly delete now-unreferenced source image files. Cleanup remains a deliberate repository operation.
 
+### S11 — Prepared-package upload link
+
+**Proposed requirement interpretation:** whenever Add Entry or Edit Entry prepares a change package that adds or replaces a sequence, the clickable repository upload-location link shown with the prepared package must take the user directly to the sequence's `KB/Knots/assets/<knot-id>/` upload location. The design must support this direct destination whether that per-Knot folder already exists or is being created for the first sequence upload.
+
 ## 18. Requirements signoff gate
 
 The FISH096 requirements phase is complete only after the user explicitly:
 
 1. approves or revises the requirements in this document;
-2. resolves S1–S10 above; and
+2. resolves S1–S11 above; and
 3. authorizes preparation of the separate FISH096 design document.
 
 **Requirements approval alone does not authorize implementation.**
