@@ -1,4 +1,4 @@
-# Casting
+## Casting
 - Use a Kastmaster, spoon, or inline spinner
   - Use a spoon when fish are following but not striking, water is calm and clear, or trout seem spooky. Use a spinner around creeks, shaded banks, or rocky edges.
   - If using a Kastmaster, the 1/4 oz size casts farther and sinks faster than the 1/8 oz size; use it if trout are deeper.
@@ -8,7 +8,7 @@
 - Cast toward points, shaded banks, cove mouths, docks, laydowns and shoreline wood, weed edges near deeper water, shady pockets with 4–10 feet of water nearby, and surface rises.
 - Fan cast in a clock pattern: left, straight out, right, then move 20–30 yards down the bank. For spoons and spinners use a steady retrieve with occasional pauses.
 
-# Bank Fishing
+## Bank Fishing
 **Slip Sinker Rig**
 - See [Slip Sinker Rig](kb://technique-slip-sinker-rig)
 - Weight sits on the bottom. Leader should be long enough for the floating bait to clear the weeds so fish can see it.
@@ -24,7 +24,7 @@
 - Mid-day: This is the toughest time for bank fishing, but try a slip sinker rig cast to the deepest reachable water, or a bobber rig if there is shade, weeds, or visible fish activity.
 - Evening: This is the best time for bank fishing. In the first 30 minutes still fish with a slip sinker rig and cast around it with spoons, inline spinners, or jerkbaits.
 
-# Trolling
+## Trolling
 - See [Inline Trolling Rig](kb://technique-inline-trolling-rig), [Flasher Rig](kb://technique-flasher-rig)
 - During a hot, bright day, trout usually avoid the warmest, brightest surface layer and may hold deeper where the water is cooler and safer. But in the evening trout will often come up shallower because they feel safer feeding closer to the surface and nearer shore in the lower light, because the surface water is cooler than midday, and because insects and small baitfish become active near the surface. Shoreline edges, points, creek mouths, weed edges, and shallow-to-deep transitions can all become better as light fades.
 
@@ -35,7 +35,7 @@ For a kayak setup, that means:
 Caveat:
 If your fish finder shows fish or bait deeper at sunset, follow the electronics, not the general rule.
 
-# Links
+## Links
 - Video: [TOP 3 Trout Fishing Tactics For Lakes & Ponds (IN DEPTH HOW TO)](https://youtu.be/ag2nElS9JGY?si=OfbEV6EH2FmidIQ_)
 - Video: [How To Set up & Fish For Trout, EVERYTHING You Need To Know!](https://youtu.be/PbtnYhptufI?si=CG6TmJRQZNgeCGVV)
 - KB: [Inline Spinner](kb://technique-inline-spinner), [Slip Sinker Rig](kb://technique-slip-sinker-rig), [Bobber Rig](kb://technique-bobber-rig), [Inline Trolling Rig](kb://technique-inline-trolling-rig), [Flasher Rig](kb://technique-flasher-rig), [Crankbait](kb://technique-crankbait), [Jerkbait](kb://technique-jerkbait)
