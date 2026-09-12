@@ -15,7 +15,7 @@ On a new chat, restore actual latest `main`, then read `README.md`, `Fishing_Con
 
 Operating mode: This project uses Chat mode by default. Do not recommend Work unless a task specifically requires a Work-only capability. Never recommend Work merely because the project or task is complex, lengthy, file-heavy, analytical, or involves creating artifacts. Explain the specific need and obtain my approval before recommending a temporary switch. Chat is the permanent default; this temporary Work conversation is complete. Do not promise background work.
 
-## FISH090–094 current state — September 11, 2026
+## Historical FISH090–094 state — September 11, 2026
 
 Current deployed production source is `32759b83305e1dbb3818b676accb0aee3961ddf7`, release `a81d35da0db7b000ed031c17a9387de3`, fully verified by [production run 34645325275](https://github.com/ginosega/fishing/actions/runs/34645325275) after FISH094/[PR99](https://github.com/ginosega/fishing/pull/99). The source/core, preview-browser, production-browser, archived-v1, exact-current-main Pages deployment, hosted-byte and hosted-browser gates all passed; hosted verification reported 210 v2 files.
 
@@ -27,7 +27,7 @@ FISH092/[PR97](https://github.com/ginosega/fishing/pull/97) is DONE at source `e
 
 FISH094/[PR99](https://github.com/ginosega/fishing/pull/99) is DONE. The validated Trout Fishing package changed only `technique-trout-fishing`: description `Casting, bank-fishing, still-fishing, and kayak-trolling guidance`; picture `KB/Techniques/assets/Trout Fishing.png`; no invented caption; Notes/Markdown unchanged. The existing uploaded PNG was preserved exactly (1,867,783 bytes; SHA-256 `7f883a4d7d6bbc5dfba152414ac81513f5bac8c896648769349e85bebd220306`).
 
-FISH077/P2 remains DEFERRED. FISH090 and FISH092–094 are DONE. FISH091 is WAITING ON USER and not deployed. All unrelated backlog and purchase uncertainty remain preserved. The next unused canonical task ID is FISH-TODO-095. Resume from actual latest `main` and the user’s next requested work; do not restart completed FISH090/FISH092/FISH093/FISH094 release work. Documentation-only reconciliation does not redeploy production.
+Historical status at this milestone: FISH077/P2 remained DEFERRED; FISH090 and FISH092–094 were DONE; FISH091 was waiting on user approval and not deployed; and the next unused canonical task ID was FISH-TODO-095. This paragraph is retained only as milestone history. Current FISH091 status and the current continuation point are recorded at the top of this bootstrap.
 
 ## FISH089 location-picture production closeout — September 11, 2026
 
