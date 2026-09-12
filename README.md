@@ -1,126 +1,54 @@
 # Fishing
 
-## FISH091 implemented and verified in production — September 11, 2026
+Persistent Fishing project and source repository for Fishing Companion.
 
-FISH091 is **DONE**. The approved online-only-default requirements and design were implemented in [PR105](https://github.com/ginosega/fishing/pull/105) and deployed from source `44fa3bcbff289d2a7aa37c4967e0f5f195b53ca0`. Production workflow [run 34676802369](https://github.com/ginosega/fishing/actions/runs/34676802369) passed the full validation/deployment gate, exact-current-main guard, actual hosted byte verification and hosted browser verification. Hosted release `01c5ed3535d358086032b0985e2af87b` contains 214 v2 files.
+## Current production — September 12, 2026
 
-Normal online startup/navigation no longer provisions the complete offline library. **Connection Status → Update offline library** is the explicit action that downloads and verifies a complete offline generation. A previously complete library remains the offline fallback until explicitly updated; online browsing uses current production and is not pinned to that older fallback. Failed/corrupt explicit updates preserve the prior complete generation. FISH077/P2 remains **DEFERRED**. Next unused canonical task ID remains **FISH-TODO-096**.
+FISH-TODO-096 is **DONE / production-verified**. The user-approved Knot step-by-step picture-sequence requirements and design were implemented in [PR109](https://github.com/ginosega/fishing/pull/109) and merged to `main` as `0782d1fd6ff9a176d94132c4dc962589b9480e32`.
 
-## FISH095 Technique additions production closeout — September 11, 2026
+Current verified production subsequently advanced after the user uploaded 13 Palomar source frames to `main`:
 
-FISH-TODO-095 is **DONE**. [PR101](https://github.com/ginosega/fishing/pull/101) applied the two validated Fishing Companion KB add packages for **Topwater Fishing** and **Bass Fishing**. Each new Technique keeps the submitted identity/name/type, has required Notes created with the exact body `TODO`, and references the user-uploaded PNG without an invented caption. Before application, both add bases were clean on restored newer `main`; the two pre-uploaded PNGs were preserved byte-for-byte and validated against the package sizes and SHA-256 values: `Topwater Fishing.png` = 1,813,365 bytes / `e2edbf4e6dbad5fb66f10bfa9752d46316b9f174cc8d4b65798609a5f102448a`; `Bass Fishing.png` = 1,948,010 bytes / `1a711ecc4625d025e6ffe74c2f21c52a3a8eee056c744a7df901b2fb7e4b41f8`.
+- site: https://ginosega.github.io/fishing/
+- source: `7d43898d1c8e59ec87fcc8913e45c1df01957fd1`
+- release: `921777f82c4216eccfb26d17e1043a57`
+- production workflow: [run 34717459805](https://github.com/ginosega/fishing/actions/runs/34717459805)
+- hosted v2 files: **214**
+- hosted-verification artifact: `10305581445`
 
-Source-derived regression expectations moved from KB 54 to KB 56 and from 104 to 106 Markdown routes. The first merged content release correctly deployed KB 56, but its hosted verifier still expected KB 54; [PR102](https://github.com/ginosega/fishing/pull/102) changed only that stale verifier expectation. Final production source `620e47943ee9ef38aaa2ff46b0dbe7d4606ef3ba`, release `168554f1b4fe274f0030d389a047fd12`, passed [production run 34656039216](https://github.com/ginosega/fishing/actions/runs/34656039216) through the complete source/core gate, preview- and production-scope Chromium/WebKit acceptance, archived-v1 cutover acceptance, exact-current-main Pages deployment, all **214 hosted v2 file** byte comparisons, and hosted browser/refinement verification.
+The deployment passed source/core validation, Chromium/WebKit preview and production acceptance, archived-v1 cutover acceptance, exact-current-main protection, Pages deployment, all hosted-byte comparisons and hosted browser verification. FISH096 hosted verification exercised Add Knot sequence selection, local sequence preview, ordered handoff metadata and the exact per-Knot GitHub upload link.
 
-No schema, domain architecture, Catch behavior, P2/direct-save scope, or FISH091 implementation changed. FISH091 is **DONE / production-verified**; FISH077/P2 remains **DEFERRED**. All unrelated fishing/equipment/content backlog and purchase uncertainty remain preserved. The next unused canonical task ID is **FISH-TODO-096**. Chat remains the permanent default. This reconciliation is documentation-only and does not republish production release `168554f1b4fe274f0030d389a047fd12`.
+The 13 uploaded files `KB/Knots/assets/knot-palomar/step-01.png` through `step-13.png` are preserved source assets but are currently **unreferenced**. They are therefore not part of the published release and do not yet make Palomar an active step-by-step sequence. Do not infer or create the Palomar `pictureSequence` record change without an explicit authoring request/package.
 
+See [FISH096 production closeout](pwa/docs/FISH096_Production_Closeout_2026-09-12.md) for the durable feature-release record.
 
-## Historical FISH090–094 production and project-state snapshot — September 11, 2026
+## Current product behavior
 
-Fishing Companion’s current deployed production source is `32759b83305e1dbb3818b676accb0aee3961ddf7`, release `a81d35da0db7b000ed031c17a9387de3`, verified by [production run 34645325275](https://github.com/ginosega/fishing/actions/runs/34645325275) after [PR99](https://github.com/ginosega/fishing/pull/99). The full source/core, preview- and production-scope Chromium/WebKit, archived-v1 cutover, exact-current-main Pages deployment, hosted-byte and hosted-browser gates passed; the hosted verifier reported 210 v2 files.
+Fishing Companion has independent Gear, Knowledge Base and Catch domains. Canonical source is repository-root `Gear/`, `KB/` and `Catches/`; the active application/build/test system is under `pwa/`.
 
-FISH090/[PR95](https://github.com/ginosega/fishing/pull/95) is DONE: Edit Gear can add the first link when an existing record omits `links`, and the current `pwa/icon.png` is the exact user-uploaded 1,541,464-byte, 1254×1254 RGBA icon (SHA-256 `055cea4acde10ac18a74cc0a42f03a03190ea4a12df17acc0d5808a1637b822a`). Production source `470c74472e569010b81659c86fdd60937d6a9159` passed run `34634890084`. Historical snapshot — FISH091/[draft PR96](https://github.com/ginosega/fishing/pull/96) remains requirements-only and unimplemented: no runtime, service-worker, loader, UI, build or test implementation is authorized until requirements and a separate abbreviated design receive user signoff. FISH092/[PR97](https://github.com/ginosega/fishing/pull/97) is DONE at source `ef883688c3f0786e35821f0baca5394c8f2156a5`, run `34640020315`, making `content/` + `assets/` durable across all KB categories. FISH093/[PR98](https://github.com/ginosega/fishing/pull/98) is DONE at source `347beab04ce60bb372c390bd8820b25c3d7b6314`, successful run `34642839586` attempt 2, making the same canonical folder structure durable across all Gear categories.
+FISH091 remains in force: ordinary online use is lightweight and does **not** download the complete library. **Connection Status → Update offline library** explicitly creates/refreshes a verified complete offline generation. A prior complete generation can remain as offline fallback; failed or corrupt updates preserve it.
 
-FISH094/[PR99](https://github.com/ginosega/fishing/pull/99) applied the validated Trout Fishing package only: description `Casting, bank-fishing, still-fishing, and kayak-trolling guidance`, picture `KB/Techniques/assets/Trout Fishing.png`, no invented caption, and Notes unchanged. The already-uploaded PNG was preserved byte-for-byte (1,867,783 bytes; SHA-256 `7f883a4d7d6bbc5dfba152414ac81513f5bac8c896648769349e85bebd220306`).
+FISH096 adds optional Knot-only ordered `pictureSequence` support. Sequence frames are explicit structured references under `KB/Knots/assets/<knot-id>/`; the final frame is also the canonical representative `picture.src`. Normal browsing loads only that representative frame. The sequence viewer opens at frame 1 with Previous / Play-Pause / Next / Close, one-second looping playback, frame position, keyboard controls and existing zoom/pan gestures. Add/Edit supports complete multi-file sequence selection and static↔sequence conversion within the existing Picture section. Prepare/Copy remains a source-aware handoff, not Direct Save.
 
-Historical status at this milestone: FISH077/P2 remained DEFERRED; FISH091 was still waiting on requirements signoff and was not deployed; FISH090 and FISH092–094 were DONE; and the next unused canonical task ID was FISH-TODO-095. This paragraph is retained only as milestone history. Current status is the FISH091 production-complete section above. Chat remains the permanent default.
+FISH077/P2 — authentication, Direct Save, integrated uploads, offline authoring, outbox/sync and Catch authoring — remains **DEFERRED**.
 
-## FISH089 location-picture production closeout — September 11, 2026
+## Project continuation
 
-FISH-TODO-089 is DONE through [PR94](https://github.com/ginosega/fishing/pull/94). Production source `5f413021f51a7d48ea8f7f96e99d9a81db9ee0a6`, release `7a7f62759f668cda0eece08125e798b2`, passed [production run 34625693090](https://github.com/ginosega/fishing/actions/runs/34625693090) through complete source/core validation, preview- and production-scope Chromium/WebKit acceptance, archived-v1 cutover acceptance, exact-current-main Pages deployment, 209 hosted v2 files and complete hosted byte/browser verification.
+Chat mode is the permanent default. Do not recommend Work merely because work is complex, lengthy, file-heavy, analytical, research-heavy or artifact-producing. Use Work only for a genuinely Work-only capability after explaining why and obtaining explicit approval.
 
-PR94 applied the four validated KB location-picture packages. Cranberry Lake now references `KB/Locations/assets/Cranberry Lake.jpg` with caption **Cranberry Lake - August 6, 2026**; Lake Sammamish now references `KB/Locations/assets/Lake Sammamish.jpg` with caption **Lake Sammamish - July 2, 2026**; Mayfield Lake now references `KB/Locations/assets/Mayfield Lake.png` with caption **Mayfield Lake - August 19, 2026** and description **Trout, kokanee, bass, and muskie fishing at Ike Kinswa State Park**; Silver Lake now references `KB/Locations/assets/Silver Lake.jpg` with caption **Silver Lake - July 27, 2026**. All four Notes/Markdown files were kept unchanged.
+At the start of a new chat, restore actual latest `main`, then read in order:
 
-All four submitted structured-record hashes and picture bases matched current source before application, including Mayfield's prior description. The four user-uploaded image files were already present on newer restored `main` and matched the package byte counts and SHA-256 values exactly, so PR94 referenced those existing bytes instead of rewriting them. The former Cranberry Lake PNG remains in repository source/history because the package replaced the record association but did not request deletion of the old file. No schema, architecture, identity, Catch model or P2 authoring scope changed.
+1. `README.md`
+2. `Fishing_Context.md`
+3. `Fishing_TODO.md`
+4. `Fishing_Decision_Log.md`
+5. `Fishing_New_Chat_Bootstrap_Prompt.md`
 
-FISH084–089 are DONE. FISH077/P2 remains DEFERRED. All unrelated fishing/equipment/content backlog and purchase uncertainty remain preserved. The next unused canonical task ID is FISH-TODO-090. Continue in Chat using actual latest `main`. This documentation reconciliation is non-runtime and does not redeploy production.
+Preserve unresolved fishing/equipment/content backlog and explicit purchase uncertainty. The next unused canonical task ID is **FISH-TODO-097**.
 
-## FISH088 Kingforest inline-spinner production closeout — September 11, 2026
+Historical milestones and release evidence remain in Git history and `pwa/docs/`; the root project-state files intentionally describe the current continuation state rather than repeating every prior release.
 
-FISH-TODO-088 is DONE through [PR93](https://github.com/ginosega/fishing/pull/93). Production source `364a599a4eeb51457ece46457d738ebb4f0d82f3`, release `97e6a320ed42c432b875de9fe8c2ef25`, passed [production run 34621210887](https://github.com/ginosega/fishing/actions/runs/34621210887): 21 core/source tests, preview- and production-scope Chromium/WebKit acceptance, archived-v1 cutover acceptance, exact-current-main Pages deployment, 206 hosted v2 files and complete hosted byte/browser verification.
+## Development
 
-The validated Gear change package renamed `generic-1-inline-spinner` to **Kingforest #1 inline spinner**, set manufacturer **Kingforest** and `links: []`, replaced its Notes with the supplied Mayfield Lake/Amazon/internal-technique text, and associated `Gear/Lures/assets/Kingforest Inline Spinner.png` with caption **Kingforest #1 Inline Spinner**. The structured record and Notes base hashes matched. The user-uploaded PNG was already present on the restored current `main`; its exact 430,419 bytes and SHA-256 `57416d3c9d6dcee3e4fabfc324bd281756be5c9ff5cfc2b5a41affbbaaec8b14` matched the package before the record referenced it.
+Use Node 24 and the locked `pwa/package-lock.json`. From `pwa/`: `npm ci`, `npm test`, `npm run build -- --base=/fishing/`, `npm run verify`.
 
-Two source-derived regressions were reconciled without changing product behavior: the complete referenced-source count moved from 235 to 236, and the prior browser check that required a pictureless Lure was replaced because this change gives the last pictureless Lure a picture; absent-picture behavior remains covered by a pictureless KB Location. No schema, architecture, identity, Catch model or P2 authoring scope changed. The historical migration/media decision that the generic inline-spinner picture was optional remains historical evidence; the current record now has the user-supplied picture.
-
-FISH084–088 are DONE. FISH077/P2 remains DEFERRED. All unrelated fishing/equipment/content backlog and purchase uncertainty remain preserved. The next unused canonical task ID is FISH-TODO-089. Continue in Chat using actual latest `main`. This documentation reconciliation is non-runtime and does not redeploy production.
-
-## FISH087 KB authoring batch production closeout — September 11, 2026
-
-FISH-TODO-087 is DONE through [PR92](https://github.com/ginosega/fishing/pull/92). Production source `dee0ff76f6b15e861fa8864151aad88c8fe28f5e`, release `40c849b4014013f22200843c9d222c2c`, passed [production run 34614884273](https://github.com/ginosega/fishing/actions/runs/34614884273): the complete source/core gate, preview- and production-scope browser acceptance, archived-v1 cutover acceptance, exact-current-main Pages deployment, all 205 hosted-file comparisons and hosted browser verification.
-
-PR92 applied the validated KB location/species change package, preserving the newer unrelated Silver Lake Markdown edit and the restored `KB/Locations/content/lake-bosworth.md`. The only non-content correction was a regression assertion updated to expect no Species subtitle after intentional description removal. No schema, architecture, picture or P2 scope changed.
-
-FISH084–087 are complete; FISH077/P2 remains DEFERRED; all unrelated fishing/equipment/content backlog and purchase uncertainty remain unchanged. The next unused canonical task ID is FISH-TODO-088. Continue in Chat using actual latest main. This documentation reconciliation does not republish the already-verified application release.
-
-## Icon filename cleanup and current state — September 11, 2026
-
-FISH-TODO-086 is DONE through [PR91](https://github.com/ginosega/fishing/pull/91). Current production source `afd7afc9ee91fb3dc81a15635e14ec932bda2b1b`, release `11789b7bace383d161add0ac7d313579`, passed [production run 34608018650](https://github.com/ginosega/fishing/actions/runs/34608018650): 21 core tests, 24 preview-scope and 26 production-scope Chromium/WebKit scenarios, archived-v1 transition, exact-current-main Pages deployment, all 205 hosted-file comparisons and complete hosted browser verification.
-
-The approved transparent PNG is now `pwa/icon.png`; its bytes are unchanged (SHA-256 `e46bcb2260f550380c4df2a42d512bbcd19b24dbf9e987815a0070afd350b922`). The obsolete `pwa/icon.svg` and former `pwa/revised-icon.png` paths are removed from current source. New builds use `icon.png` for the manifest, favicon and Apple touch icon. Historical filenames remain accepted only by release validation and compatibility tests so retained cached releases stay readable. Git history retains both removed paths. Canonical Gear/KB/Catch files are unchanged.
-
-FISH084, FISH085 and FISH086 are complete; PR89–PR91 are merged and no release or icon work remains pending. P2/FISH077 remains deferred, all unrelated backlog is retained, and next unused task ID is FISH-TODO-087. Continue in Chat using actual latest main. This documentation reconciliation does not redeploy.
-
-## Historical Chat handoff audit — before icon filename cleanup
-
-Restored and audited GitHub main `36d894439632b45aa358c7a93a38b19dff822875` before this documentation-only handoff. Its changes after production source `240dbfa67a1810ef51fde24f7bd0fb1d1c867bcf` are documentation only; the deployed release remains `c15f12f49c4162706fb14eb2791e3204`. Production run `34566907478` is successful; PR89 and PR90 are merged, no PRs are open and no release jobs are queued or running at this audit. This handoff does not require another build or deployment.
-
-FISH084 and FISH085 are DONE; no UI, icon-transfer, verifier or production-acceptance work remains from this chat. FISH077/P2 stays DEFERRED. All unrelated TODO rows and purchase uncertainties are retained; next unused task ID is FISH-TODO-086. Resume by reading actual latest main, then respond to the user's next requested work rather than restarting a completed release. The bootstrap, Context, TODO, Decision Log, README and affected PWA records were cross-checked for release identity, icon state, completed tasks, deferred scope and Chat-default instructions.
-
-## Previous production state — before icon filename cleanup
-
-Fishing Companion production source `240dbfa67a1810ef51fde24f7bd0fb1d1c867bcf` is published and fully verified in [production run 34566907478](https://github.com/ginosega/fishing/actions/runs/34566907478); release `c15f12f49c4162706fb14eb2791e3204` contains 205 hosted files and passed production navigation, image-viewer, complete-offline-reload and record-count checks. Routine site-authored updates include PR75/PR76 (Pflueger spincast rod/reel), PR77 (Tsuridamashii snap-swivels picture), PR79 (Rapala Original Floating, Mack's Pee Wee Hoochie, River2Sea Whopper Plopper 60 and Yellow Perch pictures plus Rebel Pop-R replacement), PR81 (Kokanee/Largemouth/Smallmouth Species updates), and PR84 (Popper and Whopper Plopper Gear-Guide pictures). All seven originally deferred required pictures have now been supplied and published. Generic inline-spinner remains optional. The cleanup and initial-release sections below are dated historical evidence; P2 remains deferred.
-
-## PR89/PR90 production closeout — historical release evidence
-
-FISH-TODO-084 and FISH-TODO-085 are DONE. The eight UI/authoring refinements from PR89 and the user-authorized icon transparency/verifier correction in [PR90](https://github.com/ginosega/fishing/pull/90) are live at production source `240dbfa67a1810ef51fde24f7bd0fb1d1c867bcf`, release `c15f12f49c4162706fb14eb2791e3204`. [Production run 34566907478](https://github.com/ginosega/fishing/actions/runs/34566907478) is green: 20 core tests, 24 preview-scope and 26 production-scope Chromium/WebKit scenarios, archived-v1 worker/store transition, exact-current-main Pages deployment, all 205 hosted-file comparisons and the complete hosted browser verifier passed. PR90 CI [run 34566584530](https://github.com/ginosega/fishing/actions/runs/34566584530) also passed.
-
-Historical PR89 evidence: source `1f3f6df97390db186303148dcb5fa62ad0ba90e9`, release `7572c94504e4482c9987828b95a653f6`, [run 34565111477](https://github.com/ginosega/fishing/actions/runs/34565111477) published successfully and compared all 205 hosted files, but its browser verifier failed because Yellow Perch matched both the page h1 and a Catch History h2. That historical run remains failed; PR90 repairs the selector with `level:1` and completes a new fully verified release.
-
-Historical PR89 direct cloud-browser follow-up verified the published home/KB/Catch wording, normal-weight dates below Species, page search, exact runtime icon references, Yellow Perch page/image viewer, Offline Ready for 203 files, real clipboard instruction plus valid JSON, Gear/KB Add Exit to the originating roots and KB Edit Exit to its original item without a warning. The original hosted verifier had already completed actual offline reload before reaching the ambiguous selector. No physical-device inspection or browser-originated repository writes are claimed.
-
-The user explicitly authorized the follow-up PR/release and clarified: “The white border surrounding the green button image should be transparent.” This supersedes the earlier one-PR limit for this correction. No further icon transfer or approval is pending.
-
-The PR90 runtime used the transparent-background edit of `pwa/revised-icon.png` (renamed without byte changes to `pwa/icon.png` in PR91) (1,208,529 bytes, 1254 × 1254 RGBA PNG; SHA-256 `e46bcb2260f550380c4df2a42d512bbcd19b24dbf9e987815a0070afd350b922`). The built-in image editor was instructed to remove only the exterior white background and preserve the green button and fish/hook artwork. Alpha inspection and browser regressions verify transparent exterior pixels, retained center opacity, source-derived dimensions and exact served bytes. The original opaque upload remains recoverable in PR89 history (SHA-256 `89a81bac58c460cdb6ccc509b6b240ac84937b619990c6ac9b187ddc4b75980c`). Favicon, manifest and Apple touch icon all use the corrected PNG; offline integrity includes it and older SVG-icon releases remain readable for recovery.
-
-Catch card dates appear directly below Species at regular weight, including derived Catch History cards. Existing search inputs use `Search [page title]`; no new search inputs were added. Knowledge Base card/subtitle reads `Fishing reference library`; Catch Log home-card subtext and list-page heading read `Recorded catches`. Back buttons retain only `Back`.
-
-After a successful Copy Changes, Exit returns edits to their original item and adds to their originating Gear/KB root or category. Exit alone bypasses the unsaved-changes warning. Further edits invalidate the prepared package and remove Exit; ordinary Back, Cancel, navigation and reload remain guarded. Copy text contains an explicit repository implementation/deployment instruction above valid `fishing-companion-change-v2` JSON; manual-copy fallback includes that same instruction. Preparing/copying is not saving. KB Notes remain required; its schema and viewer behavior are unchanged.
-
-## Repository cleanup — September 10, 2026
-
-The user approved the new site's appearance and behavior, then requested repository cleanup. Production source, tests, contracts and migration evidence have moved from root `v2/` into `pwa/`; the preserved icon was the only build dependency on the former v1 `pwa/`. Retained v2 specifications/release references are in `pwa/docs/`. Root `History/`, `Topics/`, obsolete registries/handoffs and v1 runtime/assets/per-item helpers are removed from main, recoverable at `checkpoint/pre-repo-cleanup-20260910` (`edca2a3f04fc8c32dec65b9330d43944be1a561c`). Canonical Gear/KB/Catch bytes, including the newer unreferenced Pflueger image upload, are unchanged. No image adoption or migration rerun.
-
-Add/Edit creates copyable source-change packages, not one-off helper/release files. Routine changes must update canonical files and existing project records; reusable code/tests stay under `pwa/`, and significant release references belong under `pwa/docs/`. No new per-item scripts/release records in either root. Cleanup PR73 is merged and published. [Production run 34490532301](https://github.com/ginosega/fishing/actions/runs/34490532301) passes all 20 core tests, 42 browser scenarios across the two scopes, and all 197 hosted-file comparisons. Cleanup production source `6a64be686cf751720884469b98f2fcc4df94ec6a`, release `d63599a99498d62fdfb1fc22c04643c2`. See [cleanup/release evidence](pwa/docs/Repository_Cleanup_2026-09-10.md).
-
-## Historical initial v2 production closeout
-
-The following paragraphs are dated historical evidence from the initial v2 cutover and do not override the current production state or pending-work section above.
-
-V2 is published at [Fishing Companion](https://ginosega.github.io/fishing/). Production revision `6a64be686cf751720884469b98f2fcc4df94ec6a`, release `d63599a99498d62fdfb1fc22c04643c2`, passed [publication and hosted verification](https://github.com/ginosega/fishing/actions/runs/34490532301). PR64 is merged. The user authorized production and waived another preview review; all seven previously required missing pictures are explicitly deferred. The affected records remain available without pictures. No acceptance or media approval blocks this release.
-
-Validation: 20 core tests, 20 preview-scope and 22 production-scope Chromium/WebKit scenarios, including the actual archived-v1 worker transition and retained browser stores. All 197 hosted files match the verified production build; live navigation, image viewer, offline reload, counts and absent-picture behavior pass. These are automated browser and direct hosted checks, not physical-device inspection.
-
-The sole active pipeline is `.github/workflows/fishing-production.yml`. V1 and the earlier preview are historical; use the production root. V1 sources are archived in Git history and the pre-cleanup checkpoint; exact rollback ZIPs remain in Git. Old browser stores are retained. P2 remains deferred. This authorized Work phase is complete; continue in Chat.
-
-## Project authority
-
-GitHub `ginosega/fishing` is the durable source of truth. Restore actual latest main before acting and preserve newer user changes. Current domain sources are `Gear/gear.json`, `KB/kb.json`, `Catches/catches.json`, their authored Markdown and local image bytes. Application source and tests live in `pwa/`; retained specifications and release evidence live in `pwa/docs/`. Historical root registries, Topics, History and v1 sources were removed from main and remain in the pre-cleanup Git checkpoint.
-
-- [Context](Fishing_Context.md), [TODO](Fishing_TODO.md) and [Decision Log](Fishing_Decision_Log.md).
-- [New Chat bootstrap](Fishing_New_Chat_Bootstrap_Prompt.md) — copy the full contents into a Chat conversation.
-- [Production release and recovery](pwa/docs/Fishing_v2_Production_Release_2026-09-10.md).
-- [UI refinement scope and production closeout](pwa/docs/Fishing_UI_Refinement_Approved_Scope_2026-09-10.md) — FISH084/FISH085 implementation and successful production verification.
-- [Approved Baseline](pwa/docs/Fishing_Companion_v2_Approved_Baseline.md), [Requirements Inventory](pwa/docs/Fishing_Companion_v2_Requirements_Inventory.md) and [Design Review](pwa/docs/Fishing_Companion_v2_Design_Review.md) — original user responses remain authoritative.
-- [Source Audit](pwa/docs/Fishing_Companion_v2_Source_Audit.md) and [addendum](pwa/docs/Fishing_Companion_v2_Source_Audit_Addendum_2026-09-09.md); [Technical Contracts](pwa/docs/Fishing_Companion_v2_Technical_Contracts.md), [addendum](pwa/docs/Fishing_Companion_v2_Technical_Contracts_Addendum_2026-09-09.md) and [schema](pwa/contracts/schema.json).
-- [Verbatim review feedback](pwa/docs/Fishing_v2_Review_Feedback_2026-09-09.md); [review checkpoint](pwa/docs/Fishing_v2_Review_Release_2026-09-09.md), [original preview release](pwa/docs/Fishing_v2_Preview_Release_2026-09-09.md) and [Work Handoff](pwa/docs/Fishing_v2_Work_Handoff_2026-09-09.md) are dated historical evidence.
-
-## Scope and operation
-
-Three independent Gear/KB/Catch domains share identity, Markdown, picture and validation conventions. P1 includes read-only Catch Log, full-library offline reading and minimal source-aware Gear/KB Prepare Changes → Copy Changes handoffs. Direct Save, authentication, uploads, offline editing/outbox/sync and Catch browser authoring remain deferred. No Planner, sessions, paired-setup relationships, speculative ownership/media graph, accounts or multi-user expansion.
-
-Chat is the permanent default. Work requires a specific approved execution need; complexity, duration, research or file volume alone are not reasons to switch. Authorized work proceeds through meaningful tests, normal feature PR/CI, exact-head/current-base checks, serialized deployment and hosted verification without repeated approval requests. Preserve source and history; never rerun the one-time migration or acquire pictures automatically.
-
-## Build
-
-Use Node24 and the locked `pwa/package-lock.json`: `npm ci`, `npm test`, `npm run build -- --base=/fishing/`, `npm run verify` from `pwa/`. The production workflow additionally runs both browser scopes and real v1 cutover acceptance. Update source through a feature PR; main source/runtime changes run the complete gate before one Pages deployment. Documentation-only reconciliation does not republish the application.
+`.github/workflows/fishing-production.yml` is the sole active production pipeline. Runtime/source changes use the normal feature-PR/CI path and deploy only from exact current `main`. Documentation-only project-state reconciliation does not republish the application.
