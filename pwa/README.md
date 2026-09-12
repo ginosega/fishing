@@ -25,7 +25,7 @@ The current deployment passed complete source/core validation, Chromium/WebKit p
 | `test/` | Core integrity and Chromium/WebKit acceptance, including retained v1-store/cutover coverage |
 | `contracts/` | Canonical domain schema |
 | `migration/` | Original reconciliation/image approvals and historical migration evidence; no executable migration remains |
-| `docs/` | Approved requirements/designs, exact user feedback, technical references and release/recovery evidence |
+| `docs/` | Approved requirements/designs, exact user feedback, technical references and release/recovery evidence; see [`docs/README.md`](docs/README.md) for current-authority vs historical-record rules |
 | `icon.png` | Canonical user-supplied app/fav/touch icon |
 | `dist/` | Generated build; ignored by Git |
 
@@ -64,4 +64,4 @@ V1 recovery tests use the durable recovery material preserved in Git; do not run
 
 Routine authoring changes update canonical JSON/Markdown/pictures in domain category folders. Do not add per-item JavaScript helpers, one-off release scripts/tests or routine release Markdown. Reuse the source-derived validation. Significant application requirements/design/release evidence belongs in `docs/`.
 
-Historical implementation/release details remain in Git history and the dated records under `docs/`; current continuation state is in the repository-root README/Context/TODO/Decision Log/bootstrap.
+Historical implementation/release details remain in Git history and the dated records under `docs/`; current continuation state is in the repository-root README/Context/TODO/Decision Log/bootstrap. Use [`docs/README.md`](docs/README.md) when interpreting dated project records so milestone-era “current” statements are not mistaken for present project state.
