@@ -2,7 +2,9 @@
 
 ## Current project task state — September 12, 2026
 
-**FISH-TODO-096 — DONE / production-verified.** The separately approved Knot step-by-step picture-sequence requirements and design were implemented in [PR109](https://github.com/ginosega/fishing/pull/109). Production source `0782d1fd6ff9a176d94132c4dc962589b9480e32`, release `23f6839d69df2018aed54fa6d3fc70d4`, [run 34716722379](https://github.com/ginosega/fishing/actions/runs/34716722379), and all 214 hosted v2 files passed the full production and hosted-verification gates. See `pwa/docs/FISH096_Production_Closeout_2026-09-12.md`.
+**FISH-TODO-096 — DONE / production-verified.** The separately approved Knot step-by-step picture-sequence requirements and design were implemented in [PR109](https://github.com/ginosega/fishing/pull/109), which first shipped as source `0782d1fd6ff9a176d94132c4dc962589b9480e32`, release `23f6839d69df2018aed54fa6d3fc70d4`, [run 34716722379](https://github.com/ginosega/fishing/actions/runs/34716722379). See `pwa/docs/FISH096_Production_Closeout_2026-09-12.md`.
+
+Current verified production later advanced through the user's direct upload of 13 Palomar source frames and is now source `7d43898d1c8e59ec87fcc8913e45c1df01957fd1`, release `921777f82c4216eccfb26d17e1043a57`, [run 34717459805](https://github.com/ginosega/fishing/actions/runs/34717459805), with 214 hosted v2 files and hosted-verification artifact `10305581445`. Those Palomar files are intentionally **unreferenced source assets** until a KB record explicitly declares the ordered sequence, so they are not part of the published release manifest yet.
 
 FISH-TODO-077/P2 remains **DEFERRED**. Authentication, Direct Save, integrated uploads, offline authoring, outbox/sync and Catch authoring are not part of current production.
 
