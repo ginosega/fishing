@@ -1,12 +1,13 @@
 # FISH096 — Knot Step-by-Step Picture Sequences Design
 
 **Document type:** Implementation design  
-**Status:** DRAFT FOR DESIGN REVIEW AND SIGNOFF  
+**Status:** APPROVED / IMPLEMENTED / PRODUCTION-VERIFIED  
 **Date:** September 12, 2026  
 **Requirements:** `FISH096_Knot_Step_By_Step_Picture_Sequences_Requirements_2026-09-12.md`, approved as written including S1–S11  
 **Requirements approval:** `FISH096_Requirements_Approval_2026-09-12.md`  
 **Baseline:** current `main` at `a79e66d5207cf1405f6ce331287fbd2627a65506`  
-**Implementation authorization:** **None.** This document is for design review only.
+**Approval/outcome:** The user separately approved this design and authorized implementation; implementation, production deployment, hosted verification, and project-state closeout are complete. See `FISH096_Design_Approval_2026-09-12.md` and `FISH096_Production_Closeout_2026-09-12.md`.  
+**Historical gate note:** This design document did not itself authorize implementation while it was awaiting design review; that gate was later satisfied by the separate design approval.
 
 ## 1. Design summary
 
@@ -704,9 +705,9 @@ The implementation must cover all approved A01–A29 requirements. In particular
 - A28 → hosted deployed behavior;
 - A29 → exact per-Knot post-Prepare upload link.
 
-## 15. Explicit design choices requiring review
+## 15. Approved design choices
 
-The following are implementation choices made by this design within the already approved requirements. Approval of this design approves them unless revised first:
+The following implementation choices were approved with this design and subsequently implemented unless implementation-time validation required an equivalent change consistent with the approved requirements:
 
 1. Canonical field name is `pictureSequence`, an ordered array of path strings.
 2. `picture.src` remains mandatory for a sequence and equals the final array element.
@@ -740,8 +741,8 @@ No general gallery, per-frame captions, drag/drop ordering UI, per-frame editing
 
 Static Gear and non-Knot KB picture behavior is not redesigned.
 
-## 18. Design signoff gate
+## 18. Design signoff gate — satisfied
 
-If this design is approved, implementation may proceed through the normal FISH096 feature work: schema/runtime/editor/handoff changes, core/browser tests, feature PR/CI, merge, production deployment, hosted verification, and project-state reconciliation.
+The user explicitly approved this design and authorized implementation; that approval is recorded in `FISH096_Design_Approval_2026-09-12.md`.
 
-Until the user explicitly approves this design, **no FISH096 runtime, schema, authoring, build, test, release, or production implementation is authorized**.
+Implementation, automated acceptance, PR/CI, merge, production deployment, hosted verification, and final project-state reconciliation were subsequently completed. The authoritative release record is `FISH096_Production_Closeout_2026-09-12.md`.
