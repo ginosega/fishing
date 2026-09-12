@@ -32,7 +32,9 @@ FISH096 does not change this decision.
 
 ## FISH096 — Knot step-by-step picture sequences
 
-**Decision/status:** DONE and production-verified. Requirements and design were separately approved before implementation. [PR109](https://github.com/ginosega/fishing/pull/109) merged to production source `0782d1fd6ff9a176d94132c4dc962589b9480e32`; release `23f6839d69df2018aed54fa6d3fc70d4`; [run 34716722379](https://github.com/ginosega/fishing/actions/runs/34716722379); 214 hosted v2 files. Full closeout: `pwa/docs/FISH096_Production_Closeout_2026-09-12.md`.
+**Decision/status:** DONE and production-verified. Requirements and design were separately approved before implementation. [PR109](https://github.com/ginosega/fishing/pull/109) originally shipped the feature as production source `0782d1fd6ff9a176d94132c4dc962589b9480e32`, release `23f6839d69df2018aed54fa6d3fc70d4`, [run 34716722379](https://github.com/ginosega/fishing/actions/runs/34716722379), with 214 hosted v2 files. Full feature closeout: `pwa/docs/FISH096_Production_Closeout_2026-09-12.md`.
+
+Current production later advanced to source `7d43898d1c8e59ec87fcc8913e45c1df01957fd1`, release `921777f82c4216eccfb26d17e1043a57`, [run 34717459805](https://github.com/ginosega/fishing/actions/runs/34717459805), artifact `10305581445`, after the user uploaded 13 Palomar step images. Those files are deliberately not treated as a sequence merely because they exist in `KB/Knots/assets/`; until the Palomar KB record explicitly references the ordered frames, they remain unreferenced source assets and are not included in the published release manifest. This confirms the durable rule that repository directory contents never define a sequence by themselves.
 
 Durable decisions:
 
