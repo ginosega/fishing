@@ -28,7 +28,7 @@ Routine source changes update canonical files directly; do not create per-item r
 
 **Decision/status:** DONE and production-verified. Ordinary online startup/navigation does not provision the complete offline library. **Connection Status → Update offline library** explicitly prepares or refreshes the verified complete offline generation. Online browsing uses current production even when an older complete offline generation remains available as fallback. Failed/corrupt/quota-failed explicit updates preserve the prior complete generation. Devices without a prepared generation must not claim offline readiness.
 
-FISH096 does not change this decision.
+FISH096/FISH097 do not change this decision.
 
 ## FISH096 — Knot step-by-step picture sequences
 

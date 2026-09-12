@@ -58,4 +58,4 @@ These items remain open/deferred independently of Fishing Companion release work
 
 ## Continuation rules
 
-Use Chat mode by default. Restore actual latest `main` before acting. For new application work, allocate **FISH-TODO-098** unless a newer task has already been created on current `main`. Do not reopen FISH096 or P2 work without an explicit new user request.
+Use Chat mode by default. Restore actual latest `main` before acting. For new application work, allocate **FISH-TODO-098** unless a newer task has already been created on current `main`. Do not reopen FISH096/FISH097 or P2 work without an explicit new user request.
