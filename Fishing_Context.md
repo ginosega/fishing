@@ -2,19 +2,19 @@
 
 ## Current authoritative state — September 12, 2026
 
-FISH-TODO-096 is **DONE / production-verified**. Requirements and design were separately approved before implementation. [PR109](https://github.com/ginosega/fishing/pull/109) implemented the approved Knot step-by-step picture-sequence capability and was merged to `main` as `0782d1fd6ff9a176d94132c4dc962589b9480e32`.
+FISH-TODO-097 is **DONE / production-verified**. The user-supplied Palomar `fishing-companion-change-v2` edit package was validated and applied through [PR112](https://github.com/ginosega/fishing/pull/112). Validation [run 34723150221](https://github.com/ginosega/fishing/actions/runs/34723150221) confirmed the stale-base safety checks and recomputed all 13 pre-uploaded Palomar PNG byte counts and SHA-256 hashes exactly before canonical promotion.
 
-Current verified production subsequently advanced after the user uploaded 13 Palomar source frames to `main`:
+Current verified production:
 
-- source `7d43898d1c8e59ec87fcc8913e45c1df01957fd1`
-- release `921777f82c4216eccfb26d17e1043a57`
-- [workflow run 34717459805](https://github.com/ginosega/fishing/actions/runs/34717459805)
-- 214 hosted v2 files
-- hosted-verification artifact `10305581445`
+- source `934d70bdd669180479f8c5a71c5e1050d2dbf56d`
+- release `696737730abf20323e5f308739aa14c4`
+- [workflow run 34723495195](https://github.com/ginosega/fishing/actions/runs/34723495195)
+- 227 hosted v2 files
+- hosted-verification artifact `10306962337`
 
-That production run passed complete source/core validation, Chromium/WebKit preview acceptance, production-browser acceptance, actual archived-v1 cutover acceptance, exact-current-main guard, Pages deployment, hosted-byte verification and hosted-browser verification. Hosted FISH096 acceptance verified Add Knot sequence selection, local sequence preview, ordered sequence package metadata and the exact per-Knot GitHub upload link. Full FISH096 feature-release detail is in `pwa/docs/FISH096_Production_Closeout_2026-09-12.md`.
+That production run passed source/core validation, Chromium/WebKit preview acceptance, production-browser acceptance, actual archived-v1 cutover acceptance, exact-current-main guard, Pages deployment, hosted-byte verification and hosted-browser verification. The hosted bundle contains all 13 explicitly referenced Palomar sequence frames.
 
-No permanent sample sequence was added to canonical content for testing; Gear/KB/Catch counts remain 69 / 56 / 5 and the hosted file count remains 214.
+FISH096 remains the implemented sequence capability; FISH097 is the first canonical real-Knot activation of that capability. Palomar now has the requested shortened description, exact package Markdown body, representative `KB/Knots/assets/knot-palomar/step-13.png` with caption `Palomar knot`, and ordered `pictureSequence` references from `step-01.png` through `step-13.png`.
 
 ## Operating mode
 
@@ -58,12 +58,12 @@ The retired Planner, Trip History/Sessions, paired-setup structures and old v1-o
 
 All seven originally required missing pictures from the v2 cutover have since been resolved. The historically optional generic inline-spinner now has the user-supplied Kingforest picture. Current source includes the later validated location pictures, Trout Fishing picture, Topwater Fishing and Bass Fishing Technique records, and all other post-cutover canonical authoring changes already merged before FISH096.
 
-The user has also uploaded 13 Palomar step frames at `KB/Knots/assets/knot-palomar/step-01.png` through `step-13.png`. Those bytes are preserved on current `main`, but the Palomar KB record does **not** yet explicitly reference them as a `pictureSequence`. Accordingly they are unreferenced source assets, are not included in the current published release, and must not be treated as an active Palomar sequence until an explicit authoring request/package updates the record.
+The 13 Palomar step frames at `KB/Knots/assets/knot-palomar/step-01.png` through `step-13.png` are now explicitly referenced by the canonical `knot-palomar` record and are included in the verified production release. `step-13.png` is the representative picture and all 13 frames are part of explicit offline-library preparation.
 
 The canonical PWA icon is `pwa/icon.png`. Historical filenames/bytes remain in Git history only as recovery evidence.
 
 ## Continuation
 
-FISH071–076, FISH078–096 are complete except FISH077/P2, which remains deferred. Existing fishing/equipment/content backlog and purchase uncertainty remain active in `Fishing_TODO.md`. The next unused canonical task ID is **FISH-TODO-097**.
+FISH071–076, FISH078–097 are complete except FISH077/P2, which remains deferred. Existing fishing/equipment/content backlog and purchase uncertainty remain active in `Fishing_TODO.md`. The next unused canonical task ID is **FISH-TODO-098**.
 
 For a new chat, read `README.md`, this file, `Fishing_TODO.md`, `Fishing_Decision_Log.md`, then `Fishing_New_Chat_Bootstrap_Prompt.md`. Historical release/migration evidence remains in Git history and `pwa/docs/`; do not restart completed FISH096 release work.

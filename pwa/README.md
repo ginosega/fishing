@@ -4,17 +4,19 @@ Fishing Companion is the active v2 PWA published at https://ginosega.github.io/f
 
 ## Current verified production — September 12, 2026
 
-FISH096 is live through [PR109](https://github.com/ginosega/fishing/pull/109). The feature originally shipped at source `0782d1fd6ff9a176d94132c4dc962589b9480e32`, release `23f6839d69df2018aed54fa6d3fc70d4`.
+FISH097 is live through [PR112](https://github.com/ginosega/fishing/pull/112), activating the existing FISH096 sequence capability for the canonical Palomar Knot using the 13 previously uploaded frames. Package validation [run 34723150221](https://github.com/ginosega/fishing/actions/runs/34723150221) verified the source-aware bases and all 13 exact image byte counts/SHA-256 hashes before promotion.
 
-Current production later advanced through the user's direct upload of 13 Palomar source frames:
+Current production:
 
-- source: `7d43898d1c8e59ec87fcc8913e45c1df01957fd1`
-- release: `921777f82c4216eccfb26d17e1043a57`
-- production workflow: [run 34717459805](https://github.com/ginosega/fishing/actions/runs/34717459805)
-- hosted v2 files: 214
-- hosted-verification artifact: `10305581445`
+- source: `934d70bdd669180479f8c5a71c5e1050d2dbf56d`
+- release: `696737730abf20323e5f308739aa14c4`
+- production workflow: [run 34723495195](https://github.com/ginosega/fishing/actions/runs/34723495195)
+- hosted v2 files: 227
+- hosted-verification artifact: `10306962337`
 
-The current deployment passed complete source/core validation, Chromium/WebKit preview and production acceptance, archived-v1 cutover acceptance, exact-current-main guard, Pages deployment, hosted-byte verification and hosted-browser verification. The uploaded Palomar frames remain unreferenced source assets and are not included in the published manifest until canonical KB data explicitly references them as a sequence. See [FISH096 production closeout](docs/FISH096_Production_Closeout_2026-09-12.md).
+The deployment passed complete source/core validation, Chromium/WebKit preview and production acceptance, archived-v1 cutover acceptance, exact-current-main guard, Pages deployment, hosted-byte verification and hosted-browser verification. The published manifest now includes all 13 Palomar frames. Palomar uses `step-13.png` as representative `picture.src`, caption `Palomar knot`, and explicit ordered `pictureSequence` references from `step-01.png` through `step-13.png`.
+
+FISH096 remains the underlying production sequence feature; see [FISH096 production closeout](docs/FISH096_Production_Closeout_2026-09-12.md).
 
 ## Directory layout
 

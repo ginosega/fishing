@@ -34,7 +34,7 @@ FISH096 does not change this decision.
 
 **Decision/status:** DONE and production-verified. Requirements and design were separately approved before implementation. [PR109](https://github.com/ginosega/fishing/pull/109) originally shipped the feature as production source `0782d1fd6ff9a176d94132c4dc962589b9480e32`, release `23f6839d69df2018aed54fa6d3fc70d4`, [run 34716722379](https://github.com/ginosega/fishing/actions/runs/34716722379), with 214 hosted v2 files. Full feature closeout: `pwa/docs/FISH096_Production_Closeout_2026-09-12.md`.
 
-Current production later advanced to source `7d43898d1c8e59ec87fcc8913e45c1df01957fd1`, release `921777f82c4216eccfb26d17e1043a57`, [run 34717459805](https://github.com/ginosega/fishing/actions/runs/34717459805), artifact `10305581445`, after the user uploaded 13 Palomar step images. Those files are deliberately not treated as a sequence merely because they exist in `KB/Knots/assets/`; until the Palomar KB record explicitly references the ordered frames, they remain unreferenced source assets and are not included in the published release manifest. This confirms the durable rule that repository directory contents never define a sequence by themselves.
+After FISH096, the user uploaded 13 Palomar step images without yet changing canonical KB data. They correctly remained unreferenced and unpublished until FISH097 supplied an explicit source-aware package. This remains the durable proof that repository directory contents never define a sequence by themselves.
 
 Durable decisions:
 
@@ -58,6 +58,14 @@ Durable decisions:
 - the P1 handoff explicitly carries sequence intent, ordered paths and selected-file hashes; it remains Prepare/Copy only;
 - FISH091 explicit complete-library preparation includes every referenced sequence frame and retains its existing fallback/atomicity guarantees.
 
+## FISH097 — Palomar sequence package activation
+
+**Decision/status:** DONE and production-verified. The explicit user-supplied `fishing-companion-change-v2` package for `knot-palomar` was applied through [PR112](https://github.com/ginosega/fishing/pull/112). Branch validation [run 34723150221](https://github.com/ginosega/fishing/actions/runs/34723150221) confirmed the current record fingerprint/base fields and notes base hash and recomputed all 13 image byte counts/SHA-256 hashes exactly before promotion.
+
+The package is authoritative for this content change: Palomar description is `Strong, simple knot for braid, fluoro, or mono`; the Markdown body is the exact submitted body; `picture.src` is `KB/Knots/assets/knot-palomar/step-13.png` with caption `Palomar knot`; and `pictureSequence` explicitly orders `step-01.png` through `step-13.png`. No unrelated canonical content or application architecture changed.
+
+Current production source is `934d70bdd669180479f8c5a71c5e1050d2dbf56d`, release `696737730abf20323e5f308739aa14c4`, [run 34723495195](https://github.com/ginosega/fishing/actions/runs/34723495195), 227 hosted v2 files, hosted-verification artifact `10306962337`. Full CI, exact-current-main deployment, hosted-byte verification and hosted-browser verification passed. All 13 frames are now release-manifest content and participate in FISH091 explicit offline-library preparation.
+
 ## Deferred P2 boundary
 
 **Decision:** FISH-TODO-077/P2 remains **DEFERRED**. Authentication, Direct Save, integrated GitHub upload, offline authoring, outbox/sync, Catch authoring and multi-user generalization are not implemented or implicitly authorized by FISH096.
@@ -70,4 +78,4 @@ The canonical application icon is `pwa/icon.png`. Historical icon names/bytes an
 
 ## Open work
 
-FISH071–076 and FISH078–096 are complete; FISH077/P2 remains deferred. The canonical TODO preserves active fishing/gear/content research and purchase uncertainty, including unresolved PowerBait hook-size and loop-knot guidance questions. The next unused canonical task ID is **FISH-TODO-097**.
+FISH071–076 and FISH078–097 are complete; FISH077/P2 remains deferred. The canonical TODO preserves active fishing/gear/content research and purchase uncertainty, including unresolved PowerBait hook-size and loop-knot guidance questions. The next unused canonical task ID is **FISH-TODO-098**.
