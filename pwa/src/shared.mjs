@@ -6,8 +6,7 @@ export const DOMAIN = {
 };
 export const GEAR_CATEGORIES = [
   ['rods-reels','Rods & Reels','Rods-Reels'],['line','Line','Line'],
-  ['weights','Weights','Weights'],['snaps-swivels','Snaps & Swivels','Snaps-Swivels'],
-  ['hooks','Hooks','Hooks'],['lures','Lures','Lures'],['bait','Bait','Bait'],
+  ['weights','Weights','Weights'],['snaps-swivels','Snaps & Swivels','Snaps-Swivels'],['hooks','Hooks','Hooks'],['lures','Lures','Lures'],['bait','Bait','Bait'],
   ['accessories','Equipment','Equipment']
 ];
 export const KB_TYPES = [
@@ -30,6 +29,8 @@ export function safePath(value) {
 function BufferByteLength(text) {return new TextEncoder().encode(text).length;}
 export function pathKey(path) {return safePath(path).normalize('NFKC').toLowerCase();}
 export function encodedPath(path) {return safePath(path).split('/').map(encodeURIComponent).join('/');}
+export function sequenceFolder(record){assert(record?.id&&ID_PATTERN.test(record.id),'Valid Knot ID required for sequence path');return safePath(`KB/Knots/assets/${record.id}`);}
+export function sequencePicturePath(record,filename){return safePath(`${sequenceFolder(record)}/${filename}`);}
 export function localDateValid(date) {if(!/^\d{4}-\d{2}-\d{2}$/.test(date))return false; const [y,m,d]=date.split('-').map(Number);const v=new Date(Date.UTC(y,m-1,d));return v.getUTCFullYear()===y&&v.getUTCMonth()===m-1&&v.getUTCDate()===d;}
 export function canonical(value) {
   if (value===undefined) return 'undefined';
@@ -44,6 +45,20 @@ export async function sha256(value) {
 }
 export async function fingerprint(value) {return sha256(canonical(value));}
 export function assert(condition,message) {if(!condition)throw new Error(message);}
+function validatePictureSequence(record,domain){
+  if(record.pictureSequence===undefined)return;
+  assert(domain==='kb'&&record.type==='knot',`Picture sequence is Knot-only: ${record.id}`);
+  assert(record.picture&&typeof record.picture.src==='string',`Picture sequence requires representative picture: ${record.id}`);
+  assert(Array.isArray(record.pictureSequence)&&record.pictureSequence.length>=2,`Picture sequence requires at least two frames: ${record.id}`);
+  const folder=sequenceFolder(record)+'/',seen=new Set();
+  record.pictureSequence.forEach((raw,index)=>{
+    const file=safePath(raw);assert(file.startsWith(folder)&&!file.slice(folder.length).includes('/'),`Invalid sequence folder: ${file}`);
+    const basename=file.slice(folder.length),match=/^step-(\d+)\.(jpe?g|png|webp|gif)$/i.exec(basename);assert(match,`Invalid sequence filename: ${file}`);
+    const expected=String(index+1).padStart(2,'0');assert(match[1]===expected,`Noncontiguous sequence frame: expected step-${expected}, got ${basename}`);
+    const key=pathKey(file);assert(!seen.has(key),`Duplicate sequence frame: ${file}`);seen.add(key);
+  });
+  assert(record.picture.src===record.pictureSequence.at(-1),`Representative picture must be final sequence frame: ${record.id}`);
+}
 export function validateSemantics(data, taxonomy={}) {
   const maps={};
   for(const [domain,config] of Object.entries(DOMAIN)) {
@@ -61,6 +76,7 @@ export function validateSemantics(data, taxonomy={}) {
       if(domain==='catches')assert(localDateValid(r.date),`Invalid Catch date: ${r.id}`);
       for(const key of ['notes','content'])if(r[key])safePath(r[key]);
       if(r.picture)safePath(r.picture.src);
+      validatePictureSequence(r,domain);
       for(const link of r.links||[]) {const url=new URL(link.url);assert(['http:','https:'].includes(url.protocol),`Unsafe link: ${r.id}`);}
     }
   }
