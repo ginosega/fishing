@@ -29,7 +29,7 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
  const dirty=()=>serialize(record)!==original||body!==initialBody||mediaAction!=='keep';
  function changed(){prepared=null;output.replaceChildren();onDirty?.(dirty());}
  function update(fieldName,value){optional(record,fieldName,value);changed();}
- function revokeLocal(){if(previewUrl){URL.revokeObjectURL(previewUrl);previewUrl=null;}for(const url of sequenceUrls)URL.revokeObjectURL(url);sequenceUrls=[];fileInfo=null;sequenceInfos=[];fileInput.value='';}
+ function revokeLocal(clearInput=true){if(previewUrl){URL.revokeObjectURL(previewUrl);previewUrl=null;}for(const url of sequenceUrls)URL.revokeObjectURL(url);sequenceUrls=[];fileInfo=null;sequenceInfos=[];if(clearInput)fileInput.value='';}
  function recalcSequencePaths(){if(!sequenceInfos.length||!ID_PATTERN.test(record.id))return;for(const info of sequenceInfos)info.path=sequencePicturePath(record,info.name);record.pictureSequence=sequenceInfos.map(x=>x.path);picturePathInput.value=record.pictureSequence.at(-1);record.picture={src:picturePathInput.value,...(captionInput.value?{caption:captionInput.value}:{})};}
  function control(label,value,change,options={}){const c=input(value,options);c.addEventListener('input',()=>change(c.value));return field(label,c,options.hint||'');}
  function requiredControl(label,keyName,options={}){const c=input(record[keyName]||'',{required:true,maxlength:160,...options});c.addEventListener('input',()=>{record[keyName]=c.value;if(keyName==='name'&&!editing&&!idTouched){record.id=newId(c.value,new Set(ctx.data[domain][DOMAIN[domain].array].map(x=>x.id)));idInput.value=record.id;recalcSequencePaths();renderPicture();}changed();});return field(label,c);}
@@ -57,7 +57,7 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
 
  const pictureHost=el('div',{class:'picture-editor'}),pictureInfo=el('div',{}),fileInput=el('input',{type:'file',accept:acceptedImages}),picturePathInput=input(record.picture?.src||'',{placeholder:'Repository-relative picture path'}),captionInput=input(record.picture?.caption||'',{maxlength:1000}),pictureSelect=select([],mediaAction,()=>{mediaAction=pictureSelect.value;revokeLocal();applyAction();renderActionOptions(false);renderPicture();changed();});
  function actionOptions(){
-  const hasSequence=Boolean(record.pictureSequence?.length||baseRecord?.pictureSequence?.length||SEQUENCE_ACTIONS.has(mediaAction));
+  const hasSequence=Boolean(record.pictureSequence?.length||baseRecord?.pictureSequence?.length);
   const hasPicture=Boolean(record.picture||baseRecord?.picture);
   if(hasSequence){
    if(domain==='kb'&&record.type==='knot')return [['keep','Keep current sequence'],['replace-sequence','Replace step-by-step sequence'],['replace-with-static','Replace with single picture'],['remove-sequence-keep-picture','Remove sequence, keep representative picture'],['remove-picture','Remove picture']];
@@ -89,7 +89,7 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
   try{
    if(SEQUENCE_ACTIONS.has(mediaAction)){
     const files=orderedSequenceFiles(fileInput.files||[]),infos=[];for(const file of files){const info=await validateBrowserImage(file);infos.push({...info,file,name:file.name,path:sequencePicturePath(record,file.name)});}
-    revokeLocal();sequenceInfos=infos;sequenceUrls=files.map(file=>URL.createObjectURL(file));fileInput.files&&void 0;record.pictureSequence=sequenceInfos.map(x=>x.path);picturePathInput.value=record.pictureSequence.at(-1);record.picture={src:picturePathInput.value,...(captionInput.value?{caption:captionInput.value}:{})};renderPicture();changed();return;
+    revokeLocal(false);sequenceInfos=infos;sequenceUrls=files.map(file=>URL.createObjectURL(file));record.pictureSequence=sequenceInfos.map(x=>x.path);picturePathInput.value=record.pictureSequence.at(-1);record.picture={src:picturePathInput.value,...(captionInput.value?{caption:captionInput.value}:{})};renderPicture();changed();return;
    }
    const file=fileInput.files?.[0];if(!file)return;fileInfo=await validateBrowserImage(file);if(previewUrl)URL.revokeObjectURL(previewUrl);previewUrl=URL.createObjectURL(file);picturePathInput.value=picturePath(domain,record,file.name);record.picture={src:picturePathInput.value,...(captionInput.value?{caption:captionInput.value}:{})};if(mediaAction==='replace-with-static')delete record.pictureSequence;renderPicture();changed();
   }catch(error){fileInput.value='';revokeLocal();status(notice,error.message,'error');renderPicture();}
