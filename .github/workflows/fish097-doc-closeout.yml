@@ -1,0 +1,108 @@
+name: FISH097 Documentation Closeout
+
+on:
+  push:
+    branches:
+      - docs/fish097-closeout
+    paths:
+      - .github/workflows/fish097-doc-closeout.yml
+
+permissions:
+  contents: write
+
+jobs:
+  reconcile:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: docs/fish097-closeout
+          fetch-depth: 0
+      - name: Reconcile FISH097 project records
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import pathlib, re
+
+          root = pathlib.Path('.')
+          workflow = root / '.github/workflows/fish097-doc-closeout.yml'
+
+          SOURCE='934d70bdd669180479f8c5a71c5e1050d2dbf56d'
+          RELEASE='696737730abf20323e5f308739aa14c4'
+          RUN='34723495195'
+          ARTIFACT='10306962337'
+          VALIDATION_RUN='34723150221'
+          PR='112'
+
+          def read(path): return (root/path).read_text(encoding='utf-8')
+          def write(path, text): (root/path).write_text(text, encoding='utf-8', newline='')
+          def sub1(text, pattern, repl, label, flags=0):
+              out, n = re.subn(pattern, repl, text, count=1, flags=flags)
+              assert n == 1, f'{label}: expected one match, got {n}'
+              return out
+
+          # README.md
+          p='README.md'; t=read(p)
+          section=f'''## Current production — September 12, 2026\n\nFISH-TODO-097 is **DONE / production-verified**. The user-supplied `fishing-companion-change-v2` package for `knot-palomar` was validated against current source and applied in [PR{PR}](https://github.com/ginosega/fishing/pull/{PR}). Branch validation [run {VALIDATION_RUN}](https://github.com/ginosega/fishing/actions/runs/{VALIDATION_RUN}) confirmed the package record/notes bases and recomputed all 13 pre-uploaded PNG byte counts and SHA-256 hashes before promotion.\n\nCurrent verified production:\n\n- site: https://ginosega.github.io/fishing/\n- source: `{SOURCE}`\n- release: `{RELEASE}`\n- production workflow: [run {RUN}](https://github.com/ginosega/fishing/actions/runs/{RUN})\n- hosted v2 files: **227**\n- hosted-verification artifact: `{ARTIFACT}`\n\nThe production run passed source/core validation, Chromium/WebKit preview and production acceptance, archived-v1 cutover acceptance, exact-current-main protection, Pages deployment, all hosted-byte comparisons and hosted browser verification. The production archive contains all 13 Palomar sequence frames.\n\nPalomar is now an active step-by-step Knot sequence: `pictureSequence` explicitly references `step-01.png` through `step-13.png`, `step-13.png` is the representative `picture.src`, and the caption is `Palomar knot`. The package also applied the requested description and Markdown changes exactly. Directory contents alone still never create a sequence; FISH097 activated these already-uploaded frames through explicit canonical record references.\n\nSee [FISH096 production closeout](pwa/docs/FISH096_Production_Closeout_2026-09-12.md) for the underlying sequence-feature release record.\n\n'''
+          t=sub1(t,r'## Current production — September 12, 2026\n\n.*?(?=## Current product behavior)',section,'README current production',re.S)
+          t=t.replace('Preserve unresolved fishing/equipment/content backlog and explicit purchase uncertainty. The next unused canonical task ID is **FISH-TODO-097**.', 'Preserve unresolved fishing/equipment/content backlog and explicit purchase uncertainty. The next unused canonical task ID is **FISH-TODO-098**.')
+          generic='FISH096 adds optional Knot-only ordered `pictureSequence` support. Sequence frames are explicit structured references under `KB/Knots/assets/<knot-id>/`; the final frame is also the canonical representative `picture.src`. Normal browsing loads only that representative frame. The sequence viewer opens at frame 1 with Previous / Play-Pause / Next / Close, one-second looping playback, frame position, keyboard controls and existing zoom/pan gestures. Add/Edit supports complete multi-file sequence selection and static↔sequence conversion within the existing Picture section. Prepare/Copy remains a source-aware handoff, not Direct Save.'
+          t=t.replace(generic, generic+'\n\nFISH097 applies that capability to Palomar with 13 explicit frames (`step-01.png` through `step-13.png`), representative `step-13.png`, and caption `Palomar knot`.')
+          write(p,t)
+
+          # Fishing_Context.md
+          p='Fishing_Context.md'; t=read(p)
+          section=f'''## Current authoritative state — September 12, 2026\n\nFISH-TODO-097 is **DONE / production-verified**. The user-supplied Palomar `fishing-companion-change-v2` edit package was validated and applied through [PR{PR}](https://github.com/ginosega/fishing/pull/{PR}). Validation [run {VALIDATION_RUN}](https://github.com/ginosega/fishing/actions/runs/{VALIDATION_RUN}) confirmed the stale-base safety checks and recomputed all 13 pre-uploaded Palomar PNG byte counts and SHA-256 hashes exactly before canonical promotion.\n\nCurrent verified production:\n\n- source `{SOURCE}`\n- release `{RELEASE}`\n- [workflow run {RUN}](https://github.com/ginosega/fishing/actions/runs/{RUN})\n- 227 hosted v2 files\n- hosted-verification artifact `{ARTIFACT}`\n\nThat production run passed source/core validation, Chromium/WebKit preview acceptance, production-browser acceptance, actual archived-v1 cutover acceptance, exact-current-main guard, Pages deployment, hosted-byte verification and hosted-browser verification. The hosted bundle contains all 13 explicitly referenced Palomar sequence frames.\n\nFISH096 remains the implemented sequence capability; FISH097 is the first canonical real-Knot activation of that capability. Palomar now has the requested shortened description, exact package Markdown body, representative `KB/Knots/assets/knot-palomar/step-13.png` with caption `Palomar knot`, and ordered `pictureSequence` references from `step-01.png` through `step-13.png`.\n\n'''
+          t=sub1(t,r'## Current authoritative state — September 12, 2026\n\n.*?(?=## Operating mode)',section,'Context current state',re.S)
+          old='The user has also uploaded 13 Palomar step frames at `KB/Knots/assets/knot-palomar/step-01.png` through `step-13.png`. Those bytes are preserved on current `main`, but the Palomar KB record does **not** yet explicitly reference them as a `pictureSequence`. Accordingly they are unreferenced source assets, are not included in the current published release, and must not be treated as an active Palomar sequence until an explicit authoring request/package updates the record.'
+          new='The 13 Palomar step frames at `KB/Knots/assets/knot-palomar/step-01.png` through `step-13.png` are now explicitly referenced by the canonical `knot-palomar` record and are included in the verified production release. `step-13.png` is the representative picture and all 13 frames are part of explicit offline-library preparation.'
+          assert old in t, 'Context Palomar paragraph not found'; t=t.replace(old,new,1)
+          t=t.replace('FISH071–076, FISH078–096 are complete except FISH077/P2, which remains deferred.', 'FISH071–076, FISH078–097 are complete except FISH077/P2, which remains deferred.')
+          t=t.replace('The next unused canonical task ID is **FISH-TODO-097**.', 'The next unused canonical task ID is **FISH-TODO-098**.')
+          write(p,t)
+
+          # Fishing_TODO.md
+          p='Fishing_TODO.md'; t=read(p)
+          section=f'''## Current project task state — September 12, 2026\n\n**FISH-TODO-097 — DONE / production-verified.** The user-supplied `knot-palomar` `fishing-companion-change-v2` package was validated and applied in [PR{PR}](https://github.com/ginosega/fishing/pull/{PR}). Branch validation [run {VALIDATION_RUN}](https://github.com/ginosega/fishing/actions/runs/{VALIDATION_RUN}) verified the package record hash/base fields, notes base SHA-256, absent picture/sequence bases, and all 13 pre-uploaded image byte counts/SHA-256 hashes before promotion.\n\nThe package changed only the requested Palomar canonical record/content: description `Strong, simple knot for braid, fluoro, or mono`; exact replacement Markdown; representative `step-13.png` with caption `Palomar knot`; and ordered `pictureSequence` references `step-01.png` through `step-13.png`.\n\nCurrent verified production is source `{SOURCE}`, release `{RELEASE}`, [run {RUN}](https://github.com/ginosega/fishing/actions/runs/{RUN}), with **227 hosted v2 files** and hosted-verification artifact `{ARTIFACT}`. The deployment passed the full source/core, Chromium/WebKit, archived-v1 cutover, exact-current-main, Pages, hosted-byte and hosted-browser gates. All 13 Palomar frames are now published/release-manifest content and participate in explicit offline-library preparation.\n\nFISH-TODO-077/P2 remains **DEFERRED**. Authentication, Direct Save, integrated uploads, offline authoring, outbox/sync and Catch authoring are not part of current production.\n\nThe next unused canonical task ID is **FISH-TODO-098**.\n\n'''
+          t=sub1(t,r'## Current project task state — September 12, 2026\n\n.*?(?=## Completed/superseded application work)',section,'TODO current state',re.S)
+          t=t.replace('FISH071–076 and FISH078–096 are complete.', 'FISH071–076 and FISH078–097 are complete.')
+          t=t.replace('For new application work, allocate **FISH-TODO-097** unless a newer task has already been created on current `main`.', 'For new application work, allocate **FISH-TODO-098** unless a newer task has already been created on current `main`.')
+          write(p,t)
+
+          # Fishing_Decision_Log.md
+          p='Fishing_Decision_Log.md'; t=read(p)
+          old='Current production later advanced to source `7d43898d1c8e59ec87fcc8913e45c1df01957fd1`, release `921777f82c4216eccfb26d17e1043a57`, [run 34717459805](https://github.com/ginosega/fishing/actions/runs/34717459805), artifact `10305581445`, after the user uploaded 13 Palomar step images. Those files are deliberately not treated as a sequence merely because they exist in `KB/Knots/assets/`; until the Palomar KB record explicitly references the ordered frames, they remain unreferenced source assets and are not included in the published release manifest. This confirms the durable rule that repository directory contents never define a sequence by themselves.'
+          new='After FISH096, the user uploaded 13 Palomar step images without yet changing canonical KB data. They correctly remained unreferenced and unpublished until FISH097 supplied an explicit source-aware package. This remains the durable proof that repository directory contents never define a sequence by themselves.'
+          assert old in t, 'Decision FISH096 Palomar history not found'; t=t.replace(old,new,1)
+          anchor='## Deferred P2 boundary\n'
+          fish097=f'''## FISH097 — Palomar sequence package activation\n\n**Decision/status:** DONE and production-verified. The explicit user-supplied `fishing-companion-change-v2` package for `knot-palomar` was applied through [PR{PR}](https://github.com/ginosega/fishing/pull/{PR}). Branch validation [run {VALIDATION_RUN}](https://github.com/ginosega/fishing/actions/runs/{VALIDATION_RUN}) confirmed the current record fingerprint/base fields and notes base hash and recomputed all 13 image byte counts/SHA-256 hashes exactly before promotion.\n\nThe package is authoritative for this content change: Palomar description is `Strong, simple knot for braid, fluoro, or mono`; the Markdown body is the exact submitted body; `picture.src` is `KB/Knots/assets/knot-palomar/step-13.png` with caption `Palomar knot`; and `pictureSequence` explicitly orders `step-01.png` through `step-13.png`. No unrelated canonical content or application architecture changed.\n\nCurrent production source is `{SOURCE}`, release `{RELEASE}`, [run {RUN}](https://github.com/ginosega/fishing/actions/runs/{RUN}), 227 hosted v2 files, hosted-verification artifact `{ARTIFACT}`. Full CI, exact-current-main deployment, hosted-byte verification and hosted-browser verification passed. All 13 frames are now release-manifest content and participate in FISH091 explicit offline-library preparation.\n\n'''
+          assert anchor in t, 'Decision deferred anchor missing'; t=t.replace(anchor,fish097+anchor,1)
+          t=t.replace('FISH071–076 and FISH078–096 are complete; FISH077/P2 remains deferred.', 'FISH071–076 and FISH078–097 are complete; FISH077/P2 remains deferred.')
+          t=t.replace('The next unused canonical task ID is **FISH-TODO-097**.', 'The next unused canonical task ID is **FISH-TODO-098**.')
+          write(p,t)
+
+          # Fishing_New_Chat_Bootstrap_Prompt.md
+          p='Fishing_New_Chat_Bootstrap_Prompt.md'; t=read(p)
+          section=f'''## Current production continuation point — September 12, 2026\n\nFISH-TODO-097 is **DONE / production-verified**. The explicit user-supplied Palomar change package was validated and applied through [PR{PR}](https://github.com/ginosega/fishing/pull/{PR}); branch validation [run {VALIDATION_RUN}](https://github.com/ginosega/fishing/actions/runs/{VALIDATION_RUN}) recomputed all 13 pre-uploaded PNG byte counts/SHA-256 hashes and validated the source-aware package bases before promotion.\n\nCurrent verified production:\n\n- source: `{SOURCE}`\n- release: `{RELEASE}`\n- production workflow: [run {RUN}](https://github.com/ginosega/fishing/actions/runs/{RUN})\n- hosted v2 files: 227\n- hosted-verification artifact: `{ARTIFACT}`\n- site: https://ginosega.github.io/fishing/\n\nPalomar is now an active 13-frame step-by-step sequence in canonical KB data. Its ordered `pictureSequence` is `step-01.png` through `step-13.png`; `step-13.png` is the representative `picture.src`; caption is `Palomar knot`; and the submitted description/Markdown changes are applied. Do not revert to the former unreferenced-frame state.\n\nThe production run passed source/core validation, Chromium/WebKit preview and production acceptance, actual archived-v1 cutover acceptance, exact-current-main deployment protection, Pages deployment, hosted-byte verification and hosted-browser verification. The deployed release contains all 13 Palomar frames.\n\nDo **not** restart FISH096 or FISH097 implementation/deployment work.\n\n'''
+          t=sub1(t,r'## Current production continuation point — September 12, 2026\n\n.*?(?=## Current durable behavior)',section,'Bootstrap current production',re.S)
+          t=t.replace('FISH071–076 and FISH078–096 are complete.', 'FISH071–076 and FISH078–097 are complete.')
+          t=t.replace('The next unused canonical task ID is **FISH-TODO-097** unless actual newer `main` has already allocated it.', 'The next unused canonical task ID is **FISH-TODO-098** unless actual newer `main` has already allocated it.')
+          write(p,t)
+
+          # pwa/README.md
+          p='pwa/README.md'; t=read(p)
+          section=f'''## Current verified production — September 12, 2026\n\nFISH097 is live through [PR{PR}](https://github.com/ginosega/fishing/pull/{PR}), activating the existing FISH096 sequence capability for the canonical Palomar Knot using the 13 previously uploaded frames. Package validation [run {VALIDATION_RUN}](https://github.com/ginosega/fishing/actions/runs/{VALIDATION_RUN}) verified the source-aware bases and all 13 exact image byte counts/SHA-256 hashes before promotion.\n\nCurrent production:\n\n- source: `{SOURCE}`\n- release: `{RELEASE}`\n- production workflow: [run {RUN}](https://github.com/ginosega/fishing/actions/runs/{RUN})\n- hosted v2 files: 227\n- hosted-verification artifact: `{ARTIFACT}`\n\nThe deployment passed complete source/core validation, Chromium/WebKit preview and production acceptance, archived-v1 cutover acceptance, exact-current-main guard, Pages deployment, hosted-byte verification and hosted-browser verification. The published manifest now includes all 13 Palomar frames. Palomar uses `step-13.png` as representative `picture.src`, caption `Palomar knot`, and explicit ordered `pictureSequence` references from `step-01.png` through `step-13.png`.\n\nFISH096 remains the underlying production sequence feature; see [FISH096 production closeout](docs/FISH096_Production_Closeout_2026-09-12.md).\n\n'''
+          t=sub1(t,r'## Current verified production — September 12, 2026\n\n.*?(?=## Directory layout)',section,'PWA README current production',re.S)
+          write(p,t)
+
+          workflow.unlink()
+          print('Reconciled FISH097 current-state records; next unused ID FISH-TODO-098.')
+          PY
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md Fishing_Context.md Fishing_TODO.md Fishing_Decision_Log.md Fishing_New_Chat_Bootstrap_Prompt.md pwa/README.md .github/workflows/fish097-doc-closeout.yml
+          git diff --cached --check
+          git commit -m "Docs: Close out FISH097 Palomar sequence release"
+          git push origin HEAD:docs/fish097-closeout
