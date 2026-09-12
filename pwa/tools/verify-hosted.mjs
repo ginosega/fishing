@@ -1,4 +1,4 @@
-// Actual HTTP bytes and browser acceptance for a deployed combined preview.
+// Actual HTTP bytes and browser acceptance for deployed Fishing Companion releases.
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import assert from 'node:assert/strict';
@@ -24,16 +24,26 @@ try{
  const context=await browser.newContext();const page=await context.newPage();
  if(!production){await page.goto(root);await page.getByRole('button',{name:/My Gear Browse/}).waitFor();await page.getByRole('button',{name:/My Gear Browse/}).click();await page.getByRole('button',{name:'Rods & Reels',exact:true}).waitFor();}
  await page.goto(preview);await page.waitForFunction(id=>window.__FISHING_V2__?.releaseId===id,pointer.id,{timeout:180000});
+ // FISH091: a clean online visit must be usable without provisioning a complete cache.
  await page.getByRole('button',{name:'Connection status',exact:true}).click();
- await page.locator('#offline-status[data-state="Ready"]').waitFor({timeout:180000});
+ await page.locator('#offline-status[data-state="Incomplete"]').waitFor({timeout:30000});
+ assert.match(await page.locator('#offline-status').innerText(),/not prepared/i);
+ assert.equal(await page.getByRole('button',{name:'Update offline library',exact:true}).isEnabled(),true);
  await page.locator('#connection-close').click();
+ const completeBefore=await page.evaluate(async()=>{let count=0;for(const name of await caches.keys()){if(!name.startsWith('fishing-v2:'))continue;const cache=await caches.open(name);if(await cache.match(new URL('__fishing_complete__',location.href)))count++;}return count;});
+ assert.equal(completeBefore,0,'Clean online visit unexpectedly prepared a complete offline library');
  assert.equal(await page.evaluate(async()=>new URL((await navigator.serviceWorker.getRegistration()).scope).pathname),production?'/fishing/':'/fishing/v2-preview/');
  assert.deepEqual(await page.evaluate(()=>window.__FISHING_V2__.counts),{gear:69,kb:56,catches:5});
  await page.goto(preview+'#/inventory/item/bonafide-rvr119');await page.locator('.markdown-body').waitFor();
  const image=page.locator('#app img').first();await image.evaluate(async img=>{await img.decode();if(!img.naturalWidth)throw Error('Picture did not decode');});
  await page.getByRole('button',{name:/Enlarge/}).click();await page.getByRole('dialog',{name:'Image viewer'}).waitFor();await page.getByRole('dialog').getByRole('button',{name:'Close',exact:true}).last().click();
+ // Explicit user action is the only point at which the complete library is prepared.
+ await page.getByRole('button',{name:'Connection status',exact:true}).click();await page.getByRole('button',{name:'Update offline library',exact:true}).click();
+ await page.locator('#offline-status[data-state="Ready"]').waitFor({timeout:180000});await page.locator('#connection-close').click();
+ const completeAfter=await page.evaluate(async()=>{let count=0;for(const name of await caches.keys()){if(!name.startsWith('fishing-v2:'))continue;const cache=await caches.open(name);if(await cache.match(new URL('__fishing_complete__',location.href)))count++;}return count;});assert.equal(completeAfter,1);
  await context.setOffline(true);await page.reload();await page.locator('.markdown-body').waitFor();assert.equal(await page.evaluate(()=>window.__FISHING_V2__.releaseId),pointer.id);await context.setOffline(false);
- if(production){assert.equal(await page.locator('#release-details').count(),0);assert.equal(pointer.pendingMedia,false);await page.goto(root+'#/kb/species-perch');await page.getByRole('heading',{name:'Yellow Perch',exact:true,level:1}).waitFor();await page.locator('.picture img').waitFor();assert.equal(await page.locator('.picture img').count(),1);assert.equal(await page.locator('.picture-empty').isVisible(),false);await page.goto(root+'#/catches');await page.getByRole('heading',{name:'Recorded catches',exact:true}).waitFor();assert.equal(await page.locator('.record-grid .nav-card').count(),5);await page.screenshot({path:'hosted-evidence/production-catches.png',fullPage:true});}else{await page.goto(root);await page.getByRole('button',{name:/My Gear Browse/}).waitFor();}report.browser=production?'production navigation, counts, image viewer, complete offline reload, absent pictures and no release diagnostics passed':'v1 navigation, preview with existing root worker, image viewer, complete offline reload, return to v1 passed';
+ if(production){assert.equal(await page.locator('#release-details').count(),0);assert.equal(pointer.pendingMedia,false);await page.goto(root+'#/kb/species-perch');await page.getByRole('heading',{name:'Yellow Perch',exact:true,level:1}).waitFor();await page.locator('.picture img').waitFor();assert.equal(await page.locator('.picture img').count(),1);assert.equal(await page.locator('.picture-empty').isVisible(),false);await page.goto(root+'#/catches');await page.getByRole('heading',{name:'Recorded catches',exact:true}).waitFor();assert.equal(await page.locator('.record-grid .nav-card').count(),5);await page.screenshot({path:'hosted-evidence/production-catches.png',fullPage:true});}else{await page.goto(root);await page.getByRole('button',{name:/My Gear Browse/}).waitFor();}
+ report.browser=production?'production online-only default, explicit complete-library preparation, offline reload, navigation, counts, image viewer, absent pictures and no release diagnostics passed':'v1 navigation, preview online-only default, explicit complete-library preparation, offline reload and return to v1 passed';
  if(production){
   await page.goto(root);await page.locator('a[href="#/kb"]').waitFor();assert.equal(await page.locator('a[href="#/kb"] p').textContent(),'Fishing reference library');assert.equal(await page.locator('a[href="#/catches"] p').textContent(),'Recorded catches');
   const icon=await page.evaluate(async()=>await(await fetch('./manifest.webmanifest')).json());assert.equal(icon.icons[0].src,'./icon.png');
