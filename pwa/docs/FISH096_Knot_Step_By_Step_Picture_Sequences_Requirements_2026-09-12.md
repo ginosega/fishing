@@ -1,11 +1,12 @@
 # FISH096 — Knot Step-by-Step Picture Sequences
 
 **Document type:** Change request and requirements specification  
-**Status:** DRAFT FOR REQUIREMENTS REVIEW AND SIGNOFF  
+**Status:** APPROVED / IMPLEMENTED / PRODUCTION-VERIFIED  
 **Date:** September 12, 2026  
 **Repository:** `ginosega/fishing`  
 **Baseline:** `fee8fb1657df06ac1d74d324d153998aa03988a7`  
-**Implementation authorization:** **None.** This document does not authorize design, runtime, schema, build, or production changes.
+**Approval/outcome:** Approved as written including interpretations S1–S11; the design was separately approved; implementation, production deployment, hosted verification, and project-state closeout are complete. See `FISH096_Requirements_Approval_2026-09-12.md`, `FISH096_Design_Approval_2026-09-12.md`, and `FISH096_Production_Closeout_2026-09-12.md`.  
+**Historical gate note:** This requirements document did not itself authorize implementation when first reviewed; that gate was later satisfied by the separate design approval.
 
 ## 1. Change request
 
@@ -592,9 +593,9 @@ The later design must respect these constraints but may choose the implementatio
 9. Runtime directory scanning must not become the source of truth for sequence membership or ordering.
 10. The implementation must avoid unnecessary architecture outside the scope required for FISH096.
 
-## 17. Proposed clarifications requiring requirements signoff
+## 17. Clarifications approved at requirements signoff
 
-The following interpretations are proposed for explicit approval before design begins.
+The following interpretations were explicitly approved as S1–S11 before design began. Their reviewed wording is preserved below.
 
 ### S1 — Sequence filename convention
 
@@ -655,18 +656,8 @@ Manual Previous/Next does not wrap. Automatic Play loops. Existing zoom/pan gest
 
 **Proposed requirement interpretation:** whenever Add Entry or Edit Entry prepares a change package that adds or replaces a sequence, the clickable repository upload-location link shown with the prepared package must take the user directly to the sequence's `KB/Knots/assets/<knot-id>/` upload location. The design must support this direct destination whether that per-Knot folder already exists or is being created for the first sequence upload.
 
-## 18. Requirements signoff gate
+## 18. Requirements signoff gate — satisfied
 
-The FISH096 requirements phase is complete only after the user explicitly:
+The user explicitly approved this requirements document as written, including S1–S11, and authorized preparation of the separate FISH096 design document. That approval is recorded in `FISH096_Requirements_Approval_2026-09-12.md`.
 
-1. approves or revises the requirements in this document;
-2. resolves S1–S11 above; and
-3. authorizes preparation of the separate FISH096 design document.
-
-**Requirements approval alone does not authorize implementation.**
-
-After requirements signoff, the next phase is:
-
-**Design document → design review and explicit signoff → implementation/build/test → production deployment → hosted verification → project-state reconciliation.**
-
-No runtime, schema, build, authoring, or production change may begin until the design is separately approved.
+Requirements approval alone did not authorize implementation. The design was separately approved in `FISH096_Design_Approval_2026-09-12.md`; implementation, build/test, production deployment, hosted verification, and final project-state reconciliation then completed as recorded in `FISH096_Production_Closeout_2026-09-12.md`.
