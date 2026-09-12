@@ -1,5 +1,8 @@
 # FISH096 Implementation Notes — September 12, 2026
 
+**Status:** IMPLEMENTED / PRODUCTION-VERIFIED  
+**Final release record:** `FISH096_Production_Closeout_2026-09-12.md`
+
 Implementation follows the approved FISH096 requirements and design.
 
 ## Implemented surfaces
@@ -17,4 +20,4 @@ Implementation follows the approved FISH096 requirements and design.
 
 No FISH077/P2 capability is introduced. There is no Direct Save, integrated repository upload, outbox, sync, Catch authoring, generic gallery, per-frame captions, drag/drop ordering, speed selector, or autoplay-on-open.
 
-This file records implementation scope only; CI, production deployment, hosted verification, and project-state closeout are recorded separately when complete.
+CI, production deployment, hosted verification, and final project-state closeout are complete. The authoritative release evidence, production identities, acceptance history, and continuation state are recorded in `FISH096_Production_Closeout_2026-09-12.md` and the root project-state Markdown files.
