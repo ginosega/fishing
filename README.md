@@ -15,7 +15,7 @@ Source-derived regression expectations moved from KB 54 to KB 56 and from 104 to
 No schema, domain architecture, Catch behavior, P2/direct-save scope, or FISH091 implementation changed. FISH091 is **DONE / production-verified**; FISH077/P2 remains **DEFERRED**. All unrelated fishing/equipment/content backlog and purchase uncertainty remain preserved. The next unused canonical task ID is **FISH-TODO-096**. Chat remains the permanent default. This reconciliation is documentation-only and does not republish production release `168554f1b4fe274f0030d389a047fd12`.
 
 
-## FISH090–094 current production and project-state reconciliation — September 11, 2026
+## Historical FISH090–094 production and project-state snapshot — September 11, 2026
 
 Fishing Companion’s current deployed production source is `32759b83305e1dbb3818b676accb0aee3961ddf7`, release `a81d35da0db7b000ed031c17a9387de3`, verified by [production run 34645325275](https://github.com/ginosega/fishing/actions/runs/34645325275) after [PR99](https://github.com/ginosega/fishing/pull/99). The full source/core, preview- and production-scope Chromium/WebKit, archived-v1 cutover, exact-current-main Pages deployment, hosted-byte and hosted-browser gates passed; the hosted verifier reported 210 v2 files.
 
@@ -23,7 +23,7 @@ FISH090/[PR95](https://github.com/ginosega/fishing/pull/95) is DONE: Edit Gear c
 
 FISH094/[PR99](https://github.com/ginosega/fishing/pull/99) applied the validated Trout Fishing package only: description `Casting, bank-fishing, still-fishing, and kayak-trolling guidance`, picture `KB/Techniques/assets/Trout Fishing.png`, no invented caption, and Notes unchanged. The already-uploaded PNG was preserved byte-for-byte (1,867,783 bytes; SHA-256 `7f883a4d7d6bbc5dfba152414ac81513f5bac8c896648769349e85bebd220306`).
 
-FISH077/P2 remains DEFERRED. FISH091 is WAITING ON USER requirements signoff and is not deployed. FISH090 and FISH092–094 are DONE. All unrelated fishing/equipment/content backlog and purchase uncertainty remain preserved. The next unused canonical task ID is FISH-TODO-095. Chat remains the permanent default. This reconciliation is documentation-only and does not republish the verified application release.
+Historical status at this milestone: FISH077/P2 remained DEFERRED; FISH091 was still waiting on requirements signoff and was not deployed; FISH090 and FISH092–094 were DONE; and the next unused canonical task ID was FISH-TODO-095. This paragraph is retained only as milestone history. Current status is the FISH091 production-complete section above. Chat remains the permanent default.
 
 ## FISH089 location-picture production closeout — September 11, 2026
 

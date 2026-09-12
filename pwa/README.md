@@ -9,7 +9,7 @@ FISH091 is **live in production** through [PR105](https://github.com/ginosega/fi
 Current verified production is source `620e47943ee9ef38aaa2ff46b0dbe7d4606ef3ba`, release `168554f1b4fe274f0030d389a047fd12`, [run 34656039216](https://github.com/ginosega/fishing/actions/runs/34656039216), with 214 hosted v2 files byte-matched and hosted browser/refinement verification green. FISH095/[PR101](https://github.com/ginosega/fishing/pull/101) added Topwater Fishing and Bass Fishing as ordinary canonical KB Technique records with required `TODO` Notes and exact pre-uploaded PNGs; [PR102](https://github.com/ginosega/fishing/pull/102) changed only the stale hosted-verifier KB count from 54 to 56. Source-derived tests now expect Gear 69 / KB 56 / Catches 5 and 106 Markdown routes. No runtime architecture, schema, Catch model or P2 authoring scope changed. FISH091 is DONE and production-verified; FISH077 remains deferred; next unused ID is **FISH-TODO-096**.
 
 
-## Current production and repository-layout state — September 11, 2026
+## Historical production and repository-layout state — before FISH091 completion
 
 Current deployed production source is `32759b83305e1dbb3818b676accb0aee3961ddf7`, release `a81d35da0db7b000ed031c17a9387de3`, fully verified by [production run 34645325275](https://github.com/ginosega/fishing/actions/runs/34645325275) after FISH094/[PR99](https://github.com/ginosega/fishing/pull/99). The complete source/core, Chromium/WebKit preview and production scopes, archived-v1 cutover, exact-current-main Pages deployment, hosted-byte and hosted-browser gates passed; hosted verification reported 210 v2 files.
 
@@ -17,7 +17,7 @@ FISH090/[PR95](https://github.com/ginosega/fishing/pull/95) is DONE: Edit Gear c
 
 FISH092/[PR97](https://github.com/ginosega/fishing/pull/97) made `content/` and `assets/` durable across all KB categories and documented the convention in `KB/README.md`. FISH093/[PR98](https://github.com/ginosega/fishing/pull/98) made `assets/` and `content/` durable across all Gear categories and documented the convention in `Gear/README.md`. FISH094/[PR99](https://github.com/ginosega/fishing/pull/99) applied only the validated Trout Fishing record change: description `Casting, bank-fishing, still-fishing, and kayak-trolling guidance`, picture `KB/Techniques/assets/Trout Fishing.png`, no invented caption and Notes unchanged. The existing PNG was preserved exactly (1,867,783 bytes; SHA-256 `7f883a4d7d6bbc5dfba152414ac81513f5bac8c896648769349e85bebd220306`).
 
-FISH077/P2 remains DEFERRED. FISH090 and FISH092–094 are DONE; FISH091 remains unimplemented pending requirements signoff. Next unused canonical task ID is FISH-TODO-095. Documentation-only reconciliation does not republish the application.
+Historical status at this milestone: FISH077/P2 remained DEFERRED; FISH090 and FISH092–094 were DONE; FISH091 was still unimplemented pending requirements signoff; and the next unused canonical task ID was FISH-TODO-095. Current FISH091 production status is recorded in the section above.
 
 ## FISH087 KB authoring batch production closeout — September 11, 2026
 
