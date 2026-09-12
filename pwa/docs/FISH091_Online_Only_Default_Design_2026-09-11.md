@@ -1,11 +1,12 @@
 # FISH091 — Online-Only Default / Explicit Offline Library Design
 
 **Document type:** Abbreviated implementation design  
-**Status:** DRAFT FOR DESIGN REVIEW AND SIGNOFF  
+**Status:** APPROVED / IMPLEMENTED / PRODUCTION-VERIFIED  
 **Date:** September 11, 2026  
 **Requirements:** `FISH091_Online_Only_Default_Requirements_2026-09-11.md`, approved as written including S1–S4  
 **Baseline:** current `main` after PR103 (`7c297e75d92ea5c0111df24bc383006d68dafbef`)  
-**Implementation authorization:** **None.** This document is for design review only.
+**Approval/outcome:** The user separately approved this design, implementation completed, and FISH091 is DONE / production-verified. See `FISH091_Design_Approval_2026-09-11.md` and `FISH091_Production_Release_2026-09-11.md`.  
+**Historical gate note:** This document did not itself authorize implementation while it was awaiting design review; that gate was later satisfied by the separate design approval.
 
 ## 1. Design summary
 
@@ -219,8 +220,8 @@ No FISH077/P2 features are introduced: no direct save, auth, uploads, queued/off
 
 No new canonical data model, release format, or per-record caching policy is proposed.
 
-## 12. Design signoff gate
+## 12. Design signoff gate — satisfied
 
-If this design is approved, implementation may proceed through the normal FISH091 feature PR, full core/browser acceptance, production deployment, hosted verification, and project-state reconciliation.
+The user explicitly approved this design in `FISH091_Design_Approval_2026-09-11.md`, authorizing implementation through the normal FISH091 feature PR, full core/browser acceptance, production deployment, hosted verification, and project-state reconciliation.
 
-Until the user explicitly approves this design, **no FISH091 runtime implementation is authorized**.
+Implementation, deployment, and hosted verification were subsequently completed; the authoritative release record is `FISH091_Production_Release_2026-09-11.md`.
