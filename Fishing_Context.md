@@ -4,15 +4,15 @@
 
 FISH-TODO-096 is **DONE / production-verified**. Requirements and design were separately approved before implementation. [PR109](https://github.com/ginosega/fishing/pull/109) implemented the approved Knot step-by-step picture-sequence capability and was merged to `main` as `0782d1fd6ff9a176d94132c4dc962589b9480e32`.
 
-Verified production is:
+Current verified production subsequently advanced after the user uploaded 13 Palomar source frames to `main`:
 
-- source `0782d1fd6ff9a176d94132c4dc962589b9480e32`
-- release `23f6839d69df2018aed54fa6d3fc70d4`
-- [workflow run 34716722379](https://github.com/ginosega/fishing/actions/runs/34716722379)
+- source `7d43898d1c8e59ec87fcc8913e45c1df01957fd1`
+- release `921777f82c4216eccfb26d17e1043a57`
+- [workflow run 34717459805](https://github.com/ginosega/fishing/actions/runs/34717459805)
 - 214 hosted v2 files
-- hosted-verification artifact `10305125488`
+- hosted-verification artifact `10305581445`
 
-The production run passed complete source/core validation, Chromium/WebKit preview acceptance, production-browser acceptance, actual archived-v1 cutover acceptance, exact-current-main guard, Pages deployment, hosted-byte verification and hosted-browser verification. Hosted FISH096 acceptance verified Add Knot sequence selection, local sequence preview, ordered sequence package metadata and the exact per-Knot GitHub upload link. Full release detail is in `pwa/docs/FISH096_Production_Closeout_2026-09-12.md`.
+That production run passed complete source/core validation, Chromium/WebKit preview acceptance, production-browser acceptance, actual archived-v1 cutover acceptance, exact-current-main guard, Pages deployment, hosted-byte verification and hosted-browser verification. Hosted FISH096 acceptance verified Add Knot sequence selection, local sequence preview, ordered sequence package metadata and the exact per-Knot GitHub upload link. Full FISH096 feature-release detail is in `pwa/docs/FISH096_Production_Closeout_2026-09-12.md`.
 
 No permanent sample sequence was added to canonical content for testing; Gear/KB/Catch counts remain 69 / 56 / 5 and the hosted file count remains 214.
 
@@ -57,6 +57,8 @@ The retired Planner, Trip History/Sessions, paired-setup structures and old v1-o
 ## Content and media state
 
 All seven originally required missing pictures from the v2 cutover have since been resolved. The historically optional generic inline-spinner now has the user-supplied Kingforest picture. Current source includes the later validated location pictures, Trout Fishing picture, Topwater Fishing and Bass Fishing Technique records, and all other post-cutover canonical authoring changes already merged before FISH096.
+
+The user has also uploaded 13 Palomar step frames at `KB/Knots/assets/knot-palomar/step-01.png` through `step-13.png`. Those bytes are preserved on current `main`, but the Palomar KB record does **not** yet explicitly reference them as a `pictureSequence`. Accordingly they are unreferenced source assets, are not included in the current published release, and must not be treated as an active Palomar sequence until an explicit authoring request/package updates the record.
 
 The canonical PWA icon is `pwa/icon.png`. Historical filenames/bytes remain in Git history only as recovery evidence.
 
