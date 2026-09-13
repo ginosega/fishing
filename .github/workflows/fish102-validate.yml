@@ -18,8 +18,8 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: 24
-      - name: Fetch exact current main
-        run: git fetch origin main --depth=1
+      - name: Refresh current main
+        run: git fetch origin main
       - name: Install locked dependencies
         working-directory: pwa
         run: npm ci --no-audit --no-fund
