@@ -28,7 +28,7 @@ Routine source changes update canonical files directly; do not create per-item r
 
 **Decision/status:** DONE and production-verified. Ordinary online startup/navigation does not provision the complete offline library. **Connection Status → Update offline library** explicitly prepares or refreshes the verified complete offline generation. Online browsing uses current production even when an older complete offline generation remains available as fallback. Failed/corrupt/quota-failed explicit updates preserve the prior complete generation. Devices without a prepared generation must not claim offline readiness.
 
-FISH096/FISH097/FISH098/FISH099 do not change this decision.
+FISH096/FISH097/FISH098/FISH099/FISH100 do not change this decision.
 
 ## FISH096 — Knot step-by-step picture sequences
 
@@ -82,9 +82,19 @@ The package set is authoritative for these changes: Albright keeps its existing 
 
 The first production deployment correctly published the new 57-record KB but exposed a stale hosted-verifier expected count of 56. Verification-only [PR117](https://github.com/ginosega/fishing/pull/117) changed that one expectation to 57. Final verified production source is `9899849be676e971e3670fe72eba7ffd66986d68`, release `b331a8c5575769159113a59a17b12bca`, [run 34740072017](https://github.com/ginosega/fishing/actions/runs/34740072017), 288 hosted v2 files, hosted-verification artifact `10312475498`. Full CI, exact-current-main deployment, hosted-byte verification and hosted-browser verification passed.
 
+## FISH100 — Palomar Markdown refinement
+
+**Decision/status:** DONE and production-verified. The explicit user-supplied `fishing-companion-change-v2` edit package for `knot-palomar` was validated and applied through [PR119](https://github.com/ginosega/fishing/pull/119). Validation [run 34740644154](https://github.com/ginosega/fishing/actions/runs/34740644154) confirmed base-source ancestry, exact current record fingerprint `d09e83e7cfc3ddd6531389fc460620c66b23cfafb5a1b4866f6c20c89be8e94a`, exact current Markdown SHA-256 `05a439f4d5b2a5db6b37666c20dc742e29685cd11aaffce351ae7cc0e7ff8580`, and unchanged representative picture/13-frame sequence state. All source tests passed. Pre-merge acceptance [run 34740670930](https://github.com/ginosega/fishing/actions/runs/34740670930) passed.
+
+The package is authoritative for this change: only `KB/Knots/content/palomar.md` is replaced with the exact submitted Markdown. No structured Palomar fields change; `picture.src` remains `KB/Knots/assets/knot-palomar/step-13.png`, and the existing 13-frame `pictureSequence` remains unchanged. FISH100's feature merge source was `141198d1fbc1c651cd0b41d642d057c0f3b8a81c`.
+
+Later user uploads staged Improved Clinch, Modified Uni and Trilene frame files plus `KB/Knots/assets/Non-Splip Loop Knot.png` without changing canonical KB references. Per FISH096, those directory-only files remain inactive/unreleased sequence media until a future explicit canonical package references them.
+
+Current verified production source is `52afc4335445706fa07d210dd8f3f2823e9636eb`, release `c135fa258e6e1c8ed16324a57661d17e`, [run 34765625164](https://github.com/ginosega/fishing/actions/runs/34765625164), 288 hosted v2 files, hosted-verification artifact `10320926230`. Full CI, exact-current-main deployment, hosted-byte verification and hosted-browser verification passed.
+
 ## Deferred P2 boundary
 
-**Decision:** FISH-TODO-077/P2 remains **DEFERRED**. Authentication, Direct Save, integrated GitHub upload, offline authoring, outbox/sync, Catch authoring and multi-user generalization are not implemented or implicitly authorized by FISH096–FISH099.
+**Decision:** FISH-TODO-077/P2 remains **DEFERRED**. Authentication, Direct Save, integrated GitHub upload, offline authoring, outbox/sync, Catch authoring and multi-user generalization are not implemented or implicitly authorized by FISH096–FISH100.
 
 ## Media and repository layout
 
@@ -94,4 +104,4 @@ The canonical application icon is `pwa/icon.png`. Historical icon names/bytes an
 
 ## Open work
 
-FISH071–076 and FISH078–099 are complete; FISH077/P2 remains deferred. The canonical TODO preserves active fishing/gear/content research and purchase uncertainty, including unresolved PowerBait hook-size and loop-knot guidance questions. The next unused canonical task ID is **FISH-TODO-100**.
+FISH071–076 and FISH078–100 are complete; FISH077/P2 remains deferred. The canonical TODO preserves active fishing/gear/content research and purchase uncertainty, including unresolved PowerBait hook-size and loop-knot guidance questions. The next unused canonical task ID is **FISH-TODO-101**.
