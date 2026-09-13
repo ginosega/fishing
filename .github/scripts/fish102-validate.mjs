@@ -15,10 +15,10 @@ const pkg={
 
 const assert=(ok,msg)=>{if(!ok)throw new Error(msg);};
 validatePackage(pkg);
-execFileSync('git',['merge-base','--is-ancestor',pkg.base.sourceRevision,'HEAD']);
+const currentMain=execFileSync('git',['rev-parse','origin/main'],{encoding:'utf8'}).trim();
+assert(currentMain===expectedMain,`main moved during validation: ${currentMain}`);
+execFileSync('git',['merge-base','--is-ancestor',pkg.base.sourceRevision,currentMain]);
 execFileSync('git',['merge-base','--is-ancestor',expectedMain,'HEAD']);
-const fetched=execFileSync('git',['rev-parse','FETCH_HEAD'],{encoding:'utf8'}).trim();
-assert(fetched===expectedMain,`main moved during validation: ${fetched}`);
 const kb=JSON.parse(await fs.readFile('KB/kb.json','utf8'));
 assert(kb.schemaVersion===2,'KB schemaVersion changed');
 assert(!kb.entities.some(x=>x.id===pkg.id),'Requested ID already exists');
@@ -27,4 +27,4 @@ const bytes=await fs.readFile(pkg.picture.path);
 assert(bytes.byteLength===pkg.picture.file.bytes,`Picture bytes mismatch: ${bytes.byteLength}`);
 const digest=crypto.createHash('sha256').update(bytes).digest('hex');
 assert(digest===pkg.picture.file.sha256,`Picture sha256 mismatch: ${digest}`);
-console.log(JSON.stringify({validated:true,baseRevision:pkg.base.sourceRevision,currentMain:expectedMain,id:pkg.id,pictureBytes:bytes.byteLength,pictureSha256:digest},null,2));
+console.log(JSON.stringify({validated:true,baseRevision:pkg.base.sourceRevision,currentMain,id:pkg.id,pictureBytes:bytes.byteLength,pictureSha256:digest},null,2));
