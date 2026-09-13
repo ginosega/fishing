@@ -84,7 +84,7 @@ The first production deployment correctly published the new 57-record KB but exp
 
 ## Deferred P2 boundary
 
-**Decision:** FISH-TODO-077/P2 remains **DEFERRED**. Authentication, Direct Save, integrated GitHub upload, offline authoring, outbox/sync, Catch authoring and multi-user generalization are not implemented or implicitly authorized by FISH096–FISH098.
+**Decision:** FISH-TODO-077/P2 remains **DEFERRED**. Authentication, Direct Save, integrated GitHub upload, offline authoring, outbox/sync, Catch authoring and multi-user generalization are not implemented or implicitly authorized by FISH096–FISH099.
 
 ## Media and repository layout
 
