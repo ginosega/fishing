@@ -381,7 +381,8 @@
         "KB/Knots/assets/bowline-knot/step-05.jpg",
         "KB/Knots/assets/bowline-knot/step-06.jpg",
         "KB/Knots/assets/bowline-knot/step-07.jpg"
-      ]
+      ],
+      "description": "Use for tying a rope to the bow of a boat"
     },
     {
       "id": "knot-palomar",
@@ -483,43 +484,89 @@
       "id": "knot-trilene",
       "type": "knot",
       "name": "Trilene Knot",
-      "description": "Good for tying fluorocarbon to swivels/snaps; wet before tightening",
-      "content": "KB/Knots/content/trilene.md"
+      "description": "Good for tying fluorocarbon line to swivels and snaps",
+      "content": "KB/Knots/content/trilene.md",
+      "picture": {
+        "src": "KB/Knots/assets/knot-trilene/step-15.png",
+        "caption": "Trilene knot"
+      },
+      "pictureSequence": [
+        "KB/Knots/assets/knot-trilene/step-01.png",
+        "KB/Knots/assets/knot-trilene/step-02.png",
+        "KB/Knots/assets/knot-trilene/step-03.png",
+        "KB/Knots/assets/knot-trilene/step-04.png",
+        "KB/Knots/assets/knot-trilene/step-05.png",
+        "KB/Knots/assets/knot-trilene/step-06.png",
+        "KB/Knots/assets/knot-trilene/step-07.png",
+        "KB/Knots/assets/knot-trilene/step-08.png",
+        "KB/Knots/assets/knot-trilene/step-09.png",
+        "KB/Knots/assets/knot-trilene/step-10.png",
+        "KB/Knots/assets/knot-trilene/step-11.png",
+        "KB/Knots/assets/knot-trilene/step-12.png",
+        "KB/Knots/assets/knot-trilene/step-13.png",
+        "KB/Knots/assets/knot-trilene/step-14.png",
+        "KB/Knots/assets/knot-trilene/step-15.png"
+      ]
     },
     {
       "id": "knot-improved-clinch",
       "type": "knot",
       "name": "Improved Clinch Knot",
-      "description": "Mono/fluoro terminal knot; use more wraps with lighter line and wet first.",
-      "content": "KB/Knots/content/improved-clinch.md"
+      "description": "\"Fisherman's knot;\" works well with mono and fluoro on small hooks",
+      "content": "KB/Knots/content/improved-clinch.md",
+      "picture": {
+        "src": "KB/Knots/assets/knot-improved-clinch/step-11.png",
+        "caption": "Improved clinch knot"
+      },
+      "pictureSequence": [
+        "KB/Knots/assets/knot-improved-clinch/step-01.png",
+        "KB/Knots/assets/knot-improved-clinch/step-02.png",
+        "KB/Knots/assets/knot-improved-clinch/step-03.png",
+        "KB/Knots/assets/knot-improved-clinch/step-04.png",
+        "KB/Knots/assets/knot-improved-clinch/step-05.png",
+        "KB/Knots/assets/knot-improved-clinch/step-06.png",
+        "KB/Knots/assets/knot-improved-clinch/step-07.png",
+        "KB/Knots/assets/knot-improved-clinch/step-08.png",
+        "KB/Knots/assets/knot-improved-clinch/step-09.png",
+        "KB/Knots/assets/knot-improved-clinch/step-10.png",
+        "KB/Knots/assets/knot-improved-clinch/step-11.png"
+      ]
     },
     {
       "id": "knot-modified-uni",
       "type": "knot",
       "name": "Modified Uni Knot",
-      "description": "Marked very strong in OneNote",
-      "content": "KB/Knots/content/modified-uni.md"
-    },
-    {
-      "id": "knot-double-uni",
-      "type": "knot",
-      "name": "Double Uni Knot",
-      "description": "Used to connect two lines, but FG preferred for braid-to-leader",
-      "content": "KB/Knots/content/double-uni.md"
+      "description": "Very strong no-slip knot; good for braided line",
+      "content": "KB/Knots/content/modified-uni.md",
+      "picture": {
+        "src": "KB/Knots/assets/knot-modified-uni/step-12.jpg",
+        "caption": "Modified uni knot"
+      },
+      "pictureSequence": [
+        "KB/Knots/assets/knot-modified-uni/step-01.jpg",
+        "KB/Knots/assets/knot-modified-uni/step-02.jpg",
+        "KB/Knots/assets/knot-modified-uni/step-03.jpg",
+        "KB/Knots/assets/knot-modified-uni/step-04.jpg",
+        "KB/Knots/assets/knot-modified-uni/step-05.jpg",
+        "KB/Knots/assets/knot-modified-uni/step-06.jpg",
+        "KB/Knots/assets/knot-modified-uni/step-07.jpg",
+        "KB/Knots/assets/knot-modified-uni/step-08.jpg",
+        "KB/Knots/assets/knot-modified-uni/step-09.jpg",
+        "KB/Knots/assets/knot-modified-uni/step-10.jpg",
+        "KB/Knots/assets/knot-modified-uni/step-11.jpg",
+        "KB/Knots/assets/knot-modified-uni/step-12.jpg"
+      ]
     },
     {
       "id": "knot-loop-non-slip-loop",
       "type": "knot",
-      "name": "Loop / Non-slip Loop Knot",
-      "description": "Conflict: technique pages recommend loop knots; knot note warns against them.",
-      "content": "KB/Knots/content/loop-non-slip-loop.md"
-    },
-    {
-      "id": "knot-single-uni",
-      "type": "knot",
-      "name": "Single Uni Knot",
-      "description": "OneNote says don't use / weak",
-      "content": "KB/Knots/content/single-uni.md"
+      "name": "Non-Slip Loop Knot",
+      "description": "Good for crankbaits that do not have a split ring attached",
+      "content": "KB/Knots/content/loop-non-slip-loop.md",
+      "picture": {
+        "src": "KB/Knots/assets/Non-Splip Loop Knot.png",
+        "caption": "Non-slip loop knot"
+      }
     },
     {
       "id": "knot-arbor",
