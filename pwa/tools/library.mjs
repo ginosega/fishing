@@ -51,8 +51,8 @@ export async function inventorySource(root,{pendingMedia=false}={}){
   for(const ref of parsed.references)if(ref.local)files.add(ref.local);
  }
  for(const file of files)if(/\.(?:jpe?g|png|webp|gif)$/i.test(file)&&!images.has(file))images.set(file,await validateImage(await fs.readFile(await fileUnder(root,file)),file));
- let migration=null;try{migration=JSON.parse(await fs.readFile(path.join(root,'pwa/migration/reconciliation.json'),'utf8'));}catch(error){if(error.code!=='ENOENT')throw error;}
- let decisions=null;try{decisions=JSON.parse(await fs.readFile(path.join(root,'pwa/migration/media-decisions.json'),'utf8'));}catch(error){if(error.code!=='ENOENT')throw error;}
+ let migration=null;try{migration=JSON.parse(await fs.readFile(path.join(root,'migration/reconciliation.json'),'utf8'));}catch(error){if(error.code!=='ENOENT')throw error;}
+ let decisions=null;try{decisions=JSON.parse(await fs.readFile(path.join(root,'migration/media-decisions.json'),'utf8'));}catch(error){if(error.code!=='ENOENT')throw error;}
  const pending=unresolvedMedia(migration,decisions,data);
  if(pending.length&&!pendingMedia)throw new Error(`Migration has ${pending.length} unresolved media exceptions; pending-media preview only`);
  const manifest=[];for(const file of [...files].sort()){const bytes=await fs.readFile(await fileUnder(root,file));manifest.push({path:file,bytes:bytes.length,sha256:digest(bytes)});}

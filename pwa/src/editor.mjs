@@ -12,8 +12,8 @@ function optional(record,key,value){if(value.trim())record[key]=value.trim();els
 function knownFiles(ctx){const prefix=`releases/${ctx.release.id}/content/`;return new Map(ctx.manifest.files.filter(x=>x.path.startsWith(prefix)).map(x=>[x.path.slice(prefix.length),x]));}
 function knownPaths(ctx){return new Set(knownFiles(ctx).keys());}
 function editorMaps(ctx,domain,record){const data=clone(ctx.data),key=DOMAIN[domain].array;data[domain][key]=data[domain][key].filter(x=>x.id!==record.id).concat(record);return {data,maps:validateRecords(data),routes:markdownRouteMap(data)};}
-function linkToUpload(path){const dir=path.split('/').slice(0,-1).map(encodeURIComponent).join('/');return `https://github.com/ginosega/fishing/tree/main/${dir}`;}
-function linkToSequenceUpload(folder){return `https://github.com/ginosega/fishing/upload/main/${encodedPath(folder)}`;}
+function linkToUpload(path){const dir=path.split('/').slice(0,-1).map(encodeURIComponent).join('/');return `https://github.com/ginosega/fishing/tree/main/pwa/${dir}`;}
+function linkToSequenceUpload(folder){return `https://github.com/ginosega/fishing/upload/main/pwa/${encodedPath(folder)}`;}
 const SEQUENCE_ACTIONS=new Set(['add-sequence','replace-with-sequence','replace-sequence']);
 const STATIC_FILE_ACTIONS=new Set(['add-static','replace-static','replace-with-static']);
 const acceptedImages='.jpg,.jpeg,.png,.webp,.gif,image/jpeg,image/png,image/webp,image/gif';
@@ -78,7 +78,8 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
   if(mediaAction==='replace-with-static'){delete record.pictureSequence;}
  }
  picturePathInput.addEventListener('input',()=>{if(picturePathInput.readOnly)return;fileInfo=null;if(previewUrl){URL.revokeObjectURL(previewUrl);previewUrl=null;}if(mediaAction==='keep')mediaAction=record.picture?'replace-static':'add-static';renderActionOptions(false);if(picturePathInput.value)record.picture={src:picturePathInput.value,...(captionInput.value?{caption:captionInput.value}:{})};renderPicture();changed();});
- captionInput.addEventListener('input',()=>{if(record.picture)optional(record.picture,'caption',captionInput.value);renderPicture();changed();});
+ function refreshCaptionPreview(){const figure=pictureInfo.querySelector('figure.picture');if(!figure)return;let caption=figure.querySelector('figcaption');if(captionInput.value){if(!caption){caption=el('figcaption',{});figure.append(caption);}caption.textContent=captionInput.value;}else caption?.remove();}
+ captionInput.addEventListener('input',()=>{if(record.picture)optional(record.picture,'caption',captionInput.value);refreshCaptionPreview();changed();});
  function orderedSequenceFiles(files){
   const parsed=[...files].map(file=>{const match=/^step-(\d+)\.(jpe?g|png|webp|gif)$/i.exec(file.name);if(!match)throw new Error(`Sequence files must use step-01, step-02, ... names: ${file.name}`);return {file,number:Number(match[1]),digits:match[1]};}).sort((a,b)=>a.number-b.number);
   if(parsed.length<2)throw new Error('A step-by-step sequence requires at least two pictures.');
@@ -115,7 +116,7 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
  const textArea=el('textarea',{rows:14,class:'markdown-editor',value:body,spellcheck:true});textArea.addEventListener('input',()=>{body=textArea.value;changed();});
  const preview=el('div',{class:'markdown-preview',hidden:true});let showPreview=false;
  const previewButton=button('Preview Markdown',()=>{
-  try{const {maps,routes}=editorMaps(ctx,domain,record);const owner=record[key]||narrativePath(domain,record);const parsed=parseMarkdown(body,{owner,maps,assetBase:ctx.base,exists:knownPaths(ctx),pathRoutes:routes,allowMissing:true});const unresolved=parsed.references.filter(r=>r.local&&!knownPaths(ctx).has(r.local));if(unresolved.length)throw new Error('Upload referenced local files first: '+unresolved.map(r=>r.local).join(', '));preview.innerHTML=sanitizeHtml(parsed.html,window);showPreview=!showPreview;preview.hidden=!showPreview;textArea.hidden=showPreview;previewButton.textContent=showPreview?'Edit Markdown':'Preview Markdown';status(notice,'Markdown preview is local and has not been saved.','info');}catch(error){status(notice,error.message,'error');}
+  try{const owner=record[key]||narrativePath(domain,record),previewRecord=clone(record);if(!previewRecord[key])previewRecord[key]=owner;const {maps,routes}=editorMaps(ctx,domain,previewRecord);const parsed=parseMarkdown(body,{owner,maps,assetBase:ctx.base,exists:knownPaths(ctx),pathRoutes:routes,allowMissing:true});const unresolved=parsed.references.filter(r=>r.local&&!knownPaths(ctx).has(r.local));if(unresolved.length)throw new Error('Upload referenced local files first: '+unresolved.map(r=>r.local).join(', '));preview.innerHTML=sanitizeHtml(parsed.html,window);showPreview=!showPreview;preview.hidden=!showPreview;textArea.hidden=showPreview;previewButton.textContent=showPreview?'Edit Markdown':'Preview Markdown';status(notice,'Markdown preview is local and has not been saved.','info');}catch(error){status(notice,error.message,'error');}
  });
  form.append(section('Notes',field('Markdown',textArea),previewButton,preview));
  const prepareButton=button('Prepare Changes',()=>form.requestSubmit(),{variant:'primary'});

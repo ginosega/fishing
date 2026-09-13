@@ -80,7 +80,7 @@ export function createApp(ctx){
   if(domain==='gear'){
    const details=[...(record.manufacturer?[['Manufacturer',record.manufacturer]]:[]),...(record.model?[['Model',record.model]]:[]),...(record.specifications||[]).map(s=>[s.label||'Specification',s.value])];
    if(details.length)page.append(section('Specifications',table(details)));
-   if(record.links?.length)page.append(section('Links',el('div',{class:'links-list'},...record.links.map(l=>el('a',{href:l.url,rel:'noopener noreferrer'},l.label,' ↗')))));
+   if(record.links?.length)page.append(section('Links',el('div',{class:'links-list'},...record.links.map(l=>el('a',{href:l.url,target:'_blank',rel:'noopener noreferrer'},l.label,' ↗')))));
    await appendMarkdown(page,record.notes,'Notes');
   }else{
    await appendMarkdown(page,record.content,'Notes');
