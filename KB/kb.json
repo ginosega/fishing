@@ -365,6 +365,25 @@
       }
     },
     {
+      "id": "bowline-knot",
+      "name": "Bowline Knot",
+      "type": "knot",
+      "content": "KB/Knots/content/Bowline Knot.md",
+      "picture": {
+        "src": "KB/Knots/assets/bowline-knot/step-07.jpg",
+        "caption": "Bowline knot"
+      },
+      "pictureSequence": [
+        "KB/Knots/assets/bowline-knot/step-01.jpg",
+        "KB/Knots/assets/bowline-knot/step-02.jpg",
+        "KB/Knots/assets/bowline-knot/step-03.jpg",
+        "KB/Knots/assets/bowline-knot/step-04.jpg",
+        "KB/Knots/assets/bowline-knot/step-05.jpg",
+        "KB/Knots/assets/bowline-knot/step-06.jpg",
+        "KB/Knots/assets/bowline-knot/step-07.jpg"
+      ]
+    },
+    {
       "id": "knot-palomar",
       "type": "knot",
       "name": "Palomar Knot",
@@ -395,13 +414,48 @@
       "type": "knot",
       "name": "FG Knot",
       "description": "Preferred braid-to-fluoro leader knot",
-      "content": "KB/Knots/content/fg.md"
+      "content": "KB/Knots/content/fg.md",
+      "picture": {
+        "src": "KB/Knots/assets/knot-fg/step-29.jpg",
+        "caption": "FG knot"
+      },
+      "pictureSequence": [
+        "KB/Knots/assets/knot-fg/step-01.jpg",
+        "KB/Knots/assets/knot-fg/step-02.jpg",
+        "KB/Knots/assets/knot-fg/step-03.jpg",
+        "KB/Knots/assets/knot-fg/step-04.jpg",
+        "KB/Knots/assets/knot-fg/step-05.jpg",
+        "KB/Knots/assets/knot-fg/step-06.jpg",
+        "KB/Knots/assets/knot-fg/step-07.jpg",
+        "KB/Knots/assets/knot-fg/step-08.jpg",
+        "KB/Knots/assets/knot-fg/step-09.jpg",
+        "KB/Knots/assets/knot-fg/step-10.jpg",
+        "KB/Knots/assets/knot-fg/step-11.jpg",
+        "KB/Knots/assets/knot-fg/step-12.jpg",
+        "KB/Knots/assets/knot-fg/step-13.jpg",
+        "KB/Knots/assets/knot-fg/step-14.jpg",
+        "KB/Knots/assets/knot-fg/step-15.jpg",
+        "KB/Knots/assets/knot-fg/step-16.jpg",
+        "KB/Knots/assets/knot-fg/step-17.jpg",
+        "KB/Knots/assets/knot-fg/step-18.jpg",
+        "KB/Knots/assets/knot-fg/step-19.jpg",
+        "KB/Knots/assets/knot-fg/step-20.jpg",
+        "KB/Knots/assets/knot-fg/step-21.jpg",
+        "KB/Knots/assets/knot-fg/step-22.jpg",
+        "KB/Knots/assets/knot-fg/step-23.jpg",
+        "KB/Knots/assets/knot-fg/step-24.jpg",
+        "KB/Knots/assets/knot-fg/step-25.jpg",
+        "KB/Knots/assets/knot-fg/step-26.jpg",
+        "KB/Knots/assets/knot-fg/step-27.jpg",
+        "KB/Knots/assets/knot-fg/step-28.jpg",
+        "KB/Knots/assets/knot-fg/step-29.jpg"
+      ]
     },
     {
       "id": "knot-albright",
       "type": "knot",
       "name": "Albright Knot",
-      "description": "Easier on-the-water braid-to-fluoro alternative",
+      "description": "Easier on-the-water braid-to-fluoro alternative to the FG knot",
       "content": "KB/Knots/content/albright.md",
       "picture": {
         "src": "KB/Knots/assets/knot-albright/step-15.jpg",
@@ -471,8 +525,23 @@
       "id": "knot-arbor",
       "type": "knot",
       "name": "Arbor Knot",
-      "description": "Use for spooling line",
-      "content": "KB/Knots/content/arbor.md"
+      "description": "Use for tying line to spool",
+      "content": "KB/Knots/content/arbor.md",
+      "picture": {
+        "src": "KB/Knots/assets/knot-arbor/step-09.jpg",
+        "caption": "Arbor knot"
+      },
+      "pictureSequence": [
+        "KB/Knots/assets/knot-arbor/step-01.jpg",
+        "KB/Knots/assets/knot-arbor/step-02.jpg",
+        "KB/Knots/assets/knot-arbor/step-03.jpg",
+        "KB/Knots/assets/knot-arbor/step-04.jpg",
+        "KB/Knots/assets/knot-arbor/step-05.jpg",
+        "KB/Knots/assets/knot-arbor/step-06.jpg",
+        "KB/Knots/assets/knot-arbor/step-07.jpg",
+        "KB/Knots/assets/knot-arbor/step-08.jpg",
+        "KB/Knots/assets/knot-arbor/step-09.jpg"
+      ]
     },
     {
       "id": "technique-inline-spinner",
