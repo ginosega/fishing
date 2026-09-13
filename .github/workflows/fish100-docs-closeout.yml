@@ -1,0 +1,33 @@
+name: FISH100 project-state reconciliation
+
+on:
+  push:
+    branches:
+      - docs/fish100-closeout
+
+permissions:
+  contents: write
+
+jobs:
+  reconcile:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify source and reconcile records
+        run: |
+          test "$(git rev-parse origin/main)" = "141198d1fbc1c651cd0b41d642d057c0f3b8a81c"
+          python .github/scripts/fish100-closeout.py
+      - name: Commit reconciled records and remove temporary helpers
+        run: |
+          rm .github/scripts/fish100-closeout.py
+          rm .github/workflows/fish100-docs-closeout.yml
+          git add -A
+          git diff --cached --check
+          test "$(git diff --cached --name-only | sort | tr '\n' ' ')" = "Fishing_Context.md Fishing_Decision_Log.md Fishing_New_Chat_Bootstrap_Prompt.md Fishing_TODO.md README.md pwa/README.md "
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Docs: close out FISH100 production release"
+          git push origin HEAD:${GITHUB_REF_NAME}
