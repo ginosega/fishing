@@ -34,7 +34,7 @@ try{
  const completeBefore=await page.evaluate(async()=>{let count=0;for(const name of await caches.keys()){if(!name.startsWith('fishing-v2:'))continue;const cache=await caches.open(name);if(await cache.match(new URL('__fishing_complete__',location.href)))count++;}return count;});
  assert.equal(completeBefore,0,'Clean online visit unexpectedly prepared a complete offline library');
  assert.equal(await page.evaluate(async()=>new URL((await navigator.serviceWorker.getRegistration()).scope).pathname),production?'/fishing/':'/fishing/v2-preview/');
- assert.deepEqual(await page.evaluate(()=>window.__FISHING_V2__.counts),{gear:69,kb:57,catches:5});
+ assert.deepEqual(await page.evaluate(()=>window.__FISHING_V2__.counts),{gear:69,kb:55,catches:5});
  await page.goto(preview+'#/inventory/item/bonafide-rvr119');await page.locator('.markdown-body').waitFor();
  const image=page.locator('#app img').first();await image.evaluate(async img=>{await img.decode();if(!img.naturalWidth)throw Error('Picture did not decode');});
  await page.getByRole('button',{name:/Enlarge/}).click();await page.getByRole('dialog',{name:'Image viewer'}).waitFor();await page.getByRole('dialog').getByRole('button',{name:'Close',exact:true}).last().click();
