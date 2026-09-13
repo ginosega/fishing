@@ -1,0 +1,42 @@
+name: FISH102 apply and verify
+on:
+  push:
+    branches:
+      - feature/fish102-line-tackle-reference
+    paths:
+      - .github/scripts/fish102-apply.mjs
+      - .github/workflows/fish102-apply.yml
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 24
+      - name: Install locked dependencies
+        working-directory: pwa
+        run: npm ci --no-audit --no-fund
+      - name: Apply validated FISH102 source changes
+        run: node .github/scripts/fish102-apply.mjs
+      - name: Run source tests
+        working-directory: pwa
+        run: npm test
+      - name: Build and verify production bundle
+        working-directory: pwa
+        run: |
+          npm run build -- --base=/fishing/
+          npm run verify
+      - name: Commit canonical changes and remove temporary helpers
+        run: |
+          git config user.name "Gino Sega"
+          git config user.email "ginosega@gmail.com"
+          git rm .github/scripts/fish102-validate.mjs .github/workflows/fish102-validate.yml .github/scripts/fish102-apply.mjs .github/workflows/fish102-apply.yml
+          git add KB/kb.json "KB/Knots/content/Line-Tackle-Knot Reference.md" pwa/src/ui.mjs pwa/test/browser.spec.mjs pwa/test/core.test.mjs pwa/tools/verify-hosted.mjs
+          git diff --cached --check
+          git commit -m "FISH102: add line-tackle knot reference"
+          git push origin HEAD:feature/fish102-line-tackle-reference
