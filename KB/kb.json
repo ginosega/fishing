@@ -680,6 +680,16 @@
       "picture": {
         "src": "KB/Techniques/assets/Bass Fishing.png"
       }
+    },
+    {
+      "id": "line-tackle-knot-reference",
+      "name": "Line-Tackle-Knot Reference",
+      "type": "knot",
+      "description": "Recommended knots for line, lure, and tackle combinations",
+      "content": "KB/Knots/content/Line-Tackle-Knot Reference.md",
+      "picture": {
+        "src": "KB/Knots/assets/Line-Tackle-Knot Reference.png"
+      }
     }
   ]
 }

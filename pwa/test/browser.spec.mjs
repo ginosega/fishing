@@ -139,6 +139,9 @@ test('navigation, filters, stable links, Catch History and image viewer',async({
  await page.getByRole('combobox',{name:'Type'}).selectOption({label:lure.type});
  await expect(page.locator('.record-grid .nav-card')).toHaveCount(data.gear.items.filter(x=>x.category==='lures'&&x.type===lure.type).length);
  await route(page,'#/kb','Knowledge Base');
+ await route(page,'#/kb/category/knot','Knots');
+ const knotNames=await page.locator('.record-grid .nav-card h2').allTextContents();expect(knotNames[0]).toBe('Line-Tackle-Knot Reference');expect(knotNames.slice(1)).toEqual([...knotNames.slice(1)].sort((a,b)=>a.localeCompare(b)));
+ await route(page,'#/kb','Knowledge Base');
  await page.getByPlaceholder('Search Knowledge Base').fill('Silver Lake');
  await expect(page.locator('.record-grid .nav-card').first()).toBeVisible();
  await route(page,'#/kb/species-largemouth-bass','Largemouth Bass');
