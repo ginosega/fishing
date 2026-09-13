@@ -36,7 +36,6 @@ jobs:
       - name: Install Chromium
         working-directory: pwa
         run: npx playwright install --with-deps chromium
-      # A single app-ready regression catches preview/production base mismatches cheaply.
       - name: Gate common browser boot on one focused regression
         working-directory: pwa
         run: npm run test:browser -- --project=chromium --grep "online-only first visit stays usable"
@@ -48,11 +47,15 @@ jobs:
         run: |
           npm run build -- --base=/fishing/ --source-revision="$GITHUB_SHA-fish103-production"
           npm run verify
-      - name: Commit canonical changes and remove temporary helpers
+      - name: Push canonical non-workflow changes
         run: |
           git config user.name "Gino Sega"
           git config user.email "ginosega@gmail.com"
-          git rm .github/scripts/fish103-apply.mjs .github/scripts/fish103-fix-tests.mjs .github/workflows/fish103-apply.yml
+          # The Actions token cannot update files under .github/workflows/. Restore
+          # the production workflow and leave this temporary workflow in place;
+          # both workflow-file changes are completed afterward via the GitHub connector.
+          git checkout "$GITHUB_SHA" -- .github/workflows/fishing-production.yml .github/workflows/fish103-apply.yml
+          git rm .github/scripts/fish103-apply.mjs .github/scripts/fish103-fix-tests.mjs
           git add -A
           git diff --cached --check
           test ! -e Gear && test ! -e KB && test ! -e Catches
