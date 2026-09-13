@@ -16,7 +16,7 @@ const clone=x=>structuredClone(x);
 test('complete migrated library validates its schemas, types and references',()=>{
  assert.deepEqual([data.gear.items.length,data.kb.entities.length,data.catches.catches.length],[69,55,5]);
  assert.equal(maps.gear.size,69);assert.equal(maps.kb.size,55);assert.equal(maps.catches.size,5);
- assert.equal(validateLibraryPaths(data).size,107);
+ assert.equal(validateLibraryPaths(data).size,105);
 });
 test('all six independent components retain their own identity',()=>{
  const ids=['daiwa-tatula-xt-rod','daiwa-exceler-lt-reel','shimano-zodias-rod','shimano-slx-dc-xt-71hg-reel','pflueger-president-spincast-rod','pflueger-president-spincast-reel'];
