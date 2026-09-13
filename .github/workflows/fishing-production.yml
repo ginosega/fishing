@@ -2,9 +2,9 @@ name: Fishing production acceptance and deployment
 on:
   push:
     branches: [main, feature/v2-implementation-20260908]
-    paths: ['pwa/**', '!pwa/docs/**', '!pwa/README.md', 'Gear/**', 'KB/**', 'Catches/**', '.github/workflows/**']
+    paths: ['pwa/**', '!pwa/docs/**', '!pwa/README.md', '.github/workflows/**']
   pull_request:
-    paths: ['pwa/**', '!pwa/docs/**', '!pwa/README.md', 'Gear/**', 'KB/**', 'Catches/**', '.github/workflows/**']
+    paths: ['pwa/**', '!pwa/docs/**', '!pwa/README.md', '.github/workflows/**']
   workflow_dispatch:
 permissions:
   contents: read
