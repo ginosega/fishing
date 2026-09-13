@@ -36,6 +36,7 @@ jobs:
       - name: Install Chromium
         working-directory: pwa
         run: npx playwright install --with-deps chromium
+      # A single app-ready regression catches preview/production base mismatches cheaply.
       - name: Gate common browser boot on one focused regression
         working-directory: pwa
         run: npm run test:browser -- --project=chromium --grep "online-only first visit stays usable"
