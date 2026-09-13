@@ -1,0 +1,3 @@
+The bowline makes a reasonably secure loop in the end of a piece of rope. Under load, it does not slip or bind. With no load it can be untied easily. Its principal shortcoming is that it cannot be tied, or untied, when there is a load on the end. It should therefore be avoided when it may have to be released under load. When a bowline is unloaded, it can work its way untied.
+
+Video: [Bowline knot](https://youtube.com/shorts/ChHLY9Ol-Ls?si=6WhYroVIR8Cawv0N)
