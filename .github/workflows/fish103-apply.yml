@@ -27,17 +27,26 @@ jobs:
       - name: Install locked dependencies
         working-directory: pwa
         run: npm ci --no-audit --no-fund
-      - name: Run source tests and production-style build
+      - name: Run source tests and preview-style build
         working-directory: pwa
         run: |
           npm test
-          npm run build -- --base=/fishing/ --source-revision="$GITHUB_SHA-fish103"
+          npm run build -- --pending-media --source-revision="$GITHUB_SHA-fish103-preview"
           npm run verify
-      - name: Install Chromium and run browser regressions
+      - name: Install Chromium
+        working-directory: pwa
+        run: npx playwright install --with-deps chromium
+      - name: Gate common browser boot on one focused regression
+        working-directory: pwa
+        run: npm run test:browser -- --project=chromium --grep "online-only first visit stays usable"
+      - name: Run full Chromium browser regressions
+        working-directory: pwa
+        run: npm run test:browser -- --project=chromium
+      - name: Run production-style build and verification
         working-directory: pwa
         run: |
-          npx playwright install --with-deps chromium
-          npm run test:browser -- --project=chromium
+          npm run build -- --base=/fishing/ --source-revision="$GITHUB_SHA-fish103-production"
+          npm run verify
       - name: Commit canonical changes and remove temporary helpers
         run: |
           git config user.name "Gino Sega"
