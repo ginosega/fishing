@@ -9,9 +9,9 @@ import {validateRecords,collectPaths} from '../src/validation.mjs';
 import {prepareChange,validatePackage,promoteChange,ChangeConflictError} from '../src/handoff.mjs';
 import {inventorySource} from '../tools/library.mjs';
 
-const here=path.dirname(fileURLToPath(import.meta.url)),repo=path.resolve(here,'../..');
+const here=path.dirname(fileURLToPath(import.meta.url)),repo=path.resolve(here,'../..'),sourceRoot=path.join(repo,'pwa');
 const readJson=file=>fs.readFile(file,'utf8').then(JSON.parse);
-async function sourceData(){return {gear:await readJson(path.join(repo,'Gear/gear.json')),kb:await readJson(path.join(repo,'KB/kb.json')),catches:await readJson(path.join(repo,'Catches/catches.json'))};}
+async function sourceData(){return {gear:await readJson(path.join(sourceRoot,'Gear/gear.json')),kb:await readJson(path.join(sourceRoot,'KB/kb.json')),catches:await readJson(path.join(sourceRoot,'Catches/catches.json'))};}
 const sequenceRecord=()=>({id:'knot-test-sequence',type:'knot',name:'Test Sequence',content:'KB/Knots/content/test-sequence.md',picture:{src:'KB/Knots/assets/knot-test-sequence/step-03.png',caption:'Test caption'},pictureSequence:['KB/Knots/assets/knot-test-sequence/step-01.png','KB/Knots/assets/knot-test-sequence/step-02.png','KB/Knots/assets/knot-test-sequence/step-03.png']});
 
 async function withRecord(record){const data=await sourceData();data.kb.entities.push(record);return data;}

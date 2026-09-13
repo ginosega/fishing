@@ -8,7 +8,7 @@ import {validateRecords,validateRecord,validateLibraryPaths,checkPathCollisions}
 import {parseMarkdown,markdownRouteMap} from '../src/markdown.mjs';
 import {prepareChange,promoteChange,ChangeConflictError} from '../src/handoff.mjs';
 import {inventorySource,validateImage,digest,unresolvedMedia} from '../tools/library.mjs';
-const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..');
+const repo=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..'),root=path.join(repo,'pwa');
 const read=async p=>JSON.parse(await fs.readFile(path.join(root,p),'utf8'));
 const data=await (async()=>({gear:await read('Gear/gear.json'),kb:await read('KB/kb.json'),catches:await read('Catches/catches.json')}))();
 const maps=validateRecords(data),routes=markdownRouteMap(data);
@@ -18,6 +18,7 @@ test('complete migrated library validates its schemas, types and references',()=
  assert.equal(maps.gear.size,69);assert.equal(maps.kb.size,56);assert.equal(maps.catches.size,5);
  assert.equal(validateLibraryPaths(data).size,106);
 });
+test('canonical PWA source folders live only under pwa',async()=>{for(const dir of ['Gear','KB','Catches']){await fs.access(path.join(root,dir));await assert.rejects(fs.access(path.join(repo,dir)),error=>error?.code==='ENOENT');}});
 test('all six independent components retain their own identity',()=>{
  const ids=['daiwa-tatula-xt-rod','daiwa-exceler-lt-reel','shimano-zodias-rod','shimano-slx-dc-xt-71hg-reel','pflueger-president-spincast-rod','pflueger-president-spincast-reel'];
  for(const id of ids)assert(maps.gear.has(id));
@@ -63,6 +64,7 @@ test('Markdown preserves tables, lists and code while escaping executable HTML',
  assert.match(result.html,/<table>/);assert.match(result.html,/<ul>/);assert.match(result.html,/&lt;script&gt;/);assert.doesNotMatch(result.html,/<script>/);
  assert.match(result.html,/id="heading"/);
 });
+test('Markdown external links open a new tab while internal links remain same-tab',()=>{const owner=data.kb.entities[0].content;const result=parseMarkdown('[External](https://example.com) [Internal](gear://daiwa-tatula-xt-rod)',{owner,maps,pathRoutes:routes});assert(result.html.includes('href="https://example.com" target="_blank" rel="noopener noreferrer"'));assert(result.html.includes('href="#/inventory/item/daiwa-tatula-xt-rod"'));assert(!result.html.includes('href="#/inventory/item/daiwa-tatula-xt-rod" target="_blank"'));});
 test('Markdown resolves internal, relative and heading links without double encoding',()=>{
  const owner=data.kb.entities[0].content;
  const result=parseMarkdown('[Gear](gear://daiwa-tatula-xt-rod) [Section](#Fishing%20Tips) [Local](../assets/La%20p%C3%AAche.png)',{owner,maps,pathRoutes:routes});
@@ -113,7 +115,7 @@ test('malformed images and unsupported formats are rejected',async()=>{
 });
 
 test('explicit absent-picture decisions resolve only the approved historical exceptions',async()=>{
- const migration=await read('pwa/migration/reconciliation.json'),decisions=await read('pwa/migration/media-decisions.json');
+ const migration=await read('migration/reconciliation.json'),decisions=await read('migration/media-decisions.json');
  assert.equal(unresolvedMedia(migration,null,data).length,7);
  assert.equal(unresolvedMedia(migration,decisions,data).length,0);
  const missing=clone(decisions);missing.absentPictures.pop();assert.equal(unresolvedMedia(migration,missing,data).length,1);

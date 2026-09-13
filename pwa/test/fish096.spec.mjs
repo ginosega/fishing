@@ -16,7 +16,7 @@ async function packageFrom(page){await page.getByRole('button',{name:'Prepare Ch
 
 async function prepare(){
  temporary=await fs.mkdtemp(path.join(os.tmpdir(),'fish096-browser-'));source=path.join(temporary,'source');out=path.join(temporary,'dist');
- for(const dir of ['Gear','KB','Catches'])await fs.cp(path.join(repo,dir),path.join(source,dir),{recursive:true});await fs.mkdir(path.join(source,'pwa'),{recursive:true});await fs.copyFile(path.join(pwa,'icon.png'),path.join(source,'pwa/icon.png'));
+ for(const dir of ['Gear','KB','Catches'])await fs.cp(path.join(pwa,dir),path.join(source,dir),{recursive:true});
  const kbPath=path.join(source,'KB/kb.json'),kb=await readJson(kbPath),knots=kb.entities.filter(x=>x.type==='knot');if(knots.length<2)throw new Error('FISH096 browser fixture requires two Knot records');
  sequenceId=knots[0].id;staticId=knots[1].id;const sequenceFolder=path.join(source,'KB/Knots/assets',sequenceId);await fs.mkdir(sequenceFolder,{recursive:true});sequenceFiles=[];
  for(let i=1;i<=3;i++){const file=path.join(sequenceFolder,`step-0${i}.png`);await sharp({create:{width:120+i,height:80+i,channels:4,background:{r:40*i,g:50,b:90,alpha:1}}}).png().toFile(file);sequenceFiles.push(file);}
@@ -50,7 +50,7 @@ test('FISH096 Add Knot sequence validates filenames, previews locally, and prepa
  await chooser.setInputFiles(sequenceFiles);await expect(form).toContainText('3 pictures selected');await expect(form).toContainText('First frame: step-01.png');await expect(form).toContainText('Representative picture: step-03.png');await expect(form.getByRole('textbox',{name:'Repository picture path'})).toHaveValue('KB/Knots/assets/browser-sequence-knot/step-03.png');await expect(form.getByRole('textbox',{name:'Repository picture path'})).toHaveAttribute('readonly','');expect(await chooser.evaluate(input=>input.files.length)).toBe(3);
  await form.locator('.picture-button').click();await expect(page.getByRole('dialog',{name:'Image sequence viewer'}).locator('.viewer-frame-indicator')).toHaveText('1 of 3');await page.keyboard.press('Escape');
  const pkg=await packageFrom(page);expect(pkg.picture.action).toBe('add');expect(pkg.pictureSequence.action).toBe('set');expect(pkg.pictureSequence.paths).toEqual(['KB/Knots/assets/browser-sequence-knot/step-01.png','KB/Knots/assets/browser-sequence-knot/step-02.png','KB/Knots/assets/browser-sequence-knot/step-03.png']);expect(pkg.pictureSequence.files).toHaveLength(3);expect(pkg.picture.path).toBe(pkg.pictureSequence.paths.at(-1));
- const link=page.getByRole('link',{name:'Open the repository upload folder'});await expect(page.locator('.handoff-output')).toContainText('KB/Knots/assets/browser-sequence-knot/');await expect(link).toHaveAttribute('href','https://github.com/ginosega/fishing/upload/main/KB/Knots/assets/browser-sequence-knot');
+ const link=page.getByRole('link',{name:'Open the repository upload folder'});await expect(page.locator('.handoff-output')).toContainText('KB/Knots/assets/browser-sequence-knot/');await expect(link).toHaveAttribute('href','https://github.com/ginosega/fishing/upload/main/pwa/KB/Knots/assets/browser-sequence-knot');
 });
 
 test('FISH096 Edit sequence resolves type-away and supports keeping only representative picture',async({page})=>{

@@ -4,8 +4,6 @@ import {safePath,encodedPath,internalLink,assert,routeFor} from './shared.mjs';
 
 const md=new MarkdownIt({html:false,linkify:false,typographer:false,breaks:false});
 md.validateLink=url=>!(/^(?:javascript|vbscript|data|file|blob):/i.test(url)||url.startsWith('//'));
-const rawLink=md.renderer.rules.link_open||((tokens,i,options,env,self)=>self.renderToken(tokens,i,options));
-md.renderer.rules.link_open=(tokens,i,options,env,self)=>{tokens[i].attrSet('target','_self');return rawLink(tokens,i,options,env,self);};
 const rawImage=md.renderer.rules.image||((tokens,i,options,env,self)=>self.renderToken(tokens,i,options,env,self));
 md.renderer.rules.image=(tokens,i,options,env,self)=>{tokens[i].attrSet('loading','lazy');tokens[i].attrSet('decoding','async');return rawImage(tokens,i,options,env,self);};
 const imageExtension=/\.(?:jpe?g|png|webp|gif)$/i;
@@ -49,7 +47,7 @@ export function parseMarkdown(text,{owner,maps,assetBase='https://example.invali
    if(resolved.kind!=='local'||!imageExtension.test(resolved.local)||/[?#]/.test(original))throw new Error(`Remote or unsafe Markdown image: ${owner} -> ${original}`);
   }
   if(resolved.local&&exists&&!exists.has(resolved.local)&&!allowMissing)throw new Error(`Missing Markdown resource: ${owner} -> ${resolved.local}`);
-  references.push({owner,kind:image?'image':'link',source:original,...resolved});token.attrSet(attr,resolved.target);
+  references.push({owner,kind:image?'image':'link',source:original,...resolved});token.attrSet(attr,resolved.target);if(!image&&resolved.kind==='external'){token.attrSet('target','_blank');token.attrSet('rel','noopener noreferrer');}
  }}
  walk(tokens);
  const headings=new Map();for(let i=0;i<tokens.length;i++)if(tokens[i].type==='heading_open'){
@@ -60,7 +58,7 @@ export function parseMarkdown(text,{owner,maps,assetBase='https://example.invali
 }
 export function sanitizeHtml(html,window){
  const purifier=DOMPurify(window);
- return purifier.sanitize(html,{USE_PROFILES:{html:true},FORBID_TAGS:['iframe','object','embed','script','style','form','input','button','video','audio','source','svg','math'],FORBID_ATTR:['style','srcset','onerror','onclick','onload'],ALLOW_DATA_ATTR:false});
+ return purifier.sanitize(html,{USE_PROFILES:{html:true},ADD_ATTR:['target','rel'],FORBID_TAGS:['iframe','object','embed','script','style','form','input','button','video','audio','source','svg','math'],FORBID_ATTR:['style','srcset','onerror','onclick','onload'],ALLOW_DATA_ATTR:false});
 }
 export function renderMarkdown(text,options){return sanitizeHtml(parseMarkdown(text,options).html,options.window);}
 export function markdownRouteMap(data){const routes=new Map();for(const r of data.gear.items)if(r.notes)routes.set(r.notes,routeFor('gear',r.id));for(const r of data.kb.entities)routes.set(r.content,routeFor('kb',r.id));for(const r of data.catches.catches)if(r.notes)routes.set(r.notes,routeFor('catches',r.id));return routes;}

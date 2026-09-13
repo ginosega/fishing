@@ -16,7 +16,7 @@ const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript','.css':'t
 let server,base,temporary,initial,next,fixture;
 const state={legacy:false,disconnected:false,current:'initial',fail:new Set(),corrupt:new Set(),writes:[],reads:[]};
 const readJson=file=>fs.readFile(file,'utf8').then(JSON.parse);
-const sourceData=async()=>({gear:await readJson(path.join(repo,'Gear/gear.json')),kb:await readJson(path.join(repo,'KB/kb.json')),catches:await readJson(path.join(repo,'Catches/catches.json'))});
+const sourceData=async()=>({gear:await readJson(path.join(v2,'Gear/gear.json')),kb:await readJson(path.join(v2,'KB/kb.json')),catches:await readJson(path.join(v2,'Catches/catches.json'))});
 const encoded=value=>value.split('/').map(encodeURIComponent).join('/');
 const urlFor=(release,file)=>base+'releases/'+release.id+'/content/'+encoded(file);
 const run=(script,args)=>{const result=spawnSync(process.execPath,[script,...args],{cwd:repo,encoding:'utf8',maxBuffer:8*1024*1024});if(result.status!==0)throw new Error(result.stdout+'\n'+result.stderr);};
@@ -26,8 +26,7 @@ async function prepare(){
  initial={root:path.resolve(process.env.FISHING_DIST||path.join(v2,'dist'))};
  initial.pointer=await readJson(path.join(initial.root,'release.json'));initial.id=initial.pointer.id;
  const source=path.join(temporary,'source');
- for(const dir of ['Gear','KB','Catches'])await fs.cp(path.join(repo,dir),path.join(source,dir),{recursive:true});
- await fs.mkdir(path.join(source,'pwa'),{recursive:true});await fs.copyFile(path.join(repo,'pwa/icon.png'),path.join(source,'pwa/icon.png'));
+ for(const dir of ['Gear','KB','Catches'])await fs.cp(path.join(v2,dir),path.join(source,dir),{recursive:true});
  const data=await sourceData();const article=data.kb.entities.find(x=>x.content);
  fixture={articleId:article.id,articlePath:article.content,marker:'Browser release upgrade fixture'};
  await fs.appendFile(path.join(source,article.content),'\n\n## '+fixture.marker+'\n\nThe second release is independently verified.\n');
@@ -431,4 +430,25 @@ test('FISH084 copied packages exit to their origin and subsequent edits stay pro
   await packageFrom(page);await page.getByRole('button',{name:'Copy Changes',exact:true}).click();await page.getByRole('button',{name:'Exit',exact:true}).click();await expect(page).toHaveURL(new RegExp(prefix+record.id+'$'));await expect(heading(page,record.name)).toBeVisible();
  }
  expect(dialogs).toBe(2);
+});
+
+
+test('FISH103 external and internal link targets',async({page})=>{
+ await openReady(page);
+ await route(page,'#/inventory/item/daiwa-tatula-xt-rod','Daiwa Tatula');
+ const webLink=page.locator('.links-list a').first();await expect(webLink).toHaveAttribute('target','_blank');await expect(webLink).toHaveAttribute('rel','noopener noreferrer');
+ const internalGear=page.locator('.markdown-body a').filter({hasText:'Sufix 832'});await expect(internalGear).not.toHaveAttribute('target','_blank');
+ await route(page,'#/kb/knot-palomar','Palomar Knot');const markdownWeb=page.getByRole('link',{name:'Palomar Knot',exact:true});await expect(markdownWeb).toHaveAttribute('target','_blank');await expect(markdownWeb).toHaveAttribute('rel','noopener noreferrer');
+});
+
+test('FISH103 Gear caption typing retains focus',async({page})=>{
+ await openReady(page);await route(page,'#/inventory/edit/daiwa-tatula-xt-rod','Edit');const form=page.locator('.editor-form'),caption=form.getByLabel('Caption (optional)',{exact:true});await caption.click();await caption.pressSequentially('Gear caption focus');expect(await caption.evaluate(el=>document.activeElement===el)).toBeTruthy();await expect(caption).toHaveValue('Gear caption focus');await expect(form.locator('.picture figcaption')).toHaveText('Gear caption focus');
+});
+
+test('FISH103 KB caption typing retains focus',async({page})=>{
+ await openReady(page);await route(page,'#/kb/edit/knot-palomar','Edit');const form=page.locator('.editor-form'),caption=form.getByLabel('Caption (optional)',{exact:true});await caption.fill('');await caption.click();await caption.pressSequentially('KB caption focus');expect(await caption.evaluate(el=>document.activeElement===el)).toBeTruthy();await expect(caption).toHaveValue('KB caption focus');await expect(form.locator('.picture figcaption')).toHaveText('KB caption focus');
+});
+
+test('FISH103 new KB Markdown preview validates provisional content path',async({page})=>{
+ await openReady(page);await route(page,'#/kb/add/knot','Add Entry');const form=page.locator('.editor-form');await form.getByRole('textbox',{name:'Name',exact:true}).fill('FISH103 Preview Test');await form.locator('.markdown-editor').fill('Preview body with [Internal](kb://knot-palomar) and [External](https://example.com).');await form.getByRole('button',{name:'Preview Markdown',exact:true}).click();const preview=form.locator('.markdown-preview');await expect(preview).toBeVisible();await expect(preview).toContainText('Preview body');expect(await form.textContent()).not.toContain('kb schema:');await expect(preview.getByRole('link',{name:'External',exact:true})).toHaveAttribute('target','_blank');await expect(preview.getByRole('link',{name:'Internal',exact:true})).not.toHaveAttribute('target','_blank');
 });

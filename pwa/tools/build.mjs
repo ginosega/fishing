@@ -14,7 +14,7 @@ const base=option('--base','/fishing/v2-preview/');
 if(!base.startsWith('/')||!base.endsWith('/')||base.includes('..')||base.includes('//'))throw new Error('Build base must be a canonical absolute directory path');
 const pendingMedia=args.includes('--pending-media');
 if(pendingMedia&&base!=='/fishing/v2-preview/')throw new Error('Pending media may only be built for the isolated preview');
-const source=path.resolve(option('--source',repo)),output=path.resolve(option('--out',path.join(repo,'pwa/dist')));
+const source=path.resolve(option('--source',path.join(repo,'pwa'))),output=path.resolve(option('--out',path.join(repo,'pwa/dist')));
 const sourceRevision=option('--source-revision',(()=>{try{return execFileSync('git',['rev-parse','HEAD'],{cwd:source,encoding:'utf8'}).trim();}catch{return 'uncommitted-source';}})());
 const write=async(file,bytes)=>{await fs.mkdir(path.dirname(file),{recursive:true});await fs.writeFile(file,bytes);};
 const stableJson=value=>JSON.stringify(value,null,2)+'\n';
