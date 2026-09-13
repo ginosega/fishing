@@ -26,8 +26,8 @@ jobs:
           rm .github/workflows/fish100-closeout-final.yml
           git add -A
           git diff --cached --check
-          test "$(git diff --cached --name-only | sort | tr '\n' ' ')" = "Fishing_Context.md Fishing_Decision_Log.md Fishing_New_Chat_Bootstrap_Prompt.md Fishing_TODO.md README.md pwa/README.md "
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "Docs: close out FISH100 on current production"
+          test "$(git diff --name-only origin/main...HEAD | sort | tr '\n' ' ')" = "Fishing_Context.md Fishing_Decision_Log.md Fishing_New_Chat_Bootstrap_Prompt.md Fishing_TODO.md README.md pwa/README.md "
           git push origin HEAD:${GITHUB_REF_NAME}
