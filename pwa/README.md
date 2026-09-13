@@ -4,21 +4,24 @@ Fishing Companion is the active v2 PWA published at https://ginosega.github.io/f
 
 ## Current verified production — September 13, 2026
 
-FISH100 is live through [PR119](https://github.com/ginosega/fishing/pull/119). The user-supplied change package replaces only Palomar's canonical Markdown; no structured record, representative image, or sequence references changed. Package validation [run 34740644154](https://github.com/ginosega/fishing/actions/runs/34740644154) verified exact base ancestry, record fingerprint and Markdown SHA-256 and retained all 13 sequence frames. Pre-merge production acceptance [run 34740670930](https://github.com/ginosega/fishing/actions/runs/34740670930) passed. FISH100's feature merge source was `141198d1fbc1c651cd0b41d642d057c0f3b8a81c`.
+FISH101 is live through feature [PR121](https://github.com/ginosega/fishing/pull/121) plus verification-only [PR122](https://github.com/ginosega/fishing/pull/122). The submitted Knot change-package batch and explicit removal of Double Uni Knot and Single Uni Knot were validated before promotion. Branch validation [run 34766670229](https://github.com/ginosega/fishing/actions/runs/34766670229) passed all submitted stale-base checks and recomputed exact byte counts/SHA-256 hashes for all **39** pre-uploaded media files. Full pre-merge production acceptance [run 34766717362](https://github.com/ginosega/fishing/actions/runs/34766717362) passed.
 
-Subsequent direct source uploads staged unreferenced Improved Clinch, Modified Uni and Trilene frames plus `KB/Knots/assets/Non-Splip Loop Knot.png`. Because canonical KB records still do not reference these files, they are not active release/offline content.
+The feature release activates Improved Clinch (11 PNG), Modified Uni (12 JPG), and Trilene (15 PNG) sequences; adds the submitted static Non-Slip Loop picture; applies the submitted Knot content/structured refinements; updates Bowline's description; retains Palomar's existing 13-frame sequence while applying its submitted Markdown refinement; and removes Double Uni Knot and Single Uni Knot records plus their Markdown articles. Canonical KB count is now **55**.
+
+The feature merge source was `360d71ff2bfaf075ad498d18f05126268f6606f1`. Its first exact-main Pages deployment succeeded, but post-deploy hosted verification exposed a stale expected KB count of 57. PR122 changes only that hosted-verifier expectation to 55; no application content or behavior changed.
 
 Current production:
 
-- source: `52afc4335445706fa07d210dd8f3f2823e9636eb`
-- release: `c135fa258e6e1c8ed16324a57661d17e`
-- production workflow: [run 34765625164](https://github.com/ginosega/fishing/actions/runs/34765625164)
-- hosted v2 files: 288
-- hosted-verification artifact: `10320926230`
+- source: `2b76f9f91757705e361ed3485da0627e493c8d7d`
+- release: `eeba6be85560163522778e2e795d91d9`
+- production workflow: [run 34768935480](https://github.com/ginosega/fishing/actions/runs/34768935480)
+- hosted v2 files: **325**
+- hosted-verification artifact: `10322070321`
 
-The exact-current-main deployment passed complete source/core validation, Chromium/WebKit preview and production acceptance, archived-v1 cutover acceptance, Pages deployment, hosted-byte verification and hosted-browser verification.
+The exact-current-main deployment passed complete source/core validation, Chromium/WebKit preview and production acceptance, archived-v1 cutover acceptance, exact-current-main protection, Pages deployment, hosted-byte verification and hosted-browser verification.
 
-Active Knot sequences remain Palomar 13 PNG frames, Albright 15 JPG frames, Arbor 9 JPG frames, Bowline 7 JPG frames, and FG 29 JPG frames. FISH100 does not alter sequence behavior or media; it changes only Palomar's Markdown instructions/video content. Directory-only staged images remain inactive until explicitly referenced.
+Active Knot sequences are Palomar 13 PNG frames, Albright 15 JPG frames, Arbor 9 JPG frames, Bowline 7 JPG frames, FG 29 JPG frames, Improved Clinch 11 PNG frames, Modified Uni 12 JPG frames, and Trilene 15 PNG frames. Non-Slip Loop uses the submitted static representative picture. Double Uni Knot and Single Uni Knot are no longer canonical KB records. Directory-only images still never create a sequence; explicit canonical references remain required.
+
 ## Directory layout
 
 | Location | Purpose |
