@@ -1,0 +1,50 @@
+name: FISH103 apply and verify
+on:
+  push:
+    branches: [feature/fish103-pwa-source-and-authoring-fixes]
+permissions:
+  contents: write
+jobs:
+  apply:
+    if: ${{ !contains(github.event.head_commit.message, 'FISH103: relocate PWA source and fix authoring') }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Relocate canonical PWA source folders
+        run: |
+          git mv Gear pwa/Gear
+          git mv KB pwa/KB
+          git mv Catches pwa/Catches
+      - name: Apply FISH103 source and regression changes
+        run: node .github/scripts/fish103-apply.mjs
+      - name: Install locked dependencies
+        working-directory: pwa
+        run: npm ci --no-audit --no-fund
+      - name: Run source tests and production-style build
+        working-directory: pwa
+        run: |
+          npm test
+          npm run build -- --base=/fishing/ --source-revision="$GITHUB_SHA-fish103"
+          npm run verify
+      - name: Install Chromium and run browser regressions
+        working-directory: pwa
+        run: |
+          npx playwright install --with-deps chromium
+          npm run test:browser -- --project=chromium
+      - name: Commit canonical changes and remove temporary helpers
+        run: |
+          git config user.name "Gino Sega"
+          git config user.email "ginosega@gmail.com"
+          git rm .github/scripts/fish103-apply.mjs .github/workflows/fish103-apply.yml
+          git add -A
+          git diff --cached --check
+          test ! -e Gear && test ! -e KB && test ! -e Catches
+          test -d pwa/Gear && test -d pwa/KB && test -d pwa/Catches
+          git commit -m "FISH103: relocate PWA source and fix authoring"
+          git push origin HEAD:feature/fish103-pwa-source-and-authoring-fixes
