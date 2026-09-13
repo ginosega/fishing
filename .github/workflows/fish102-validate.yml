@@ -1,0 +1,27 @@
+name: FISH102 package validation
+on:
+  push:
+    branches:
+      - feature/fish102-line-tackle-reference
+    paths:
+      - .github/scripts/fish102-validate.mjs
+      - .github/workflows/fish102-validate.yml
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 24
+      - name: Fetch exact current main
+        run: git fetch origin main --depth=1
+      - name: Install locked dependencies
+        working-directory: pwa
+        run: npm ci --no-audit --no-fund
+      - name: Validate submitted package and staged picture bytes
+        run: node .github/scripts/fish102-validate.mjs
