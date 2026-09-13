@@ -26,6 +26,24 @@ jobs:
       - name: Validate all package bases and uploaded image bytes, then apply canonical changes
         run: node .github/scripts/fish099-apply.mjs
 
+      - name: Update release-integrity count fixtures for the added Bowline record
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('pwa/test/core.test.mjs')
+          s=p.read_text()
+          replacements={
+            '[69,56,5]':'[69,57,5]',
+            'maps.kb.size,56':'maps.kb.size,57',
+            'validateLibraryPaths(data).size,106':'validateLibraryPaths(data).size,107',
+            'result.references.length,236':'result.references.length,237',
+          }
+          for old,new in replacements.items():
+            if old not in s: raise SystemExit(f'missing expected fixture: {old}')
+            s=s.replace(old,new,1)
+          p.write_text(s)
+          PY
+
       - name: Run source tests
         working-directory: pwa
         run: |
