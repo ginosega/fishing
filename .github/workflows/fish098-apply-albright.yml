@@ -1,0 +1,110 @@
+name: FISH098 Apply Albright Package
+
+on:
+  push:
+    branches:
+      - feature/fish098-albright-sequence
+    paths:
+      - .github/workflows/fish098-apply-albright.yml
+
+permissions:
+  contents: write
+
+jobs:
+  validate-and-apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/fish098-albright-sequence
+          fetch-depth: 0
+      - name: Validate package and apply canonical changes
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, pathlib, subprocess
+
+          root = pathlib.Path('.')
+          kb_path = root / 'KB/kb.json'
+          notes_path = root / 'KB/Knots/content/albright.md'
+          workflow_path = root / '.github/workflows/fish098-apply-albright.yml'
+
+          expected_source_revision = '934d70bdd669180479f8c5a71c5e1050d2dbf56d'
+          expected_record_hash = 'df6239627f1548010c11f0007ca31412bddf79a64a51e86790525757f735c0cc'
+          expected_notes_hash = '0fb15579c19cdb5d90cd115e6c691fe78d79f9bb668bfa54c765dc2022de7188'
+          new_notes = "Easier on-the-water braid-to-fluoro alternative, although not as strong as an FG knot.\n\nVideo: [Albright knot](https://youtube.com/shorts/v6tp_hG3y1w?is=ck6NxtZj4Sik3nuP)\n"
+
+          files = [
+            ('KB/Knots/assets/knot-albright/step-01.jpg',7447,'a17984ea4633cd96a9fa25c293855aedd315f28a2570b7fb1f65a1b50110fbaf'),
+            ('KB/Knots/assets/knot-albright/step-02.jpg',7231,'2eddc7e18f23dae46bed0f2c7c9ee8d970406334ddd867cfb4c818df0cb64acd'),
+            ('KB/Knots/assets/knot-albright/step-03.jpg',9148,'ebfbc63830aa162354c8c9203155ffe289b3c5645d9c9d87342874e681b8bdd9'),
+            ('KB/Knots/assets/knot-albright/step-04.jpg',11258,'152ae450a745850cf84428f2c0da32e8720c8884a809367b6b455227ea4f739e'),
+            ('KB/Knots/assets/knot-albright/step-05.jpg',9993,'2d561863dbf07779e5d201833321ee3988518ce0842f8849e93d99eaab56fb4f'),
+            ('KB/Knots/assets/knot-albright/step-06.jpg',10649,'23d4e32350dd0bf4c75ff09ab2aebfea345bcb76c4ebc905d61d403f6fa71c59'),
+            ('KB/Knots/assets/knot-albright/step-07.jpg',10254,'2bdade4ac23963f08385c1d5b6527e5dc2391ff36fcab400ef34134a7ba98a7e'),
+            ('KB/Knots/assets/knot-albright/step-08.jpg',9838,'870db8eaf2eb1e1690fbef46e7de0aac8c39c42c9e82cfd916be9c604d0fe30c'),
+            ('KB/Knots/assets/knot-albright/step-09.jpg',9807,'3c9ad2830eba7a4bc0b7fffcbb1a6b46598c733c14a355c4dfc2b975542ac1a1'),
+            ('KB/Knots/assets/knot-albright/step-10.jpg',9731,'d493735175ce2d899cebd6246eab6b1193d66b89039b72104dbb9e5617c87e47'),
+            ('KB/Knots/assets/knot-albright/step-11.jpg',9950,'cf8945d1577fa8c3a66406219b7c6c858e88f25ca32052b2b75eda8a93d3908d'),
+            ('KB/Knots/assets/knot-albright/step-12.jpg',9681,'390c6dafb909388adc420a11fd26f4865e3f006140dc201a7b5a5c17ccca28f3'),
+            ('KB/Knots/assets/knot-albright/step-13.jpg',8880,'20158f4edbc8bb825e4f6533dbd853c7bcf46f9195ac3bdf30722f505980fafa'),
+            ('KB/Knots/assets/knot-albright/step-14.jpg',9176,'d58002fde68362e0011ba11f2ea093d4269c1dcc004b1e9980874585f38a935e'),
+            ('KB/Knots/assets/knot-albright/step-15.jpg',7629,'b5b8c06b779afdeec573db85a2c018444479a9a82bd75c2bff798fef069593ce'),
+          ]
+
+          def canonical(value):
+              if isinstance(value, list):
+                  return '[' + ','.join(canonical(v) for v in value) + ']'
+              if isinstance(value, dict):
+                  return '{' + ','.join(json.dumps(k, ensure_ascii=False) + ':' + canonical(value[k]) for k in sorted(value)) + '}'
+              if value is None:
+                  return 'null'
+              if value is True:
+                  return 'true'
+              if value is False:
+                  return 'false'
+              return json.dumps(value, ensure_ascii=False, separators=(',', ':'))
+
+          subprocess.run(['git','merge-base','--is-ancestor',expected_source_revision,'HEAD'], check=True)
+
+          data = json.loads(kb_path.read_text(encoding='utf-8'))
+          assert data.get('schemaVersion') == 2, 'KB schemaVersion mismatch'
+          matches = [r for r in data['entities'] if r.get('id') == 'knot-albright']
+          assert len(matches) == 1, 'Albright record missing/duplicated'
+          record = matches[0]
+          actual_record_hash = hashlib.sha256(canonical(record).encode('utf-8')).hexdigest()
+          assert actual_record_hash == expected_record_hash, f'recordHash conflict: {actual_record_hash}'
+          assert record.get('content') == 'KB/Knots/content/albright.md', 'content path conflict'
+          assert 'picture' not in record, 'picture base conflict'
+          assert 'pictureSequence' not in record, 'pictureSequence base conflict'
+
+          notes_bytes = notes_path.read_bytes()
+          actual_notes_hash = hashlib.sha256(notes_bytes).hexdigest()
+          assert actual_notes_hash == expected_notes_hash, f'notes hash conflict: {actual_notes_hash}'
+
+          sequence_paths = []
+          for rel, expected_bytes, expected_sha in files:
+              path = root / rel
+              assert path.is_file(), f'missing sequence frame: {rel}'
+              blob = path.read_bytes()
+              assert len(blob) == expected_bytes, f'byte-count mismatch: {rel}: {len(blob)}'
+              actual_sha = hashlib.sha256(blob).hexdigest()
+              assert actual_sha == expected_sha, f'SHA-256 mismatch: {rel}: {actual_sha}'
+              sequence_paths.append(rel)
+
+          record['picture'] = {'src': sequence_paths[-1], 'caption': 'Albright knot'}
+          record['pictureSequence'] = sequence_paths
+          kb_path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          notes_path.write_text(new_notes, encoding='utf-8', newline='')
+
+          workflow_path.unlink()
+          print('Validated stale-base safety, all 15 exact image hashes, and applied requested Albright canonical changes.')
+          PY
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add KB/kb.json KB/Knots/content/albright.md .github/workflows/fish098-apply-albright.yml
+          git diff --cached --check
+          git commit -m "FISH098: Apply Albright sequence change package"
+          git push origin HEAD:feature/fish098-albright-sequence
