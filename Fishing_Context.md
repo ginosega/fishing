@@ -1,21 +1,20 @@
 # Fishing Context
 
-## Current authoritative state — September 12, 2026
+## Current authoritative state — September 13, 2026
 
-FISH-TODO-098 is **DONE / production-verified**. The user-supplied Albright `fishing-companion-change-v2` edit package was validated and applied through [PR114](https://github.com/ginosega/fishing/pull/114). Branch validation [run 34736320090](https://github.com/ginosega/fishing/actions/runs/34736320090) confirmed the stale-base safety checks and recomputed all 15 pre-uploaded Albright JPG byte counts and SHA-256 hashes exactly before canonical promotion. Pre-merge acceptance [run 34736339166](https://github.com/ginosega/fishing/actions/runs/34736339166) passed.
+FISH-TODO-099 is **DONE / production-verified**. Four explicit user-supplied KB change packages were validated and applied through [PR116](https://github.com/ginosega/fishing/pull/116). Branch validation [run 34738967489](https://github.com/ginosega/fishing/actions/runs/34738967489) confirmed source-aware record/content bases and recomputed all 45 pre-uploaded JPG byte counts/SHA-256 hashes exactly. Pre-merge acceptance [run 34738991146](https://github.com/ginosega/fishing/actions/runs/34738991146) passed. A one-line stale hosted-verifier KB-count expectation discovered after the initial Pages deploy was repaired in verification-only [PR117](https://github.com/ginosega/fishing/pull/117), which also passed full CI.
 
 Current verified production:
 
-- source `65ac208dbb1a116cc321d5b13bea1228b3d1ee6f`
-- release `29d23d0444d3a187d8f67edf0a28e82d`
-- [workflow run 34736590334](https://github.com/ginosega/fishing/actions/runs/34736590334)
-- 242 hosted v2 files
-- hosted-verification artifact `10310509883`
+- source `9899849be676e971e3670fe72eba7ffd66986d68`
+- release `b331a8c5575769159113a59a17b12bca`
+- [workflow run 34740072017](https://github.com/ginosega/fishing/actions/runs/34740072017)
+- 288 hosted v2 files
+- hosted-verification artifact `10312475498`
 
-That production run passed source/core validation, Chromium/WebKit preview acceptance, production-browser acceptance, actual archived-v1 cutover acceptance, exact-current-main guard, Pages deployment, hosted-byte verification and hosted-browser verification. The hosted bundle contains all 15 explicitly referenced Albright sequence frames.
+The final run passed source/core validation, Chromium/WebKit preview acceptance, production-browser acceptance, actual archived-v1 cutover acceptance, exact-current-main guard, Pages deployment, hosted-byte verification and hosted-browser verification.
 
-FISH096 remains the implemented sequence capability. FISH097 activates Palomar; FISH098 activates Albright. Albright retains its existing structured fields/description, uses the exact submitted replacement Markdown, representative `KB/Knots/assets/knot-albright/step-15.jpg` with caption `Albright knot`, and ordered `pictureSequence` references from `step-01.jpg` through `step-15.jpg`.
-
+FISH096 remains the implemented sequence capability. FISH097 activates Palomar, FISH098 activates Albright, and FISH099 adds Arbor, Bowline, and FG sequences while updating only the package-requested canonical content. Albright keeps its existing 15-frame sequence and now has description `Easier on-the-water braid-to-fluoro alternative to the FG knot`. Arbor uses 9 frames with `step-09.jpg` representative. Bowline is a new Knot using 7 frames with `step-07.jpg` representative. FG retains its prior structured description and uses 29 frames with `step-29.jpg` representative.
 ## Operating mode
 
 This project uses **Chat mode by default and permanently**. Do not recommend Work merely because a task is complex, lengthy, file-heavy, analytical, involves research/calculation, creates artifacts or has substantial context. Recommend a temporary switch only for a genuinely Work-only capability; explain the specific need and obtain explicit approval first, then return to Chat afterward.
@@ -58,14 +57,12 @@ The retired Planner, Trip History/Sessions, paired-setup structures and old v1-o
 
 All seven originally required missing pictures from the v2 cutover have since been resolved. The historically optional generic inline-spinner now has the user-supplied Kingforest picture. Current source includes the later validated location pictures, Trout Fishing picture, Topwater Fishing and Bass Fishing Technique records, and all other post-cutover canonical authoring changes already merged before FISH096.
 
-The 13 Palomar step frames at `KB/Knots/assets/knot-palomar/step-01.png` through `step-13.png` are now explicitly referenced by the canonical `knot-palomar` record and are included in the verified production release. `step-13.png` is the representative picture and all 13 frames are part of explicit offline-library preparation.
-
-The 15 Albright step frames at `KB/Knots/assets/knot-albright/step-01.jpg` through `step-15.jpg` are explicitly referenced by the canonical `knot-albright` record and included in verified production. `step-15.jpg` is the representative picture and all 15 frames participate in explicit offline-library preparation.
+The active Knot sequences are Palomar (13 PNG frames, `step-13.png` representative), Albright (15 JPG frames, `step-15.jpg` representative), Arbor (9 JPG frames, `step-09.jpg` representative), Bowline (7 JPG frames, `step-07.jpg` representative), and FG (29 JPG frames, `step-29.jpg` representative). Every sequence is explicitly referenced by canonical KB data and participates in FISH091 explicit complete-library preparation; directory contents alone never create a sequence.
 
 The canonical PWA icon is `pwa/icon.png`. Historical filenames/bytes remain in Git history only as recovery evidence.
 
 ## Continuation
 
-FISH071–076, FISH078–098 are complete except FISH077/P2, which remains deferred. Existing fishing/equipment/content backlog and purchase uncertainty remain active in `Fishing_TODO.md`. The next unused canonical task ID is **FISH-TODO-099**.
+FISH071–076, FISH078–099 are complete except FISH077/P2, which remains deferred. Existing fishing/equipment/content backlog and purchase uncertainty remain active in `Fishing_TODO.md`. The next unused canonical task ID is **FISH-TODO-100**.
 
-For a new chat, read `README.md`, this file, `Fishing_TODO.md`, `Fishing_Decision_Log.md`, then `Fishing_New_Chat_Bootstrap_Prompt.md`. Historical release/migration evidence remains in Git history and `pwa/docs/`; do not restart completed FISH096, FISH097 or FISH098 release work.
+For a new chat, read `README.md`, this file, `Fishing_TODO.md`, `Fishing_Decision_Log.md`, then `Fishing_New_Chat_Bootstrap_Prompt.md`. Historical release/migration evidence remains in Git history and `pwa/docs/`; do not restart completed FISH096, FISH097, FISH098 or FISH099 release work.

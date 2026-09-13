@@ -16,27 +16,24 @@ Read these files from actual latest `main`, in order:
 
 Before implementation, release or repository-write work, also confirm current open-PR state. Newer primary repository evidence controls over stale chat descriptions.
 
-## Current production continuation point — September 12, 2026
+## Current production continuation point — September 13, 2026
 
-FISH-TODO-098 is **DONE / production-verified**. The explicit user-supplied Albright change package was validated and applied through [PR114](https://github.com/ginosega/fishing/pull/114); branch validation [run 34736320090](https://github.com/ginosega/fishing/actions/runs/34736320090) recomputed all 15 pre-uploaded JPG byte counts/SHA-256 hashes and validated the source-aware package bases before promotion. Pre-merge acceptance [run 34736339166](https://github.com/ginosega/fishing/actions/runs/34736339166) passed.
+FISH-TODO-099 is **DONE / production-verified**. Four user-supplied KB change packages were validated and applied through [PR116](https://github.com/ginosega/fishing/pull/116). Validation [run 34738967489](https://github.com/ginosega/fishing/actions/runs/34738967489) verified the source-aware bases and all 45 pre-uploaded JPG byte counts/SHA-256 hashes before promotion; pre-merge acceptance [run 34738991146](https://github.com/ginosega/fishing/actions/runs/34738991146) passed. A stale hosted-verifier KB-count fixture discovered after the first deployment was repaired in verification-only [PR117](https://github.com/ginosega/fishing/pull/117).
 
 Current verified production:
 
-- source: `65ac208dbb1a116cc321d5b13bea1228b3d1ee6f`
-- release: `29d23d0444d3a187d8f67edf0a28e82d`
-- production workflow: [run 34736590334](https://github.com/ginosega/fishing/actions/runs/34736590334)
-- hosted v2 files: 242
-- hosted-verification artifact: `10310509883`
+- source: `9899849be676e971e3670fe72eba7ffd66986d68`
+- release: `b331a8c5575769159113a59a17b12bca`
+- production workflow: [run 34740072017](https://github.com/ginosega/fishing/actions/runs/34740072017)
+- hosted v2 files: 288
+- hosted-verification artifact: `10312475498`
 - site: https://ginosega.github.io/fishing/
 
-Albright is now an active 15-frame step-by-step sequence in canonical KB data. Its ordered `pictureSequence` is `step-01.jpg` through `step-15.jpg`; `step-15.jpg` is the representative `picture.src`; caption is `Albright knot`; and the submitted Markdown replacement is applied exactly. No structured field changes were requested, so retain the existing Albright description. Do not revert to the former unreferenced-frame state.
+Active canonical Knot sequences are Palomar (13 PNG), Albright (15 JPG), Arbor (9 JPG), Bowline (7 JPG), and FG (29 JPG). FISH099 changed only the package-requested content/fields and explicit sequence references: Albright description/Markdown; Arbor description/Markdown/sequence; new Bowline record/Markdown/sequence; FG Markdown/sequence with its structured description preserved.
 
-Palomar remains an active 13-frame sequence from FISH097.
+The final production run passed source/core validation, Chromium/WebKit preview and production acceptance, archived-v1 cutover acceptance, exact-current-main deployment protection, Pages deployment, hosted-byte verification and hosted-browser verification.
 
-The production run passed source/core validation, Chromium/WebKit preview and production acceptance, actual archived-v1 cutover acceptance, exact-current-main deployment protection, Pages deployment, hosted-byte verification and hosted-browser verification. The deployed release contains all 15 Albright frames.
-
-Do **not** restart FISH096, FISH097 or FISH098 implementation/deployment work.
-
+Do **not** restart FISH096, FISH097, FISH098 or FISH099 implementation/deployment work.
 ## Current durable behavior
 
 Fishing Companion uses independent Gear, KB and Catch domains. Canonical data is in repository-root `Gear/`, `KB/` and `Catches/`; active application/build/test code is under `pwa/`. `.github/workflows/fishing-production.yml` is the sole active production publisher.
@@ -53,9 +50,9 @@ FISH-TODO-077/P2 remains **DEFERRED**: no authentication, Direct Save, integrate
 
 ## Task state
 
-FISH071–076 and FISH078–098 are complete. FISH077/P2 remains deferred. Preserve all unresolved fishing/equipment/content backlog and explicit purchase uncertainty in `Fishing_TODO.md`.
+FISH071–076 and FISH078–099 are complete. FISH077/P2 remains deferred. Preserve all unresolved fishing/equipment/content backlog and explicit purchase uncertainty in `Fishing_TODO.md`.
 
-The next unused canonical task ID is **FISH-TODO-099** unless actual newer `main` has already allocated it.
+The next unused canonical task ID is **FISH-TODO-100** unless actual newer `main` has already allocated it.
 
 ## Working rules
 
