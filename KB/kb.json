@@ -402,7 +402,28 @@
       "type": "knot",
       "name": "Albright Knot",
       "description": "Easier on-the-water braid-to-fluoro alternative",
-      "content": "KB/Knots/content/albright.md"
+      "content": "KB/Knots/content/albright.md",
+      "picture": {
+        "src": "KB/Knots/assets/knot-albright/step-15.jpg",
+        "caption": "Albright knot"
+      },
+      "pictureSequence": [
+        "KB/Knots/assets/knot-albright/step-01.jpg",
+        "KB/Knots/assets/knot-albright/step-02.jpg",
+        "KB/Knots/assets/knot-albright/step-03.jpg",
+        "KB/Knots/assets/knot-albright/step-04.jpg",
+        "KB/Knots/assets/knot-albright/step-05.jpg",
+        "KB/Knots/assets/knot-albright/step-06.jpg",
+        "KB/Knots/assets/knot-albright/step-07.jpg",
+        "KB/Knots/assets/knot-albright/step-08.jpg",
+        "KB/Knots/assets/knot-albright/step-09.jpg",
+        "KB/Knots/assets/knot-albright/step-10.jpg",
+        "KB/Knots/assets/knot-albright/step-11.jpg",
+        "KB/Knots/assets/knot-albright/step-12.jpg",
+        "KB/Knots/assets/knot-albright/step-13.jpg",
+        "KB/Knots/assets/knot-albright/step-14.jpg",
+        "KB/Knots/assets/knot-albright/step-15.jpg"
+      ]
     },
     {
       "id": "knot-trilene",
