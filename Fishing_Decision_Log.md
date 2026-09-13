@@ -28,7 +28,7 @@ Routine source changes update canonical files directly; do not create per-item r
 
 **Decision/status:** DONE and production-verified. Ordinary online startup/navigation does not provision the complete offline library. **Connection Status → Update offline library** explicitly prepares or refreshes the verified complete offline generation. Online browsing uses current production even when an older complete offline generation remains available as fallback. Failed/corrupt/quota-failed explicit updates preserve the prior complete generation. Devices without a prepared generation must not claim offline readiness.
 
-FISH096/FISH097/FISH098/FISH099/FISH100 do not change this decision.
+FISH096–FISH101 do not change this decision.
 
 ## FISH096 — Knot step-by-step picture sequences
 
@@ -88,13 +88,21 @@ The first production deployment correctly published the new 57-record KB but exp
 
 The package is authoritative for this change: only `KB/Knots/content/palomar.md` is replaced with the exact submitted Markdown. No structured Palomar fields change; `picture.src` remains `KB/Knots/assets/knot-palomar/step-13.png`, and the existing 13-frame `pictureSequence` remains unchanged. FISH100's feature merge source was `141198d1fbc1c651cd0b41d642d057c0f3b8a81c`.
 
-Later user uploads staged Improved Clinch, Modified Uni and Trilene frame files plus `KB/Knots/assets/Non-Splip Loop Knot.png` without changing canonical KB references. Per FISH096, those directory-only files remain inactive/unreleased sequence media until a future explicit canonical package references them.
+Later user uploads staged Improved Clinch, Modified Uni and Trilene frame files plus `KB/Knots/assets/Non-Splip Loop Knot.png` without changing canonical KB references. Per FISH096, those directory-only files remained inactive/unreleased sequence media until FISH101 explicitly referenced them.
 
-Current verified production source is `52afc4335445706fa07d210dd8f3f2823e9636eb`, release `c135fa258e6e1c8ed16324a57661d17e`, [run 34765625164](https://github.com/ginosega/fishing/actions/runs/34765625164), 288 hosted v2 files, hosted-verification artifact `10320926230`. Full CI, exact-current-main deployment, hosted-byte verification and hosted-browser verification passed.
+## FISH101 — Knot guidance, sequence activation and removals
+
+**Decision/status:** DONE and production-verified. The submitted Knot package batch and explicit deletions were applied through [PR121](https://github.com/ginosega/fishing/pull/121). Branch validation [run 34766670229](https://github.com/ginosega/fishing/actions/runs/34766670229) passed all package stale-base checks, verified the two deletion targets, and recomputed the exact byte count/SHA-256 for all **39** staged images. Full pre-merge production acceptance [run 34766717362](https://github.com/ginosega/fishing/actions/runs/34766717362) passed.
+
+The authoritative content result is: Improved Clinch receives the submitted description/Markdown and 11-frame PNG sequence (`step-11.png` representative); Modified Uni receives the submitted description/Markdown and 12-frame JPG sequence (`step-12.jpg` representative); Non-Slip Loop is renamed **Non-Slip Loop Knot**, receives the submitted description/Markdown and static representative `Non-Splip Loop Knot.png`; Palomar receives the submitted Markdown refinement while retaining its 13-frame sequence; Trilene receives the submitted description/Markdown and 15-frame PNG sequence (`step-15.png` representative); Bowline's description becomes `Use for tying a rope to the bow of a boat`; Double Uni Knot and Single Uni Knot are removed from canonical KB source with their Markdown articles. The resulting KB count is 55.
+
+The feature merge source was `360d71ff2bfaf075ad498d18f05126268f6606f1`. Its first exact-main Pages deployment succeeded but post-deploy hosted verification exposed a stale expected KB count of 57. Verification-only [PR122](https://github.com/ginosega/fishing/pull/122) changed only that verifier count to 55. Final verified production source is `2b76f9f91757705e361ed3485da0627e493c8d7d`, release `eeba6be85560163522778e2e795d91d9`, [run 34768935480](https://github.com/ginosega/fishing/actions/runs/34768935480), **325 hosted v2 files**, hosted-verification artifact `10322070321`. Full CI, exact-current-main deployment, hosted-byte verification and hosted-browser verification passed.
+
+FISH101 confirms the existing FISH096 rule: pre-uploaded directory content remains inactive until explicitly referenced; once referenced by canonical `picture`/`pictureSequence`, those bytes become release and explicit-offline-library content.
 
 ## Deferred P2 boundary
 
-**Decision:** FISH-TODO-077/P2 remains **DEFERRED**. Authentication, Direct Save, integrated GitHub upload, offline authoring, outbox/sync, Catch authoring and multi-user generalization are not implemented or implicitly authorized by FISH096–FISH100.
+**Decision:** FISH-TODO-077/P2 remains **DEFERRED**. Authentication, Direct Save, integrated GitHub upload, offline authoring, outbox/sync, Catch authoring and multi-user generalization are not implemented or implicitly authorized by FISH096–FISH101.
 
 ## Media and repository layout
 
@@ -104,4 +112,4 @@ The canonical application icon is `pwa/icon.png`. Historical icon names/bytes an
 
 ## Open work
 
-FISH071–076 and FISH078–100 are complete; FISH077/P2 remains deferred. The canonical TODO preserves active fishing/gear/content research and purchase uncertainty, including unresolved PowerBait hook-size and loop-knot guidance questions. The next unused canonical task ID is **FISH-TODO-101**.
+FISH071–076 and FISH078–101 are complete; FISH077/P2 remains deferred. The canonical TODO preserves active fishing/gear/content research and purchase uncertainty, including unresolved PowerBait hook-size and loop-knot guidance questions. The next unused canonical task ID is **FISH-TODO-102**.

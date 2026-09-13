@@ -2,20 +2,21 @@
 
 ## Current project task state — September 13, 2026
 
-**FISH-TODO-100 — DONE / production-verified.** The user-supplied Palomar `fishing-companion-change-v2` package was validated and applied through [PR119](https://github.com/ginosega/fishing/pull/119). Validation [run 34740644154](https://github.com/ginosega/fishing/actions/runs/34740644154) confirmed package ancestry, exact current record fingerprint `d09e83e7cfc3ddd6531389fc460620c66b23cfafb5a1b4866f6c20c89be8e94a`, exact Markdown base hash `05a439f4d5b2a5db6b37666c20dc742e29685cd11aaffce351ae7cc0e7ff8580`, retained representative `step-13.png`, and retained all 13 explicit sequence frames. All source tests passed. Pre-merge production acceptance [run 34740670930](https://github.com/ginosega/fishing/actions/runs/34740670930) passed.
+**FISH-TODO-101 — DONE / production-verified.** The submitted Knot change-package batch plus the explicit request to remove Double Uni Knot and Single Uni Knot were validated and applied through [PR121](https://github.com/ginosega/fishing/pull/121). Branch validation [run 34766670229](https://github.com/ginosega/fishing/actions/runs/34766670229) confirmed all submitted stale-base checks and recomputed the exact byte counts/SHA-256 hashes for all **39** pre-uploaded media files. Full pre-merge production acceptance [run 34766717362](https://github.com/ginosega/fishing/actions/runs/34766717362) passed.
 
-The requested canonical result is Markdown-only: `KB/Knots/content/palomar.md` was replaced exactly with the submitted four instructional bullets and Palomar video link. No structured fields, picture, or `pictureSequence` references changed.
+The requested canonical result activates Improved Clinch (11 PNG), Modified Uni (12 JPG), and Trilene (15 PNG) sequences; adds the submitted static Non-Slip Loop picture; applies the submitted content/structured Knot refinements; updates Bowline's description; keeps Palomar's 13-frame sequence while applying its Markdown refinement; and removes Double Uni Knot and Single Uni Knot records plus their Markdown articles. Canonical KB count is now **55**.
 
-FISH100's feature merge source was `141198d1fbc1c651cd0b41d642d057c0f3b8a81c`. Later direct uploads staged additional unreferenced Knot image files for Improved Clinch, Modified Uni, Trilene, and a Non-Slip Loop image. They did not alter canonical KB records and do not activate new sequences.
+The feature merge source was `360d71ff2bfaf075ad498d18f05126268f6606f1`. Its first exact-main Pages deployment succeeded but the hosted verifier still expected 57 KB records. Verification-only [PR122](https://github.com/ginosega/fishing/pull/122) changed only that stale expectation to 55.
 
-Current verified production is source `52afc4335445706fa07d210dd8f3f2823e9636eb`, release `c135fa258e6e1c8ed16324a57661d17e`, [run 34765625164](https://github.com/ginosega/fishing/actions/runs/34765625164), with **288 hosted v2 files** and hosted-verification artifact `10320926230`.
+Current verified production is source `2b76f9f91757705e361ed3485da0627e493c8d7d`, release `eeba6be85560163522778e2e795d91d9`, [run 34768935480](https://github.com/ginosega/fishing/actions/runs/34768935480), with **325 hosted v2 files** and hosted-verification artifact `10322070321`.
 
 FISH-TODO-077/P2 remains **DEFERRED**. Authentication, Direct Save, integrated uploads, offline authoring, outbox/sync and Catch authoring are not part of current production.
 
-The next unused canonical task ID is **FISH-TODO-101**.
+The next unused canonical task ID is **FISH-TODO-102**.
+
 ## Completed/superseded application work
 
-FISH071–076 and FISH078–100 are complete. FISH077 is the intentional deferred P2 boundary. Historical v1-only items FISH-TODO-063 (old KB filename/upload constraints) and FISH-TODO-039 (structured setup recording on catches) are superseded by the approved v2 architecture and must not be used to reintroduce retired structures.
+FISH071–076 and FISH078–101 are complete. FISH077 is the intentional deferred P2 boundary. Historical v1-only items FISH-TODO-063 (old KB filename/upload constraints) and FISH-TODO-039 (structured setup recording on catches) are superseded by the approved v2 architecture and must not be used to reintroduce retired structures.
 
 Detailed completion/release evidence remains in Git history and dated `pwa/docs/` records. This TODO intentionally keeps current open/deferred work instead of repeating every historical release.
 
@@ -59,4 +60,4 @@ These items remain open/deferred independently of Fishing Companion release work
 
 ## Continuation rules
 
-Use Chat mode by default. Restore actual latest `main` before acting. For new application work, allocate **FISH-TODO-101** unless a newer task has already been created on current `main`. Do not reopen FISH096/FISH097/FISH098/FISH099/FISH100 or P2 work without an explicit new user request.
+Use Chat mode by default. Restore actual latest `main` before acting. For new application work, allocate **FISH-TODO-102** unless a newer task has already been created on current `main`. Do not reopen FISH096–FISH101 or P2 work without an explicit new user request.

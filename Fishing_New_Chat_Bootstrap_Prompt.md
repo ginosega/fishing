@@ -18,24 +18,27 @@ Before implementation, release or repository-write work, also confirm current op
 
 ## Current production continuation point — September 13, 2026
 
-FISH-TODO-100 is **DONE / production-verified**. The user-supplied Palomar Markdown-only change package was validated and applied through [PR119](https://github.com/ginosega/fishing/pull/119). Validation [run 34740644154](https://github.com/ginosega/fishing/actions/runs/34740644154) confirmed package ancestry, exact current record fingerprint and Markdown base hash, and unchanged picture/13-frame sequence state. Pre-merge production acceptance [run 34740670930](https://github.com/ginosega/fishing/actions/runs/34740670930) passed. FISH100's direct feature merge source was `141198d1fbc1c651cd0b41d642d057c0f3b8a81c`.
+FISH-TODO-101 is **DONE / production-verified**. The submitted Knot change-package batch plus the explicit request to remove Double Uni Knot and Single Uni Knot were validated and applied through [PR121](https://github.com/ginosega/fishing/pull/121). Branch validation [run 34766670229](https://github.com/ginosega/fishing/actions/runs/34766670229) passed all submitted stale-base checks, verified the deletion targets, and recomputed the exact byte counts/SHA-256 hashes for all **39** pre-uploaded media files. Full pre-merge production acceptance [run 34766717362](https://github.com/ginosega/fishing/actions/runs/34766717362) passed.
 
-Later source-only uploads added unreferenced Knot media for Improved Clinch, Modified Uni, Trilene, and a Non-Slip Loop image. They do not activate any new canonical media or sequence without explicit KB references.
+FISH101 activates Improved Clinch (11 PNG), Modified Uni (12 JPG), and Trilene (15 PNG) sequences; adds the submitted static Non-Slip Loop picture; applies the submitted Knot content/structured refinements; updates Bowline's description; retains Palomar's 13-frame sequence while applying its submitted Markdown refinement; and removes Double Uni Knot and Single Uni Knot records plus their Markdown articles. Canonical KB count is now **55**.
+
+The feature merge source was `360d71ff2bfaf075ad498d18f05126268f6606f1`. Its first exact-main Pages deployment succeeded, but post-deploy verification exposed a stale hosted verifier expected count of 57. Verification-only [PR122](https://github.com/ginosega/fishing/pull/122) changed only that verifier expectation to 55; no application content or runtime behavior changed.
 
 Current verified production:
 
-- source: `52afc4335445706fa07d210dd8f3f2823e9636eb`
-- release: `c135fa258e6e1c8ed16324a57661d17e`
-- production workflow: [run 34765625164](https://github.com/ginosega/fishing/actions/runs/34765625164)
-- hosted v2 files: 288
-- hosted-verification artifact: `10320926230`
+- source: `2b76f9f91757705e361ed3485da0627e493c8d7d`
+- release: `eeba6be85560163522778e2e795d91d9`
+- production workflow: [run 34768935480](https://github.com/ginosega/fishing/actions/runs/34768935480)
+- hosted v2 files: **325**
+- hosted-verification artifact: `10322070321`
 - site: https://ginosega.github.io/fishing/
 
-FISH100 changes only `KB/Knots/content/palomar.md` to the user's exact submitted replacement. Palomar's structured record, `step-13.png` representative image, and explicit 13-frame sequence remain unchanged. All other active Knot sequences remain intact.
+Active Knot sequences are Palomar (13 PNG), Albright (15 JPG), Arbor (9 JPG), Bowline (7 JPG), FG (29 JPG), Improved Clinch (11 PNG), Modified Uni (12 JPG), and Trilene (15 PNG). Non-Slip Loop has the submitted static representative picture. Double Uni Knot and Single Uni Knot are no longer canonical KB records.
 
 The current exact-main production run passed source/core validation, Chromium/WebKit preview and production acceptance, archived-v1 cutover acceptance, exact-current-main deployment protection, Pages deployment, hosted-byte verification and hosted-browser verification.
 
-Do **not** restart FISH096, FISH097, FISH098, FISH099 or FISH100 implementation/deployment work.
+Do **not** restart FISH096–FISH101 implementation/deployment work.
+
 ## Current durable behavior
 
 Fishing Companion uses independent Gear, KB and Catch domains. Canonical data is in repository-root `Gear/`, `KB/` and `Catches/`; active application/build/test code is under `pwa/`. `.github/workflows/fishing-production.yml` is the sole active production publisher.
@@ -46,15 +49,15 @@ FISH096 adds optional **Knot-only** explicit ordered `pictureSequence` support. 
 
 Knot Add/Edit keeps sequence operations in the existing Picture section. Add/replace sequence uses native complete multi-file selection; filenames define order; the final frame automatically becomes the representative picture. Converting into a sequence requires the complete intended sequence and never silently reuses the old static picture. Converting out may use a new static picture or retain the existing representative final frame. Old source image bytes are not automatically deleted.
 
-Prepare Changes → Copy Changes remains a source-aware P1 handoff. It now carries explicit sequence intent, ordered paths and file hashes, but it still does not write to GitHub directly.
+Prepare Changes → Copy Changes remains a source-aware P1 handoff. It carries explicit sequence intent, ordered paths and file hashes, but it still does not write to GitHub directly.
 
 FISH-TODO-077/P2 remains **DEFERRED**: no authentication, Direct Save, integrated browser upload, offline authoring, outbox/sync or Catch authoring.
 
 ## Task state
 
-FISH071–076 and FISH078–100 are complete. FISH077/P2 remains deferred. Preserve all unresolved fishing/equipment/content backlog and explicit purchase uncertainty in `Fishing_TODO.md`.
+FISH071–076 and FISH078–101 are complete. FISH077/P2 remains deferred. Preserve all unresolved fishing/equipment/content backlog and explicit purchase uncertainty in `Fishing_TODO.md`.
 
-The next unused canonical task ID is **FISH-TODO-101** unless actual newer `main` has already allocated it.
+The next unused canonical task ID is **FISH-TODO-102** unless actual newer `main` has already allocated it.
 
 ## Working rules
 

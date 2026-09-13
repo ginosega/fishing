@@ -2,21 +2,32 @@
 
 ## Current authoritative state — September 13, 2026
 
-FISH-TODO-100 is **DONE / production-verified**. The explicit user-supplied Palomar `fishing-companion-change-v2` package was validated and applied through [PR119](https://github.com/ginosega/fishing/pull/119). Validation [run 34740644154](https://github.com/ginosega/fishing/actions/runs/34740644154) confirmed base-source ancestry, exact current record fingerprint `d09e83e7cfc3ddd6531389fc460620c66b23cfafb5a1b4866f6c20c89be8e94a`, exact current Markdown SHA-256 `05a439f4d5b2a5db6b37666c20dc742e29685cd11aaffce351ae7cc0e7ff8580`, and unchanged representative picture/13-frame sequence state. All source tests passed; pre-merge production acceptance [run 34740670930](https://github.com/ginosega/fishing/actions/runs/34740670930) passed. FISH100's feature merge source was `141198d1fbc1c651cd0b41d642d057c0f3b8a81c`.
+FISH-TODO-101 is **DONE / production-verified**. The submitted Knot change-package batch plus the explicit request to remove Double Uni Knot and Single Uni Knot were validated and applied through [PR121](https://github.com/ginosega/fishing/pull/121). Branch validation [run 34766670229](https://github.com/ginosega/fishing/actions/runs/34766670229) confirmed all submitted record/content stale-base checks and recomputed the exact byte count and SHA-256 for all **39** pre-uploaded media files. Full pre-merge production acceptance [run 34766717362](https://github.com/ginosega/fishing/actions/runs/34766717362) passed.
 
-After that merge, later direct uploads added unreferenced Knot media only: Improved Clinch `step-01.png` through `step-11.png`, Modified Uni `step-01.jpg` through `step-12.jpg`, Trilene `step-01.png` through `step-15.png`, and `KB/Knots/assets/Non-Splip Loop Knot.png`. Canonical KB records did not change, so these files remain staged source assets rather than active/released sequence content.
+FISH101's canonical content result is:
+
+- Improved Clinch: submitted description/Markdown plus an explicit 11-frame PNG sequence, `step-11.png` representative;
+- Modified Uni: submitted description/Markdown plus an explicit 12-frame JPG sequence, `step-12.jpg` representative;
+- Non-Slip Loop: renamed to **Non-Slip Loop Knot**, submitted description/Markdown, and static representative `KB/Knots/assets/Non-Splip Loop Knot.png`;
+- Palomar: submitted Markdown refinement; structured record and existing 13-frame sequence remain otherwise unchanged;
+- Trilene: submitted description/Markdown plus an explicit 15-frame PNG sequence, `step-15.png` representative;
+- Bowline Knot: description updated to `Use for tying a rope to the bow of a boat`; existing 7-frame sequence retained;
+- Double Uni Knot and Single Uni Knot: canonical records and Markdown articles removed.
+
+The resulting canonical KB count is **55**. Required source-test fixtures were aligned only to the deliberate deletions: KB records 57→55, validated library paths 107→105, and referenced source files 237→235.
+
+The feature merge source was `360d71ff2bfaf075ad498d18f05126268f6606f1`. Its first exact-main Pages deployment succeeded, but post-deploy verification exposed a stale hosted verifier expectation of 57 KB records. Verification-only [PR122](https://github.com/ginosega/fishing/pull/122) changed only that expectation to 55; no application content or runtime behavior changed.
 
 Current verified production:
 
-- source `52afc4335445706fa07d210dd8f3f2823e9636eb`
-- release `c135fa258e6e1c8ed16324a57661d17e`
-- [workflow run 34765625164](https://github.com/ginosega/fishing/actions/runs/34765625164)
-- 288 hosted v2 files
-- hosted-verification artifact `10320926230`
+- source `2b76f9f91757705e361ed3485da0627e493c8d7d`
+- release `eeba6be85560163522778e2e795d91d9`
+- [workflow run 34768935480](https://github.com/ginosega/fishing/actions/runs/34768935480)
+- **325 hosted v2 files**
+- hosted-verification artifact `10322070321`
 
 The current run passed source/core validation, Chromium/WebKit preview acceptance, production-browser acceptance, actual archived-v1 cutover acceptance, exact-current-main guard, Pages deployment, hosted-byte verification and hosted-browser verification.
 
-FISH100 replaces only the Palomar Markdown body with the user's submitted instructions and video link. Palomar's structured record remains unchanged, including representative `step-13.png` and its explicit ordered 13-frame PNG sequence. FISH096 sequence behavior, FISH091 offline behavior, and all other active canonical Knot sequences remain unchanged.
 ## Operating mode
 
 This project uses **Chat mode by default and permanently**. Do not recommend Work merely because a task is complex, lengthy, file-heavy, analytical, involves research/calculation, creates artifacts or has substantial context. Recommend a temporary switch only for a genuinely Work-only capability; explain the specific need and obtain explicit approval first, then return to Chat afterward.
@@ -33,7 +44,7 @@ Gear and KB support source-aware Prepare Changes → Copy Changes authoring. Pre
 
 ## Offline behavior — FISH091
 
-FISH091 remains **DONE / production-verified** and unchanged by FISH096.
+FISH091 remains **DONE / production-verified** and unchanged by FISH101.
 
 Ordinary online startup/navigation does not provision the complete offline library. Online browsing uses current production. **Connection Status → Update offline library** is the explicit complete-library preparation/refresh action. A prior verified complete generation may remain the offline fallback until explicitly refreshed; failed, corrupt or quota-failed refreshes preserve the prior complete generation. A device without a prepared complete generation must not claim offline readiness.
 
@@ -59,14 +70,12 @@ The retired Planner, Trip History/Sessions, paired-setup structures and old v1-o
 
 All seven originally required missing pictures from the v2 cutover have since been resolved. The historically optional generic inline-spinner now has the user-supplied Kingforest picture. Current source includes the later validated location pictures, Trout Fishing picture, Topwater Fishing and Bass Fishing Technique records, and all other post-cutover canonical authoring changes already merged before FISH096.
 
-The active Knot sequences are Palomar (13 PNG frames, `step-13.png` representative), Albright (15 JPG frames, `step-15.jpg` representative), Arbor (9 JPG frames, `step-09.jpg` representative), Bowline (7 JPG frames, `step-07.jpg` representative), and FG (29 JPG frames, `step-29.jpg` representative). Every sequence is explicitly referenced by canonical KB data and participates in FISH091 explicit complete-library preparation; directory contents alone never create a sequence.
+The active Knot sequences are Palomar (13 PNG, `step-13.png` representative), Albright (15 JPG, `step-15.jpg`), Arbor (9 JPG, `step-09.jpg`), Bowline (7 JPG, `step-07.jpg`), FG (29 JPG, `step-29.jpg`), Improved Clinch (11 PNG, `step-11.png`), Modified Uni (12 JPG, `step-12.jpg`), and Trilene (15 PNG, `step-15.png`). Non-Slip Loop uses the submitted static representative `Non-Splip Loop Knot.png`. Every sequence is explicitly referenced by canonical KB data and participates in FISH091 explicit complete-library preparation; directory contents alone never create a sequence.
 
-Additional Improved Clinch, Modified Uni and Trilene sequence-frame files plus `Non-Splip Loop Knot.png` are currently pre-staged but unreferenced. They are not active sequence/media content until canonical KB changes explicitly reference them.
-
-The canonical PWA icon is `pwa/icon.png`. Historical filenames/bytes remain in Git history only as recovery evidence.
+Double Uni Knot and Single Uni Knot no longer exist in canonical KB source. The canonical PWA icon is `pwa/icon.png`. Historical filenames/bytes remain in Git history only as recovery evidence.
 
 ## Continuation
 
-FISH071–076, FISH078–100 are complete except FISH077/P2, which remains deferred. Existing fishing/equipment/content backlog and purchase uncertainty remain active in `Fishing_TODO.md`. The next unused canonical task ID is **FISH-TODO-101**.
+FISH071–076 and FISH078–101 are complete except FISH077/P2, which remains deferred. Existing fishing/equipment/content backlog and purchase uncertainty remain active in `Fishing_TODO.md`. The next unused canonical task ID is **FISH-TODO-102**.
 
-For a new chat, read `README.md`, this file, `Fishing_TODO.md`, `Fishing_Decision_Log.md`, then `Fishing_New_Chat_Bootstrap_Prompt.md`. Historical release/migration evidence remains in Git history and `pwa/docs/`; do not restart completed FISH096, FISH097, FISH098, FISH099 or FISH100 release work.
+For a new chat, read `README.md`, this file, `Fishing_TODO.md`, `Fishing_Decision_Log.md`, then `Fishing_New_Chat_Bootstrap_Prompt.md`. Historical release/migration evidence remains in Git history and `pwa/docs/`; do not restart completed FISH096–FISH101 release work.
