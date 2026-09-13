@@ -21,7 +21,9 @@ jobs:
           git mv KB pwa/KB
           git mv Catches pwa/Catches
       - name: Apply FISH103 source and regression changes
-        run: node .github/scripts/fish103-apply.mjs
+        run: |
+          node .github/scripts/fish103-apply.mjs
+          node .github/scripts/fish103-fix-tests.mjs
       - name: Install locked dependencies
         working-directory: pwa
         run: npm ci --no-audit --no-fund
@@ -40,7 +42,7 @@ jobs:
         run: |
           git config user.name "Gino Sega"
           git config user.email "ginosega@gmail.com"
-          git rm .github/scripts/fish103-apply.mjs .github/workflows/fish103-apply.yml
+          git rm .github/scripts/fish103-apply.mjs .github/scripts/fish103-fix-tests.mjs .github/workflows/fish103-apply.yml
           git add -A
           git diff --cached --check
           test ! -e Gear && test ! -e KB && test ! -e Catches
