@@ -1,0 +1,37 @@
+name: FISH099 hosted verifier repair
+
+on:
+  push:
+    branches:
+      - fix/fish099-hosted-kb-count
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    if: ${{ github.actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Repair only the hosted KB count expectation
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('pwa/tools/verify-hosted.mjs')
+          s=p.read_text()
+          old="assert.deepEqual(await page.evaluate(()=>window.__FISHING_V2__.counts),{gear:69,kb:56,catches:5});"
+          new="assert.deepEqual(await page.evaluate(()=>window.__FISHING_V2__.counts),{gear:69,kb:57,catches:5});"
+          if s.count(old) != 1:
+              raise SystemExit(f'expected exactly one stale hosted-count fixture, found {s.count(old)}')
+          p.write_text(s.replace(old,new))
+          PY
+          rm .github/workflows/fish099-hosted-verifier-fix.yml
+          git add -A
+          git diff --cached --check
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "FISH099: fix hosted KB count expectation"
+          git push origin HEAD:${GITHUB_REF_NAME}
