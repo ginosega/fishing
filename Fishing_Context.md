@@ -2,19 +2,21 @@
 
 ## Current authoritative state — September 13, 2026
 
-FISH-TODO-099 is **DONE / production-verified**. Four explicit user-supplied KB change packages were validated and applied through [PR116](https://github.com/ginosega/fishing/pull/116). Branch validation [run 34738967489](https://github.com/ginosega/fishing/actions/runs/34738967489) confirmed source-aware record/content bases and recomputed all 45 pre-uploaded JPG byte counts/SHA-256 hashes exactly. Pre-merge acceptance [run 34738991146](https://github.com/ginosega/fishing/actions/runs/34738991146) passed. A one-line stale hosted-verifier KB-count expectation discovered after the initial Pages deploy was repaired in verification-only [PR117](https://github.com/ginosega/fishing/pull/117), which also passed full CI.
+FISH-TODO-100 is **DONE / production-verified**. The explicit user-supplied Palomar `fishing-companion-change-v2` package was validated and applied through [PR119](https://github.com/ginosega/fishing/pull/119). Validation [run 34740644154](https://github.com/ginosega/fishing/actions/runs/34740644154) confirmed base-source ancestry, exact current record fingerprint `d09e83e7cfc3ddd6531389fc460620c66b23cfafb5a1b4866f6c20c89be8e94a`, exact current Markdown SHA-256 `05a439f4d5b2a5db6b37666c20dc742e29685cd11aaffce351ae7cc0e7ff8580`, and unchanged representative picture/13-frame sequence state. All source tests passed; pre-merge production acceptance [run 34740670930](https://github.com/ginosega/fishing/actions/runs/34740670930) passed. FISH100's feature merge source was `141198d1fbc1c651cd0b41d642d057c0f3b8a81c`.
+
+After that merge, later direct uploads added unreferenced Knot media only: Improved Clinch `step-01.png` through `step-11.png`, Modified Uni `step-01.jpg` through `step-12.jpg`, Trilene `step-01.png` through `step-15.png`, and `KB/Knots/assets/Non-Splip Loop Knot.png`. Canonical KB records did not change, so these files remain staged source assets rather than active/released sequence content.
 
 Current verified production:
 
-- source `9899849be676e971e3670fe72eba7ffd66986d68`
-- release `b331a8c5575769159113a59a17b12bca`
-- [workflow run 34740072017](https://github.com/ginosega/fishing/actions/runs/34740072017)
+- source `52afc4335445706fa07d210dd8f3f2823e9636eb`
+- release `c135fa258e6e1c8ed16324a57661d17e`
+- [workflow run 34765625164](https://github.com/ginosega/fishing/actions/runs/34765625164)
 - 288 hosted v2 files
-- hosted-verification artifact `10312475498`
+- hosted-verification artifact `10320926230`
 
-The final run passed source/core validation, Chromium/WebKit preview acceptance, production-browser acceptance, actual archived-v1 cutover acceptance, exact-current-main guard, Pages deployment, hosted-byte verification and hosted-browser verification.
+The current run passed source/core validation, Chromium/WebKit preview acceptance, production-browser acceptance, actual archived-v1 cutover acceptance, exact-current-main guard, Pages deployment, hosted-byte verification and hosted-browser verification.
 
-FISH096 remains the implemented sequence capability. FISH097 activates Palomar, FISH098 activates Albright, and FISH099 adds Arbor, Bowline, and FG sequences while updating only the package-requested canonical content. Albright keeps its existing 15-frame sequence and now has description `Easier on-the-water braid-to-fluoro alternative to the FG knot`. Arbor uses 9 frames with `step-09.jpg` representative. Bowline is a new Knot using 7 frames with `step-07.jpg` representative. FG retains its prior structured description and uses 29 frames with `step-29.jpg` representative.
+FISH100 replaces only the Palomar Markdown body with the user's submitted instructions and video link. Palomar's structured record remains unchanged, including representative `step-13.png` and its explicit ordered 13-frame PNG sequence. FISH096 sequence behavior, FISH091 offline behavior, and all other active canonical Knot sequences remain unchanged.
 ## Operating mode
 
 This project uses **Chat mode by default and permanently**. Do not recommend Work merely because a task is complex, lengthy, file-heavy, analytical, involves research/calculation, creates artifacts or has substantial context. Recommend a temporary switch only for a genuinely Work-only capability; explain the specific need and obtain explicit approval first, then return to Chat afterward.
@@ -59,10 +61,12 @@ All seven originally required missing pictures from the v2 cutover have since be
 
 The active Knot sequences are Palomar (13 PNG frames, `step-13.png` representative), Albright (15 JPG frames, `step-15.jpg` representative), Arbor (9 JPG frames, `step-09.jpg` representative), Bowline (7 JPG frames, `step-07.jpg` representative), and FG (29 JPG frames, `step-29.jpg` representative). Every sequence is explicitly referenced by canonical KB data and participates in FISH091 explicit complete-library preparation; directory contents alone never create a sequence.
 
+Additional Improved Clinch, Modified Uni and Trilene sequence-frame files plus `Non-Splip Loop Knot.png` are currently pre-staged but unreferenced. They are not active sequence/media content until canonical KB changes explicitly reference them.
+
 The canonical PWA icon is `pwa/icon.png`. Historical filenames/bytes remain in Git history only as recovery evidence.
 
 ## Continuation
 
-FISH071–076, FISH078–099 are complete except FISH077/P2, which remains deferred. Existing fishing/equipment/content backlog and purchase uncertainty remain active in `Fishing_TODO.md`. The next unused canonical task ID is **FISH-TODO-100**.
+FISH071–076, FISH078–100 are complete except FISH077/P2, which remains deferred. Existing fishing/equipment/content backlog and purchase uncertainty remain active in `Fishing_TODO.md`. The next unused canonical task ID is **FISH-TODO-101**.
 
-For a new chat, read `README.md`, this file, `Fishing_TODO.md`, `Fishing_Decision_Log.md`, then `Fishing_New_Chat_Bootstrap_Prompt.md`. Historical release/migration evidence remains in Git history and `pwa/docs/`; do not restart completed FISH096, FISH097, FISH098 or FISH099 release work.
+For a new chat, read `README.md`, this file, `Fishing_TODO.md`, `Fishing_Decision_Log.md`, then `Fishing_New_Chat_Bootstrap_Prompt.md`. Historical release/migration evidence remains in Git history and `pwa/docs/`; do not restart completed FISH096, FISH097, FISH098, FISH099 or FISH100 release work.

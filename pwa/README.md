@@ -4,19 +4,21 @@ Fishing Companion is the active v2 PWA published at https://ginosega.github.io/f
 
 ## Current verified production — September 13, 2026
 
-FISH099 is live through [PR116](https://github.com/ginosega/fishing/pull/116) plus verification-only [PR117](https://github.com/ginosega/fishing/pull/117). The four change packages update Albright content/description, activate a 9-frame Arbor sequence, add Bowline with a 7-frame sequence, and activate a 29-frame FG sequence. Package validation [run 34738967489](https://github.com/ginosega/fishing/actions/runs/34738967489) verified all source-aware bases and all 45 exact image byte counts/SHA-256 hashes; pre-merge acceptance [run 34738991146](https://github.com/ginosega/fishing/actions/runs/34738991146) passed.
+FISH100 is live through [PR119](https://github.com/ginosega/fishing/pull/119). The user-supplied change package replaces only Palomar's canonical Markdown; no structured record, representative image, or sequence references changed. Package validation [run 34740644154](https://github.com/ginosega/fishing/actions/runs/34740644154) verified exact base ancestry, record fingerprint and Markdown SHA-256 and retained all 13 sequence frames. Pre-merge production acceptance [run 34740670930](https://github.com/ginosega/fishing/actions/runs/34740670930) passed. FISH100's feature merge source was `141198d1fbc1c651cd0b41d642d057c0f3b8a81c`.
+
+Subsequent direct source uploads staged unreferenced Improved Clinch, Modified Uni and Trilene frames plus `KB/Knots/assets/Non-Splip Loop Knot.png`. Because canonical KB records still do not reference these files, they are not active release/offline content.
 
 Current production:
 
-- source: `9899849be676e971e3670fe72eba7ffd66986d68`
-- release: `b331a8c5575769159113a59a17b12bca`
-- production workflow: [run 34740072017](https://github.com/ginosega/fishing/actions/runs/34740072017)
+- source: `52afc4335445706fa07d210dd8f3f2823e9636eb`
+- release: `c135fa258e6e1c8ed16324a57661d17e`
+- production workflow: [run 34765625164](https://github.com/ginosega/fishing/actions/runs/34765625164)
 - hosted v2 files: 288
-- hosted-verification artifact: `10312475498`
+- hosted-verification artifact: `10320926230`
 
-The clean final deployment passed complete source/core validation, Chromium/WebKit preview and production acceptance, archived-v1 cutover acceptance, exact-current-main guard, Pages deployment, hosted-byte verification and hosted-browser verification. The earlier first deploy had already published correct application content; PR117 repaired only the hosted verifier's stale expected KB count after Bowline increased the KB from 56 to 57.
+The exact-current-main deployment passed complete source/core validation, Chromium/WebKit preview and production acceptance, archived-v1 cutover acceptance, Pages deployment, hosted-byte verification and hosted-browser verification.
 
-Active Knot sequences are Palomar 13 PNG frames, Albright 15 JPG frames, Arbor 9 JPG frames, Bowline 7 JPG frames, and FG 29 JPG frames. Representative frames are their respective final frames. Directory contents alone still never activate a sequence; canonical explicit references do.
+Active Knot sequences remain Palomar 13 PNG frames, Albright 15 JPG frames, Arbor 9 JPG frames, Bowline 7 JPG frames, and FG 29 JPG frames. FISH100 does not alter sequence behavior or media; it changes only Palomar's Markdown instructions/video content. Directory-only staged images remain inactive until explicitly referenced.
 ## Directory layout
 
 | Location | Purpose |
