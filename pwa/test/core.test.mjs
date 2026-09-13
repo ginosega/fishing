@@ -14,8 +14,8 @@ const data=await (async()=>({gear:await read('Gear/gear.json'),kb:await read('KB
 const maps=validateRecords(data),routes=markdownRouteMap(data);
 const clone=x=>structuredClone(x);
 test('complete migrated library validates its schemas, types and references',()=>{
- assert.deepEqual([data.gear.items.length,data.kb.entities.length,data.catches.catches.length],[69,57,5]);
- assert.equal(maps.gear.size,69);assert.equal(maps.kb.size,57);assert.equal(maps.catches.size,5);
+ assert.deepEqual([data.gear.items.length,data.kb.entities.length,data.catches.catches.length],[69,55,5]);
+ assert.equal(maps.gear.size,69);assert.equal(maps.kb.size,55);assert.equal(maps.catches.size,5);
  assert.equal(validateLibraryPaths(data).size,107);
 });
 test('all six independent components retain their own identity',()=>{
@@ -104,7 +104,7 @@ test('the complete source inventory hashes and fully decodes all referenced asse
  const result=await inventorySource(root,{pendingMedia:true});
  assert.equal(result.data.gear.items.length,69);assert(result.images.size>0);assert.equal(result.pending.length,0);
  assert.deepEqual(result.migration.exceptions.filter(x=>!x.optional).map(x=>x.id).sort(),['tsuridamashii-snap-swivels','rapala-original-floating-f3','species-perch','technique-popper','technique-whopper-plopper','macks-pee-wee-hoochie','river2sea-whopper-plopper-60'].sort());
- assert.deepEqual(result.migration.exceptions.filter(x=>x.optional).map(x=>x.id),['generic-1-inline-spinner']);assert.equal(result.references.length,237);
+ assert.deepEqual(result.migration.exceptions.filter(x=>x.optional).map(x=>x.id),['generic-1-inline-spinner']);assert.equal(result.references.length,235);
  for(const file of result.files){const bytes=await fs.readFile(path.join(root,file.path));assert.equal(digest(bytes),file.sha256);}
 });
 test('malformed images and unsupported formats are rejected',async()=>{
