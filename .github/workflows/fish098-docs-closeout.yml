@@ -1,0 +1,123 @@
+name: FISH098 Docs Closeout
+
+on:
+  push:
+    branches:
+      - docs/fish098-closeout
+    paths:
+      - .github/workflows/fish098-docs-closeout.yml
+
+permissions:
+  contents: write
+
+jobs:
+  reconcile:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: docs/fish098-closeout
+          fetch-depth: 0
+      - name: Reconcile durable project records
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          source='65ac208dbb1a116cc321d5b13bea1228b3d1ee6f'
+          release='29d23d0444d3a187d8f67edf0a28e82d'
+          prod_run='34736590334'
+          hosted_files='242'
+          artifact='10310509883'
+          validation_run='34736320090'
+          premerge_run='34736339166'
+
+          def read(p): return Path(p).read_text(encoding='utf-8')
+          def write(p,s): Path(p).write_text(s,encoding='utf-8',newline='')
+          def section_replace(text,start,end,new):
+              pat=re.escape(start)+r'.*?(?='+re.escape(end)+r')'
+              out,n=re.subn(pat,new,text,flags=re.S)
+              assert n==1,(start,n)
+              return out
+
+          # README
+          p='README.md'; t=read(p)
+          start='## Current production — September 12, 2026\n'
+          end='## Current product behavior\n'
+          new=f'''## Current production — September 12, 2026\n\nFISH-TODO-098 is **DONE / production-verified**. The user-supplied `fishing-companion-change-v2` package for `knot-albright` was validated against current source and applied in [PR114](https://github.com/ginosega/fishing/pull/114). Branch validation [run {validation_run}](https://github.com/ginosega/fishing/actions/runs/{validation_run}) confirmed the package record/notes bases and recomputed all 15 pre-uploaded JPG byte counts and SHA-256 hashes before promotion. Pre-merge production acceptance [run {premerge_run}](https://github.com/ginosega/fishing/actions/runs/{premerge_run}) passed before merge.\n\nCurrent verified production:\n\n- site: https://ginosega.github.io/fishing/\n- source: `{source}`\n- release: `{release}`\n- production workflow: [run {prod_run}](https://github.com/ginosega/fishing/actions/runs/{prod_run})\n- hosted v2 files: **{hosted_files}**\n- hosted-verification artifact: `{artifact}`\n\nThe production run passed source/core validation, Chromium/WebKit preview and production acceptance, archived-v1 cutover acceptance, exact-current-main protection, Pages deployment, all hosted-byte comparisons and hosted browser verification. The production archive contains all 15 Albright sequence frames.\n\nAlbright is now an active step-by-step Knot sequence: `pictureSequence` explicitly references `step-01.jpg` through `step-15.jpg`, `step-15.jpg` is the representative `picture.src`, and the caption is `Albright knot`. The package also replaced the Albright Markdown body exactly. No structured field changes were requested, so the existing Albright description remains unchanged. Directory contents alone still never create a sequence; FISH098 activated these already-uploaded frames through explicit canonical record references.\n\nPalomar remains an active 13-frame sequence from FISH097. See [FISH096 production closeout](pwa/docs/FISH096_Production_Closeout_2026-09-12.md) for the underlying sequence-feature release record.\n\n'''
+          t=section_replace(t,start,end,new)
+          t=t.replace('FISH097 applies that capability to Palomar with 13 explicit frames (`step-01.png` through `step-13.png`), representative `step-13.png`, and caption `Palomar knot`.','FISH097 applies that capability to Palomar with 13 explicit PNG frames. FISH098 applies it to Albright with 15 explicit JPG frames and the exact submitted Markdown replacement.')
+          t=t.replace('The next unused canonical task ID is **FISH-TODO-098**.','The next unused canonical task ID is **FISH-TODO-099**.')
+          write(p,t)
+
+          # Context
+          p='Fishing_Context.md'; t=read(p)
+          start='## Current authoritative state — September 12, 2026\n'; end='## Operating mode\n'
+          new=f'''## Current authoritative state — September 12, 2026\n\nFISH-TODO-098 is **DONE / production-verified**. The user-supplied Albright `fishing-companion-change-v2` edit package was validated and applied through [PR114](https://github.com/ginosega/fishing/pull/114). Branch validation [run {validation_run}](https://github.com/ginosega/fishing/actions/runs/{validation_run}) confirmed the stale-base safety checks and recomputed all 15 pre-uploaded Albright JPG byte counts and SHA-256 hashes exactly before canonical promotion. Pre-merge acceptance [run {premerge_run}](https://github.com/ginosega/fishing/actions/runs/{premerge_run}) passed.\n\nCurrent verified production:\n\n- source `{source}`\n- release `{release}`\n- [workflow run {prod_run}](https://github.com/ginosega/fishing/actions/runs/{prod_run})\n- {hosted_files} hosted v2 files\n- hosted-verification artifact `{artifact}`\n\nThat production run passed source/core validation, Chromium/WebKit preview acceptance, production-browser acceptance, actual archived-v1 cutover acceptance, exact-current-main guard, Pages deployment, hosted-byte verification and hosted-browser verification. The hosted bundle contains all 15 explicitly referenced Albright sequence frames.\n\nFISH096 remains the implemented sequence capability. FISH097 activates Palomar; FISH098 activates Albright. Albright retains its existing structured fields/description, uses the exact submitted replacement Markdown, representative `KB/Knots/assets/knot-albright/step-15.jpg` with caption `Albright knot`, and ordered `pictureSequence` references from `step-01.jpg` through `step-15.jpg`.\n\n'''
+          t=section_replace(t,start,end,new)
+          pal='The 13 Palomar step frames at `KB/Knots/assets/knot-palomar/step-01.png` through `step-13.png` are now explicitly referenced by the canonical `knot-palomar` record and are included in the verified production release. `step-13.png` is the representative picture and all 13 frames are part of explicit offline-library preparation.'
+          add=pal+'\n\nThe 15 Albright step frames at `KB/Knots/assets/knot-albright/step-01.jpg` through `step-15.jpg` are explicitly referenced by the canonical `knot-albright` record and included in verified production. `step-15.jpg` is the representative picture and all 15 frames participate in explicit offline-library preparation.'
+          assert pal in t; t=t.replace(pal,add)
+          t=t.replace('FISH071–076, FISH078–097 are complete except FISH077/P2','FISH071–076, FISH078–098 are complete except FISH077/P2')
+          t=t.replace('The next unused canonical task ID is **FISH-TODO-098**.','The next unused canonical task ID is **FISH-TODO-099**.')
+          t=t.replace('do not restart completed FISH096 or FISH097 release work.','do not restart completed FISH096, FISH097 or FISH098 release work.')
+          write(p,t)
+
+          # TODO
+          p='Fishing_TODO.md'; t=read(p)
+          start='## Current project task state — September 12, 2026\n'; end='## Completed/superseded application work\n'
+          new=f'''## Current project task state — September 12, 2026\n\n**FISH-TODO-098 — DONE / production-verified.** The user-supplied `knot-albright` `fishing-companion-change-v2` package was validated and applied in [PR114](https://github.com/ginosega/fishing/pull/114). Branch validation [run {validation_run}](https://github.com/ginosega/fishing/actions/runs/{validation_run}) verified the package record hash, notes base SHA-256, absent picture/sequence bases, and all 15 pre-uploaded image byte counts/SHA-256 hashes before promotion. Pre-merge acceptance [run {premerge_run}](https://github.com/ginosega/fishing/actions/runs/{premerge_run}) passed.\n\nThe package changed only the requested Albright canonical record/content: exact replacement Markdown; representative `step-15.jpg` with caption `Albright knot`; and ordered `pictureSequence` references `step-01.jpg` through `step-15.jpg`. No structured field changes were requested, so the existing description remains unchanged.\n\nCurrent verified production is source `{source}`, release `{release}`, [run {prod_run}](https://github.com/ginosega/fishing/actions/runs/{prod_run}), with **{hosted_files} hosted v2 files** and hosted-verification artifact `{artifact}`. The deployment passed the full source/core, Chromium/WebKit, archived-v1 cutover, exact-current-main, Pages, hosted-byte and hosted-browser gates. All 15 Albright frames are now published/release-manifest content and participate in explicit offline-library preparation.\n\nFISH-TODO-077/P2 remains **DEFERRED**. Authentication, Direct Save, integrated uploads, offline authoring, outbox/sync and Catch authoring are not part of current production.\n\nThe next unused canonical task ID is **FISH-TODO-099**.\n\n'''
+          t=section_replace(t,start,end,new)
+          t=t.replace('FISH071–076 and FISH078–097 are complete.','FISH071–076 and FISH078–098 are complete.')
+          t=t.replace('allocate **FISH-TODO-098** unless','allocate **FISH-TODO-099** unless')
+          t=t.replace('Do not reopen FISH096/FISH097 or P2 work','Do not reopen FISH096/FISH097/FISH098 or P2 work')
+          write(p,t)
+
+          # Decision Log
+          p='Fishing_Decision_Log.md'; t=read(p)
+          t=t.replace('FISH096/FISH097 do not change this decision.','FISH096/FISH097/FISH098 do not change this decision.')
+          anchor='## Deferred P2 boundary\n'
+          sec=f'''## FISH098 — Albright sequence package activation\n\n**Decision/status:** DONE and production-verified. The explicit user-supplied `fishing-companion-change-v2` package for `knot-albright` was applied through [PR114](https://github.com/ginosega/fishing/pull/114). Branch validation [run {validation_run}](https://github.com/ginosega/fishing/actions/runs/{validation_run}) confirmed the current record fingerprint, notes base hash and absent picture/sequence bases, and recomputed all 15 image byte counts/SHA-256 hashes exactly before promotion. Pre-merge acceptance [run {premerge_run}](https://github.com/ginosega/fishing/actions/runs/{premerge_run}) passed.\n\nThe package is authoritative for this content change: the Albright Markdown body is the exact submitted replacement; `picture.src` is `KB/Knots/assets/knot-albright/step-15.jpg` with caption `Albright knot`; and `pictureSequence` explicitly orders `step-01.jpg` through `step-15.jpg`. No structured field changes were requested, so the prior description and other fields remain unchanged. No unrelated canonical content or application architecture changed.\n\nCurrent production source is `{source}`, release `{release}`, [run {prod_run}](https://github.com/ginosega/fishing/actions/runs/{prod_run}), {hosted_files} hosted v2 files, hosted-verification artifact `{artifact}`. Full CI, exact-current-main deployment, hosted-byte verification and hosted-browser verification passed. All 15 frames are now release-manifest content and participate in FISH091 explicit offline-library preparation.\n\n'''
+          assert anchor in t; t=t.replace(anchor,sec+anchor,1)
+          t=t.replace('not implemented or implicitly authorized by FISH096.','not implemented or implicitly authorized by FISH096–FISH098.')
+          t=t.replace('FISH071–076 and FISH078–097 are complete;','FISH071–076 and FISH078–098 are complete;')
+          t=t.replace('The next unused canonical task ID is **FISH-TODO-098**.','The next unused canonical task ID is **FISH-TODO-099**.')
+          write(p,t)
+
+          # Bootstrap
+          p='Fishing_New_Chat_Bootstrap_Prompt.md'; t=read(p)
+          start='## Current production continuation point — September 12, 2026\n'; end='## Current durable behavior\n'
+          new=f'''## Current production continuation point — September 12, 2026\n\nFISH-TODO-098 is **DONE / production-verified**. The explicit user-supplied Albright change package was validated and applied through [PR114](https://github.com/ginosega/fishing/pull/114); branch validation [run {validation_run}](https://github.com/ginosega/fishing/actions/runs/{validation_run}) recomputed all 15 pre-uploaded JPG byte counts/SHA-256 hashes and validated the source-aware package bases before promotion. Pre-merge acceptance [run {premerge_run}](https://github.com/ginosega/fishing/actions/runs/{premerge_run}) passed.\n\nCurrent verified production:\n\n- source: `{source}`\n- release: `{release}`\n- production workflow: [run {prod_run}](https://github.com/ginosega/fishing/actions/runs/{prod_run})\n- hosted v2 files: {hosted_files}\n- hosted-verification artifact: `{artifact}`\n- site: https://ginosega.github.io/fishing/\n\nAlbright is now an active 15-frame step-by-step sequence in canonical KB data. Its ordered `pictureSequence` is `step-01.jpg` through `step-15.jpg`; `step-15.jpg` is the representative `picture.src`; caption is `Albright knot`; and the submitted Markdown replacement is applied exactly. No structured field changes were requested, so retain the existing Albright description. Do not revert to the former unreferenced-frame state.\n\nPalomar remains an active 13-frame sequence from FISH097.\n\nThe production run passed source/core validation, Chromium/WebKit preview and production acceptance, actual archived-v1 cutover acceptance, exact-current-main deployment protection, Pages deployment, hosted-byte verification and hosted-browser verification. The deployed release contains all 15 Albright frames.\n\nDo **not** restart FISH096, FISH097 or FISH098 implementation/deployment work.\n\n'''
+          t=section_replace(t,start,end,new)
+          t=t.replace('FISH071–076 and FISH078–097 are complete.','FISH071–076 and FISH078–098 are complete.')
+          t=t.replace('The next unused canonical task ID is **FISH-TODO-098** unless','The next unused canonical task ID is **FISH-TODO-099** unless')
+          write(p,t)
+
+          # pwa README
+          p='pwa/README.md'; t=read(p)
+          start='## Current verified production — September 12, 2026\n'; end='## Directory layout\n'
+          new=f'''## Current verified production — September 12, 2026\n\nFISH098 is live through [PR114](https://github.com/ginosega/fishing/pull/114), activating the existing FISH096 sequence capability for the canonical Albright Knot using 15 previously uploaded JPG frames. Package validation [run {validation_run}](https://github.com/ginosega/fishing/actions/runs/{validation_run}) verified the source-aware bases and all 15 exact image byte counts/SHA-256 hashes before promotion; pre-merge acceptance [run {premerge_run}](https://github.com/ginosega/fishing/actions/runs/{premerge_run}) passed.\n\nCurrent production:\n\n- source: `{source}`\n- release: `{release}`\n- production workflow: [run {prod_run}](https://github.com/ginosega/fishing/actions/runs/{prod_run})\n- hosted v2 files: {hosted_files}\n- hosted-verification artifact: `{artifact}`\n\nThe deployment passed complete source/core validation, Chromium/WebKit preview and production acceptance, archived-v1 cutover acceptance, exact-current-main guard, Pages deployment, hosted-byte verification and hosted-browser verification. The published manifest includes all 15 Albright frames. Albright uses `step-15.jpg` as representative `picture.src`, caption `Albright knot`, and explicit ordered `pictureSequence` references from `step-01.jpg` through `step-15.jpg`. Its Markdown body is the exact submitted replacement; no structured field changes were requested.\n\nPalomar remains the active 13-frame FISH097 sequence. FISH096 remains the underlying production sequence feature; see [FISH096 production closeout](docs/FISH096_Production_Closeout_2026-09-12.md).\n\n'''
+          t=section_replace(t,start,end,new)
+          write(p,t)
+
+          # Cross-file assertions
+          for p in ['README.md','Fishing_Context.md','Fishing_TODO.md','Fishing_Decision_Log.md','Fishing_New_Chat_Bootstrap_Prompt.md','pwa/README.md']:
+              s=read(p)
+              assert source in s,(p,'source')
+              assert release in s,(p,'release')
+              assert prod_run in s,(p,'run')
+              assert 'FISH098' in s,(p,'task')
+          for p in ['README.md','Fishing_Context.md','Fishing_TODO.md','Fishing_Decision_Log.md','Fishing_New_Chat_Bootstrap_Prompt.md']:
+              assert 'FISH-TODO-099' in read(p),(p,'next id')
+
+          Path('.github/workflows/fish098-docs-closeout.yml').unlink()
+          print('FISH098 durable project records reconciled and cross-checked.')
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md Fishing_Context.md Fishing_TODO.md Fishing_Decision_Log.md Fishing_New_Chat_Bootstrap_Prompt.md pwa/README.md .github/workflows/fish098-docs-closeout.yml
+          git diff --cached --check
+          git commit -m "Docs: close out FISH098 Albright release"
+          git push origin HEAD:docs/fish098-closeout
