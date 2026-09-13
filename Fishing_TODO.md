@@ -2,19 +2,19 @@
 
 ## Current project task state — September 12, 2026
 
-**FISH-TODO-097 — DONE / production-verified.** The user-supplied `knot-palomar` `fishing-companion-change-v2` package was validated and applied in [PR112](https://github.com/ginosega/fishing/pull/112). Branch validation [run 34723150221](https://github.com/ginosega/fishing/actions/runs/34723150221) verified the package record hash/base fields, notes base SHA-256, absent picture/sequence bases, and all 13 pre-uploaded image byte counts/SHA-256 hashes before promotion.
+**FISH-TODO-098 — DONE / production-verified.** The user-supplied `knot-albright` `fishing-companion-change-v2` package was validated and applied in [PR114](https://github.com/ginosega/fishing/pull/114). Branch validation [run 34736320090](https://github.com/ginosega/fishing/actions/runs/34736320090) verified the package record hash, notes base SHA-256, absent picture/sequence bases, and all 15 pre-uploaded image byte counts/SHA-256 hashes before promotion. Pre-merge acceptance [run 34736339166](https://github.com/ginosega/fishing/actions/runs/34736339166) passed.
 
-The package changed only the requested Palomar canonical record/content: description `Strong, simple knot for braid, fluoro, or mono`; exact replacement Markdown; representative `step-13.png` with caption `Palomar knot`; and ordered `pictureSequence` references `step-01.png` through `step-13.png`.
+The package changed only the requested Albright canonical record/content: exact replacement Markdown; representative `step-15.jpg` with caption `Albright knot`; and ordered `pictureSequence` references `step-01.jpg` through `step-15.jpg`. No structured field changes were requested, so the existing description remains unchanged.
 
-Current verified production is source `934d70bdd669180479f8c5a71c5e1050d2dbf56d`, release `696737730abf20323e5f308739aa14c4`, [run 34723495195](https://github.com/ginosega/fishing/actions/runs/34723495195), with **227 hosted v2 files** and hosted-verification artifact `10306962337`. The deployment passed the full source/core, Chromium/WebKit, archived-v1 cutover, exact-current-main, Pages, hosted-byte and hosted-browser gates. All 13 Palomar frames are now published/release-manifest content and participate in explicit offline-library preparation.
+Current verified production is source `65ac208dbb1a116cc321d5b13bea1228b3d1ee6f`, release `29d23d0444d3a187d8f67edf0a28e82d`, [run 34736590334](https://github.com/ginosega/fishing/actions/runs/34736590334), with **242 hosted v2 files** and hosted-verification artifact `10310509883`. The deployment passed the full source/core, Chromium/WebKit, archived-v1 cutover, exact-current-main, Pages, hosted-byte and hosted-browser gates. All 15 Albright frames are now published/release-manifest content and participate in explicit offline-library preparation.
 
 FISH-TODO-077/P2 remains **DEFERRED**. Authentication, Direct Save, integrated uploads, offline authoring, outbox/sync and Catch authoring are not part of current production.
 
-The next unused canonical task ID is **FISH-TODO-098**.
+The next unused canonical task ID is **FISH-TODO-099**.
 
 ## Completed/superseded application work
 
-FISH071–076 and FISH078–097 are complete. FISH077 is the intentional deferred P2 boundary. Historical v1-only items FISH-TODO-063 (old KB filename/upload constraints) and FISH-TODO-039 (structured setup recording on catches) are superseded by the approved v2 architecture and must not be used to reintroduce retired structures.
+FISH071–076 and FISH078–098 are complete. FISH077 is the intentional deferred P2 boundary. Historical v1-only items FISH-TODO-063 (old KB filename/upload constraints) and FISH-TODO-039 (structured setup recording on catches) are superseded by the approved v2 architecture and must not be used to reintroduce retired structures.
 
 Detailed completion/release evidence remains in Git history and dated `pwa/docs/` records. This TODO intentionally keeps current open/deferred work instead of repeating every historical release.
 
@@ -58,4 +58,4 @@ These items remain open/deferred independently of Fishing Companion release work
 
 ## Continuation rules
 
-Use Chat mode by default. Restore actual latest `main` before acting. For new application work, allocate **FISH-TODO-098** unless a newer task has already been created on current `main`. Do not reopen FISH096/FISH097 or P2 work without an explicit new user request.
+Use Chat mode by default. Restore actual latest `main` before acting. For new application work, allocate **FISH-TODO-099** unless a newer task has already been created on current `main`. Do not reopen FISH096/FISH097/FISH098 or P2 work without an explicit new user request.

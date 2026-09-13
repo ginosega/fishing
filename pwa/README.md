@@ -4,19 +4,19 @@ Fishing Companion is the active v2 PWA published at https://ginosega.github.io/f
 
 ## Current verified production — September 12, 2026
 
-FISH097 is live through [PR112](https://github.com/ginosega/fishing/pull/112), activating the existing FISH096 sequence capability for the canonical Palomar Knot using the 13 previously uploaded frames. Package validation [run 34723150221](https://github.com/ginosega/fishing/actions/runs/34723150221) verified the source-aware bases and all 13 exact image byte counts/SHA-256 hashes before promotion.
+FISH098 is live through [PR114](https://github.com/ginosega/fishing/pull/114), activating the existing FISH096 sequence capability for the canonical Albright Knot using 15 previously uploaded JPG frames. Package validation [run 34736320090](https://github.com/ginosega/fishing/actions/runs/34736320090) verified the source-aware bases and all 15 exact image byte counts/SHA-256 hashes before promotion; pre-merge acceptance [run 34736339166](https://github.com/ginosega/fishing/actions/runs/34736339166) passed.
 
 Current production:
 
-- source: `934d70bdd669180479f8c5a71c5e1050d2dbf56d`
-- release: `696737730abf20323e5f308739aa14c4`
-- production workflow: [run 34723495195](https://github.com/ginosega/fishing/actions/runs/34723495195)
-- hosted v2 files: 227
-- hosted-verification artifact: `10306962337`
+- source: `65ac208dbb1a116cc321d5b13bea1228b3d1ee6f`
+- release: `29d23d0444d3a187d8f67edf0a28e82d`
+- production workflow: [run 34736590334](https://github.com/ginosega/fishing/actions/runs/34736590334)
+- hosted v2 files: 242
+- hosted-verification artifact: `10310509883`
 
-The deployment passed complete source/core validation, Chromium/WebKit preview and production acceptance, archived-v1 cutover acceptance, exact-current-main guard, Pages deployment, hosted-byte verification and hosted-browser verification. The published manifest now includes all 13 Palomar frames. Palomar uses `step-13.png` as representative `picture.src`, caption `Palomar knot`, and explicit ordered `pictureSequence` references from `step-01.png` through `step-13.png`.
+The deployment passed complete source/core validation, Chromium/WebKit preview and production acceptance, archived-v1 cutover acceptance, exact-current-main guard, Pages deployment, hosted-byte verification and hosted-browser verification. The published manifest includes all 15 Albright frames. Albright uses `step-15.jpg` as representative `picture.src`, caption `Albright knot`, and explicit ordered `pictureSequence` references from `step-01.jpg` through `step-15.jpg`. Its Markdown body is the exact submitted replacement; no structured field changes were requested.
 
-FISH096 remains the underlying production sequence feature; see [FISH096 production closeout](docs/FISH096_Production_Closeout_2026-09-12.md).
+Palomar remains the active 13-frame FISH097 sequence. FISH096 remains the underlying production sequence feature; see [FISH096 production closeout](docs/FISH096_Production_Closeout_2026-09-12.md).
 
 ## Directory layout
 

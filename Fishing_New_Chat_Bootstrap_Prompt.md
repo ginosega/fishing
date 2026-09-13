@@ -18,22 +18,24 @@ Before implementation, release or repository-write work, also confirm current op
 
 ## Current production continuation point — September 12, 2026
 
-FISH-TODO-097 is **DONE / production-verified**. The explicit user-supplied Palomar change package was validated and applied through [PR112](https://github.com/ginosega/fishing/pull/112); branch validation [run 34723150221](https://github.com/ginosega/fishing/actions/runs/34723150221) recomputed all 13 pre-uploaded PNG byte counts/SHA-256 hashes and validated the source-aware package bases before promotion.
+FISH-TODO-098 is **DONE / production-verified**. The explicit user-supplied Albright change package was validated and applied through [PR114](https://github.com/ginosega/fishing/pull/114); branch validation [run 34736320090](https://github.com/ginosega/fishing/actions/runs/34736320090) recomputed all 15 pre-uploaded JPG byte counts/SHA-256 hashes and validated the source-aware package bases before promotion. Pre-merge acceptance [run 34736339166](https://github.com/ginosega/fishing/actions/runs/34736339166) passed.
 
 Current verified production:
 
-- source: `934d70bdd669180479f8c5a71c5e1050d2dbf56d`
-- release: `696737730abf20323e5f308739aa14c4`
-- production workflow: [run 34723495195](https://github.com/ginosega/fishing/actions/runs/34723495195)
-- hosted v2 files: 227
-- hosted-verification artifact: `10306962337`
+- source: `65ac208dbb1a116cc321d5b13bea1228b3d1ee6f`
+- release: `29d23d0444d3a187d8f67edf0a28e82d`
+- production workflow: [run 34736590334](https://github.com/ginosega/fishing/actions/runs/34736590334)
+- hosted v2 files: 242
+- hosted-verification artifact: `10310509883`
 - site: https://ginosega.github.io/fishing/
 
-Palomar is now an active 13-frame step-by-step sequence in canonical KB data. Its ordered `pictureSequence` is `step-01.png` through `step-13.png`; `step-13.png` is the representative `picture.src`; caption is `Palomar knot`; and the submitted description/Markdown changes are applied. Do not revert to the former unreferenced-frame state.
+Albright is now an active 15-frame step-by-step sequence in canonical KB data. Its ordered `pictureSequence` is `step-01.jpg` through `step-15.jpg`; `step-15.jpg` is the representative `picture.src`; caption is `Albright knot`; and the submitted Markdown replacement is applied exactly. No structured field changes were requested, so retain the existing Albright description. Do not revert to the former unreferenced-frame state.
 
-The production run passed source/core validation, Chromium/WebKit preview and production acceptance, actual archived-v1 cutover acceptance, exact-current-main deployment protection, Pages deployment, hosted-byte verification and hosted-browser verification. The deployed release contains all 13 Palomar frames.
+Palomar remains an active 13-frame sequence from FISH097.
 
-Do **not** restart FISH096 or FISH097 implementation/deployment work.
+The production run passed source/core validation, Chromium/WebKit preview and production acceptance, actual archived-v1 cutover acceptance, exact-current-main deployment protection, Pages deployment, hosted-byte verification and hosted-browser verification. The deployed release contains all 15 Albright frames.
+
+Do **not** restart FISH096, FISH097 or FISH098 implementation/deployment work.
 
 ## Current durable behavior
 
@@ -51,9 +53,9 @@ FISH-TODO-077/P2 remains **DEFERRED**: no authentication, Direct Save, integrate
 
 ## Task state
 
-FISH071–076 and FISH078–097 are complete. FISH077/P2 remains deferred. Preserve all unresolved fishing/equipment/content backlog and explicit purchase uncertainty in `Fishing_TODO.md`.
+FISH071–076 and FISH078–098 are complete. FISH077/P2 remains deferred. Preserve all unresolved fishing/equipment/content backlog and explicit purchase uncertainty in `Fishing_TODO.md`.
 
-The next unused canonical task ID is **FISH-TODO-098** unless actual newer `main` has already allocated it.
+The next unused canonical task ID is **FISH-TODO-099** unless actual newer `main` has already allocated it.
 
 ## Working rules
 

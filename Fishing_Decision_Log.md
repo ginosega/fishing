@@ -28,7 +28,7 @@ Routine source changes update canonical files directly; do not create per-item r
 
 **Decision/status:** DONE and production-verified. Ordinary online startup/navigation does not provision the complete offline library. **Connection Status → Update offline library** explicitly prepares or refreshes the verified complete offline generation. Online browsing uses current production even when an older complete offline generation remains available as fallback. Failed/corrupt/quota-failed explicit updates preserve the prior complete generation. Devices without a prepared generation must not claim offline readiness.
 
-FISH096/FISH097 do not change this decision.
+FISH096/FISH097/FISH098 do not change this decision.
 
 ## FISH096 — Knot step-by-step picture sequences
 
@@ -66,9 +66,17 @@ The package is authoritative for this content change: Palomar description is `St
 
 Current production source is `934d70bdd669180479f8c5a71c5e1050d2dbf56d`, release `696737730abf20323e5f308739aa14c4`, [run 34723495195](https://github.com/ginosega/fishing/actions/runs/34723495195), 227 hosted v2 files, hosted-verification artifact `10306962337`. Full CI, exact-current-main deployment, hosted-byte verification and hosted-browser verification passed. All 13 frames are now release-manifest content and participate in FISH091 explicit offline-library preparation.
 
+## FISH098 — Albright sequence package activation
+
+**Decision/status:** DONE and production-verified. The explicit user-supplied `fishing-companion-change-v2` package for `knot-albright` was applied through [PR114](https://github.com/ginosega/fishing/pull/114). Branch validation [run 34736320090](https://github.com/ginosega/fishing/actions/runs/34736320090) confirmed the current record fingerprint, notes base hash and absent picture/sequence bases, and recomputed all 15 image byte counts/SHA-256 hashes exactly before promotion. Pre-merge acceptance [run 34736339166](https://github.com/ginosega/fishing/actions/runs/34736339166) passed.
+
+The package is authoritative for this content change: the Albright Markdown body is the exact submitted replacement; `picture.src` is `KB/Knots/assets/knot-albright/step-15.jpg` with caption `Albright knot`; and `pictureSequence` explicitly orders `step-01.jpg` through `step-15.jpg`. No structured field changes were requested, so the prior description and other fields remain unchanged. No unrelated canonical content or application architecture changed.
+
+Current production source is `65ac208dbb1a116cc321d5b13bea1228b3d1ee6f`, release `29d23d0444d3a187d8f67edf0a28e82d`, [run 34736590334](https://github.com/ginosega/fishing/actions/runs/34736590334), 242 hosted v2 files, hosted-verification artifact `10310509883`. Full CI, exact-current-main deployment, hosted-byte verification and hosted-browser verification passed. All 15 frames are now release-manifest content and participate in FISH091 explicit offline-library preparation.
+
 ## Deferred P2 boundary
 
-**Decision:** FISH-TODO-077/P2 remains **DEFERRED**. Authentication, Direct Save, integrated GitHub upload, offline authoring, outbox/sync, Catch authoring and multi-user generalization are not implemented or implicitly authorized by FISH096.
+**Decision:** FISH-TODO-077/P2 remains **DEFERRED**. Authentication, Direct Save, integrated GitHub upload, offline authoring, outbox/sync, Catch authoring and multi-user generalization are not implemented or implicitly authorized by FISH096–FISH098.
 
 ## Media and repository layout
 
@@ -78,4 +86,4 @@ The canonical application icon is `pwa/icon.png`. Historical icon names/bytes an
 
 ## Open work
 
-FISH071–076 and FISH078–097 are complete; FISH077/P2 remains deferred. The canonical TODO preserves active fishing/gear/content research and purchase uncertainty, including unresolved PowerBait hook-size and loop-knot guidance questions. The next unused canonical task ID is **FISH-TODO-098**.
+FISH071–076 and FISH078–098 are complete; FISH077/P2 remains deferred. The canonical TODO preserves active fishing/gear/content research and purchase uncertainty, including unresolved PowerBait hook-size and loop-knot guidance questions. The next unused canonical task ID is **FISH-TODO-099**.
