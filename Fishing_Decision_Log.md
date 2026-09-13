@@ -28,7 +28,7 @@ Routine source changes update canonical files directly; do not create per-item r
 
 **Decision/status:** DONE and production-verified. Ordinary online startup/navigation does not provision the complete offline library. **Connection Status → Update offline library** explicitly prepares or refreshes the verified complete offline generation. Online browsing uses current production even when an older complete offline generation remains available as fallback. Failed/corrupt/quota-failed explicit updates preserve the prior complete generation. Devices without a prepared generation must not claim offline readiness.
 
-FISH096/FISH097/FISH098 do not change this decision.
+FISH096/FISH097/FISH098/FISH099 do not change this decision.
 
 ## FISH096 — Knot step-by-step picture sequences
 
@@ -74,9 +74,17 @@ The package is authoritative for this content change: the Albright Markdown body
 
 Current production source is `65ac208dbb1a116cc321d5b13bea1228b3d1ee6f`, release `29d23d0444d3a187d8f67edf0a28e82d`, [run 34736590334](https://github.com/ginosega/fishing/actions/runs/34736590334), 242 hosted v2 files, hosted-verification artifact `10310509883`. Full CI, exact-current-main deployment, hosted-byte verification and hosted-browser verification passed. All 15 frames are now release-manifest content and participate in FISH091 explicit offline-library preparation.
 
+## FISH099 — four Knot content/sequence packages
+
+**Decision/status:** DONE and production-verified. Four explicit user-supplied `fishing-companion-change-v2` packages were applied together through [PR116](https://github.com/ginosega/fishing/pull/116). Branch validation [run 34738967489](https://github.com/ginosega/fishing/actions/runs/34738967489) verified all package record/content bases and recomputed all 45 pre-uploaded JPG byte counts/SHA-256 hashes exactly before promotion. Pre-merge acceptance [run 34738991146](https://github.com/ginosega/fishing/actions/runs/34738991146) passed.
+
+The package set is authoritative for these changes: Albright keeps its existing 15-frame sequence but updates description and Markdown; Arbor receives the submitted description/Markdown plus a 9-frame sequence with `step-09.jpg` representative; Bowline Knot is added with submitted Markdown plus a 7-frame sequence with `step-07.jpg` representative; FG retains its existing structured description, receives the submitted Markdown, and activates a 29-frame sequence with `step-29.jpg` representative. No unrelated domain architecture changed.
+
+The first production deployment correctly published the new 57-record KB but exposed a stale hosted-verifier expected count of 56. Verification-only [PR117](https://github.com/ginosega/fishing/pull/117) changed that one expectation to 57. Final verified production source is `9899849be676e971e3670fe72eba7ffd66986d68`, release `b331a8c5575769159113a59a17b12bca`, [run 34740072017](https://github.com/ginosega/fishing/actions/runs/34740072017), 288 hosted v2 files, hosted-verification artifact `10312475498`. Full CI, exact-current-main deployment, hosted-byte verification and hosted-browser verification passed.
+
 ## Deferred P2 boundary
 
-**Decision:** FISH-TODO-077/P2 remains **DEFERRED**. Authentication, Direct Save, integrated GitHub upload, offline authoring, outbox/sync, Catch authoring and multi-user generalization are not implemented or implicitly authorized by FISH096–FISH098.
+**Decision:** FISH-TODO-077/P2 remains **DEFERRED**. Authentication, Direct Save, integrated GitHub upload, offline authoring, outbox/sync, Catch authoring and multi-user generalization are not implemented or implicitly authorized by FISH096–FISH099.
 
 ## Media and repository layout
 
@@ -86,4 +94,4 @@ The canonical application icon is `pwa/icon.png`. Historical icon names/bytes an
 
 ## Open work
 
-FISH071–076 and FISH078–098 are complete; FISH077/P2 remains deferred. The canonical TODO preserves active fishing/gear/content research and purchase uncertainty, including unresolved PowerBait hook-size and loop-knot guidance questions. The next unused canonical task ID is **FISH-TODO-099**.
+FISH071–076 and FISH078–099 are complete; FISH077/P2 remains deferred. The canonical TODO preserves active fishing/gear/content research and purchase uncertainty, including unresolved PowerBait hook-size and loop-knot guidance questions. The next unused canonical task ID is **FISH-TODO-100**.
