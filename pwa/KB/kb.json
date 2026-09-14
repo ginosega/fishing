@@ -660,8 +660,11 @@
       "id": "technique-spring-fishing",
       "type": "technique",
       "name": "Spring Bass Fishing",
-      "description": "Spring bass patterns by temperature, wind, clarity, depth, and presentation.",
-      "content": "KB/Techniques/content/spring-fishing.md"
+      "description": "Spring bass patterns by temperature, wind, clarity, depth, and presentation",
+      "content": "KB/Techniques/content/spring-fishing.md",
+      "picture": {
+        "src": "KB/Techniques/assets/Spring Bass Fishing.png"
+      }
     },
     {
       "id": "topwater-fishing",
