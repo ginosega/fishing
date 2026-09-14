@@ -6,6 +6,22 @@ This file records **current durable decisions**. Detailed historical release evi
 
 **Decision:** Chat mode is the permanent default for this project. Do not recommend Work merely because work is complex, lengthy, file-heavy, analytical, research/calculation-heavy or artifact-producing. Use a temporary Work switch only for a genuinely Work-only capability after explaining the need and obtaining explicit user approval.
 
+## New-chat transfer and handoff protocol
+
+**Decision:** When the user says **“It’s time to transfer to a new chat”** (or an unmistakably equivalent statement that the current chat is getting too long and should be transferred), treat that as the cue to ask for confirmation that the user wants the full project handoff prepared. Do not begin the repository-writing handoff until the user confirms.
+
+After confirmation, execute the handoff end-to-end without requiring repeated “Proceed” prompts:
+
+- restore actual latest `main` and current open-PR state;
+- reconcile work completed in the chat against the repository and production evidence;
+- update `README.md`, `Fishing_Context.md`, `Fishing_TODO.md`, `Fishing_Decision_Log.md`, `Fishing_New_Chat_Bootstrap_Prompt.md`, and any other project records materially affected by the chat;
+- preserve unresolved work, purchase uncertainty, exact continuation state, relevant task IDs, PRs, SHAs, releases, workflow runs and artifacts;
+- perform a final cross-file consistency check so the authoritative state files and bootstrap prompt agree;
+- leave the repository in a clean continuation state, using the normal documentation PR/merge workflow when repository records need changes; and
+- in the final handoff response, provide a clickable GitHub link to `Fishing_New_Chat_Bootstrap_Prompt.md` so the user can open it and copy its contents into the new Chat-mode conversation.
+
+This is a project convention, not an automatic ChatGPT product feature. If the user explicitly asks for a lighter-weight transfer, follow that narrower request instead.
+
 ## Repository authority and release discipline
 
 **Decision:** `ginosega/fishing` is authoritative. Restore actual latest `main` and open-PR state before implementation/release/repository-write work.
