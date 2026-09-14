@@ -34,6 +34,12 @@ FISH108 itself changes workflows/tests/release tooling and therefore is released
 
 FISH109 is complete and production-verified. Both deployment lanes use run-attempt-specific Pages and hosted-evidence artifact names, so rerunning a failed deployment cannot collide with an earlier `github-pages` artifact from the same workflow run. The dependency-free fast hosted verifier also retries a bounded set of transient propagation/network failures with backoff before declaring failure. Exact-current-main protection remains mandatory and still prevents an older run from deploying after `main` advances.
 
+### FISH110 — release-aware Copy Changes handoff
+
+FISH110 is complete and production-verified. The shared Gear/KB editor now generates its **Copy Changes** prefix from a centralized helper. The handoff explicitly tells the receiving chat to restore current `main` and project instructions, validate the source-aware package against current canonical content, preserve unrelated/newer source changes, and apply only the requested changes.
+
+When the package is eligible for FISH108 Fast Content Release, the copied instruction now requires one content PR, lightweight content validation/build, merge, production deployment, and hosted byte/release-identity verification. It explicitly says not to run Full Application Release or create/update project-state records unless validation shows they are actually required. If the requested change is not fast-lane eligible, the instruction falls back to the repository's current appropriate release lane. Regression coverage forbids the obsolete pre-FISH108 `one feature PR` / `then reconcile project records` boilerplate and preserves the blank-line JSON boundary.
+
 ### Source-derived library state
 
 Library size is normal content state, not an application invariant. Tests no longer require manually maintained Gear/KB/Catch counts, canonical path totals, or inventory-reference totals. Core tests compare validated maps/inventory to the actual canonical source; full hosted browser verification compares runtime counts to the exact generated release manifest.
@@ -64,7 +70,7 @@ When the user says **“It’s time to transfer to a new chat”** or clearly st
 
 Fishing Companion uses three independent but consistent domains — Gear, KB and Catch. KB types are Location, Species, Equipment/Gear Guide, Technique and Knot. Paths are explicit record properties. Existing IDs remain stable. Retired trips/sessions/planner/paired-setup structures are not reintroduced without an explicit new requirement.
 
-Gear/KB Add/Edit remains **Prepare Changes → Copy Changes**, producing source-aware `fishing-companion-change-v2` packages. Preparing/copying is not saving; the browser does not write to GitHub directly. GitHub upload links use physical `pwa/...` folders while package paths remain logical.
+Gear/KB Add/Edit remains **Prepare Changes → Copy Changes**, producing source-aware `fishing-companion-change-v2` packages. Preparing/copying is not saving; the browser does not write to GitHub directly. GitHub upload links use physical `pwa/...` folders while package paths remain logical. Copy Changes includes the FISH110 release-aware handoff described above, so normal content-only packages route explicitly to FISH108 Fast Content Release while non-content changes fall back to the repository's current appropriate lane.
 
 Simple Markdown-only narrative changes to existing canonical content may still be made directly in GitHub. Structured record fields, categories/types, specs, links, picture metadata/sequences, paths and relationships should use Fishing Companion Edit or an equivalent source-aware workflow.
 
@@ -75,6 +81,7 @@ Simple Markdown-only narrative changes to existing canonical content may still b
 - **FISH102:** Line-Tackle-Knot Reference is pinned first only on KB → Knots.
 - **FISH103:** external HTTP(S) links open a new tab; internal app links remain same-tab; caption editing retains focus; new-KB Markdown Preview uses a provisional required content path; authoring upload links target physical `/pwa/...` folders.
 - **FISH107:** Skylety Fishing Hook Sharpener is type `Tools`; FISH106's earlier `Kayaks` value is historical package evidence only.
+- **FISH110:** Copy Changes uses centralized release-aware boilerplate that routes eligible source-aware content packages to FISH108 Fast Content Release and avoids automatic project-state churn unless actually required.
 
 Active Knot sequences remain Palomar, Albright, Arbor, Bowline, FG, Improved Clinch, Modified Uni and Trilene; Non-Slip Loop remains static. Directory contents never create a sequence without explicit canonical references.
 
@@ -84,4 +91,4 @@ Active Knot sequences remain Palomar, Albright, Arbor, Bowline, FG, Improved Cli
 
 **Fishing Companion v3** (historically `FISH-TODO-077/P2`) remains **DEFERRED**. Authentication, direct GitHub save/upload, integrated uploads, offline authoring/outbox/sync, Catch authoring and multi-user generalization are not current production.
 
-FISH071–076 and FISH078–109 are complete/implemented. The next unused **application/architecture** task ID is **FISH-TODO-110**. Routine Fast Content Releases do not consume it.
+FISH071–076 and FISH078–110 are complete/implemented. The next unused **application/architecture** task ID is **FISH-TODO-111**. Routine Fast Content Releases do not consume it.

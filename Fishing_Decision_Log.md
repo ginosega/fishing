@@ -60,11 +60,19 @@ Update project-state documents when architecture/product behavior/durable decisi
 
 **Decision/status:** IMPLEMENTED and production-verified. Pages deployment artifacts and hosted-evidence artifacts are named with `github.run_attempt`, allowing a failed deployment job to be rerun without duplicate-artifact ambiguity. The fast hosted verifier retries only bounded transient HTTP/network failures with backoff; persistent or non-retryable mismatches still fail. The exact-current-main guard remains authoritative and must not be bypassed when `main` advances during a run.
 
+## FISH110 — release-aware Copy Changes handoff
+
+**Decision/status:** IMPLEMENTED and production-verified. The Fishing Companion shared Gear/KB editor uses one centralized Copy Changes instruction helper. The handoff must tell the receiving chat to restore current `main` and project instructions, validate the source-aware package against current canonical content, preserve unrelated/newer source changes, and apply only the requested changes.
+
+**Decision:** When the requested package is eligible for FISH108 Fast Content Release, the copied instruction explicitly routes it through one content PR, lightweight content validation/build, merge, production deployment, and hosted byte/release-identity verification. It explicitly says not to run Full Application Release or create/update project-state records unless validation shows they are actually required. When the package is not fast-lane eligible, the instruction defers to the repository's current appropriate release lane.
+
+**Decision:** Keep the Copy Changes JSON handoff parseable with a blank-line boundary between the human instruction and the package JSON. Regression coverage must reject the obsolete pre-FISH108 `one feature PR` / `then reconcile project records` boilerplate.
+
 ## Domain architecture and authoring boundary
 
 **Decision:** Fishing Companion retains independent Gear, Knowledge Base and Catch domains with shared utilities where useful; do not force them into a generic graph/entity framework. KB types are Location, Species, Equipment/Gear Guide, Technique and Knot. Paths are explicit record properties; existing IDs remain stable. Retired trips/sessions/planner/setup structures remain retired unless explicitly re-approved.
 
-**Decision:** Gear/KB browser Add/Edit uses **Prepare Changes → Copy Changes** to create a source-aware `fishing-companion-change-v2` handoff. Preparing/copying is not saving; browser-side repository writes/uploads are not current production. Existing source/base conflict checks remain required. GitHub upload links point to physical `pwa/...` source folders while package paths remain logical.
+**Decision:** Gear/KB browser Add/Edit uses **Prepare Changes → Copy Changes** to create a source-aware `fishing-companion-change-v2` handoff. Preparing/copying is not saving; browser-side repository writes/uploads are not current production. Existing source/base conflict checks remain required. GitHub upload links point to physical `pwa/...` source folders while package paths remain logical. The Copy Changes prefix follows FISH110 and routes eligible content-only packages to FISH108 Fast Content Release without automatic project-state churn.
 
 Simple Markdown-only narrative edits to existing canonical files may be made directly in GitHub. Structured record fields, categories/types, specifications, structured links, picture metadata/sequences, paths and relationships should use Fishing Companion Edit or an equivalent source-aware workflow.
 
@@ -84,6 +92,8 @@ Simple Markdown-only narrative edits to existing canonical files may be made dir
 
 **FISH107:** current canonical Skylety Fishing Hook Sharpener type is `Tools`. FISH106's `Kayaks` value remains historical evidence of the earlier supplied package only.
 
+**FISH110:** Copy Changes uses release-aware boilerplate aligned to FISH108; eligible source-aware content packages are routed to Fast Content Release and routine project-state churn is explicitly avoided unless validation shows it is required.
+
 ## Backlog decisions
 
 **FISH-TODO-005:** remains **WAITING ON USER**. FISH104's notes do not explicitly confirm every fish-finder power-system component as installed.
@@ -96,4 +106,4 @@ Simple Markdown-only narrative edits to existing canonical files may be made dir
 
 ## Open application work
 
-FISH071–076 and FISH078–109 are complete/implemented. The next unused **application/architecture** task ID is **FISH-TODO-110** unless actual current `main` already allocated it. Routine Fast Content Releases do not consume that ID.
+FISH071–076 and FISH078–110 are complete/implemented. The next unused **application/architecture** task ID is **FISH-TODO-111** unless actual current `main` already allocated it. Routine Fast Content Releases do not consume that ID.
