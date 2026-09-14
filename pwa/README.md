@@ -29,6 +29,10 @@ The full lane retains durable v1 recovery checks, dependency audit, Node tests, 
 
 If eligibility is uncertain, use full.
 
+### FISH109 rerun hardening
+
+Pages deployment and hosted-evidence artifact names include `github.run_attempt`, so a failed deployment job can be rerun without duplicate `github-pages` artifact ambiguity. `tools/verify-hosted-fast.mjs` uses bounded backoff for transient Pages propagation/network responses while still failing persistent byte/release mismatches. The exact-current-main guard remains mandatory and prevents stale runs from deploying after `main` advances.
+
 ## Source-derived content state
 
 Gear/KB/Catch counts, canonical path totals and inventory-reference totals are mutable content state rather than application invariants. Build/release manifests derive counts from current canonical source. Core tests compare validated maps/inventory against the actual source rather than manually maintained library totals. Full hosted browser verification compares runtime counts against the exact built manifest.
@@ -83,6 +87,6 @@ Use Node 24 and locked `package-lock.json`.
 
 `.github/workflows/fishing-production.yml` is the sole active publisher and automatically classifies each application/content PR or `main` push into Fast Content or Full Application Release from the changed-file set. Documentation-only changes remain excluded from publication triggers.
 
-`tools/verify-hosted-fast.mjs` is intentionally dependency-free and is used only after a fast content deployment to compare every hosted file against the exact built `dist/` tree and verify release/source identity. `tools/verify-hosted.mjs` remains the full browser-backed hosted verifier for application releases.
+`tools/verify-hosted-fast.mjs` is intentionally dependency-free and is used only after a fast content deployment to compare every hosted file against the exact built `dist/` tree and verify release/source identity; FISH109 adds bounded retry/backoff for transient propagation/network failures. `tools/verify-hosted.mjs` remains the full browser-backed hosted verifier for application releases.
 
 Historical implementation/release details remain in Git history and dated records under `docs/`; exact current production identity should be read from current workflow/Pages evidence rather than assumed from old narrative documents.

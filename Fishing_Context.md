@@ -30,6 +30,10 @@ Any changed file outside the three canonical content roots forces the full lane.
 
 FISH108 itself changes workflows/tests/release tooling and therefore is released through the full lane.
 
+### FISH109 — release retry hardening
+
+FISH109 is complete and production-verified. Both deployment lanes use run-attempt-specific Pages and hosted-evidence artifact names, so rerunning a failed deployment cannot collide with an earlier `github-pages` artifact from the same workflow run. The dependency-free fast hosted verifier also retries a bounded set of transient propagation/network failures with backoff before declaring failure. Exact-current-main protection remains mandatory and still prevents an older run from deploying after `main` advances.
+
 ### Source-derived library state
 
 Library size is normal content state, not an application invariant. Tests no longer require manually maintained Gear/KB/Catch counts, canonical path totals, or inventory-reference totals. Core tests compare validated maps/inventory to the actual canonical source; full hosted browser verification compares runtime counts to the exact generated release manifest.
@@ -80,4 +84,4 @@ Active Knot sequences remain Palomar, Albright, Arbor, Bowline, FG, Improved Cli
 
 **Fishing Companion v3** (historically `FISH-TODO-077/P2`) remains **DEFERRED**. Authentication, direct GitHub save/upload, integrated uploads, offline authoring/outbox/sync, Catch authoring and multi-user generalization are not current production.
 
-FISH071–076 and FISH078–108 are complete/implemented. The next unused **application/architecture** task ID is **FISH-TODO-109**. Routine Fast Content Releases do not consume it.
+FISH071–076 and FISH078–109 are complete/implemented. The next unused **application/architecture** task ID is **FISH-TODO-110**. Routine Fast Content Releases do not consume it.
