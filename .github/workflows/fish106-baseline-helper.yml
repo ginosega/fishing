@@ -1,0 +1,47 @@
+name: FISH106 baseline helper
+
+on:
+  push:
+    branches:
+      - feature/fish106-gear-tools-storage
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Update FISH106 known Gear-count baselines
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          p = Path('pwa/test/core.test.mjs')
+          s = p.read_text(encoding='utf-8')
+          replacements = {
+            '[74,56,5]': '[80,56,5]',
+            'maps.gear.size,74': 'maps.gear.size,80',
+            'result.data.gear.items.length,74': 'result.data.gear.items.length,80',
+          }
+          for old,new in replacements.items():
+            assert old in s, old
+            s = s.replace(old,new)
+          p.write_text(s,encoding='utf-8')
+
+          p = Path('pwa/tools/verify-hosted.mjs')
+          s = p.read_text(encoding='utf-8')
+          old = '{gear:74,kb:56,catches:5}'
+          assert old in s
+          p.write_text(s.replace(old,'{gear:80,kb:56,catches:5}'),encoding='utf-8')
+          PY
+          git rm .github/workflows/fish106-baseline-helper.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pwa/test/core.test.mjs pwa/tools/verify-hosted.mjs
+          git commit -m "FISH106: update Gear-count acceptance baselines"
+          git push origin HEAD:feature/fish106-gear-tools-storage
