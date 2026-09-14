@@ -650,6 +650,12 @@
       }
     },
     {
+      "id": "bass-behavior-and-habitat",
+      "name": "Bass Behavior and Habitat",
+      "type": "technique",
+      "content": "KB/Techniques/content/Bass Behavior and Habitat.md"
+    },
+    {
       "id": "fall-bass-fishing",
       "name": "Fall Bass Fishing",
       "type": "technique",
