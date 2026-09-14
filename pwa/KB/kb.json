@@ -74,20 +74,6 @@
       "content": "KB/Locations/content/lake-bosworth.md"
     },
     {
-      "id": "technique-bass-power-search-overview",
-      "type": "technique",
-      "name": "Bass Power and Search Overview",
-      "description": "General resources for bass moving-bait and power-fishing techniques.",
-      "content": "KB/Techniques/content/bass-power-search-overview.md"
-    },
-    {
-      "id": "technique-paddle-only-kayak-strategy",
-      "type": "technique",
-      "name": "Paddle-only Kayak Strategy",
-      "description": "Route, drift, trolling, electronics, and casting for a paddle-only RVR119.",
-      "content": "KB/Techniques/content/paddle-only-kayak-strategy.md"
-    },
-    {
       "id": "technique-trout-fishing",
       "type": "technique",
       "name": "Trout Fishing",
@@ -272,27 +258,6 @@
         "src": "KB/Gear-Guides/assets/River2Sea Whopper Plopper 60.jpg",
         "caption": "River2Sea Whopper Plopper 60"
       }
-    },
-    {
-      "id": "technique-seasonal-bass-guidance",
-      "type": "technique",
-      "name": "Seasonal Bass Guidance",
-      "description": "Spring temperature patterns and fall bass movement notes.",
-      "content": "KB/Techniques/content/seasonal-bass-guidance.md"
-    },
-    {
-      "id": "technique-color-and-scent",
-      "type": "technique",
-      "name": "Color and Scent",
-      "description": "Practical lure-color and scent notes, including items needing verification.",
-      "content": "KB/Techniques/content/color-and-scent.md"
-    },
-    {
-      "id": "technique-water-visibility",
-      "type": "technique",
-      "name": "Water Visibility",
-      "description": "A visibility heuristic with a caution against treating it as a hard rule.",
-      "content": "KB/Techniques/content/water-visibility.md"
     },
     {
       "id": "species-largemouth-bass",
