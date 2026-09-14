@@ -641,15 +641,6 @@
       }
     },
     {
-      "id": "bass-fishing",
-      "type": "technique",
-      "name": "Bass Fishing",
-      "content": "KB/Techniques/content/Bass Fishing.md",
-      "picture": {
-        "src": "KB/Techniques/assets/Bass Fishing.png"
-      }
-    },
-    {
       "id": "bass-fishing-techniques",
       "name": "Bass Fishing Techniques",
       "type": "technique",
