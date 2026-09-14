@@ -80,7 +80,7 @@
       "description": "Casting, bank-fishing, still-fishing, and kayak-trolling guidance",
       "content": "KB/Techniques/content/trout-fishing.md",
       "picture": {
-        "src": "KB/Techniques/assets/Trout Fishing.png"
+        "src": "KB/Techniques/assets/Trout Fishing Techniques.png"
       }
     },
     {
@@ -644,7 +644,10 @@
       "id": "bass-fishing-techniques",
       "name": "Bass Fishing Techniques",
       "type": "technique",
-      "content": "KB/Techniques/content/Bass Fishing Techniques.md"
+      "content": "KB/Techniques/content/Bass Fishing Techniques.md",
+      "picture": {
+        "src": "KB/Techniques/assets/Bass Fishing Techniques.png"
+      }
     },
     {
       "id": "fall-bass-fishing",
