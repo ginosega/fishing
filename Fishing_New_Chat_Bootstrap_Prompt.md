@@ -34,34 +34,35 @@ This is a durable Fishing-project convention, not an automatic ChatGPT product f
 
 ## Current production continuation point — September 13, 2026
 
-FISH-TODO-104 is **DONE / production-verified**.
+FISH-TODO-105 is **DONE / production-verified**.
 
-FISH104 shipped through [PR130](https://github.com/ginosega/fishing/pull/130). It implemented the supplied Fishing Companion Gear add package for `humminbird-fish-finder` and added:
+FISH105 shipped through [PR132](https://github.com/ginosega/fishing/pull/132). It implemented five supplied Fishing Companion Gear packages together:
 
-- Humminbird Fish Finder / Helix 5 Chirp DI GPS G3 Gear record;
-- type `Electronics`, transducer `XNT 9 HW DI T`;
-- Markdown `Gear/Equipment/content/Humminbird Fish Finder.md`;
-- picture `Gear/Equipment/assets/Humminbird Helix 5 Chirp DI GPS G3.png`;
-- caption `Humminbird Helix 5 Chirp DI GPS G3`.
+- Perception Joyride 10.0: type corrected from `Accessories` to `Kayaks`; caption `Perception Joyride 10.0 - Funkadelic` added while retaining its existing picture.
+- KastKing HyperSeal Waterproof Tackle Box: new `Tackle Management` Gear item, size `3600`, Orange.
+- KastKing Fishing Tackle Bag: new `Tackle Management` Gear item, Medium, Orange, with Markdown `Gear/Equipment/content/KastKing Fishing Tackle Bag.md`.
+- KastKing Signature Lure Bag: new `Tackle Management` Gear item.
+- KastKing BaitShield Tackle Storage Bag: new `Tackle Management` Gear item, Medium.
 
-The user-supplied picture is preserved exactly at **579,304 bytes**, SHA-256 `2ec799df4d20af22031ca7fde682aca1f5c695a5cab028fb251fd2457f3e0d4e`.
+The four KastKing PNGs were user-supplied files already uploaded under physical source `pwa/Gear/Equipment/assets/` before package promotion. FISH105 referenced them in place rather than rewriting them. The unrelated direct Bonafide RVR119 Markdown update already on `main` was preserved unchanged.
 
 Current verified production:
 
-- source: `89e6871d81c509eed7e17d4b437db78be16310b8`
-- release: `6aff63420b64bb790847a7af37f44c10`
-- production workflow: [run 34800306796](https://github.com/ginosega/fishing/actions/runs/34800306796)
-- hosted v2 files: **329**
-- production-bundle artifact: `10331372187`
-- production-acceptance-evidence artifact: `10331631583`
-- Pages artifact: `10330882758`
-- hosted-verification artifact: `10331027567`
+- source: `dc7e6434757f19c15f05d29fc120251425108fe8`
+- release: `6b10de29a03200d6f06040847007aaa8`
+- production workflow: [run 34804905643](https://github.com/ginosega/fishing/actions/runs/34804905643)
+- hosted v2 files: **334**
+- production-bundle artifact: `10332637362`
+- production-acceptance-evidence artifact: `10333116452`
+- Pages artifact: `10333001931`
+- hosted-verification artifact: `10332432676`
 - site: https://ginosega.github.io/fishing/
-- canonical counts: **70 Gear, 56 KB and 5 Catches**
+- canonical counts: **74 Gear, 56 KB and 5 Catches**
+- measured source baselines: **108 canonical library paths, 240 inventory references**
 
 The exact-main production run passed source/core validation, Chromium/WebKit preview and production acceptance, archived-v1 cutover acceptance, exact-current-main protection, Pages deployment, hosted-byte verification and hosted-browser verification.
 
-FISH102 and FISH103 remain DONE / production-verified. Do **not** restart FISH096–FISH104 implementation/deployment work.
+FISH102–FISH104 remain DONE / production-verified. Do **not** restart FISH096–FISH105 implementation/deployment work.
 
 ## Current durable behavior
 
@@ -73,11 +74,15 @@ FISH096 remains active: Knot records may optionally use explicit ordered `pictur
 
 Gear/KB Prepare Changes → Copy Changes remains a source-aware handoff. It carries structured changes, content and sequence intent where applicable, but it still does not write to GitHub directly.
 
+Simple Markdown-only narrative/content edits to existing canonical content files may be made directly in GitHub. Use Fishing Companion Edit or an equivalent source-aware workflow for structured record fields, paths, pictures/sequences or relationships; do not casually rename/move content files during direct Markdown editing.
+
 FISH102's Line-Tackle-Knot Reference is pinned first only on KB → Knots. Other list ordering is unchanged.
 
 FISH103's link behavior is durable: external HTTP(S) links open in a new tab; internal `gear://`, `kb://`, anchors/local and other in-app links remain same-tab. Caption editing must retain focus, and new-KB Markdown Preview must validate with a provisional required content path.
 
 FISH104 does **not** by itself close `FISH-TODO-005`: its notes document a fish-finder power architecture and parts list, but do not explicitly confirm that every listed component is the installed configuration. Preserve that item as WAITING ON USER until I confirm the installed system.
+
+FISH105 does **not** by itself close `FISH-TODO-014`: the HyperSeal item is size 3600, but the supplied package does not explicitly identify it as the backlog's specific “KastKing 3600 deep box” target. Preserve that item as OPEN until I explicitly resolve it.
 
 ## Fishing Companion v3
 
@@ -87,11 +92,11 @@ Future scope includes authentication, direct GitHub save/upload, integrated uplo
 
 ## Task state
 
-FISH071–076 and FISH078–104 are complete. Fishing Companion v3 (`FISH-TODO-077/P2`) remains deferred. Preserve all unresolved fishing/equipment/content backlog and explicit purchase uncertainty in `Fishing_TODO.md`.
+FISH071–076 and FISH078–105 are complete. Fishing Companion v3 (`FISH-TODO-077/P2`) remains deferred. Preserve all unresolved fishing/equipment/content backlog and explicit purchase uncertainty in `Fishing_TODO.md`.
 
-The next unused canonical application task ID is **FISH-TODO-105** unless actual newer `main` has already allocated it.
+The next unused canonical application task ID is **FISH-TODO-106** unless actual newer `main` has already allocated it.
 
-The new-chat transfer/handoff convention is a project operating rule, **not** FISH-TODO-105 and does not consume an application task ID.
+The new-chat transfer/handoff convention is a project operating rule, **not** FISH-TODO-106 and does not consume an application task ID.
 
 ## Working rules
 
@@ -101,6 +106,6 @@ The new-chat transfer/handoff convention is a project operating rule, **not** FI
 - For source/runtime changes, use a feature PR, full CI, merge, production deployment and hosted verification unless the user explicitly changes that workflow.
 - Documentation-only reconciliation does not republish production.
 - P1 authoring packages are implementation instructions, not merely JSON to explain.
-- Do not infer purchases/ownership or close WAITING ON USER items without user confirmation.
+- Do not infer purchases/ownership or close WAITING ON USER/open purchase-watch items without sufficient user confirmation.
 - Historical v1/preview files, old task snapshots and prior release identities are evidence only; current state is in the five restore-order files and dated `pwa/docs/` closeouts.
 - After actual milestones, update Context, TODO, Decision Log, README, affected technical/release records and this bootstrap, then cross-check them before handoff.
