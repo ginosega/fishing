@@ -2,42 +2,45 @@
 
 ## Current authoritative state — September 13, 2026
 
-FISH-TODO-104 is **DONE / production-verified**.
+FISH-TODO-105 is **DONE / production-verified**.
 
-### FISH104 — Humminbird Fish Finder Gear record
+### FISH105 — Joyride correction and KastKing tackle-management Gear
 
-FISH104 shipped through [PR130](https://github.com/ginosega/fishing/pull/130). It implemented the supplied `fishing-companion-change-v2` Gear add package for record ID `humminbird-fish-finder`.
+FISH105 shipped through [PR132](https://github.com/ginosega/fishing/pull/132). It implemented five supplied `fishing-companion-change-v2` Gear packages together.
 
-Canonical content now includes:
+Canonical changes:
 
-- Gear record: **Humminbird Fish Finder**
-- manufacturer/model: `Humminbird` / `Helix 5 Chirp DI GPS G3`
-- category/type: `accessories` / `Electronics`
-- transducer specification: `XNT 9 HW DI T`
-- logical Markdown: `Gear/Equipment/content/Humminbird Fish Finder.md`
-- logical picture: `Gear/Equipment/assets/Humminbird Helix 5 Chirp DI GPS G3.png`
-- physical Markdown: `pwa/Gear/Equipment/content/Humminbird Fish Finder.md`
-- physical picture: `pwa/Gear/Equipment/assets/Humminbird Helix 5 Chirp DI GPS G3.png`
-- picture caption: `Humminbird Helix 5 Chirp DI GPS G3`
+- `perception-joyride-10-0`: type changed from `Accessories` to `Kayaks`; existing picture path `Gear/Equipment/assets/perception-joyride-10.png` retained; caption added as `Perception Joyride 10.0 - Funkadelic`.
+- `kastking-hyperseal-waterproof-tackle-box`: **KastKing HyperSeal Waterproof Tackle Box**, type `Tackle Management`, size `3600`, color `Orange`, model `HyperSeal Waterproof Tackle Box - 3600`, picture `Gear/Equipment/assets/KastKing HyperSeal Waterproof Tackle Box.png`.
+- `kastking-fishing-tackle-bag`: **KastKing Fishing Tackle Bag**, type `Tackle Management`, size `Medium`, color `Orange`, model `Fishing Tackle Bag`, Markdown `Gear/Equipment/content/KastKing Fishing Tackle Bag.md`, picture `Gear/Equipment/assets/KastKing Fishing Tackle Bag.png`.
+- `kastking-signature-lure-bag`: **KastKing Signature Lure Bag**, type `Tackle Management`, model `Signature Lure Bag`, picture `Gear/Equipment/assets/KastKing Signature Lure Bag.png`.
+- `kastking-baitshield-tackle-storage-bag`: **KastKing BaitShield Tackle Storage Bag**, type `Tackle Management`, size `Medium`, model `BaitShield Tackle Storage Bag`, picture `Gear/Equipment/assets/KastKing BaitShield Tackle Storage Bag.png`.
 
-The user-supplied picture is preserved exactly at **579,304 bytes**, SHA-256 `2ec799df4d20af22031ca7fde682aca1f5c695a5cab028fb251fd2457f3e0d4e`. The image had been uploaded to `main` immediately before the package promotion; FISH104 referenced those exact bytes rather than rewriting them.
+The four KastKing pictures were user-supplied and had already been uploaded to physical canonical source under `pwa/Gear/Equipment/assets/` before package promotion. Package-validated metadata is:
 
-During PR acceptance, the new 70th Gear record correctly required current acceptance baselines to move from 69 to 70 Gear. Final measured source baselines are 70 Gear / 56 KB / 5 Catches, 107 canonical library paths, and 240 source inventory references.
+- HyperSeal Waterproof Tackle Box: **1,170,522 bytes**, SHA-256 `e066acd56653f329e45e989fdf2c2db8e18bdb7fbcc6d362c5c645b89e94ffc2`.
+- Fishing Tackle Bag: **2,589,562 bytes**, SHA-256 `bb0b9c93f5ad75a9f90dc993888764048b4b1e25bfec78a616c84b4d6a7ec9ac`.
+- Signature Lure Bag: **1,718,090 bytes**, SHA-256 `25f10b567394abcdff338c0db12a937f0912ad30e85be34a0d05c5099d4aab65`.
+- BaitShield Tackle Storage Bag: **3,340,914 bytes**, SHA-256 `1de76b35cd64f72c71f1ac6eeba71247e034530dd161595643070787084d776e`.
+
+FISH105 referenced those files in place rather than rewriting them. The unrelated direct Bonafide RVR119 Markdown update already on `main` was preserved unchanged.
+
+The supplied package baselines were verified as ancestors of current source. The Joyride base field and package record hash matched, all four new IDs were absent, and `pwa/Gear/gear.json` had no intervening structured-data conflict. CI correctly exposed only stale acceptance baselines caused by adding four records; final validator-measured baselines are **74 Gear / 56 KB / 5 Catches**, **108 canonical library paths**, and **240 source inventory references**.
 
 Final verified production:
 
-- source `89e6871d81c509eed7e17d4b437db78be16310b8`
-- release `6aff63420b64bb790847a7af37f44c10`
-- [workflow run 34800306796](https://github.com/ginosega/fishing/actions/runs/34800306796)
-- **329 hosted v2 files**
-- production-bundle artifact `10331372187`
-- production-acceptance-evidence artifact `10331631583`
-- Pages artifact `10330882758`
-- hosted-verification artifact `10331027567`
+- source `dc7e6434757f19c15f05d29fc120251425108fe8`
+- release `6b10de29a03200d6f06040847007aaa8`
+- [workflow run 34804905643](https://github.com/ginosega/fishing/actions/runs/34804905643)
+- **334 hosted v2 files**
+- production-bundle artifact `10332637362`
+- production-acceptance-evidence artifact `10333116452`
+- Pages artifact `10333001931`
+- hosted-verification artifact `10332432676`
 
 That exact-current-main run passed source/core validation, Chromium/WebKit preview acceptance, production-browser acceptance, actual archived-v1 cutover acceptance, exact-current-main guard, Pages deployment, byte-for-byte hosted verification and hosted-browser verification.
 
-FISH102 and FISH103 remain complete and production-verified. FISH102 added the Line-Tackle-Knot Reference and pinned-first Knot-category ordering. FISH103 moved canonical physical domain source under `pwa/` and fixed external/internal link targeting, Caption focus and new-KB Markdown Preview validation ordering.
+FISH102–FISH104 remain complete and production-verified. FISH102 added the Line-Tackle-Knot Reference and pinned-first Knot-category ordering. FISH103 moved canonical physical domain source under `pwa/` and fixed external/internal link targeting, Caption focus and new-KB Markdown Preview validation ordering. FISH104 added the Humminbird Fish Finder Gear record and its notes/picture.
 
 ## Operating mode
 
@@ -83,7 +86,7 @@ The retired Planner, Trip History/Sessions, paired-setup structures and old v1-o
 
 ## Content and media state
 
-Canonical counts are **70 Gear, 56 KB and 5 Catches**. The Humminbird Fish Finder is canonical in Gear → Equipment/Electronics. The Line-Tackle-Knot Reference is canonical and pinned first on KB → Knots.
+Canonical counts are **74 Gear, 56 KB and 5 Catches**. The new KastKing records are canonical under Gear → Equipment / `Tackle Management`; Perception Joyride 10.0 is canonical as type `Kayaks`. The Humminbird Fish Finder remains canonical in Gear → Equipment / `Electronics`. The Line-Tackle-Knot Reference is canonical and pinned first on KB → Knots.
 
 Active Knot sequences are Palomar (13 PNG), Albright (15 JPG), Arbor (9 JPG), Bowline (7 JPG), FG (29 JPG), Improved Clinch (11 PNG), Modified Uni (12 JPG), and Trilene (15 PNG). Non-Slip Loop uses its static representative picture. Every sequence is explicitly referenced by canonical KB data and participates in FISH091 explicit complete-library preparation; directory contents alone never create a sequence.
 
@@ -91,8 +94,8 @@ Double Uni Knot and Single Uni Knot no longer exist in canonical KB source. The 
 
 ## Continuation
 
-FISH071–076 and FISH078–104 are complete. Fishing Companion v3 (`FISH-TODO-077/P2`) remains deferred. Existing fishing/equipment/content backlog and purchase uncertainty remain active in `Fishing_TODO.md`; FISH104 does not by itself close `FISH-TODO-005` because the package notes do not explicitly confirm that every listed power-system component is the installed configuration.
+FISH071–076 and FISH078–105 are complete. Fishing Companion v3 (`FISH-TODO-077/P2`) remains deferred. Existing fishing/equipment/content backlog and purchase uncertainty remain active in `Fishing_TODO.md`; FISH104 still does not by itself close `FISH-TODO-005`. FISH105 does not automatically close `FISH-TODO-014`; the supplied Gear package does not explicitly identify the HyperSeal 3600 box as the backlog's specific “KastKing 3600 deep box” target.
 
-The next unused canonical application task ID is **FISH-TODO-105** unless current `main` has already allocated it.
+The next unused canonical application task ID is **FISH-TODO-106** unless current `main` has already allocated it.
 
-For a new chat, read `README.md`, this file, `Fishing_TODO.md`, `Fishing_Decision_Log.md`, then `Fishing_New_Chat_Bootstrap_Prompt.md`. Historical release/migration evidence remains in Git history and `pwa/docs/`; do not restart completed FISH096–FISH104 release work.
+For a new chat, read `README.md`, this file, `Fishing_TODO.md`, `Fishing_Decision_Log.md`, then `Fishing_New_Chat_Bootstrap_Prompt.md`. Historical release/migration evidence remains in Git history and `pwa/docs/`; do not restart completed FISH096–FISH105 release work.
