@@ -59,3 +59,5 @@ These items remain open/deferred independently of Fishing Companion release work
 ## Continuation rules
 
 Use Chat mode by default. Restore actual latest `main` before acting. For new application work, allocate **FISH-TODO-104** unless a newer task has already been created on current `main`. Do not reopen FISH096–FISH103 or Fishing Companion v3 work without an explicit new user request.
+
+When the user says **“It’s time to transfer to a new chat”**, ask for confirmation of the full handoff. After confirmation, perform the durable handoff protocol recorded in `Fishing_Decision_Log.md`: reconcile current state, update the authoritative project records and bootstrap prompt as needed, cross-check them, and finish with a direct GitHub link to `Fishing_New_Chat_Bootstrap_Prompt.md`. This handoff protocol is not itself a new FISH-TODO application task and does not consume FISH-TODO-104.

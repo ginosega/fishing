@@ -22,7 +22,7 @@ Current verified production:
 - Pages artifact: `10329392228`
 - hosted-verification artifact: `10329313590`
 
-The exact-current-main run passed source/core validation, Chromium/WebKit preview acceptance, production-browser acceptance, actual archived-v1 cutover acceptance, exact-current-main protection, Pages deployment, hosted-byte verification and hosted-browser verification. Hosted verification specifically confirmed the FISH103 physical-source layout, external/internal link targeting, stable caption focus and new-KB Markdown Preview behavior.
+The exact-current-main run passed source/core validation, Chromium/WebKit preview acceptance, production-browser acceptance, actual archived-v1 cutover acceptance, exact-current-main protection, Pages deployment, byte-for-byte hosted verification and hosted-browser verification. Hosted verification specifically confirmed the FISH103 physical-source layout, external/internal link targeting, stable caption focus and new-KB Markdown Preview behavior.
 
 ## Current product behavior
 
@@ -51,6 +51,8 @@ At the start of a new chat, restore actual latest `main`, then read in order:
 3. `Fishing_TODO.md`
 4. `Fishing_Decision_Log.md`
 5. `Fishing_New_Chat_Bootstrap_Prompt.md`
+
+When the user says **“It’s time to transfer to a new chat”** (or clearly says the current chat is too long and should be transferred), ask for confirmation that they want the full handoff. Once confirmed, reconcile the chat against current repository/production state, update the authoritative project records and bootstrap prompt, perform a final cross-file consistency check, and leave a clean continuation point without repeated “Proceed” prompts. The final handoff response must include a clickable GitHub link to `Fishing_New_Chat_Bootstrap_Prompt.md` so the user can copy it into the new Chat-mode conversation.
 
 Preserve unresolved fishing/equipment/content backlog and explicit purchase uncertainty. FISH071–076 and FISH078–103 are complete; Fishing Companion v3 (`FISH-TODO-077/P2`) remains deferred. The next unused canonical application task ID is **FISH-TODO-104** unless actual newer `main` has already allocated it.
 

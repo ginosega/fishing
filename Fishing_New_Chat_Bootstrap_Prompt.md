@@ -16,6 +16,22 @@ Read these files from actual latest `main`, in order:
 
 Before implementation, release or repository-write work, also confirm current open-PR state. Newer primary repository evidence controls over stale chat descriptions.
 
+## Chat-transfer convention
+
+For this project, the phrase **“It’s time to transfer to a new chat”** is the standard transfer cue. If I say that (or clearly say that the current chat is getting too long and should be transferred), ask me to confirm that I want the **full project handoff** prepared.
+
+After I confirm, execute the handoff end-to-end without making me repeatedly say “Proceed”:
+
+- restore actual latest `main` and current open-PR state;
+- reconcile all work completed in the chat against current repository and production evidence;
+- update `README.md`, `Fishing_Context.md`, `Fishing_TODO.md`, `Fishing_Decision_Log.md`, `Fishing_New_Chat_Bootstrap_Prompt.md`, and any other records materially affected by the chat;
+- preserve exact continuation state, unresolved work, purchase uncertainty, relevant task IDs, PRs, SHAs, releases, workflow runs and artifacts;
+- perform a final cross-file consistency check;
+- leave the repository in a clean continuation state, using the normal documentation PR/merge workflow when records require changes; and
+- finish with a clickable GitHub link to `Fishing_New_Chat_Bootstrap_Prompt.md` so I can open it and copy its contents into the next Chat-mode conversation.
+
+This is a durable Fishing-project convention, not an automatic ChatGPT product feature. If I explicitly request a lighter transfer, follow that narrower request instead.
+
 ## Current production continuation point — September 13, 2026
 
 FISH-TODO-102 and FISH-TODO-103 are **DONE / production-verified**.
@@ -71,6 +87,8 @@ Future scope includes authentication, direct GitHub save/upload, integrated uplo
 FISH071–076 and FISH078–103 are complete. Fishing Companion v3 (`FISH-TODO-077/P2`) remains deferred. Preserve all unresolved fishing/equipment/content backlog and explicit purchase uncertainty in `Fishing_TODO.md`.
 
 The next unused canonical application task ID is **FISH-TODO-104** unless actual newer `main` has already allocated it.
+
+The new-chat transfer/handoff convention is a project operating rule, **not** FISH-TODO-104 and does not consume an application task ID.
 
 ## Working rules
 
