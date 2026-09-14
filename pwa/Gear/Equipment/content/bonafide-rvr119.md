@@ -1,4 +1,26 @@
-# Accessories (Have)
+## Loading Checklist
+1. Move truck to middle of driveway, open bed cover and tailgate, place ground pad behind bed, move garbage bins
+2. Open orange bin and remove cart and cam straps, put bin, straps, and tackle bags in truck bed
+3. Put in back seat:
+	- Backpack with polarized glasses, extra clothes, first-aid kit, sunscreen, pelican case
+	- Yeti bag with food, water, and ice
+	- Water shoes
+4. Assemble cart with bunk bases spanning from 100 to 200 on axle tube 
+5. Unlock kayak, remove cover and put in garage
+6. Remove seat and paddle  and put in truck 
+7. Remove straps from bag, close tailgate, and put straps on back of truck
+8. Remove fish bag, fill with ice, and put in truck
+9. Remove scupper plugs (8) and orange ball and put in garage
+10. Make sure rudder is up and slide kayak onto cart, with cart to front of kayak
+11. Position kayak with stern on ground pad, bow 45° toward driver's side 
+12. Lift bow and place on bunk ends
+13. Lift stern and slide kayak forward until rear scupper hole is above bend in bunks
+14. Attach rear cam strap, then side straps, then front strap
+15. Put ground pad, cart, and rods in truck
+16. Verify that orange bin, tackle bags, kayak seat, paddle, foam pad, ground pad, and cart are in truck bed, rods are in the tube, and backpack, Yeti bag, fish bag, and water shoes are in back seat
+17. Close tailgate and bed cover, move garbage bins back into place
+
+## Accessories (Have)
 - Dry bag/backpack: YakAttack 28L BackWater DryPak - [YakAttack](https://www.yakattack.us/28l-backwater-drypak-waterproof-backpack-grey-orange/) ($150)
 - Mooring rope w/stuff sack - [Amazon](https://a.co/d/h5ZlFZ3) ($9)
 - Flush-mount rod holders, orange - [Pelican](https://www.confluenceoutdoor.com/en-ca/products/bright-orange-flush-mount-rod-holder/PS1611) ($14)
@@ -12,7 +34,7 @@
 - Cart: Vevor Heavy Duty Kayak Cart - [Vevor](https://www.vevor.com/kayak-cart-c_12089/vevor-heavy-duty-kayak-cart-450lbs-load-capacity-detachable-canoe-trolley-cart-with-12-solid-tires-adjustable-width-nonslip-support-foot-for-kayaks-canoes-paddleboards-float-mats-jon-boats-p_010966491989), [Amazon](https://a.co/d/01bNyTog) ($72)
 - Cam straps: Orangee 15' 4-pack - [Amazon](https://a.co/d/0cN3sypS) ($26)
   
-# Accessories (Need)
+## Accessories (Need)
 - Bonafide RVR119 Under Seat Tackle Storage - [Bonafide](https://bonafidefishing.com/products/rvr119-under-seat-tackle-stora) ($90)
 - Bow hatch
   - Tool bag: Phillips screwdriver, 7/16 box wrench for seat nuts, hex wrench for studs. Q: How to tie this off?
@@ -20,10 +42,10 @@
   - Anchor: [YakAttack Drop Shot Anchor Reel](https://www.yakattack.us/dropshot-anchor-reel/) and [6 lb anchor](https://www.anchorwizard.com/6lbs-anchor/). Use anchor hitch knot to tie off anchor. Also if possible: Instead of tying off to the top of anchor tie off to the bottom then run line up the anchor and zip tie it to the top. This serves as a break away and allows you to pull from the bottom of your anchor.
   - Crate: [YakAttack Blackpak Pro](https://www.yakattack.us/blackpak-pro-kayak-fishing-crate-13-x-13-battleship-grey/) (grey, $130, depending on size) with [orange hinges](https://www.yakattack.us/hinge-latch-kit-for-blackpak-pro-and-shortstak-orange/) ($25)
 
-# Warranty
+## Warranty
 - Limited Lifetime Hull warranty against manufacturing defects. 5-Year Hull Warranty against normal wear and tear. 1-Year Limited Component - [Bonafide](https://bonafidefishing.com/pages/warranty)
 
-# Resources
+## Resources
 - [The Truth About the Bonafide RVR119 (No BS Review)](https://www.youtube.com/watch?v=6kTbCJfIFGc&t=119s)
 - [Bonafide RVR FULL WALKTHROUGH](https://www.youtube.com/watch?v=ur3ebnmGiOg)
 - [11 Things I Wish I Knew Before I Started Kayak Fishing](https://www.youtube.com/watch?v=K4SKvysaVOQ)
