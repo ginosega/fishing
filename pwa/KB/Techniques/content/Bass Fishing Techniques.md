@@ -1,49 +1,15 @@
 ## Overview
 
-Bass fishing is mostly a problem of **location, depth, and presentation**. Before changing lures repeatedly, first decide:
+Use [Bass Behavior and Habitat](kb://bass-behavior-and-habitat) to decide **where bass are likely to be**. This page starts with the next question: **once you have found likely fish, what presentation gives you the best chance of catching them?**
 
-1. **Where are the fish likely to be?** Look for cover, structure, baitfish, wind, shade, current, and transitions.
-2. **What depth are they using?** Surface, shallow cover, mid-depth edges, or bottom/deep structure.
-3. **Are they willing to chase?** Start with a moving bait when conditions suggest active fish; slow down with finesse or bottom-contact techniques when they do not.
-4. **What is the dominant forage?** Match baitfish with jerkbaits, crankbaits, swimbaits, spinnerbaits, chatterbaits, and topwater; match crawfish with jigs, Ned rigs, and craw-pattern crankbaits.
+Choose a presentation by working through four variables:
 
-[Largemouth Bass](kb://species-largemouth-bass) are especially cover-oriented and commonly relate to vegetation, docks, wood, shade, and protected shallow water. [Smallmouth Bass](kb://species-smallmouth-bass) more often favor rock, gravel, points, offshore structure, and clearer water, although both species can use any of these areas.
+1. **Depth:** Are the fish at the surface, around shallow cover, on a mid-depth edge, or near bottom/deep structure?
+2. **Activity level:** Are they roaming and willing to chase, or holding tightly to cover/structure and requiring a slower presentation?
+3. **Forage:** Are they feeding primarily on baitfish, crawfish, insects, or other prey?
+4. **Conditions:** Water clarity, wind, light, cover, and fishing pressure determine how visible, aggressive, weedless, or finesse-oriented the presentation should be.
 
-A good default strategy is to **search first, then slow down**: cover water with a moving lure, and when you locate fish or promising structure, follow up with a slower presentation such as a Ned rig, drop shot, wacky worm, or jig.
-
-## Where to Find Bass
-
-### Cover and Structure
-
-Look for places that give bass one or more advantages: food, shade, ambush cover, a depth change, or quick access to deeper water.
-
-- **Vegetation:** outside weed edges, inside turns, holes in grass, submerged grass tops, lily pads, and transitions from one vegetation type to another.
-- **Docks:** shade, pilings, ladders, corners, the deepest end, and isolated docks near deeper water. Skip or pitch under the dock when possible rather than only fishing the outside edge.
-- **Wood:** laydowns, stumps, brush, flooded timber, and especially isolated wood near a drop-off or vegetation edge.
-- **Rock:** points, riprap, boulders, gravel-to-rock transitions, rock-to-sand transitions, and rocky humps. These are especially important for smallmouth.
-- **Depth changes:** points, creek channels, ledges, humps, drop-offs, and the first break adjacent to a shallow flat.
-- **Shade:** docks, overhanging trees, steep banks, bridges, and the shaded side of cover become increasingly important under bright sun.
-- **Baitfish:** birds feeding, surface activity, visible bait, or bait schools on sonar can override almost every other rule. If the food moves, bass often move with it.
-
-The best spots usually combine features—for example, a dock beside an outside weed edge, a rocky point with wind blowing onto it, or a laydown that reaches from shallow water into the first drop.
-
-### Wind
-
-Light to moderate wind is often helpful. It can push plankton and baitfish toward a bank or point, break up the surface so bass feel less exposed, and make moving baits more effective.
-
-On windy days, check:
-- wind-blown banks and points;
-- the upwind side of islands and humps;
-- weed edges receiving wind;
-- coves where bait is being pushed.
-
-Spinnerbaits, chatterbaits, crankbaits, swimbaits, and jerkbaits are good choices when wind activates fish. In very strong wind, use enough lure or weight to maintain control and bottom contact.
-
-### Light and Time of Day
-
-- **Early morning / evening / overcast:** bass are more willing to roam and feed shallow. Start with topwater, spinnerbait, chatterbait, jerkbait, shallow crankbait, or swimbait.
-- **Bright midday:** focus more tightly on shade, cover, deeper edges, docks, vegetation, and bottom structure. Slow presentations become more important.
-- **Night / very low light:** use lures the fish can locate by silhouette, vibration, or sound—dark spinnerbaits, chatterbaits, buzzbaits, jigs, or other strong-profile presentations.
+A useful default is **search first, then slow down**. Cover water with an appropriate moving bait; when you get a bite, follower, missed strike, or identify a high-percentage target, follow up with a slower presentation such as a Ned rig, drop shot, wacky worm, or jig.
 
 ## Choosing a Presentation
 
@@ -235,35 +201,6 @@ My Gear: [Booyah Pad Crasher](gear://booyah-pad-crasher)
 
 Color matters, but **depth, location, speed, and action usually matter more**. If the presentation is not passing near fish, changing from one shade of green pumpkin to another will not fix the problem.
 
-## Seasonal Approach
-
-### Spring
-
-See [Spring Bass Fishing](kb://technique-spring-fishing).
-
-Bass move from winter areas toward spawning water as temperatures rise. Do not assume they are already shallow: prespawn fish often stage on the first break, point, dock line, outside weed edge, or rock transition near a spawning flat.
-
-Cold spring water favors Ned rigs, drop shots, small swimbaits, and jerkbaits with long pauses. As water warms and fish become more active, add spinnerbaits, chatterbaits, wacky worms, crankbaits, and other moving presentations.
-
-### Summer
-
-- Early and late: fish shallow with topwater, spinnerbaits, chatterbaits, shallow crankbaits, and swimbaits.
-- Bright midday: target shade, docks, thick vegetation, deeper weed edges, points, humps, and ledges.
-- For deep or suspended fish, use drop shots, Ned rigs, football jigs, deeper crankbaits, or swimbaits.
-- In heavy vegetation, use frogs, swim jigs, weedless plastics, or presentations that can move cleanly through grass.
-
-### Fall
-
-See [Fall Bass Fishing](kb://fall-bass-fishing).
-
-Follow baitfish. Bass often become mobile and feed aggressively as forage moves into coves, creek arms, shallow flats, and wind-blown areas. Use moving baits to find them: crankbaits, spinnerbaits, chatterbaits, jerkbaits, swimbaits, and topwater.
-
-As late fall water cools, slow down and transition back toward jerkbaits with longer pauses, Ned rigs, jigs, and deeper structure.
-
-### Winter / Very Cold Water
-
-Fish slowly and concentrate on the best structure rather than covering featureless water. Try a suspending jerkbait with long pauses, Ned rig, drop shot, finesse jig, or other compact presentation around deeper rock, points, breaks, and wintering areas.
-
 ## Bank Fishing
 
 Bass often use shoreline cover, so bank fishing can be excellent if you avoid immediately casting as far as possible.
@@ -330,16 +267,10 @@ These are the technique videos already referenced by the related Fishing Compani
 - [BEFORE You Fish a Chatterbait Watch THIS!](https://www.youtube.com/watch?v=s28Z9NUaCTg)
 - [How To Fish EVERY Style Of JIG To Catch More BASS!](https://www.youtube.com/watch?v=ulc6fJ1AVrc)
 - [Basics of Frog Fishing and How to Fish Hollow-body Frog Lures](https://youtu.be/czTtqyDKDcA?si=h9bn95vZ-8Y_xcI1)
-- [Fall Bass Fishing](https://youtu.be/gQYPsG4F6vs?si=2_vWdMK3FZgc9Aia)
-- [Fall Bass Fishing for Beginners](https://www.youtube.com/watch?v=og7TYneLSew)
-- [Catch Bass in the Fall](https://youtu.be/jgWabWCAYQE?si=YhxeY_GFCicSPZiO)
-- [Life of the Largemouth Bass](https://youtu.be/dNG8z_IxlJ0?si=hnJsjq8gUNrOVAal)
-- [Life of the Smallmouth Bass](https://youtu.be/nwKE-44BPCU?si=PHduWR0AdRj66g1m)
 
 ## Related Pages
 
-- Species: [Largemouth Bass](kb://species-largemouth-bass), [Smallmouth Bass](kb://species-smallmouth-bass)
-- Seasonal: [Spring Bass Fishing](kb://technique-spring-fishing), [Fall Bass Fishing](kb://fall-bass-fishing)
+- Finding bass: [Bass Behavior and Habitat](kb://bass-behavior-and-habitat)
 - Finesse: [Ned Rig](kb://technique-ned-rig), [Drop Shot](kb://technique-drop-shot), [Wacky Worm](kb://technique-wacky-worm)
 - Moving baits: [Crankbait](kb://technique-crankbait), [Jerkbait](kb://technique-jerkbait), [Swimbait](kb://technique-swimbait-soft-jerk-shad), [Spinnerbait](kb://technique-spinnerbait), [Chatterbait](kb://technique-chatterbait-bladed-jig)
 - Bottom contact: [Jigs](kb://technique-jigs)
