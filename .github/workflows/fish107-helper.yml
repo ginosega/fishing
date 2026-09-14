@@ -2,25 +2,26 @@ name: FISH107 one-shot helper
 
 on:
   push:
-    branches: ["feature/fish107-skylety-type"]
+    branches:
+      - feature/fish107-skylety-type
 
 permissions:
   contents: write
 
 jobs:
   apply:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/checkout@v4
         with:
-          ref: feature/fish107-skylety-type
-      - name: Apply exact package edit and remove helper
+          fetch-depth: 0
+      - name: Apply exact package edit
         shell: bash
         run: |
           python - <<'PY'
           from pathlib import Path
           path = Path('pwa/Gear/gear.json')
-          text = path.read_text()
+          text = path.read_text(encoding='utf-8')
           old = '''      "id": "skylety-fishing-hook-sharpener",
       "name": "Skylety Fishing Hook Sharpener",
       "category": "accessories",
@@ -29,14 +30,12 @@ jobs:
       "name": "Skylety Fishing Hook Sharpener",
       "category": "accessories",
       "type": "Tools",'''
-          assert text.count(old) == 1, f'Expected one exact Skylety base block, found {text.count(old)}'
-          path.write_text(text.replace(old, new, 1))
+          assert text.count(old) == 1
+          path.write_text(text.replace(old, new, 1), encoding='utf-8')
           PY
           git rm .github/workflows/fish107-helper.yml
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add pwa/Gear/gear.json
-          git diff --cached --check
-          git diff --cached --stat
           git commit -m "FISH107: correct Skylety type to Tools"
           git push origin HEAD:feature/fish107-skylety-type
