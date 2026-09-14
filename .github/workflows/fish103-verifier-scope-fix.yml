@@ -1,0 +1,30 @@
+name: FISH103 hosted verifier dialog scope fix
+on:
+  push:
+    branches: [fix/fish103-hosted-verifier-dialog-scope]
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - name: Scope unexpected-dialog listener
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('pwa/tools/verify-hosted.mjs')
+          s=p.read_text()
+          old="  let dialogs=0;page.on('dialog',async dialog=>{dialogs++;await dialog.dismiss();});await page.getByRole('button',{name:'Exit',exact:true}).click();await page.getByRole('heading',{name:'My Gear',exact:true}).waitFor();assert.equal(dialogs,0);assert.equal(new URL(page.url()).hash,'#/inventory');"
+          new="  let dialogs=0;const dismissUnexpectedExitDialog=async dialog=>{dialogs++;await dialog.dismiss();};page.on('dialog',dismissUnexpectedExitDialog);await page.getByRole('button',{name:'Exit',exact:true}).click();await page.getByRole('heading',{name:'My Gear',exact:true}).waitFor();assert.equal(dialogs,0);assert.equal(new URL(page.url()).hash,'#/inventory');page.off('dialog',dismissUnexpectedExitDialog);"
+          if old not in s:
+              raise SystemExit('expected verifier listener line not found')
+          p.write_text(s.replace(old,new,1))
+          PY
+          git config user.name "Gino Sega"
+          git config user.email "ginosega@gmail.com"
+          git add pwa/tools/verify-hosted.mjs
+          git commit -m "FISH103: scope hosted dialog listener"
+          git push origin HEAD:fix/fish103-hosted-verifier-dialog-scope
