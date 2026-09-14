@@ -1,0 +1,3 @@
+Includes:
+- KastKing Line Stripper - [KastKing](https://kastking.com/products/kastking-line-stripper-for-cordless-drill?_pos=1&_sid=f599404a4&_ss=r), [Amazon](https://a.co/d/0415kp4R)
+- KastKing Radius Line Spooler - [KastKing](https://kastking.com/products/kastking-radius-line-spooler?_pos=3&_psq=radius&_ss=e&_v=1.0), [Amazon](https://a.co/d/0duNOBGl), Video: [KastKing Radius Line Spooler](https://youtu.be/5uoIVEFOHa0?si=QsFTalqNbq_h3xWt)
