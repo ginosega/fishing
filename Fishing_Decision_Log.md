@@ -56,6 +56,10 @@ Its durable audit trail is the supplied source-aware package and validation, the
 
 Update project-state documents when architecture/product behavior/durable decisions/backlog state changes, or during a requested handoff/reconciliation.
 
+## FISH109 — release retry hardening
+
+**Decision/status:** IMPLEMENTED and production-verified. Pages deployment artifacts and hosted-evidence artifacts are named with `github.run_attempt`, allowing a failed deployment job to be rerun without duplicate-artifact ambiguity. The fast hosted verifier retries only bounded transient HTTP/network failures with backoff; persistent or non-retryable mismatches still fail. The exact-current-main guard remains authoritative and must not be bypassed when `main` advances during a run.
+
 ## Domain architecture and authoring boundary
 
 **Decision:** Fishing Companion retains independent Gear, Knowledge Base and Catch domains with shared utilities where useful; do not force them into a generic graph/entity framework. KB types are Location, Species, Equipment/Gear Guide, Technique and Knot. Paths are explicit record properties; existing IDs remain stable. Retired trips/sessions/planner/setup structures remain retired unless explicitly re-approved.
@@ -92,4 +96,4 @@ Simple Markdown-only narrative edits to existing canonical files may be made dir
 
 ## Open application work
 
-FISH071–076 and FISH078–108 are complete/implemented. The next unused **application/architecture** task ID is **FISH-TODO-109** unless actual current `main` already allocated it. Routine Fast Content Releases do not consume that ID.
+FISH071–076 and FISH078–109 are complete/implemented. The next unused **application/architecture** task ID is **FISH-TODO-110** unless actual current `main` already allocated it. Routine Fast Content Releases do not consume that ID.

@@ -53,6 +53,10 @@ Use the full lane whenever **any** changed file is outside those three canonical
 
 If lane eligibility is ambiguous, use full. Do not broaden fast eligibility ad hoc.
 
+### FISH109 retry hardening
+
+FISH109 is complete and production-verified. Pages and hosted-evidence artifacts are run-attempt-specific, so deployment-job reruns do not collide with artifacts from earlier attempts. The fast hosted verifier uses bounded retries/backoff for transient propagation/network failures. Preserve the exact-current-main guard: if `main` advances, do not force an older run to deploy.
+
 ### Source-derived expectations
 
 Changing Gear/KB/Catch item counts, canonical path totals and reference totals is normal content evolution. Do not edit tests solely to update these numbers. Validation derives current state from canonical source and the exact generated release. Historical counts in dated records remain historical evidence only.
@@ -99,7 +103,7 @@ FISH107: current canonical Skylety Fishing Hook Sharpener type is `Tools`; FISH1
 
 **Fishing Companion v3** (historically `FISH-TODO-077/P2`) remains DEFERRED. Authentication, direct GitHub save/upload, integrated uploads, offline authoring/outbox/sync, Catch authoring and multi-user generalization are not current production.
 
-FISH071–076 and FISH078–108 are complete/implemented. The next unused **application/architecture** task ID is **FISH-TODO-109** unless actual newer `main` already allocated it. Routine Fast Content Releases — including a normal new KB page — do not consume FISH-TODO-109.
+FISH071–076 and FISH078–109 are complete/implemented. The next unused **application/architecture** task ID is **FISH-TODO-110** unless actual newer `main` already allocated it. Routine Fast Content Releases — including a normal new KB page — do not consume FISH-TODO-110.
 
 ## Working rules
 
