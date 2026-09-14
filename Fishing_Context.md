@@ -49,6 +49,12 @@ This project uses **Chat mode by default and permanently**. Do not recommend Wor
 
 Before implementation/release/repository-write work, restore actual latest `main` and current open-PR state. Never rely on a previously observed commit as though it is still current.
 
+## New-chat transfer protocol
+
+When the user says **“It’s time to transfer to a new chat”** or clearly states that the current chat is getting too long and should be transferred, ask the user to confirm that they want the full project-state handoff prepared. Once confirmed, complete the handoff without repeated “Proceed” prompts: restore current `main`/PR state, reconcile the chat against repository and production evidence, update the authoritative project records and bootstrap prompt, preserve exact continuation state and unresolved work, perform a cross-file consistency check, and leave the repository in a clean continuation state. The final response must include a clickable GitHub link to `Fishing_New_Chat_Bootstrap_Prompt.md` so the user can copy it into the new Chat-mode conversation.
+
+This transfer phrase is a durable Fishing-project convention rather than an automatic ChatGPT product trigger. A user-requested lighter transfer overrides the full protocol.
+
 ## Durable repository and production architecture
 
 `ginosega/fishing` is authoritative. Canonical physical domain data lives under `pwa/Gear/`, `pwa/KB/` and `pwa/Catches/`. Logical record/release paths remain `Gear/...`, `KB/...` and `Catches/...`. The active PWA implementation, contracts, build tools, tests, migration evidence and release documentation also live under `pwa/`. `.github/workflows/fishing-production.yml` is the sole active production publisher.
