@@ -12,11 +12,28 @@ const dist=path.resolve(args.dist||'dist');
 const expectedSource=args['source-revision'];
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 const encode=file=>file.split('/').map(encodeURIComponent).join('/');
+const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+const retryableStatuses=new Set([404,408,425,429,500,502,503,504]);
 
 async function get(url){
- const response=await fetch(url,{cache:'no-store',signal:AbortSignal.timeout(30000)});
- assert.equal(response.status,200,url);
- return Buffer.from(await response.arrayBuffer());
+ const attempts=9;
+ let lastError;
+ for(let attempt=1;attempt<=attempts;attempt++){
+  try{
+   const response=await fetch(url,{cache:'no-store',signal:AbortSignal.timeout(30000)});
+   if(response.status===200)return Buffer.from(await response.arrayBuffer());
+   const error=new Error(`${url}\n${response.status} !== 200`);
+   error.status=response.status;
+   if(!retryableStatuses.has(response.status)||attempt===attempts)throw error;
+   lastError=error;
+  }catch(error){
+   if(error?.status&&!retryableStatuses.has(error.status))throw error;
+   lastError=error;
+   if(attempt===attempts)throw error;
+  }
+  await sleep(Math.min(500*(2**(attempt-1)),5000));
+ }
+ throw lastError;
 }
 async function tree(dir){
  const result=[];
