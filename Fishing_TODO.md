@@ -1,22 +1,22 @@
 # Fishing TODO
 
-## Current project task state — September 13, 2026
+## Current project task state — September 14, 2026
 
-**FISH-TODO-106 — DONE / production-verified.** FISH106 implemented six supplied Fishing Companion Gear add packages together through [PR134](https://github.com/ginosega/fishing/pull/134): KastKing Brutus Silicone Foldable Extendable Net, KastKing Cutthroat 7" Stainless Steel Pliers, Skylety Fishing Hook Sharpener, Plano Sportsman's Trunk, KastKing V10 Pivot Grip Fishing Rod Holder and Palmyth Flexible Fishing Gloves. It also added the two supplied canonical Markdown notes for the Brutus net and Cutthroat pliers.
+**FISH-TODO-107 — DONE / production-verified.** FISH107 implemented the supplied Fishing Companion Gear edit package for `skylety-fishing-hook-sharpener` through [PR136](https://github.com/ginosega/fishing/pull/136), changing only its canonical type from `Kayaks` to `Tools`. Notes, picture, picture sequence, all other fields and unrelated source were preserved.
 
-Final FISH106 feature acceptance passed at exact PR head `4a1c9dd5d765bd07b4ce3b36b6e3bc17ff43a8b0` in [run 34808981155](https://github.com/ginosega/fishing/actions/runs/34808981155). Verified production is application source `9b419e07f9a3a56a2be1ddbfb0df1760fe2730cb`, release `fe94ec0a8b0c606f72847ef3fda0a5b6`, [run 34809970042](https://github.com/ginosega/fishing/actions/runs/34809970042), with **342 hosted v2 files** and hosted-verification artifact `10334477509`. Canonical counts are **80 Gear, 56 KB and 5 Catches**; measured source baselines are **110 canonical library paths** and **245 inventory references**. Full source/core, Chromium/WebKit, production-browser, archived-v1 cutover, exact-main, Pages, hosted-byte and hosted-browser verification passed.
+The package base revision `9b419e07f9a3a56a2be1ddbfb0df1760fe2730cb`, record hash `31811a75b2d315a2c98a7b25bf8b51fd52c77195b6c54783e90cdb0aa4c57db8`, and base type `Kayaks` were validated before application. Final feature acceptance passed at exact PR head `f36be26dddfb2da8c0957917c0fceb389192177e` in [run 34811426937](https://github.com/ginosega/fishing/actions/runs/34811426937).
 
-All six FISH106 PNGs were already present as user-supplied physical source files before package promotion and were referenced without rewriting their bytes. Their repository byte sizes matched supplied package metadata during validation; the initially missing Plano Sportsman's Trunk PNG was verified at **1,016,850 bytes** before promotion proceeded.
+Verified production is application source `6fae3afbe8f227b4c12875c5d5e8f0d4c0c8861f`, release `21d203ccdef509cd99626680ae34de98`, [run 34811980881](https://github.com/ginosega/fishing/actions/runs/34811980881), with **342 hosted v2 files** and hosted-verification artifact `10334949254`. Canonical counts remain **80 Gear, 56 KB and 5 Catches**; measured source baselines remain **110 canonical library paths** and **245 inventory references**. Full source/core, Chromium/WebKit, production-browser, archived-v1 cutover, exact-main, Pages, hosted-byte and hosted-browser verification passed.
 
-FISH-TODO-102 through FISH-TODO-105 remain DONE / production-verified. FISH102 added the Line-Tackle-Knot Reference. FISH103 relocated canonical physical source beneath `pwa/` and fixed authoring/link regressions. FISH104 added the Humminbird Fish Finder record and notes/picture. FISH105 corrected Perception Joyride 10.0 and added four KastKing tackle-management records.
+FISH-TODO-102 through FISH-TODO-106 remain DONE / production-verified. FISH106's original Skylety `Kayaks` classification is superseded in current canonical state by FISH107's `Tools` correction.
 
 **Fishing Companion v3** — historically `FISH-TODO-077/P2` — remains **DEFERRED**. Future scope includes authentication, direct GitHub save/upload, integrated uploads, offline authoring/outbox/sync, Catch authoring and multi-user generalization. Do not treat any of that as current production or implicitly approved implementation work.
 
-The next unused canonical application task ID is **FISH-TODO-107**.
+The next unused canonical application task ID is **FISH-TODO-108**.
 
 ## Completed/superseded application work
 
-FISH071–076 and FISH078–106 are complete. Historical `FISH-TODO-077/P2` is the intentional deferred future-phase boundary now called **Fishing Companion v3**. Historical v1-only items FISH-TODO-063 (old KB filename/upload constraints) and FISH-TODO-039 (structured setup recording on catches) are superseded by the approved current architecture and must not be used to reintroduce retired structures.
+FISH071–076 and FISH078–107 are complete. Historical `FISH-TODO-077/P2` is the intentional deferred future-phase boundary now called **Fishing Companion v3**. Historical v1-only items FISH-TODO-063 (old KB filename/upload constraints) and FISH-TODO-039 (structured setup recording on catches) are superseded by the approved current architecture and must not be used to reintroduce retired structures.
 
 Detailed completion/release evidence remains in Git history and dated `pwa/docs/` records. This TODO intentionally keeps current open/deferred work instead of repeating every historical release.
 
@@ -26,7 +26,7 @@ These items remain open/deferred independently of Fishing Companion release work
 
 FISH104 documents a fish-finder power architecture and parts list, but it does **not** explicitly confirm that every listed part is the installed configuration. Therefore FISH-TODO-005 remains WAITING ON USER rather than being closed by inference.
 
-FISH105 adds a KastKing HyperSeal Waterproof Tackle Box in size 3600, but the supplied package does **not** explicitly identify that item as the specific “KastKing 3600 deep box” target in FISH-TODO-014. Preserve FISH-TODO-014 as OPEN unless the user explicitly resolves that backlog item. FISH106 does not change either backlog conclusion.
+FISH105 adds a KastKing HyperSeal Waterproof Tackle Box in size 3600, but the supplied package does **not** explicitly identify that item as the specific “KastKing 3600 deep box” target in FISH-TODO-014. Preserve FISH-TODO-014 as OPEN unless the user explicitly resolves that backlog item. FISH106 and FISH107 do not change either backlog conclusion.
 
 | ID | Priority | Status | Work item |
 |---|---|---|---|
@@ -64,6 +64,6 @@ FISH105 adds a KastKing HyperSeal Waterproof Tackle Box in size 3600, but the su
 
 ## Continuation rules
 
-Use Chat mode by default. Restore actual latest `main` before acting. For new application work, allocate **FISH-TODO-107** unless a newer task has already been created on current `main`. Do not reopen FISH096–FISH106 or Fishing Companion v3 work without an explicit new user request.
+Use Chat mode by default. Restore actual latest `main` before acting. For new application work, allocate **FISH-TODO-108** unless a newer task has already been created on current `main`. Do not reopen FISH096–FISH107 or Fishing Companion v3 work without an explicit new user request.
 
-When the user says **“It’s time to transfer to a new chat”**, ask for confirmation of the full handoff. After confirmation, perform the durable handoff protocol recorded in `Fishing_Decision_Log.md`: reconcile current state, update the authoritative project records and bootstrap prompt as needed, cross-check them, and finish with a direct GitHub link to `Fishing_New_Chat_Bootstrap_Prompt.md`. This handoff protocol is not itself a new FISH-TODO application task and does not consume FISH-TODO-107.
+When the user says **“It’s time to transfer to a new chat”**, ask for confirmation of the full handoff. After confirmation, perform the durable handoff protocol recorded in `Fishing_Decision_Log.md`: reconcile current state, update the authoritative project records and bootstrap prompt as needed, cross-check them, and finish with a direct GitHub link to `Fishing_New_Chat_Bootstrap_Prompt.md`. This handoff protocol is not itself a new FISH-TODO application task and does not consume FISH-TODO-108.

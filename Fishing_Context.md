@@ -1,49 +1,49 @@
 # Fishing Context
 
-## Current authoritative state — September 13, 2026
+## Current authoritative state — September 14, 2026
 
-FISH-TODO-106 is **DONE / production-verified**.
+FISH-TODO-107 is **DONE / production-verified**.
 
-### FISH106 — Gear tools, storage and accessories batch
+### FISH107 — Skylety Fishing Hook Sharpener type correction
 
-FISH106 shipped through [PR134](https://github.com/ginosega/fishing/pull/134). It implemented six supplied `fishing-companion-change-v2` Gear add packages together.
+FISH107 shipped through [PR136](https://github.com/ginosega/fishing/pull/136). It implemented one supplied `fishing-companion-change-v2` Gear edit package:
 
-Canonical additions:
+- Gear ID: `skylety-fishing-hook-sharpener`
+- **Skylety Fishing Hook Sharpener**
+- category remains `accessories`
+- canonical type changed from `Kayaks` to `Tools`
+- notes: keep
+- picture: keep
+- picture sequence: keep
 
-- `kastking-brutus-silicone-foldable-extendable-net`: **KastKing Brutus Silicone Foldable Extendable Net**, category `accessories`, type `Tools`, extended length `45"`, hoop size `20'' x 16'' x 10''`, canonical Markdown `Gear/Equipment/content/KastKing Brutus Silicone Foldable Extendable Net.md`, picture `Gear/Equipment/assets/KastKing Brutus Silicone Foldable Extendable Net.png`.
-- `kastking-cutthroat-7-stainless-steel-pliers`: **KastKing Cutthroat 7" Stainless Steel Pliers**, category `accessories`, type `Tools`, canonical Markdown `Gear/Equipment/content/KastKing Cutthroat 7 Stainless Steel Pliers.md`, picture `Gear/Equipment/assets/KastKing Cutthroat 7-in Stainless Steel Pliers.png`.
-- `skylety-fishing-hook-sharpener`: **Skylety Fishing Hook Sharpener**, category `accessories`, supplied type `Kayaks`, color `Orange`, model `Fishing Hook Sharpener File Double Sided`, picture `Gear/Equipment/assets/Skylety Fishing Hook Sharpener.png`.
-- `plano-sportsman-s-trunk`: **Plano Sportsman's Trunk**, category `accessories`, type `Storage`, size `Large`, color `Blaze Orange`, exterior dimensions `37.25"L x 18"W x 14"H`, model number `PLAT19BOE`, picture `Gear/Equipment/assets/Plano Sportsman's Trunk.png`.
-- `kastking-v10-pivot-grip-fishing-rod-holder`: **KastKing V10 Pivot Grip Fishing Rod Holder**, category `accessories`, type `Storage`, picture `Gear/Equipment/assets/KastKing V10 Pivot Grip Fishing Rod Holder.png`.
-- `palmyth-flexible-fishing-gloves`: **Palmyth Flexible Fishing Gloves**, category `accessories`, type `Accessories`, size `Large`, color `Black/Grey`, picture `Gear/Equipment/assets/Palmyth Flexible Fishing Gloves.png`.
+Package validation established that base revision `9b419e07f9a3a56a2be1ddbfb0df1760fe2730cb` was the deployed application parent of the then-current docs-only `main`, the current record still had base type `Kayaks`, and its canonical fingerprint exactly matched supplied record hash `31811a75b2d315a2c98a7b25bf8b51fd52c77195b6c54783e90cdb0aa4c57db8`. `Tools` is an allowed Equipment type. There was no structured-data conflict.
 
-The two supplied Markdown notes are canonical and were promoted verbatim. The Brutus note records the included KastKing hook remover/fish gripper and 44 lb capacity. The Cutthroat note records the included KastKing Line Stripper and KastKing Radius Line Spooler links/video.
-
-All six pictures were user-supplied and had already been uploaded to physical canonical source under `pwa/Gear/Equipment/assets/` before package promotion. Their repository byte sizes matched the package metadata during promotion validation; FISH106 referenced them in place and did not regenerate or rewrite their bytes. The Plano Sportsman's Trunk PNG was the initially missing upload and was subsequently verified at **1,016,850 bytes** before promotion proceeded.
-
-The supplied package base revisions were verified as ancestors of current source, all six IDs were absent, and there was no intervening structured Gear conflict. CI exposed only the expected stale acceptance baselines caused by the six additions. Final validator-measured baselines are **80 Gear / 56 KB / 5 Catches**, **110 canonical library paths**, and **245 source inventory references**.
+The final feature diff contained exactly one file and one semantic line change in `pwa/Gear/gear.json`: `type: Kayaks` → `type: Tools`. Counts, paths, notes, pictures, picture sequences and media references were unchanged, so validator baselines remain **80 Gear / 56 KB / 5 Catches**, **110 canonical library paths**, and **245 source inventory references**.
 
 Feature acceptance evidence:
 
-- feature PR: [PR134](https://github.com/ginosega/fishing/pull/134)
-- final exact feature head: `4a1c9dd5d765bd07b4ce3b36b6e3bc17ff43a8b0`
-- exact-head acceptance: [run 34808981155](https://github.com/ginosega/fishing/actions/runs/34808981155), success
-- merged application source: `9b419e07f9a3a56a2be1ddbfb0df1760fe2730cb`
+- feature PR: [PR136](https://github.com/ginosega/fishing/pull/136)
+- feature branch: `feature/fish107-skylety-type`
+- final exact feature head: `f36be26dddfb2da8c0957917c0fceb389192177e`
+- exact-head acceptance: [run 34811426937](https://github.com/ginosega/fishing/actions/runs/34811426937), success
+- merged application source: `6fae3afbe8f227b4c12875c5d5e8f0d4c0c8861f`
 
 Final verified production:
 
-- source `9b419e07f9a3a56a2be1ddbfb0df1760fe2730cb`
-- release `fe94ec0a8b0c606f72847ef3fda0a5b6`
-- [workflow run 34809970042](https://github.com/ginosega/fishing/actions/runs/34809970042)
+- source `6fae3afbe8f227b4c12875c5d5e8f0d4c0c8861f`
+- release `21d203ccdef509cd99626680ae34de98`
+- [workflow run 34811980881](https://github.com/ginosega/fishing/actions/runs/34811980881), run number 188
+- validate job `103874988437`, success
+- deploy job `103876502029`, success
 - **342 hosted v2 files**
-- production-bundle artifact `10334457339`
-- production-acceptance-evidence artifact `10334502241`
-- Pages artifact `10334936059`
-- hosted-verification artifact `10334477509`
+- production-bundle artifact `10334724772`
+- production-acceptance-evidence artifact `10335063749`
+- Pages artifact `10334664984`
+- hosted-verification artifact `10334949254`
 
-That exact-current-main run passed source/core validation, Chromium/WebKit preview acceptance, production-browser acceptance, actual archived-v1 cutover acceptance, exact-current-main guard, Pages deployment, byte-for-byte hosted verification and hosted-browser verification. Hosted verification reported source revision `9b419e07f9a3a56a2be1ddbfb0df1760fe2730cb`, release `fe94ec0a8b0c606f72847ef3fda0a5b6`, and 342 hosted v2 files; the generated release contains all six FISH106 pictures and both FISH106 Markdown notes.
+The exact-current-main production run passed durable-v1 recovery, locked dependency audit, source/core validation, Chromium/WebKit preview acceptance, production-root verification, production-browser and real archived-v1 cutover acceptance, exact-current-main guard, Pages deployment, byte-for-byte hosted verification and hosted-browser verification. Hosted verification reported source revision `6fae3afbe8f227b4c12875c5d5e8f0d4c0c8861f`, release `21d203ccdef509cd99626680ae34de98`, and 342 hosted v2 files.
 
-FISH102–FISH105 remain complete and production-verified. FISH102 added the Line-Tackle-Knot Reference and pinned-first Knot-category ordering. FISH103 moved canonical physical domain source under `pwa/` and fixed external/internal link targeting, Caption focus and new-KB Markdown Preview validation ordering. FISH104 added the Humminbird Fish Finder Gear record and notes/picture. FISH105 corrected Perception Joyride 10.0 to `Kayaks` and added four KastKing tackle-management items.
+FISH102–FISH106 remain complete and production-verified. FISH106's historical release evidence correctly records that Skylety entered canonical Gear using its then-supplied `Kayaks` type; FISH107 is the authoritative later correction to `Tools`.
 
 ## Operating mode
 
@@ -89,7 +89,7 @@ The retired Planner, Trip History/Sessions, paired-setup structures and old v1-o
 
 ## Content and media state
 
-Canonical counts are **80 Gear, 56 KB and 5 Catches**. The six FISH106 Gear items are canonical under Gear → Equipment with the supplied type values. The FISH105 KastKing tackle-management items and corrected Perception Joyride 10.0 remain canonical. The Humminbird Fish Finder remains canonical in Gear → Equipment / `Electronics`. The Line-Tackle-Knot Reference is canonical and pinned first on KB → Knots.
+Canonical counts are **80 Gear, 56 KB and 5 Catches**. The six FISH106 Gear items remain canonical under Gear → Equipment; FISH107 supersedes the original Skylety classification so **Skylety Fishing Hook Sharpener is now type `Tools`**. The FISH105 KastKing tackle-management items and corrected Perception Joyride 10.0 remain canonical. The Humminbird Fish Finder remains canonical in Gear → Equipment / `Electronics`. The Line-Tackle-Knot Reference is canonical and pinned first on KB → Knots.
 
 Active Knot sequences are Palomar (13 PNG), Albright (15 JPG), Arbor (9 JPG), Bowline (7 JPG), FG (29 JPG), Improved Clinch (11 PNG), Modified Uni (12 JPG), and Trilene (15 PNG). Non-Slip Loop uses its static representative picture. Every sequence is explicitly referenced by canonical KB data and participates in FISH091 explicit complete-library preparation; directory contents alone never create a sequence.
 
@@ -97,8 +97,8 @@ Double Uni Knot and Single Uni Knot no longer exist in canonical KB source. The 
 
 ## Continuation
 
-FISH071–076 and FISH078–106 are complete. Fishing Companion v3 (`FISH-TODO-077/P2`) remains deferred. Existing fishing/equipment/content backlog and purchase uncertainty remain active in `Fishing_TODO.md`; FISH104 still does not by itself close `FISH-TODO-005`. FISH105 still does not automatically close `FISH-TODO-014`; the supplied Gear package does not explicitly identify the HyperSeal 3600 box as the backlog's specific “KastKing 3600 deep box” target. FISH106 does not alter either conclusion.
+FISH071–076 and FISH078–107 are complete. Fishing Companion v3 (`FISH-TODO-077/P2`) remains deferred. Existing fishing/equipment/content backlog and purchase uncertainty remain active in `Fishing_TODO.md`; FISH104 still does not by itself close `FISH-TODO-005`. FISH105 still does not automatically close `FISH-TODO-014`; the supplied Gear package does not explicitly identify the HyperSeal 3600 box as the backlog's specific “KastKing 3600 deep box” target. FISH106 and FISH107 do not alter either conclusion.
 
-The next unused canonical application task ID is **FISH-TODO-107** unless current `main` has already allocated it.
+The next unused canonical application task ID is **FISH-TODO-108** unless current `main` has already allocated it.
 
-For a new chat, read `README.md`, this file, `Fishing_TODO.md`, `Fishing_Decision_Log.md`, then `Fishing_New_Chat_Bootstrap_Prompt.md`. Historical release/migration evidence remains in Git history and `pwa/docs/`; do not restart completed FISH096–FISH106 release work.
+For a new chat, read `README.md`, this file, `Fishing_TODO.md`, `Fishing_Decision_Log.md`, then `Fishing_New_Chat_Bootstrap_Prompt.md`. Historical release/migration evidence remains in Git history and `pwa/docs/`; do not restart completed FISH096–FISH107 release work.

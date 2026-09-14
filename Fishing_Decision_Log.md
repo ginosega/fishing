@@ -142,6 +142,18 @@ Final verified production source is `9b419e07f9a3a56a2be1ddbfb0df1760fe2730cb`, 
 
 **Decision:** FISH106 is a content/Gear release only. It does not change the Gear schema, P1 authoring boundary, FISH091 offline model, FISH096 sequence model, FISH103 link/upload behavior, or the unresolved conclusions for `FISH-TODO-005` and `FISH-TODO-014`.
 
+## FISH107 — Skylety Fishing Hook Sharpener type correction
+
+**Decision/status:** DONE and production-verified. [PR136](https://github.com/ginosega/fishing/pull/136) implemented the supplied `fishing-companion-change-v2` edit package for Gear ID `skylety-fishing-hook-sharpener`.
+
+**Decision/result:** The canonical **Skylety Fishing Hook Sharpener** remains category `accessories`, with notes/picture/picture sequence unchanged, but its type is corrected from `Kayaks` to **`Tools`**. This later correction supersedes FISH106's historical supplied classification for current canonical state; FISH106's closeout remains accurate as historical evidence of what that earlier package supplied.
+
+Package validation confirmed base revision `9b419e07f9a3a56a2be1ddbfb0df1760fe2730cb`, record hash `31811a75b2d315a2c98a7b25bf8b51fd52c77195b6c54783e90cdb0aa4c57db8`, and current base type `Kayaks` before the edit. The final feature diff was one semantic line in `pwa/Gear/gear.json`.
+
+Final feature head `f36be26dddfb2da8c0957917c0fceb389192177e` passed exact-head acceptance in [run 34811426937](https://github.com/ginosega/fishing/actions/runs/34811426937). Final verified production source is `6fae3afbe8f227b4c12875c5d5e8f0d4c0c8861f`, release `21d203ccdef509cd99626680ae34de98`, [run 34811980881](https://github.com/ginosega/fishing/actions/runs/34811980881), **342 hosted v2 files**, hosted-verification artifact `10334949254`. Canonical baselines remain **80 Gear / 56 KB / 5 Catches**, **110 canonical library paths**, and **245 inventory references**.
+
+**Decision:** FISH107 is a structured Gear classification correction only. It does not change the Gear schema, P1 authoring boundary, FISH091 offline model, FISH096 sequence model, FISH103 link/upload behavior, or unresolved conclusions for `FISH-TODO-005` and `FISH-TODO-014`.
+
 ## Fishing Companion v3 — deferred boundary
 
 **Decision:** **Fishing Companion v3** is the preferred phase name for the future work historically identified as `FISH-TODO-077/P2`. The historical identifier may remain in records, but new prose should call the phase Fishing Companion v3.
@@ -156,4 +168,4 @@ The canonical application icon is `pwa/icon.png`. Historical icon names/bytes an
 
 ## Open work
 
-FISH071–076 and FISH078–106 are complete; Fishing Companion v3 (`FISH-TODO-077/P2`) remains deferred. The canonical TODO preserves active fishing/gear/content research and purchase uncertainty. The next unused canonical application task ID is **FISH-TODO-107** unless actual current `main` has already allocated it.
+FISH071–076 and FISH078–107 are complete; Fishing Companion v3 (`FISH-TODO-077/P2`) remains deferred. The canonical TODO preserves active fishing/gear/content research and purchase uncertainty. The next unused canonical application task ID is **FISH-TODO-108** unless actual current `main` has already allocated it.

@@ -32,39 +32,32 @@ After I confirm, execute the handoff end-to-end without making me repeatedly say
 
 This is a durable Fishing-project convention, not an automatic ChatGPT product feature. If I explicitly request a lighter transfer, follow that narrower request instead.
 
-## Current production continuation point — September 13, 2026
+## Current production continuation point — September 14, 2026
 
-FISH-TODO-106 is **DONE / production-verified**.
+FISH-TODO-107 is **DONE / production-verified**.
 
-FISH106 shipped through [PR134](https://github.com/ginosega/fishing/pull/134). It implemented six supplied Fishing Companion Gear add packages together:
+FISH107 shipped through [PR136](https://github.com/ginosega/fishing/pull/136). It implemented the supplied Fishing Companion Gear edit package for **Skylety Fishing Hook Sharpener**, correcting only its canonical type from `Kayaks` to `Tools`. Notes, picture, picture sequence, every other record field, counts, paths, media and unrelated source remain unchanged.
 
-- KastKing Brutus Silicone Foldable Extendable Net — type `Tools`, with canonical Markdown notes.
-- KastKing Cutthroat 7" Stainless Steel Pliers — type `Tools`, with canonical Markdown notes.
-- Skylety Fishing Hook Sharpener — supplied type `Kayaks`, Orange.
-- Plano Sportsman's Trunk — type `Storage`, Large, Blaze Orange, model number `PLAT19BOE`.
-- KastKing V10 Pivot Grip Fishing Rod Holder — type `Storage`.
-- Palmyth Flexible Fishing Gloves — type `Accessories`, Large, Black/Grey.
-
-All six PNGs were user-supplied files already uploaded under physical source `pwa/Gear/Equipment/assets/` before package promotion. FISH106 referenced them in place rather than rewriting them. Their repository byte sizes matched the package metadata during validation; the initially missing Plano Sportsman's Trunk PNG was verified at 1,016,850 bytes before promotion proceeded.
+The package base revision `9b419e07f9a3a56a2be1ddbfb0df1760fe2730cb`, record hash `31811a75b2d315a2c98a7b25bf8b51fd52c77195b6c54783e90cdb0aa4c57db8`, and base type `Kayaks` were validated before application.
 
 Current verified production:
 
-- application source: `9b419e07f9a3a56a2be1ddbfb0df1760fe2730cb`
-- release: `fe94ec0a8b0c606f72847ef3fda0a5b6`
-- production workflow: [run 34809970042](https://github.com/ginosega/fishing/actions/runs/34809970042)
-- feature exact-head acceptance: [run 34808981155](https://github.com/ginosega/fishing/actions/runs/34808981155) at `4a1c9dd5d765bd07b4ce3b36b6e3bc17ff43a8b0`
+- application source: `6fae3afbe8f227b4c12875c5d5e8f0d4c0c8861f`
+- release: `21d203ccdef509cd99626680ae34de98`
+- production workflow: [run 34811980881](https://github.com/ginosega/fishing/actions/runs/34811980881)
+- feature exact-head acceptance: [run 34811426937](https://github.com/ginosega/fishing/actions/runs/34811426937) at `f36be26dddfb2da8c0957917c0fceb389192177e`
 - hosted v2 files: **342**
-- production-bundle artifact: `10334457339`
-- production-acceptance-evidence artifact: `10334502241`
-- Pages artifact: `10334936059`
-- hosted-verification artifact: `10334477509`
+- production-bundle artifact: `10334724772`
+- production-acceptance-evidence artifact: `10335063749`
+- Pages artifact: `10334664984`
+- hosted-verification artifact: `10334949254`
 - site: https://ginosega.github.io/fishing/
 - canonical counts: **80 Gear, 56 KB and 5 Catches**
 - measured source baselines: **110 canonical library paths, 245 inventory references**
 
 The exact-main production run passed source/core validation, Chromium/WebKit preview and production acceptance, archived-v1 cutover acceptance, exact-current-main protection, Pages deployment, hosted-byte verification and hosted-browser verification.
 
-FISH102–FISH105 remain DONE / production-verified. Do **not** restart FISH096–FISH106 implementation/deployment work.
+FISH102–FISH106 remain DONE / production-verified. FISH106's closeout correctly records that Skylety originally entered canonical Gear using its then-supplied `Kayaks` type; current canonical state is the later FISH107 correction to `Tools`. Do **not** restart FISH096–FISH107 implementation/deployment work.
 
 ## Current durable behavior
 
@@ -86,7 +79,7 @@ FISH104 does **not** by itself close `FISH-TODO-005`: its notes document a fish-
 
 FISH105 does **not** by itself close `FISH-TODO-014`: the HyperSeal item is size 3600, but the supplied package does not explicitly identify it as the backlog's specific “KastKing 3600 deep box” target. Preserve that item as OPEN until I explicitly resolve it.
 
-FISH106 is a Gear/content release only and does not alter either of those unresolved backlog conclusions or any current runtime/authoring architecture.
+FISH106 is a Gear/content release only and does not alter either of those unresolved backlog conclusions or any current runtime/authoring architecture. FISH107 only corrects Skylety's structured type to `Tools` and likewise changes none of those runtime/authoring decisions or backlog conclusions.
 
 ## Fishing Companion v3
 
@@ -96,11 +89,11 @@ Future scope includes authentication, direct GitHub save/upload, integrated uplo
 
 ## Task state
 
-FISH071–076 and FISH078–106 are complete. Fishing Companion v3 (`FISH-TODO-077/P2`) remains deferred. Preserve all unresolved fishing/equipment/content backlog and explicit purchase uncertainty in `Fishing_TODO.md`.
+FISH071–076 and FISH078–107 are complete. Fishing Companion v3 (`FISH-TODO-077/P2`) remains deferred. Preserve all unresolved fishing/equipment/content backlog and explicit purchase uncertainty in `Fishing_TODO.md`.
 
-The next unused canonical application task ID is **FISH-TODO-107** unless actual newer `main` has already allocated it.
+The next unused canonical application task ID is **FISH-TODO-108** unless actual newer `main` has already allocated it.
 
-The new-chat transfer/handoff convention is a project operating rule, **not** FISH-TODO-107 and does not consume an application task ID.
+The new-chat transfer/handoff convention is a project operating rule, **not** FISH-TODO-108 and does not consume an application task ID.
 
 ## Working rules
 
