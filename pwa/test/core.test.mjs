@@ -16,7 +16,7 @@ const clone=x=>structuredClone(x);
 test('complete migrated library validates its schemas, types and references',()=>{
  assert.deepEqual([data.gear.items.length,data.kb.entities.length,data.catches.catches.length],[74,56,5]);
  assert.equal(maps.gear.size,74);assert.equal(maps.kb.size,56);assert.equal(maps.catches.size,5);
- assert.equal(validateLibraryPaths(data).size,107);
+ assert.equal(validateLibraryPaths(data).size,108);
 });
 test('canonical PWA source folders live only under pwa',async()=>{for(const dir of ['Gear','KB','Catches']){await fs.access(path.join(root,dir));await assert.rejects(fs.access(path.join(repo,dir)),error=>error?.code==='ENOENT');}});
 test('all six independent components retain their own identity',()=>{
