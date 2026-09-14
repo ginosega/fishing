@@ -2,21 +2,21 @@
 
 ## Current project task state — September 13, 2026
 
-**FISH-TODO-104 — DONE / production-verified.** FISH104 implemented the supplied Fishing Companion Gear add package for `humminbird-fish-finder` through [PR130](https://github.com/ginosega/fishing/pull/130). It added the Humminbird Fish Finder record, Markdown operating/setup/navigation/kayak-installation notes, and referenced the exact user-supplied `Humminbird Helix 5 Chirp DI GPS G3.png` picture.
+**FISH-TODO-105 — DONE / production-verified.** FISH105 implemented five supplied Fishing Companion Gear change packages together through [PR132](https://github.com/ginosega/fishing/pull/132): corrected Perception Joyride 10.0 to type `Kayaks` and added its caption; added KastKing HyperSeal Waterproof Tackle Box, KastKing Fishing Tackle Bag, KastKing Signature Lure Bag and KastKing BaitShield Tackle Storage Bag; and added the requested Fishing Tackle Bag Markdown note.
 
-Final FISH104 verified production is source `89e6871d81c509eed7e17d4b437db78be16310b8`, release `6aff63420b64bb790847a7af37f44c10`, [run 34800306796](https://github.com/ginosega/fishing/actions/runs/34800306796), with **329 hosted v2 files** and hosted-verification artifact `10331027567`. Canonical counts are **70 Gear, 56 KB and 5 Catches**. Full source/core, Chromium/WebKit, production-browser, archived-v1 cutover, exact-main, Pages, hosted-byte and hosted-browser verification passed.
+Final FISH105 verified production is source `dc7e6434757f19c15f05d29fc120251425108fe8`, release `6b10de29a03200d6f06040847007aaa8`, [run 34804905643](https://github.com/ginosega/fishing/actions/runs/34804905643), with **334 hosted v2 files** and hosted-verification artifact `10332432676`. Canonical counts are **74 Gear, 56 KB and 5 Catches**; measured source baselines are **108 canonical library paths** and **240 inventory references**. Full source/core, Chromium/WebKit, production-browser, archived-v1 cutover, exact-main, Pages, hosted-byte and hosted-browser verification passed.
 
-The representative Humminbird PNG is **579,304 bytes**, SHA-256 `2ec799df4d20af22031ca7fde682aca1f5c695a5cab028fb251fd2457f3e0d4e`, matching the supplied change package.
+The four KastKing PNGs were already present as user-supplied source files before package promotion and were referenced without rewriting their bytes. The unrelated direct Bonafide RVR119 Markdown update already on `main` was preserved unchanged.
 
-FISH-TODO-102 and FISH-TODO-103 remain DONE / production-verified. FISH102 added the Line-Tackle-Knot Reference. FISH103 relocated canonical physical source beneath `pwa/` and fixed authoring/link regressions.
+FISH-TODO-102 through FISH-TODO-104 remain DONE / production-verified. FISH102 added the Line-Tackle-Knot Reference. FISH103 relocated canonical physical source beneath `pwa/` and fixed authoring/link regressions. FISH104 added the Humminbird Fish Finder record and notes/picture.
 
 **Fishing Companion v3** — historically `FISH-TODO-077/P2` — remains **DEFERRED**. Future scope includes authentication, direct GitHub save/upload, integrated uploads, offline authoring/outbox/sync, Catch authoring and multi-user generalization. Do not treat any of that as current production or implicitly approved implementation work.
 
-The next unused canonical application task ID is **FISH-TODO-105**.
+The next unused canonical application task ID is **FISH-TODO-106**.
 
 ## Completed/superseded application work
 
-FISH071–076 and FISH078–104 are complete. Historical `FISH-TODO-077/P2` is the intentional deferred future-phase boundary now called **Fishing Companion v3**. Historical v1-only items FISH-TODO-063 (old KB filename/upload constraints) and FISH-TODO-039 (structured setup recording on catches) are superseded by the approved current architecture and must not be used to reintroduce retired structures.
+FISH071–076 and FISH078–105 are complete. Historical `FISH-TODO-077/P2` is the intentional deferred future-phase boundary now called **Fishing Companion v3**. Historical v1-only items FISH-TODO-063 (old KB filename/upload constraints) and FISH-TODO-039 (structured setup recording on catches) are superseded by the approved current architecture and must not be used to reintroduce retired structures.
 
 Detailed completion/release evidence remains in Git history and dated `pwa/docs/` records. This TODO intentionally keeps current open/deferred work instead of repeating every historical release.
 
@@ -25,6 +25,8 @@ Detailed completion/release evidence remains in Git history and dated `pwa/docs/
 These items remain open/deferred independently of Fishing Companion release work. Preserve explicit purchase uncertainty; do not infer ownership or completion without user confirmation.
 
 FISH104 documents a fish-finder power architecture and parts list, but it does **not** explicitly confirm that every listed part is the installed configuration. Therefore FISH-TODO-005 remains WAITING ON USER rather than being closed by inference.
+
+FISH105 adds a KastKing HyperSeal Waterproof Tackle Box in size 3600, but the supplied package does **not** explicitly identify that item as the specific “KastKing 3600 deep box” target in FISH-TODO-014. Preserve FISH-TODO-014 as OPEN unless the user explicitly resolves that backlog item.
 
 | ID | Priority | Status | Work item |
 |---|---|---|---|
@@ -62,6 +64,6 @@ FISH104 documents a fish-finder power architecture and parts list, but it does *
 
 ## Continuation rules
 
-Use Chat mode by default. Restore actual latest `main` before acting. For new application work, allocate **FISH-TODO-105** unless a newer task has already been created on current `main`. Do not reopen FISH096–FISH104 or Fishing Companion v3 work without an explicit new user request.
+Use Chat mode by default. Restore actual latest `main` before acting. For new application work, allocate **FISH-TODO-106** unless a newer task has already been created on current `main`. Do not reopen FISH096–FISH105 or Fishing Companion v3 work without an explicit new user request.
 
-When the user says **“It’s time to transfer to a new chat”**, ask for confirmation of the full handoff. After confirmation, perform the durable handoff protocol recorded in `Fishing_Decision_Log.md`: reconcile current state, update the authoritative project records and bootstrap prompt as needed, cross-check them, and finish with a direct GitHub link to `Fishing_New_Chat_Bootstrap_Prompt.md`. This handoff protocol is not itself a new FISH-TODO application task and does not consume FISH-TODO-105.
+When the user says **“It’s time to transfer to a new chat”**, ask for confirmation of the full handoff. After confirmation, perform the durable handoff protocol recorded in `Fishing_Decision_Log.md`: reconcile current state, update the authoritative project records and bootstrap prompt as needed, cross-check them, and finish with a direct GitHub link to `Fishing_New_Chat_Bootstrap_Prompt.md`. This handoff protocol is not itself a new FISH-TODO application task and does not consume FISH-TODO-106.
