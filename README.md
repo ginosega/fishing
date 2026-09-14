@@ -4,28 +4,34 @@ Persistent Fishing project and source repository for Fishing Companion.
 
 ## Current production — September 13, 2026
 
-FISH-TODO-104 is **DONE / production-verified**.
+FISH-TODO-105 is **DONE / production-verified**.
 
-FISH104 shipped through [PR130](https://github.com/ginosega/fishing/pull/130). It added Gear record `humminbird-fish-finder` for the **Humminbird Fish Finder** (`Humminbird Helix 5 Chirp DI GPS G3`), Markdown notes at logical `Gear/Equipment/content/Humminbird Fish Finder.md`, and the user-supplied representative picture at logical `Gear/Equipment/assets/Humminbird Helix 5 Chirp DI GPS G3.png` with caption `Humminbird Helix 5 Chirp DI GPS G3`.
+FISH105 shipped through [PR132](https://github.com/ginosega/fishing/pull/132). It implemented five supplied `fishing-companion-change-v2` Gear packages together:
 
-The image is preserved exactly: **579,304 bytes**, SHA-256 `2ec799df4d20af22031ca7fde682aca1f5c695a5cab028fb251fd2457f3e0d4e`.
+- changed **Perception Joyride 10.0** from type `Accessories` to `Kayaks` and added picture caption `Perception Joyride 10.0 - Funkadelic` while preserving the existing picture path/bytes;
+- added **KastKing HyperSeal Waterproof Tackle Box** (`3600`, Orange);
+- added **KastKing Fishing Tackle Bag** (`Medium`, Orange) plus Markdown `Gear/Equipment/content/KastKing Fishing Tackle Bag.md`;
+- added **KastKing Signature Lure Bag**; and
+- added **KastKing BaitShield Tackle Storage Bag** (`Medium`).
+
+The four KastKing PNGs had already been uploaded to canonical physical source under `pwa/Gear/Equipment/assets/` before package promotion. FISH105 referenced those user-supplied files in place rather than rewriting them. The unrelated direct Bonafide RVR119 Markdown update already on `main` was preserved unchanged.
 
 Current verified production:
 
 - site: https://ginosega.github.io/fishing/
-- source: `89e6871d81c509eed7e17d4b437db78be16310b8`
-- release: `6aff63420b64bb790847a7af37f44c10`
-- production workflow: [run 34800306796](https://github.com/ginosega/fishing/actions/runs/34800306796)
-- hosted v2 files: **329**
-- production-bundle artifact: `10331372187`
-- production-acceptance-evidence artifact: `10331631583`
-- Pages artifact: `10330882758`
-- hosted-verification artifact: `10331027567`
-- canonical counts: **70 Gear, 56 KB and 5 Catches**
+- source: `dc7e6434757f19c15f05d29fc120251425108fe8`
+- release: `6b10de29a03200d6f06040847007aaa8`
+- production workflow: [run 34804905643](https://github.com/ginosega/fishing/actions/runs/34804905643)
+- hosted v2 files: **334**
+- production-bundle artifact: `10332637362`
+- production-acceptance-evidence artifact: `10333116452`
+- Pages artifact: `10333001931`
+- hosted-verification artifact: `10332432676`
+- canonical counts: **74 Gear, 56 KB and 5 Catches**
 
 The exact-current-main run passed source/core validation, Chromium/WebKit preview acceptance, production-browser acceptance, actual archived-v1 cutover acceptance, exact-current-main protection, Pages deployment, byte-for-byte hosted verification and hosted-browser verification.
 
-FISH102 and FISH103 remain complete and production-verified. FISH102 added the Line-Tackle-Knot Reference and its pinned-first Knot-category behavior. FISH103 moved canonical physical domain source beneath `pwa/` and fixed external/internal link targeting, Caption focus and new-KB Markdown Preview validation ordering.
+FISH102–FISH104 remain complete and production-verified. FISH102 added the Line-Tackle-Knot Reference and its pinned-first Knot-category behavior. FISH103 moved canonical physical domain source beneath `pwa/` and fixed external/internal link targeting, Caption focus and new-KB Markdown Preview validation ordering. FISH104 added the Humminbird Fish Finder Gear record and its operating/setup/navigation/kayak-installation notes.
 
 ## Current product behavior
 
@@ -57,7 +63,7 @@ At the start of a new chat, restore actual latest `main`, then read in order:
 
 When the user says **“It’s time to transfer to a new chat”** (or clearly says the current chat is too long and should be transferred), ask for confirmation that they want the full handoff. Once confirmed, reconcile the chat against current repository/production state, update the authoritative project records and bootstrap prompt, perform a final cross-file consistency check, and leave a clean continuation point without repeated “Proceed” prompts. The final handoff response must include a clickable GitHub link to `Fishing_New_Chat_Bootstrap_Prompt.md` so the user can copy it into the new Chat-mode conversation.
 
-Preserve unresolved fishing/equipment/content backlog and explicit purchase uncertainty. FISH071–076 and FISH078–104 are complete; Fishing Companion v3 (`FISH-TODO-077/P2`) remains deferred. The next unused canonical application task ID is **FISH-TODO-105** unless actual newer `main` has already allocated it.
+Preserve unresolved fishing/equipment/content backlog and explicit purchase uncertainty. FISH071–076 and FISH078–105 are complete; Fishing Companion v3 (`FISH-TODO-077/P2`) remains deferred. The next unused canonical application task ID is **FISH-TODO-106** unless actual newer `main` has already allocated it.
 
 Historical milestones and release evidence remain in Git history and `pwa/docs/`; the root project-state files intentionally describe the current continuation state rather than repeating every prior release. Use [`pwa/docs/README.md`](pwa/docs/README.md) as the authority guide for interpreting dated project records and milestone-era “current” statements.
 
