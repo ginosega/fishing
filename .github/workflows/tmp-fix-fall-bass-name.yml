@@ -1,0 +1,28 @@
+name: Temporary Fall Bass name fix
+
+on:
+  push:
+    branches:
+      - content/fix-fall-bass-name
+    paths:
+      - .fish-fix-trigger
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Remove accidental trailing space
+        run: |
+          python3 -c "from pathlib import Path; p=Path('pwa/KB/kb.json'); s=p.read_text(); old='\"name\": \"Fall Bass Fishing \"'; new='\"name\": \"Fall Bass Fishing\"'; assert s.count(old)==1, s.count(old); p.write_text(s.replace(old,new))"
+          git rm -f .github/workflows/tmp-fix-fall-bass-name.yml .fish-fix-trigger
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add pwa/KB/kb.json
+          git commit -m "Remove trailing space from Fall Bass Fishing name"
+          git push origin HEAD:content/fix-fall-bass-name
