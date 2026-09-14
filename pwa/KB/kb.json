@@ -76,7 +76,7 @@
     {
       "id": "technique-trout-fishing",
       "type": "technique",
-      "name": "Trout Fishing",
+      "name": "Trout Fishing Techniques",
       "description": "Casting, bank-fishing, still-fishing, and kayak-trolling guidance",
       "content": "KB/Techniques/content/trout-fishing.md",
       "picture": {
