@@ -16,7 +16,7 @@ const clone=x=>structuredClone(x);
 test('complete migrated library validates its schemas, types and references',()=>{
  assert.deepEqual([data.gear.items.length,data.kb.entities.length,data.catches.catches.length],[80,56,5]);
  assert.equal(maps.gear.size,80);assert.equal(maps.kb.size,56);assert.equal(maps.catches.size,5);
- assert.equal(validateLibraryPaths(data).size,108);
+ assert.equal(validateLibraryPaths(data).size,110);
 });
 test('canonical PWA source folders live only under pwa',async()=>{for(const dir of ['Gear','KB','Catches']){await fs.access(path.join(root,dir));await assert.rejects(fs.access(path.join(repo,dir)),error=>error?.code==='ENOENT');}});
 test('all six independent components retain their own identity',()=>{
@@ -106,7 +106,7 @@ test('the complete source inventory hashes and fully decodes all referenced asse
  const result=await inventorySource(root,{pendingMedia:true});
  assert.equal(result.data.gear.items.length,80);assert(result.images.size>0);assert.equal(result.pending.length,0);
  assert.deepEqual(result.migration.exceptions.filter(x=>!x.optional).map(x=>x.id).sort(),['tsuridamashii-snap-swivels','rapala-original-floating-f3','species-perch','technique-popper','technique-whopper-plopper','macks-pee-wee-hoochie','river2sea-whopper-plopper-60'].sort());
- assert.deepEqual(result.migration.exceptions.filter(x=>x.optional).map(x=>x.id),['generic-1-inline-spinner']);assert.equal(result.references.length,240);
+ assert.deepEqual(result.migration.exceptions.filter(x=>x.optional).map(x=>x.id),['generic-1-inline-spinner']);assert.equal(result.references.length,245);
  for(const file of result.files){const bytes=await fs.readFile(path.join(root,file.path));assert.equal(digest(bytes),file.sha256);}
 });
 test('malformed images and unsupported formats are rejected',async()=>{
