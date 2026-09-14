@@ -4,26 +4,28 @@ Fishing Companion is the active PWA published at https://ginosega.github.io/fish
 
 ## Current verified production — September 13, 2026
 
-FISH102 and FISH103 are live and production-verified.
+FISH104 is live and production-verified.
 
-FISH102 shipped through [PR124](https://github.com/ginosega/fishing/pull/124). It added the **Line-Tackle-Knot Reference** Knot entry, Markdown and picture and pins that card first only on KB → Knots while keeping the rest alphabetical. FISH102 verified production was source `4912f93149e9de1e9cde9ff5176b4a4831a67812`, release `beff9138c96489abd9723c5fcfeef0ff`, [run 34770966552](https://github.com/ginosega/fishing/actions/runs/34770966552), hosted-verification artifact `10322381375`.
+FISH104 shipped through [PR130](https://github.com/ginosega/fishing/pull/130). It added Gear ID `humminbird-fish-finder` for the **Humminbird Fish Finder**, model `Helix 5 Chirp DI GPS G3`, type `Electronics`, with transducer `XNT 9 HW DI T`; Markdown `Gear/Equipment/content/Humminbird Fish Finder.md`; and representative picture `Gear/Equipment/assets/Humminbird Helix 5 Chirp DI GPS G3.png` with caption `Humminbird Helix 5 Chirp DI GPS G3`.
 
-FISH103 shipped through feature [PR125](https://github.com/ginosega/fishing/pull/125), followed by verifier-only [PR126](https://github.com/ginosega/fishing/pull/126) and [PR127](https://github.com/ginosega/fishing/pull/127). It relocates canonical physical domain source under this `pwa/` directory, fixes external/internal link targets, preserves Caption focus during preview updates and fixes new-KB Markdown Preview validation ordering. PR126/PR127 changed only hosted-verifier dialog handling.
+The user-supplied PNG is preserved exactly at **579,304 bytes**, SHA-256 `2ec799df4d20af22031ca7fde682aca1f5c695a5cab028fb251fd2457f3e0d4e`.
 
 Current production:
 
-- source: `94772e62788fa98903930e4b5649fabb9629c6d0`
-- release: `b8c8222697222f1dd43861427d5006fb`
-- production workflow: [run 34795289032](https://github.com/ginosega/fishing/actions/runs/34795289032)
-- hosted v2 files: **327**
-- production-bundle artifact: `10328869743`
-- production-acceptance-evidence artifact: `10329538071`
-- Pages artifact: `10329392228`
-- hosted-verification artifact: `10329313590`
+- source: `89e6871d81c509eed7e17d4b437db78be16310b8`
+- release: `6aff63420b64bb790847a7af37f44c10`
+- production workflow: [run 34800306796](https://github.com/ginosega/fishing/actions/runs/34800306796)
+- hosted v2 files: **329**
+- production-bundle artifact: `10331372187`
+- production-acceptance-evidence artifact: `10331631583`
+- Pages artifact: `10330882758`
+- hosted-verification artifact: `10331027567`
 
-The exact-current-main deployment passed complete source/core validation, Chromium/WebKit preview and production acceptance, archived-v1 cutover acceptance, exact-current-main protection, Pages deployment, hosted-byte verification and hosted-browser verification. Hosted verification explicitly passed the FISH103 physical-source, link-target, Caption-focus and new-KB-preview checks.
+The exact-current-main deployment passed complete source/core validation, Chromium/WebKit preview and production acceptance, archived-v1 cutover acceptance, exact-current-main protection, Pages deployment, hosted-byte verification and hosted-browser verification.
 
-Canonical counts are **69 Gear, 56 KB and 5 Catches**.
+Canonical counts are **70 Gear, 56 KB and 5 Catches**. Current measured source-validation baselines are 107 canonical library paths and 240 inventory references.
+
+FISH102 and FISH103 remain live and production-verified. FISH102 added the Line-Tackle-Knot Reference and pinned-first Knot-category behavior. FISH103 relocated canonical physical domain source beneath this `pwa/` directory and fixed external/internal link targeting, Caption focus and new-KB Markdown Preview validation ordering.
 
 ## Directory layout
 
