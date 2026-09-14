@@ -57,6 +57,12 @@ If lane eligibility is ambiguous, use full. Do not broaden fast eligibility ad h
 
 FISH109 is complete and production-verified. Pages and hosted-evidence artifacts are run-attempt-specific, so deployment-job reruns do not collide with artifacts from earlier attempts. The fast hosted verifier uses bounded retries/backoff for transient propagation/network failures. Preserve the exact-current-main guard: if `main` advances, do not force an older run to deploy.
 
+### FISH110 Copy Changes handoff
+
+FISH110 is complete and production-verified. Gear/KB Add/Edit → **Copy Changes** now uses one centralized release-aware prompt. The copied instruction tells the receiving chat to restore current `main` and project instructions, validate the source-aware package against current canonical content, preserve unrelated/newer source changes, and apply only the requested changes.
+
+If the package is eligible for FISH108 Fast Content Release, follow the copied instruction literally: use one content PR, lightweight content validation/build, merge, production deployment, and hosted byte/release-identity verification. Do **not** run Full Application Release or create/update project-state records unless validation shows they are actually required. If the requested package is not fast-lane eligible, follow the repository's current instructions for the appropriate release lane. The human instruction and JSON package are separated by a blank line so the JSON remains directly parseable.
+
 ### Source-derived expectations
 
 Changing Gear/KB/Catch item counts, canonical path totals and reference totals is normal content evolution. Do not edit tests solely to update these numbers. Validation derives current state from canonical source and the exact generated release. Historical counts in dated records remain historical evidence only.
@@ -81,7 +87,7 @@ This is a project convention, not an automatic ChatGPT feature. A user-requested
 
 `ginosega/fishing` is authoritative. Canonical physical data is under `pwa/Gear/`, `pwa/KB/` and `pwa/Catches/`; logical paths remain `Gear/...`, `KB/...` and `Catches/...`. `.github/workflows/fishing-production.yml` is the sole active publisher.
 
-Fishing Companion uses independent Gear, KB and Catch domains. Gear/KB Add/Edit remains **Prepare Changes → Copy Changes** and produces source-aware packages; preparing/copying is not saving and the browser does not write GitHub source directly. Physical upload links use `pwa/...`; package paths remain logical.
+Fishing Companion uses independent Gear, KB and Catch domains. Gear/KB Add/Edit remains **Prepare Changes → Copy Changes** and produces source-aware packages; preparing/copying is not saving and the browser does not write GitHub source directly. Physical upload links use `pwa/...`; package paths remain logical. The FISH110 Copy Changes prefix explicitly routes eligible content-only packages to FISH108 Fast Content Release and avoids automatic project-state churn unless validation shows it is needed.
 
 Simple Markdown-only narrative edits to existing canonical files may be made directly in GitHub. Structured fields/categories/types/specifications/links/pictures/sequences/paths/relationships should use Fishing Companion Edit or an equivalent source-aware workflow.
 
@@ -95,6 +101,8 @@ FISH103: external HTTP(S) links open in a new tab; internal app/local links rema
 
 FISH107: current canonical Skylety Fishing Hook Sharpener type is `Tools`; FISH106's `Kayaks` value is historical package evidence only.
 
+FISH110: Copy Changes uses centralized FISH108-aware boilerplate; eligible source-aware content packages are routed to Fast Content Release, non-fast packages defer to the current appropriate lane, and the obsolete automatic feature-PR/project-record-reconciliation instruction is gone.
+
 ## Backlog/future state
 
 `FISH-TODO-005` remains WAITING ON USER; do not infer every fish-finder power component is installed from FISH104 notes.
@@ -103,7 +111,7 @@ FISH107: current canonical Skylety Fishing Hook Sharpener type is `Tools`; FISH1
 
 **Fishing Companion v3** (historically `FISH-TODO-077/P2`) remains DEFERRED. Authentication, direct GitHub save/upload, integrated uploads, offline authoring/outbox/sync, Catch authoring and multi-user generalization are not current production.
 
-FISH071–076 and FISH078–109 are complete/implemented. The next unused **application/architecture** task ID is **FISH-TODO-110** unless actual newer `main` already allocated it. Routine Fast Content Releases — including a normal new KB page — do not consume FISH-TODO-110.
+FISH071–076 and FISH078–110 are complete/implemented. The next unused **application/architecture** task ID is **FISH-TODO-111** unless actual newer `main` already allocated it. Routine Fast Content Releases — including a normal new KB page — do not consume FISH-TODO-111.
 
 ## Working rules
 
