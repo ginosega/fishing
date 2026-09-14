@@ -1,31 +1,37 @@
 # Fishing Companion production application
 
-Fishing Companion is the active v2 PWA published at https://ginosega.github.io/fishing/.
+Fishing Companion is the active PWA published at https://ginosega.github.io/fishing/.
 
 ## Current verified production — September 13, 2026
 
-FISH101 is live through feature [PR121](https://github.com/ginosega/fishing/pull/121) plus verification-only [PR122](https://github.com/ginosega/fishing/pull/122). The submitted Knot change-package batch and explicit removal of Double Uni Knot and Single Uni Knot were validated before promotion. Branch validation [run 34766670229](https://github.com/ginosega/fishing/actions/runs/34766670229) passed all submitted stale-base checks and recomputed exact byte counts/SHA-256 hashes for all **39** pre-uploaded media files. Full pre-merge production acceptance [run 34766717362](https://github.com/ginosega/fishing/actions/runs/34766717362) passed.
+FISH102 and FISH103 are live and production-verified.
 
-The feature release activates Improved Clinch (11 PNG), Modified Uni (12 JPG), and Trilene (15 PNG) sequences; adds the submitted static Non-Slip Loop picture; applies the submitted Knot content/structured refinements; updates Bowline's description; retains Palomar's existing 13-frame sequence while applying its submitted Markdown refinement; and removes Double Uni Knot and Single Uni Knot records plus their Markdown articles. Canonical KB count is now **55**.
+FISH102 shipped through [PR124](https://github.com/ginosega/fishing/pull/124). It added the **Line-Tackle-Knot Reference** Knot entry, Markdown and picture and pins that card first only on KB → Knots while keeping the rest alphabetical. FISH102 verified production was source `4912f93149e9de1e9cde9ff5176b4a4831a67812`, release `beff9138c96489abd9723c5fcfeef0ff`, [run 34770966552](https://github.com/ginosega/fishing/actions/runs/34770966552), hosted-verification artifact `10322381375`.
 
-The feature merge source was `360d71ff2bfaf075ad498d18f05126268f6606f1`. Its first exact-main Pages deployment succeeded, but post-deploy hosted verification exposed a stale expected KB count of 57. PR122 changes only that hosted-verifier expectation to 55; no application content or behavior changed.
+FISH103 shipped through feature [PR125](https://github.com/ginosega/fishing/pull/125), followed by verifier-only [PR126](https://github.com/ginosega/fishing/pull/126) and [PR127](https://github.com/ginosega/fishing/pull/127). It relocates canonical physical domain source under this `pwa/` directory, fixes external/internal link targets, preserves Caption focus during preview updates and fixes new-KB Markdown Preview validation ordering. PR126/PR127 changed only hosted-verifier dialog handling.
 
 Current production:
 
-- source: `2b76f9f91757705e361ed3485da0627e493c8d7d`
-- release: `eeba6be85560163522778e2e795d91d9`
-- production workflow: [run 34768935480](https://github.com/ginosega/fishing/actions/runs/34768935480)
-- hosted v2 files: **325**
-- hosted-verification artifact: `10322070321`
+- source: `94772e62788fa98903930e4b5649fabb9629c6d0`
+- release: `b8c8222697222f1dd43861427d5006fb`
+- production workflow: [run 34795289032](https://github.com/ginosega/fishing/actions/runs/34795289032)
+- hosted v2 files: **327**
+- production-bundle artifact: `10328869743`
+- production-acceptance-evidence artifact: `10329538071`
+- Pages artifact: `10329392228`
+- hosted-verification artifact: `10329313590`
 
-The exact-current-main deployment passed complete source/core validation, Chromium/WebKit preview and production acceptance, archived-v1 cutover acceptance, exact-current-main protection, Pages deployment, hosted-byte verification and hosted-browser verification.
+The exact-current-main deployment passed complete source/core validation, Chromium/WebKit preview and production acceptance, archived-v1 cutover acceptance, exact-current-main protection, Pages deployment, hosted-byte verification and hosted-browser verification. Hosted verification explicitly passed the FISH103 physical-source, link-target, Caption-focus and new-KB-preview checks.
 
-Active Knot sequences are Palomar 13 PNG frames, Albright 15 JPG frames, Arbor 9 JPG frames, Bowline 7 JPG frames, FG 29 JPG frames, Improved Clinch 11 PNG frames, Modified Uni 12 JPG frames, and Trilene 15 PNG frames. Non-Slip Loop uses the submitted static representative picture. Double Uni Knot and Single Uni Knot are no longer canonical KB records. Directory-only images still never create a sequence; explicit canonical references remain required.
+Canonical counts are **69 Gear, 56 KB and 5 Catches**.
 
 ## Directory layout
 
 | Location | Purpose |
 |---|---|
+| `Gear/` | Canonical physical Gear source, including structured records, category content and assets |
+| `KB/` | Canonical physical Knowledge Base source, including structured records, category content and assets |
+| `Catches/` | Canonical physical Catch source and notes |
 | `src/` | Browser application, editor, viewer, verified offline releases and service worker |
 | `tools/` | Build, source validation and local/hosted verification |
 | `test/` | Core integrity and Chromium/WebKit acceptance, including retained v1-store/cutover coverage |
@@ -35,7 +41,7 @@ Active Knot sequences are Palomar 13 PNG frames, Albright 15 JPG frames, Arbor 9
 | `icon.png` | Canonical user-supplied app/fav/touch icon |
 | `dist/` | Generated build; ignored by Git |
 
-Canonical content stays in repository-root `Gear/`, `KB/` and `Catches/`. The build reads those sources plus this directory. There is no production dependency on the former root `v2/`, deleted v1 runtime/assets, `History/` or `Topics/`.
+Logical record/source references and generated release content remain `Gear/...`, `KB/...` and `Catches/...` even though the physical repository source lives beneath `pwa/`. The build's default source root is this directory. There is no production dependency on deleted repository-root `Gear/`, `KB/`, `Catches/`, the former root `v2/`, deleted v1 runtime/assets, `History/` or `Topics/`.
 
 ## Current runtime model
 
@@ -43,13 +49,19 @@ Fishing Companion retains independent Gear, KB and Catch domains. Gear/KB Add/Ed
 
 FISH091 makes online-only the default: ordinary online startup does not prepare the complete offline library. **Connection Status → Update offline library** explicitly prepares/refreshes the verified complete offline generation. Previous verified generations remain fallback until successfully replaced; failure does not destroy the prior generation.
 
-FISH096 adds optional Knot-only explicit ordered `pictureSequence` support. Frames are canonical source assets under `KB/Knots/assets/<knot-id>/` with contiguous `step-01`, `step-02`, ... naming and explicit structured order. `picture.src` equals the final frame. Ordinary browsing loads only that representative frame; the sequence viewer opens at frame 1, supports manual stepping, one-second looping Play/Pause, frame position, shared caption, keyboard controls and the existing zoom/pan gestures. Remaining frames preload only after the viewer opens. The full explicit sequence is included when the user prepares the complete offline library.
+FISH096 adds optional Knot-only explicit ordered `pictureSequence` support. Logical frame paths use `KB/Knots/assets/<knot-id>/` while physical source files are under `pwa/KB/Knots/assets/<knot-id>/`. `picture.src` equals the final frame. Ordinary browsing loads only that representative frame; the sequence viewer opens at frame 1, supports manual stepping, one-second looping Play/Pause, frame position, shared caption, keyboard controls and the existing zoom/pan gestures. Remaining frames preload only after the viewer opens. The full explicit sequence is included when the user prepares the complete offline library.
 
 Directory contents alone never create a sequence. Every frame must be explicitly referenced by the KB record before it becomes release/offline content.
 
-Knot authoring uses the existing Picture section with complete native multi-file selection, filename-defined ordering, automatic final-frame representation, local sequence preview and supported static↔sequence conversions. The P1 handoff records complete sequence intent/paths/file hashes atomically with picture changes and provides the exact repository upload-folder link. It remains Prepare/Copy only.
+Knot authoring uses the existing Picture section with complete native multi-file selection, filename-defined ordering, automatic final-frame representation, local sequence preview and supported static↔sequence conversions. The P1 handoff records complete sequence intent/paths/file hashes atomically with picture changes and provides the exact physical repository upload-folder link under `pwa/`. It remains Prepare/Copy only.
 
-FISH077/P2 remains deferred: no authentication, Direct Save, integrated browser uploads, offline authoring/outbox/sync or Catch authoring.
+FISH102 pins **Line-Tackle-Knot Reference** first only on KB → Knots. Remaining Knot cards are alphabetical.
+
+FISH103 link behavior is durable: external HTTP(S) links from structured Links and rendered Markdown open in a new tab with `noopener noreferrer`; internal `gear://`, `kb://`, anchors/local and other in-app links remain same-tab. Gear/KB Caption editing must retain focus while its preview text updates, and new-KB Markdown Preview must assign a provisional required content path before whole-library validation.
+
+## Fishing Companion v3
+
+**Fishing Companion v3** is the preferred name for the deferred future phase historically tracked as `FISH-TODO-077/P2`. It remains **DEFERRED**. Future scope includes authentication, direct GitHub save/upload, integrated uploads, offline authoring/outbox/sync, Catch authoring and multi-user generalization.
 
 ## Development and publication
 
@@ -68,6 +80,6 @@ V1 recovery tests use the durable recovery material preserved in Git; do not run
 
 ## Source and file hygiene
 
-Routine authoring changes update canonical JSON/Markdown/pictures in domain category folders. Do not add per-item JavaScript helpers, one-off release scripts/tests or routine release Markdown. Reuse the source-derived validation. Significant application requirements/design/release evidence belongs in `docs/`.
+Routine authoring changes update canonical JSON/Markdown/pictures under `pwa/Gear/`, `pwa/KB/` and `pwa/Catches/`. Do not add per-item JavaScript helpers, one-off release scripts/tests or routine release Markdown. Reuse the source-derived validation. Significant application requirements/design/release evidence belongs in `docs/`.
 
-Historical implementation/release details remain in Git history and the dated records under `docs/`; current continuation state is in the repository-root README/Context/TODO/Decision Log/bootstrap. Use [`docs/README.md`](docs/README.md) when interpreting dated project records so milestone-era “current” statements are not mistaken for present project state.
+Historical implementation/release details remain in Git history and dated records under `docs/`; current continuation state is in the repository-root README/Context/TODO/Decision Log/bootstrap. Use [`docs/README.md`](docs/README.md) when interpreting dated project records so milestone-era “current” statements are not mistaken for present project state.
