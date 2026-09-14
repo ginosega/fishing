@@ -84,6 +84,12 @@
       }
     },
     {
+      "id": "trout-behavior-and-habitat",
+      "name": "Trout Behavior and Habitat",
+      "type": "technique",
+      "content": "KB/Techniques/content/Trout Behavior and Habitat.md"
+    },
+    {
       "id": "technique-fishing-line",
       "type": "equipment",
       "name": "Fishing Line",
