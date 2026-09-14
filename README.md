@@ -2,32 +2,20 @@
 
 Persistent Fishing project and source repository for Fishing Companion.
 
-## Current production — September 14, 2026
+## Current continuation — September 14, 2026
 
-FISH-TODO-107 is **DONE / production-verified**.
+FISH108 establishes the durable two-lane release model for Fishing Companion:
 
-FISH107 shipped through [PR136](https://github.com/ginosega/fishing/pull/136). It implemented the supplied `fishing-companion-change-v2` edit package for `skylety-fishing-hook-sharpener`, correcting its canonical Gear type from `Kayaks` to `Tools`.
+- **Fast Content Release** is the default for routine canonical Gear / Knowledge Base / Catch changes when every changed file is under `pwa/Gear/`, `pwa/KB/`, or `pwa/Catches/`.
+- **Full Application Release** is required for runtime, schema, test, build/tooling, workflow, dependency, migration/recovery/offline, or mixed content+code changes.
 
-This was the only canonical source change. Notes, picture, picture sequence, all other record fields, counts, paths, media and unrelated source were unchanged. The package base revision `9b419e07f9a3a56a2be1ddbfb0df1760fe2730cb`, record hash `31811a75b2d315a2c98a7b25bf8b51fd52c77195b6c54783e90cdb0aa4c57db8`, and base field `type: Kayaks` were validated before application.
+The detailed policy is [`pwa/docs/FISH108_Fast_Content_Release_Policy_2026-09-14.md`](pwa/docs/FISH108_Fast_Content_Release_Policy_2026-09-14.md).
 
-Current verified production:
+Routine `fishing-companion-change-v2` authoring releases now use a lightweight content PR, canonical source/build verification, exact-main Pages deployment, and dependency-free hosted byte verification. They do **not** run the browser/v1-cutover/dependency-audit suite, consume a new `FISH-TODO-###` application task ID, or require per-item README/Context/TODO/bootstrap/production-closeout updates.
 
-- site: https://ginosega.github.io/fishing/
-- application source: `6fae3afbe8f227b4c12875c5d5e8f0d4c0c8861f`
-- release: `21d203ccdef509cd99626680ae34de98`
-- production workflow: [run 34811980881](https://github.com/ginosega/fishing/actions/runs/34811980881)
-- feature exact-head acceptance: [run 34811426937](https://github.com/ginosega/fishing/actions/runs/34811426937) at `f36be26dddfb2da8c0957917c0fceb389192177e`
-- hosted v2 files: **342**
-- production-bundle artifact: `10334724772`
-- production-acceptance-evidence artifact: `10335063749`
-- Pages artifact: `10334664984`
-- hosted-verification artifact: `10334949254`
-- canonical counts: **80 Gear, 56 KB and 5 Catches**
-- measured source baselines: **110 canonical library paths, 245 inventory references**
+Changing library counts are source data, not durable test baselines. Current counts and release identity are derived from canonical source and the exact generated release rather than maintained manually in project-state Markdown.
 
-The exact-current-main run passed source/core validation, Chromium/WebKit preview acceptance, production-browser acceptance, actual archived-v1 cutover acceptance, exact-current-main protection, Pages deployment, byte-for-byte hosted verification and hosted-browser verification.
-
-FISH102–FISH106 remain complete and production-verified. FISH106 added six Gear items including the Skylety sharpener using its then-supplied `Kayaks` type; FISH107 supersedes that classification for current canonical state by setting Skylety to `Tools`.
+For the exact currently deployed source/release when needed, use the latest successful `main` production workflow and deployed `release.json`; do not rely on an older release identity copied into narrative documentation.
 
 ## Current product behavior
 
@@ -57,14 +45,18 @@ At the start of a new chat, restore actual latest `main`, then read in order:
 4. `Fishing_Decision_Log.md`
 5. `Fishing_New_Chat_Bootstrap_Prompt.md`
 
-When the user says **“It’s time to transfer to a new chat”** (or clearly says the current chat is too long and should be transferred), ask for confirmation that they want the full handoff. Once confirmed, reconcile the chat against current repository/production state, update the authoritative project records and bootstrap prompt, perform a final cross-file consistency check, and leave a clean continuation point without repeated “Proceed” prompts. The final handoff response must include a clickable GitHub link to `Fishing_New_Chat_Bootstrap_Prompt.md` so the user can copy it into the new Chat-mode conversation.
+Before repository work, also confirm current open-PR state. For an exact current production identity, inspect the latest successful production workflow/release rather than stale narrative metadata.
 
-Preserve unresolved fishing/equipment/content backlog and explicit purchase uncertainty. FISH071–076 and FISH078–107 are complete; Fishing Companion v3 (`FISH-TODO-077/P2`) remains deferred. FISH104 does not by itself close `FISH-TODO-005`, and FISH105 does not by itself close `FISH-TODO-014`. The next unused canonical application task ID is **FISH-TODO-108** unless actual newer `main` has already allocated it.
+When the user says **“It’s time to transfer to a new chat”** (or clearly says the current chat is too long and should be transferred), ask for confirmation that they want the full handoff. Once confirmed, reconcile the chat against current repository/production state, update authoritative records only where durable project state actually changed, perform a final cross-file consistency check, and leave a clean continuation point without repeated “Proceed” prompts. The final handoff response must include a clickable GitHub link to `Fishing_New_Chat_Bootstrap_Prompt.md`.
 
-Historical milestones and release evidence remain in Git history and `pwa/docs/`; the root project-state files intentionally describe the current continuation state rather than repeating every prior release. Use [`pwa/docs/README.md`](pwa/docs/README.md) as the authority guide for interpreting dated project records and milestone-era “current” statements.
+Preserve unresolved fishing/equipment/content backlog and explicit purchase uncertainty. FISH071–076 and FISH078–108 are complete/implemented; Fishing Companion v3 (`FISH-TODO-077/P2`) remains deferred. FISH104 does not by itself close `FISH-TODO-005`, and FISH105 does not by itself close `FISH-TODO-014`.
 
-## Development
+The next unused **application/architecture** task ID is **FISH-TODO-109**. Routine Fast Content Releases do not consume that ID.
 
-Use Node 24 and the locked `pwa/package-lock.json`. From `pwa/`: `npm ci`, `npm test`, `npm run build -- --base=/fishing/`, `npm run verify`.
+Historical milestones and exact release evidence remain in Git history and `pwa/docs/`; use [`pwa/docs/README.md`](pwa/docs/README.md) when interpreting dated milestone-era “current” statements.
 
-`.github/workflows/fishing-production.yml` is the sole active production pipeline. Runtime/source changes use the normal feature-PR/CI path and deploy only from exact current `main`. Documentation-only project-state reconciliation does not republish the application.
+## Development and publication
+
+Use Node 24 and the locked `pwa/package-lock.json`.
+
+`.github/workflows/fishing-production.yml` is the sole active production pipeline and automatically chooses Fast Content vs Full Application Release from the changed-file set. Documentation-only project-state changes do not publish the application.
