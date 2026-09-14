@@ -191,19 +191,22 @@ jobs:
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
+          name: github-pages-${{ github.run_attempt }}
           path: pwa/dist
       - name: Guard exact current main
         env:
           GH_TOKEN: ${{ github.token }}
         run: test "$(gh api repos/$GITHUB_REPOSITORY/git/ref/heads/main --jq .object.sha)" = "$GITHUB_SHA"
       - uses: actions/deploy-pages@v4
+        with:
+          artifact_name: github-pages-${{ github.run_attempt }}
       - name: Verify hosted bytes and release identity
         working-directory: pwa
         run: node tools/verify-hosted-fast.mjs --dist=dist --url=https://ginosega.github.io/fishing/ --source-revision="$GITHUB_SHA"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
-          name: actual-hosted-content-verification
+          name: actual-hosted-content-verification-${{ github.run_attempt }}
           path: pwa/hosted-evidence/
           retention-days: 30
 
@@ -239,18 +242,21 @@ jobs:
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
+          name: github-pages-${{ github.run_attempt }}
           path: pwa/dist
       - name: Guard exact current main
         env:
           GH_TOKEN: ${{ github.token }}
         run: test "$(gh api repos/$GITHUB_REPOSITORY/git/ref/heads/main --jq .object.sha)" = "$GITHUB_SHA"
       - uses: actions/deploy-pages@v4
+        with:
+          artifact_name: github-pages-${{ github.run_attempt }}
       - name: Verify actual hosted production bytes and browser behavior
         working-directory: pwa
         run: node tools/verify-hosted.mjs --production=true --dist=dist
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
-          name: actual-hosted-production-verification
+          name: actual-hosted-production-verification-${{ github.run_attempt }}
           path: pwa/hosted-evidence/
           retention-days: 90
