@@ -17,6 +17,8 @@ Changing library counts are source data, not durable test baselines. Current cou
 
 **FISH109** hardens release retries without changing the two-lane model: Pages and hosted-evidence artifacts are named per workflow run attempt, and the fast hosted verifier retries bounded transient propagation/network failures. A failed deployment job can therefore be rerun without colliding with an earlier `github-pages` artifact.
 
+**FISH110** updates the Fishing Companion **Copy Changes** handoff text to match FISH108. Source-aware Gear/KB packages now explicitly instruct the receiving chat to validate against current canonical content, preserve unrelated/newer source changes, use Fast Content Release when eligible, avoid Full Application Release/project-state churn unless actually required, and fall back to the repository's current appropriate release lane otherwise. The shared Gear/KB editor path uses one centralized prompt helper with regression coverage against the obsolete pre-FISH108 wording.
+
 For the exact currently deployed source/release when needed, use the latest successful `main` production workflow and deployed `release.json`; do not rely on an older release identity copied into narrative documentation.
 
 ## Current product behavior
@@ -51,9 +53,9 @@ Before repository work, also confirm current open-PR state. For an exact current
 
 When the user says **“It’s time to transfer to a new chat”** (or clearly says the current chat is too long and should be transferred), ask for confirmation that they want the full handoff. Once confirmed, reconcile the chat against current repository/production state, update authoritative records only where durable project state actually changed, perform a final cross-file consistency check, and leave a clean continuation point without repeated “Proceed” prompts. The final handoff response must include a clickable GitHub link to `Fishing_New_Chat_Bootstrap_Prompt.md`.
 
-Preserve unresolved fishing/equipment/content backlog and explicit purchase uncertainty. FISH071–076 and FISH078–109 are complete/implemented; Fishing Companion v3 (`FISH-TODO-077/P2`) remains deferred. FISH104 does not by itself close `FISH-TODO-005`, and FISH105 does not by itself close `FISH-TODO-014`.
+Preserve unresolved fishing/equipment/content backlog and explicit purchase uncertainty. FISH071–076 and FISH078–110 are complete/implemented; Fishing Companion v3 (`FISH-TODO-077/P2`) remains deferred. FISH104 does not by itself close `FISH-TODO-005`, and FISH105 does not by itself close `FISH-TODO-014`.
 
-The next unused **application/architecture** task ID is **FISH-TODO-110**. Routine Fast Content Releases do not consume that ID.
+The next unused **application/architecture** task ID is **FISH-TODO-111**. Routine Fast Content Releases do not consume that ID.
 
 Historical milestones and exact release evidence remain in Git history and `pwa/docs/`; use [`pwa/docs/README.md`](pwa/docs/README.md) when interpreting dated milestone-era “current” statements.
 
