@@ -1,1 +1,679 @@
-{"schemaVersion":2,"entities":[{"id":"location-lake-washington","type":"location","name":"Lake Washington","description":"Local bass and cutthroat water with distinct north-end and Kirkland patterns","content":"KB/Locations/content/lake-washington.md"},{"id":"location-lake-sammamish","type":"location","name":"Lake Sammamish","description":"Bass and trout water with distinct north-, south-, and east-shore patterns","content":"KB/Locations/content/lake-sammamish.md","picture":{"src":"KB/Locations/assets/Lake Sammamish.jpg","caption":"Lake Sammamish - July 2, 2026"}},{"id":"location-silver-lake-whatcom","type":"location","name":"Silver Lake","description":"Kayak and bank fishing for trout and bass at Silver Lake Park","content":"KB/Locations/content/silver-lake-whatcom.md","picture":{"src":"KB/Locations/assets/Silver Lake.jpg","caption":"Silver Lake - July 27, 2026"}},{"id":"location-cranberry-lake-deception-pass","type":"location","name":"Cranberry Lake, Deception Pass State Park","description":"Freshwater fishing at Deception Pass State Park","content":"KB/Locations/content/cranberry-lake-deception-pass.md","picture":{"src":"KB/Locations/assets/Cranberry Lake.jpg","caption":"Cranberry Lake - August 6, 2026"}},{"id":"location-mayfield-lake","type":"location","name":"Mayfield Lake","description":"Trout, kokanee, bass, and muskie fishing at Ike Kinswa State Park","content":"KB/Locations/content/mayfield-lake.md","picture":{"src":"KB/Locations/assets/Mayfield Lake.png","caption":"Mayfield Lake - August 19, 2026"}},{"id":"location-lake-chelan","type":"location","name":"Lake Chelan","description":"Deep clear lake for smallmouth and trout from shore, dock, or kayak","content":"KB/Locations/content/lake-chelan.md"},{"id":"location-lake-cle-elum","type":"location","name":"Lake Cle Elum","description":"Cold-water trout and salmonid destination","content":"KB/Locations/content/lake-cle-elum.md"},{"id":"location-lake-bosworth","type":"location","name":"Lake Bosworth","description":"Candidate bass location that still needs research.","content":"KB/Locations/content/lake-bosworth.md"},{"id":"technique-trout-fishing","type":"technique","name":"Trout Fishing Techniques","description":"Casting, bank-fishing, still-fishing, and kayak-trolling guidance","content":"KB/Techniques/content/trout-fishing.md","picture":{"src":"KB/Techniques/assets/Trout Fishing Techniques.png"}},{"id":"technique-fishing-line","type":"equipment","name":"Fishing Line","description":"Braid, fluorocarbon, mono, leader, knot, and spooling guidance.","content":"KB/Gear-Guides/content/fishing-line.md","picture":{"src":"Gear/Line/assets/technique-fishing-line.jpg","caption":"Fishing Line"}},{"id":"technique-rods-reels","type":"equipment","name":"Rods & Reels","description":"Spinning and baitcasting selection, setup, adjustment, and casting guidance.","content":"KB/Gear-Guides/content/rods-reels.md","picture":{"src":"KB/Gear-Guides/assets/technique-rods-reels.png","caption":"Baitcasting reel"}},{"id":"technique-wacky-worm","type":"equipment","name":"Wacky Worm","description":"A finesse stickbait presentation with both ends free to move.","content":"KB/Gear-Guides/content/wacky-worm.md","picture":{"src":"KB/Gear-Guides/assets/wacky-worm.png","caption":"Wacky worm rig"}},{"id":"technique-ned-rig","type":"equipment","name":"Ned Rig","description":"A finesse mushroom-jighead presentation with a short buoyant bottom bait.","content":"KB/Gear-Guides/content/ned-rig.md","picture":{"src":"KB/Gear-Guides/assets/ned-rig.png","caption":"Ned rig"}},{"id":"technique-drop-shot","type":"equipment","name":"Drop Shot","description":"A suspended finesse presentation with the hook above the weight.","content":"KB/Gear-Guides/content/drop-shot.md","picture":{"src":"KB/Gear-Guides/assets/drop-shot.png","caption":"Drop shot rig"}},{"id":"technique-jigs","type":"equipment","name":"Jig","description":"Casting, swim, football-head, and finesse jig guidance.","content":"KB/Gear-Guides/content/jigs.md","picture":{"src":"Gear/Lures/assets/strike-king-tour-grade-football-jig.jpg","caption":"Strike King Tour Grade Football Jig"}},{"id":"technique-spinnerbait","type":"equipment","name":"Spinnerbait","description":"A wire-frame moving bait for cover, flash, and vibration.","content":"KB/Gear-Guides/content/spinnerbait.md","picture":{"src":"Gear/Lures/assets/strike-king-red-eyed-special.png","caption":"Strike King Red Eyed Special"}},{"id":"technique-chatterbait-bladed-jig","type":"equipment","name":"Chatterbait","description":"Bladed-jig presentation for grass, stained water, cover, and reaction bites.","content":"KB/Gear-Guides/content/chatterbait-bladed-jig.md","picture":{"src":"Gear/Lures/assets/zman-original-chatterbait.webp","caption":"Z-Man Original ChatterBait"}},{"id":"technique-crankbait","type":"equipment","name":"Crankbait","description":"A hard-plug presentation built around depth, deflection, and retrieve changes.","content":"KB/Gear-Guides/content/crankbait.md","picture":{"src":"Gear/Lures/assets/strike-king-kvd-square-bill-1.webp","caption":"Strike King KVD Square Bill 1.0"}},{"id":"technique-jerkbait","type":"equipment","name":"Jerkbait","description":"A baitfish presentation using darting movement and pauses.","content":"KB/Gear-Guides/content/jerkbait.md","picture":{"src":"Gear/Lures/assets/berkley-stunna.webp","caption":"Berkley Stunna"}},{"id":"technique-swimbait-soft-jerk-shad","type":"equipment","name":"Swimbait","description":"Lifelike baitfish presentations, rigging, retrieves, and swimbait styles.","content":"KB/Gear-Guides/content/swimbait-soft-jerk-shad.md","picture":{"src":"Gear/Lures/assets/fin-sanity-bluegill.webp","caption":"Fin-Sanity Bluegill"}},{"id":"technique-buzzbait","type":"equipment","name":"Buzzbait","description":"Buzzbait tackle, rigging, retrieves, color, trailers, and bait examples.","content":"KB/Gear-Guides/content/buzzbait.md","picture":{"src":"KB/Gear-Guides/assets/technique-buzzbait.jpg","caption":"Booyah Buzz buzzbait"}},{"id":"technique-frogs","type":"equipment","name":"Frog","description":"Frog tackle, retrieves, hook-set timing, lure types, and common modifications.","content":"KB/Gear-Guides/content/frogs.md","picture":{"src":"Gear/Lures/assets/booyah-pad-crasher.jpg","caption":"Booyah Pad Crasher"}},{"id":"technique-popper","type":"equipment","name":"Popper","description":"Popper conditions, tackle, knot guidance, and pop-pause retrieves.","content":"KB/Gear-Guides/content/popper.md","picture":{"src":"KB/Gear-Guides/assets/Rebel Pop-R.png","caption":"Rebel Pop-R"}},{"id":"technique-walking-bait","type":"equipment","name":"Walking Bait","description":"Walk-the-dog tackle, line, cadence, color guidance, and bait examples.","content":"KB/Gear-Guides/content/walking-bait.md","picture":{"src":"KB/Gear-Guides/assets/technique-walking-bait.jpg","caption":"Walking Bait"}},{"id":"technique-whopper-plopper","type":"equipment","name":"Whopper Plopper","description":"Plopper tackle, retrieve styles, and lure-size guidance for surface fishing.","content":"KB/Gear-Guides/content/whopper-plopper.md","picture":{"src":"KB/Gear-Guides/assets/River2Sea Whopper Plopper 60.jpg","caption":"River2Sea Whopper Plopper 60"}},{"id":"species-largemouth-bass","type":"species","name":"Largemouth Bass","content":"KB/Species/content/largemouth-bass.md","picture":{"src":"KB/Species/assets/largemouth-bass.png","caption":"Largemouth bass"}},{"id":"species-perch","type":"species","name":"Yellow Perch","content":"KB/Species/content/perch.md","picture":{"src":"KB/Species/assets/Yellow Perch.png","caption":"Yellow Perch"}},{"id":"species-northern-pikeminnow","type":"species","name":"Northern Pikeminnow","content":"KB/Species/content/northern-pikeminnow.md","picture":{"src":"KB/Species/assets/northern-pikeminnow.png","caption":"Northern pikeminnow"}},{"id":"species-smallmouth-bass","type":"species","name":"Smallmouth Bass","content":"KB/Species/content/smallmouth-bass.md","picture":{"src":"KB/Species/assets/smallmouth-bass.png","caption":"Smallmouth bass"}},{"id":"species-rainbow-trout","type":"species","name":"Rainbow Trout","content":"KB/Species/content/rainbow-trout.md","picture":{"src":"KB/Species/assets/rainbow-trout.png","caption":"Rainbow trout"}},{"id":"species-coastal-cutthroat-trout","type":"species","name":"Coastal Cutthroat Trout","content":"KB/Species/content/coastal-cutthroat-trout.md","picture":{"src":"KB/Species/assets/coastal-cutthroat-trout.png","caption":"Coastal cutthroat trout"}},{"id":"species-kokanee","type":"species","name":"Kokanee","content":"KB/Species/content/kokanee.md","picture":{"src":"KB/Species/assets/Kokanee.png","caption":"Kokanee shown in non-spawning (silver) and spawning (red) phases"}},{"id":"bowline-knot","name":"Bowline Knot","type":"knot","content":"KB/Knots/content/Bowline Knot.md","picture":{"src":"KB/Knots/assets/bowline-knot/step-07.jpg","caption":"Bowline knot"},"pictureSequence":["KB/Knots/assets/bowline-knot/step-01.jpg","KB/Knots/assets/bowline-knot/step-02.jpg","KB/Knots/assets/bowline-knot/step-03.jpg","KB/Knots/assets/bowline-knot/step-04.jpg","KB/Knots/assets/bowline-knot/step-05.jpg","KB/Knots/assets/bowline-knot/step-06.jpg","KB/Knots/assets/bowline-knot/step-07.jpg"],"description":"Use for tying a rope to the bow of a boat"},{"id":"knot-palomar","type":"knot","name":"Palomar Knot","description":"Strong, simple knot for braid, fluoro, or mono","content":"KB/Knots/content/palomar.md","picture":{"src":"KB/Knots/assets/knot-palomar/step-13.png","caption":"Palomar knot"},"pictureSequence":["KB/Knots/assets/knot-palomar/step-01.png","KB/Knots/assets/knot-palomar/step-02.png","KB/Knots/assets/knot-palomar/step-03.png","KB/Knots/assets/knot-palomar/step-04.png","KB/Knots/assets/knot-palomar/step-05.png","KB/Knots/assets/knot-palomar/step-06.png","KB/Knots/assets/knot-palomar/step-07.png","KB/Knots/assets/knot-palomar/step-08.png","KB/Knots/assets/knot-palomar/step-09.png","KB/Knots/assets/knot-palomar/step-10.png","KB/Knots/assets/knot-palomar/step-11.png","KB/Knots/assets/knot-palomar/step-12.png","KB/Knots/assets/knot-palomar/step-13.png"]},{"id":"knot-fg","type":"knot","name":"FG Knot","description":"Preferred braid-to-fluoro leader knot","content":"KB/Knots/content/fg.md","picture":{"src":"KB/Knots/assets/knot-fg/step-29.jpg","caption":"FG knot"},"pictureSequence":["KB/Knots/assets/knot-fg/step-01.jpg","KB/Knots/assets/knot-fg/step-02.jpg","KB/Knots/assets/knot-fg/step-03.jpg","KB/Knots/assets/knot-fg/step-04.jpg","KB/Knots/assets/knot-fg/step-05.jpg","KB/Knots/assets/knot-fg/step-06.jpg","KB/Knots/assets/knot-fg/step-07.jpg","KB/Knots/assets/knot-fg/step-08.jpg","KB/Knots/assets/knot-fg/step-09.jpg","KB/Knots/assets/knot-fg/step-10.jpg","KB/Knots/assets/knot-fg/step-11.jpg","KB/Knots/assets/knot-fg/step-12.jpg","KB/Knots/assets/knot-fg/step-13.jpg","KB/Knots/assets/knot-fg/step-14.jpg","KB/Knots/assets/knot-fg/step-15.jpg","KB/Knots/assets/knot-fg/step-16.jpg","KB/Knots/assets/knot-fg/step-17.jpg","KB/Knots/assets/knot-fg/step-18.jpg","KB/Knots/assets/knot-fg/step-19.jpg","KB/Knots/assets/knot-fg/step-20.jpg","KB/Knots/assets/knot-fg/step-21.jpg","KB/Knots/assets/knot-fg/step-22.jpg","KB/Knots/assets/knot-fg/step-23.jpg","KB/Knots/assets/knot-fg/step-24.jpg","KB/Knots/assets/knot-fg/step-25.jpg","KB/Knots/assets/knot-fg/step-26.jpg","KB/Knots/assets/knot-fg/step-27.jpg","KB/Knots/assets/knot-fg/step-28.jpg","KB/Knots/assets/knot-fg/step-29.jpg"]},{"id":"knot-albright","type":"knot","name":"Albright Knot","description":"Easier on-the-water braid-to-fluoro alternative to the FG knot","content":"KB/Knots/content/albright.md","picture":{"src":"KB/Knots/assets/knot-albright/step-15.jpg","caption":"Albright knot"},"pictureSequence":["KB/Knots/assets/knot-albright/step-01.jpg","KB/Knots/assets/knot-albright/step-02.jpg","KB/Knots/assets/knot-albright/step-03.jpg","KB/Knots/assets/knot-albright/step-04.jpg","KB/Knots/assets/knot-albright/step-05.jpg","KB/Knots/assets/knot-albright/step-06.jpg","KB/Knots/assets/knot-albright/step-07.jpg","KB/Knots/assets/knot-albright/step-08.jpg","KB/Knots/assets/knot-albright/step-09.jpg","KB/Knots/assets/knot-albright/step-10.jpg","KB/Knots/assets/knot-albright/step-11.jpg","KB/Knots/assets/knot-albright/step-12.jpg","KB/Knots/assets/knot-albright/step-13.jpg","KB/Knots/assets/knot-albright/step-14.jpg","KB/Knots/assets/knot-albright/step-15.jpg"]},{"id":"knot-trilene","type":"knot","name":"Trilene Knot","description":"Good for tying fluorocarbon line to swivels and snaps","content":"KB/Knots/content/trilene.md","picture":{"src":"KB/Knots/assets/knot-trilene/step-15.png","caption":"Trilene knot"},"pictureSequence":["KB/Knots/assets/knot-trilene/step-01.png","KB/Knots/assets/knot-trilene/step-02.png","KB/Knots/assets/knot-trilene/step-03.png","KB/Knots/assets/knot-trilene/step-04.png","KB/Knots/assets/knot-trilene/step-05.png","KB/Knots/assets/knot-trilene/step-06.png","KB/Knots/assets/knot-trilene/step-07.png","KB/Knots/assets/knot-trilene/step-08.png","KB/Knots/assets/knot-trilene/step-09.png","KB/Knots/assets/knot-trilene/step-10.png","KB/Knots/assets/knot-trilene/step-11.png","KB/Knots/assets/knot-trilene/step-12.png","KB/Knots/assets/knot-trilene/step-13.png","KB/Knots/assets/knot-trilene/step-14.png","KB/Knots/assets/knot-trilene/step-15.png"]},{"id":"knot-improved-clinch","type":"knot","name":"Improved Clinch Knot","description":"\"Fisherman's knot;\" works well with mono and fluoro on small hooks","content":"KB/Knots/content/improved-clinch.md","picture":{"src":"KB/Knots/assets/knot-improved-clinch/step-11.png","caption":"Improved clinch knot"},"pictureSequence":["KB/Knots/assets/knot-improved-clinch/step-01.png","KB/Knots/assets/knot-improved-clinch/step-02.png","KB/Knots/assets/knot-improved-clinch/step-03.png","KB/Knots/assets/knot-improved-clinch/step-04.png","KB/Knots/assets/knot-improved-clinch/step-05.png","KB/Knots/assets/knot-improved-clinch/step-06.png","KB/Knots/assets/knot-improved-clinch/step-07.png","KB/Knots/assets/knot-improved-clinch/step-08.png","KB/Knots/assets/knot-improved-clinch/step-09.png","KB/Knots/assets/knot-improved-clinch/step-10.png","KB/Knots/assets/knot-improved-clinch/step-11.png"]},{"id":"knot-modified-uni","type":"knot","name":"Modified Uni Knot","description":"Very strong no-slip knot; good for braided line","content":"KB/Knots/content/modified-uni.md","picture":{"src":"KB/Knots/assets/knot-modified-uni/step-12.jpg","caption":"Modified uni knot"},"pictureSequence":["KB/Knots/assets/knot-modified-uni/step-01.jpg","KB/Knots/assets/knot-modified-uni/step-02.jpg","KB/Knots/assets/knot-modified-uni/step-03.jpg","KB/Knots/assets/knot-modified-uni/step-04.jpg","KB/Knots/assets/knot-modified-uni/step-05.jpg","KB/Knots/assets/knot-modified-uni/step-06.jpg","KB/Knots/assets/knot-modified-uni/step-07.jpg","KB/Knots/assets/knot-modified-uni/step-08.jpg","KB/Knots/assets/knot-modified-uni/step-09.jpg","KB/Knots/assets/knot-modified-uni/step-10.jpg","KB/Knots/assets/knot-modified-uni/step-11.jpg","KB/Knots/assets/knot-modified-uni/step-12.jpg"]},{"id":"knot-loop-non-slip-loop","type":"knot","name":"Non-Slip Loop Knot","description":"Good for crankbaits that do not have a split ring attached","content":"KB/Knots/content/loop-non-slip-loop.md","picture":{"src":"KB/Knots/assets/Non-Splip Loop Knot.png","caption":"Non-slip loop knot"}},{"id":"knot-arbor","type":"knot","name":"Arbor Knot","description":"Use for tying line to spool","content":"KB/Knots/content/arbor.md","picture":{"src":"KB/Knots/assets/knot-arbor/step-09.jpg","caption":"Arbor knot"},"pictureSequence":["KB/Knots/assets/knot-arbor/step-01.jpg","KB/Knots/assets/knot-arbor/step-02.jpg","KB/Knots/assets/knot-arbor/step-03.jpg","KB/Knots/assets/knot-arbor/step-04.jpg","KB/Knots/assets/knot-arbor/step-05.jpg","KB/Knots/assets/knot-arbor/step-06.jpg","KB/Knots/assets/knot-arbor/step-07.jpg","KB/Knots/assets/knot-arbor/step-08.jpg","KB/Knots/assets/knot-arbor/step-09.jpg"]},{"id":"technique-inline-spinner","type":"equipment","name":"Inline Spinner","description":"Casting and retrieve guidance for inline spinners in lakes, rivers, and creeks.","content":"KB/Gear-Guides/content/inline-spinner.md","picture":{"src":"KB/Gear-Guides/assets/inline-spinner-rig.png","caption":"Inline spinner rig"}},{"id":"technique-snaps-swivels","type":"equipment","name":"Snaps & Swivels","description":"When to use snaps, swivels, and snap swivels without hurting lure action.","content":"KB/Gear-Guides/content/snaps-swivels.md","picture":{"src":"KB/Gear-Guides/assets/snap-swivel.png","caption":"Snap swivel"}},{"id":"technique-flasher-rig","type":"equipment","name":"Flasher Rig","description":"Kayak-trolling rig with a dodger, leader, and trout or kokanee lure.","content":"KB/Gear-Guides/content/flasher-rig.md","picture":{"src":"KB/Gear-Guides/assets/flasher-rig.png","caption":"Flasher rig"}},{"id":"technique-inline-trolling-rig","type":"equipment","name":"Inline Trolling Rig","description":"Simple weighted trolling rig for trout and kokanee from a kayak.","content":"KB/Gear-Guides/content/inline-trolling-rig.md","picture":{"src":"KB/Gear-Guides/assets/inline-trolling-rig.png","caption":"Inline trolling rig"}},{"id":"technique-bobber-rig","type":"equipment","name":"Bobber Rig","description":"Float rig with split shot, swivel, leader, and bait for suspended trout.","content":"KB/Gear-Guides/content/bobber-rig.md","picture":{"src":"KB/Gear-Guides/assets/bobber-rig.png","caption":"Bobber rig"}},{"id":"technique-slip-sinker-rig","type":"equipment","name":"Slip Sinker Rig","description":"Bottom-fishing rig with an egg sinker, swivel, leader, and bait.","content":"KB/Gear-Guides/content/slip-sinker-rig.md","picture":{"src":"KB/Gear-Guides/assets/slip-sinker-rig.png","caption":"Slip sinker rig"}},{"id":"technique-spring-fishing","type":"technique","name":"Spring Bass Fishing","description":"Spring bass patterns by temperature, wind, clarity, depth, and presentation","content":"KB/Techniques/content/spring-fishing.md","picture":{"src":"KB/Techniques/assets/Spring Bass Fishing.png"}},{"id":"topwater-fishing","type":"technique","name":"Topwater Fishing","content":"KB/Techniques/content/Topwater Fishing.md","picture":{"src":"KB/Techniques/assets/Topwater Fishing.png"}},{"id":"bass-fishing-techniques","name":"Bass Fishing Techniques","type":"technique","content":"KB/Techniques/content/Bass Fishing Techniques.md","picture":{"src":"KB/Techniques/assets/Bass Fishing Techniques.png"}},{"id":"bass-behavior-and-habitat","name":"Bass Behavior and Habitat","type":"technique","content":"KB/Techniques/content/Bass Behavior and Habitat.md"},{"id":"fall-bass-fishing","name":"Fall Bass Fishing","type":"technique","description":"Bass behavior and recommended lures for September, October, and November","content":"KB/Techniques/content/Fall Bass Fishing.md","picture":{"src":"KB/Techniques/assets/Fall Bass Fishing.png"}},{"id":"line-tackle-knot-reference","name":"Line-Tackle-Knot Reference","type":"knot","description":"Recommended knots for line, lure, and tackle combinations","content":"KB/Knots/content/Line-Tackle-Knot Reference.md","picture":{"src":"KB/Knots/assets/Line-Tackle-Knot Reference.png"}}]}
+{
+  "schemaVersion": 2,
+  "entities": [
+    {
+      "id": "location-lake-washington",
+      "type": "location",
+      "name": "Lake Washington",
+      "description": "Local bass and cutthroat water with distinct north-end and Kirkland patterns",
+      "content": "KB/Locations/content/lake-washington.md"
+    },
+    {
+      "id": "location-lake-sammamish",
+      "type": "location",
+      "name": "Lake Sammamish",
+      "description": "Bass and trout water with distinct north-, south-, and east-shore patterns",
+      "content": "KB/Locations/content/lake-sammamish.md",
+      "picture": {
+        "src": "KB/Locations/assets/Lake Sammamish.jpg",
+        "caption": "Lake Sammamish - July 2, 2026"
+      }
+    },
+    {
+      "id": "location-silver-lake-whatcom",
+      "type": "location",
+      "name": "Silver Lake",
+      "description": "Kayak and bank fishing for trout and bass at Silver Lake Park",
+      "content": "KB/Locations/content/silver-lake-whatcom.md",
+      "picture": {
+        "src": "KB/Locations/assets/Silver Lake.jpg",
+        "caption": "Silver Lake - July 27, 2026"
+      }
+    },
+    {
+      "id": "location-cranberry-lake-deception-pass",
+      "type": "location",
+      "name": "Cranberry Lake, Deception Pass State Park",
+      "description": "Freshwater fishing at Deception Pass State Park",
+      "content": "KB/Locations/content/cranberry-lake-deception-pass.md",
+      "picture": {
+        "src": "KB/Locations/assets/Cranberry Lake.jpg",
+        "caption": "Cranberry Lake - August 6, 2026"
+      }
+    },
+    {
+      "id": "location-mayfield-lake",
+      "type": "location",
+      "name": "Mayfield Lake",
+      "description": "Trout, kokanee, bass, and muskie fishing at Ike Kinswa State Park",
+      "content": "KB/Locations/content/mayfield-lake.md",
+      "picture": {
+        "src": "KB/Locations/assets/Mayfield Lake.png",
+        "caption": "Mayfield Lake - August 19, 2026"
+      }
+    },
+    {
+      "id": "location-lake-chelan",
+      "type": "location",
+      "name": "Lake Chelan",
+      "description": "Deep clear lake for smallmouth and trout from shore, dock, or kayak",
+      "content": "KB/Locations/content/lake-chelan.md"
+    },
+    {
+      "id": "location-lake-cle-elum",
+      "type": "location",
+      "name": "Lake Cle Elum",
+      "description": "Cold-water trout and salmonid destination",
+      "content": "KB/Locations/content/lake-cle-elum.md"
+    },
+    {
+      "id": "location-lake-bosworth",
+      "type": "location",
+      "name": "Lake Bosworth",
+      "description": "Candidate bass location that still needs research.",
+      "content": "KB/Locations/content/lake-bosworth.md"
+    },
+    {
+      "id": "technique-trout-fishing",
+      "type": "technique",
+      "name": "Trout Fishing Techniques",
+      "description": "Casting, bank-fishing, still-fishing, and kayak-trolling guidance",
+      "content": "KB/Techniques/content/trout-fishing.md",
+      "picture": {
+        "src": "KB/Techniques/assets/Trout Fishing Techniques.png"
+      }
+    },
+    {
+      "id": "technique-fishing-line",
+      "type": "equipment",
+      "name": "Fishing Line",
+      "description": "Braid, fluorocarbon, mono, leader, knot, and spooling guidance.",
+      "content": "KB/Gear-Guides/content/fishing-line.md",
+      "picture": {
+        "src": "Gear/Line/assets/technique-fishing-line.jpg",
+        "caption": "Fishing Line"
+      }
+    },
+    {
+      "id": "technique-rods-reels",
+      "type": "equipment",
+      "name": "Rods & Reels",
+      "description": "Spinning and baitcasting selection, setup, adjustment, and casting guidance.",
+      "content": "KB/Gear-Guides/content/rods-reels.md",
+      "picture": {
+        "src": "KB/Gear-Guides/assets/technique-rods-reels.png",
+        "caption": "Baitcasting reel"
+      }
+    },
+    {
+      "id": "technique-wacky-worm",
+      "type": "equipment",
+      "name": "Wacky Worm",
+      "description": "A finesse stickbait presentation with both ends free to move.",
+      "content": "KB/Gear-Guides/content/wacky-worm.md",
+      "picture": {
+        "src": "KB/Gear-Guides/assets/wacky-worm.png",
+        "caption": "Wacky worm rig"
+      }
+    },
+    {
+      "id": "technique-ned-rig",
+      "type": "equipment",
+      "name": "Ned Rig",
+      "description": "A finesse mushroom-jighead presentation with a short buoyant bottom bait.",
+      "content": "KB/Gear-Guides/content/ned-rig.md",
+      "picture": {
+        "src": "KB/Gear-Guides/assets/ned-rig.png",
+        "caption": "Ned rig"
+      }
+    },
+    {
+      "id": "technique-drop-shot",
+      "type": "equipment",
+      "name": "Drop Shot",
+      "description": "A suspended finesse presentation with the hook above the weight.",
+      "content": "KB/Gear-Guides/content/drop-shot.md",
+      "picture": {
+        "src": "KB/Gear-Guides/assets/drop-shot.png",
+        "caption": "Drop shot rig"
+      }
+    },
+    {
+      "id": "technique-jigs",
+      "type": "equipment",
+      "name": "Jig",
+      "description": "Casting, swim, football-head, and finesse jig guidance.",
+      "content": "KB/Gear-Guides/content/jigs.md",
+      "picture": {
+        "src": "Gear/Lures/assets/strike-king-tour-grade-football-jig.jpg",
+        "caption": "Strike King Tour Grade Football Jig"
+      }
+    },
+    {
+      "id": "technique-spinnerbait",
+      "type": "equipment",
+      "name": "Spinnerbait",
+      "description": "A wire-frame moving bait for cover, flash, and vibration.",
+      "content": "KB/Gear-Guides/content/spinnerbait.md",
+      "picture": {
+        "src": "Gear/Lures/assets/strike-king-red-eyed-special.png",
+        "caption": "Strike King Red Eyed Special"
+      }
+    },
+    {
+      "id": "technique-chatterbait-bladed-jig",
+      "type": "equipment",
+      "name": "Chatterbait",
+      "description": "Bladed-jig presentation for grass, stained water, cover, and reaction bites.",
+      "content": "KB/Gear-Guides/content/chatterbait-bladed-jig.md",
+      "picture": {
+        "src": "Gear/Lures/assets/zman-original-chatterbait.webp",
+        "caption": "Z-Man Original ChatterBait"
+      }
+    },
+    {
+      "id": "technique-crankbait",
+      "type": "equipment",
+      "name": "Crankbait",
+      "description": "A hard-plug presentation built around depth, deflection, and retrieve changes.",
+      "content": "KB/Gear-Guides/content/crankbait.md",
+      "picture": {
+        "src": "Gear/Lures/assets/strike-king-kvd-square-bill-1.webp",
+        "caption": "Strike King KVD Square Bill 1.0"
+      }
+    },
+    {
+      "id": "technique-jerkbait",
+      "type": "equipment",
+      "name": "Jerkbait",
+      "description": "A baitfish presentation using darting movement and pauses.",
+      "content": "KB/Gear-Guides/content/jerkbait.md",
+      "picture": {
+        "src": "Gear/Lures/assets/berkley-stunna.webp",
+        "caption": "Berkley Stunna"
+      }
+    },
+    {
+      "id": "technique-swimbait-soft-jerk-shad",
+      "type": "equipment",
+      "name": "Swimbait",
+      "description": "Lifelike baitfish presentations, rigging, retrieves, and swimbait styles.",
+      "content": "KB/Gear-Guides/content/swimbait-soft-jerk-shad.md",
+      "picture": {
+        "src": "Gear/Lures/assets/fin-sanity-bluegill.webp",
+        "caption": "Fin-Sanity Bluegill"
+      }
+    },
+    {
+      "id": "technique-buzzbait",
+      "type": "equipment",
+      "name": "Buzzbait",
+      "description": "Buzzbait tackle, rigging, retrieves, color, trailers, and bait examples.",
+      "content": "KB/Gear-Guides/content/buzzbait.md",
+      "picture": {
+        "src": "KB/Gear-Guides/assets/technique-buzzbait.jpg",
+        "caption": "Booyah Buzz buzzbait"
+      }
+    },
+    {
+      "id": "technique-frogs",
+      "type": "equipment",
+      "name": "Frog",
+      "description": "Frog tackle, retrieves, hook-set timing, lure types, and common modifications.",
+      "content": "KB/Gear-Guides/content/frogs.md",
+      "picture": {
+        "src": "Gear/Lures/assets/booyah-pad-crasher.jpg",
+        "caption": "Booyah Pad Crasher"
+      }
+    },
+    {
+      "id": "technique-popper",
+      "type": "equipment",
+      "name": "Popper",
+      "description": "Popper conditions, tackle, knot guidance, and pop-pause retrieves.",
+      "content": "KB/Gear-Guides/content/popper.md",
+      "picture": {
+        "src": "KB/Gear-Guides/assets/Rebel Pop-R.png",
+        "caption": "Rebel Pop-R"
+      }
+    },
+    {
+      "id": "technique-walking-bait",
+      "type": "equipment",
+      "name": "Walking Bait",
+      "description": "Walk-the-dog tackle, line, cadence, color guidance, and bait examples.",
+      "content": "KB/Gear-Guides/content/walking-bait.md",
+      "picture": {
+        "src": "KB/Gear-Guides/assets/technique-walking-bait.jpg",
+        "caption": "Walking Bait"
+      }
+    },
+    {
+      "id": "technique-whopper-plopper",
+      "type": "equipment",
+      "name": "Whopper Plopper",
+      "description": "Plopper tackle, retrieve styles, and lure-size guidance for surface fishing.",
+      "content": "KB/Gear-Guides/content/whopper-plopper.md",
+      "picture": {
+        "src": "KB/Gear-Guides/assets/River2Sea Whopper Plopper 60.jpg",
+        "caption": "River2Sea Whopper Plopper 60"
+      }
+    },
+    {
+      "id": "species-largemouth-bass",
+      "type": "species",
+      "name": "Largemouth Bass",
+      "content": "KB/Species/content/largemouth-bass.md",
+      "picture": {
+        "src": "KB/Species/assets/largemouth-bass.png",
+        "caption": "Largemouth bass"
+      }
+    },
+    {
+      "id": "species-perch",
+      "type": "species",
+      "name": "Yellow Perch",
+      "content": "KB/Species/content/perch.md",
+      "picture": {
+        "src": "KB/Species/assets/Yellow Perch.png",
+        "caption": "Yellow Perch"
+      }
+    },
+    {
+      "id": "species-northern-pikeminnow",
+      "type": "species",
+      "name": "Northern Pikeminnow",
+      "content": "KB/Species/content/northern-pikeminnow.md",
+      "picture": {
+        "src": "KB/Species/assets/northern-pikeminnow.png",
+        "caption": "Northern pikeminnow"
+      }
+    },
+    {
+      "id": "species-smallmouth-bass",
+      "type": "species",
+      "name": "Smallmouth Bass",
+      "content": "KB/Species/content/smallmouth-bass.md",
+      "picture": {
+        "src": "KB/Species/assets/smallmouth-bass.png",
+        "caption": "Smallmouth bass"
+      }
+    },
+    {
+      "id": "species-rainbow-trout",
+      "type": "species",
+      "name": "Rainbow Trout",
+      "content": "KB/Species/content/rainbow-trout.md",
+      "picture": {
+        "src": "KB/Species/assets/rainbow-trout.png",
+        "caption": "Rainbow trout"
+      }
+    },
+    {
+      "id": "species-coastal-cutthroat-trout",
+      "type": "species",
+      "name": "Coastal Cutthroat Trout",
+      "content": "KB/Species/content/coastal-cutthroat-trout.md",
+      "picture": {
+        "src": "KB/Species/assets/coastal-cutthroat-trout.png",
+        "caption": "Coastal cutthroat trout"
+      }
+    },
+    {
+      "id": "species-kokanee",
+      "type": "species",
+      "name": "Kokanee",
+      "content": "KB/Species/content/kokanee.md",
+      "picture": {
+        "src": "KB/Species/assets/Kokanee.png",
+        "caption": "Kokanee shown in non-spawning (silver) and spawning (red) phases"
+      }
+    },
+    {
+      "id": "bowline-knot",
+      "name": "Bowline Knot",
+      "type": "knot",
+      "content": "KB/Knots/content/Bowline Knot.md",
+      "picture": {
+        "src": "KB/Knots/assets/bowline-knot/step-07.jpg",
+        "caption": "Bowline knot"
+      },
+      "pictureSequence": [
+        "KB/Knots/assets/bowline-knot/step-01.jpg",
+        "KB/Knots/assets/bowline-knot/step-02.jpg",
+        "KB/Knots/assets/bowline-knot/step-03.jpg",
+        "KB/Knots/assets/bowline-knot/step-04.jpg",
+        "KB/Knots/assets/bowline-knot/step-05.jpg",
+        "KB/Knots/assets/bowline-knot/step-06.jpg",
+        "KB/Knots/assets/bowline-knot/step-07.jpg"
+      ],
+      "description": "Use for tying a rope to the bow of a boat"
+    },
+    {
+      "id": "knot-palomar",
+      "type": "knot",
+      "name": "Palomar Knot",
+      "description": "Strong, simple knot for braid, fluoro, or mono",
+      "content": "KB/Knots/content/palomar.md",
+      "picture": {
+        "src": "KB/Knots/assets/knot-palomar/step-13.png",
+        "caption": "Palomar knot"
+      },
+      "pictureSequence": [
+        "KB/Knots/assets/knot-palomar/step-01.png",
+        "KB/Knots/assets/knot-palomar/step-02.png",
+        "KB/Knots/assets/knot-palomar/step-03.png",
+        "KB/Knots/assets/knot-palomar/step-04.png",
+        "KB/Knots/assets/knot-palomar/step-05.png",
+        "KB/Knots/assets/knot-palomar/step-06.png",
+        "KB/Knots/assets/knot-palomar/step-07.png",
+        "KB/Knots/assets/knot-palomar/step-08.png",
+        "KB/Knots/assets/knot-palomar/step-09.png",
+        "KB/Knots/assets/knot-palomar/step-10.png",
+        "KB/Knots/assets/knot-palomar/step-11.png",
+        "KB/Knots/assets/knot-palomar/step-12.png",
+        "KB/Knots/assets/knot-palomar/step-13.png"
+      ]
+    },
+    {
+      "id": "knot-fg",
+      "type": "knot",
+      "name": "FG Knot",
+      "description": "Preferred braid-to-fluoro leader knot",
+      "content": "KB/Knots/content/fg.md",
+      "picture": {
+        "src": "KB/Knots/assets/knot-fg/step-29.jpg",
+        "caption": "FG knot"
+      },
+      "pictureSequence": [
+        "KB/Knots/assets/knot-fg/step-01.jpg",
+        "KB/Knots/assets/knot-fg/step-02.jpg",
+        "KB/Knots/assets/knot-fg/step-03.jpg",
+        "KB/Knots/assets/knot-fg/step-04.jpg",
+        "KB/Knots/assets/knot-fg/step-05.jpg",
+        "KB/Knots/assets/knot-fg/step-06.jpg",
+        "KB/Knots/assets/knot-fg/step-07.jpg",
+        "KB/Knots/assets/knot-fg/step-08.jpg",
+        "KB/Knots/assets/knot-fg/step-09.jpg",
+        "KB/Knots/assets/knot-fg/step-10.jpg",
+        "KB/Knots/assets/knot-fg/step-11.jpg",
+        "KB/Knots/assets/knot-fg/step-12.jpg",
+        "KB/Knots/assets/knot-fg/step-13.jpg",
+        "KB/Knots/assets/knot-fg/step-14.jpg",
+        "KB/Knots/assets/knot-fg/step-15.jpg",
+        "KB/Knots/assets/knot-fg/step-16.jpg",
+        "KB/Knots/assets/knot-fg/step-17.jpg",
+        "KB/Knots/assets/knot-fg/step-18.jpg",
+        "KB/Knots/assets/knot-fg/step-19.jpg",
+        "KB/Knots/assets/knot-fg/step-20.jpg",
+        "KB/Knots/assets/knot-fg/step-21.jpg",
+        "KB/Knots/assets/knot-fg/step-22.jpg",
+        "KB/Knots/assets/knot-fg/step-23.jpg",
+        "KB/Knots/assets/knot-fg/step-24.jpg",
+        "KB/Knots/assets/knot-fg/step-25.jpg",
+        "KB/Knots/assets/knot-fg/step-26.jpg",
+        "KB/Knots/assets/knot-fg/step-27.jpg",
+        "KB/Knots/assets/knot-fg/step-28.jpg",
+        "KB/Knots/assets/knot-fg/step-29.jpg"
+      ]
+    },
+    {
+      "id": "knot-albright",
+      "type": "knot",
+      "name": "Albright Knot",
+      "description": "Easier on-the-water braid-to-fluoro alternative to the FG knot",
+      "content": "KB/Knots/content/albright.md",
+      "picture": {
+        "src": "KB/Knots/assets/knot-albright/step-15.jpg",
+        "caption": "Albright knot"
+      },
+      "pictureSequence": [
+        "KB/Knots/assets/knot-albright/step-01.jpg",
+        "KB/Knots/assets/knot-albright/step-02.jpg",
+        "KB/Knots/assets/knot-albright/step-03.jpg",
+        "KB/Knots/assets/knot-albright/step-04.jpg",
+        "KB/Knots/assets/knot-albright/step-05.jpg",
+        "KB/Knots/assets/knot-albright/step-06.jpg",
+        "KB/Knots/assets/knot-albright/step-07.jpg",
+        "KB/Knots/assets/knot-albright/step-08.jpg",
+        "KB/Knots/assets/knot-albright/step-09.jpg",
+        "KB/Knots/assets/knot-albright/step-10.jpg",
+        "KB/Knots/assets/knot-albright/step-11.jpg",
+        "KB/Knots/assets/knot-albright/step-12.jpg",
+        "KB/Knots/assets/knot-albright/step-13.jpg",
+        "KB/Knots/assets/knot-albright/step-14.jpg",
+        "KB/Knots/assets/knot-albright/step-15.jpg"
+      ]
+    },
+    {
+      "id": "knot-trilene",
+      "type": "knot",
+      "name": "Trilene Knot",
+      "description": "Good for tying fluorocarbon line to swivels and snaps",
+      "content": "KB/Knots/content/trilene.md",
+      "picture": {
+        "src": "KB/Knots/assets/knot-trilene/step-15.png",
+        "caption": "Trilene knot"
+      },
+      "pictureSequence": [
+        "KB/Knots/assets/knot-trilene/step-01.png",
+        "KB/Knots/assets/knot-trilene/step-02.png",
+        "KB/Knots/assets/knot-trilene/step-03.png",
+        "KB/Knots/assets/knot-trilene/step-04.png",
+        "KB/Knots/assets/knot-trilene/step-05.png",
+        "KB/Knots/assets/knot-trilene/step-06.png",
+        "KB/Knots/assets/knot-trilene/step-07.png",
+        "KB/Knots/assets/knot-trilene/step-08.png",
+        "KB/Knots/assets/knot-trilene/step-09.png",
+        "KB/Knots/assets/knot-trilene/step-10.png",
+        "KB/Knots/assets/knot-trilene/step-11.png",
+        "KB/Knots/assets/knot-trilene/step-12.png",
+        "KB/Knots/assets/knot-trilene/step-13.png",
+        "KB/Knots/assets/knot-trilene/step-14.png",
+        "KB/Knots/assets/knot-trilene/step-15.png"
+      ]
+    },
+    {
+      "id": "knot-improved-clinch",
+      "type": "knot",
+      "name": "Improved Clinch Knot",
+      "description": "\"Fisherman's knot;\" works well with mono and fluoro on small hooks",
+      "content": "KB/Knots/content/improved-clinch.md",
+      "picture": {
+        "src": "KB/Knots/assets/knot-improved-clinch/step-11.png",
+        "caption": "Improved clinch knot"
+      },
+      "pictureSequence": [
+        "KB/Knots/assets/knot-improved-clinch/step-01.png",
+        "KB/Knots/assets/knot-improved-clinch/step-02.png",
+        "KB/Knots/assets/knot-improved-clinch/step-03.png",
+        "KB/Knots/assets/knot-improved-clinch/step-04.png",
+        "KB/Knots/assets/knot-improved-clinch/step-05.png",
+        "KB/Knots/assets/knot-improved-clinch/step-06.png",
+        "KB/Knots/assets/knot-improved-clinch/step-07.png",
+        "KB/Knots/assets/knot-improved-clinch/step-08.png",
+        "KB/Knots/assets/knot-improved-clinch/step-09.png",
+        "KB/Knots/assets/knot-improved-clinch/step-10.png",
+        "KB/Knots/assets/knot-improved-clinch/step-11.png"
+      ]
+    },
+    {
+      "id": "knot-modified-uni",
+      "type": "knot",
+      "name": "Modified Uni Knot",
+      "description": "Very strong no-slip knot; good for braided line",
+      "content": "KB/Knots/content/modified-uni.md",
+      "picture": {
+        "src": "KB/Knots/assets/knot-modified-uni/step-12.jpg",
+        "caption": "Modified uni knot"
+      },
+      "pictureSequence": [
+        "KB/Knots/assets/knot-modified-uni/step-01.jpg",
+        "KB/Knots/assets/knot-modified-uni/step-02.jpg",
+        "KB/Knots/assets/knot-modified-uni/step-03.jpg",
+        "KB/Knots/assets/knot-modified-uni/step-04.jpg",
+        "KB/Knots/assets/knot-modified-uni/step-05.jpg",
+        "KB/Knots/assets/knot-modified-uni/step-06.jpg",
+        "KB/Knots/assets/knot-modified-uni/step-07.jpg",
+        "KB/Knots/assets/knot-modified-uni/step-08.jpg",
+        "KB/Knots/assets/knot-modified-uni/step-09.jpg",
+        "KB/Knots/assets/knot-modified-uni/step-10.jpg",
+        "KB/Knots/assets/knot-modified-uni/step-11.jpg",
+        "KB/Knots/assets/knot-modified-uni/step-12.jpg"
+      ]
+    },
+    {
+      "id": "knot-loop-non-slip-loop",
+      "type": "knot",
+      "name": "Non-Slip Loop Knot",
+      "description": "Good for crankbaits that do not have a split ring attached",
+      "content": "KB/Knots/content/loop-non-slip-loop.md",
+      "picture": {
+        "src": "KB/Knots/assets/Non-Splip Loop Knot.png",
+        "caption": "Non-slip loop knot"
+      }
+    },
+    {
+      "id": "knot-arbor",
+      "type": "knot",
+      "name": "Arbor Knot",
+      "description": "Use for tying line to spool",
+      "content": "KB/Knots/content/arbor.md",
+      "picture": {
+        "src": "KB/Knots/assets/knot-arbor/step-09.jpg",
+        "caption": "Arbor knot"
+      },
+      "pictureSequence": [
+        "KB/Knots/assets/knot-arbor/step-01.jpg",
+        "KB/Knots/assets/knot-arbor/step-02.jpg",
+        "KB/Knots/assets/knot-arbor/step-03.jpg",
+        "KB/Knots/assets/knot-arbor/step-04.jpg",
+        "KB/Knots/assets/knot-arbor/step-05.jpg",
+        "KB/Knots/assets/knot-arbor/step-06.jpg",
+        "KB/Knots/assets/knot-arbor/step-07.jpg",
+        "KB/Knots/assets/knot-arbor/step-08.jpg",
+        "KB/Knots/assets/knot-arbor/step-09.jpg"
+      ]
+    },
+    {
+      "id": "technique-inline-spinner",
+      "type": "equipment",
+      "name": "Inline Spinner",
+      "description": "Casting and retrieve guidance for inline spinners in lakes, rivers, and creeks.",
+      "content": "KB/Gear-Guides/content/inline-spinner.md",
+      "picture": {
+        "src": "KB/Gear-Guides/assets/inline-spinner-rig.png",
+        "caption": "Inline spinner rig"
+      }
+    },
+    {
+      "id": "technique-snaps-swivels",
+      "type": "equipment",
+      "name": "Snaps & Swivels",
+      "description": "When to use snaps, swivels, and snap swivels without hurting lure action.",
+      "content": "KB/Gear-Guides/content/snaps-swivels.md",
+      "picture": {
+        "src": "KB/Gear-Guides/assets/snap-swivel.png",
+        "caption": "Snap swivel"
+      }
+    },
+    {
+      "id": "technique-flasher-rig",
+      "type": "equipment",
+      "name": "Flasher Rig",
+      "description": "Kayak-trolling rig with a dodger, leader, and trout or kokanee lure.",
+      "content": "KB/Gear-Guides/content/flasher-rig.md",
+      "picture": {
+        "src": "KB/Gear-Guides/assets/flasher-rig.png",
+        "caption": "Flasher rig"
+      }
+    },
+    {
+      "id": "technique-inline-trolling-rig",
+      "type": "equipment",
+      "name": "Inline Trolling Rig",
+      "description": "Simple weighted trolling rig for trout and kokanee from a kayak.",
+      "content": "KB/Gear-Guides/content/inline-trolling-rig.md",
+      "picture": {
+        "src": "KB/Gear-Guides/assets/inline-trolling-rig.png",
+        "caption": "Inline trolling rig"
+      }
+    },
+    {
+      "id": "technique-bobber-rig",
+      "type": "equipment",
+      "name": "Bobber Rig",
+      "description": "Float rig with split shot, swivel, leader, and bait for suspended trout.",
+      "content": "KB/Gear-Guides/content/bobber-rig.md",
+      "picture": {
+        "src": "KB/Gear-Guides/assets/bobber-rig.png",
+        "caption": "Bobber rig"
+      }
+    },
+    {
+      "id": "technique-slip-sinker-rig",
+      "type": "equipment",
+      "name": "Slip Sinker Rig",
+      "description": "Bottom-fishing rig with an egg sinker, swivel, leader, and bait.",
+      "content": "KB/Gear-Guides/content/slip-sinker-rig.md",
+      "picture": {
+        "src": "KB/Gear-Guides/assets/slip-sinker-rig.png",
+        "caption": "Slip sinker rig"
+      }
+    },
+    {
+      "id": "technique-spring-fishing",
+      "type": "technique",
+      "name": "Spring Bass Fishing",
+      "description": "Spring bass patterns by temperature, wind, clarity, depth, and presentation",
+      "content": "KB/Techniques/content/spring-fishing.md",
+      "picture": {
+        "src": "KB/Techniques/assets/Spring Bass Fishing.png"
+      }
+    },
+    {
+      "id": "topwater-fishing",
+      "type": "technique",
+      "name": "Topwater Fishing",
+      "content": "KB/Techniques/content/Topwater Fishing.md",
+      "picture": {
+        "src": "KB/Techniques/assets/Topwater Fishing.png"
+      }
+    },
+    {
+      "id": "bass-fishing-techniques",
+      "name": "Bass Fishing Techniques",
+      "type": "technique",
+      "content": "KB/Techniques/content/Bass Fishing Techniques.md",
+      "picture": {
+        "src": "KB/Techniques/assets/Bass Fishing Techniques.png"
+      }
+    },
+    {
+      "id": "bass-behavior-and-habitat",
+      "name": "Bass Behavior and Habitat",
+      "type": "technique",
+      "content": "KB/Techniques/content/Bass Behavior and Habitat.md"
+    },
+    {
+      "id": "fall-bass-fishing",
+      "name": "Fall Bass Fishing",
+      "type": "technique",
+      "description": "Bass behavior and recommended lures for September, October, and November",
+      "content": "KB/Techniques/content/Fall Bass Fishing.md",
+      "picture": {
+        "src": "KB/Techniques/assets/Fall Bass Fishing.png"
+      }
+    },
+    {
+      "id": "line-tackle-knot-reference",
+      "name": "Line-Tackle-Knot Reference",
+      "type": "knot",
+      "description": "Recommended knots for line, lure, and tackle combinations",
+      "content": "KB/Knots/content/Line-Tackle-Knot Reference.md",
+      "picture": {
+        "src": "KB/Knots/assets/Line-Tackle-Knot Reference.png"
+      }
+    }
+  ]
+}
