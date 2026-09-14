@@ -9,41 +9,18 @@
       "manufacturer": "Daiwa",
       "model": "Tatula XT",
       "specifications": [
-        {
-          "label": "Length",
-          "value": "7'"
-        },
-        {
-          "label": "Power",
-          "value": "Medium"
-        },
-        {
-          "label": "Action",
-          "value": "Fast"
-        },
-        {
-          "label": "Pieces",
-          "value": "2"
-        },
-        {
-          "label": "Part",
-          "value": "TATULAXT702MFS"
-        }
+        { "label": "Length", "value": "7'" },
+        { "label": "Power", "value": "Medium" },
+        { "label": "Action", "value": "Fast" },
+        { "label": "Pieces", "value": "2" },
+        { "label": "Part", "value": "TATULAXT702MFS" }
       ],
       "links": [
-        {
-          "label": "Daiwa",
-          "url": "https://daiwa.us/collections/freshwater-rods/products/tatula-xt"
-        },
-        {
-          "label": "Tackle Warehouse",
-          "url": "https://www.tacklewarehouse.com/Daiwa_Tatula_XT_Spinning_Rods_2-Piece/descpage-NTXT2S.html"
-        }
+        { "label": "Daiwa", "url": "https://daiwa.us/collections/freshwater-rods/products/tatula-xt" },
+        { "label": "Tackle Warehouse", "url": "https://www.tacklewarehouse.com/Daiwa_Tatula_XT_Spinning_Rods_2-Piece/descpage-NTXT2S.html" }
       ],
       "notes": "Gear/Rods-Reels/content/Daiwa Tatula XT.md",
-      "picture": {
-        "src": "Gear/Rods-Reels/assets/daiwa-tatula-xt.webp"
-      }
+      "picture": { "src": "Gear/Rods-Reels/assets/daiwa-tatula-xt.webp" }
     },
     {
       "id": "daiwa-exceler-lt-reel",
@@ -53,29 +30,15 @@
       "manufacturer": "Daiwa",
       "model": "Exceler LT",
       "specifications": [
-        {
-          "label": "Gear ratio",
-          "value": "6.2:1"
-        },
-        {
-          "label": "Part",
-          "value": "EXELT2500D-XH"
-        }
+        { "label": "Gear ratio", "value": "6.2:1" },
+        { "label": "Part", "value": "EXELT2500D-XH" }
       ],
       "links": [
-        {
-          "label": "Daiwa",
-          "url": "https://daiwa.us/collections/spin-reels/products/23-exceler-lt"
-        },
-        {
-          "label": "Maintenance video",
-          "url": "https://youtu.be/vkCUgxwUtqU?si=cZehY_eKmqr9HXdn"
-        }
+        { "label": "Daiwa", "url": "https://daiwa.us/collections/spin-reels/products/23-exceler-lt" },
+        { "label": "Maintenance video", "url": "https://youtu.be/vkCUgxwUtqU?si=cZehY_eKmqr9HXdn" }
       ],
       "notes": "Gear/Rods-Reels/content/Daiwa Exceler LT.md",
-      "picture": {
-        "src": "Gear/Rods-Reels/assets/daiwa-exceler-lt.webp"
-      }
+      "picture": { "src": "Gear/Rods-Reels/assets/daiwa-exceler-lt.webp" }
     },
     {
       "id": "shimano-zodias-rod",
@@ -85,33 +48,16 @@
       "manufacturer": "Shimano",
       "model": "Zodias ZDC72MHB",
       "specifications": [
-        {
-          "label": "Length",
-          "value": "7'2\""
-        },
-        {
-          "label": "Power",
-          "value": "Medium-heavy"
-        },
-        {
-          "label": "Action",
-          "value": "Fast"
-        }
+        { "label": "Length", "value": "7'2\"" },
+        { "label": "Power", "value": "Medium-heavy" },
+        { "label": "Action", "value": "Fast" }
       ],
       "links": [
-        {
-          "label": "Shimano",
-          "url": "https://fish.shimano.com/en-US/product/rods/bass/a075f000049ncdzqau_c.html"
-        },
-        {
-          "label": "Amazon",
-          "url": "https://a.co/d/07UzjAvv"
-        }
+        { "label": "Shimano", "url": "https://fish.shimano.com/en-US/product/rods/bass/a075f000049ncdzqau_c.html" },
+        { "label": "Amazon", "url": "https://a.co/d/07UzjAvv" }
       ],
       "notes": "Gear/Rods-Reels/content/Shimano Zodias.md",
-      "picture": {
-        "src": "Gear/Rods-Reels/assets/shimano-zodias.jpg"
-      }
+      "picture": { "src": "Gear/Rods-Reels/assets/shimano-zodias.jpg" }
     },
     {
       "id": "shimano-slx-dc-xt-71hg-reel",
@@ -120,26 +66,13 @@
       "name": "Shimano 22 SLX DC XT 71HG",
       "manufacturer": "Shimano",
       "model": "22 SLX DC XT 71HG",
-      "specifications": [
-        {
-          "label": "Gear ratio",
-          "value": "7.4:1"
-        }
-      ],
+      "specifications": [ { "label": "Gear ratio", "value": "7.4:1" } ],
       "links": [
-        {
-          "label": "Shimano",
-          "url": "https://fish.shimano.com/ja-JP/product/reel/baitlurecasting/a075f00003ihbqcqay.html"
-        },
-        {
-          "label": "JDM Tackle Heaven",
-          "url": "https://jdmtackleheaven.com/products/shimano-22-slx-dc-xt-71hg-left?_pos=1&_psq=22+SLX+DC+XT&_ss=e&_v=1.0"
-        }
+        { "label": "Shimano", "url": "https://fish.shimano.com/ja-JP/product/reel/baitlurecasting/a075f00003ihbqcqay.html" },
+        { "label": "JDM Tackle Heaven", "url": "https://jdmtackleheaven.com/products/shimano-22-slx-dc-xt-71hg-left?_pos=1&_psq=22+SLX+DC+XT&_ss=e&_v=1.0" }
       ],
       "notes": "Gear/Rods-Reels/content/Shimano 22 SLX DC XT 71HG.md",
-      "picture": {
-        "src": "Gear/Rods-Reels/assets/shimano-slx-dc-xt-71hg.webp"
-      }
+      "picture": { "src": "Gear/Rods-Reels/assets/shimano-slx-dc-xt-71hg.webp" }
     },
     {
       "id": "pflueger-president-spincast-rod",
@@ -149,38 +82,15 @@
       "manufacturer": "Pflueger",
       "model": "President Spincast Combo",
       "specifications": [
-        {
-          "label": "Length",
-          "value": "6'"
-        },
-        {
-          "label": "Power",
-          "value": "Light"
-        },
-        {
-          "label": "Line Rating",
-          "value": "2-8 lb."
-        },
-        {
-          "label": "Pieces",
-          "value": "2"
-        },
-        {
-          "label": "Part #",
-          "value": "PRESSC60L-2"
-        }
+        { "label": "Length", "value": "6'" },
+        { "label": "Power", "value": "Light" },
+        { "label": "Line Rating", "value": "2-8 lb." },
+        { "label": "Pieces", "value": "2" },
+        { "label": "Part #", "value": "PRESSC60L-2" }
       ],
-      "links": [
-        {
-          "label": "Pflueger",
-          "url": "https://pfluegerfishing.com/products/president-spincast-combo-1595561"
-        }
-      ],
+      "links": [ { "label": "Pflueger", "url": "https://pfluegerfishing.com/products/president-spincast-combo-1595561" } ],
       "notes": "Gear/Rods-Reels/content/Pflueger President Spincast Combo - Rod.md",
-      "picture": {
-        "src": "Gear/Rods-Reels/assets/pflueger-president-spincast-rod.png",
-        "caption": "Pflueger President Spincast Rod"
-      }
+      "picture": { "src": "Gear/Rods-Reels/assets/pflueger-president-spincast-rod.png", "caption": "Pflueger President Spincast Rod" }
     },
     {
       "id": "pflueger-president-spincast-reel",
@@ -190,30 +100,13 @@
       "manufacturer": "Pflueger",
       "model": "President Spincast Combo",
       "specifications": [
-        {
-          "value": "3.4:1",
-          "label": "Gear ratio"
-        },
-        {
-          "value": "90 yds. / 6 lb.",
-          "label": "Capacity"
-        },
-        {
-          "value": "PRES6SC",
-          "label": "Part #"
-        }
+        { "value": "3.4:1", "label": "Gear ratio" },
+        { "value": "90 yds. / 6 lb.", "label": "Capacity" },
+        { "value": "PRES6SC", "label": "Part #" }
       ],
-      "links": [
-        {
-          "label": "Pflueger",
-          "url": "https://pfluegerfishing.com/products/president-spincast-combo-1595561"
-        }
-      ],
+      "links": [ { "label": "Pflueger", "url": "https://pfluegerfishing.com/products/president-spincast-combo-1595561" } ],
       "notes": "Gear/Rods-Reels/content/Pflueger President Spincast Combo - Reel.md",
-      "picture": {
-        "src": "Gear/Rods-Reels/assets/pflueger-president-spincast-reel.png",
-        "caption": "Pflueger President Spincast Reel"
-      }
+      "picture": { "src": "Gear/Rods-Reels/assets/pflueger-president-spincast-reel.png", "caption": "Pflueger President Spincast Reel" }
     },
     {
       "id": "sufix-832-15",
@@ -223,33 +116,11 @@
       "manufacturer": "Sufix",
       "model": "832 Advanced Superline",
       "specifications": [
-        {
-          "label": "Strength",
-          "value": "15 lb"
-        },
-        {
-          "label": "Color",
-          "value": "Hi-Vis Yellow"
-        },
-        {
-          "label": "Length",
-          "value": "300 yd"
-        },
-        {
-          "label": "Part",
-          "value": "660-115Y"
-        }
+        { "label": "Strength", "value": "15 lb" }, { "label": "Color", "value": "Hi-Vis Yellow" }, { "label": "Length", "value": "300 yd" }, { "label": "Part", "value": "660-115Y" }
       ],
-      "links": [
-        {
-          "label": "Sufix",
-          "url": "https://www.rapala.com/us_en/832-advanced-superline?childSku=us-660-115Y"
-        }
-      ],
+      "links": [ { "label": "Sufix", "url": "https://www.rapala.com/us_en/832-advanced-superline?childSku=us-660-115Y" } ],
       "notes": "Gear/Line/content/sufix-832-15.md",
-      "picture": {
-        "src": "Gear/Line/assets/technique-fishing-line.jpg"
-      }
+      "picture": { "src": "Gear/Line/assets/technique-fishing-line.jpg" }
     },
     {
       "id": "powerpro-super8-slick-v2-30",
@@ -258,34 +129,13 @@
       "name": "PowerPro Super8 Slick V2",
       "manufacturer": "PowerPro",
       "model": "Super8 Slick V2",
-      "specifications": [
-        {
-          "label": "Strength",
-          "value": "30 lb"
-        },
-        {
-          "label": "Color",
-          "value": "Moss Green"
-        },
-        {
-          "label": "Length",
-          "value": "150 yd"
-        }
-      ],
+      "specifications": [ { "label": "Strength", "value": "30 lb" }, { "label": "Color", "value": "Moss Green" }, { "label": "Length", "value": "150 yd" } ],
       "links": [
-        {
-          "label": "PowerPro",
-          "url": "https://fishshop.shimano.com/products/powerprosuper8slick-v2?variant=61578323624306"
-        },
-        {
-          "label": "Tackle Warehouse",
-          "url": "https://www.tacklewarehouse.com/Power_Pro_Super8Slick_V2_Braided_Line_Moss_Green/descpage-PVMG.html"
-        }
+        { "label": "PowerPro", "url": "https://fishshop.shimano.com/products/powerprosuper8slick-v2?variant=61578323624306" },
+        { "label": "Tackle Warehouse", "url": "https://www.tacklewarehouse.com/Power_Pro_Super8Slick_V2_Braided_Line_Moss_Green/descpage-PVMG.html" }
       ],
       "notes": "Gear/Line/content/powerpro-super8-slick-v2-30.md",
-      "picture": {
-        "src": "Gear/Line/assets/powerpro-super8-slick-v2.webp"
-      }
+      "picture": { "src": "Gear/Line/assets/powerpro-super8-slick-v2.webp" }
     },
     {
       "id": "seaguar-invizx-8",
@@ -294,30 +144,10 @@
       "name": "Seaguar InvizX",
       "manufacturer": "Seaguar",
       "model": "InvizX",
-      "specifications": [
-        {
-          "label": "Strength",
-          "value": "8 lb"
-        },
-        {
-          "label": "Length",
-          "value": "200 yd"
-        }
-      ],
-      "links": [
-        {
-          "label": "Seaguar",
-          "url": "https://seaguar.com/products/invizx"
-        },
-        {
-          "label": "Amazon",
-          "url": "https://a.co/d/4UVnkVc"
-        }
-      ],
+      "specifications": [ { "label": "Strength", "value": "8 lb" }, { "label": "Length", "value": "200 yd" } ],
+      "links": [ { "label": "Seaguar", "url": "https://seaguar.com/products/invizx" }, { "label": "Amazon", "url": "https://a.co/d/4UVnkVc" } ],
       "notes": "Gear/Line/content/seaguar-invizx-8.md",
-      "picture": {
-        "src": "Gear/Line/assets/seaguar-invizx.webp"
-      }
+      "picture": { "src": "Gear/Line/assets/seaguar-invizx.webp" }
     },
     {
       "id": "seaguar-invizx-12",
@@ -326,30 +156,10 @@
       "name": "Seaguar InvizX",
       "manufacturer": "Seaguar",
       "model": "InvizX",
-      "specifications": [
-        {
-          "label": "Strength",
-          "value": "12 lb"
-        },
-        {
-          "label": "Length",
-          "value": "200 yd"
-        }
-      ],
-      "links": [
-        {
-          "label": "Seaguar",
-          "url": "https://seaguar.com/products/invizx"
-        },
-        {
-          "label": "Tackle Warehouse",
-          "url": "https://www.tacklewarehouse.com/Seaguar_InvizX_Fluorocarbon_Line/descpage-SIF.html"
-        }
-      ],
+      "specifications": [ { "label": "Strength", "value": "12 lb" }, { "label": "Length", "value": "200 yd" } ],
+      "links": [ { "label": "Seaguar", "url": "https://seaguar.com/products/invizx" }, { "label": "Tackle Warehouse", "url": "https://www.tacklewarehouse.com/Seaguar_InvizX_Fluorocarbon_Line/descpage-SIF.html" } ],
       "notes": "Gear/Line/content/seaguar-invizx-12.md",
-      "picture": {
-        "src": "Gear/Line/assets/seaguar-invizx.webp"
-      }
+      "picture": { "src": "Gear/Line/assets/seaguar-invizx.webp" }
     },
     {
       "id": "cylinder-weights",
@@ -358,25 +168,9 @@
       "name": "Cylinder weights",
       "manufacturer": "THKFISH",
       "model": "28 pcs sinkers set",
-      "specifications": [
-        {
-          "label": "Weights",
-          "value": "1/8 oz, 1/5 oz, 1/4 oz, 3/8 oz, 1/2 oz"
-        }
-      ],
-      "links": [
-        {
-          "label": "THKFISH",
-          "url": "https://thkfish.net/products/thkfish-fishing-weights-fishing-sinker-drop-shot-weights-fishing-weights-kit-drop-shot-rig-wacky-hooks-offset-hooks-fishing-tackle-28pcs"
-        },
-        {
-          "label": "Amazon",
-          "url": "https://a.co/d/0onGDfA"
-        }
-      ],
-      "picture": {
-        "src": "Gear/Weights/assets/thkfish-cylinder-weights.jpg"
-      }
+      "specifications": [ { "label": "Weights", "value": "1/8 oz, 1/5 oz, 1/4 oz, 3/8 oz, 1/2 oz" } ],
+      "links": [ { "label": "THKFISH", "url": "https://thkfish.net/products/thkfish-fishing-weights-fishing-sinker-drop-shot-weights-fishing-weights-kit-drop-shot-rig-wacky-hooks-offset-hooks-fishing-tackle-28pcs" }, { "label": "Amazon", "url": "https://a.co/d/0onGDfA" } ],
+      "picture": { "src": "Gear/Weights/assets/thkfish-cylinder-weights.jpg" }
     },
     {
       "id": "egg-sinkers",
@@ -385,21 +179,9 @@
       "name": "Egg sinkers",
       "manufacturer": "Eagle Claw",
       "model": "Egg sinkers",
-      "specifications": [
-        {
-          "label": "Weights",
-          "value": "1/4 oz, 1/2 oz"
-        }
-      ],
-      "links": [
-        {
-          "label": "Eagle Claw",
-          "url": "https://eagleclaw.com/products/eagle-claw-egg-sinkers"
-        }
-      ],
-      "picture": {
-        "src": "Gear/Weights/assets/eagle-claw-egg-sinkers.webp"
-      }
+      "specifications": [ { "label": "Weights", "value": "1/4 oz, 1/2 oz" } ],
+      "links": [ { "label": "Eagle Claw", "url": "https://eagleclaw.com/products/eagle-claw-egg-sinkers" } ],
+      "picture": { "src": "Gear/Weights/assets/eagle-claw-egg-sinkers.webp" }
     },
     {
       "id": "swiveling-trolling-sinkers",
@@ -408,22 +190,10 @@
       "name": "Swiveling trolling sinkers",
       "manufacturer": "Eagle Claw",
       "model": "Swiveling trolling sinkers",
-      "specifications": [
-        {
-          "label": "Weight",
-          "value": "1/2 oz"
-        }
-      ],
-      "links": [
-        {
-          "label": "Eagle Claw",
-          "url": "https://eagleclaw.com/products/eagle-claw-swiveling-trolling-sinkers"
-        }
-      ],
+      "specifications": [ { "label": "Weight", "value": "1/2 oz" } ],
+      "links": [ { "label": "Eagle Claw", "url": "https://eagleclaw.com/products/eagle-claw-swiveling-trolling-sinkers" } ],
       "notes": "Gear/Weights/content/swiveling-trolling-sinkers.md",
-      "picture": {
-        "src": "Gear/Weights/assets/eagle-claw-trolling-sinker.webp"
-      }
+      "picture": { "src": "Gear/Weights/assets/eagle-claw-trolling-sinker.webp" }
     },
     {
       "id": "glass-beads",
@@ -432,25 +202,9 @@
       "name": "Glass beads",
       "manufacturer": "Top Brass",
       "model": "Czechoslovakian Glass Beads",
-      "specifications": [
-        {
-          "label": "Size",
-          "value": "8 mm"
-        },
-        {
-          "label": "Color",
-          "value": "Red"
-        }
-      ],
-      "links": [
-        {
-          "label": "Top Brass",
-          "url": "https://www.topbrasstackle.com/products/top-brass-tackle/#:~:text=These%20handcrafted%2C%20jewelry-grade%20glass%20beads%20are%20fire%20polished,chartreuse%2C%20crawfish%2C%20orange%2C%20red%20flash%2C%20and%20crystal%20flash"
-        }
-      ],
-      "picture": {
-        "src": "Gear/Weights/assets/top-brass-glass-beads.webp"
-      }
+      "specifications": [ { "label": "Size", "value": "8 mm" }, { "label": "Color", "value": "Red" } ],
+      "links": [ { "label": "Top Brass", "url": "https://www.topbrasstackle.com/products/top-brass-tackle/#:~:text=These%20handcrafted%2C%20jewelry-grade%20glass%20beads%20are%20fire%20polished,chartreuse%2C%20crawfish%2C%20orange%2C%20red%20flash%2C%20and%20crystal%20flash" } ],
+      "picture": { "src": "Gear/Weights/assets/top-brass-glass-beads.webp" }
     },
     {
       "id": "south-bend-removable-split-shot-sinkers",
@@ -459,19 +213,8 @@
       "name": "South Bend 125-Piece Removable Split Shot Sinkers",
       "manufacturer": "South Bend",
       "model": "125-Piece Removable Split Shot Sinkers",
-      "specifications": [
-        {
-          "label": "Material",
-          "value": "Lead"
-        },
-        {
-          "label": "Sizes",
-          "value": "BB, 3/0, 7, 5, 4"
-        }
-      ],
-      "picture": {
-        "src": "Gear/Weights/assets/south-bend-split-shot.png"
-      }
+      "specifications": [ { "label": "Material", "value": "Lead" }, { "label": "Sizes", "value": "BB, 3/0, 7, 5, 4" } ],
+      "picture": { "src": "Gear/Weights/assets/south-bend-split-shot.png" }
     },
     {
       "id": "vmc-crs-crankbait-snaps",
@@ -480,38 +223,10 @@
       "name": "VMC CRS Crankbait Snaps",
       "manufacturer": "VMC",
       "model": "CRS Crankbait Snaps",
-      "specifications": [
-        {
-          "label": "Size",
-          "value": "0"
-        },
-        {
-          "label": "Rating",
-          "value": "50 lb"
-        },
-        {
-          "label": "Part",
-          "value": "CRS#0"
-        },
-        {
-          "label": "Quantity",
-          "value": "10-pack"
-        }
-      ],
-      "links": [
-        {
-          "label": "VMC",
-          "url": "https://www.rapala.com/us_en/crs-crankbait-snap?childSku=us-CRS#1"
-        },
-        {
-          "label": "Tackle Warehouse",
-          "url": "https://www.tacklewarehouse.com/VMC_Crankbait_Snaps/descpage-VMCCS.html?from=bshop"
-        }
-      ],
+      "specifications": [ { "label": "Size", "value": "0" }, { "label": "Rating", "value": "50 lb" }, { "label": "Part", "value": "CRS#0" }, { "label": "Quantity", "value": "10-pack" } ],
+      "links": [ { "label": "VMC", "url": "https://www.rapala.com/us_en/crs-crankbait-snap?childSku=us-CRS#1" }, { "label": "Tackle Warehouse", "url": "https://www.tacklewarehouse.com/VMC_Crankbait_Snaps/descpage-VMCCS.html?from=bshop" } ],
       "notes": "Gear/Snaps-Swivels/content/vmc-crs-crankbait-snaps.md",
-      "picture": {
-        "src": "Gear/Snaps-Swivels/assets/vmc-crankbait-snaps.webp"
-      }
+      "picture": { "src": "Gear/Snaps-Swivels/assets/vmc-crankbait-snaps.webp" }
     },
     {
       "id": "tsuridamashii-ball-bearing-swivels",
@@ -520,30 +235,10 @@
       "name": "Tsuridamashii ball-bearing swivels",
       "manufacturer": "Tsuridamashii",
       "model": "Ball-bearing swivels",
-      "specifications": [
-        {
-          "label": "Size",
-          "value": "0"
-        },
-        {
-          "label": "Rating",
-          "value": "55 lb"
-        },
-        {
-          "label": "Quantity",
-          "value": "20-pack"
-        }
-      ],
-      "links": [
-        {
-          "label": "Amazon",
-          "url": "https://a.co/d/12yVweL"
-        }
-      ],
+      "specifications": [ { "label": "Size", "value": "0" }, { "label": "Rating", "value": "55 lb" }, { "label": "Quantity", "value": "20-pack" } ],
+      "links": [ { "label": "Amazon", "url": "https://a.co/d/12yVweL" } ],
       "notes": "Gear/Snaps-Swivels/content/tsuridamashii-ball-bearing-swivels.md",
-      "picture": {
-        "src": "Gear/Snaps-Swivels/assets/tsuridamashii-ball-bearing-swivels.webp"
-      }
+      "picture": { "src": "Gear/Snaps-Swivels/assets/tsuridamashii-ball-bearing-swivels.webp" }
     },
     {
       "id": "tsuridamashii-ball-bearing-snap-swivels",
@@ -552,31 +247,10 @@
       "name": "Tsuridamashii ball-bearing snap swivels",
       "manufacturer": "Tsuridamashii",
       "model": "Ball-bearing snap swivels",
-      "specifications": [
-        {
-          "label": "Size",
-          "value": "0"
-        },
-        {
-          "label": "Rating",
-          "value": "55 lb"
-        },
-        {
-          "label": "Quantity",
-          "value": "20-pack"
-        }
-      ],
-      "links": [
-        {
-          "label": "Amazon",
-          "url": "https://a.co/d/apPLB6U"
-        }
-      ],
+      "specifications": [ { "label": "Size", "value": "0" }, { "label": "Rating", "value": "55 lb" }, { "label": "Quantity", "value": "20-pack" } ],
+      "links": [ { "label": "Amazon", "url": "https://a.co/d/apPLB6U" } ],
       "notes": "Gear/Snaps-Swivels/content/tsuridamashii-ball-bearing-snap-swivels.md",
-      "picture": {
-        "src": "Gear/Snaps-Swivels/assets/Tsuridamashii Ball-Bearing Snap Swivels.png",
-        "caption": "Tsuridamashii ball-bearing snap swivels"
-      }
+      "picture": { "src": "Gear/Snaps-Swivels/assets/Tsuridamashii Ball-Bearing Snap Swivels.png", "caption": "Tsuridamashii ball-bearing snap swivels" }
     },
     {
       "id": "south-bend-assorted-brass-swivels",
@@ -585,19 +259,9 @@
       "name": "South Bend 24-Piece Assorted Brass Swivels",
       "manufacturer": "South Bend",
       "model": "24-Piece Assorted Brass Swivels",
-      "specifications": [
-        {
-          "value": "Brass"
-        },
-        {
-          "label": "Sizes",
-          "value": "5, 7, 10, 12"
-        }
-      ],
+      "specifications": [ { "value": "Brass" }, { "label": "Sizes", "value": "5, 7, 10, 12" } ],
       "notes": "Gear/Snaps-Swivels/content/south-bend-assorted-brass-swivels.md",
-      "picture": {
-        "src": "Gear/Snaps-Swivels/assets/south-bend-brass-swivels.png"
-      }
+      "picture": { "src": "Gear/Snaps-Swivels/assets/south-bend-brass-swivels.png" }
     },
     {
       "id": "gamakatsu-octopus-hook",
@@ -606,25 +270,9 @@
       "name": "Gamakatsu Octopus Hook",
       "manufacturer": "Gamakatsu",
       "model": "Part 02210, 8-pack",
-      "specifications": [
-        {
-          "label": "Size",
-          "value": "#1"
-        }
-      ],
-      "links": [
-        {
-          "label": "Gamakatsu",
-          "url": "https://gamakatsu.com/product/octopus-hooks/"
-        },
-        {
-          "label": "Tackle Warehouse",
-          "url": "https://www.tacklewarehouse.com/Gamakatsu_Octopus_Hook/descpage-GOHK.html"
-        }
-      ],
-      "picture": {
-        "src": "Gear/Hooks/assets/gamakatsu-octopus-hook.jpg"
-      }
+      "specifications": [ { "label": "Size", "value": "#1" } ],
+      "links": [ { "label": "Gamakatsu", "url": "https://gamakatsu.com/product/octopus-hooks/" }, { "label": "Tackle Warehouse", "url": "https://www.tacklewarehouse.com/Gamakatsu_Octopus_Hook/descpage-GOHK.html" } ],
+      "picture": { "src": "Gear/Hooks/assets/gamakatsu-octopus-hook.jpg" }
     },
     {
       "id": "vmc-redline-weedless-wacky-neko",
@@ -633,33 +281,9 @@
       "name": "VMC Redline Weedless Wacky Neko",
       "manufacturer": "VMC",
       "model": "Redline Weedless Wacky Neko",
-      "specifications": [
-        {
-          "label": "Size",
-          "value": "#1"
-        },
-        {
-          "label": "Part",
-          "value": "RSWWNK#1NTPP"
-        },
-        {
-          "label": "Quantity",
-          "value": "4-pack"
-        }
-      ],
-      "links": [
-        {
-          "label": "VMC",
-          "url": "https://www.rapala.com/us_en/rswwnk-redline-series-weedless-wacky-neko?childSku=us-RSWWNK#1NTPP"
-        },
-        {
-          "label": "Tackle Warehouse",
-          "url": "https://www.tacklewarehouse.com/VMC_RedLine_Series_Weedless_Wacky_Neko_Hooks_4pk/descpage-VMRLWWN.html"
-        }
-      ],
-      "picture": {
-        "src": "Gear/Hooks/assets/vmc-redline-weedless-wacky-neko.webp"
-      }
+      "specifications": [ { "label": "Size", "value": "#1" }, { "label": "Part", "value": "RSWWNK#1NTPP" }, { "label": "Quantity", "value": "4-pack" } ],
+      "links": [ { "label": "VMC", "url": "https://www.rapala.com/us_en/rswwnk-redline-series-weedless-wacky-neko?childSku=us-RSWWNK#1NTPP" }, { "label": "Tackle Warehouse", "url": "https://www.tacklewarehouse.com/VMC_RedLine_Series_Weedless_Wacky_Neko_Hooks_4pk/descpage-VMRLWWN.html" } ],
+      "picture": { "src": "Gear/Hooks/assets/vmc-redline-weedless-wacky-neko.webp" }
     },
     {
       "id": "vmc-crossover-rings",
@@ -668,37 +292,9 @@
       "name": "VMC Crossover Rings",
       "manufacturer": "VMC",
       "model": "Crossover rings",
-      "specifications": [
-        {
-          "label": "Size",
-          "value": "7 mm"
-        },
-        {
-          "label": "Color",
-          "value": "Clear"
-        },
-        {
-          "label": "Part",
-          "value": "CRSRC7"
-        },
-        {
-          "label": "Quantity",
-          "value": "10-pack"
-        }
-      ],
-      "links": [
-        {
-          "label": "VMC",
-          "url": "https://www.rapala.com/us_en/crossover-ring?childSku=us-CRSRC7"
-        },
-        {
-          "label": "Tackle Warehouse",
-          "url": "https://www.tacklewarehouse.com/search-tackle.html?start=0&count=20&searchtext=crossover+rings"
-        }
-      ],
-      "picture": {
-        "src": "Gear/Hooks/assets/vmc-crossover-rings.png"
-      }
+      "specifications": [ { "label": "Size", "value": "7 mm" }, { "label": "Color", "value": "Clear" }, { "label": "Part", "value": "CRSRC7" }, { "label": "Quantity", "value": "10-pack" } ],
+      "links": [ { "label": "VMC", "url": "https://www.rapala.com/us_en/crossover-ring?childSku=us-CRSRC7" }, { "label": "Tackle Warehouse", "url": "https://www.tacklewarehouse.com/search-tackle.html?start=0&count=20&searchtext=crossover+rings" } ],
+      "picture": { "src": "Gear/Hooks/assets/vmc-crossover-rings.png" }
     },
     {
       "id": "zman-finesse-shroomz",
@@ -707,29 +303,9 @@
       "name": "Z-Man Finesse ShroomZ",
       "manufacturer": "Z-Man",
       "model": "Finesse ShroomZ",
-      "specifications": [
-        {
-          "label": "Weights",
-          "value": "1/10 oz, 1/6 oz"
-        },
-        {
-          "label": "Color",
-          "value": "Green Pumpkin"
-        }
-      ],
-      "links": [
-        {
-          "label": "Z-Man",
-          "url": "https://zmanfishing.com/products/ned-rig-kit"
-        },
-        {
-          "label": "Amazon",
-          "url": "https://a.co/d/8wFnKsG"
-        }
-      ],
-      "picture": {
-        "src": "Gear/Hooks/assets/zman-finesse-shroomz.jpg"
-      }
+      "specifications": [ { "label": "Weights", "value": "1/10 oz, 1/6 oz" }, { "label": "Color", "value": "Green Pumpkin" } ],
+      "links": [ { "label": "Z-Man", "url": "https://zmanfishing.com/products/ned-rig-kit" }, { "label": "Amazon", "url": "https://a.co/d/8wFnKsG" } ],
+      "picture": { "src": "Gear/Hooks/assets/zman-finesse-shroomz.jpg" }
     },
     {
       "id": "gamakatsu-g-finesse-drop-shot-hook",
@@ -738,33 +314,9 @@
       "name": "Gamakatsu G-Finesse Drop Shot Hook",
       "manufacturer": "Gamakatsu",
       "model": "G-Finesse Drop Shot Hook",
-      "specifications": [
-        {
-          "label": "Size",
-          "value": "#1"
-        },
-        {
-          "label": "Part",
-          "value": "338210"
-        },
-        {
-          "label": "Quantity",
-          "value": "6-pack"
-        }
-      ],
-      "links": [
-        {
-          "label": "Gamakatsu",
-          "url": "https://gamakatsu.com/product/tgw-drop-shot-hook/"
-        },
-        {
-          "label": "Tackle Warehouse",
-          "url": "https://www.tacklewarehouse.com/Gamakatsu_Aaron_Martens_G-Finesse_Drop_Shot_Hook_6pk/descpage-SFH.html"
-        }
-      ],
-      "picture": {
-        "src": "Gear/Hooks/assets/gamakatsu-g-finesse-drop-shot.jpg"
-      }
+      "specifications": [ { "label": "Size", "value": "#1" }, { "label": "Part", "value": "338210" }, { "label": "Quantity", "value": "6-pack" } ],
+      "links": [ { "label": "Gamakatsu", "url": "https://gamakatsu.com/product/tgw-drop-shot-hook/" }, { "label": "Tackle Warehouse", "url": "https://www.tacklewarehouse.com/Gamakatsu_Aaron_Martens_G-Finesse_Drop_Shot_Hook_6pk/descpage-SFH.html" } ],
+      "picture": { "src": "Gear/Hooks/assets/gamakatsu-g-finesse-drop-shot.jpg" }
     },
     {
       "id": "owner-twistlock-black-chrome-centering-pin-hook",
@@ -773,25 +325,9 @@
       "name": "Owner Twistlock Black Chrome Centering Pin Hook",
       "manufacturer": "Owner",
       "model": "Twistlock Black Chrome Centering Pin Hook",
-      "specifications": [
-        {
-          "label": "Size",
-          "value": "5/0"
-        },
-        {
-          "label": "Quantity",
-          "value": "4-pack"
-        }
-      ],
-      "links": [
-        {
-          "label": "Owner",
-          "url": "https://www.ownerhooks.com/product/twistlock-3x/"
-        }
-      ],
-      "picture": {
-        "src": "Gear/Hooks/assets/owner-twistlock.jpg"
-      }
+      "specifications": [ { "label": "Size", "value": "5/0" }, { "label": "Quantity", "value": "4-pack" } ],
+      "links": [ { "label": "Owner", "url": "https://www.ownerhooks.com/product/twistlock-3x/" } ],
+      "picture": { "src": "Gear/Hooks/assets/owner-twistlock.jpg" }
     },
     {
       "id": "gamakatsu-ewg-worm-offset-hook",
@@ -800,33 +336,9 @@
       "name": "Gamakatsu EWG Worm Offset Hook, NS Black",
       "manufacturer": "Gamakatsu",
       "model": "EWG Worm Offset Hook",
-      "specifications": [
-        {
-          "label": "Size",
-          "value": "4/0"
-        },
-        {
-          "label": "Finish",
-          "value": "NS Black"
-        },
-        {
-          "label": "Quantity",
-          "value": "5-pack"
-        }
-      ],
-      "links": [
-        {
-          "label": "Gamakatsu",
-          "url": "https://gamakatsu.com/product/worm-hooks-offset-shank-ewg/"
-        },
-        {
-          "label": "Cabela's",
-          "url": "https://www.cabelas.com/p/gamakatsu-ewg-worm-hook"
-        }
-      ],
-      "picture": {
-        "src": "Gear/Hooks/assets/gamakatsu-ewg-worm-hook.jpg"
-      }
+      "specifications": [ { "label": "Size", "value": "4/0" }, { "label": "Finish", "value": "NS Black" }, { "label": "Quantity", "value": "5-pack" } ],
+      "links": [ { "label": "Gamakatsu", "url": "https://gamakatsu.com/product/worm-hooks-offset-shank-ewg/" }, { "label": "Cabela's", "url": "https://www.cabelas.com/p/gamakatsu-ewg-worm-hook" } ],
+      "picture": { "src": "Gear/Hooks/assets/gamakatsu-ewg-worm-hook.jpg" }
     },
     {
       "id": "vmc-swimbait-jig",
@@ -835,25 +347,9 @@
       "name": "VMC Swimbait Jig",
       "manufacturer": "VMC",
       "model": "Swimbait Jig",
-      "specifications": [
-        {
-          "label": "Weight",
-          "value": "1/4 oz"
-        },
-        {
-          "label": "Color",
-          "value": "White"
-        }
-      ],
-      "links": [
-        {
-          "label": "VMC",
-          "url": "https://www.rapala.com/us_en/sbj-swimbait-jig?childSku=us-SBJ14-W"
-        }
-      ],
-      "picture": {
-        "src": "Gear/Hooks/assets/vmc-swimbait-jig.png"
-      }
+      "specifications": [ { "label": "Weight", "value": "1/4 oz" }, { "label": "Color", "value": "White" } ],
+      "links": [ { "label": "VMC", "url": "https://www.rapala.com/us_en/sbj-swimbait-jig?childSku=us-SBJ14-W" } ],
+      "picture": { "src": "Gear/Hooks/assets/vmc-swimbait-jig.png" }
     },
     {
       "id": "south-bend-hook-assortment",
@@ -862,18 +358,8 @@
       "name": "South Bend 120-Piece Hook Assortment",
       "manufacturer": "South Bend",
       "model": "120-Piece Hook Assortment",
-      "specifications": [
-        {
-          "value": "Brass"
-        },
-        {
-          "label": "Sizes",
-          "value": "2, 4, 6, 8, and 10"
-        }
-      ],
-      "picture": {
-        "src": "Gear/Hooks/assets/south-bend-hook-assortment.png"
-      }
+      "specifications": [ { "value": "Brass" }, { "label": "Sizes", "value": "2, 4, 6, 8, and 10" } ],
+      "picture": { "src": "Gear/Hooks/assets/south-bend-hook-assortment.png" }
     },
     {
       "id": "zman-original-chatterbait",
@@ -882,30 +368,10 @@
       "name": "Z-Man Original ChatterBait",
       "manufacturer": "Z-Man",
       "model": "Original ChatterBait",
-      "specifications": [
-        {
-          "label": "Weight",
-          "value": "3/8 oz"
-        },
-        {
-          "label": "Color",
-          "value": "Fire Craw"
-        }
-      ],
-      "links": [
-        {
-          "label": "Z-Man",
-          "url": "https://zmanfishing.com/products/original-chatterbait-r"
-        },
-        {
-          "label": "Dick's Sporting Goods",
-          "url": "https://www.dickssportinggoods.com/p/z-man-original-chatterbait-bladed-jig-15zmauzmnchtbt38blur/15zmauzmnchtbt38blur?color=Bayou%20Craw"
-        }
-      ],
+      "specifications": [ { "label": "Weight", "value": "3/8 oz" }, { "label": "Color", "value": "Fire Craw" } ],
+      "links": [ { "label": "Z-Man", "url": "https://zmanfishing.com/products/original-chatterbait-r" }, { "label": "Dick's Sporting Goods", "url": "https://www.dickssportinggoods.com/p/z-man-original-chatterbait-bladed-jig-15zmauzmnchtbt38blur/15zmauzmnchtbt38blur?color=Bayou%20Craw" } ],
       "notes": "Gear/Lures/content/zman-original-chatterbait.md",
-      "picture": {
-        "src": "Gear/Lures/assets/zman-original-chatterbait.webp"
-      }
+      "picture": { "src": "Gear/Lures/assets/zman-original-chatterbait.webp" }
     },
     {
       "id": "zman-elite-evo",
@@ -914,30 +380,10 @@
       "name": "Z-Man Elite EVO",
       "manufacturer": "Z-Man",
       "model": "Elite EVO",
-      "specifications": [
-        {
-          "label": "Weight",
-          "value": "3/8 oz"
-        },
-        {
-          "label": "Colors",
-          "value": "Chartreuse/White, The Deal"
-        }
-      ],
-      "links": [
-        {
-          "label": "Z-Man",
-          "url": "https://zmanfishing.com/products/chatterbait-elite-evo#"
-        },
-        {
-          "label": "Dick's Sporting Goods",
-          "url": "https://www.dickssportinggoods.com/p/z-man-chatterbait-elite-evo-23zmaucbltv38zlvclur/23zmaucbltv38blur"
-        }
-      ],
+      "specifications": [ { "label": "Weight", "value": "3/8 oz" }, { "label": "Colors", "value": "Chartreuse/White, The Deal" } ],
+      "links": [ { "label": "Z-Man", "url": "https://zmanfishing.com/products/chatterbait-elite-evo#" }, { "label": "Dick's Sporting Goods", "url": "https://www.dickssportinggoods.com/p/z-man-chatterbait-elite-evo-23zmaucbltv38zlvclur/23zmaucbltv38blur" } ],
       "notes": "Gear/Lures/content/zman-elite-evo.md",
-      "picture": {
-        "src": "Gear/Lures/assets/zman-elite-evo.jpg"
-      }
+      "picture": { "src": "Gear/Lures/assets/zman-elite-evo.jpg" }
     },
     {
       "id": "zman-jack-hammer",
@@ -946,30 +392,10 @@
       "name": "Z-Man Jack Hammer",
       "manufacturer": "Z-Man",
       "model": "Jack Hammer",
-      "specifications": [
-        {
-          "label": "Weight",
-          "value": "3/8 oz"
-        },
-        {
-          "label": "Color",
-          "value": "Green Pumpkin"
-        }
-      ],
-      "links": [
-        {
-          "label": "Z-Man",
-          "url": "https://zmanfishing.com/products/chatterbait-r-jackhammer#"
-        },
-        {
-          "label": "Dick's Sporting Goods",
-          "url": "https://www.dickssportinggoods.com/p/z-man-jackhammer-chatterbait-17zmauchttrjckhm3lur/17zmauchttrjckhm3lur"
-        }
-      ],
+      "specifications": [ { "label": "Weight", "value": "3/8 oz" }, { "label": "Color", "value": "Green Pumpkin" } ],
+      "links": [ { "label": "Z-Man", "url": "https://zmanfishing.com/products/chatterbait-r-jackhammer#" }, { "label": "Dick's Sporting Goods", "url": "https://www.dickssportinggoods.com/p/z-man-jackhammer-chatterbait-17zmauchttrjckhm3lur/17zmauchttrjckhm3lur" } ],
       "notes": "Gear/Lures/content/zman-jack-hammer.md",
-      "picture": {
-        "src": "Gear/Lures/assets/zman-jack-hammer.png"
-      }
+      "picture": { "src": "Gear/Lures/assets/zman-jack-hammer.png" }
     },
     {
       "id": "strike-king-red-eyed-special",
@@ -978,30 +404,10 @@
       "name": "Strike King Red Eyed Special",
       "manufacturer": "Strike King",
       "model": "Red Eyed Special",
-      "specifications": [
-        {
-          "label": "Weight",
-          "value": "3/8 oz"
-        },
-        {
-          "label": "Color",
-          "value": "Chart Spring Craw"
-        }
-      ],
-      "links": [
-        {
-          "label": "Strike King",
-          "url": "https://www.strikeking.com/en/shop/wire-baits/reyespb"
-        },
-        {
-          "label": "Dick's Sporting Goods",
-          "url": "https://www.dickssportinggoods.com/p/strike-king-red-eyed-spinnerbait-23skiurssb12chrtxlur/23skiurssb12chrtxlur?color=Firecraw"
-        }
-      ],
+      "specifications": [ { "label": "Weight", "value": "3/8 oz" }, { "label": "Color", "value": "Chart Spring Craw" } ],
+      "links": [ { "label": "Strike King", "url": "https://www.strikeking.com/en/shop/wire-baits/reyespb" }, { "label": "Dick's Sporting Goods", "url": "https://www.dickssportinggoods.com/p/strike-king-red-eyed-spinnerbait-23skiurssb12chrtxlur/23skiurssb12chrtxlur?color=Firecraw" } ],
       "notes": "Gear/Lures/content/strike-king-red-eyed-special.md",
-      "picture": {
-        "src": "Gear/Lures/assets/strike-king-red-eyed-special.png"
-      }
+      "picture": { "src": "Gear/Lures/assets/strike-king-red-eyed-special.png" }
     },
     {
       "id": "sixth-sense-divine-spinnerbait",
@@ -1010,30 +416,10 @@
       "name": "6th Sense Divine Spinnerbait",
       "manufacturer": "6th Sense",
       "model": "Divine Spinnerbait",
-      "specifications": [
-        {
-          "label": "Weight",
-          "value": "3/8 oz"
-        },
-        {
-          "label": "Color",
-          "value": "Shad Ice"
-        }
-      ],
-      "links": [
-        {
-          "label": "6th Sense",
-          "url": "https://6thsensefishing.com/products/divine-spinnerbait?variant=47576750063755"
-        },
-        {
-          "label": "Dick's Sporting Goods",
-          "url": "https://www.dickssportinggoods.com/p/6th-sense-divine-spinnerbait-236thudvnspnnrbt1lur/236thudvnspnnrbt1lur?color=Shad"
-        }
-      ],
+      "specifications": [ { "label": "Weight", "value": "3/8 oz" }, { "label": "Color", "value": "Shad Ice" } ],
+      "links": [ { "label": "6th Sense", "url": "https://6thsensefishing.com/products/divine-spinnerbait?variant=47576750063755" }, { "label": "Dick's Sporting Goods", "url": "https://www.dickssportinggoods.com/p/6th-sense-divine-spinnerbait-236thudvnspnnrbt1lur/236thudvnspnnrbt1lur?color=Shad" } ],
       "notes": "Gear/Lures/content/sixth-sense-divine-spinnerbait.md",
-      "picture": {
-        "src": "Gear/Lures/assets/sixth-sense-divine-spinnerbait.webp"
-      }
+      "picture": { "src": "Gear/Lures/assets/sixth-sense-divine-spinnerbait.webp" }
     },
     {
       "id": "rebel-crawfish",
@@ -1042,26 +428,10 @@
       "name": "Rebel Crawfish",
       "manufacturer": "Rebel",
       "model": "Crawfish",
-      "specifications": [
-        {
-          "label": "Variants",
-          "value": "2 in, 1/5 oz, Nest Robber; 1-1/2 in, 1/9 oz, Chartreuse Brown"
-        }
-      ],
-      "links": [
-        {
-          "label": "Rebel",
-          "url": "https://therebellures.com/"
-        },
-        {
-          "label": "Cabela's",
-          "url": "https://www.cabelas.com/p/rebel-crawfish"
-        }
-      ],
+      "specifications": [ { "label": "Variants", "value": "2 in, 1/5 oz, Nest Robber; 1-1/2 in, 1/9 oz, Chartreuse Brown" } ],
+      "links": [ { "label": "Rebel", "url": "https://therebellures.com/" }, { "label": "Cabela's", "url": "https://www.cabelas.com/p/rebel-crawfish" } ],
       "notes": "Gear/Lures/content/rebel-crawfish.md",
-      "picture": {
-        "src": "Gear/Lures/assets/rebel-crawfish.jpg"
-      }
+      "picture": { "src": "Gear/Lures/assets/rebel-crawfish.jpg" }
     },
     {
       "id": "berkley-flicker-shad-5",
@@ -1070,34 +440,10 @@
       "name": "Berkley Flicker Shad 5",
       "manufacturer": "Berkley",
       "model": "Flicker Shad 5",
-      "specifications": [
-        {
-          "label": "Weight",
-          "value": "1/5 oz"
-        },
-        {
-          "label": "Color",
-          "value": "Pearl White"
-        },
-        {
-          "label": "Depth",
-          "value": "9-11 ft"
-        },
-        {
-          "label": "Buoyancy",
-          "value": "Slow rise"
-        }
-      ],
-      "links": [
-        {
-          "label": "Berkley",
-          "url": "https://www.berkley-fishing.com/products/flicker-shad"
-        }
-      ],
+      "specifications": [ { "label": "Weight", "value": "1/5 oz" }, { "label": "Color", "value": "Pearl White" }, { "label": "Depth", "value": "9-11 ft" }, { "label": "Buoyancy", "value": "Slow rise" } ],
+      "links": [ { "label": "Berkley", "url": "https://www.berkley-fishing.com/products/flicker-shad" } ],
       "notes": "Gear/Lures/content/berkley-flicker-shad-5.md",
-      "picture": {
-        "src": "Gear/Lures/assets/berkley-flicker-shad-5.jpg"
-      }
+      "picture": { "src": "Gear/Lures/assets/berkley-flicker-shad-5.jpg" }
     },
     {
       "id": "strike-king-kvd-square-bill-1",
@@ -1106,30 +452,10 @@
       "name": "Strike King KVD Square Bill 1.0",
       "manufacturer": "Strike King",
       "model": "KVD Square Bill 1.0",
-      "specifications": [
-        {
-          "label": "Color",
-          "value": "Sexy Shad"
-        },
-        {
-          "label": "Depth",
-          "value": "2-4 ft"
-        }
-      ],
-      "links": [
-        {
-          "label": "Strike King",
-          "url": "https://www.strikeking.com/en/shop/hard-baits/hckvds1.0"
-        },
-        {
-          "label": "Walmart",
-          "url": "https://www.walmart.com/ip/Strike-King-KVD-Square-Bill-1-0-Crankbait-Sexy-Shad-Hard-Bait-Lure/20552266"
-        }
-      ],
+      "specifications": [ { "label": "Color", "value": "Sexy Shad" }, { "label": "Depth", "value": "2-4 ft" } ],
+      "links": [ { "label": "Strike King", "url": "https://www.strikeking.com/en/shop/hard-baits/hckvds1.0" }, { "label": "Walmart", "url": "https://www.walmart.com/ip/Strike-King-KVD-Square-Bill-1-0-Crankbait-Sexy-Shad-Hard-Bait-Lure/20552266" } ],
       "notes": "Gear/Lures/content/strike-king-kvd-square-bill-1.md",
-      "picture": {
-        "src": "Gear/Lures/assets/strike-king-kvd-square-bill-1.webp"
-      }
+      "picture": { "src": "Gear/Lures/assets/strike-king-kvd-square-bill-1.webp" }
     },
     {
       "id": "berkley-money-badger",
@@ -1138,38 +464,10 @@
       "name": "Berkley Money Badger",
       "manufacturer": "Berkley",
       "model": "Money Badger",
-      "specifications": [
-        {
-          "label": "Size",
-          "value": "2-1/2 in"
-        },
-        {
-          "label": "Weight",
-          "value": "1/3 oz"
-        },
-        {
-          "label": "Color",
-          "value": "Firetiger"
-        },
-        {
-          "label": "Buoyancy",
-          "value": "Slow rise"
-        }
-      ],
-      "links": [
-        {
-          "label": "Berkley",
-          "url": "https://www.berkley-fishing.com/products/money-badger"
-        },
-        {
-          "label": "Cabela's",
-          "url": "https://www.cabelas.com/p/berkley-money-badger-crankbait"
-        }
-      ],
+      "specifications": [ { "label": "Size", "value": "2-1/2 in" }, { "label": "Weight", "value": "1/3 oz" }, { "label": "Color", "value": "Firetiger" }, { "label": "Buoyancy", "value": "Slow rise" } ],
+      "links": [ { "label": "Berkley", "url": "https://www.berkley-fishing.com/products/money-badger" }, { "label": "Cabela's", "url": "https://www.cabelas.com/p/berkley-money-badger-crankbait" } ],
       "notes": "Gear/Lures/content/berkley-money-badger.md",
-      "picture": {
-        "src": "Gear/Lures/assets/berkley-money-badger.webp"
-      }
+      "picture": { "src": "Gear/Lures/assets/berkley-money-badger.webp" }
     },
     {
       "id": "berkley-stunna",
@@ -1178,42 +476,10 @@
       "name": "Berkley Stunna",
       "manufacturer": "Berkley",
       "model": "Stunna",
-      "specifications": [
-        {
-          "label": "Size",
-          "value": "100 mm"
-        },
-        {
-          "label": "Weight",
-          "value": "3/8 oz"
-        },
-        {
-          "label": "Color",
-          "value": "Hankie Pankie"
-        },
-        {
-          "label": "Depth",
-          "value": "3-6 ft"
-        },
-        {
-          "label": "Buoyancy",
-          "value": "Slightly sinking"
-        }
-      ],
-      "links": [
-        {
-          "label": "Berkley",
-          "url": "https://www.berkley-fishing.com/products/stunna?_pos=1&_psq=stunna&_psid=70e54b51b&_ss=e&variant=42291054903435"
-        },
-        {
-          "label": "Amazon",
-          "url": "https://a.co/d/5ZkCU1O"
-        }
-      ],
+      "specifications": [ { "label": "Size", "value": "100 mm" }, { "label": "Weight", "value": "3/8 oz" }, { "label": "Color", "value": "Hankie Pankie" }, { "label": "Depth", "value": "3-6 ft" }, { "label": "Buoyancy", "value": "Slightly sinking" } ],
+      "links": [ { "label": "Berkley", "url": "https://www.berkley-fishing.com/products/stunna?_pos=1&_psq=stunna&_psid=70e54b51b&_ss=e&variant=42291054903435" }, { "label": "Amazon", "url": "https://a.co/d/5ZkCU1O" } ],
       "notes": "Gear/Lures/content/berkley-stunna.md",
-      "picture": {
-        "src": "Gear/Lures/assets/berkley-stunna.webp"
-      }
+      "picture": { "src": "Gear/Lures/assets/berkley-stunna.webp" }
     },
     {
       "id": "rapala-original-floating",
@@ -1222,43 +488,10 @@
       "name": "Rapala Original Floating",
       "manufacturer": "Rapala",
       "model": "Original Floating",
-      "specifications": [
-        {
-          "label": "Size",
-          "value": "1-1/2 in"
-        },
-        {
-          "label": "Weight",
-          "value": "1/16 oz"
-        },
-        {
-          "label": "Part",
-          "value": "F03"
-        },
-        {
-          "label": "Color",
-          "value": "Silver"
-        },
-        {
-          "label": "Depth",
-          "value": "2-4 ft"
-        },
-        {
-          "label": "Buoyancy",
-          "value": "Floating"
-        }
-      ],
-      "links": [
-        {
-          "label": "Rapala",
-          "url": "https://www.rapala.com/us_en/original-floating?childSku=us-F03S"
-        }
-      ],
+      "specifications": [ { "label": "Size", "value": "1-1/2 in" }, { "label": "Weight", "value": "1/16 oz" }, { "label": "Part", "value": "F03" }, { "label": "Color", "value": "Silver" }, { "label": "Depth", "value": "2-4 ft" }, { "label": "Buoyancy", "value": "Floating" } ],
+      "links": [ { "label": "Rapala", "url": "https://www.rapala.com/us_en/original-floating?childSku=us-F03S" } ],
       "notes": "Gear/Lures/content/rapala-original-floating.md",
-      "picture": {
-        "src": "Gear/Lures/assets/Rapala Original Floating.png",
-        "caption": "Rapala Original Floating Lure"
-      }
+      "picture": { "src": "Gear/Lures/assets/Rapala Original Floating.png", "caption": "Rapala Original Floating Lure" }
     },
     {
       "id": "rapala-dt",
@@ -1267,42 +500,10 @@
       "name": "Rapala DT",
       "manufacturer": "Rapala",
       "model": "DT",
-      "specifications": [
-        {
-          "label": "Size",
-          "value": "2 in"
-        },
-        {
-          "label": "Weight",
-          "value": "3/8 oz"
-        },
-        {
-          "label": "Part",
-          "value": "06"
-        },
-        {
-          "label": "Color",
-          "value": "Demon"
-        },
-        {
-          "label": "Depth",
-          "value": "6 ft"
-        },
-        {
-          "label": "Buoyancy",
-          "value": "Floating"
-        }
-      ],
-      "links": [
-        {
-          "label": "Rapala",
-          "url": "https://www.rapala.com/us_en/dt-dives-to-series?childSku=us-DT04DMN"
-        }
-      ],
+      "specifications": [ { "label": "Size", "value": "2 in" }, { "label": "Weight", "value": "3/8 oz" }, { "label": "Part", "value": "06" }, { "label": "Color", "value": "Demon" }, { "label": "Depth", "value": "6 ft" }, { "label": "Buoyancy", "value": "Floating" } ],
+      "links": [ { "label": "Rapala", "url": "https://www.rapala.com/us_en/dt-dives-to-series?childSku=us-DT04DMN" } ],
       "notes": "Gear/Lures/content/rapala-dt.md",
-      "picture": {
-        "src": "Gear/Lures/assets/rapala-dt06.webp"
-      }
+      "picture": { "src": "Gear/Lures/assets/rapala-dt06.webp" }
     },
     {
       "id": "rapala-ripstop",
@@ -1311,42 +512,10 @@
       "name": "Rapala RipStop",
       "manufacturer": "Rapala",
       "model": "RipStop",
-      "specifications": [
-        {
-          "label": "Size",
-          "value": "3-1/2 in"
-        },
-        {
-          "label": "Weight",
-          "value": "1/4 oz"
-        },
-        {
-          "label": "Part",
-          "value": "RPS09"
-        },
-        {
-          "label": "Color",
-          "value": "Moss Back Shiner"
-        },
-        {
-          "label": "Depth",
-          "value": "3-4 ft"
-        },
-        {
-          "label": "Buoyancy",
-          "value": "Slow-rise / suspending style"
-        }
-      ],
-      "links": [
-        {
-          "label": "Rapala",
-          "url": "https://www.rapala.com/us_en/ripstop?childSku=us-RPS09MBS"
-        }
-      ],
+      "specifications": [ { "label": "Size", "value": "3-1/2 in" }, { "label": "Weight", "value": "1/4 oz" }, { "label": "Part", "value": "RPS09" }, { "label": "Color", "value": "Moss Back Shiner" }, { "label": "Depth", "value": "3-4 ft" }, { "label": "Buoyancy", "value": "Slow-rise / suspending style" } ],
+      "links": [ { "label": "Rapala", "url": "https://www.rapala.com/us_en/ripstop?childSku=us-RPS09MBS" } ],
       "notes": "Gear/Lures/content/rapala-ripstop.md",
-      "picture": {
-        "src": "Gear/Lures/assets/rapala-ripstop.webp"
-      }
+      "picture": { "src": "Gear/Lures/assets/rapala-ripstop.webp" }
     },
     {
       "id": "rapala-husky-jerk",
@@ -1355,42 +524,10 @@
       "name": "Rapala Husky Jerk",
       "manufacturer": "Rapala",
       "model": "Husky Jerk",
-      "specifications": [
-        {
-          "label": "Size",
-          "value": "2-1/2 in"
-        },
-        {
-          "label": "Weight",
-          "value": "1/8 oz"
-        },
-        {
-          "label": "Part",
-          "value": "HJ06"
-        },
-        {
-          "label": "Color",
-          "value": "Yellow Perch"
-        },
-        {
-          "label": "Depth",
-          "value": "4-6 ft"
-        },
-        {
-          "label": "Buoyancy",
-          "value": "Suspending"
-        }
-      ],
-      "links": [
-        {
-          "label": "Rapala",
-          "url": "https://www.rapala.com/us_en/husky-jerk?childSku=us-HJ06YP"
-        }
-      ],
+      "specifications": [ { "label": "Size", "value": "2-1/2 in" }, { "label": "Weight", "value": "1/8 oz" }, { "label": "Part", "value": "HJ06" }, { "label": "Color", "value": "Yellow Perch" }, { "label": "Depth", "value": "4-6 ft" }, { "label": "Buoyancy", "value": "Suspending" } ],
+      "links": [ { "label": "Rapala", "url": "https://www.rapala.com/us_en/husky-jerk?childSku=us-HJ06YP" } ],
       "notes": "Gear/Lures/content/rapala-husky-jerk.md",
-      "picture": {
-        "src": "Gear/Lures/assets/rapala-husky-jerk.jpg"
-      }
+      "picture": { "src": "Gear/Lures/assets/rapala-husky-jerk.jpg" }
     },
     {
       "id": "mepps-aglia-3",
@@ -1399,30 +536,10 @@
       "name": "Mepps Aglia #3",
       "manufacturer": "Mepps",
       "model": "Aglia #3",
-      "specifications": [
-        {
-          "label": "Weight",
-          "value": "1/4 OZ"
-        },
-        {
-          "label": "Blade",
-          "value": "Gold/Red Dot"
-        },
-        {
-          "label": "Hook",
-          "value": "Plain"
-        }
-      ],
-      "links": [
-        {
-          "label": "Mepps",
-          "url": "https://store.mepps.com/goldred-dot-blade-3-14-oz-plain-aglia"
-        }
-      ],
+      "specifications": [ { "label": "Weight", "value": "1/4 OZ" }, { "label": "Blade", "value": "Gold/Red Dot" }, { "label": "Hook", "value": "Plain" } ],
+      "links": [ { "label": "Mepps", "url": "https://store.mepps.com/goldred-dot-blade-3-14-oz-plain-aglia" } ],
       "notes": "Gear/Lures/content/mepps-aglia-3.md",
-      "picture": {
-        "src": "Gear/Lures/assets/mepps-aglia-3.jpg"
-      }
+      "picture": { "src": "Gear/Lures/assets/mepps-aglia-3.jpg" }
     },
     {
       "id": "generic-0-inline-spinner-assortment",
@@ -1431,24 +548,9 @@
       "name": "South Bend 3-Piece Classic Dressed Spinners",
       "manufacturer": "South Bend",
       "model": "3-Piece Classic Dressed Spinners",
-      "specifications": [
-        {
-          "label": "Size",
-          "value": "#0"
-        },
-        {
-          "label": "Weight",
-          "value": "1/8 oz"
-        },
-        {
-          "label": "Colors",
-          "value": "Black/Yellow, Blue/Yellow, Chrome, Yellow Holographic"
-        }
-      ],
+      "specifications": [ { "label": "Size", "value": "#0" }, { "label": "Weight", "value": "1/8 oz" }, { "label": "Colors", "value": "Black/Yellow, Blue/Yellow, Chrome, Yellow Holographic" } ],
       "notes": "Gear/Lures/content/generic-0-inline-spinner-assortment.md",
-      "picture": {
-        "src": "Gear/Lures/assets/south-bend-dressed-spinners.jpg"
-      }
+      "picture": { "src": "Gear/Lures/assets/south-bend-dressed-spinners.jpg" }
     },
     {
       "id": "generic-1-inline-spinner",
@@ -1457,22 +559,10 @@
       "name": "Kingforest #1 inline spinner",
       "manufacturer": "Kingforest",
       "model": "#1 inline spinner",
-      "specifications": [
-        {
-          "label": "Weight",
-          "value": "1/6 oz"
-        },
-        {
-          "label": "Color",
-          "value": "Green Holo"
-        }
-      ],
+      "specifications": [ { "label": "Weight", "value": "1/6 oz" }, { "label": "Color", "value": "Green Holo" } ],
       "notes": "Gear/Lures/content/generic-1-inline-spinner.md",
       "links": [],
-      "picture": {
-        "src": "Gear/Lures/assets/Kingforest Inline Spinner.png",
-        "caption": "Kingforest #1 Inline Spinner"
-      }
+      "picture": { "src": "Gear/Lures/assets/Kingforest Inline Spinner.png", "caption": "Kingforest #1 Inline Spinner" }
     },
     {
       "id": "macks-wedding-ring",
@@ -1481,26 +571,10 @@
       "name": "Mack's Wedding Ring",
       "manufacturer": "Mack's",
       "model": "Wedding Ring",
-      "specifications": [
-        {
-          "label": "Size",
-          "value": "#4"
-        },
-        {
-          "label": "Color",
-          "value": "Nickel/Orange"
-        }
-      ],
-      "links": [
-        {
-          "label": "Mack's",
-          "url": "https://mackslure.com/collections/wedding-ring-lures/products/wedding-ring-classic-original?variant=41890371731702"
-        }
-      ],
+      "specifications": [ { "label": "Size", "value": "#4" }, { "label": "Color", "value": "Nickel/Orange" } ],
+      "links": [ { "label": "Mack's", "url": "https://mackslure.com/collections/wedding-ring-lures/products/wedding-ring-classic-original?variant=41890371731702" } ],
       "notes": "Gear/Lures/content/macks-wedding-ring.md",
-      "picture": {
-        "src": "Gear/Lures/assets/macks-wedding-ring.jpg"
-      }
+      "picture": { "src": "Gear/Lures/assets/macks-wedding-ring.jpg" }
     },
     {
       "id": "kastmaster",
@@ -1509,21 +583,9 @@
       "name": "Kastmaster",
       "manufacturer": "Acme",
       "model": "Kastmaster",
-      "specifications": [
-        {
-          "label": "Variants",
-          "value": "1/8 oz Chrome Neon Blue; 1/4 oz Chrome; 1/4 oz Gold"
-        }
-      ],
-      "links": [
-        {
-          "label": "Acme",
-          "url": "https://www.acmetackle.com/products/kastmaster-plain-treble-hook-solid?variant=46771792582"
-        }
-      ],
-      "picture": {
-        "src": "Gear/Lures/assets/kastmaster.webp"
-      }
+      "specifications": [ { "label": "Variants", "value": "1/8 oz Chrome Neon Blue; 1/4 oz Chrome; 1/4 oz Gold" } ],
+      "links": [ { "label": "Acme", "url": "https://www.acmetackle.com/products/kastmaster-plain-treble-hook-solid?variant=46771792582" } ],
+      "picture": { "src": "Gear/Lures/assets/kastmaster.webp" }
     },
     {
       "id": "dick-nite-spoon",
@@ -1532,26 +594,10 @@
       "name": "Dick Nite spoon",
       "manufacturer": "Dick Nite",
       "model": "Dick Nite spoon",
-      "specifications": [
-        {
-          "label": "Size",
-          "value": "#2"
-        },
-        {
-          "label": "Colors",
-          "value": "Brass Redhead, Nickel Redhead"
-        }
-      ],
-      "links": [
-        {
-          "label": "Dick Nite",
-          "url": "https://gibbsfishing.com/products/dick-nite?variant=48781415973159"
-        }
-      ],
+      "specifications": [ { "label": "Size", "value": "#2" }, { "label": "Colors", "value": "Brass Redhead, Nickel Redhead" } ],
+      "links": [ { "label": "Dick Nite", "url": "https://gibbsfishing.com/products/dick-nite?variant=48781415973159" } ],
       "notes": "Gear/Lures/content/dick-nite-spoon.md",
-      "picture": {
-        "src": "Gear/Lures/assets/dick-nite-spoon.webp"
-      }
+      "picture": { "src": "Gear/Lures/assets/dick-nite-spoon.webp" }
     },
     {
       "id": "luhr-jensen-trout-kokanee-dodger",
@@ -1560,25 +606,9 @@
       "name": "Luhr Jensen Trout & Kokanee Dodger",
       "manufacturer": "Luhr Jensen",
       "model": "Trout & Kokanee Dodger",
-      "specifications": [
-        {
-          "label": "Size",
-          "value": "040"
-        },
-        {
-          "label": "Color",
-          "value": "Chrome/Silver Prism-Lite"
-        }
-      ],
-      "links": [
-        {
-          "label": "Luhr Jensen",
-          "url": "https://www.rapala.com/us_en/jensen-trout-kokanee-dodger?childSku=us-5100-040-0150"
-        }
-      ],
-      "picture": {
-        "src": "Gear/Lures/assets/luhr-jensen-dodger.jpg"
-      }
+      "specifications": [ { "label": "Size", "value": "040" }, { "label": "Color", "value": "Chrome/Silver Prism-Lite" } ],
+      "links": [ { "label": "Luhr Jensen", "url": "https://www.rapala.com/us_en/jensen-trout-kokanee-dodger?childSku=us-5100-040-0150" } ],
+      "picture": { "src": "Gear/Lures/assets/luhr-jensen-dodger.jpg" }
     },
     {
       "id": "macks-pee-wee-hoochie",
@@ -1587,26 +617,9 @@
       "name": "Mack's Pee Wee Hoochie",
       "manufacturer": "Mack's",
       "model": "Pee Wee Hoochie",
-      "specifications": [
-        {
-          "label": "Size",
-          "value": "2 & #4"
-        },
-        {
-          "label": "Color",
-          "value": "Hot Pink Glow"
-        }
-      ],
-      "links": [
-        {
-          "label": "Mack's",
-          "url": "https://mackslure.com/products/pee-wee-hoochie?variant=41955516317942"
-        }
-      ],
-      "picture": {
-        "src": "Gear/Lures/assets/Mack's Pee Wee Hoochie.png",
-        "caption": "Mack's Pee Wee Hoochie (Hot Pink Glow)"
-      }
+      "specifications": [ { "label": "Size", "value": "2 & #4" }, { "label": "Color", "value": "Hot Pink Glow" } ],
+      "links": [ { "label": "Mack's", "url": "https://mackslure.com/products/pee-wee-hoochie?variant=41955516317942" } ],
+      "picture": { "src": "Gear/Lures/assets/Mack's Pee Wee Hoochie.png", "caption": "Mack's Pee Wee Hoochie (Hot Pink Glow)" }
     },
     {
       "id": "booyah-pad-crasher",
@@ -1615,22 +628,10 @@
       "name": "Booyah Pad Crasher",
       "manufacturer": "Booyah",
       "model": "Pad Crasher",
-      "specifications": [
-        {
-          "label": "Models",
-          "value": "Pad Crasher, Pad Crasher Jr."
-        }
-      ],
-      "links": [
-        {
-          "label": "Dick's Sporting Goods",
-          "url": "https://www.dickssportinggoods.com/p/booyah-pad-crasher-frog-assortment-3-pack-20byhupdcrshr3pkklur/20byhupdcrshr3pkklur"
-        }
-      ],
+      "specifications": [ { "label": "Models", "value": "Pad Crasher, Pad Crasher Jr." } ],
+      "links": [ { "label": "Dick's Sporting Goods", "url": "https://www.dickssportinggoods.com/p/booyah-pad-crasher-frog-assortment-3-pack-20byhupdcrshr3pkklur/20byhupdcrshr3pkklur" } ],
       "notes": "Gear/Lures/content/booyah-pad-crasher.md",
-      "picture": {
-        "src": "Gear/Lures/assets/booyah-pad-crasher.jpg"
-      }
+      "picture": { "src": "Gear/Lures/assets/booyah-pad-crasher.jpg" }
     },
     {
       "id": "rebel-pop-r",
@@ -1639,23 +640,10 @@
       "name": "Rebel Pop-R",
       "manufacturer": "Rebel",
       "model": "Pop-R",
-      "specifications": [
-        {
-          "label": "Color",
-          "value": "Silver/Black"
-        }
-      ],
-      "links": [
-        {
-          "label": "Rebel",
-          "url": "https://therebellures.com/"
-        }
-      ],
+      "specifications": [ { "label": "Color", "value": "Silver/Black" } ],
+      "links": [ { "label": "Rebel", "url": "https://therebellures.com/" } ],
       "notes": "Gear/Lures/content/rebel-pop-r.md",
-      "picture": {
-        "src": "Gear/Lures/assets/Rebel Pop-R.png",
-        "caption": "Rebel Pop-R (Silver/Black)"
-      }
+      "picture": { "src": "Gear/Lures/assets/Rebel Pop-R.png", "caption": "Rebel Pop-R (Silver/Black)" }
     },
     {
       "id": "river2sea-whopper-plopper-60",
@@ -1664,27 +652,10 @@
       "name": "River2Sea Whopper Plopper 60",
       "manufacturer": "River2Sea",
       "model": "Whopper Plopper 60",
-      "specifications": [
-        {
-          "label": "Size",
-          "value": "#60"
-        },
-        {
-          "label": "Color",
-          "value": "Bluegill"
-        }
-      ],
-      "links": [
-        {
-          "label": "River2Sea",
-          "url": "https://www.river2seausa.com/product/whopper-plopper-60/"
-        }
-      ],
+      "specifications": [ { "label": "Size", "value": "#60" }, { "label": "Color", "value": "Bluegill" } ],
+      "links": [ { "label": "River2Sea", "url": "https://www.river2seausa.com/product/whopper-plopper-60/" } ],
       "notes": "Gear/Lures/content/river2sea-whopper-plopper-60.md",
-      "picture": {
-        "src": "Gear/Lures/assets/River2Sea Whopper Plopper 60.jpg",
-        "caption": "River2Sea Whopper Plopper 60 (Bluegill)"
-      }
+      "picture": { "src": "Gear/Lures/assets/River2Sea Whopper Plopper 60.jpg", "caption": "River2Sea Whopper Plopper 60 (Bluegill)" }
     },
     {
       "id": "strike-king-premier-pro-model-jig",
@@ -1693,26 +664,10 @@
       "name": "Strike King Premier Pro-Model Jig",
       "manufacturer": "Strike King",
       "model": "Premier Pro-Model Jig",
-      "specifications": [
-        {
-          "label": "Variants",
-          "value": "3/8 oz Black & Blue; 1/2 oz Sexy Craw"
-        }
-      ],
-      "links": [
-        {
-          "label": "Strike King",
-          "url": "https://www.strikeking.com/en/shop/jigs--spoons/ppmj"
-        },
-        {
-          "label": "Dick's Sporting Goods",
-          "url": "https://www.dickssportinggoods.com/p/strike-king-denny-bauers-premier-pro-model-jig-15skiuppmjg12zsxylur/15skiuppmjg12zsxylur"
-        }
-      ],
+      "specifications": [ { "label": "Variants", "value": "3/8 oz Black & Blue; 1/2 oz Sexy Craw" } ],
+      "links": [ { "label": "Strike King", "url": "https://www.strikeking.com/en/shop/jigs--spoons/ppmj" }, { "label": "Dick's Sporting Goods", "url": "https://www.dickssportinggoods.com/p/strike-king-denny-bauers-premier-pro-model-jig-15skiuppmjg12zsxylur/15skiuppmjg12zsxylur" } ],
       "notes": "Gear/Lures/content/strike-king-premier-pro-model-jig.md",
-      "picture": {
-        "src": "Gear/Lures/assets/strike-king-premier-pro-model-jig.webp"
-      }
+      "picture": { "src": "Gear/Lures/assets/strike-king-premier-pro-model-jig.webp" }
     },
     {
       "id": "strike-king-tour-grade-football-jig",
@@ -1721,30 +676,10 @@
       "name": "Strike King Tour Grade Football Jig",
       "manufacturer": "Strike King",
       "model": "Tour Grade Football Jig",
-      "specifications": [
-        {
-          "label": "Weight",
-          "value": "1/2 oz"
-        },
-        {
-          "label": "Color",
-          "value": "Black & Blue"
-        }
-      ],
-      "links": [
-        {
-          "label": "Strike King",
-          "url": "https://www.strikeking.com/en/shop/jigs--spoons/tgfbj"
-        },
-        {
-          "label": "Dick's Sporting Goods",
-          "url": "https://www.dickssportinggoods.com/p/strike-king-tour-grade-football-jig-15skiutrgdftblljglur/15skiutrgdftblljglur"
-        }
-      ],
+      "specifications": [ { "label": "Weight", "value": "1/2 oz" }, { "label": "Color", "value": "Black & Blue" } ],
+      "links": [ { "label": "Strike King", "url": "https://www.strikeking.com/en/shop/jigs--spoons/tgfbj" }, { "label": "Dick's Sporting Goods", "url": "https://www.dickssportinggoods.com/p/strike-king-tour-grade-football-jig-15skiutrgdftblljglur/15skiutrgdftblljglur" } ],
       "notes": "Gear/Lures/content/strike-king-tour-grade-football-jig.md",
-      "picture": {
-        "src": "Gear/Lures/assets/strike-king-tour-grade-football-jig.jpg"
-      }
+      "picture": { "src": "Gear/Lures/assets/strike-king-tour-grade-football-jig.jpg" }
     },
     {
       "id": "yum-christie-craw",
@@ -1753,25 +688,9 @@
       "name": "YUM Christie Craw",
       "manufacturer": "YUM",
       "model": "Christie Craw",
-      "specifications": [
-        {
-          "label": "Size",
-          "value": "3.5 in"
-        },
-        {
-          "label": "Color",
-          "value": "Black w/Blue Flake"
-        }
-      ],
-      "links": [
-        {
-          "label": "Dick's Sporting Goods",
-          "url": "https://www.dickssportinggoods.com/p/yum-christie-craw-soft-bait-15yumuym35chrcrwwlur/15yumuym35chrcrwwlur?color=Black%2FBlue%20Flake"
-        }
-      ],
-      "picture": {
-        "src": "Gear/Lures/assets/yum-christie-craw.webp"
-      }
+      "specifications": [ { "label": "Size", "value": "3.5 in" }, { "label": "Color", "value": "Black w/Blue Flake" } ],
+      "links": [ { "label": "Dick's Sporting Goods", "url": "https://www.dickssportinggoods.com/p/yum-christie-craw-soft-bait-15yumuym35chrcrwwlur/15yumuym35chrcrwwlur?color=Black%2FBlue%20Flake" } ],
+      "picture": { "src": "Gear/Lures/assets/yum-christie-craw.webp" }
     },
     {
       "id": "strike-king-rage-craw",
@@ -1780,25 +699,9 @@
       "name": "Strike King Rage Craw",
       "manufacturer": "Strike King",
       "model": "Rage Craw",
-      "specifications": [
-        {
-          "label": "Size",
-          "value": "4 in"
-        },
-        {
-          "label": "Color",
-          "value": "California Craw"
-        }
-      ],
-      "links": [
-        {
-          "label": "Strike King",
-          "url": "https://www.strikeking.com/en/shop/soft-baits/rgcrw"
-        }
-      ],
-      "picture": {
-        "src": "Gear/Lures/assets/strike-king-rage-craw.png"
-      }
+      "specifications": [ { "label": "Size", "value": "4 in" }, { "label": "Color", "value": "California Craw" } ],
+      "links": [ { "label": "Strike King", "url": "https://www.strikeking.com/en/shop/soft-baits/rgcrw" } ],
+      "picture": { "src": "Gear/Lures/assets/strike-king-rage-craw.png" }
     },
     {
       "id": "sixth-sense-divine-swimbait",
@@ -1807,30 +710,10 @@
       "name": "6th Sense Divine Swimbait",
       "manufacturer": "6th Sense",
       "model": "Divine Swimbait",
-      "specifications": [
-        {
-          "label": "Size",
-          "value": "3.8 in"
-        },
-        {
-          "label": "Color",
-          "value": "Pro Shad"
-        }
-      ],
-      "links": [
-        {
-          "label": "6th Sense",
-          "url": "https://6thsensefishing.com/products/divine-swimbait?variant=46868751679627"
-        },
-        {
-          "label": "Dick's Sporting Goods",
-          "url": "https://www.dickssportinggoods.com/p/6th-sense-divine-swimbait-226thudvnswmbt32plur/226thudvnswmbt32plur?color=Pro%20Shad"
-        }
-      ],
+      "specifications": [ { "label": "Size", "value": "3.8 in" }, { "label": "Color", "value": "Pro Shad" } ],
+      "links": [ { "label": "6th Sense", "url": "https://6thsensefishing.com/products/divine-swimbait?variant=46868751679627" }, { "label": "Dick's Sporting Goods", "url": "https://www.dickssportinggoods.com/p/6th-sense-divine-swimbait-226thudvnswmbt32plur/226thudvnswmbt32plur?color=Pro%20Shad" } ],
       "notes": "Gear/Lures/content/sixth-sense-divine-swimbait.md",
-      "picture": {
-        "src": "Gear/Lures/assets/sixth-sense-divine-swimbait.webp"
-      }
+      "picture": { "src": "Gear/Lures/assets/sixth-sense-divine-swimbait.webp" }
     },
     {
       "id": "berkley-powerbait-power-jerk-shad",
@@ -1839,30 +722,10 @@
       "name": "Berkley PowerBait Power Jerk Shad",
       "manufacturer": "Berkley",
       "model": "PowerBait Power Jerk Shad",
-      "specifications": [
-        {
-          "label": "Size",
-          "value": "5 in"
-        },
-        {
-          "label": "Color",
-          "value": "Albino"
-        }
-      ],
-      "links": [
-        {
-          "label": "Berkley",
-          "url": "https://www.berkley-fishing.com/products/powerbait-power-jerk-shad"
-        },
-        {
-          "label": "Cabela's",
-          "url": "https://www.cabelas.com/p/berkley-powerbait-jerk-shad"
-        }
-      ],
+      "specifications": [ { "label": "Size", "value": "5 in" }, { "label": "Color", "value": "Albino" } ],
+      "links": [ { "label": "Berkley", "url": "https://www.berkley-fishing.com/products/powerbait-power-jerk-shad" }, { "label": "Cabela's", "url": "https://www.cabelas.com/p/berkley-powerbait-jerk-shad" } ],
       "notes": "Gear/Lures/content/berkley-powerbait-power-jerk-shad.md",
-      "picture": {
-        "src": "Gear/Lures/assets/berkley-power-jerk-shad.jpg"
-      }
+      "picture": { "src": "Gear/Lures/assets/berkley-power-jerk-shad.jpg" }
     },
     {
       "id": "fin-sanity-bluegill",
@@ -1871,34 +734,10 @@
       "name": "Fin-Sanity Bluegill",
       "manufacturer": "Fin-Sanity",
       "model": "Bluegill",
-      "specifications": [
-        {
-          "label": "Size",
-          "value": "3 in"
-        },
-        {
-          "label": "Weight",
-          "value": "1/2 oz"
-        },
-        {
-          "label": "Color",
-          "value": "Green Sunfish"
-        },
-        {
-          "label": "Construction",
-          "value": "Hard-jointed swimbait"
-        }
-      ],
-      "links": [
-        {
-          "label": "Fin-Sanity",
-          "url": "https://tacklingthewater.com/products/fin-sanity-bluegill-lineup?variant=41352103624778"
-        }
-      ],
+      "specifications": [ { "label": "Size", "value": "3 in" }, { "label": "Weight", "value": "1/2 oz" }, { "label": "Color", "value": "Green Sunfish" }, { "label": "Construction", "value": "Hard-jointed swimbait" } ],
+      "links": [ { "label": "Fin-Sanity", "url": "https://tacklingthewater.com/products/fin-sanity-bluegill-lineup?variant=41352103624778" } ],
       "notes": "Gear/Lures/content/fin-sanity-bluegill.md",
-      "picture": {
-        "src": "Gear/Lures/assets/fin-sanity-bluegill.webp"
-      }
+      "picture": { "src": "Gear/Lures/assets/fin-sanity-bluegill.webp" }
     },
     {
       "id": "yamamoto-senko",
@@ -1907,26 +746,10 @@
       "name": "Yamamoto Senko",
       "manufacturer": "Yamamoto",
       "model": "Senko",
-      "specifications": [
-        {
-          "label": "Size",
-          "value": "5 in"
-        },
-        {
-          "label": "Colors",
-          "value": "Green Pumpkin Pepper, Black w/Large Blue Flake, Watermelon w/Black Flake"
-        }
-      ],
-      "links": [
-        {
-          "label": "Yamamoto",
-          "url": "https://www.yamamotobaits.com/products/5-senko/?sku=YAM-9-10-297"
-        }
-      ],
+      "specifications": [ { "label": "Size", "value": "5 in" }, { "label": "Colors", "value": "Green Pumpkin Pepper, Black w/Large Blue Flake, Watermelon w/Black Flake" } ],
+      "links": [ { "label": "Yamamoto", "url": "https://www.yamamotobaits.com/products/5-senko/?sku=YAM-9-10-297" } ],
       "notes": "Gear/Lures/content/yamamoto-senko.md",
-      "picture": {
-        "src": "Gear/Lures/assets/yamamoto-senko.webp"
-      }
+      "picture": { "src": "Gear/Lures/assets/yamamoto-senko.webp" }
     },
     {
       "id": "zman-ned-rig-kit",
@@ -1935,30 +758,10 @@
       "name": "Z-Man Ned Rig Kit",
       "manufacturer": "Z-Man",
       "model": "Ned Rig Kit",
-      "specifications": [
-        {
-          "label": "Size",
-          "value": "3.5 in"
-        },
-        {
-          "label": "Color",
-          "value": "Green Pumpkin"
-        },
-        {
-          "label": "Baits",
-          "value": "Trick ShotZ, Finesse ShadZ, GobyZ"
-        }
-      ],
-      "links": [
-        {
-          "label": "Z-Man",
-          "url": "https://zmanfishing.com/products/ned-rig-kit"
-        }
-      ],
+      "specifications": [ { "label": "Size", "value": "3.5 in" }, { "label": "Color", "value": "Green Pumpkin" }, { "label": "Baits", "value": "Trick ShotZ, Finesse ShadZ, GobyZ" } ],
+      "links": [ { "label": "Z-Man", "url": "https://zmanfishing.com/products/ned-rig-kit" } ],
       "notes": "Gear/Lures/content/zman-ned-rig-kit.md",
-      "picture": {
-        "src": "Gear/Lures/assets/zman-ned-rig-kit.jpg"
-      }
+      "picture": { "src": "Gear/Lures/assets/zman-ned-rig-kit.jpg" }
     },
     {
       "id": "berkley-gulp-minnow",
@@ -1967,25 +770,9 @@
       "name": "Berkley Gulp! Minnow",
       "manufacturer": "Berkley",
       "model": "Gulp! Minnow",
-      "specifications": [
-        {
-          "label": "Size",
-          "value": "2.5 in"
-        },
-        {
-          "label": "Color",
-          "value": "Smelt"
-        }
-      ],
-      "links": [
-        {
-          "label": "Berkley",
-          "url": "https://www.berkley-fishing.com/products/gulp-minnow"
-        }
-      ],
-      "picture": {
-        "src": "Gear/Lures/assets/berkley-gulp-minnow.webp"
-      }
+      "specifications": [ { "label": "Size", "value": "2.5 in" }, { "label": "Color", "value": "Smelt" } ],
+      "links": [ { "label": "Berkley", "url": "https://www.berkley-fishing.com/products/gulp-minnow" } ],
+      "picture": { "src": "Gear/Lures/assets/berkley-gulp-minnow.webp" }
     },
     {
       "id": "berkley-powerbait-trout-dough",
@@ -1994,21 +781,9 @@
       "name": "Berkley PowerBait Trout Dough",
       "manufacturer": "Berkley",
       "model": "PowerBait Trout Dough",
-      "specifications": [
-        {
-          "label": "Color",
-          "value": "Rainbow"
-        }
-      ],
-      "links": [
-        {
-          "label": "Berkley",
-          "url": "https://www.berkley-fishing.com/products/powerbait-trout-bait"
-        }
-      ],
-      "picture": {
-        "src": "Gear/Bait/assets/berkley-powerbait-trout-dough.jpg"
-      }
+      "specifications": [ { "label": "Color", "value": "Rainbow" } ],
+      "links": [ { "label": "Berkley", "url": "https://www.berkley-fishing.com/products/powerbait-trout-bait" } ],
+      "picture": { "src": "Gear/Bait/assets/berkley-powerbait-trout-dough.jpg" }
     },
     {
       "id": "berkley-powerbait-trout-nuggets",
@@ -2017,21 +792,9 @@
       "name": "Berkley PowerBait Trout Nuggets Dough Baits",
       "manufacturer": "Berkley",
       "model": "PowerBait Trout Nuggets Dough Baits",
-      "specifications": [
-        {
-          "label": "Color",
-          "value": "Sherbert"
-        }
-      ],
-      "links": [
-        {
-          "label": "Berkley",
-          "url": "https://www.berkley-fishing.com/products/powerbait-trout-nuggets"
-        }
-      ],
-      "picture": {
-        "src": "Gear/Bait/assets/berkley-powerbait-trout-nuggets.webp"
-      }
+      "specifications": [ { "label": "Color", "value": "Sherbert" } ],
+      "links": [ { "label": "Berkley", "url": "https://www.berkley-fishing.com/products/powerbait-trout-nuggets" } ],
+      "picture": { "src": "Gear/Bait/assets/berkley-powerbait-trout-nuggets.webp" }
     },
     {
       "id": "berkley-powerbait-magnum-floating-power-eggs",
@@ -2040,21 +803,9 @@
       "name": "Berkley PowerBait Magnum Floating Power Eggs",
       "manufacturer": "Berkley",
       "model": "PowerBait Magnum Floating Power Eggs",
-      "specifications": [
-        {
-          "label": "Color",
-          "value": "Fluorescent Orange"
-        }
-      ],
-      "links": [
-        {
-          "label": "Berkley",
-          "url": "https://www.berkley-fishing.com/collections/trout/products/powerbait-power-eggs-floating-magnum"
-        }
-      ],
-      "picture": {
-        "src": "Gear/Bait/assets/berkley-magnum-power-eggs.webp"
-      }
+      "specifications": [ { "label": "Color", "value": "Fluorescent Orange" } ],
+      "links": [ { "label": "Berkley", "url": "https://www.berkley-fishing.com/collections/trout/products/powerbait-power-eggs-floating-magnum" } ],
+      "picture": { "src": "Gear/Bait/assets/berkley-magnum-power-eggs.webp" }
     },
     {
       "id": "bonafide-rvr119",
@@ -2063,46 +814,10 @@
       "name": "Bonafide RVR119",
       "manufacturer": "Bonafide",
       "model": "RVR119",
-      "specifications": [
-        {
-          "label": "S/N",
-          "value": "LPS00469H526"
-        },
-        {
-          "label": "Length",
-          "value": "11' 9\""
-        },
-        {
-          "label": "Width",
-          "value": "35\""
-        },
-        {
-          "label": "Weight",
-          "value": "85 lb"
-        },
-        {
-          "label": "Capacity",
-          "value": "425 lb"
-        },
-        {
-          "label": "Color",
-          "value": "Steel"
-        }
-      ],
-      "links": [
-        {
-          "label": "Bonafide",
-          "url": "https://bonafidefishing.com/products/rvr119"
-        },
-        {
-          "label": "Eco Fishing",
-          "url": "https://ecofishingshop.com/products/bonafide-rvr119-fishing-kayak?variant=41430925508742"
-        }
-      ],
+      "specifications": [ { "label": "S/N", "value": "LPS00469H526" }, { "label": "Length", "value": "11' 9\"" }, { "label": "Width", "value": "35\"" }, { "label": "Weight", "value": "85 lb" }, { "label": "Capacity", "value": "425 lb" }, { "label": "Color", "value": "Steel" } ],
+      "links": [ { "label": "Bonafide", "url": "https://bonafidefishing.com/products/rvr119" }, { "label": "Eco Fishing", "url": "https://ecofishingshop.com/products/bonafide-rvr119-fishing-kayak?variant=41430925508742" } ],
       "notes": "Gear/Equipment/content/bonafide-rvr119.md",
-      "picture": {
-        "src": "Gear/Equipment/assets/bonafide-rvr119.png"
-      }
+      "picture": { "src": "Gear/Equipment/assets/bonafide-rvr119.png" }
     },
     {
       "id": "dagger-axis-10-5",
@@ -2111,37 +826,9 @@
       "name": "Dagger Axis 10.5",
       "manufacturer": "Dagger",
       "model": "Axis 10.5",
-      "specifications": [
-        {
-          "label": "Length",
-          "value": "10' 6\""
-        },
-        {
-          "label": "Height",
-          "value": "15.25\""
-        },
-        {
-          "label": "Width",
-          "value": "28.5\""
-        },
-        {
-          "label": "Weight",
-          "value": "50 lb"
-        },
-        {
-          "label": "Cockpit opening",
-          "value": "52.5\"x23.5\" (6.0 deck)"
-        }
-      ],
-      "links": [
-        {
-          "label": "Dagger",
-          "url": "https://www.confluenceoutdoor.com/products/dagger-axis-105-crossover-kayak-9030515209?_pos=1&_psq=axis&_psid=22657cf47&_ss=e"
-        }
-      ],
-      "picture": {
-        "src": "Gear/Equipment/assets/dagger-axis-10-5.png"
-      }
+      "specifications": [ { "label": "Length", "value": "10' 6\"" }, { "label": "Height", "value": "15.25\"" }, { "label": "Width", "value": "28.5\"" }, { "label": "Weight", "value": "50 lb" }, { "label": "Cockpit opening", "value": "52.5\"x23.5\" (6.0 deck)" } ],
+      "links": [ { "label": "Dagger", "url": "https://www.confluenceoutdoor.com/products/dagger-axis-105-crossover-kayak-9030515209?_pos=1&_psq=axis&_psid=22657cf47&_ss=e" } ],
+      "picture": { "src": "Gear/Equipment/assets/dagger-axis-10-5.png" }
     },
     {
       "id": "perception-joyride-10-0",
@@ -2150,36 +837,28 @@
       "name": "Perception Joyride 10.0",
       "manufacturer": "Perception",
       "model": "Joyride 10.0",
+      "specifications": [ { "label": "Length", "value": "10'" }, { "label": "Height", "value": "15.25\"" }, { "label": "Width", "value": "28.5\"" }, { "label": "Weight", "value": "50 lb" }, { "label": "Color", "value": "Funkadelic" } ],
+      "links": [ { "label": "Perception", "url": "https://www.perception-kayaks.com/product/perception-joyride-10-sit-inside-kayak-for-adults-and-kids-recreational-and-multi-water-kayak-with-selfie-slot-10dapper/" } ],
+      "picture": { "src": "Gear/Equipment/assets/perception-joyride-10.png" }
+    },
+    {
+      "id": "humminbird-fish-finder",
+      "name": "Humminbird Fish Finder",
+      "category": "accessories",
+      "type": "Electronics",
       "specifications": [
-        {
-          "label": "Length",
-          "value": "10'"
-        },
-        {
-          "label": "Height",
-          "value": "15.25\""
-        },
-        {
-          "label": "Width",
-          "value": "28.5\""
-        },
-        {
-          "label": "Weight",
-          "value": "50 lb"
-        },
-        {
-          "label": "Color",
-          "value": "Funkadelic"
-        }
+        { "value": "XNT 9 HW DI T", "label": "Transducer" }
       ],
       "links": [
-        {
-          "label": "Perception",
-          "url": "https://www.perception-kayaks.com/product/perception-joyride-10-sit-inside-kayak-for-adults-and-kids-recreational-and-multi-water-kayak-with-selfie-slot-10dapper/"
-        }
+        { "label": "Humminbird", "url": "https://humminbird.johnsonoutdoors.com/us/shop/fish-finders/helix/helix-5-chirp-di-gps-g3" },
+        { "label": "Transducer", "url": "https://humminbird.johnsonoutdoors.com/us/shop/accessories/transducers/xnt-9-hw-di-t-down-imaging-dual-spectrum-chirp-w-temp-transom" }
       ],
+      "manufacturer": "Humminbird",
+      "model": "Helix 5 Chirp DI GPS G3",
+      "notes": "Gear/Equipment/content/Humminbird Fish Finder.md",
       "picture": {
-        "src": "Gear/Equipment/assets/perception-joyride-10.png"
+        "src": "Gear/Equipment/assets/Humminbird Helix 5 Chirp DI GPS G3.png",
+        "caption": "Humminbird Helix 5 Chirp DI GPS G3"
       }
     }
   ]
