@@ -4,168 +4,88 @@ This file records **current durable decisions**. Detailed historical release evi
 
 ## Operating mode
 
-**Decision:** Chat mode is the permanent default for this project. Do not recommend Work merely because work is complex, lengthy, file-heavy, analytical, research/calculation-heavy or artifact-producing. Use a temporary Work switch only for a genuinely Work-only capability after explaining the need and obtaining explicit user approval.
+**Decision:** Chat mode is the permanent default. Do not recommend Work merely because work is complex, lengthy, file-heavy, analytical, research/calculation-heavy or artifact-producing. Use a temporary Work switch only for a genuinely Work-only capability after explaining the need and obtaining explicit user approval.
 
-## New-chat transfer and handoff protocol
+## New-chat transfer and handoff
 
-**Decision:** When the user says **“It’s time to transfer to a new chat”** (or an unmistakably equivalent statement that the current chat is getting too long and should be transferred), treat that as the cue to ask for confirmation that the user wants the full project handoff prepared. Do not begin the repository-writing handoff until the user confirms.
+**Decision:** When the user says **“It’s time to transfer to a new chat”** (or clearly equivalent wording), ask for confirmation that they want the full project handoff. Once confirmed, execute it end-to-end without repeated “Proceed” prompts: restore actual latest `main`, open PRs and current production evidence; reconcile durable state; update authoritative records only where project state actually changed; preserve unresolved work; cross-check the records/bootstrap; and finish with a clickable GitHub link to `Fishing_New_Chat_Bootstrap_Prompt.md`.
 
-After confirmation, execute the handoff end-to-end without requiring repeated “Proceed” prompts:
+Routine content releases do not require state-file churn merely so a later handoff can discover them; Git history and the latest production workflow/release are authoritative for those events.
 
-- restore actual latest `main` and current open-PR state;
-- reconcile work completed in the chat against the repository and production evidence;
-- update `README.md`, `Fishing_Context.md`, `Fishing_TODO.md`, `Fishing_Decision_Log.md`, `Fishing_New_Chat_Bootstrap_Prompt.md`, and any other project records materially affected by the chat;
-- preserve unresolved work, purchase uncertainty, exact continuation state, relevant task IDs, PRs, SHAs, releases, workflow runs and artifacts;
-- perform a final cross-file consistency check so the authoritative state files and bootstrap prompt agree;
-- leave the repository in a clean continuation state, using the normal documentation PR/merge workflow when repository records need changes; and
-- in the final handoff response, provide a clickable GitHub link to `Fishing_New_Chat_Bootstrap_Prompt.md` so the user can open it and copy its contents into the new Chat-mode conversation.
-
-This is a project convention, not an automatic ChatGPT product feature. If the user explicitly asks for a lighter-weight transfer, follow that narrower request instead.
-
-## Repository authority and release discipline
+## Repository authority
 
 **Decision:** `ginosega/fishing` is authoritative. Restore actual latest `main` and open-PR state before implementation/release/repository-write work.
 
-Canonical **physical** domain content lives under `pwa/Gear/`, `pwa/KB/` and `pwa/Catches/`. Canonical **logical** record/release paths remain `Gear/...`, `KB/...` and `Catches/...`. Active app/build/test code also lives under `pwa/`.
+Canonical physical content roots are `pwa/Gear/`, `pwa/KB/` and `pwa/Catches/`; logical record/release paths remain `Gear/...`, `KB/...` and `Catches/...`. `.github/workflows/fishing-production.yml` is the sole active Pages publisher.
 
-Runtime/source changes use normal feature PR/CI, merge and exact-current-main deployment. `.github/workflows/fishing-production.yml` is the sole active Pages publisher. Documentation-only reconciliation does not republish production.
+For an exact current production SHA/release ID/counts, inspect the latest successful `main` production workflow and deployed `release.json`; do not maintain volatile production identifiers/counts as durable narrative state.
 
-## Domain architecture
+## FISH108 — two-lane release discipline
 
-**Decision:** Fishing Companion retains three independent but consistent domains — Gear, Knowledge Base and Catch — with shared utilities where useful. Do not force them into a generic graph/entity framework.
+**Decision/status:** APPROVED and IMPLEMENTED. Full policy: [`pwa/docs/FISH108_Fast_Content_Release_Policy_2026-09-14.md`](pwa/docs/FISH108_Fast_Content_Release_Policy_2026-09-14.md).
 
-KB types are Location, Species, Equipment/Gear Guide, Technique and Knot. Paths are explicit record properties, not inferred identity. Existing IDs remain stable. Catch relationships remain the approved limited forward references; retired trips/sessions/planner/setup structures are not reintroduced without a new explicit requirement.
+### Fast Content Release
 
-## P1 authoring boundary
+Use the fast lane only when **every changed file** is beneath one or more of:
 
-**Decision:** Gear/KB browser Add/Edit uses **Prepare Changes → Copy Changes** to create a source-aware `fishing-companion-change-v2` handoff. Preparing/copying is not saving. Browser-side repository writes/uploads are not part of current production. Dirty forms remain protected and existing source/base conflict checks remain required.
+- `pwa/Gear/`
+- `pwa/KB/`
+- `pwa/Catches/`
 
-GitHub upload-folder links generated by authoring point to the physical source under `pwa/...`, while package and record paths remain logical `Gear/...` / `KB/...` paths.
+This is the default for routine source-aware Gear/KB add/edit packages, Markdown content, pictures, Knot sequence frames and Catch records.
 
-**Decision:** Direct GitHub editing is acceptable for simple Markdown-only narrative/content changes to existing canonical content files. Use the Fishing Companion Edit flow or equivalent source-aware structured workflow for changes to record fields, categories/types, specifications, structured links, picture metadata/sequences, paths or relationships. Direct Markdown editing must not casually rename/move the content file or bypass path/link rules. A branch/PR remains preferred over a direct `main` commit when the Markdown change is more than an obvious small correction.
+Fast release safeguards are: package/source conflict validation before mutation; lightweight content PR; locked dependency installation with cache reuse; one production build whose source inventory validates schemas, semantic references, paths, Markdown/resources and media integrity; independent generated-release verification; exact-current-main guard; Pages deployment; and dependency-free byte-for-byte hosted/release-identity verification.
 
-Routine source changes update canonical files directly; do not create per-item release/helper scaffolding. Significant application-release references belong in `pwa/docs/`.
+**Decision:** Do not run Node application behavior tests, Chromium/WebKit, preview-browser regression, durable-v1/cutover regression, dependency audit or hosted browser acceptance for a content-only change. Those guard code/runtime behavior and cannot be affected when the changed-file set is confined to canonical content.
 
-## FISH091 — online-only default / explicit offline library
+### Full Application Release
 
-**Decision/status:** DONE and production-verified. Ordinary online startup/navigation does not provision the complete offline library. **Connection Status → Update offline library** explicitly prepares or refreshes the verified complete offline generation. Online browsing uses current production even when an older complete offline generation remains available as fallback. Failed/corrupt/quota-failed explicit updates preserve the prior complete generation. Devices without a prepared generation must not claim offline readiness.
+Any file outside those three roots forces the full lane. Mixed content+non-content changes also force full. Runtime/UI/service worker, schema/contracts, tests, build/tooling, dependencies, workflow, migration/recovery/offline architecture and other non-content changes retain the comprehensive full suite. Manual workflow dispatch is full.
 
-Later FISH releases do not change this decision unless explicitly stated.
+If fast-lane eligibility is ambiguous, use full; do not broaden eligibility to make a failing release pass.
 
-## FISH096 — Knot step-by-step picture sequences
+### Source-derived content expectations
 
-**Decision/status:** DONE and production-verified. Durable rules remain:
+**Decision:** Gear/KB/Catch counts, canonical-path totals and inventory-reference totals are mutable library state, not application invariants. Validation and hosted acceptance derive them from canonical source or the exact generated release. Historical counts in dated release evidence remain historical facts but must not become future hand-maintained test baselines.
 
-- picture sequences are optional and **Knot-only**;
-- logical frame paths use `KB/Knots/assets/<knot-id>/step-01...`; physical files live under `pwa/KB/Knots/assets/<knot-id>/`;
-- authoritative order is the explicit structured `pictureSequence`, never runtime directory inference;
-- a sequence contains at least two frames and every frame passes existing path/image/build/offline integrity validation;
-- `picture.src` equals the final sequence frame and remains the normal representative picture;
-- cards/detail pages load only that representative frame; clicking it opens the sequence viewer at frame 1;
-- visible sequence controls are Previous / Play-Pause / Next / Close; manual navigation does not wrap; auto playback loops at one second per frame; manual navigation pauses playback first;
-- one shared caption applies to the sequence; no per-frame captions;
-- keyboard Left/Right/Space/Escape and existing zoom/pan/pinch behavior remain supported;
-- no autoplay occurs on open; remaining frames preload only after the sequence viewer opens;
-- existing static-picture records and static viewer remain unchanged;
-- sequence authoring stays inside the existing Picture section and uses native complete multi-file selection;
-- filenames establish order, and the final frame automatically becomes the representative picture;
-- conversion **into** a sequence requires the complete intended sequence and never silently reuses the old static picture as the final frame;
-- conversion **out of** a sequence may use a new static picture or retain the existing representative final frame;
-- replacing/removing references never implicitly deletes old source image files;
-- changing a sequenced Knot to another KB type requires resolving the sequence first;
-- the P1 handoff explicitly carries sequence intent, ordered paths and selected-file hashes; it remains Prepare/Copy only; and
-- FISH091 explicit complete-library preparation includes every referenced sequence frame and retains its existing fallback/atomicity guarantees.
+### Routine authoring is not an application task
 
-The production closeout remains `pwa/docs/FISH096_Production_Closeout_2026-09-12.md`.
+**Decision:** A routine Fast Content Release does **not** consume a `FISH-TODO-###` application/architecture task ID. It also does not require a per-item production-closeout Markdown document or README/Context/TODO/Decision Log/bootstrap edits solely to record the publication.
 
-## FISH097–FISH101 — Knot content and sequence releases
+Its durable audit trail is the supplied source-aware package and validation, the lightweight PR/merge, the successful fast workflow/Pages deployment, and hosted verification artifact.
 
-**Decision/status:** DONE and production-verified. These releases activated/refined Palomar, Albright, Arbor, Bowline, FG, Improved Clinch, Modified Uni, Trilene and Non-Slip Loop content/pictures/sequences, and removed Double Uni Knot and Single Uni Knot. The current active sequence set is Palomar 13 PNG, Albright 15 JPG, Arbor 9 JPG, Bowline 7 JPG, FG 29 JPG, Improved Clinch 11 PNG, Modified Uni 12 JPG and Trilene 15 PNG.
+Update project-state documents when architecture/product behavior/durable decisions/backlog state changes, or during a requested handoff/reconciliation.
 
-These releases confirm the FISH096 rule that repository directory contents never define a sequence by themselves; explicit canonical references are required before media becomes release/offline content.
+## Domain architecture and authoring boundary
 
-## FISH102 — Line-Tackle-Knot Reference
+**Decision:** Fishing Companion retains independent Gear, Knowledge Base and Catch domains with shared utilities where useful; do not force them into a generic graph/entity framework. KB types are Location, Species, Equipment/Gear Guide, Technique and Knot. Paths are explicit record properties; existing IDs remain stable. Retired trips/sessions/planner/setup structures remain retired unless explicitly re-approved.
 
-**Decision/status:** DONE and production-verified. [PR124](https://github.com/ginosega/fishing/pull/124) added the `line-tackle-knot-reference` KB Knot record, its Markdown article and representative picture.
+**Decision:** Gear/KB browser Add/Edit uses **Prepare Changes → Copy Changes** to create a source-aware `fishing-companion-change-v2` handoff. Preparing/copying is not saving; browser-side repository writes/uploads are not current production. Existing source/base conflict checks remain required. GitHub upload links point to physical `pwa/...` source folders while package paths remain logical.
 
-**Decision:** The **Line-Tackle-Knot Reference** card is pinned first only on the KB → Knots category page. All remaining Knot cards are alphabetical. Other category/search/detail ordering is unchanged.
+Simple Markdown-only narrative edits to existing canonical files may be made directly in GitHub. Structured record fields, categories/types, specifications, structured links, picture metadata/sequences, paths and relationships should use Fishing Companion Edit or an equivalent source-aware workflow.
 
-## FISH103 — physical PWA source and authoring fixes
+## Durable application behavior
 
-**Decision/status:** DONE and production-verified. Feature [PR125](https://github.com/ginosega/fishing/pull/125) implemented the application/source changes. Verifier-only [PR126](https://github.com/ginosega/fishing/pull/126) and [PR127](https://github.com/ginosega/fishing/pull/127) corrected hosted-test dialog sequencing only.
+**FISH091 — offline model:** normal online use does not provision the complete offline library. **Connection Status → Update offline library** explicitly prepares/refreshes a verified complete generation; failed/corrupt/quota-failed refreshes preserve the prior verified generation.
 
-Durable FISH103 decisions/results:
+**FISH096 — Knot sequences:** optional and Knot-only; physical frames under `pwa/KB/Knots/assets/<id>/`, logical paths `KB/Knots/assets/<id>/`; explicit array defines order; at least two frames; `picture.src` equals final/representative frame; cards/detail load only representative frame; sequence viewer supports approved controls/keyboard/zoom behavior; no autoplay on open; complete multi-file selection establishes order; conversion into sequence never silently reuses old static picture; replacing references does not delete old source files; complete offline preparation includes every referenced frame.
 
-- canonical physical domain source is under `pwa/Gear/`, `pwa/KB/` and `pwa/Catches/`; repository-root copies must not return;
-- logical record/release paths remain `Gear/...`, `KB/...` and `Catches/...` so content contracts and generated URLs do not gain a `pwa/` prefix;
-- build/source validation defaults to physical source root `pwa/`;
-- GitHub authoring upload links use the physical `/pwa/...` repository folder;
-- external HTTP(S) links from structured Links and rendered Markdown open in a new tab with `rel="noopener noreferrer"`;
-- internal `gear://`, `kb://`, local/anchor and other in-app navigation remains same-tab;
-- Gear/KB caption editing updates only the caption preview and must retain input focus rather than rerendering the full picture editor;
-- new-KB Markdown Preview must assign a provisional required `content` path before whole-library validation; and
-- the production workflow relies on `pwa/**` for canonical application/domain source because the old root domain folders no longer exist.
+**FISH102:** Line-Tackle-Knot Reference is pinned first only on KB → Knots; remaining Knot cards alphabetical.
 
-## FISH104 — Humminbird Fish Finder Gear record
+**FISH103:** canonical physical domain source stays under `pwa/`; authoring upload links use physical `/pwa/...`; external HTTP(S) links open new tab with `noopener noreferrer`; internal app/local links remain same-tab; Caption editing retains focus; new-KB Markdown Preview assigns provisional required content path before whole-library validation.
 
-**Decision/status:** DONE and production-verified. [PR130](https://github.com/ginosega/fishing/pull/130) implemented the supplied `fishing-companion-change-v2` add package for Gear ID `humminbird-fish-finder`.
+**FISH107:** current canonical Skylety Fishing Hook Sharpener type is `Tools`. FISH106's `Kayaks` value remains historical evidence of the earlier supplied package only.
 
-**Decision/result:** The canonical record is Humminbird / Helix 5 Chirp DI GPS G3, category `accessories`, type `Electronics`, with transducer `XNT 9 HW DI T`; logical Markdown is `Gear/Equipment/content/Humminbird Fish Finder.md`; logical representative picture is `Gear/Equipment/assets/Humminbird Helix 5 Chirp DI GPS G3.png` with caption `Humminbird Helix 5 Chirp DI GPS G3`.
+## Backlog decisions
 
-The user-supplied picture bytes are authoritative and were not regenerated or rewritten. Final production contains exactly **579,304 bytes** with SHA-256 `2ec799df4d20af22031ca7fde682aca1f5c695a5cab028fb251fd2457f3e0d4e`.
+**FISH-TODO-005:** remains **WAITING ON USER**. FISH104's notes do not explicitly confirm every fish-finder power-system component as installed.
 
-**Decision:** FISH104 does not automatically close `FISH-TODO-005`. The new Gear notes contain a fish-finder power architecture and parts list, but they do not explicitly state that every listed item is the installed configuration. Preserve the WAITING ON USER status until the user confirms the installed system.
+**FISH-TODO-014:** remains **OPEN**. FISH105's HyperSeal 3600 item was not explicitly identified as the historical “KastKing 3600 deep box” watch target.
 
-## FISH105 — Joyride correction and KastKing tackle-management Gear
+## Fishing Companion v3
 
-**Decision/status:** DONE and production-verified. [PR132](https://github.com/ginosega/fishing/pull/132) implemented the five supplied Gear change packages together.
+**Decision:** **Fishing Companion v3** is the preferred name for the deferred future phase historically `FISH-TODO-077/P2`. It remains **DEFERRED**. Authentication, direct GitHub save/upload, integrated uploads, offline authoring/outbox/sync, Catch authoring and multi-user generalization are not current production or implicitly approved.
 
-**Decision/result:** Perception Joyride 10.0 is type `Kayaks` with caption `Perception Joyride 10.0 - Funkadelic`. Four new Gear records are canonical under category `accessories`, type `Tackle Management`: KastKing HyperSeal Waterproof Tackle Box, KastKing Fishing Tackle Bag, KastKing Signature Lure Bag and KastKing BaitShield Tackle Storage Bag. The Fishing Tackle Bag has canonical Markdown `Gear/Equipment/content/KastKing Fishing Tackle Bag.md` with the supplied note that it holds seven size-3600 tackle boxes.
+## Open application work
 
-The four KastKing pictures were user-supplied source files already present before package promotion and were referenced in place rather than rewritten. The unrelated direct Bonafide RVR119 Markdown update already on `main` was preserved unchanged.
-
-Final validator-measured state is **74 Gear, 56 KB and 5 Catches**, **108 canonical library paths**, **240 inventory references**. Final verified production source is `dc7e6434757f19c15f05d29fc120251425108fe8`, release `6b10de29a03200d6f06040847007aaa8`, [run 34804905643](https://github.com/ginosega/fishing/actions/runs/34804905643), **334 hosted v2 files**, hosted-verification artifact `10332432676`.
-
-**Decision:** FISH105 does not automatically close `FISH-TODO-014`. Although it adds a KastKing HyperSeal Waterproof Tackle Box in size 3600, the supplied package does not explicitly identify that product as the backlog's specific “KastKing 3600 deep box” target. Preserve FISH-TODO-014 as OPEN until the user explicitly resolves it.
-
-## FISH106 — Gear tools, storage and accessories batch
-
-**Decision/status:** DONE and production-verified. [PR134](https://github.com/ginosega/fishing/pull/134) implemented six supplied `fishing-companion-change-v2` Gear add packages atomically after the user supplied the initially missing Plano image.
-
-**Decision/result:** The canonical additions are KastKing Brutus Silicone Foldable Extendable Net (`Tools`), KastKing Cutthroat 7" Stainless Steel Pliers (`Tools`), Skylety Fishing Hook Sharpener (supplied type `Kayaks`), Plano Sportsman's Trunk (`Storage`), KastKing V10 Pivot Grip Fishing Rod Holder (`Storage`) and Palmyth Flexible Fishing Gloves (`Accessories`). The Brutus net and Cutthroat pliers also have their supplied canonical Markdown notes.
-
-All six pictures were user-supplied source files already present under `pwa/Gear/Equipment/assets/` before the batch was promoted. Their repository byte sizes matched the supplied package metadata; the files were referenced in place and were not rewritten. The initially missing Plano Sportsman's Trunk PNG was verified at **1,016,850 bytes** before promotion proceeded.
-
-Final feature head `4a1c9dd5d765bd07b4ce3b36b6e3bc17ff43a8b0` passed exact-head acceptance in [run 34808981155](https://github.com/ginosega/fishing/actions/runs/34808981155). Final validator-measured state is **80 Gear, 56 KB and 5 Catches**, **110 canonical library paths**, **245 inventory references**.
-
-Final verified production source is `9b419e07f9a3a56a2be1ddbfb0df1760fe2730cb`, release `fe94ec0a8b0c606f72847ef3fda0a5b6`, [run 34809970042](https://github.com/ginosega/fishing/actions/runs/34809970042), **342 hosted v2 files**, hosted-verification artifact `10334477509`. Exact-current-main protection, Pages publication, hosted byte verification and hosted browser verification all passed.
-
-**Decision:** FISH106 is a content/Gear release only. It does not change the Gear schema, P1 authoring boundary, FISH091 offline model, FISH096 sequence model, FISH103 link/upload behavior, or the unresolved conclusions for `FISH-TODO-005` and `FISH-TODO-014`.
-
-## FISH107 — Skylety Fishing Hook Sharpener type correction
-
-**Decision/status:** DONE and production-verified. [PR136](https://github.com/ginosega/fishing/pull/136) implemented the supplied `fishing-companion-change-v2` edit package for Gear ID `skylety-fishing-hook-sharpener`.
-
-**Decision/result:** The canonical **Skylety Fishing Hook Sharpener** remains category `accessories`, with notes/picture/picture sequence unchanged, but its type is corrected from `Kayaks` to **`Tools`**. This later correction supersedes FISH106's historical supplied classification for current canonical state; FISH106's closeout remains accurate as historical evidence of what that earlier package supplied.
-
-Package validation confirmed base revision `9b419e07f9a3a56a2be1ddbfb0df1760fe2730cb`, record hash `31811a75b2d315a2c98a7b25bf8b51fd52c77195b6c54783e90cdb0aa4c57db8`, and current base type `Kayaks` before the edit. The final feature diff was one semantic line in `pwa/Gear/gear.json`.
-
-Final feature head `f36be26dddfb2da8c0957917c0fceb389192177e` passed exact-head acceptance in [run 34811426937](https://github.com/ginosega/fishing/actions/runs/34811426937). Final verified production source is `6fae3afbe8f227b4c12875c5d5e8f0d4c0c8861f`, release `21d203ccdef509cd99626680ae34de98`, [run 34811980881](https://github.com/ginosega/fishing/actions/runs/34811980881), **342 hosted v2 files**, hosted-verification artifact `10334949254`. Canonical baselines remain **80 Gear / 56 KB / 5 Catches**, **110 canonical library paths**, and **245 inventory references**.
-
-**Decision:** FISH107 is a structured Gear classification correction only. It does not change the Gear schema, P1 authoring boundary, FISH091 offline model, FISH096 sequence model, FISH103 link/upload behavior, or unresolved conclusions for `FISH-TODO-005` and `FISH-TODO-014`.
-
-## Fishing Companion v3 — deferred boundary
-
-**Decision:** **Fishing Companion v3** is the preferred phase name for the future work historically identified as `FISH-TODO-077/P2`. The historical identifier may remain in records, but new prose should call the phase Fishing Companion v3.
-
-Fishing Companion v3 remains **DEFERRED**. Its future scope includes authentication, direct GitHub save/upload, integrated uploads, offline authoring, outbox/sync, Catch authoring and multi-user generalization. None of those capabilities are implemented or implicitly authorized by current production work.
-
-## Media and repository layout
-
-**Decision:** All Gear categories and all KB categories durably support `assets/` and `content/` folders. Representative images normally live in category `assets/`; Markdown and Markdown-local media belong under category `content/`, subject to existing approved cross-domain image exceptions. Supported user-content images remain JPEG/JPG/PNG/WebP/GIF under existing size/dimension limits.
-
-The canonical application icon is `pwa/icon.png`. Historical icon names/bytes and old v1 files remain recovery/history only.
-
-## Open work
-
-FISH071–076 and FISH078–107 are complete; Fishing Companion v3 (`FISH-TODO-077/P2`) remains deferred. The canonical TODO preserves active fishing/gear/content research and purchase uncertainty. The next unused canonical application task ID is **FISH-TODO-108** unless actual current `main` has already allocated it.
+FISH071–076 and FISH078–108 are complete/implemented. The next unused **application/architecture** task ID is **FISH-TODO-109** unless actual current `main` already allocated it. Routine Fast Content Releases do not consume that ID.

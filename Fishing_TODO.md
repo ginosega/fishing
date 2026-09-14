@@ -2,23 +2,20 @@
 
 ## Current project task state — September 14, 2026
 
-**FISH-TODO-107 — DONE / production-verified.** FISH107 implemented the supplied Fishing Companion Gear edit package for `skylety-fishing-hook-sharpener` through [PR136](https://github.com/ginosega/fishing/pull/136), changing only its canonical type from `Kayaks` to `Tools`. Notes, picture, picture sequence, all other fields and unrelated source were preserved.
+**FISH-TODO-108 — IMPLEMENTED / release-policy change.** FISH108 introduces the approved two-lane Fishing Companion release model:
 
-The package base revision `9b419e07f9a3a56a2be1ddbfb0df1760fe2730cb`, record hash `31811a75b2d315a2c98a7b25bf8b51fd52c77195b6c54783e90cdb0aa4c57db8`, and base type `Kayaks` were validated before application. Final feature acceptance passed at exact PR head `f36be26dddfb2da8c0957917c0fceb389192177e` in [run 34811426937](https://github.com/ginosega/fishing/actions/runs/34811426937).
+- **Fast Content Release** for routine canonical changes confined to `pwa/Gear/`, `pwa/KB/`, and/or `pwa/Catches/`.
+- **Full Application Release** for runtime, schema/contracts, tests, tooling/build, dependencies, workflow, migration/recovery/offline, or any mixed content+non-content change.
 
-Verified production is application source `6fae3afbe8f227b4c12875c5d5e8f0d4c0c8861f`, release `21d203ccdef509cd99626680ae34de98`, [run 34811980881](https://github.com/ginosega/fishing/actions/runs/34811980881), with **342 hosted v2 files** and hosted-verification artifact `10334949254`. Canonical counts remain **80 Gear, 56 KB and 5 Catches**; measured source baselines remain **110 canonical library paths** and **245 inventory references**. Full source/core, Chromium/WebKit, production-browser, archived-v1 cutover, exact-main, Pages, hosted-byte and hosted-browser verification passed.
+The durable policy is [`pwa/docs/FISH108_Fast_Content_Release_Policy_2026-09-14.md`](pwa/docs/FISH108_Fast_Content_Release_Policy_2026-09-14.md). Fast Content Releases retain source/package conflict validation, canonical build/inventory validation, release verification, exact-current-main Pages deployment and hosted byte/release-identity verification, while omitting application/browser/v1-cutover/dependency-audit work that content-only changes cannot affect.
 
-FISH-TODO-102 through FISH-TODO-106 remain DONE / production-verified. FISH106's original Skylety `Kayaks` classification is superseded in current canonical state by FISH107's `Tools` correction.
+Routine Fast Content Releases are ordinary authoring events, not application tasks. They do **not** consume a `FISH-TODO-###` application/architecture ID and do not require per-item project-state or production-closeout documentation. The next unused application/architecture task ID is **FISH-TODO-109**.
+
+Changing Gear/KB/Catch counts, canonical path totals and inventory-reference totals are no longer maintained as test baselines. Validation derives current state from canonical source and the exact generated release.
+
+FISH071–076 and FISH078–108 are complete/implemented. Historical release evidence remains in Git history and dated `pwa/docs/` records.
 
 **Fishing Companion v3** — historically `FISH-TODO-077/P2` — remains **DEFERRED**. Future scope includes authentication, direct GitHub save/upload, integrated uploads, offline authoring/outbox/sync, Catch authoring and multi-user generalization. Do not treat any of that as current production or implicitly approved implementation work.
-
-The next unused canonical application task ID is **FISH-TODO-108**.
-
-## Completed/superseded application work
-
-FISH071–076 and FISH078–107 are complete. Historical `FISH-TODO-077/P2` is the intentional deferred future-phase boundary now called **Fishing Companion v3**. Historical v1-only items FISH-TODO-063 (old KB filename/upload constraints) and FISH-TODO-039 (structured setup recording on catches) are superseded by the approved current architecture and must not be used to reintroduce retired structures.
-
-Detailed completion/release evidence remains in Git history and dated `pwa/docs/` records. This TODO intentionally keeps current open/deferred work instead of repeating every historical release.
 
 ## Existing fishing, equipment and content backlog
 
@@ -26,7 +23,7 @@ These items remain open/deferred independently of Fishing Companion release work
 
 FISH104 documents a fish-finder power architecture and parts list, but it does **not** explicitly confirm that every listed part is the installed configuration. Therefore FISH-TODO-005 remains WAITING ON USER rather than being closed by inference.
 
-FISH105 adds a KastKing HyperSeal Waterproof Tackle Box in size 3600, but the supplied package does **not** explicitly identify that item as the specific “KastKing 3600 deep box” target in FISH-TODO-014. Preserve FISH-TODO-014 as OPEN unless the user explicitly resolves that backlog item. FISH106 and FISH107 do not change either backlog conclusion.
+FISH105 adds a KastKing HyperSeal Waterproof Tackle Box in size 3600, but the supplied package does **not** explicitly identify that item as the specific “KastKing 3600 deep box” target in FISH-TODO-014. Preserve FISH-TODO-014 as OPEN unless the user explicitly resolves that backlog item.
 
 | ID | Priority | Status | Work item |
 |---|---|---|---|
@@ -64,6 +61,10 @@ FISH105 adds a KastKing HyperSeal Waterproof Tackle Box in size 3600, but the su
 
 ## Continuation rules
 
-Use Chat mode by default. Restore actual latest `main` before acting. For new application work, allocate **FISH-TODO-108** unless a newer task has already been created on current `main`. Do not reopen FISH096–FISH107 or Fishing Companion v3 work without an explicit new user request.
+Use Chat mode by default. Restore actual latest `main` and current open-PR state before repository work.
 
-When the user says **“It’s time to transfer to a new chat”**, ask for confirmation of the full handoff. After confirmation, perform the durable handoff protocol recorded in `Fishing_Decision_Log.md`: reconcile current state, update the authoritative project records and bootstrap prompt as needed, cross-check them, and finish with a direct GitHub link to `Fishing_New_Chat_Bootstrap_Prompt.md`. This handoff protocol is not itself a new FISH-TODO application task and does not consume FISH-TODO-108.
+For a routine source-aware Gear/KB/Catch authoring package, use the FISH108 Fast Content Release policy and **do not allocate FISH-TODO-109**. Allocate FISH-TODO-109 only for the next application/architecture-level task unless a newer application task already exists on current `main`.
+
+Do not reopen completed FISH096–FISH108 or Fishing Companion v3 work without an explicit new user request.
+
+When the user says **“It’s time to transfer to a new chat”**, ask for confirmation of the full handoff. After confirmation, perform the durable handoff protocol recorded in `Fishing_Decision_Log.md`: reconcile current repository/production state, update authoritative records only where durable state changed, cross-check them, and finish with a direct GitHub link to `Fishing_New_Chat_Bootstrap_Prompt.md`.

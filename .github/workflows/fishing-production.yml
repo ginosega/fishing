@@ -12,7 +12,88 @@ concurrency:
   group: ${{ github.ref == 'refs/heads/main' && 'fishing-pages' || format('production-validation-{0}', github.ref) }}
   cancel-in-progress: false
 jobs:
-  validate:
+  classify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      mode: ${{ steps.classify.outputs.mode }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - id: classify
+        name: Select fast content or full application lane
+        shell: bash
+        run: |
+          set -euo pipefail
+          mode=''
+          files=''
+          if [[ "$GITHUB_EVENT_NAME" == 'workflow_dispatch' ]]; then
+            mode='full'
+          elif [[ "$GITHUB_EVENT_NAME" == 'pull_request' ]]; then
+            base='${{ github.event.pull_request.base.sha }}'
+            files="$(git diff --name-only "$base"...HEAD)"
+          else
+            base='${{ github.event.before }}'
+            if [[ -z "$base" || "$base" =~ ^0+$ ]]; then
+              base="$(git rev-parse HEAD^)"
+            fi
+            files="$(git diff --name-only "$base" "$GITHUB_SHA")"
+          fi
+          if [[ "$mode" != 'full' ]]; then
+            mode='content'
+            if [[ -z "$files" ]]; then
+              mode='full'
+            else
+              while IFS= read -r file; do
+                [[ -z "$file" ]] && continue
+                case "$file" in
+                  pwa/Gear/*|pwa/KB/*|pwa/Catches/*) ;;
+                  *) mode='full'; break ;;
+                esac
+              done <<< "$files"
+            fi
+          fi
+          echo "mode=$mode" >> "$GITHUB_OUTPUT"
+          echo "Release lane: $mode"
+          if [[ -n "$files" ]]; then printf 'Changed files:\n%s\n' "$files"; fi
+
+  validate-content:
+    if: needs.classify.outputs.mode == 'content'
+    needs: classify
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      SOURCE_REVISION: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: pwa/package-lock.json
+      - name: Install locked dependencies
+        working-directory: pwa
+        run: npm ci --no-audit --no-fund
+      - name: Validate canonical content, build production and verify release
+        timeout-minutes: 6
+        working-directory: pwa
+        run: |
+          npm run build -- --base=/fishing/ --source-revision="$SOURCE_REVISION"
+          npm run verify
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        with:
+          name: production-bundle-content
+          path: pwa/dist/
+          retention-days: 14
+
+  validate-full:
+    if: needs.classify.outputs.mode == 'full'
+    needs: classify
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
@@ -23,6 +104,8 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '24'
+          cache: npm
+          cache-dependency-path: pwa/package-lock.json
       - name: Verify durable v1 recovery and prepare actual cutover fixture
         run: |
           git show 4aafcd2f88b35bb34b608e2f85dec1daffc6c1d1:recovery/v1-production.zip > /tmp/v1-production.zip
@@ -69,7 +152,7 @@ jobs:
         run: npm run test:browser
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: production-bundle
+          name: production-bundle-full
           path: pwa/dist/
           retention-days: 30
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
@@ -81,9 +164,52 @@ jobs:
             pwa/.preview-test-output/
           include-hidden-files: true
           retention-days: 90
-  deploy:
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-    needs: validate
+
+  deploy-content:
+    if: needs.classify.outputs.mode == 'content' && github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [classify, validate-content]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: https://ginosega.github.io/fishing/
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: production-bundle-content
+          path: pwa/dist
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: pwa/dist
+      - name: Guard exact current main
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: test "$(gh api repos/$GITHUB_REPOSITORY/git/ref/heads/main --jq .object.sha)" = "$GITHUB_SHA"
+      - uses: actions/deploy-pages@v4
+      - name: Verify hosted bytes and release identity
+        working-directory: pwa
+        run: node tools/verify-hosted-fast.mjs --dist=dist --url=https://ginosega.github.io/fishing/ --source-revision="$GITHUB_SHA"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: actual-hosted-content-verification
+          path: pwa/hosted-evidence/
+          retention-days: 30
+
+  deploy-full:
+    if: needs.classify.outputs.mode == 'full' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: [classify, validate-full]
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     permissions:
@@ -99,7 +225,7 @@ jobs:
           persist-credentials: false
       - uses: actions/download-artifact@v4
         with:
-          name: production-bundle
+          name: production-bundle-full
           path: pwa/dist
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
