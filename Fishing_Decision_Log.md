@@ -64,6 +64,10 @@ Update project-state documents when architecture/product behavior/durable decisi
 
 Simple Markdown-only narrative edits to existing canonical files may be made directly in GitHub. Structured record fields, categories/types, specifications, structured links, picture metadata/sequences, paths and relationships should use Fishing Companion Edit or an equivalent source-aware workflow.
 
+### Authoring whitespace normalization
+
+**Decision:** Treat accidental trailing whitespace in Fishing Companion change packages as non-semantic by default. Remove trailing spaces from structured text values and text lines before applying them unless the user explicitly instructs that the whitespace be preserved. This normalization does not authorize unrelated wording/content changes or media substitution.
+
 ## Durable application behavior
 
 **FISH091 — offline model:** normal online use does not provision the complete offline library. **Connection Status → Update offline library** explicitly prepares/refreshes a verified complete generation; failed/corrupt/quota-failed refreshes preserve the prior verified generation.

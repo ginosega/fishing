@@ -32,6 +32,8 @@ This is the normal path for source-aware `fishing-companion-change-v2` Gear/KB a
 
 Before mutation, still restore actual current source and validate the package: source revision/ancestry as appropriate, record hash/base fields for edits, conflict state, IDs/schema/types/paths/references, notes/media actions, and supplied media existence/hash where applicable. Apply only requested changes and preserve unrelated source/user bytes.
 
+Normalize accidental trailing whitespace before mutation: remove trailing spaces from package string values and text lines by default unless the user explicitly instructs that the whitespace be preserved. This normalization does not authorize unrelated wording/content changes or media substitution.
+
 Then use the lightweight content PR. The workflow automatically performs a locked cached dependency install, one canonical production build/source inventory validation, exact generated-release verification, merge-to-main deployment with exact-current-main protection, and dependency-free byte-for-byte hosted/release-identity verification.
 
 For a content-only release, do **not** manually escalate to Node behavior tests, Chromium/WebKit, preview-browser testing, archived-v1/cutover testing, dependency audit or hosted browser acceptance unless validation reveals a real non-content issue. Those belong to the full lane.
