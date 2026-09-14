@@ -2181,6 +2181,35 @@
       "picture": {
         "src": "Gear/Equipment/assets/perception-joyride-10.png"
       }
+    },
+    {
+      "id": "humminbird-fish-finder",
+      "name": "Humminbird Fish Finder",
+      "category": "accessories",
+      "type": "Electronics",
+      "specifications": [
+        {
+          "value": "XNT 9 HW DI T",
+          "label": "Transducer"
+        }
+      ],
+      "links": [
+        {
+          "label": "Humminbird",
+          "url": "https://humminbird.johnsonoutdoors.com/us/shop/fish-finders/helix/helix-5-chirp-di-gps-g3"
+        },
+        {
+          "label": "Transducer",
+          "url": "https://humminbird.johnsonoutdoors.com/us/shop/accessories/transducers/xnt-9-hw-di-t-down-imaging-dual-spectrum-chirp-w-temp-transom"
+        }
+      ],
+      "manufacturer": "Humminbird",
+      "model": "Helix 5 Chirp DI GPS G3",
+      "notes": "Gear/Equipment/content/Humminbird Fish Finder.md",
+      "picture": {
+        "src": "Gear/Equipment/assets/Humminbird Helix 5 Chirp DI GPS G3.png",
+        "caption": "Humminbird Helix 5 Chirp DI GPS G3"
+      }
     }
   ]
 }
