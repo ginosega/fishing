@@ -4,28 +4,28 @@ Fishing Companion is the active PWA published at https://ginosega.github.io/fish
 
 ## Current verified production — September 13, 2026
 
-FISH104 is live and production-verified.
+FISH105 is live and production-verified.
 
-FISH104 shipped through [PR130](https://github.com/ginosega/fishing/pull/130). It added Gear ID `humminbird-fish-finder` for the **Humminbird Fish Finder**, model `Helix 5 Chirp DI GPS G3`, type `Electronics`, with transducer `XNT 9 HW DI T`; Markdown `Gear/Equipment/content/Humminbird Fish Finder.md`; and representative picture `Gear/Equipment/assets/Humminbird Helix 5 Chirp DI GPS G3.png` with caption `Humminbird Helix 5 Chirp DI GPS G3`.
+FISH105 shipped through [PR132](https://github.com/ginosega/fishing/pull/132). It corrected Perception Joyride 10.0 to type `Kayaks` and added its caption, and added four `Tackle Management` Gear records: KastKing HyperSeal Waterproof Tackle Box, KastKing Fishing Tackle Bag, KastKing Signature Lure Bag and KastKing BaitShield Tackle Storage Bag. The Fishing Tackle Bag also has canonical Markdown `Gear/Equipment/content/KastKing Fishing Tackle Bag.md`.
 
-The user-supplied PNG is preserved exactly at **579,304 bytes**, SHA-256 `2ec799df4d20af22031ca7fde682aca1f5c695a5cab028fb251fd2457f3e0d4e`.
+The four KastKing PNGs were user-supplied source files already uploaded under physical source `pwa/Gear/Equipment/assets/` before package promotion. FISH105 references those bytes in place. The unrelated direct Bonafide RVR119 Markdown update already on `main` was preserved unchanged.
 
 Current production:
 
-- source: `89e6871d81c509eed7e17d4b437db78be16310b8`
-- release: `6aff63420b64bb790847a7af37f44c10`
-- production workflow: [run 34800306796](https://github.com/ginosega/fishing/actions/runs/34800306796)
-- hosted v2 files: **329**
-- production-bundle artifact: `10331372187`
-- production-acceptance-evidence artifact: `10331631583`
-- Pages artifact: `10330882758`
-- hosted-verification artifact: `10331027567`
+- source: `dc7e6434757f19c15f05d29fc120251425108fe8`
+- release: `6b10de29a03200d6f06040847007aaa8`
+- production workflow: [run 34804905643](https://github.com/ginosega/fishing/actions/runs/34804905643)
+- hosted v2 files: **334**
+- production-bundle artifact: `10332637362`
+- production-acceptance-evidence artifact: `10333116452`
+- Pages artifact: `10333001931`
+- hosted-verification artifact: `10332432676`
 
 The exact-current-main deployment passed complete source/core validation, Chromium/WebKit preview and production acceptance, archived-v1 cutover acceptance, exact-current-main protection, Pages deployment, hosted-byte verification and hosted-browser verification.
 
-Canonical counts are **70 Gear, 56 KB and 5 Catches**. Current measured source-validation baselines are 107 canonical library paths and 240 inventory references.
+Canonical counts are **74 Gear, 56 KB and 5 Catches**. Current measured source-validation baselines are **108 canonical library paths** and **240 inventory references**.
 
-FISH102 and FISH103 remain live and production-verified. FISH102 added the Line-Tackle-Knot Reference and pinned-first Knot-category behavior. FISH103 relocated canonical physical domain source beneath this `pwa/` directory and fixed external/internal link targeting, Caption focus and new-KB Markdown Preview validation ordering.
+FISH102–FISH104 remain live and production-verified. FISH102 added the Line-Tackle-Knot Reference and pinned-first Knot-category behavior. FISH103 relocated canonical physical domain source beneath this `pwa/` directory and fixed external/internal link targeting, Caption focus and new-KB Markdown Preview validation ordering. FISH104 added the Humminbird Fish Finder record, notes and picture.
 
 ## Directory layout
 
@@ -48,6 +48,8 @@ Logical record/source references and generated release content remain `Gear/...`
 ## Current runtime model
 
 Fishing Companion retains independent Gear, KB and Catch domains. Gear/KB Add/Edit provides Prepare Changes → Copy Changes source-aware handoffs; the browser does not write repository source directly.
+
+Simple Markdown-only narrative/content edits to existing canonical content files may be made directly in GitHub. Structured record fields, paths, picture metadata/sequences and relationships should continue through Fishing Companion Edit or an equivalent source-aware workflow.
 
 FISH091 makes online-only the default: ordinary online startup does not prepare the complete offline library. **Connection Status → Update offline library** explicitly prepares/refreshes the verified complete offline generation. Previous verified generations remain fallback until successfully replaced; failure does not destroy the prior generation.
 
