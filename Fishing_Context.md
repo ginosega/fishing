@@ -2,31 +2,46 @@
 
 ## Current authoritative state — September 13, 2026
 
-FISH-TODO-101 is **DONE / production-verified**. The submitted Knot change-package batch plus the explicit request to remove Double Uni Knot and Single Uni Knot were validated and applied through [PR121](https://github.com/ginosega/fishing/pull/121). Branch validation [run 34766670229](https://github.com/ginosega/fishing/actions/runs/34766670229) confirmed all submitted record/content stale-base checks and recomputed the exact byte count and SHA-256 for all **39** pre-uploaded media files. Full pre-merge production acceptance [run 34766717362](https://github.com/ginosega/fishing/actions/runs/34766717362) passed.
+FISH-TODO-102 and FISH-TODO-103 are **DONE / production-verified**.
 
-FISH101's canonical content result is:
+### FISH102 — Line-Tackle-Knot Reference
 
-- Improved Clinch: submitted description/Markdown plus an explicit 11-frame PNG sequence, `step-11.png` representative;
-- Modified Uni: submitted description/Markdown plus an explicit 12-frame JPG sequence, `step-12.jpg` representative;
-- Non-Slip Loop: renamed to **Non-Slip Loop Knot**, submitted description/Markdown, and static representative `KB/Knots/assets/Non-Splip Loop Knot.png`;
-- Palomar: submitted Markdown refinement; structured record and existing 13-frame sequence remain otherwise unchanged;
-- Trilene: submitted description/Markdown plus an explicit 15-frame PNG sequence, `step-15.png` representative;
-- Bowline Knot: description updated to `Use for tying a rope to the bow of a boat`; existing 7-frame sequence retained;
-- Double Uni Knot and Single Uni Knot: canonical records and Markdown articles removed.
+FISH102 shipped through [PR124](https://github.com/ginosega/fishing/pull/124). It added KB Knot record `line-tackle-knot-reference`, Markdown `KB/Knots/content/Line-Tackle-Knot Reference.md`, picture `KB/Knots/assets/Line-Tackle-Knot Reference.png`, and the ordinary detail route `#/kb/line-tackle-knot-reference`.
 
-The resulting canonical KB count is **55**. Required source-test fixtures were aligned only to the deliberate deletions: KB records 57→55, validated library paths 107→105, and referenced source files 237→235.
+The **Line-Tackle-Knot Reference** card is pinned first only on KB → Knots; all remaining Knot cards stay alphabetical. Other category/search/detail ordering is unchanged. Canonical counts became **69 Gear, 56 KB and 5 Catches**.
 
-The feature merge source was `360d71ff2bfaf075ad498d18f05126268f6606f1`. Its first exact-main Pages deployment succeeded, but post-deploy verification exposed a stale hosted verifier expectation of 57 KB records. Verification-only [PR122](https://github.com/ginosega/fishing/pull/122) changed only that expectation to 55; no application content or runtime behavior changed.
+FISH102 verified production source was `4912f93149e9de1e9cde9ff5176b4a4831a67812`, release `beff9138c96489abd9723c5fcfeef0ff`, [workflow run 34770966552](https://github.com/ginosega/fishing/actions/runs/34770966552), hosted-verification artifact `10322381375`.
 
-Current verified production:
+### FISH103 — PWA source relocation and authoring regressions
 
-- source `2b76f9f91757705e361ed3485da0627e493c8d7d`
-- release `eeba6be85560163522778e2e795d91d9`
-- [workflow run 34768935480](https://github.com/ginosega/fishing/actions/runs/34768935480)
-- **325 hosted v2 files**
-- hosted-verification artifact `10322070321`
+FISH103 shipped through feature [PR125](https://github.com/ginosega/fishing/pull/125), followed by verifier-only [PR126](https://github.com/ginosega/fishing/pull/126) and [PR127](https://github.com/ginosega/fishing/pull/127). PR126 and PR127 changed only hosted-verifier dialog handling; they did not change application behavior, canonical data or release content.
 
-The current run passed source/core validation, Chromium/WebKit preview acceptance, production-browser acceptance, actual archived-v1 cutover acceptance, exact-current-main guard, Pages deployment, hosted-byte verification and hosted-browser verification.
+FISH103's durable result is:
+
+- canonical physical domain source moved from repository-root `Gear/`, `KB/` and `Catches/` to `pwa/Gear/`, `pwa/KB/` and `pwa/Catches/`;
+- logical record/source references and generated release paths remain `Gear/...`, `KB/...` and `Catches/...`;
+- the build's default physical source root is `pwa/`;
+- GitHub upload-folder links from Gear/KB Add/Edit now point to the physical `pwa/...` source location;
+- external HTTP(S) links from structured Links and rendered Markdown open a new tab with `noopener noreferrer`;
+- internal `gear://`, `kb://`, local/anchor and in-app links remain same-tab;
+- picture-caption typing on Gear/KB Add/Edit retains focus while the preview caption updates without a full picture-section rerender;
+- new-KB Markdown Preview assigns a provisional required `content` path before whole-library validation, preventing the empty-content-path schema failure;
+- production-workflow path filtering now relies on `pwa/**` for canonical application/domain source because the old root domain folders no longer exist.
+
+FISH103 does **not** change FISH091 offline semantics or FISH096 sequence semantics.
+
+Final verified production:
+
+- source `94772e62788fa98903930e4b5649fabb9629c6d0`
+- release `b8c8222697222f1dd43861427d5006fb`
+- [workflow run 34795289032](https://github.com/ginosega/fishing/actions/runs/34795289032)
+- **327 hosted v2 files**
+- production-bundle artifact `10328869743`
+- production-acceptance-evidence artifact `10329538071`
+- Pages artifact `10329392228`
+- hosted-verification artifact `10329313590`
+
+That exact-current-main run passed source/core validation, Chromium/WebKit preview acceptance, production-browser acceptance, actual archived-v1 cutover acceptance, exact-current-main guard, Pages deployment, hosted-byte verification and hosted-browser verification. Hosted browser verification explicitly confirmed FISH103's physical PWA source folders, link-target behavior, stable Caption focus and new-KB Markdown Preview.
 
 ## Operating mode
 
@@ -36,7 +51,7 @@ Before implementation/release/repository-write work, restore actual latest `main
 
 ## Durable repository and production architecture
 
-`ginosega/fishing` is authoritative. Canonical domain data lives in repository-root `Gear/`, `KB/` and `Catches/`. The active PWA implementation, contracts, build tools, tests, migration evidence and release documentation live under `pwa/`. `.github/workflows/fishing-production.yml` is the sole active production publisher.
+`ginosega/fishing` is authoritative. Canonical physical domain data lives under `pwa/Gear/`, `pwa/KB/` and `pwa/Catches/`. Logical record/release paths remain `Gear/...`, `KB/...` and `Catches/...`. The active PWA implementation, contracts, build tools, tests, migration evidence and release documentation also live under `pwa/`. `.github/workflows/fishing-production.yml` is the sole active production publisher.
 
 Fishing Companion uses three independent but consistent domains — Gear, KB and Catch — rather than a forced generic entity framework. The KB entity model covers Location, Species, Equipment/Gear Guides, Technique and Knot. Paths are explicit record properties rather than inferred identities.
 
@@ -44,38 +59,38 @@ Gear and KB support source-aware Prepare Changes → Copy Changes authoring. Pre
 
 ## Offline behavior — FISH091
 
-FISH091 remains **DONE / production-verified** and unchanged by FISH101.
+FISH091 remains **DONE / production-verified** and unchanged by FISH102/FISH103.
 
 Ordinary online startup/navigation does not provision the complete offline library. Online browsing uses current production. **Connection Status → Update offline library** is the explicit complete-library preparation/refresh action. A prior verified complete generation may remain the offline fallback until explicitly refreshed; failed, corrupt or quota-failed refreshes preserve the prior complete generation. A device without a prepared complete generation must not claim offline readiness.
 
 ## Knot picture sequences — FISH096
 
-A KB Knot may optionally contain an explicit ordered `pictureSequence` of at least two frames. Frames are stored under `KB/Knots/assets/<knot-id>/` using contiguous zero-padded `step-01`, `step-02`, ... names. Runtime order comes from the explicit structured array, not directory scanning. Every frame receives the existing path/image/integrity validation and is included in the verified complete offline library.
+A KB Knot may optionally contain an explicit ordered `pictureSequence` of at least two frames. Logical frame paths are under `KB/Knots/assets/<knot-id>/` using contiguous zero-padded `step-01`, `step-02`, ... names; physical files are under `pwa/KB/Knots/assets/<knot-id>/`. Runtime order comes from the explicit structured array, not directory scanning. Every frame receives the existing path/image/integrity validation and is included in the verified complete offline library.
 
 `picture.src` must equal the final sequence frame and remains the record's representative picture. Cards and ordinary detail pages load only that representative frame. Clicking it opens the sequence viewer at frame 1. The viewer provides Previous, Play/Pause, Next and Close, a frame indicator, one shared caption, Left/Right/Space/Escape keyboard controls and existing zoom/pan/pinch behavior. Manual Previous/Next does not wrap; automatic playback runs at one second per frame and loops; manual stepping pauses playback first. Remaining frames are preloaded only after the viewer is opened.
 
-Existing static-picture records and the existing static viewer remain unchanged.
+Existing static-picture records and the existing static viewer remain unchanged. Knot Add/Edit sequence authoring stays inside the existing Picture section. Add/replace sequence uses a native multi-file picker labelled **Choose local pictures** and requires the complete intended sequence at once. Filenames establish order and the final frame automatically becomes `picture.src`; there is no separate representative selection and no option to silently reuse a prior static picture as the final sequence frame. Existing sequences can be replaced, converted to a new single picture, reduced to the existing representative picture, or removed. Superseded source image files are not automatically deleted.
 
-Knot Add/Edit sequence authoring stays inside the existing Picture section. Add/replace sequence uses a native multi-file picker labelled **Choose local pictures** and requires the complete intended sequence at once. Filenames establish order and the final frame automatically becomes `picture.src`; there is no separate representative selection and no option to silently reuse a prior static picture as the final sequence frame. Existing sequences can be replaced, converted to a new single picture, reduced to the existing representative picture, or removed. Superseded source image files are not automatically deleted.
+The `fishing-companion-change-v2` handoff explicitly carries sequence action, ordered paths and selected-file hashes. It remains a Prepare/Copy handoff only; there is no integrated repository upload or Direct Save.
 
-The `fishing-companion-change-v2` P1 handoff explicitly carries sequence action, ordered paths and selected-file hashes. It remains a Prepare/Copy handoff only; there is no integrated repository upload or Direct Save.
+## Fishing Companion v3 — deferred future phase
 
-## Deferred scope
+**Fishing Companion v3** is the preferred current name for the future phase historically recorded as `FISH-TODO-077/P2`. It remains **DEFERRED**. Historical references to `FISH-TODO-077/P2` remain valid identifiers, but new prose should call the phase Fishing Companion v3.
 
-FISH-TODO-077/P2 remains **DEFERRED**. Do not treat the following as implemented or implicitly approved: authentication, Direct Save, integrated browser-side GitHub uploads, offline authoring, outbox/sync, Catch authoring or multi-user generalization.
+Do not treat the following as implemented or implicitly approved: authentication, direct GitHub save/upload, integrated uploads, offline authoring, outbox/sync, Catch authoring or multi-user generalization.
 
 The retired Planner, Trip History/Sessions, paired-setup structures and old v1-only source conventions must not be reintroduced without a new explicit requirement.
 
 ## Content and media state
 
-All seven originally required missing pictures from the v2 cutover have since been resolved. The historically optional generic inline-spinner now has the user-supplied Kingforest picture. Current source includes the later validated location pictures, Trout Fishing picture, Topwater Fishing and Bass Fishing Technique records, and all other post-cutover canonical authoring changes already merged before FISH096.
+Canonical counts are **69 Gear, 56 KB and 5 Catches**. The Line-Tackle-Knot Reference is canonical and pinned first on KB → Knots.
 
-The active Knot sequences are Palomar (13 PNG, `step-13.png` representative), Albright (15 JPG, `step-15.jpg`), Arbor (9 JPG, `step-09.jpg`), Bowline (7 JPG, `step-07.jpg`), FG (29 JPG, `step-29.jpg`), Improved Clinch (11 PNG, `step-11.png`), Modified Uni (12 JPG, `step-12.jpg`), and Trilene (15 PNG, `step-15.png`). Non-Slip Loop uses the submitted static representative `Non-Splip Loop Knot.png`. Every sequence is explicitly referenced by canonical KB data and participates in FISH091 explicit complete-library preparation; directory contents alone never create a sequence.
+Active Knot sequences are Palomar (13 PNG), Albright (15 JPG), Arbor (9 JPG), Bowline (7 JPG), FG (29 JPG), Improved Clinch (11 PNG), Modified Uni (12 JPG), and Trilene (15 PNG). Non-Slip Loop uses its static representative picture. Every sequence is explicitly referenced by canonical KB data and participates in FISH091 explicit complete-library preparation; directory contents alone never create a sequence.
 
 Double Uni Knot and Single Uni Knot no longer exist in canonical KB source. The canonical PWA icon is `pwa/icon.png`. Historical filenames/bytes remain in Git history only as recovery evidence.
 
 ## Continuation
 
-FISH071–076 and FISH078–101 are complete except FISH077/P2, which remains deferred. Existing fishing/equipment/content backlog and purchase uncertainty remain active in `Fishing_TODO.md`. The next unused canonical task ID is **FISH-TODO-102**.
+FISH071–076 and FISH078–103 are complete. Fishing Companion v3 (`FISH-TODO-077/P2`) remains deferred. Existing fishing/equipment/content backlog and purchase uncertainty remain active in `Fishing_TODO.md`. The next unused canonical application task ID is **FISH-TODO-104** unless current `main` has already allocated it.
 
-For a new chat, read `README.md`, this file, `Fishing_TODO.md`, `Fishing_Decision_Log.md`, then `Fishing_New_Chat_Bootstrap_Prompt.md`. Historical release/migration evidence remains in Git history and `pwa/docs/`; do not restart completed FISH096–FISH101 release work.
+For a new chat, read `README.md`, this file, `Fishing_TODO.md`, `Fishing_Decision_Log.md`, then `Fishing_New_Chat_Bootstrap_Prompt.md`. Historical release/migration evidence remains in Git history and `pwa/docs/`; do not restart completed FISH096–FISH103 release work.
