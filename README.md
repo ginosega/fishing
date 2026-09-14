@@ -2,38 +2,32 @@
 
 Persistent Fishing project and source repository for Fishing Companion.
 
-## Current production — September 13, 2026
+## Current production — September 14, 2026
 
-FISH-TODO-106 is **DONE / production-verified**.
+FISH-TODO-107 is **DONE / production-verified**.
 
-FISH106 shipped through [PR134](https://github.com/ginosega/fishing/pull/134). It promoted six supplied `fishing-companion-change-v2` Gear add packages together:
+FISH107 shipped through [PR136](https://github.com/ginosega/fishing/pull/136). It implemented the supplied `fishing-companion-change-v2` edit package for `skylety-fishing-hook-sharpener`, correcting its canonical Gear type from `Kayaks` to `Tools`.
 
-- **KastKing Brutus Silicone Foldable Extendable Net** — `Tools`, with canonical Markdown notes;
-- **KastKing Cutthroat 7" Stainless Steel Pliers** — `Tools`, with canonical Markdown notes covering the included line stripper and Radius line spooler references;
-- **Skylety Fishing Hook Sharpener** — canonical supplied type `Kayaks`;
-- **Plano Sportsman's Trunk** — `Storage`, Large / Blaze Orange / model `PLAT19BOE`;
-- **KastKing V10 Pivot Grip Fishing Rod Holder** — `Storage`; and
-- **Palmyth Flexible Fishing Gloves** — `Accessories`, Large / Black-Grey.
-
-All six PNGs had already been uploaded to canonical physical source under `pwa/Gear/Equipment/assets/` before package promotion. FISH106 referenced those user-supplied files in place rather than rewriting their bytes. The two supplied Markdown notes were added under `pwa/Gear/Equipment/content/`.
+This was the only canonical source change. Notes, picture, picture sequence, all other record fields, counts, paths, media and unrelated source were unchanged. The package base revision `9b419e07f9a3a56a2be1ddbfb0df1760fe2730cb`, record hash `31811a75b2d315a2c98a7b25bf8b51fd52c77195b6c54783e90cdb0aa4c57db8`, and base field `type: Kayaks` were validated before application.
 
 Current verified production:
 
 - site: https://ginosega.github.io/fishing/
-- application source: `9b419e07f9a3a56a2be1ddbfb0df1760fe2730cb`
-- release: `fe94ec0a8b0c606f72847ef3fda0a5b6`
-- production workflow: [run 34809970042](https://github.com/ginosega/fishing/actions/runs/34809970042)
+- application source: `6fae3afbe8f227b4c12875c5d5e8f0d4c0c8861f`
+- release: `21d203ccdef509cd99626680ae34de98`
+- production workflow: [run 34811980881](https://github.com/ginosega/fishing/actions/runs/34811980881)
+- feature exact-head acceptance: [run 34811426937](https://github.com/ginosega/fishing/actions/runs/34811426937) at `f36be26dddfb2da8c0957917c0fceb389192177e`
 - hosted v2 files: **342**
-- production-bundle artifact: `10334457339`
-- production-acceptance-evidence artifact: `10334502241`
-- Pages artifact: `10334936059`
-- hosted-verification artifact: `10334477509`
+- production-bundle artifact: `10334724772`
+- production-acceptance-evidence artifact: `10335063749`
+- Pages artifact: `10334664984`
+- hosted-verification artifact: `10334949254`
 - canonical counts: **80 Gear, 56 KB and 5 Catches**
 - measured source baselines: **110 canonical library paths, 245 inventory references**
 
 The exact-current-main run passed source/core validation, Chromium/WebKit preview acceptance, production-browser acceptance, actual archived-v1 cutover acceptance, exact-current-main protection, Pages deployment, byte-for-byte hosted verification and hosted-browser verification.
 
-FISH102–FISH105 remain complete and production-verified. FISH102 added the Line-Tackle-Knot Reference and its pinned-first Knot-category behavior. FISH103 moved canonical physical domain source beneath `pwa/` and fixed external/internal link targeting, Caption focus and new-KB Markdown Preview validation ordering. FISH104 added the Humminbird Fish Finder Gear record and its operating/setup/navigation/kayak-installation notes. FISH105 corrected Perception Joyride 10.0 to `Kayaks` and added four KastKing tackle-management items.
+FISH102–FISH106 remain complete and production-verified. FISH106 added six Gear items including the Skylety sharpener using its then-supplied `Kayaks` type; FISH107 supersedes that classification for current canonical state by setting Skylety to `Tools`.
 
 ## Current product behavior
 
@@ -65,7 +59,7 @@ At the start of a new chat, restore actual latest `main`, then read in order:
 
 When the user says **“It’s time to transfer to a new chat”** (or clearly says the current chat is too long and should be transferred), ask for confirmation that they want the full handoff. Once confirmed, reconcile the chat against current repository/production state, update the authoritative project records and bootstrap prompt, perform a final cross-file consistency check, and leave a clean continuation point without repeated “Proceed” prompts. The final handoff response must include a clickable GitHub link to `Fishing_New_Chat_Bootstrap_Prompt.md` so the user can copy it into the new Chat-mode conversation.
 
-Preserve unresolved fishing/equipment/content backlog and explicit purchase uncertainty. FISH071–076 and FISH078–106 are complete; Fishing Companion v3 (`FISH-TODO-077/P2`) remains deferred. FISH104 does not by itself close `FISH-TODO-005`, and FISH105 does not by itself close `FISH-TODO-014`. The next unused canonical application task ID is **FISH-TODO-107** unless actual newer `main` has already allocated it.
+Preserve unresolved fishing/equipment/content backlog and explicit purchase uncertainty. FISH071–076 and FISH078–107 are complete; Fishing Companion v3 (`FISH-TODO-077/P2`) remains deferred. FISH104 does not by itself close `FISH-TODO-005`, and FISH105 does not by itself close `FISH-TODO-014`. The next unused canonical application task ID is **FISH-TODO-108** unless actual newer `main` has already allocated it.
 
 Historical milestones and release evidence remain in Git history and `pwa/docs/`; the root project-state files intentionally describe the current continuation state rather than repeating every prior release. Use [`pwa/docs/README.md`](pwa/docs/README.md) as the authority guide for interpreting dated project records and milestone-era “current” statements.
 
