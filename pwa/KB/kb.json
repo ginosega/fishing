@@ -77,7 +77,7 @@
       "id": "technique-trout-fishing",
       "type": "technique",
       "name": "Trout Fishing Techniques",
-      "description": "Casting, bank-fishing, still-fishing, and kayak-trolling guidance",
+      "description": "Casting, still-fishing, trolling, bait, lure, and depth strategies for trout",
       "content": "KB/Techniques/content/trout-fishing.md",
       "picture": {
         "src": "KB/Techniques/assets/Trout Fishing Techniques.png"
@@ -87,7 +87,11 @@
       "id": "trout-behavior-and-habitat",
       "name": "Trout Behavior and Habitat",
       "type": "technique",
-      "content": "KB/Techniques/content/Trout Behavior and Habitat.md"
+      "description": "How trout relate to temperature, oxygen, forage, current, depth, and seasons",
+      "content": "KB/Techniques/content/Trout Behavior and Habitat.md",
+      "picture": {
+        "src": "KB/Techniques/assets/Trout Behavior and Habitat.png"
+      }
     },
     {
       "id": "technique-fishing-line",
@@ -650,6 +654,7 @@
       "id": "bass-fishing-techniques",
       "name": "Bass Fishing Techniques",
       "type": "technique",
+      "description": "Presentation and lure selection, retrieves, depth, and bass-fishing tactics",
       "content": "KB/Techniques/content/Bass Fishing Techniques.md",
       "picture": {
         "src": "KB/Techniques/assets/Bass Fishing Techniques.png"
@@ -659,7 +664,11 @@
       "id": "bass-behavior-and-habitat",
       "name": "Bass Behavior and Habitat",
       "type": "technique",
-      "content": "KB/Techniques/content/Bass Behavior and Habitat.md"
+      "description": "How bass use cover, structure, temperature, light, wind, and seasonal movement",
+      "content": "KB/Techniques/content/Bass Behavior and Habitat.md",
+      "picture": {
+        "src": "KB/Techniques/assets/Bass Behavior and Habitat.png"
+      }
     },
     {
       "id": "fall-bass-fishing",
