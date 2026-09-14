@@ -2327,6 +2327,174 @@
         "src": "Gear/Equipment/assets/KastKing BaitShield Tackle Storage Bag.png",
         "caption": "KastKing BaitShield Tackle Storage Bag"
       }
+    },
+    {
+      "id": "kastking-brutus-silicone-foldable-extendable-net",
+      "name": "KastKing Brutus Silicone Foldable Extendable Net",
+      "category": "accessories",
+      "type": "Tools",
+      "specifications": [
+        {
+          "value": "45\"",
+          "label": "Extended length"
+        },
+        {
+          "value": "20'' x 16'' x 10''",
+          "label": "Hoop Size"
+        }
+      ],
+      "links": [
+        {
+          "label": "KastKing",
+          "url": "https://kastking.com/products/kastking-brutus-fishing-net"
+        },
+        {
+          "label": "Amazon",
+          "url": "https://a.co/d/02NEAcJu"
+        }
+      ],
+      "manufacturer": "KastKing",
+      "model": "Brutus Silicone Foldable Extendable Net",
+      "notes": "Gear/Equipment/content/KastKing Brutus Silicone Foldable Extendable Net.md",
+      "picture": {
+        "src": "Gear/Equipment/assets/KastKing Brutus Silicone Foldable Extendable Net.png",
+        "caption": "KastKing Brutus Silicone Foldable Extendable Net"
+      }
+    },
+    {
+      "id": "kastking-cutthroat-7-stainless-steel-pliers",
+      "name": "KastKing Cutthroat 7\" Stainless Steel Pliers",
+      "category": "accessories",
+      "type": "Tools",
+      "specifications": [],
+      "links": [
+        {
+          "label": "KastKing",
+          "url": "https://kastking.com/products/kastking-cutthroat-7-fishing-pliers"
+        },
+        {
+          "label": "Amazon",
+          "url": "https://a.co/d/01v4khso"
+        }
+      ],
+      "manufacturer": "KastKing",
+      "model": "Cutthroat 7\" Stainless Steel Pliers",
+      "notes": "Gear/Equipment/content/KastKing Cutthroat 7 Stainless Steel Pliers.md",
+      "picture": {
+        "src": "Gear/Equipment/assets/KastKing Cutthroat 7-in Stainless Steel Pliers.png",
+        "caption": "KastKing Cutthroat 7\" Stainless Steel Pliers"
+      }
+    },
+    {
+      "id": "skylety-fishing-hook-sharpener",
+      "name": "Skylety Fishing Hook Sharpener",
+      "category": "accessories",
+      "type": "Kayaks",
+      "specifications": [
+        {
+          "value": "Orange",
+          "label": "Color"
+        }
+      ],
+      "links": [
+        {
+          "label": "Amazon",
+          "url": "https://a.co/d/0fazvrfJ"
+        }
+      ],
+      "manufacturer": "Skylety",
+      "model": "Fishing Hook Sharpener File Double Sided",
+      "picture": {
+        "src": "Gear/Equipment/assets/Skylety Fishing Hook Sharpener.png",
+        "caption": "Skylety Fishing Hook Sharpener"
+      }
+    },
+    {
+      "id": "plano-sportsman-s-trunk",
+      "name": "Plano Sportsman's Trunk",
+      "category": "accessories",
+      "type": "Storage",
+      "specifications": [
+        {
+          "value": "Large",
+          "label": "Size"
+        },
+        {
+          "value": "Blaze Orange",
+          "label": "Color"
+        },
+        {
+          "value": "37.25\"L x 18\"W x 14\"H",
+          "label": "Exterior Dimensions"
+        },
+        {
+          "value": "PLAT19BOE",
+          "label": "Model #"
+        }
+      ],
+      "links": [
+        {
+          "label": "Plano",
+          "url": "https://www.planooutdoors.com/collections/storage-trunks/products/sportsmans-trunk-large-1610260?variant=58749608755360"
+        }
+      ],
+      "manufacturer": "Plano",
+      "model": "Sportsman's Trunk",
+      "picture": {
+        "src": "Gear/Equipment/assets/Plano Sportsman's Trunk.png",
+        "caption": "Plano Sportsman's Trunk"
+      }
+    },
+    {
+      "id": "kastking-v10-pivot-grip-fishing-rod-holder",
+      "name": "KastKing V10 Pivot Grip Fishing Rod Holder",
+      "category": "accessories",
+      "type": "Storage",
+      "specifications": [],
+      "links": [
+        {
+          "label": "KastKing",
+          "url": "https://kastking.com/products/kastking-v10-pivot-grip-fishing-rod-holder?_gl=1*119a5dr*_up*MQ..*_ga*MTgwNTQ5NTkxNS4xNzg5MzYxMzUy*_ga_Q8C72SQ60L*czE3ODkzNjEzNTEkbzEkZzEkdDE3ODkzNjEzODEkajMwJGwwJGg0OTA5OTk0NjI."
+        },
+        {
+          "label": "Amazon",
+          "url": "https://a.co/d/0d0mp0pp"
+        }
+      ],
+      "manufacturer": "KastKing",
+      "model": "V10 Pivot Grip Fishing Rod Holder",
+      "picture": {
+        "src": "Gear/Equipment/assets/KastKing V10 Pivot Grip Fishing Rod Holder.png",
+        "caption": "KastKing V10 Pivot Grip Fishing Rod Holder"
+      }
+    },
+    {
+      "id": "palmyth-flexible-fishing-gloves",
+      "name": "Palmyth Flexible Fishing Gloves",
+      "category": "accessories",
+      "type": "Accessories",
+      "specifications": [
+        {
+          "value": "Large",
+          "label": "Size"
+        },
+        {
+          "value": "Black/Grey",
+          "label": "Color"
+        }
+      ],
+      "links": [
+        {
+          "label": "Amazon",
+          "url": "https://a.co/d/09qfUqMw"
+        }
+      ],
+      "manufacturer": "Palmyth",
+      "model": "Flexible Fishing Gloves",
+      "picture": {
+        "src": "Gear/Equipment/assets/Palmyth Flexible Fishing Gloves.png",
+        "caption": "Palmyth Flexible Fishing Gloves"
+      }
     }
   ]
 }
