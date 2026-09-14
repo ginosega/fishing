@@ -1,0 +1,45 @@
+name: FISH107 one-shot helper
+
+on:
+  push:
+    branches:
+      - feature/fish107-skylety-type
+    paths:
+      - .github/workflows/fish107-helper.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: feature/fish107-skylety-type
+      - name: Apply exact package edit and remove helper
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('pwa/Gear/gear.json')
+          text = path.read_text()
+          old = '''      "id": "skylety-fishing-hook-sharpener",
+      "name": "Skylety Fishing Hook Sharpener",
+      "category": "accessories",
+      "type": "Kayaks",'''
+          new = '''      "id": "skylety-fishing-hook-sharpener",
+      "name": "Skylety Fishing Hook Sharpener",
+      "category": "accessories",
+      "type": "Tools",'''
+          assert text.count(old) == 1, f'Expected one exact Skylety base block, found {text.count(old)}'
+          path.write_text(text.replace(old, new, 1))
+          PY
+          git rm .github/workflows/fish107-helper.yml
+          test "$(git diff -- pwa/Gear/gear.json | grep -c '^[-+]      \"type\":')" -eq 2
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pwa/Gear/gear.json
+          git commit -m "FISH107: correct Skylety type to Tools"
+          git push origin HEAD:feature/fish107-skylety-type
