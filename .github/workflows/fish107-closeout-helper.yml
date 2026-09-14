@@ -1,0 +1,31 @@
+name: FISH107 docs closeout helper
+
+on:
+  push:
+    branches:
+      - docs/fish107-closeout
+    paths:
+      - '.github/workflows/fish107-closeout-helper.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  reconcile:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Apply FISH107 documentation reconciliation
+        run: |
+          python .github/fish107_closeout.py
+          rm .github/fish107_closeout.py
+          rm .github/workflows/fish107-closeout-helper.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md Fishing_Context.md Fishing_TODO.md Fishing_Decision_Log.md Fishing_New_Chat_Bootstrap_Prompt.md pwa/README.md pwa/docs/FISH107_Production_Closeout_2026-09-14.md .github
+          git diff --cached --check
+          git commit -m "Docs: close out FISH107"
+          git push
