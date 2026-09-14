@@ -1,0 +1,5 @@
+export const CHANGE_PACKAGE_INSTRUCTION='Fishing Companion change package: Please implement the JSON change package below in the `ginosega/fishing` repository. Restore current `main` and its project instructions, validate the source-aware package against current canonical content, preserve unrelated or newer source changes, and apply only the requested changes. For an eligible content-only change, use the FISH108 Fast Content Release process: carry the change through one content PR, lightweight content validation/build, merge, production deployment, and hosted byte/release-identity verification. Do not run the Full Application Release process or create/update project-state records unless validation shows they are actually required. If the requested change is not eligible for the Fast Content Release lane, follow the repository’s current instructions for the appropriate release lane. This is an instruction to perform the repository work, not merely explain the JSON.';
+
+export function changePackageClipboardText(prepared){
+ return `${CHANGE_PACKAGE_INSTRUCTION}\n\n${JSON.stringify(prepared,null,2)}`;
+}
