@@ -2,21 +2,19 @@
 
 ## Current project task state — September 13, 2026
 
-**FISH-TODO-101 — DONE / production-verified.** The submitted Knot change-package batch plus the explicit request to remove Double Uni Knot and Single Uni Knot were validated and applied through [PR121](https://github.com/ginosega/fishing/pull/121). Branch validation [run 34766670229](https://github.com/ginosega/fishing/actions/runs/34766670229) confirmed all submitted stale-base checks and recomputed the exact byte counts/SHA-256 hashes for all **39** pre-uploaded media files. Full pre-merge production acceptance [run 34766717362](https://github.com/ginosega/fishing/actions/runs/34766717362) passed.
+**FISH-TODO-103 — DONE / production-verified.** FISH103 moved canonical physical domain source under `pwa/Gear/`, `pwa/KB/` and `pwa/Catches/` while preserving logical record/release paths; fixed external-vs-internal link targets; fixed Gear/KB caption focus during preview updates; and fixed new-KB Markdown Preview validation ordering. Feature work shipped through [PR125](https://github.com/ginosega/fishing/pull/125); verifier-only [PR126](https://github.com/ginosega/fishing/pull/126) and [PR127](https://github.com/ginosega/fishing/pull/127) corrected hosted-test dialog handling without changing application behavior or canonical data.
 
-The requested canonical result activates Improved Clinch (11 PNG), Modified Uni (12 JPG), and Trilene (15 PNG) sequences; adds the submitted static Non-Slip Loop picture; applies the submitted content/structured Knot refinements; updates Bowline's description; keeps Palomar's 13-frame sequence while applying its Markdown refinement; and removes Double Uni Knot and Single Uni Knot records plus their Markdown articles. Canonical KB count is now **55**.
+Final FISH103 verified production is source `94772e62788fa98903930e4b5649fabb9629c6d0`, release `b8c8222697222f1dd43861427d5006fb`, [run 34795289032](https://github.com/ginosega/fishing/actions/runs/34795289032), with **327 hosted v2 files** and hosted-verification artifact `10329313590`. Full source/core, Chromium/WebKit, production-browser, archived-v1 cutover, exact-main, Pages, hosted-byte and hosted-browser verification passed.
 
-The feature merge source was `360d71ff2bfaf075ad498d18f05126268f6606f1`. Its first exact-main Pages deployment succeeded but the hosted verifier still expected 57 KB records. Verification-only [PR122](https://github.com/ginosega/fishing/pull/122) changed only that stale expectation to 55.
+**FISH-TODO-102 — DONE / production-verified.** FISH102 added the **Line-Tackle-Knot Reference** KB Knot entry, Markdown and picture through [PR124](https://github.com/ginosega/fishing/pull/124), and pins that card first on KB → Knots while leaving remaining Knot cards alphabetical. Its verified production source was `4912f93149e9de1e9cde9ff5176b4a4831a67812`, release `beff9138c96489abd9723c5fcfeef0ff`, [run 34770966552](https://github.com/ginosega/fishing/actions/runs/34770966552), hosted-verification artifact `10322381375`. Canonical counts are now **69 Gear, 56 KB and 5 Catches**.
 
-Current verified production is source `2b76f9f91757705e361ed3485da0627e493c8d7d`, release `eeba6be85560163522778e2e795d91d9`, [run 34768935480](https://github.com/ginosega/fishing/actions/runs/34768935480), with **325 hosted v2 files** and hosted-verification artifact `10322070321`.
+**Fishing Companion v3** — historically `FISH-TODO-077/P2` — remains **DEFERRED**. Future scope includes authentication, direct GitHub save/upload, integrated uploads, offline authoring/outbox/sync, Catch authoring and multi-user generalization. Do not treat any of that as current production or implicitly approved implementation work.
 
-FISH-TODO-077/P2 remains **DEFERRED**. Authentication, Direct Save, integrated uploads, offline authoring, outbox/sync and Catch authoring are not part of current production.
-
-The next unused canonical task ID is **FISH-TODO-102**.
+The next unused canonical application task ID is **FISH-TODO-104**.
 
 ## Completed/superseded application work
 
-FISH071–076 and FISH078–101 are complete. FISH077 is the intentional deferred P2 boundary. Historical v1-only items FISH-TODO-063 (old KB filename/upload constraints) and FISH-TODO-039 (structured setup recording on catches) are superseded by the approved v2 architecture and must not be used to reintroduce retired structures.
+FISH071–076 and FISH078–103 are complete. Historical `FISH-TODO-077/P2` is the intentional deferred future-phase boundary now called **Fishing Companion v3**. Historical v1-only items FISH-TODO-063 (old KB filename/upload constraints) and FISH-TODO-039 (structured setup recording on catches) are superseded by the approved current architecture and must not be used to reintroduce retired structures.
 
 Detailed completion/release evidence remains in Git history and dated `pwa/docs/` records. This TODO intentionally keeps current open/deferred work instead of repeating every historical release.
 
@@ -56,8 +54,8 @@ These items remain open/deferred independently of Fishing Companion release work
 | FISH-TODO-032 | P3 | OPEN | Continue individual structured Catch records, with no trips/no-bite sessions or inferred relationships. |
 | FISH-TODO-033 | P3 | OPEN | Create regulations recheck checklist for Fish Washington, lake rules, species identification and bait/retention implications. |
 | FISH-TODO-034 | P3 | OPEN | Spot-check authored links in GitHub Preview and PWA. |
-| FISH-TODO-037 | P3 | DEFERRED | Multi-user generalization only if a future explicit requirement arises. |
+| FISH-TODO-037 | P3 | DEFERRED | Multi-user generalization only as part of a future explicitly approved Fishing Companion v3 requirement. |
 
 ## Continuation rules
 
-Use Chat mode by default. Restore actual latest `main` before acting. For new application work, allocate **FISH-TODO-102** unless a newer task has already been created on current `main`. Do not reopen FISH096–FISH101 or P2 work without an explicit new user request.
+Use Chat mode by default. Restore actual latest `main` before acting. For new application work, allocate **FISH-TODO-104** unless a newer task has already been created on current `main`. Do not reopen FISH096–FISH103 or Fishing Companion v3 work without an explicit new user request.
