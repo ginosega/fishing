@@ -34,33 +34,34 @@ This is a durable Fishing-project convention, not an automatic ChatGPT product f
 
 ## Current production continuation point — September 13, 2026
 
-FISH-TODO-102 and FISH-TODO-103 are **DONE / production-verified**.
+FISH-TODO-104 is **DONE / production-verified**.
 
-FISH102 shipped through [PR124](https://github.com/ginosega/fishing/pull/124). It added the **Line-Tackle-Knot Reference** KB Knot record, Markdown and picture and pins that card first only on KB → Knots while keeping all remaining Knot cards alphabetical. FISH102 verified production was source `4912f93149e9de1e9cde9ff5176b4a4831a67812`, release `beff9138c96489abd9723c5fcfeef0ff`, [run 34770966552](https://github.com/ginosega/fishing/actions/runs/34770966552), hosted-verification artifact `10322381375`.
+FISH104 shipped through [PR130](https://github.com/ginosega/fishing/pull/130). It implemented the supplied Fishing Companion Gear add package for `humminbird-fish-finder` and added:
 
-FISH103 shipped through feature [PR125](https://github.com/ginosega/fishing/pull/125), followed by verifier-only [PR126](https://github.com/ginosega/fishing/pull/126) and [PR127](https://github.com/ginosega/fishing/pull/127). It:
+- Humminbird Fish Finder / Helix 5 Chirp DI GPS G3 Gear record;
+- type `Electronics`, transducer `XNT 9 HW DI T`;
+- Markdown `Gear/Equipment/content/Humminbird Fish Finder.md`;
+- picture `Gear/Equipment/assets/Humminbird Helix 5 Chirp DI GPS G3.png`;
+- caption `Humminbird Helix 5 Chirp DI GPS G3`.
 
-- moved canonical physical domain source to `pwa/Gear/`, `pwa/KB/` and `pwa/Catches/` while preserving logical record/release paths as `Gear/...`, `KB/...` and `Catches/...`;
-- changed GitHub upload-folder links to the physical `pwa/...` folders;
-- makes external HTTP(S) structured/Markdown links open in a new tab with `noopener noreferrer`, while internal/in-app/local links remain same-tab;
-- keeps Gear/KB Caption input focused while the picture caption preview updates;
-- gives new-KB Markdown Preview a provisional required content path before whole-library validation.
+The user-supplied picture is preserved exactly at **579,304 bytes**, SHA-256 `2ec799df4d20af22031ca7fde682aca1f5c695a5cab028fb251fd2457f3e0d4e`.
 
 Current verified production:
 
-- source: `94772e62788fa98903930e4b5649fabb9629c6d0`
-- release: `b8c8222697222f1dd43861427d5006fb`
-- production workflow: [run 34795289032](https://github.com/ginosega/fishing/actions/runs/34795289032)
-- hosted v2 files: **327**
-- production-bundle artifact: `10328869743`
-- production-acceptance-evidence artifact: `10329538071`
-- Pages artifact: `10329392228`
-- hosted-verification artifact: `10329313590`
+- source: `89e6871d81c509eed7e17d4b437db78be16310b8`
+- release: `6aff63420b64bb790847a7af37f44c10`
+- production workflow: [run 34800306796](https://github.com/ginosega/fishing/actions/runs/34800306796)
+- hosted v2 files: **329**
+- production-bundle artifact: `10331372187`
+- production-acceptance-evidence artifact: `10331631583`
+- Pages artifact: `10330882758`
+- hosted-verification artifact: `10331027567`
 - site: https://ginosega.github.io/fishing/
+- canonical counts: **70 Gear, 56 KB and 5 Catches**
 
-The current exact-main production run passed source/core validation, Chromium/WebKit preview and production acceptance, archived-v1 cutover acceptance, exact-current-main protection, Pages deployment, hosted-byte verification and hosted-browser verification. Hosted verification explicitly confirmed FISH103's physical source layout, external/internal link targets, Caption focus stability and new-KB Markdown Preview.
+The exact-main production run passed source/core validation, Chromium/WebKit preview and production acceptance, archived-v1 cutover acceptance, exact-current-main protection, Pages deployment, hosted-byte verification and hosted-browser verification.
 
-Do **not** restart FISH096–FISH103 implementation/deployment work.
+FISH102 and FISH103 remain DONE / production-verified. Do **not** restart FISH096–FISH104 implementation/deployment work.
 
 ## Current durable behavior
 
@@ -76,6 +77,8 @@ FISH102's Line-Tackle-Knot Reference is pinned first only on KB → Knots. Other
 
 FISH103's link behavior is durable: external HTTP(S) links open in a new tab; internal `gear://`, `kb://`, anchors/local and other in-app links remain same-tab. Caption editing must retain focus, and new-KB Markdown Preview must validate with a provisional required content path.
 
+FISH104 does **not** by itself close `FISH-TODO-005`: its notes document a fish-finder power architecture and parts list, but do not explicitly confirm that every listed component is the installed configuration. Preserve that item as WAITING ON USER until I confirm the installed system.
+
 ## Fishing Companion v3
 
 **Fishing Companion v3** is the preferred name for the future phase historically tracked as `FISH-TODO-077/P2`. It remains **DEFERRED**. Historical references to `FISH-TODO-077/P2` are still valid identifiers, but new prose should call it Fishing Companion v3.
@@ -84,11 +87,11 @@ Future scope includes authentication, direct GitHub save/upload, integrated uplo
 
 ## Task state
 
-FISH071–076 and FISH078–103 are complete. Fishing Companion v3 (`FISH-TODO-077/P2`) remains deferred. Preserve all unresolved fishing/equipment/content backlog and explicit purchase uncertainty in `Fishing_TODO.md`.
+FISH071–076 and FISH078–104 are complete. Fishing Companion v3 (`FISH-TODO-077/P2`) remains deferred. Preserve all unresolved fishing/equipment/content backlog and explicit purchase uncertainty in `Fishing_TODO.md`.
 
-The next unused canonical application task ID is **FISH-TODO-104** unless actual newer `main` has already allocated it.
+The next unused canonical application task ID is **FISH-TODO-105** unless actual newer `main` has already allocated it.
 
-The new-chat transfer/handoff convention is a project operating rule, **not** FISH-TODO-104 and does not consume an application task ID.
+The new-chat transfer/handoff convention is a project operating rule, **not** FISH-TODO-105 and does not consume an application task ID.
 
 ## Working rules
 
