@@ -2146,7 +2146,7 @@
     {
       "id": "perception-joyride-10-0",
       "category": "accessories",
-      "type": "Accessories",
+      "type": "Kayaks",
       "name": "Perception Joyride 10.0",
       "manufacturer": "Perception",
       "model": "Joyride 10.0",
@@ -2179,7 +2179,8 @@
         }
       ],
       "picture": {
-        "src": "Gear/Equipment/assets/perception-joyride-10.png"
+        "src": "Gear/Equipment/assets/perception-joyride-10.png",
+        "caption": "Perception Joyride 10.0 - Funkadelic"
       }
     },
     {
@@ -2209,6 +2210,122 @@
       "picture": {
         "src": "Gear/Equipment/assets/Humminbird Helix 5 Chirp DI GPS G3.png",
         "caption": "Humminbird Helix 5 Chirp DI GPS G3"
+      }
+    },
+    {
+      "id": "kastking-hyperseal-waterproof-tackle-box",
+      "name": "KastKing HyperSeal Waterproof Tackle Box",
+      "category": "accessories",
+      "type": "Tackle Management",
+      "specifications": [
+        {
+          "value": "3600",
+          "label": "Size"
+        },
+        {
+          "value": "Orange",
+          "label": "Color"
+        }
+      ],
+      "links": [
+        {
+          "label": "KastKing",
+          "url": "https://kastking.com/products/kastking-hyperseal-waterproof-tackle-box?variant=44223200198893"
+        },
+        {
+          "label": "Amazon",
+          "url": "https://a.co/d/0611CmE5"
+        }
+      ],
+      "manufacturer": "KastKing",
+      "model": "HyperSeal Waterproof Tackle Box - 3600",
+      "picture": {
+        "src": "Gear/Equipment/assets/KastKing HyperSeal Waterproof Tackle Box.png",
+        "caption": "KastKing HyperSeal Waterproof Tackle Box - 3600"
+      }
+    },
+    {
+      "id": "kastking-fishing-tackle-bag",
+      "name": "KastKing Fishing Tackle Bag",
+      "category": "accessories",
+      "type": "Tackle Management",
+      "specifications": [
+        {
+          "value": "Medium",
+          "label": "Size"
+        },
+        {
+          "value": "Orange",
+          "label": "Color"
+        }
+      ],
+      "links": [
+        {
+          "label": "KastKing",
+          "url": "https://kastking.com/products/kastking-fishing-tackle-bags?_gl=1*sryb91*_up*MQ..*_ga*Mjk0NDk0NTcxLjE3ODkzNTYwNDM.*_ga_Q8C72SQ60L*czE3ODkzNTYwNDIkbzEkZzEkdDE3ODkzNTYyMjIkajYwJGwwJGg1NjkzNDc3MzQ."
+        },
+        {
+          "label": "Amazon",
+          "url": "https://a.co/d/0cCu8fZX"
+        }
+      ],
+      "manufacturer": "KastKing",
+      "model": "Fishing Tackle Bag",
+      "notes": "Gear/Equipment/content/KastKing Fishing Tackle Bag.md",
+      "picture": {
+        "src": "Gear/Equipment/assets/KastKing Fishing Tackle Bag.png",
+        "caption": "KastKing Fishing Tackle Bag"
+      }
+    },
+    {
+      "id": "kastking-signature-lure-bag",
+      "name": "KastKing Signature Lure Bag",
+      "category": "accessories",
+      "type": "Tackle Management",
+      "specifications": [],
+      "links": [
+        {
+          "label": "KastKing",
+          "url": "https://kastking.com/products/kastking-bait-storage-bag?_pos=12&_sid=81552bb44&_ss=r"
+        },
+        {
+          "label": "Amazon",
+          "url": "https://a.co/d/0aizKizU"
+        }
+      ],
+      "manufacturer": "KastKing",
+      "model": "Signature Lure Bag",
+      "picture": {
+        "src": "Gear/Equipment/assets/KastKing Signature Lure Bag.png",
+        "caption": "KastKing Signature Lure Bag"
+      }
+    },
+    {
+      "id": "kastking-baitshield-tackle-storage-bag",
+      "name": "KastKing BaitShield Tackle Storage Bag",
+      "category": "accessories",
+      "type": "Tackle Management",
+      "specifications": [
+        {
+          "value": "Medium",
+          "label": "Size"
+        }
+      ],
+      "links": [
+        {
+          "label": "KastKing",
+          "url": "https://kastking.com/products/kastking-baitshield-tackle-storage-bag"
+        },
+        {
+          "label": "Amazon",
+          "url": "https://a.co/d/02ajC2et"
+        }
+      ],
+      "manufacturer": "KastKing",
+      "model": "BaitShield Tackle Storage Bag",
+      "picture": {
+        "src": "Gear/Equipment/assets/KastKing BaitShield Tackle Storage Bag.png",
+        "caption": "KastKing BaitShield Tackle Storage Bag"
       }
     }
   ]

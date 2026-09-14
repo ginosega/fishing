@@ -34,7 +34,7 @@ try{
  const completeBefore=await page.evaluate(async()=>{let count=0;for(const name of await caches.keys()){if(!name.startsWith('fishing-v2:'))continue;const cache=await caches.open(name);if(await cache.match(new URL('__fishing_complete__',location.href)))count++;}return count;});
  assert.equal(completeBefore,0,'Clean online visit unexpectedly prepared a complete offline library');
  assert.equal(await page.evaluate(async()=>new URL((await navigator.serviceWorker.getRegistration()).scope).pathname),production?'/fishing/':'/fishing/v2-preview/');
- assert.deepEqual(await page.evaluate(()=>window.__FISHING_V2__.counts),{gear:70,kb:56,catches:5});for(const dir of ['Gear','KB','Catches']){await fs.access(dir);await assert.rejects(fs.access(path.join('..',dir)),error=>error?.code==='ENOENT');}
+ assert.deepEqual(await page.evaluate(()=>window.__FISHING_V2__.counts),{gear:74,kb:56,catches:5});for(const dir of ['Gear','KB','Catches']){await fs.access(dir);await assert.rejects(fs.access(path.join('..',dir)),error=>error?.code==='ENOENT');}
  await page.goto(preview+'#/kb/category/knot');await page.getByRole('heading',{name:'Knots',exact:true,level:1}).waitFor();const hostedKnotNames=await page.locator('.record-grid .nav-card h2').allTextContents();assert.equal(hostedKnotNames[0],'Line-Tackle-Knot Reference');assert.deepEqual(hostedKnotNames.slice(1),[...hostedKnotNames.slice(1)].sort((a,b)=>a.localeCompare(b)));
  await page.goto(preview+'#/inventory/item/bonafide-rvr119');await page.locator('.markdown-body').waitFor();
  const image=page.locator('#app img').first();await image.evaluate(async img=>{await img.decode();if(!img.naturalWidth)throw Error('Picture did not decode');});
