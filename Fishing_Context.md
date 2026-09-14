@@ -13,6 +13,7 @@ The fast lane keeps the safeguards that can catch content errors:
 - restore actual current `main` / open-PR state before writing;
 - validate package source revision, record hash/base fields for edits, conflicts, schema/type/path/reference rules, and supplied media metadata as applicable;
 - apply only the requested canonical changes;
+- normalize accidental trailing whitespace: remove trailing spaces from package string values and text lines unless the user explicitly instructs that the whitespace be preserved;
 - use a lightweight content PR;
 - install locked dependencies with cache reuse but do not run `npm audit` when dependencies did not change;
 - build the production release once from canonical source; `inventorySource` validates schemas, semantic references, canonical paths, Markdown/resources, media decoding/integrity and unresolved-media rules;
