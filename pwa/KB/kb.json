@@ -650,6 +650,12 @@
       }
     },
     {
+      "id": "bass-fishing-techniques",
+      "name": "Bass Fishing Techniques",
+      "type": "technique",
+      "content": "KB/Techniques/content/Bass Fishing Techniques.md"
+    },
+    {
       "id": "fall-bass-fishing",
       "name": "Fall Bass Fishing",
       "type": "technique",
