@@ -128,6 +128,20 @@ Final validator-measured state is **74 Gear, 56 KB and 5 Catches**, **108 canoni
 
 **Decision:** FISH105 does not automatically close `FISH-TODO-014`. Although it adds a KastKing HyperSeal Waterproof Tackle Box in size 3600, the supplied package does not explicitly identify that product as the backlog's specific “KastKing 3600 deep box” target. Preserve FISH-TODO-014 as OPEN until the user explicitly resolves it.
 
+## FISH106 — Gear tools, storage and accessories batch
+
+**Decision/status:** DONE and production-verified. [PR134](https://github.com/ginosega/fishing/pull/134) implemented six supplied `fishing-companion-change-v2` Gear add packages atomically after the user supplied the initially missing Plano image.
+
+**Decision/result:** The canonical additions are KastKing Brutus Silicone Foldable Extendable Net (`Tools`), KastKing Cutthroat 7" Stainless Steel Pliers (`Tools`), Skylety Fishing Hook Sharpener (supplied type `Kayaks`), Plano Sportsman's Trunk (`Storage`), KastKing V10 Pivot Grip Fishing Rod Holder (`Storage`) and Palmyth Flexible Fishing Gloves (`Accessories`). The Brutus net and Cutthroat pliers also have their supplied canonical Markdown notes.
+
+All six pictures were user-supplied source files already present under `pwa/Gear/Equipment/assets/` before the batch was promoted. Their repository byte sizes matched the supplied package metadata; the files were referenced in place and were not rewritten. The initially missing Plano Sportsman's Trunk PNG was verified at **1,016,850 bytes** before promotion proceeded.
+
+Final feature head `4a1c9dd5d765bd07b4ce3b36b6e3bc17ff43a8b0` passed exact-head acceptance in [run 34808981155](https://github.com/ginosega/fishing/actions/runs/34808981155). Final validator-measured state is **80 Gear, 56 KB and 5 Catches**, **110 canonical library paths**, **245 inventory references**.
+
+Final verified production source is `9b419e07f9a3a56a2be1ddbfb0df1760fe2730cb`, release `fe94ec0a8b0c606f72847ef3fda0a5b6`, [run 34809970042](https://github.com/ginosega/fishing/actions/runs/34809970042), **342 hosted v2 files**, hosted-verification artifact `10334477509`. Exact-current-main protection, Pages publication, hosted byte verification and hosted browser verification all passed.
+
+**Decision:** FISH106 is a content/Gear release only. It does not change the Gear schema, P1 authoring boundary, FISH091 offline model, FISH096 sequence model, FISH103 link/upload behavior, or the unresolved conclusions for `FISH-TODO-005` and `FISH-TODO-014`.
+
 ## Fishing Companion v3 — deferred boundary
 
 **Decision:** **Fishing Companion v3** is the preferred phase name for the future work historically identified as `FISH-TODO-077/P2`. The historical identifier may remain in records, but new prose should call the phase Fishing Companion v3.
@@ -142,4 +156,4 @@ The canonical application icon is `pwa/icon.png`. Historical icon names/bytes an
 
 ## Open work
 
-FISH071–076 and FISH078–105 are complete; Fishing Companion v3 (`FISH-TODO-077/P2`) remains deferred. The canonical TODO preserves active fishing/gear/content research and purchase uncertainty. The next unused canonical application task ID is **FISH-TODO-106** unless actual current `main` has already allocated it.
+FISH071–076 and FISH078–106 are complete; Fishing Companion v3 (`FISH-TODO-077/P2`) remains deferred. The canonical TODO preserves active fishing/gear/content research and purchase uncertainty. The next unused canonical application task ID is **FISH-TODO-107** unless actual current `main` has already allocated it.
