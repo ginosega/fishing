@@ -4,28 +4,28 @@ Fishing Companion is the active PWA published at https://ginosega.github.io/fish
 
 ## Current verified production — September 13, 2026
 
-FISH105 is live and production-verified.
+FISH106 is live and production-verified.
 
-FISH105 shipped through [PR132](https://github.com/ginosega/fishing/pull/132). It corrected Perception Joyride 10.0 to type `Kayaks` and added its caption, and added four `Tackle Management` Gear records: KastKing HyperSeal Waterproof Tackle Box, KastKing Fishing Tackle Bag, KastKing Signature Lure Bag and KastKing BaitShield Tackle Storage Bag. The Fishing Tackle Bag also has canonical Markdown `Gear/Equipment/content/KastKing Fishing Tackle Bag.md`.
+FISH106 shipped through [PR134](https://github.com/ginosega/fishing/pull/134). It added six canonical Gear records: KastKing Brutus Silicone Foldable Extendable Net (`Tools`), KastKing Cutthroat 7" Stainless Steel Pliers (`Tools`), Skylety Fishing Hook Sharpener (supplied type `Kayaks`), Plano Sportsman's Trunk (`Storage`), KastKing V10 Pivot Grip Fishing Rod Holder (`Storage`) and Palmyth Flexible Fishing Gloves (`Accessories`). The Brutus net and Cutthroat pliers also have canonical Markdown notes under `Gear/Equipment/content/`.
 
-The four KastKing PNGs were user-supplied source files already uploaded under physical source `pwa/Gear/Equipment/assets/` before package promotion. FISH105 references those bytes in place. The unrelated direct Bonafide RVR119 Markdown update already on `main` was preserved unchanged.
+All six PNGs were user-supplied source files already uploaded under physical source `pwa/Gear/Equipment/assets/` before package promotion. FISH106 references those bytes in place rather than rewriting them. Repository byte sizes matched the supplied package metadata before promotion; the initially missing Plano Sportsman's Trunk PNG was verified at 1,016,850 bytes before the atomic batch proceeded.
 
 Current production:
 
-- source: `dc7e6434757f19c15f05d29fc120251425108fe8`
-- release: `6b10de29a03200d6f06040847007aaa8`
-- production workflow: [run 34804905643](https://github.com/ginosega/fishing/actions/runs/34804905643)
-- hosted v2 files: **334**
-- production-bundle artifact: `10332637362`
-- production-acceptance-evidence artifact: `10333116452`
-- Pages artifact: `10333001931`
-- hosted-verification artifact: `10332432676`
+- application source: `9b419e07f9a3a56a2be1ddbfb0df1760fe2730cb`
+- release: `fe94ec0a8b0c606f72847ef3fda0a5b6`
+- production workflow: [run 34809970042](https://github.com/ginosega/fishing/actions/runs/34809970042)
+- hosted v2 files: **342**
+- production-bundle artifact: `10334457339`
+- production-acceptance-evidence artifact: `10334502241`
+- Pages artifact: `10334936059`
+- hosted-verification artifact: `10334477509`
 
-The exact-current-main deployment passed complete source/core validation, Chromium/WebKit preview and production acceptance, archived-v1 cutover acceptance, exact-current-main protection, Pages deployment, hosted-byte verification and hosted-browser verification.
+The exact-current-main deployment passed complete source/core validation, Chromium/WebKit preview and production acceptance, archived-v1 cutover acceptance, exact-current-main protection, Pages deployment, hosted-byte verification and hosted-browser verification. Hosted verification reported source revision `9b419e07f9a3a56a2be1ddbfb0df1760fe2730cb`, release `fe94ec0a8b0c606f72847ef3fda0a5b6`, and 342 hosted v2 files.
 
-Canonical counts are **74 Gear, 56 KB and 5 Catches**. Current measured source-validation baselines are **108 canonical library paths** and **240 inventory references**.
+Canonical counts are **80 Gear, 56 KB and 5 Catches**. Current measured source-validation baselines are **110 canonical library paths** and **245 inventory references**.
 
-FISH102–FISH104 remain live and production-verified. FISH102 added the Line-Tackle-Knot Reference and pinned-first Knot-category behavior. FISH103 relocated canonical physical domain source beneath this `pwa/` directory and fixed external/internal link targeting, Caption focus and new-KB Markdown Preview validation ordering. FISH104 added the Humminbird Fish Finder record, notes and picture.
+FISH102–FISH105 remain live and production-verified. FISH102 added the Line-Tackle-Knot Reference and pinned-first Knot-category behavior. FISH103 relocated canonical physical domain source beneath this `pwa/` directory and fixed external/internal link targeting, Caption focus and new-KB Markdown Preview validation ordering. FISH104 added the Humminbird Fish Finder record, notes and picture. FISH105 corrected Perception Joyride 10.0 and added four KastKing tackle-management records.
 
 ## Directory layout
 
@@ -62,6 +62,8 @@ Knot authoring uses the existing Picture section with complete native multi-file
 FISH102 pins **Line-Tackle-Knot Reference** first only on KB → Knots. Remaining Knot cards are alphabetical.
 
 FISH103 link behavior is durable: external HTTP(S) links from structured Links and rendered Markdown open in a new tab with `noopener noreferrer`; internal `gear://`, `kb://`, anchors/local and other in-app links remain same-tab. Gear/KB Caption editing must retain focus while its preview text updates, and new-KB Markdown Preview must assign a provisional required content path before whole-library validation.
+
+FISH106 is a content/Gear release only; it does not alter the runtime, schema, offline, sequence, or authoring architecture described above.
 
 ## Fishing Companion v3
 
