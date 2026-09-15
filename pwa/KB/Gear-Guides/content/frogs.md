@@ -1,3 +1,5 @@
+For broader surface-lure selection, conditions, and strategy, see [Topwater Fishing](kb://topwater-fishing).
+
 A topwater lure designed to imitate a real frog and slide across vegetation or skip under cover to draw surface strikes. Good for bass and pike in shallow, weedy environments.
 
 # Use
