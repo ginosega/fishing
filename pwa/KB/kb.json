@@ -636,14 +636,20 @@
       "type": "technique",
       "name": "Spring Fishing",
       "description": "Bass and trout location, depth, and presentation strategies as water warms",
-      "content": "KB/Techniques/content/Spring Fishing.md"
+      "content": "KB/Techniques/content/Spring Fishing.md",
+      "picture": {
+        "src": "KB/Techniques/assets/Spring Fishing.png"
+      }
     },
     {
       "id": "summer-fishing",
       "type": "technique",
       "name": "Summer Fishing",
       "description": "Bass and trout strategy for warm water, shade, oxygen, and stratification",
-      "content": "KB/Techniques/content/Summer Fishing.md"
+      "content": "KB/Techniques/content/Summer Fishing.md",
+      "picture": {
+        "src": "KB/Techniques/assets/Summer Fishing.png"
+      }
     },
     {
       "id": "topwater-fishing",
@@ -679,14 +685,20 @@
       "name": "Fall Fishing",
       "type": "technique",
       "description": "Bass and trout strategy as water cools and forage shifts toward winter",
-      "content": "KB/Techniques/content/Fall Fishing.md"
+      "content": "KB/Techniques/content/Fall Fishing.md",
+      "picture": {
+        "src": "KB/Techniques/assets/Fall Fishing.png"
+      }
     },
     {
       "id": "winter-fishing",
       "name": "Winter Fishing",
       "type": "technique",
       "description": "Bass and trout location and presentation strategy for cold, stable water",
-      "content": "KB/Techniques/content/Winter Fishing.md"
+      "content": "KB/Techniques/content/Winter Fishing.md",
+      "picture": {
+        "src": "KB/Techniques/assets/Winter Fishing.png"
+      }
     },
     {
       "id": "line-tackle-knot-reference",
