@@ -632,14 +632,18 @@
       }
     },
     {
-      "id": "technique-spring-fishing",
+      "id": "spring-fishing",
       "type": "technique",
-      "name": "Spring Bass Fishing",
-      "description": "Spring bass patterns by temperature, wind, clarity, depth, and presentation",
-      "content": "KB/Techniques/content/spring-fishing.md",
-      "picture": {
-        "src": "KB/Techniques/assets/Spring Bass Fishing.png"
-      }
+      "name": "Spring Fishing",
+      "description": "Bass and trout location, depth, and presentation strategies as water warms",
+      "content": "KB/Techniques/content/Spring Fishing.md"
+    },
+    {
+      "id": "summer-fishing",
+      "type": "technique",
+      "name": "Summer Fishing",
+      "description": "Bass and trout strategy for warm water, shade, oxygen, stratification, and low-light feeding",
+      "content": "KB/Techniques/content/Summer Fishing.md"
     },
     {
       "id": "topwater-fishing",
@@ -671,14 +675,18 @@
       }
     },
     {
-      "id": "fall-bass-fishing",
-      "name": "Fall Bass Fishing",
+      "id": "fall-fishing",
+      "name": "Fall Fishing",
       "type": "technique",
-      "description": "Bass behavior and recommended lures for September, October, and November",
-      "content": "KB/Techniques/content/Fall Bass Fishing.md",
-      "picture": {
-        "src": "KB/Techniques/assets/Fall Bass Fishing.png"
-      }
+      "description": "Bass and trout strategy as water cools, forage moves, and fish transition toward winter",
+      "content": "KB/Techniques/content/Fall Fishing.md"
+    },
+    {
+      "id": "winter-fishing",
+      "name": "Winter Fishing",
+      "type": "technique",
+      "description": "Bass and trout location and presentation strategy for cold, stable water",
+      "content": "KB/Techniques/content/Winter Fishing.md"
     },
     {
       "id": "line-tackle-knot-reference",

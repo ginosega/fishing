@@ -1,6 +1,6 @@
 ## Overview
 
-This page is about **finding trout**. It complements [Trout Fishing Techniques](kb://technique-trout-fishing), which focuses on choosing and working the right presentation after you have found likely fish.
+This page is about **finding trout**. It complements [Trout Fishing Techniques](kb://technique-trout-fishing), which focuses on choosing and working the right presentation after you have found likely fish. For the way location and presentation change through the year, use [Spring Fishing](kb://spring-fishing), [Summer Fishing](kb://summer-fishing), [Fall Fishing](kb://fall-fishing), and [Winter Fishing](kb://winter-fishing).
 
 For the trout fisheries represented in this library, location is driven mainly by five things:
 
@@ -10,7 +10,7 @@ For the trout fisheries represented in this library, location is driven mainly b
 4. **Light and security:** trout often feed shallower in low light and move deeper or closer to cover in bright conditions.
 5. **Current and water movement:** inflows, outlets, wind, current seams, and vertical mixing can concentrate both food and comfortable water.
 
-Use those variables together. A cool creek mouth with current and food is much more promising than simply "deep water," and a shallow wind-blown shoreline can outfish the middle of a lake when cool water and forage make it comfortable.
+Use those variables together. A cool creek mouth with current and food is much more promising than simply “deep water,” and a shallow wind-blown shoreline can outfish the middle of a lake when cool water and forage make it comfortable.
 
 The two primary trout species in this library are [Rainbow Trout](kb://species-rainbow-trout) and [Coastal Cutthroat Trout](kb://species-coastal-cutthroat-trout).
 
@@ -31,13 +31,13 @@ A useful rule is:
 
 - **Cool water:** trout can use shallow water, shoreline areas, and the upper water column more freely.
 - **Warming water:** begin checking deeper water, shaded areas, inflows, springs, creek mouths, and steeper breaks.
-- **Hot summer surface water:** do not assume trout are simply "on the bottom." Find the depth where **cool-enough water, oxygen, and food overlap**.
+- **Hot surface water:** do not assume trout are simply “on the bottom.” Find the depth where **cool-enough water, oxygen, and food overlap**.
 
 Habitat literature for rainbow trout commonly identifies water below about **64°F / 18°C** as preferred adult lake habitat, with stream habitat often best in roughly the 50s to low 60s°F. See the [U.S. Forest Service Rainbow Trout habitat profile](https://www.fs.usda.gov/Internet/FSE_DOCUMENTS/stelprdb5206802.pdf). These are useful search clues, not hard behavioral cutoffs; strain, acclimation, food, oxygen, and local conditions all matter.
 
-### Dissolved Oxygen and the Summer Squeeze
+### Dissolved Oxygen and the Warm-Water Squeeze
 
-As lakes stratify in summer, the upper layer can become too warm while deep water can lose oxygen. Trout may become compressed into a relatively narrow band where both temperature and oxygen are acceptable.
+As lakes stratify, the upper layer can become too warm while deep water can lose oxygen. Trout may become compressed into a relatively narrow band where both temperature and oxygen are acceptable.
 
 That means:
 
@@ -97,7 +97,7 @@ For trout, wind is most useful when it improves **food and comfort**. If it simp
 
 ### Forage and Feeding Clues
 
-Trout are opportunistic. Depending on size, species, lake, and season, important food can include:
+Trout are opportunistic. Depending on size, species, lake, and conditions, important food can include:
 
 - aquatic insects and emerging insects;
 - terrestrial insects blown or falling into the water;
@@ -152,7 +152,7 @@ For recently stocked rainbow trout:
 - watch for schools of cruising fish rather than assuming they are already relating tightly to natural structure;
 - as fish acclimate and natural food becomes more important, expect location to be governed increasingly by temperature, forage, and lake structure.
 
-Resident trout and fish grown from fry/fingerling plants have had more time to learn the lake's natural food and seasonal habitat, so forage and environmental patterns become more important than the stocking location itself.
+Resident trout and fish grown from fry/fingerling plants have had more time to learn the lake's natural food and habitat, so forage and environmental patterns become more important than the stocking location itself.
 
 Current Washington stocking information:
 - [WDFW Statewide Hatchery Trout and Kokanee Stocking Plan](https://wdfw.wa.gov/fishing/reports/stocking/statewide)
@@ -179,86 +179,20 @@ High-percentage locations include:
 
 A trout may sit in slower water and move only a short distance into faster current to intercept food. The best position often combines **nearby current carrying food + a low-energy holding spot + depth or cover**.
 
-In colder periods, deeper pools and cover become especially valuable. During warm, low-flow periods, prioritize the coolest available water and avoid unnecessarily stressing trout in marginal temperatures.
+During warm, low-flow periods, prioritize the coolest available water and avoid unnecessarily stressing trout in marginal temperatures. In cold conditions, deeper pools and softer current often become more important because fish can conserve energy.
 
-## Seasonal Approach
+## How Seasons Reweight These Variables
 
-The exact calendar varies by elevation, lake depth, weather, and whether the fish are stocked or naturally resident. Water temperature and lake stratification are more useful than the month alone.
+The same habitat rules apply all year, but temperature, lake stratification, stocking, forage, and light change which rule matters most.
 
-### Spring
+| Season | Location Problem to Solve | Detailed Guide |
+| --- | --- | --- |
+| Spring | Take advantage of cool water, nearshore/upper-water access, stocking, and active inflows/food | [Spring Fishing](kb://spring-fishing) |
+| Summer | Find the depth where cool water, oxygen, and food overlap; distinguish warm lowland lakes from cool alpine water | [Summer Fishing](kb://summer-fishing) |
+| Fall | Recheck nearshore and upper-water habitat as cooling expands the comfort zone and food redistributes | [Fall Fishing](kb://fall-fishing) |
+| Winter | Re-scan the whole mixed water column and prioritize stable water, forage, and low-energy holding areas | [Winter Fishing](kb://winter-fishing) |
 
-Spring is a high-percentage trout season in Washington lowland lakes because surface water is cool and fish can use a broad range of shallow and mid-depth habitat.
-
-Start with:
-
-- shoreline cruising lanes;
-- points and cove mouths;
-- creek mouths and inflows;
-- the upper water column;
-- wind-blown shorelines;
-- visible surface activity.
-
-For stocked lakes, check recent plant dates before deciding where to start.
-
-### Early Summer
-
-As the surface warms, trout location becomes more depth-dependent.
-
-Look for:
-
-- the first significant shoreline break;
-- deeper edges of points;
-- shaded banks;
-- creek mouths;
-- bait or trout at consistent sonar depths;
-- the beginning of a thermocline.
-
-Morning and evening may still bring fish shallow even when midday fish are deeper.
-
-### Mid/Late Summer
-
-This is the season when **temperature + oxygen + forage** matter most.
-
-In lowland lakes:
-
-- expect many trout to move deeper or offshore;
-- identify the comfortable depth band rather than simply fishing bottom;
-- use sonar to find suspended fish and bait;
-- check cool inflows and steep breaks;
-- fish early, late, or during low light when possible.
-
-Resident coastal cutthroat commonly show a summer lull in shallow fishing as they move offshore/deeper to escape heat.
-
-High-elevation lakes are different: their water may remain cool enough for trout to feed shallow even in midsummer, especially morning, evening, during wind, or when insects are active.
-
-### Fall
-
-Cooling water expands the amount of comfortable habitat. Trout often become more active and may return toward the shoreline and upper water column.
-
-Check:
-
-- wind-blown shorelines;
-- points;
-- creek mouths;
-- cove mouths;
-- shallow-to-deep transitions;
-- visible insect or bait activity.
-
-WDFW identifies spring and fall as especially productive periods for both lowland trout generally and resident coastal cutthroat.
-
-### Winter
-
-Cold water can make much of the lake thermally usable, but trout metabolism and feeding may slow.
-
-Look for:
-
-- stable deeper water;
-- creek channels and drop-offs;
-- areas holding forage;
-- midday warming on mild sunny days;
-- deep pools and slower current in streams.
-
-Because many lakes are mixed rather than strongly stratified in winter, trout may not be locked into the same narrow depth band seen in summer.
+Those seasonal pages contain the detailed **where to find + how to catch** playbooks. This page remains the reference for *why* trout choose a particular depth, shoreline, current seam, or feeding zone.
 
 ## Finding a Repeatable Trout Pattern
 
@@ -298,4 +232,5 @@ The goal is to understand **why trout are using that depth and area right now**,
 
 - Catching trout: [Trout Fishing Techniques](kb://technique-trout-fishing)
 - Species: [Rainbow Trout](kb://species-rainbow-trout), [Coastal Cutthroat Trout](kb://species-coastal-cutthroat-trout)
+- Seasonal strategy: [Spring Fishing](kb://spring-fishing), [Summer Fishing](kb://summer-fishing), [Fall Fishing](kb://fall-fishing), [Winter Fishing](kb://winter-fishing)
 - Local waters: [Lake Washington](kb://location-lake-washington), [Lake Sammamish](kb://location-lake-sammamish), [Silver Lake](kb://location-silver-lake-whatcom), [Mayfield Lake](kb://location-mayfield-lake), [Lake Chelan](kb://location-lake-chelan), [Lake Cle Elum](kb://location-lake-cle-elum)

@@ -1,6 +1,6 @@
 ## Overview
 
-This page is about **finding bass**. It complements [Bass Fishing Techniques](kb://bass-fishing-techniques), which focuses on choosing and working the right presentation after you have found likely fish.
+This page is about **finding bass**. It complements [Bass Fishing Techniques](kb://bass-fishing-techniques), which focuses on choosing and working the right presentation after you have found likely fish. For the way location and presentation change through the year, use the four seasonal pages: [Spring Fishing](kb://spring-fishing), [Summer Fishing](kb://summer-fishing), [Fall Fishing](kb://fall-fishing), and [Winter Fishing](kb://winter-fishing).
 
 Bass location is not random. Fish continually balance three needs:
 
@@ -59,7 +59,7 @@ Finding food is often the fastest way to find bass. Watch for:
 - bait schools on sonar;
 - repeated predator activity at the same depth.
 
-When forage moves, bass often move with it. In fall especially, a productive bank or cove can change quickly as baitfish shift location.
+When forage moves, bass often move with it. A productive bank or cove can change quickly as baitfish shift location.
 
 ### Healthy Vegetation
 
@@ -78,7 +78,7 @@ As weeds die back, bass may leave formerly productive areas and relocate to rema
 
 ### Oxygen and the Thermocline
 
-In summer, deeper water is not automatically better. Stratified lakes can develop a **thermocline**—a relatively narrow depth zone where temperature changes rapidly. Water below it may become low in dissolved oxygen, limiting how deep bass and forage can comfortably live.
+In warm stratified lakes, deeper water is not automatically better. A **thermocline** is a relatively narrow depth zone where temperature changes rapidly. Water below it may become low in dissolved oxygen, limiting how deep bass and forage can comfortably live.
 
 Useful clues include:
 
@@ -87,7 +87,7 @@ Useful clues include:
 - deep marks being absent even where bottom structure looks attractive;
 - bass concentrating on offshore structure that tops out above the low-oxygen zone.
 
-During turnover or strong seasonal cooling, these layers can break down and fish may redistribute through a wider range of depths.
+When strong cooling or turnover breaks down stratification, fish may redistribute through a wider range of depths.
 
 ## Where to Find Bass
 
@@ -113,11 +113,11 @@ Water temperature affects metabolism, spawning activity, forage movement, and ho
 
 | Approx. Water Temperature | Likely Behavior / Location Clues |
 | --- | --- |
-| Below ~45°F | Low activity; concentrate on deeper wintering structure, steep breaks, rock, and areas with stable conditions |
-| ~45–55°F | Prespawn movement begins; look along migration routes from winter water toward spawning flats |
+| Below ~45°F | Low activity; concentrate on stable structure, steep breaks, rock, and areas holding forage |
+| ~45–55°F | Movement toward spawning areas can begin; look along transition routes between winter water and shallow flats |
 | ~55–65°F | Major shallow movement and spawning activity; protected flats, gravel, docks, and adjacent staging structure become important |
-| ~65–75°F | Postspawn into early summer; fish spread between recovering shallow fish, vegetation, docks, points, and offshore structure |
-| Above ~75°F | Shade, healthy vegetation, deeper edges, current, and oxygen become increasingly important; early/late shallow feeding may remain strong |
+| ~65–75°F | Fish can spread across shallow cover, vegetation, docks, points, and offshore structure |
+| Above ~75°F | Shade, healthy vegetation, deeper edges, current, and oxygen become increasingly important; low-light shallow feeding may remain strong |
 
 Surface temperature can change faster than the deeper water the fish actually occupy. A sunny afternoon may warm a shallow pocket enough to attract fish even when the main lake remains cold.
 
@@ -142,13 +142,13 @@ Wind does not automatically make the windiest location best. If boat/kayak contr
 - **Bright midday:** shade, docks, vegetation, undercut banks, deeper edges, and more defined cover become higher-percentage targets.
 - **Night / very low light:** bass may move shallow and use shoreline cover, flats, and ambush routes that were too exposed during daylight.
 
-Think in terms of **where comfortable feeding light exists**, not simply "morning shallow, midday deep." A dark dock, dense grass mat, or steep shaded bank can create low-light habitat all day.
+Think in terms of **where comfortable feeding light exists**, not simply “morning shallow, midday deep.” A dark dock, dense grass mat, or steep shaded bank can create low-light habitat all day.
 
 ### Weather Fronts
 
 The barometer itself is less useful than the bundle of changes that comes with a front: wind, cloud cover, rain, temperature change, and light.
 
-- **Stable or warming weather:** can support predictable movement and greater shallow activity, especially in spring.
+- **Stable or warming weather:** can support predictable movement and greater shallow activity.
 - **Approaching front / increasing cloud and wind:** may increase roaming and feeding activity.
 - **After a strong cold front:** bright skies, cooling water, and changing wind can make bass less mobile. Fish may hold tighter to cover, move to a nearby break, or suspend.
 - **Rapid temperature drop:** check the first deeper structure adjacent to the area that was productive before the change.
@@ -177,94 +177,18 @@ Clarity changes how exposed bass feel and how far they can see prey and predator
 
 For lure color and presentation choices after you locate fish, see [Bass Fishing Techniques](kb://bass-fishing-techniques).
 
-## Seasonal Approach
+## How Seasons Reweight These Variables
 
-Seasonal movement is a migration between **wintering water, spawning areas, summer habitat, and fall forage**. The exact calendar varies by lake and year; water temperature and current conditions are more useful than the month alone.
+The habitat principles above do not change with the calendar; **their relative importance changes** as temperature, vegetation, stratification, spawning activity, and forage move through the year.
 
-### Winter / Very Cold Water
+| Season | Location Problem to Solve | Detailed Guide |
+| --- | --- | --- |
+| Spring | Follow the route from stable winter water toward spawning habitat, then the first postspawn holding areas | [Spring Fishing](kb://spring-fishing) |
+| Summer | Decide whether fish are using shallow shade/vegetation or offshore structure, and respect oxygen/thermocline limits | [Summer Fishing](kb://summer-fishing) |
+| Fall | Follow forage, remaining healthy vegetation, and the gradual transition back toward wintering structure | [Fall Fishing](kb://fall-fishing) |
+| Winter | Find stable structure, concentrated forage, and short warming opportunities without assuming “deepest = best” | [Winter Fishing](kb://winter-fishing) |
 
-Bass typically reduce movement and concentrate in stable water. Start with:
-
-- steep breaks near deep water;
-- rocky points and channel edges;
-- offshore humps or ledges;
-- deeper hard-bottom areas;
-- any location where bait remains concentrated.
-
-Smallmouth may group tightly on deep rock or structure. Largemouth can also remain surprisingly shallow if a lake has healthy vegetation, stable temperatures, and forage, so do not eliminate shallow cover without checking it.
-
-### Early Spring / Prespawn
-
-As water begins warming, bass gradually move from winter habitat toward spawning areas. The important zone is often **between deep winter water and the eventual spawning flat**.
-
-Look for:
-
-- first break outside a spawning cove or flat;
-- secondary points;
-- dock lines;
-- emerging weed edges;
-- rock-to-sand or rock-to-gravel transitions;
-- protected shallow pockets that warm faster in the afternoon.
-
-Small temperature differences can matter. A shallow pocket that is only a few degrees warmer than the main lake may hold disproportionately more fish.
-
-See [Spring Bass Fishing](kb://technique-spring-fishing) for a detailed spring reference.
-
-### Spawn
-
-Bass move into relatively shallow, protected areas with suitable bottom for nests.
-
-Common spawning habitat includes:
-
-- gravel, sand, or firm bottom;
-- protected coves and pockets;
-- areas sheltered from strong wind and waves;
-- shallow zones close to a staging break or deeper escape water.
-
-Smallmouth commonly favor rock/gravel and may spawn somewhat deeper or more exposed than largemouth. Largemouth often use protected pockets, vegetation edges, wood, or other shallow cover near suitable bottom.
-
-Be aware that spawning fish can be highly visible and vulnerable; handle fish quickly and consider minimizing repeated disturbance to occupied beds.
-
-### Postspawn / Early Summer
-
-After spawning, fish do not all move at once. Expect a mixture:
-
-- recovering fish still near spawning areas;
-- fish using the first adjacent break;
-- bass relating to docks, vegetation, or shade;
-- smallmouth moving toward points, rock, and offshore structure;
-- feeding fish following newly abundant juvenile forage.
-
-This is a transition period, so checking several depths is more important than committing immediately to "shallow" or "deep."
-
-### Summer
-
-Summer location is strongly influenced by **shade, vegetation, oxygen, and forage**.
-
-Early and late in the day, bass may feed on shallow flats, shoreline cover, or the surface. Under bright midday conditions, check:
-
-- docks and overhanging shade;
-- thick or deep healthy vegetation;
-- outside weed edges;
-- points, humps, ledges, and drop-offs;
-- offshore structure that remains above the thermocline;
-- current or inflow when available.
-
-Largemouth may remain shallow all summer if dense vegetation and shade provide good habitat. Smallmouth often spend more time on deeper rock, offshore structure, or roaming with baitfish.
-
-### Fall
-
-As water cools, forage movement becomes one of the strongest location clues. Bass often become more mobile and may move from deeper summer areas toward:
-
-- coves and creek arms;
-- flats adjacent to deep water;
-- wind-blown points and banks;
-- remaining green vegetation;
-- areas where baitfish are visibly concentrated.
-
-Early fall can still resemble summer. Later in fall, cooling water gradually pulls fish back toward deeper breaks and wintering structure. Do not expect the whole lake to transition at the same time.
-
-See [Fall Bass Fishing](kb://fall-bass-fishing) for a detailed fall reference.
+Those seasonal pages contain the detailed **where to find + how to catch** playbooks. This page remains the reference for *why* bass choose particular habitat and how conditions move them within it.
 
 ## Finding a Repeatable Pattern
 
@@ -290,18 +214,15 @@ Examples:
 - If smallmouth are on the windward side of rocky points in 12–18 feet, search other rocky points with the same wind exposure and depth.
 - If largemouth are in isolated green grass beside a dying weed bed, search for the remaining healthiest vegetation elsewhere.
 
-The goal is to turn "I caught one here" into "I understand why fish are using this kind of place today."
+The goal is to turn “I caught one here” into “I understand why fish are using this kind of place today.”
 
 ## Videos
 
 - [Life of the Largemouth Bass](https://youtu.be/dNG8z_IxlJ0?si=hnJsjq8gUNrOVAal)
 - [Life of the Smallmouth Bass](https://youtu.be/nwKE-44BPCU?si=PHduWR0AdRj66g1m)
-- [Fall Bass Fishing](https://youtu.be/gQYPsG4F6vs?si=2_vWdMK3FZgc9Aia)
-- [Fall Bass Fishing for Beginners](https://www.youtube.com/watch?v=og7TYneLSew)
-- [Catch Bass in the Fall](https://youtu.be/jgWabWCAYQE?si=YhxeY_GFCicSPZiO)
 
 ## Related Pages
 
 - Catching bass: [Bass Fishing Techniques](kb://bass-fishing-techniques)
 - Species: [Largemouth Bass](kb://species-largemouth-bass), [Smallmouth Bass](kb://species-smallmouth-bass)
-- Seasonal deep dives: [Spring Bass Fishing](kb://technique-spring-fishing), [Fall Bass Fishing](kb://fall-bass-fishing)
+- Seasonal strategy: [Spring Fishing](kb://spring-fishing), [Summer Fishing](kb://summer-fishing), [Fall Fishing](kb://fall-fishing), [Winter Fishing](kb://winter-fishing)
