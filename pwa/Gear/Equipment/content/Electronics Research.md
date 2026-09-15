@@ -25,17 +25,26 @@
   - A separate transducer is required for Live Scope. Install on a retractable rotating transducer arm.
 - Purchasing: [TheGPSstore.com](https://www.thegpsstore.com/)
   - Garmin EchoMap Ultra 2 106sv 10” LiveScope Plus and Navionics Vision+ Bundle [($2,700)](https://www.thegpsstore.com/Brands/Garmin-GPS-Marine-Electronics/Garmin-LiveScope/Garmin-ECHOMAP-Ultra-2-106sv-10-LiveScope-Plus-and-Navionics-Vision-Bundle)
+
 ![EchoMap Ultra 2 106SV](./EchoMap Ultra 2 106SV.png)
+
   - Garmin GT56UHD Transom Mount Transducer [($480)](https://www.thegpsstore.com/Marine-Electronics/Transducers/Garmin-GT-56-UHD-Transom-Mount-Transducer)
+
 ![Transom Mount](./Transom Mount.png)
 
 ## Motor
 - Requires the [Stern Motor Mount](https://bonafidefishing.com/products/stern-motoranchor-mount-rvr?pr_prod_strat=e5_desc&pr_rec_id=1f1321c75&pr_rec_pid=7522817736894&pr_ref_pid=7906896937150&pr_seq=uniform)
+
 ![Stern Motor Mount](./Stern Motor Mount.png)
+
 - [Garmin Force Current](https://www.garmin.com/en-US/p/1059449/)
+
 ![Garmin Force Current](./Garmin Force Current.png)
+
   - Get with wireless foot pedals; $3,400 total package
+
 ![Wireless Foot Pedals](./Wireless Foot Pedals.png)
+
   - Operates on 12- or 24-volt battery
     - 12V = 40 lbs. thrust, 24V = 50 lbs. This only affects low-end torque (getting up to speed) though, the top speed is the same for each. Look at cost, run time, and weight when deciding. With 24v amperage will be lower so run time will be longer.
   - See quick connect and fuse/breaker: [video](https://youtu.be/f6zm8hRho-M?si=XQqJvTW1_Lli4VHq&t=365)
