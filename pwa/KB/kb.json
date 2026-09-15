@@ -74,6 +74,13 @@
       "content": "KB/Locations/content/lake-bosworth.md"
     },
     {
+      "id": "location-banks-lake",
+      "type": "location",
+      "name": "Banks Lake",
+      "description": "Kayak fishing for bass, walleye, perch, and whitefish from Steamboat Rock",
+      "content": "KB/Locations/content/banks-lake.md"
+    },
+    {
       "id": "technique-trout-fishing",
       "type": "technique",
       "name": "Trout Fishing Techniques",
