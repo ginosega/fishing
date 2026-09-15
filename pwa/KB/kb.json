@@ -642,7 +642,7 @@
       "id": "summer-fishing",
       "type": "technique",
       "name": "Summer Fishing",
-      "description": "Bass and trout strategy for warm water, shade, oxygen, stratification, and low-light feeding",
+      "description": "Bass and trout strategy for warm water, shade, oxygen, and stratification",
       "content": "KB/Techniques/content/Summer Fishing.md"
     },
     {
@@ -678,7 +678,7 @@
       "id": "fall-fishing",
       "name": "Fall Fishing",
       "type": "technique",
-      "description": "Bass and trout strategy as water cools, forage moves, and fish transition toward winter",
+      "description": "Bass and trout strategy for cooling water, forage movement, and winter transition",
       "content": "KB/Techniques/content/Fall Fishing.md"
     },
     {
