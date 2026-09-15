@@ -655,6 +655,7 @@
       "id": "topwater-fishing",
       "type": "technique",
       "name": "Topwater Fishing",
+      "description": "Surface-lure selection, conditions, retrieves, tackle, and hook-set strategy for bass",
       "content": "KB/Techniques/content/Topwater Fishing.md",
       "picture": {
         "src": "KB/Techniques/assets/Topwater Fishing.png"
