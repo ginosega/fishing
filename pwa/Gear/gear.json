@@ -2495,6 +2495,15 @@
         "src": "Gear/Equipment/assets/Palmyth Flexible Fishing Gloves.png",
         "caption": "Palmyth Flexible Fishing Gloves"
       }
+    },
+    {
+      "id": "electronics-research",
+      "name": "Electronics Research",
+      "category": "accessories",
+      "type": "Electronics",
+      "specifications": [],
+      "links": [],
+      "notes": "Gear/Equipment/content/Electronics Research.md"
     }
   ]
 }
