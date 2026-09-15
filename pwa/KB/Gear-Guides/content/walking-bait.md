@@ -1,3 +1,5 @@
+For broader surface-lure selection, conditions, and strategy, see [Topwater Fishing](kb://topwater-fishing).
+
 A long and slender topwater lure designed to move in a zig-zag pattern. It stays on the surface and imitates a struggling or fleeing baitfish, often with internal rattles. Good for largemouth and smallmouth bass, striped and hybrid bass, and pike.
 
 # Use
