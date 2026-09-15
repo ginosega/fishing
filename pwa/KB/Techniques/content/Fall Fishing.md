@@ -10,7 +10,7 @@ Use this page for the seasonal question: **where is the food moving as the lake 
 
 | Target | Where to Start | How to Start |
 | --- | --- | --- |
-| Bass, early fall | Summer structure plus shallow feeding areas, wind-blown banks, healthy grass, baitfish | Topwater, swimbait, [Crankbait](kb://technique-crankbait), [Spinnerbait](kb://technique-spinnerbait), [Chatterbait](kb://technique-chatterbait-bladed-jig) |
+| Bass, early fall | Summer structure plus shallow feeding areas, wind-blown banks, healthy grass, baitfish | [Topwater Fishing](kb://topwater-fishing), swimbait, [Crankbait](kb://technique-crankbait), [Spinnerbait](kb://technique-spinnerbait), [Chatterbait](kb://technique-chatterbait-bladed-jig) |
 | Bass, mid-fall | Coves/creek arms, flats beside deep water, points, remaining green vegetation, visible bait schools | Moving bait that matches forage; follow with soft jerkbait, wacky worm, Ned rig, or jig |
 | Bass, late fall | Deeper points, channel edges, rock, ledges, first wintering structure | Suspended [Jerkbait](kb://technique-jerkbait), [Ned Rig](kb://technique-ned-rig), [Drop Shot](kb://technique-drop-shot), jig, slow swimbait |
 | Trout | Shoreline breaks, wind-blown banks, points, cove mouths, inflows, upper water column, bait/insects | Spoon, [Inline Spinner](kb://technique-inline-spinner), minnow lure, controlled trolling, bobber/slip-sinker where appropriate |
@@ -90,7 +90,7 @@ Strong choices:
 - chatterbait through sparse/remaining grass;
 - swimbait around bait schools;
 - jerkbait for suspended fish;
-- walking bait, buzzbait, or popper when bass are visibly feeding near the surface.
+- [Topwater Fishing](kb://topwater-fishing) with a walking bait, buzzbait, or popper when bass are visibly feeding near the surface.
 
 Choose lure depth to match the bait. A perfect shad color six feet above the fish is still in the wrong place.
 

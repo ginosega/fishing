@@ -181,6 +181,14 @@ See [Buzzbait](kb://technique-buzzbait).
 
 A fast search bait for warm water, low light, wind/chop, shallow cover, and stained water. Begin retrieving immediately so the lure planes onto the surface. Run it as slowly as possible while keeping the blade working, then speed up if fish are aggressive.
 
+### Whopper Plopper
+
+See [Whopper Plopper](kb://technique-whopper-plopper).
+
+A strong search bait when bass are willing to chase near the surface and you want more sound and continuous disturbance than a walking bait or popper. Fish it along points, rocky banks, dock edges, over submerged vegetation, and around schooling baitfish. Start with a steady retrieve, then vary speed or add a brief pause if fish follow without committing.
+
+My Gear: [River2Sea Whopper Plopper 60](gear://river2sea-whopper-plopper-60)
+
 ### Frogs
 
 See [Frogs](kb://technique-frogs).

@@ -1,3 +1,5 @@
+For broader surface-lure selection, conditions, and strategy, see [Topwater Fishing](kb://topwater-fishing).
+
 A topwater wire-frame lure that looks like a spinnerbait but creates noise via a rotating propeller blade on the wire arm that attracts predatory fish through sound and vibration. Good for largemouth and smallmouth bass, and occasional pike and muskie.
 
 # Use

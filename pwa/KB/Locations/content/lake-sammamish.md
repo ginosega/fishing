@@ -1,5 +1,7 @@
 Lake Sammamish is smaller and more manageable than Lake Washington, warms faster, has more vegetation, and largemouth are generally easier to find in spring. Prespawn fish transition between winter staging areas and emerging weed edges, shallow warming flats, and docks adjacent to deeper water. North-end shallows often warm before the main basin.
 
+For the broader seasonal pattern, see [Spring Fishing](kb://spring-fishing). For general bass location and presentation guidance, see [Bass Behavior and Habitat](kb://bass-behavior-and-habitat) and [Bass Fishing Techniques](kb://bass-fishing-techniques).
+
 ### North end
 
 - Best spring area due to shallow warming water, Sammamish River influence, vegetation, docks, protected water, largemouth concentration.

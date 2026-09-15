@@ -1,5 +1,7 @@
 Kayak and bank fishing while camping at Ike Kinswa State Park.
 
+For general presentation strategy, see [Bass Fishing Techniques](kb://bass-fishing-techniques), [Topwater Fishing](kb://topwater-fishing), and [Trout Fishing Techniques](kb://technique-trout-fishing).
+
 Fish:
 
 - Rainbow trout

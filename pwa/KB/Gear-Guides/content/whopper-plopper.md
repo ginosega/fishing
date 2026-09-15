@@ -1,3 +1,5 @@
+For broader surface-lure selection, conditions, and strategy, see [Topwater Fishing](kb://topwater-fishing).
+
 A hard-plastic floating lure with a propeller that makes a loud plopping and chopping sound.
 
 ### Use

@@ -1,3 +1,5 @@
+For broader surface-lure selection, conditions, and strategy, see [Topwater Fishing](kb://topwater-fishing).
+
 A hard-plastic realistic lure that imitates baitfish rising to the surface. Good for shallow bass.
 
 ### Use

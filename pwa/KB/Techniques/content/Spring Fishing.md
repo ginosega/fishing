@@ -12,7 +12,7 @@ Use this page for the seasonal question: **where should I look first today, and 
 | --- | --- | --- |
 | Bass, cold early spring | First breaks, secondary points, rock/gravel transitions, channel edges, deeper ends of docks near spawning water | Slow [Ned Rig](kb://technique-ned-rig), [Drop Shot](kb://technique-drop-shot), suspending [Jerkbait](kb://technique-jerkbait), small [Swimbait](kb://technique-swimbait-soft-jerk-shad) |
 | Bass, warming prespawn | Migration routes, wind-blown points, emerging weeds, protected pockets that warm first | Jerkbait, swimbait, [Crankbait](kb://technique-crankbait), [Spinnerbait](kb://technique-spinnerbait), [Chatterbait](kb://technique-chatterbait-bladed-jig); slow down with finesse after contact |
-| Bass, spawn / postspawn | Protected firm-bottom flats, docks, shallow cover, then the first adjacent break, shade, vegetation, and fry/forage | [Wacky Worm](kb://technique-wacky-worm), finesse plastics, jig; topwater or moving baits as recovering fish resume feeding |
+| Bass, spawn / postspawn | Protected firm-bottom flats, docks, shallow cover, then the first adjacent break, shade, vegetation, and fry/forage | [Wacky Worm](kb://technique-wacky-worm), finesse plastics, jig; [Topwater Fishing](kb://topwater-fishing) or moving baits as recovering fish resume feeding |
 | Trout, cool lowland lakes | Shoreline cruising lanes, points, cove mouths, inflows, wind-blown banks, upper water column | [Inline Spinner](kb://technique-inline-spinner), spoon, small minnow lure, [Bobber Rig](kb://technique-bobber-rig), [Slip Sinker Rig](kb://technique-slip-sinker-rig) |
 | Trout from a kayak | Repeated fish/bait depth, shoreline breaks, points, inflows, open-water travel lanes | Cast shallow fish or troll the exact productive depth with [Inline Trolling Rig](kb://technique-inline-trolling-rig) or [Flasher Rig](kb://technique-flasher-rig) |
 
@@ -119,7 +119,7 @@ For fish around shallow cover, beds, docks, or the first break:
 - wacky worm or weightless plastic for a slow fall beside targets;
 - jig around wood, docks, rock, and edges;
 - small swimbait for roaming postspawn fish;
-- topwater during low light once fish are willing to feed upward;
+- [Topwater Fishing](kb://topwater-fishing) during low light once fish are willing to feed upward;
 - spinnerbait/chatterbait when wind, stain, or grass favors a moving presentation.
 
 ## Trout: Where to Find Them

@@ -1,2 +1,2 @@
-- Morning/evening trout: troll Flicker Shad, Kastmaster, Dick Nite, Panther Martin, Mepps, Wedding Ring with trolling weight/dodger if appropriate.
-- Bass: soft jerk shad, spinnerbait, wacky Senko, frog/topwater around weeds, docks, shade, and cover.
+- Morning/evening trout: troll Flicker Shad, Kastmaster, Dick Nite, Panther Martin, Mepps, Wedding Ring with trolling weight/dodger if appropriate; see [Trout Fishing Techniques](kb://technique-trout-fishing) for broader presentation guidance.
+- Bass: soft jerk shad, spinnerbait, wacky Senko, frog/[topwater](kb://topwater-fishing) around weeds, docks, shade, and cover; see [Bass Fishing Techniques](kb://bass-fishing-techniques) for broader presentation guidance.
