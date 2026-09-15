@@ -25,15 +25,17 @@ It deliberately skips Node application behavior tests, dependency audit, Chromiu
 
 Any changed file outside `Gear/`, `KB/`, or `Catches/` forces the full lane. Mixed content+code changes also force full. The full lane covers runtime/UI/service-worker changes, schemas/contracts, tests, tools/build logic, dependencies, workflows, migration/recovery/offline architecture and any other non-content change.
 
-If eligibility is uncertain, use full. Manual workflow dispatch is full.
+The full lane retains durable v1 recovery checks, dependency audit, Node tests, preview build, Chromium/WebKit preview acceptance, production-root build/verification, production browser and real archived-v1 cutover acceptance, exact-current-main protection, Pages deployment, byte-for-byte hosted verification and hosted browser verification. Manual workflow dispatch always uses full.
+
+If eligibility is uncertain, use full.
 
 ### FISH109 rerun hardening
 
-Pages deployment and hosted-evidence artifact names include `github.run_attempt`, so a failed deployment job can be rerun without duplicate-artifact ambiguity. `tools/verify-hosted-fast.mjs` uses bounded backoff for transient Pages propagation/network responses while still failing persistent byte/release mismatches. The exact-current-main guard remains mandatory.
+Pages deployment and hosted-evidence artifact names include `github.run_attempt`, so a failed deployment job can be rerun without duplicate `github-pages` artifact ambiguity. `tools/verify-hosted-fast.mjs` uses bounded backoff for transient Pages propagation/network responses while still failing persistent byte/release mismatches. The exact-current-main guard remains mandatory and prevents stale runs from deploying after `main` advances.
 
 ## Source-derived content state
 
-Gear/KB/Catch counts, canonical path totals and reference totals are mutable content state rather than application invariants. Build/release manifests derive counts from current canonical source. Core tests compare validated maps/inventory against the actual source rather than manually maintained library totals.
+Gear/KB/Catch counts, canonical path totals and inventory-reference totals are mutable content state rather than application invariants. Build/release manifests derive counts from current canonical source. Core tests compare validated maps/inventory against the actual source rather than manually maintained library totals. Full hosted browser verification compares runtime counts against the exact built manifest.
 
 Adding a normal item/page therefore must not require editing test baselines merely because the library grew.
 
@@ -52,7 +54,7 @@ Retired live Technique pages include Bass Fishing, Spring Bass Fishing, Fall Bas
 
 ## Routine authoring administration
 
-Routine Fast Content Releases do not consume application-level FISH task IDs and do not require one-off production closeout documents or root project-state edits solely to record the item publication. Git history, the content PR, workflow run and hosted verification artifact are durable release evidence.
+Routine Fast Content Releases do not consume application-level FISH task IDs and do not require one-off production closeout documents or root project-state edits solely to record the item publication. Git history, the content PR, workflow run and hosted verification artifact are the durable release evidence.
 
 Project-state records are updated for architecture/product-behavior/durable-decision/backlog changes or during a requested handoff/reconciliation.
 
@@ -89,13 +91,13 @@ Simple Markdown-only narrative edits to existing canonical content may be made d
 
 FISH091 makes online-only the default: ordinary online startup does not prepare the complete offline library. **Connection Status → Update offline library** explicitly prepares/refreshes the verified complete generation; previous verified generations remain fallback until successfully replaced.
 
-FISH096 provides optional Knot-only explicit ordered `pictureSequence` support. Logical frames use `KB/Knots/assets/<knot-id>/`; physical source is `pwa/KB/Knots/assets/<knot-id>/`. `picture.src` equals the final frame and remains representative. Directory contents alone never create a sequence.
+FISH096 provides optional Knot-only explicit ordered `pictureSequence` support. Logical frames use `KB/Knots/assets/<knot-id>/`; physical source is `pwa/KB/Knots/assets/<knot-id>/`. `picture.src` equals the final frame and remains representative. Directory contents alone never create a sequence. Add/replace uses complete multi-file selection; the final ordered frame becomes representative; no prior static picture is silently reused when converting into a sequence. Replacing references does not delete old source files, and complete offline preparation includes every referenced frame.
 
 FISH102 pins **Line-Tackle-Knot Reference** first only on KB → Knots; remaining Knot cards are alphabetical.
 
-FISH103 keeps external HTTP(S) links new-tab with `noopener noreferrer`, internal navigation same-tab, and generated GitHub upload-folder links on physical `/pwa/...` source paths.
+FISH103 keeps external HTTP(S) links new-tab with `noopener noreferrer`, internal navigation same-tab, Caption focus stable, new-KB Markdown Preview validation ordering correct with a provisional required content path, and generated GitHub upload-folder links on physical `/pwa/...` source paths.
 
-FISH110 centralizes the Add/Edit Copy Changes handoff and routes eligible source-aware content packages into FISH108 Fast Content Release.
+FISH110 centralizes the Add/Edit Copy Changes handoff and routes eligible source-aware content packages into FISH108 Fast Content Release while preserving the blank-line instruction/JSON boundary.
 
 ## Fishing Companion v3
 
@@ -107,6 +109,6 @@ Use Node 24 and locked `package-lock.json`.
 
 `.github/workflows/fishing-production.yml` is the sole active publisher and automatically classifies each application/content PR or `main` push into Fast Content or Full Application Release from the changed-file set. Documentation-only project-state changes remain excluded from publication triggers.
 
-`tools/verify-hosted-fast.mjs` is intentionally dependency-free and is used only after a fast content deployment to compare every hosted file against the exact built `dist/` tree and verify release/source identity. `tools/verify-hosted.mjs` remains the full browser-backed hosted verifier for application releases.
+`tools/verify-hosted-fast.mjs` is intentionally dependency-free and is used only after a fast content deployment to compare every hosted file against the exact built `dist/` tree and verify release/source identity; FISH109 adds bounded retry/backoff for transient propagation/network failures. `tools/verify-hosted.mjs` remains the full browser-backed hosted verifier for application releases.
 
 Historical implementation/release details remain in Git history and dated records under `docs/`; exact current production identity should be read from current workflow/Pages evidence rather than assumed from old narrative documents.

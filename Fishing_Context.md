@@ -80,14 +80,14 @@ Fast safeguards:
 - apply only requested canonical changes and preserve unrelated/newer source/user bytes;
 - normalize accidental trailing whitespace unless the user explicitly requests preservation;
 - use one lightweight content PR;
-- install locked dependencies with cache reuse;
-- build production once from canonical source; `inventorySource` validates schemas, semantic references, canonical paths, Markdown/resources, media integrity and unresolved-media rules;
-- verify the exact generated release;
+- install locked dependencies with cache reuse, but do not run `npm audit` when dependencies did not change;
+- build production once from canonical source; `inventorySource` validates schemas, semantic references, canonical paths, Markdown/resources, media decoding/integrity and unresolved-media rules;
+- run `verify.mjs` against the exact generated release;
 - merge only after fast validation passes;
 - deploy only from exact current `main`; and
 - verify hosted production byte-for-byte against the exact release, including release/source identity.
 
-Fast Content Releases do **not** run application behavior tests, Chromium/WebKit, preview-browser acceptance, archived-v1/cutover acceptance, dependency audit, or hosted browser acceptance unless a genuine non-content issue is discovered.
+Fast Content Releases do **not** run Node application behavior tests, Chromium/WebKit, preview-browser acceptance, archived-v1/cutover acceptance, dependency audit, or hosted browser acceptance unless a genuine non-content issue is discovered.
 
 ### Full Application Release
 
@@ -101,9 +101,11 @@ FISH109 is complete and production-verified. Pages and hosted-evidence artifacts
 
 ### FISH110 — release-aware Copy Changes handoff
 
-FISH110 is complete and production-verified. Shared Gear/KB authoring uses one centralized Copy Changes prompt. The handoff tells the receiving chat to restore current `main` and project instructions, validate the source-aware package against current canonical content, preserve unrelated/newer changes, and apply only requested changes.
+FISH110 is complete and production-verified. Shared Gear/KB authoring uses one centralized Copy Changes prompt helper. The handoff tells the receiving chat to restore current `main` and project instructions, validate the source-aware package against current canonical content, preserve unrelated/newer changes, and apply only requested changes.
 
 Eligible content-only packages explicitly route through one Fast Content Release PR, lightweight validation/build, merge, production deployment, and hosted byte/release-identity verification. Do not run Full Application Release or create/update project-state records unless validation shows they are required. Non-fast changes use the repository's current appropriate lane.
+
+Regression coverage rejects the obsolete pre-FISH108 `one feature PR` / `then reconcile project records` boilerplate and preserves the blank-line boundary between human instructions and JSON.
 
 ### Source-derived library state
 
@@ -127,7 +129,7 @@ For exact current production source/release identity, inspect the latest success
 
 ## Operating mode
 
-This project uses **Chat mode by default and permanently**. Do not recommend Work merely because a task is complex, lengthy, file-heavy, analytical, involves research/calculation, creates artifacts or has substantial context. Recommend a temporary switch only for a genuinely Work-only capability; explain the specific need and obtain explicit approval first, then return to Chat.
+This project uses **Chat mode by default and permanently**. Do not recommend Work merely because a task is complex, lengthy, file-heavy, analytical, involves research/calculation, creates artifacts or has substantial context. Recommend a temporary switch only for a genuinely Work-only capability; explain the specific need and obtain explicit approval first, then return to Chat afterward.
 
 ## New-chat transfer protocol
 
@@ -143,12 +145,12 @@ Fishing Companion retains independent Gear, Knowledge Base and Catch domains. KB
 
 ## Durable behavior retained
 
-- **FISH091:** normal online use does not provision the complete offline library. **Connection Status → Update offline library** explicitly prepares/refreshes it; failed refreshes preserve the prior verified generation.
-- **FISH096:** Knot-only explicit ordered `pictureSequence`; physical frames under `pwa/KB/Knots/assets/<id>/`, logical paths under `KB/Knots/assets/<id>/`; `picture.src` is the representative final frame; directory contents alone never create a sequence.
-- **FISH102:** Line-Tackle-Knot Reference is pinned first only on KB → Knots.
-- **FISH103:** external HTTP(S) links open new-tab with `noopener noreferrer`; internal app/local links remain same-tab; authoring upload links point to physical `/pwa/...` source.
+- **FISH091:** normal online use does not provision the complete offline library. **Connection Status → Update offline library** explicitly prepares/refreshes a verified complete generation; failed/corrupt/quota-failed refreshes preserve the prior verified generation.
+- **FISH096:** Knot-only explicit ordered `pictureSequence`; physical frames under `pwa/KB/Knots/assets/<id>/`, logical paths under `KB/Knots/assets/<id>/`; explicit array defines order and requires at least two frames; `picture.src` equals the final/representative frame; cards/detail load only the representative frame; the sequence viewer retains the approved controls/keyboard/zoom behavior with no autoplay on open; Add/replace uses complete multi-file selection; converting a static picture into a sequence never silently reuses the old static picture; replacing references does not delete old source files; complete offline preparation includes every explicitly referenced frame. Directory contents alone never create a sequence.
+- **FISH102:** Line-Tackle-Knot Reference is pinned first only on KB → Knots; remaining Knot cards stay alphabetical.
+- **FISH103:** canonical physical source stays under `pwa/`; authoring upload links use physical `/pwa/...`; external HTTP(S) links open a new tab with `noopener noreferrer`; internal app/local links remain same-tab; Caption editing retains focus; new-KB Markdown Preview assigns a provisional required content path before whole-library validation.
 - **FISH107:** Skylety Fishing Hook Sharpener is type `Tools`; FISH106's earlier `Kayaks` value is historical evidence only.
-- **FISH110:** Copy Changes uses centralized release-aware FISH108 boilerplate.
+- **FISH110:** Copy Changes uses centralized release-aware FISH108 boilerplate and preserves the parseable blank-line JSON boundary.
 
 Active Knot sequences remain Palomar, Albright, Arbor, Bowline, FG, Improved Clinch, Modified Uni and Trilene; Non-Slip Loop remains static. Directory contents never create a sequence without explicit canonical references.
 

@@ -49,7 +49,7 @@ Use the fast lane only when **every changed file** is beneath one or more of:
 
 This is the default for routine source-aware Gear/KB add/edit packages, Markdown content, pictures, Knot sequence frames and Catch records.
 
-Fast safeguards are package/source conflict validation before mutation; lightweight content PR; locked dependency installation; one production build whose source inventory validates schemas, semantic references, paths, Markdown/resources and media integrity; generated-release verification; exact-current-main guard; Pages deployment; and dependency-free byte-for-byte hosted/release-identity verification.
+Fast safeguards are package/source conflict validation before mutation; lightweight content PR; locked dependency installation with cache reuse; one production build whose source inventory validates schemas, semantic references, paths, Markdown/resources and media integrity; independent generated-release verification; exact-current-main guard; Pages deployment; and dependency-free byte-for-byte hosted/release-identity verification.
 
 **Decision:** Do not run Node application behavior tests, Chromium/WebKit, preview-browser regression, durable-v1/cutover regression, dependency audit or hosted browser acceptance for a content-only change unless validation reveals an actual non-content problem.
 
@@ -61,39 +61,39 @@ If fast-lane eligibility is ambiguous, use full; do not broaden eligibility to m
 
 ### Source-derived content expectations
 
-**Decision:** Gear/KB/Catch counts, canonical-path totals and reference totals are mutable library state, not application invariants. Validation and hosted acceptance derive them from canonical source or the exact generated release.
+**Decision:** Gear/KB/Catch counts, canonical-path totals and reference totals are mutable library state, not application invariants. Validation and hosted acceptance derive them from canonical source or the exact generated release. Historical counts in dated release evidence remain historical facts, not future hand-maintained baselines.
 
 ### Routine authoring is not an application task
 
 **Decision:** A routine Fast Content Release does **not** consume a `FISH-TODO-###` application/architecture task ID. It also does not require a per-item production-closeout Markdown document or README/Context/TODO/Decision Log/bootstrap edits solely to record the publication.
 
-Its durable audit trail is the source-aware package/validation, content PR/merge, workflow run and hosted verification artifact.
+Its durable audit trail is the supplied source-aware package and validation, the lightweight PR/merge, the successful fast workflow/Pages deployment, and hosted verification artifact.
 
 Update project-state documents when architecture/product behavior/durable decisions/backlog state changes, or during a requested handoff/reconciliation.
 
 ## FISH109 — release retry hardening
 
-**Decision/status:** IMPLEMENTED and production-verified. Pages deployment artifacts and hosted-evidence artifacts are run-attempt-specific. The fast hosted verifier retries only bounded transient HTTP/network failures with backoff; persistent/non-retryable mismatches still fail. The exact-current-main guard remains authoritative.
+**Decision/status:** IMPLEMENTED and production-verified. Pages deployment artifacts and hosted-evidence artifacts are named with `github.run_attempt`, allowing a failed deployment job to be rerun without duplicate-artifact ambiguity. The fast hosted verifier retries only bounded transient HTTP/network failures with backoff; persistent or non-retryable mismatches still fail. The exact-current-main guard remains authoritative and must not be bypassed when `main` advances during a run.
 
 ## FISH110 — release-aware Copy Changes handoff
 
-**Decision/status:** IMPLEMENTED and production-verified. The shared Gear/KB editor uses one centralized Copy Changes instruction helper. The handoff must tell the receiving chat to restore current `main` and project instructions, validate the source-aware package against current canonical content, preserve unrelated/newer source changes, and apply only requested changes.
+**Decision/status:** IMPLEMENTED and production-verified. The Fishing Companion shared Gear/KB editor uses one centralized Copy Changes instruction helper. The handoff must tell the receiving chat to restore current `main` and project instructions, validate the source-aware package against current canonical content, preserve unrelated/newer source changes, and apply only the requested changes.
 
-**Decision:** Eligible content-only packages route through one Fast Content Release PR, lightweight validation/build, merge, production deployment, and hosted byte/release-identity verification. Do not automatically run Full Application Release or create/update project-state records unless validation shows they are required.
+**Decision:** Eligible content-only packages route through one Fast Content Release PR, lightweight validation/build, merge, production deployment, and hosted byte/release-identity verification. Do not automatically run Full Application Release or create/update project-state records unless validation shows they are required. Non-fast changes defer to the repository's current appropriate lane.
 
-**Decision:** Keep the Copy Changes JSON handoff parseable with a blank-line boundary between human instruction and package JSON.
+**Decision:** Keep the Copy Changes JSON handoff parseable with a blank-line boundary between human instruction and package JSON. Regression coverage must reject the obsolete pre-FISH108 `one feature PR` / `then reconcile project records` boilerplate.
 
 ## Domain architecture and authoring boundary
 
 **Decision:** Fishing Companion retains independent Gear, Knowledge Base and Catch domains with shared utilities where useful; do not force them into a generic graph/entity framework. KB types are Location, Species, Equipment/Gear Guide, Technique and Knot. Paths are explicit record properties; existing IDs remain stable unless intentionally retired/replaced. Retired trips/sessions/planner/setup structures remain retired unless explicitly re-approved.
 
-**Decision:** Gear/KB browser Add/Edit uses **Prepare Changes → Copy Changes** to create a source-aware `fishing-companion-change-v2` handoff. Preparing/copying is not saving; browser-side repository writes/uploads are not current production. GitHub upload links point to physical `pwa/...` source folders while package paths remain logical.
+**Decision:** Gear/KB browser Add/Edit uses **Prepare Changes → Copy Changes** to create a source-aware `fishing-companion-change-v2` handoff. Preparing/copying is not saving; browser-side repository writes/uploads are not current production. Existing source/base conflict checks remain required. GitHub upload links point to physical `pwa/...` source folders while package paths remain logical. The Copy Changes prefix follows FISH110 and routes eligible content-only packages to FISH108 Fast Content Release without automatic project-state churn.
 
 Simple Markdown-only narrative edits to existing canonical files may be made directly in GitHub. Structured record fields, categories/types, specifications, structured links, picture metadata/sequences, paths and relationships should use Fishing Companion Edit or an equivalent source-aware workflow.
 
 ### Authoring constraints
 
-**Decision:** Treat accidental trailing whitespace in Fishing Companion change packages as non-semantic by default. Remove trailing spaces from structured text values and text lines unless the user explicitly instructs preservation.
+**Decision:** Treat accidental trailing whitespace in Fishing Companion change packages as non-semantic by default. Remove trailing spaces from structured text values and text lines unless the user explicitly instructs preservation. This normalization does not authorize unrelated wording/content changes or media substitution.
 
 **Decision:** KB `description` values must satisfy the schema maximum of **80 characters**. Check this before opening a release PR; do not wait for CI to discover an avoidable length violation.
 
@@ -103,15 +103,15 @@ Simple Markdown-only narrative edits to existing canonical files may be made dir
 
 **FISH091 — offline model:** normal online use does not provision the complete offline library. **Connection Status → Update offline library** explicitly prepares/refreshes a verified complete generation; failed/corrupt/quota-failed refreshes preserve the prior verified generation.
 
-**FISH096 — Knot sequences:** optional and Knot-only; physical frames under `pwa/KB/Knots/assets/<id>/`, logical paths `KB/Knots/assets/<id>/`; explicit array defines order; at least two frames; `picture.src` equals final/representative frame; complete multi-file selection establishes order; directory contents alone never create a sequence.
+**FISH096 — Knot sequences:** optional and Knot-only; physical frames under `pwa/KB/Knots/assets/<id>/`, logical paths `KB/Knots/assets/<id>/`; explicit array defines order; at least two frames; `picture.src` equals final/representative frame; cards/detail load only representative frame; sequence viewer supports approved controls/keyboard/zoom behavior with no autoplay on open; complete multi-file selection establishes order; conversion into sequence never silently reuses an old static picture; replacing references does not delete old source files; complete offline preparation includes every referenced frame. Directory contents alone never create a sequence.
 
 **FISH102:** Line-Tackle-Knot Reference is pinned first only on KB → Knots; remaining Knot cards alphabetical.
 
-**FISH103:** canonical physical domain source stays under `pwa/`; authoring upload links use physical `/pwa/...`; external HTTP(S) links open new-tab with `noopener noreferrer`; internal app/local links remain same-tab.
+**FISH103:** canonical physical domain source stays under `pwa/`; authoring upload links use physical `/pwa/...`; external HTTP(S) links open new-tab with `noopener noreferrer`; internal app/local links remain same-tab; Caption editing retains focus; new-KB Markdown Preview assigns a provisional required content path before whole-library validation.
 
-**FISH107:** current canonical Skylety Fishing Hook Sharpener type is `Tools`. FISH106's `Kayaks` value remains historical evidence only.
+**FISH107:** current canonical Skylety Fishing Hook Sharpener type is `Tools`. FISH106's `Kayaks` value remains historical evidence of the earlier supplied package only.
 
-**FISH110:** Copy Changes uses release-aware boilerplate aligned to FISH108.
+**FISH110:** Copy Changes uses release-aware boilerplate aligned to FISH108; eligible source-aware content packages are routed to Fast Content Release and routine project-state churn is explicitly avoided unless validation shows it is required.
 
 ## Backlog decisions
 
