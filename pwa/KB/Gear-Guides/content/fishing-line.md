@@ -3,7 +3,7 @@
 - Braid cuts through vegetation, lasts longer, and transmits feel. The fluorocarbon leader adds invisibility and abrasion resistance near the bait.
 - When using a leader, use a bright-colored braided line to help see strikes on the water while the fluorocarbon remains less visible to fish.
 - Connect the leader to braid with an [FG knot](kb://knot-fg).
-- For topwater fishing in heavy cover, tie braid directly to the lure. Braid floats like mono and is strong, making it well suited to these conditions. In these cases use a moss-colored braid to further hide the line.
+- For [topwater fishing](kb://topwater-fishing) in heavy cover, tie braid directly to the lure. Braid floats like mono and is strong, making it well suited to these conditions. In these cases use a moss-colored braid to further hide the line.
 - Use 8-strand braid for general purpose because it is smoother and casts better. Use 4-strand in abrasive environments such as rocks, brush, and docks because it is tougher and can cut through brush.
 - Go a bit heavier when selecting braided-line weight because braid does not stretch. Use 12–15 lb braid for an 8–10 lb mono leader. Go heavier in thick cover.
 - Be careful on the hookset because braid does not stretch and can break the leader or pop the hook out. Lift up and reel in the line.
