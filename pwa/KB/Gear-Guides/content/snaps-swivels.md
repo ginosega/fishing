@@ -4,7 +4,7 @@
 - Use a snap with fast-moving lures that you will be retrieving quickly or trolling with
 - Don't use a snap with live or jig bait that you work slowly, as this will make the presentation look unnatural. Tie the line directly to these lures instead.
 - Don't use a snap with a weedless presentation, as it will snag on weeds. Tie the line directly to the hook instead.
-- Don't use snaps or swivels with floating/topwater bait, as the extra weight can cause it to sink
+- Don't use snaps or swivels with floating/[topwater bait](kb://topwater-fishing), as the extra weight can cause it to sink
 
 # Swivels
 - Use a swivel to prevent line twist when using a spinning lure (spoons, spinners, flashers) or a vertical jigging lure that swims in a circle (jigging rap).
