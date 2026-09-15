@@ -1,29 +1,44 @@
 # Fishing TODO
 
-## Current project task state — September 14, 2026
+## Current project task state — September 15, 2026
 
-**FISH-TODO-108 — IMPLEMENTED / release-policy change.** FISH108 introduces the approved two-lane Fishing Companion release model:
+### Application / architecture state
+
+**FISH-TODO-108 — IMPLEMENTED / release-policy change.** FISH108 establishes the approved two-lane Fishing Companion release model:
 
 - **Fast Content Release** for routine canonical changes confined to `pwa/Gear/`, `pwa/KB/`, and/or `pwa/Catches/`.
-- **Full Application Release** for runtime, schema/contracts, tests, tooling/build, dependencies, workflow, migration/recovery/offline, or any mixed content+non-content change.
+- **Full Application Release** for runtime, schema/contracts, tests, tooling/build, dependencies, workflow, migration/recovery/offline, or mixed content+non-content changes.
 
-The durable policy is [`pwa/docs/FISH108_Fast_Content_Release_Policy_2026-09-14.md`](pwa/docs/FISH108_Fast_Content_Release_Policy_2026-09-14.md). Fast Content Releases retain source/package conflict validation, canonical build/inventory validation, release verification, exact-current-main Pages deployment and hosted byte/release-identity verification, while omitting application/browser/v1-cutover/dependency-audit work that content-only changes cannot affect.
+The durable policy is [`pwa/docs/FISH108_Fast_Content_Release_Policy_2026-09-14.md`](pwa/docs/FISH108_Fast_Content_Release_Policy_2026-09-14.md). Routine Fast Content Releases are ordinary authoring events, not application tasks. They do **not** consume a `FISH-TODO-###` application/architecture ID and do not require per-item project-state or production-closeout documentation.
 
-Routine Fast Content Releases are ordinary authoring events, not application tasks. They do **not** consume a `FISH-TODO-###` application/architecture ID and do not require per-item project-state or production-closeout documentation.
+**FISH-TODO-109 — IMPLEMENTED / release-retry hardening.** FISH109 makes Pages deployment reruns safe with run-attempt-specific Pages/hosted-evidence artifacts and bounded retry/backoff for transient hosted-verification failures. Exact-current-main protection remains mandatory.
 
-**FISH-TODO-109 — IMPLEMENTED / release-retry hardening.** FISH109 makes Pages deployment reruns safe by using run-attempt-specific Pages and hosted-evidence artifact names, and adds bounded retries/backoff to the fast hosted verifier for transient propagation/network responses. Exact-current-main protection remains unchanged. The merged-main full release and hosted browser verification passed.
+**FISH-TODO-110 — IMPLEMENTED / Copy Changes release routing.** Fishing Companion Add/Edit → Copy Changes uses centralized FISH108-aware handoff text. Eligible content-only packages explicitly use one Fast Content Release PR with lightweight validation/build, merge, production deployment and hosted byte/release-identity verification; project-state churn and Full Application Release are avoided unless validation shows they are actually required.
 
-**FISH-TODO-110 — IMPLEMENTED / Copy Changes release-routing update.** Fishing Companion Add/Edit → Copy Changes now uses centralized FISH108-aware boilerplate. The copied handoff tells the receiving chat to restore current `main`/project instructions, validate the source-aware package against current canonical content, preserve unrelated/newer source changes, and apply only requested changes. Eligible content-only packages explicitly use one Fast Content Release PR with lightweight validation/build, merge, production deployment and hosted byte/release-identity verification; Full Application Release and project-state updates are explicitly avoided unless validation shows they are required. Non-fast changes fall back to the repository's current appropriate release lane. Regression coverage rejects the obsolete `one feature PR` / `then reconcile project records` wording and preserves the blank-line JSON boundary. FISH110 passed Full Application Release validation, merged to `main`, deployed successfully and passed hosted production verification. The next unused application/architecture task ID is **FISH-TODO-111**.
+FISH071–076 and FISH078–110 are complete/implemented. The next unused application/architecture task ID is **FISH-TODO-111**.
 
-Changing Gear/KB/Catch counts, canonical path totals and inventory-reference totals are no longer maintained as test baselines. Validation derives current state from canonical source and the exact generated release.
+**Fishing Companion v3** — historically `FISH-TODO-077/P2` — remains **DEFERRED**. Future scope may include authentication, direct GitHub save/upload, integrated uploads, offline authoring/outbox/sync, Catch authoring and multi-user generalization. None of that is current production or implicitly approved implementation work.
 
-FISH071–076 and FISH078–110 are complete/implemented. Historical release evidence remains in Git history and dated `pwa/docs/` records.
+### Recent content work completed — no application task IDs consumed
 
-**Fishing Companion v3** — historically `FISH-TODO-077/P2` — remains **DEFERRED**. Future scope includes authentication, direct GitHub save/upload, integrated uploads, offline authoring/outbox/sync, Catch authoring and multi-user generalization. Do not treat any of that as current production or implicitly approved implementation work.
+The September 14–15 Technique restructuring is complete and production-verified through routine FISH108 content releases:
+
+- Bass Fishing Techniques was created and expanded into the main bass presentation/tactics reference.
+- Bass Behavior and Habitat was created as the complementary “where bass are and why” reference.
+- Trout Fishing was renamed **Trout Fishing Techniques** and substantially expanded.
+- Trout Behavior and Habitat was created as the complementary trout location/behavior reference.
+- Bass-only Spring/Fall pages were replaced by **Spring Fishing**, **Summer Fishing**, **Fall Fishing**, and **Winter Fishing**, covering both bass and trout.
+- Topwater Fishing was expanded from a placeholder into a full specialized surface-fishing reference.
+- A curated internal cross-link pass connected the broad Technique pages to relevant species, seasonal, location, tackle and topwater Gear Guide pages.
+- Retired duplicate/obsolete Technique pages were removed from live canonical content.
+
+This completed broad-reference work does **not** close the separate rig/specialty-page backlog below. In particular, Texas Rig, Carolina Rig, Alabama Rig, Neko Rig and Spoons remain open content items.
+
+Changing Gear/KB/Catch counts, canonical path totals and reference totals are not maintained as test baselines; derive current state from canonical source and the exact generated release.
 
 ## Existing fishing, equipment and content backlog
 
-These items remain open/deferred independently of Fishing Companion release work. Preserve explicit purchase uncertainty; do not infer ownership or completion without user confirmation.
+Preserve explicit purchase uncertainty; do not infer ownership or completion without user confirmation.
 
 FISH104 documents a fish-finder power architecture and parts list, but it does **not** explicitly confirm that every listed part is the installed configuration. Therefore FISH-TODO-005 remains WAITING ON USER rather than being closed by inference.
 
@@ -67,8 +82,8 @@ FISH105 adds a KastKing HyperSeal Waterproof Tackle Box in size 3600, but the su
 
 Use Chat mode by default. Restore actual latest `main` and current open-PR state before repository work.
 
-For a routine source-aware Gear/KB/Catch authoring package, use the FISH108 Fast Content Release policy and **do not allocate FISH-TODO-111**. Allocate FISH-TODO-111 only for the next application/architecture-level task unless a newer application task already exists on current `main`.
+For routine source-aware Gear/KB/Catch authoring, use the FISH108 Fast Content Release policy and **do not allocate FISH-TODO-111**. Allocate FISH-TODO-111 only for the next application/architecture-level task unless newer current `main` has already allocated it.
 
 Do not reopen completed FISH096–FISH110 or Fishing Companion v3 work without an explicit new user request.
 
-When the user says **“It’s time to transfer to a new chat”**, ask for confirmation of the full handoff. After confirmation, perform the durable handoff protocol recorded in `Fishing_Decision_Log.md`: reconcile current repository/production state, update authoritative records only where durable state changed, cross-check them, and finish with a direct GitHub link to `Fishing_New_Chat_Bootstrap_Prompt.md`.
+When the user says **“It’s time to transfer to a new chat”**, ask for confirmation of the full handoff. After confirmation, reconcile current repository/production state, update authoritative records where durable state changed, cross-check them, and finish with a direct GitHub link to `Fishing_New_Chat_Bootstrap_Prompt.md`.
