@@ -18,38 +18,53 @@ Before repository work, also confirm current open-PR state. Newer repository/pro
 
 ## Checkpoint — September 16, 2026
 
-At the FISH112 production closeout checkpoint:
+At the FISH113 production closeout checkpoint:
 
-- production source revision was `89ca4773365f8d99750b9424b5cb9eefb4a29907`;
-- implementation PR was #168;
-- production workflow was **#298**, run `35119930916`;
-- hosted release ID was `f5d691d727fd439ff5553f6c7db509f4`;
+- production source revision was `fab438e2833b131204a5e4c29ab1685df0ae8fbf`;
+- final implementation PR was #173;
+- production workflow was **#312**, run `35139240830`;
+- hosted release ID was `6a1f85979ecabc197ec66368b9fe0a65`;
 - hosted source-derived counts were Gear 82 / KB 57 / Catch 5;
+- hosted file count was 380;
 - Full Application Release validation, exact-current-main guard, GitHub Pages deployment, and actual hosted byte/browser verification all passed;
-- the user visually verified production and confirmed the result looks correct;
-- FISH112 is closed.
+- one unrelated timing-sensitive WebKit offline-cache failure on the first production validation attempt passed on a targeted retry without a FISH113 code change;
+- the user visually verified production and confirmed no further adjustments are needed;
+- FISH113 is closed.
 
 Treat those exact identifiers as historical checkpoint evidence only. Re-read actual current `main`, PR state and production evidence immediately.
 
-There is no currently allocated open application task after FISH112. The next unused application/architecture task ID is **FISH-TODO-113** unless newer `main` has allocated it. Routine FISH108 Fast Content Releases do not consume application task IDs.
+There is no currently allocated open application task after FISH113. The next unused application/architecture task ID is **FISH-TODO-114** unless newer `main` has allocated it. Routine FISH108 Fast Content Releases do not consume application task IDs.
+
+## FISH113 — completed responsive scenic page heroes
+
+FISH113 is **IMPLEMENTED / PRODUCTION-VERIFIED / USER-VERIFIED / CLOSED**.
+
+Home, My Gear, and Knowledge Base root pages use scenic mountain/lake page-header artwork under `pwa/assets/page-hero/` while preserving existing page wording, cards, routes, search/Back behavior, and non-root headers.
+
+The authoritative pair is:
+
+- `page-hero.png` — 1536 × 512 (3:1), for standard/narrow layouts;
+- `page-hero-wide.png` — 3072 × 512 (6:1), for sufficiently wide landscape layouts.
+
+The 3:1 asset is pixel-for-pixel the exact centered crop of the 6:1 master. Preserve that invariant so crossing the responsive breakpoint remains visually seamless. Wide activation is based on viewport geometry, not physical display resolution. The superseded WebP hero is retired.
+
+Detailed evidence: `pwa/docs/FISH113_Production_Closeout_2026-09-16.md`.
+
+Do not reopen or redesign FISH113 unless I explicitly request a change.
 
 ## FISH112 — completed fixed cross-platform card icons
 
 FISH112 is **IMPLEMENTED / PRODUCTION-VERIFIED / USER-VERIFIED**.
 
-Home, My Gear, and Knowledge Base navigation cards now use 16 bundled user-approved transparent-with-shadow PNG assets under `pwa/assets/card-icons/` rather than OS-dependent Unicode emoji. The existing card geometry, text, search/Back controls, routes, navigation behavior, and small icon scale were preserved.
-
-The production build includes those assets in each content-addressed release and in release identity/manifest verification. Regression coverage protects the exact 16-file set, PNG transparency, card mappings, byte-for-byte production-build preservation, and manifest inclusion.
+Home, My Gear, and Knowledge Base navigation cards use 16 bundled user-approved transparent-with-shadow PNG assets under `pwa/assets/card-icons/` rather than OS-dependent Unicode emoji. The existing card geometry, text, search/Back controls, routes, navigation behavior, and small icon scale were preserved.
 
 Detailed evidence: `pwa/docs/FISH112_Production_Closeout_2026-09-16.md`.
-
-Do not reopen or redesign FISH112 unless I explicitly request a change.
 
 ## Recent routine content state
 
 Recent content releases are canonical and do not require new closeout work merely because this is a new chat. Current source includes, among other work:
 
-- Banks Lake as a KB/Location with representative Steamboat Rock picture;
+- Banks Lake as a KB/Location with its representative picture removed while preserving the page and its two inline Steamboat Rock images;
 - Electronics Research as a My Gear/Equipment research entry with `%20`-encoded local image paths;
 - the September 14–15 broad Technique restructuring, four-season pages, Topwater expansion and curated cross-link pass;
 - Berkely Trilene XL as a Gear/Line item.

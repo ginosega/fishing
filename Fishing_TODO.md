@@ -17,15 +17,17 @@ The durable policy is [`pwa/docs/FISH108_Fast_Content_Release_Policy_2026-09-14.
 
 **FISH-TODO-111 — IMPLEMENTED / PRODUCTION-VERIFIED / shared page layout alignment.** The site header and page body share the same horizontal content inset, and long-form Notes/Markdown uses the full main content width through the right-side page margin. Mobile preserves the same rule with its existing 16 px inset.
 
-**FISH-TODO-112 — IMPLEMENTED / PRODUCTION-VERIFIED / USER-VERIFIED / fixed cross-platform card icons.** The Home, My Gear, and Knowledge Base cards now use 16 bundled transparent PNG assets instead of OS-dependent Unicode emoji while preserving the existing card layout, labels, routes, search/Back controls, and navigation. Production PR #168 deployed through Full Application Release workflow #298 / run `35119930916`; hosted release `f5d691d727fd439ff5553f6c7db509f4` from source `89ca4773365f8d99750b9424b5cb9eefb4a29907` passed actual hosted byte/browser verification. The user then visually verified production and confirmed it looks correct. Closeout: [`pwa/docs/FISH112_Production_Closeout_2026-09-16.md`](pwa/docs/FISH112_Production_Closeout_2026-09-16.md).
+**FISH-TODO-112 — IMPLEMENTED / PRODUCTION-VERIFIED / USER-VERIFIED / fixed cross-platform card icons.** The Home, My Gear, and Knowledge Base cards use 16 bundled transparent PNG assets instead of OS-dependent Unicode emoji while preserving existing card layout, labels, routes, search/Back controls, and navigation. Closeout: [`pwa/docs/FISH112_Production_Closeout_2026-09-16.md`](pwa/docs/FISH112_Production_Closeout_2026-09-16.md).
 
-FISH071–076 and FISH078–112 are complete/implemented. The next unused application/architecture task ID is **FISH-TODO-113**.
+**FISH-TODO-113 — IMPLEMENTED / PRODUCTION-VERIFIED / USER-VERIFIED / responsive scenic page heroes.** Home, My Gear, and Knowledge Base root pages use the final scenic hero pair under `pwa/assets/page-hero/`: 1536 × 512 `page-hero.png` for standard/narrow layouts and 3072 × 512 `page-hero-wide.png` for sufficiently wide landscape layouts. The 3:1 asset is pixel-for-pixel the exact centered crop of the 6:1 master. Final implementation PR #173 deployed through Full Application Release workflow #312 / run `35139240830`; hosted release `6a1f85979ecabc197ec66368b9fe0a65` from source `fab438e2833b131204a5e4c29ab1685df0ae8fbf` passed actual hosted byte/browser verification. The user visually verified production and confirmed no further adjustments are needed. Closeout: [`pwa/docs/FISH113_Production_Closeout_2026-09-16.md`](pwa/docs/FISH113_Production_Closeout_2026-09-16.md).
+
+FISH071–076 and FISH078–113 are complete/implemented. The next unused application/architecture task ID is **FISH-TODO-114**.
 
 **Fishing Companion v3** — historically `FISH-TODO-077/P2` — remains **DEFERRED**. Future scope may include authentication, direct GitHub save/upload, integrated uploads, offline authoring/outbox/sync, Catch authoring and multi-user generalization. None of that is current production or implicitly approved implementation work.
 
 ### Recent content work completed — no application task IDs consumed
 
-Recent routine FISH108 content work is complete/canonical and does not need new application IDs or closeout docs. Current source includes Banks Lake, Electronics Research, the September 14–15 Technique restructuring/Topwater/cross-link work, and Berkely Trilene XL.
+Recent routine FISH108 content work is complete/canonical and does not need new application IDs or closeout docs. Current source includes the Banks Lake representative-picture removal while preserving the page and inline images, Electronics Research, the September 14–15 Technique restructuring/Topwater/cross-link work, and Berkely Trilene XL.
 
 The broad Technique redesign does **not** close the separate rig/specialty-page backlog below. Texas Rig, Carolina Rig, Alabama Rig, Neko Rig and Spoons remain open.
 
@@ -77,8 +79,8 @@ FISH105 adds a KastKing HyperSeal Waterproof Tackle Box in size 3600, but the su
 
 Use Chat mode by default. Restore actual latest `main` and current open-PR state before repository work.
 
-For routine source-aware Gear/KB/Catch authoring, use the FISH108 Fast Content Release policy and do not allocate FISH-TODO-113. Allocate FISH-TODO-113 only for the next new application/architecture-level task unless newer `main` has already allocated it.
+For routine source-aware Gear/KB/Catch authoring, use the FISH108 Fast Content Release policy and do not allocate FISH-TODO-114. Allocate FISH-TODO-114 only for the next new application/architecture-level task unless newer `main` has already allocated it.
 
-Do not reopen completed FISH096–FISH112 or Fishing Companion v3 work without an explicit new user request.
+Do not reopen completed FISH096–FISH113 or Fishing Companion v3 work without an explicit new user request.
 
 When the user says **“It’s time to transfer to a new chat”**, ask once for confirmation of the full handoff. After confirmation, reconcile current repository/production state, update authoritative records where durable state changed, preserve unresolved work and purchase uncertainty, cross-check the files, and finish with a direct GitHub link to `Fishing_New_Chat_Bootstrap_Prompt.md`.

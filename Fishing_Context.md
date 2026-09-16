@@ -8,22 +8,42 @@ For exact production identity, inspect the latest successful `main` production w
 
 ### Current production checkpoint
 
-FISH112 is the latest completed application change.
+FISH113 is the latest completed application change.
 
-- production source revision: `89ca4773365f8d99750b9424b5cb9eefb4a29907`
-- implementation PR: #168
-- production workflow: **#298** / run `35119930916`
-- hosted release ID: `f5d691d727fd439ff5553f6c7db509f4`
+- production source revision: `fab438e2833b131204a5e4c29ab1685df0ae8fbf`
+- final implementation PR: #173
+- production workflow: **#312** / run `35139240830`
+- hosted release ID: `6a1f85979ecabc197ec66368b9fe0a65`
 - hosted source-derived counts: Gear 82 / KB 57 / Catch 5
-- Full Application Release validation: passed
+- hosted file count: 380
+- Full Application Release validation: passed after targeted retry of one unrelated timing-sensitive WebKit offline-cache test
 - exact-current-main deployment guard: passed
 - GitHub Pages deployment: passed
 - actual hosted byte/browser verification: passed
-- user visual verification: passed; user confirmed production looks correct
+- user visual verification: passed; user confirmed no further adjustments are needed
 
-Detailed closeout: [`pwa/docs/FISH112_Production_Closeout_2026-09-16.md`](pwa/docs/FISH112_Production_Closeout_2026-09-16.md).
+Detailed closeout: [`pwa/docs/FISH113_Production_Closeout_2026-09-16.md`](pwa/docs/FISH113_Production_Closeout_2026-09-16.md).
 
-The next unused application/architecture task ID is **FISH-TODO-113** unless newer `main` has allocated it.
+The next unused application/architecture task ID is **FISH-TODO-114** unless newer `main` has allocated it.
+
+## FISH113 — responsive scenic page heroes
+
+**Status: IMPLEMENTED / PRODUCTION-VERIFIED / USER-VERIFIED / CLOSED.**
+
+FISH113 adds scenic mountain/lake hero artwork to the Home, My Gear, and Knowledge Base root pages while preserving existing page wording, cards, routes, search/Back behavior, and non-root headers.
+
+Durable implementation result:
+
+- authoritative assets live under `pwa/assets/page-hero/`;
+- `page-hero.png` is 1536 × 512 (3:1);
+- `page-hero-wide.png` is 3072 × 512 (6:1);
+- the 3:1 asset is pixel-for-pixel the exact centered crop of the 6:1 master;
+- standard/narrow layouts use the 3:1 asset;
+- sufficiently wide landscape layouts use the 6:1 asset via geometry-based responsive behavior rather than display-resolution detection;
+- regression coverage protects dimensions, filenames, CSS references, and the exact centered-crop relationship;
+- the superseded WebP hero asset was removed.
+
+The final production release was visually inspected by the user and accepted with no further adjustments requested.
 
 ## FISH112 — fixed cross-platform card icons
 
@@ -61,7 +81,7 @@ FISH111 remains complete and production-verified. Fishing Companion uses one sha
 
 Routine FISH108 content releases are canonical and do not require per-item closeout documentation. Current source includes, among other recent work:
 
-- Banks Lake KB/Location with Steamboat Rock representative picture;
+- Banks Lake KB/Location with its representative picture removed while preserving its Markdown and two inline Steamboat Rock images;
 - Electronics Research in My Gear/Equipment with `%20`-encoded local image paths;
 - September 14–15 Technique restructuring, four-season pages, Topwater expansion and curated cross-links;
 - Berkely Trilene XL as a Gear/Line record.
