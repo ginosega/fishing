@@ -26,7 +26,7 @@ test('FISH112 bundles the 16 approved transparent fixed card icons',async()=>{
  }
 
  const css=await fs.readFile(path.join(pwa,'src/card-icons.css'),'utf8');
- for(const name of icons)assert.match(css,new RegExp(`url\\("\\./card-icons/${name.replace(/[.*+?^${}()|[\\]\\]/g,'\\$&')}"\\)`));
+ for(const name of icons)assert.ok(css.includes(`url("./card-icons/${name}")`),name+' missing from source stylesheet');
  assert.match(css,/\.card-icon\{[\s\S]*font-size:0;[\s\S]*background-size:contain;/);
 
  const temporary=await fs.mkdtemp(path.join(os.tmpdir(),'fish112-build-'));
