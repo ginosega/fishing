@@ -1,6 +1,6 @@
 A long, slender hard or soft plastic lure designed to imitate an injured or darting baitfish.
 
-# Use
+## Use
 - In cool water (40–60°F) for large and smallmouth bass, walleye, and larger trout - fish are lethargic and the pause imitates easy prey
 - In clear water - like Crankbait the visual lure relies on flash and realism
 - For suspended or roaming fish not hugging the bottom
@@ -9,7 +9,7 @@ A long, slender hard or soft plastic lure designed to imitate an injured or dart
 - Do not use in heavy cover as treble hooks snag easily
 - Do not use in hot water when the fish are deep; use crankbait or soft plastic instead
 
-# Gear
+## Gear
 - Rod: 6'7"–9' medium or medium-light power, fast action
 - Reel: Baitcaster for heavier jerkbaits, spinning reel for lighter
 - Line: 8–12 lb. fluoro or 15–20 lb. braid + 6–10 ft fluoro leader
@@ -20,13 +20,13 @@ A long, slender hard or soft plastic lure designed to imitate an injured or dart
 - Tie a hard plastic jerkbait directly to the lure, or use a small snap if needed to swap lures
 - Knot: Use a Palomar or Clinch knot if the jerkbait has a split ring; use a loop knot if it does not
 
-# Technique
+## Technique
 1. Cast out and reel just enough to get the bait to running depth
 2. Twitch or jerk the rod tip downward or to the side with short, sharp motions to make it dart, pause, and flash like a struggling bait fish. Don't overdo it - the jerk should just take the slack out of the line and cause the bait to twitch and turn. If the line is too taught the bait will come straight to you instead of jerking side to side.
 3. Pause for 1–5 seconds (or longer in cold water) - this is when most strikes happen. When paused, can be suspending (most versatile), floating (for shallow or weedy areas) or sinking (for deeper water).
 4. Repeat in a twitch–twitch–pause rhythm. Don't move the bait with the reel, only with the rod.
 
-# Lures
+## Lures
 - Sinking vs. suspending vs. floating:
   - When paused, can be suspending (most versatile), floating (for shallow or weedy areas) or sinking (for deeper water).
   - Follow water temperature trends. Use sinking when water temperatures are falling - 55° and below. Use suspending when temps are stable - 55-60. Use floating when temps are rising. Parallels fish movement.
@@ -49,7 +49,7 @@ A long, slender hard or soft plastic lure designed to imitate an injured or dart
   - Yamamoto Hinge
   - Berkley Power Jerk Shad
 
-# Links
+## Links
 - Video: [Stop Fishing a Jerkbait Like THIS (5 Common Mistakes)](https://www.youtube.com/watch?v=PpV9-aHjlDU)
 - Article: [JERKBAIT Archives - Megabass](https://megabassusa.com/category/application-specific-fishing-tips/jerkbait-fishing-tips/)
 - My Gear: [Berkley Stunna](gear://berkley-stunna), [Rapala Original Floating](gear://rapala-original-floating), [Rapala RipStop](gear://rapala-ripstop), [Rapala Husky Jerk](gear://rapala-husky-jerk), [Berkley Power Jerk Shad](gear://berkley-powerbait-power-jerk-shad)
