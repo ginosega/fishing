@@ -16,81 +16,45 @@ Read these files from actual latest `main`, in order:
 
 Before repository work, also confirm current open-PR state. Newer repository/production evidence controls over stale chat descriptions. When an exact current production SHA/release ID/count is needed, inspect the latest successful `main` production workflow and deployed `release.json`/hosted verification evidence; do not treat an older value copied into Markdown as current.
 
-## Handoff checkpoint — September 15, 2026
+## Checkpoint — September 16, 2026
 
-At the handoff that produced this prompt:
+At the FISH112 production closeout checkpoint:
 
-- `main` was `e55dcf4a3ab01f67a3f201fc5b7416bf3bc82c4c`;
-- there were no open PRs;
-- latest successful production workflow was **#293**, run `35058248540`;
-- its hosted-verification artifact reported release `7d4c4f116c4a4830e8a69efdbf51c392` from that exact source revision;
-- source-derived hosted counts were Gear 81 / KB 57 / Catch 5;
-- FISH111 was fully production-verified.
+- production source revision was `89ca4773365f8d99750b9424b5cb9eefb4a29907`;
+- implementation PR was #168;
+- production workflow was **#298**, run `35119930916`;
+- hosted release ID was `f5d691d727fd439ff5553f6c7db509f4`;
+- hosted source-derived counts were Gear 82 / KB 57 / Catch 5;
+- Full Application Release validation, exact-current-main guard, GitHub Pages deployment, and actual hosted byte/browser verification all passed;
+- the user visually verified production and confirmed the result looks correct;
+- FISH112 is closed.
 
-Treat all of those exact identifiers as historical checkpoint evidence only. Re-read actual current `main`, PR state and production evidence immediately.
+Treat those exact identifiers as historical checkpoint evidence only. Re-read actual current `main`, PR state and production evidence immediately.
 
-The active application/UI task at handoff is **FISH112 — fixed cross-platform card icons**. Its design is selected but it has **not been implemented**. That is likely the next work to continue unless I ask for something else.
+There is no currently allocated open application task after FISH112. The next unused application/architecture task ID is **FISH-TODO-113** unless newer `main` has allocated it. Routine FISH108 Fast Content Releases do not consume application task IDs.
 
-## FISH112 — critical continuation state
+## FISH112 — completed fixed cross-platform card icons
 
-### Goal
+FISH112 is **IMPLEMENTED / PRODUCTION-VERIFIED / USER-VERIFIED**.
 
-Most current Home/My Gear/Knowledge Base card icons are raw Unicode emoji, so Windows and Android show different artwork. Replace those OS-dependent glyphs with **bundled fixed icon assets** so the artwork is consistent across platforms.
+Home, My Gear, and Knowledge Base navigation cards now use 16 bundled user-approved transparent-with-shadow PNG assets under `pwa/assets/card-icons/` rather than OS-dependent Unicode emoji. The existing card geometry, text, search/Back controls, routes, navigation behavior, and small icon scale were preserved.
 
-This is deliberately a small visual change. Preserve the current live Fishing Companion layouts, card geometry, text, search/Back controls, navigation, and roughly the current small icon size/placement. Do **not** treat the exploratory image-generation mockups as approval for scenic headers, enlarged tiles/cards, bottom navigation, or other layout redesigns.
+The production build includes those assets in each content-addressed release and in release identity/manifest verification. Regression coverage protects the exact 16-file set, PNG transparency, card mappings, byte-for-byte production-build preservation, and manifest inclusion.
 
-The mockups are references only, not production assets. Before bundling third-party-derived artwork, verify licensing/attribution for Google/Noto, Microsoft Fluent, Twemoji, or any adapted source. Prefer scalable fixed assets such as SVG where practical.
+Detailed evidence: `pwa/docs/FISH112_Production_Closeout_2026-09-16.md`.
 
-### Approved My Gear icons
-
-The user explicitly approved this set:
-
-- **Rods & Reels:** Google/Android rod-and-reel artwork.
-- **Line:** spool with a **dark red/orange spool** and **clear/white-ish line**.
-- **Weights:** silver/gray teardrop sinker.
-- **Snaps & Swivels:** silver **barrel swivel only**; not a snap swivel and not a generic chain-link icon.
-- **Hooks:** Twitter/Twemoji-style simple hook, **silver**, with no bar/crossbar through its middle.
-- **Lures:** crankbait in a **Sexy Shad-style** color pattern.
-- **Bait:** Fluent-style worm.
-- **Equipment:** Fluent-style kayak at an oblique angle, **light blue**, with a **paddle**.
-
-The approved target keeps the icons small and avoids overusing light blue or gray.
-
-### Approved Knowledge Base icons
-
-The live KB root has exactly **five** category cards. There is **no Tackle card** on the KB root.
-
-- **Locations:** Google/Android pushpin exactly in the Android direction the user supplied: **round red head with a pale blue/gray needle/stem**. Do not substitute a teardrop map-location pin, folded-map icon, or another pin shape.
-- **Species:** side-view **rainbow trout**.
-- **Techniques:** **compass**. Do not reuse the My Gear lure icon and do not use an angler/fly-casting figure.
-- **Knots:** Google/Android **blue rope knot** selected from the Android/Fluent/Windows comparison.
-- **Gear Guides:** open book with light pages and blue backing/edge.
-
-### Approved Home icons
-
-Keep the current live Home layout and text; only replace icons:
-
-- **My Gear:** tackle box.
-- **Knowledge Base:** stack of **three plain unlabeled books**, preferably green/blue/orange; no text on the spines. This icon must be visually distinct from the Gear Guides open-book icon.
-- **Catch Log:** jumping **largemouth bass** with a lure in its mouth and fishing line extending from the lure.
-
-### FISH112 status/release lane
-
-FISH112 is **OPEN / design selected / implementation pending**. No runtime icon assets, CSS, application code or tests have been changed for it yet.
-
-Because implementation changes application/UI assets outside `pwa/Gear/`, `pwa/KB/`, and `pwa/Catches/`, it requires the **Full Application Release** lane. FISH112 is already allocated; the next unused application/architecture task ID is **FISH-TODO-113** unless newer `main` has allocated it.
-
-## FISH111 — completed immediately before FISH112 design
-
-FISH111 is complete and production-verified. The site header and page body share the same horizontal content insets, and long-form Notes/Markdown extends through the full main-content width. Desktop retains the 24 px content inset and mobile retains the 16 px inset. Intentional narrower caps for pictures, detail tables, and editor forms remain unchanged.
+Do not reopen or redesign FISH112 unless I explicitly request a change.
 
 ## Recent routine content state
 
-Recent content releases are already canonical and do not require new closeout work merely because this is a new chat:
+Recent content releases are canonical and do not require new closeout work merely because this is a new chat. Current source includes, among other work:
 
-- **Banks Lake** exists as a KB/Location and has its Steamboat Rock State Park representative picture.
-- **Electronics Research** exists as a My Gear/Equipment research entry. Current `main` uses `%20`-encoded spaces in its five local inline PNG Markdown references.
-- The September 14–15 broad Technique restructuring, four-season pages, Topwater expansion and curated cross-link pass are complete.
+- Banks Lake as a KB/Location with representative Steamboat Rock picture;
+- Electronics Research as a My Gear/Equipment research entry with `%20`-encoded local image paths;
+- the September 14–15 broad Technique restructuring, four-season pages, Topwater expansion and curated cross-link pass;
+- Berkely Trilene XL as a Gear/Line item.
+
+Git history and current canonical source are authoritative for routine content releases.
 
 ## Current KB editorial architecture — critical
 
@@ -112,14 +76,7 @@ Do not rebuild long seasonal mini-guides inside the Behavior/Habitat or broad Te
 
 ### Seasonal playbooks
 
-The authoritative seasonal pages are:
-
-- Spring Fishing
-- Summer Fishing
-- Fall Fishing
-- Winter Fishing
-
-Each covers both bass and trout and combines seasonal location changes with seasonal presentation strategy.
+The authoritative seasonal pages are Spring Fishing, Summer Fishing, Fall Fishing, and Winter Fishing. Each covers both bass and trout and combines seasonal location changes with seasonal presentation strategy.
 
 ### Topwater
 
@@ -170,11 +127,13 @@ Routine Fast Content Releases do **not** consume an application task ID and do *
 
 Any changed file outside the three content roots forces full. Runtime/UI/assets, service worker, schema/contracts, tests, build/tooling, dependencies, workflow, migration/recovery/offline architecture and mixed content+code work use the full suite. Manual workflow dispatch is full. If eligibility is ambiguous, use full.
 
-### FISH109 / FISH110
+### FISH109 / FISH110 / FISH111
 
 FISH109 is complete/production-verified: deployment/evidence artifacts are run-attempt-specific, hosted verification has bounded retry/backoff, and exact-current-main protection remains mandatory.
 
 FISH110 is complete/production-verified: Gear/KB Add/Edit → **Copy Changes** uses centralized FISH108-aware instruction text. Eligible content-only packages explicitly route through Fast Content Release. The human instruction and JSON are separated by a blank line so JSON remains parseable.
+
+FISH111 is complete/production-verified: the site header and page body share the same horizontal content insets, and long-form Notes/Markdown uses the full main content width while intentionally narrower components keep their separate caps.
 
 ## Authoring constraints and durable application behavior
 

@@ -52,46 +52,23 @@ Any file outside the three canonical content roots forces full. Runtime/UI/asset
 
 ## FISH112 — fixed cross-platform card icon artwork
 
-**Decision/status:** DESIGN SELECTED / NOT IMPLEMENTED. FISH112 is the active application/UI task.
+**Decision/status:** IMPLEMENTED / PRODUCTION-VERIFIED / USER-VERIFIED.
 
-### Why
+### Final implementation decision
 
-Most current Home/My Gear/Knowledge Base card icons are raw Unicode emoji. Their appearance therefore varies by OS/device. The user wants a consistent curated set that looks the same on Windows and Android while keeping the present Fishing Companion layout.
+**Decision:** Home, My Gear, and Knowledge Base card icons use 16 bundled user-approved transparent PNG assets under `pwa/assets/card-icons/` rather than OS-dependent emoji glyphs. Preserve current card geometry, spacing, labels, search/Back controls, routes, navigation, and small icon scale/placement.
 
-### Core implementation decision
+**Decision:** The final generated transparent-with-shadow PNG assets are the authoritative artwork. Earlier exploratory Google/Noto, Fluent, Twemoji-style references and mockups are historical design references only and are not the live source assets.
 
-**Decision:** Replace OS-dependent emoji glyphs with bundled fixed artwork. Preserve current card geometry, spacing, labels, search/Back controls, navigation, and the current small icon scale/placement. FISH112 is **not** approval for the scenic headers, enlarged icon tiles/cards, bottom navigation, or other layout changes seen in exploratory AI mockups.
+**Decision:** The production build must carry these assets into each content-addressed release and include them in release identity/manifest verification. Regression coverage must continue to protect the exact 16-file set, transparency, card mappings, production-build byte preservation, and manifest inclusion.
 
-**Decision:** The generated screenshots used during design are references only, not production assets. Before implementation, verify licensing/attribution for any Google/Noto, Microsoft Fluent, Twemoji, or adapted artwork. Prefer scalable bundled assets such as SVG where practical.
+### Production closeout
 
-### Approved My Gear icon mapping
+FISH112 was implemented in PR #168 and released through Full Application Release workflow #298 / run `35119930916` from source revision `89ca4773365f8d99750b9424b5cb9eefb4a29907`. Hosted release `f5d691d727fd439ff5553f6c7db509f4` passed actual hosted production byte and browser verification. The user then inspected production and confirmed that it looks correct.
 
-- **Rods & Reels:** Google/Android rod-and-reel artwork.
-- **Line:** spool with dark red/orange spool and clear/white-ish line.
-- **Weights:** silver/gray teardrop sinker.
-- **Snaps & Swivels:** silver barrel swivel only; not a snap swivel and not a generic chain link.
-- **Hooks:** Twitter/Twemoji-style simple hook, silver, no crossbar through the middle.
-- **Lures:** crankbait in a Sexy Shad-style color pattern.
-- **Bait:** Fluent-style worm.
-- **Equipment:** Fluent-style oblique light-blue kayak with paddle.
+Detailed evidence: [`pwa/docs/FISH112_Production_Closeout_2026-09-16.md`](pwa/docs/FISH112_Production_Closeout_2026-09-16.md).
 
-### Approved Knowledge Base icon mapping
-
-The live KB root has exactly five category cards; there is no Tackle card.
-
-- **Locations:** Google/Android pushpin exactly in the Android-style direction selected by the user — round red head with pale blue/gray needle/stem. Do not substitute a teardrop map-location pin or folded-map icon.
-- **Species:** side-view rainbow trout.
-- **Techniques:** compass.
-- **Knots:** Google/Android blue rope-knot artwork.
-- **Gear Guides:** open book with light pages and blue backing/edge.
-
-### Approved Home icon mapping
-
-- **My Gear:** tackle box.
-- **Knowledge Base:** three plain stacked books with no spine text; preferred colors are green/blue/orange. It must remain distinct from the Gear Guides open-book icon.
-- **Catch Log:** jumping largemouth bass with lure in its mouth and fishing line extending from the lure.
-
-**Decision:** FISH112 implementation is a Full Application Release because it changes application/UI assets outside the canonical content roots. FISH112 is already allocated; the next unused application/architecture task ID is **FISH-TODO-113**.
+**Decision:** FISH112 is closed. The next unused application/architecture task ID is **FISH-TODO-113** unless newer `main` has already allocated it.
 
 ## KB editorial ownership model
 
@@ -142,4 +119,4 @@ Simple Markdown-only narrative edits may be made directly. Structured record fie
 
 ## Open application work
 
-FISH071–076 and FISH078–111 are complete/implemented. **FISH112 is active/open**. The next unused application/architecture task ID is **FISH-TODO-113** unless actual newer `main` has already allocated it. Routine Fast Content Releases do not consume that ID.
+FISH071–076 and FISH078–112 are complete/implemented. There is no currently allocated open application task after FISH112. The next unused application/architecture task ID is **FISH-TODO-113** unless actual newer `main` has already allocated it. Routine Fast Content Releases do not consume that ID.

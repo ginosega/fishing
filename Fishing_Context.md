@@ -1,118 +1,87 @@
 # Fishing Context
 
-## Current authoritative state — September 15, 2026 handoff
+## Current authoritative state — September 16, 2026
 
 `ginosega/fishing` is the durable source of truth. Restore actual current `main` and current open-PR state before implementation/release/repository-write work; do not rely on a previously observed commit as though it is still current.
 
-### Handoff production checkpoint
+For exact production identity, inspect the latest successful `main` production workflow plus the deployed `release.json`/hosted verification evidence. Exact SHA/release/count values recorded below are a checkpoint, not permanent future truth.
 
-At this handoff:
+### Current production checkpoint
 
-- `main`: `e55dcf4a3ab01f67a3f201fc5b7416bf3bc82c4c`
-- open PRs: none
-- latest successful production workflow: **#293** / run `35058248540`
-- hosted-verification release ID: `7d4c4f116c4a4830e8a69efdbf51c392`
-- hosted-verification source revision: `e55dcf4a3ab01f67a3f201fc5b7416bf3bc82c4c`
-- hosted source-derived counts: Gear 81 / KB 57 / Catch 5
+FISH112 is the latest completed application change.
 
-Those exact identifiers are a historical checkpoint, not durable future truth. For exact current production state, inspect the latest successful `main` production workflow plus the deployed `release.json`/hosted verification evidence.
+- production source revision: `89ca4773365f8d99750b9424b5cb9eefb4a29907`
+- implementation PR: #168
+- production workflow: **#298** / run `35119930916`
+- hosted release ID: `f5d691d727fd439ff5553f6c7db509f4`
+- hosted source-derived counts: Gear 82 / KB 57 / Catch 5
+- Full Application Release validation: passed
+- exact-current-main deployment guard: passed
+- GitHub Pages deployment: passed
+- actual hosted byte/browser verification: passed
+- user visual verification: passed; user confirmed production looks correct
 
-The latest completed application change is **FISH111**, which is production-verified. The active application/UI task is **FISH112**, an icon-art refresh whose design selections are captured below but whose implementation has not begun.
+Detailed closeout: [`pwa/docs/FISH112_Production_Closeout_2026-09-16.md`](pwa/docs/FISH112_Production_Closeout_2026-09-16.md).
 
-## FISH112 — cross-platform fixed card icons
+The next unused application/architecture task ID is **FISH-TODO-113** unless newer `main` has allocated it.
 
-### Problem and implementation intent
+## FISH112 — fixed cross-platform card icons
 
-Most current Home/My Gear/Knowledge Base card icons are raw Unicode emoji. That makes the artwork platform-dependent: Windows and Android render the same characters using different emoji sets.
+**Status: IMPLEMENTED / PRODUCTION-VERIFIED / USER-VERIFIED.**
 
-The approved FISH112 direction is to replace those OS-dependent glyphs with bundled fixed artwork so every platform renders the same icon. This must be a **small visual change**:
+FISH112 replaced OS-dependent Unicode emoji card icons with 16 user-approved bundled transparent-with-shadow PNG assets for the existing Home, My Gear, and Knowledge Base cards.
 
-- preserve the existing Fishing Companion page layouts, card geometry, spacing, labels, search/Back controls, and navigation;
-- keep the icons at roughly the current small emoji/card scale and position rather than turning them into large illustrated tiles;
-- do not adopt the scenic headers, mobile bottom navigation, enlarged cards, or other UI concepts that appeared in exploratory image-generation mockups;
-- use fixed asset files rather than relying on a particular installed emoji font;
-- verify source licenses/attribution before bundling Google/Noto, Fluent, Twemoji, or adapted artwork.
+Durable implementation result:
 
-The AI-generated mockups from the design conversation are visual references only and are not production assets.
+- assets live under `pwa/assets/card-icons/`;
+- card geometry, labels, search/Back controls, routes, and navigation behavior remain unchanged;
+- icons render at the existing small card-icon scale;
+- the production build copies the icon bytes into each content-addressed release;
+- release identity/manifest verification includes the icon assets;
+- regression coverage checks the exact 16-file set, PNG transparency, card mappings, production-build byte preservation, and manifest inclusion.
 
-### Approved My Gear icon set
+Final icon mapping:
 
-The user explicitly approved the final My Gear direction:
+- **Home:** My Gear = red/cream tackle box; Knowledge Base = three colorful stacked books; Catch Log = leaping largemouth bass.
+- **Knowledge Base:** Locations = red pushpin; Species = largemouth bass; Techniques = compass; Knots = blue rope knot; Gear Guides = open book.
+- **My Gear:** Rods & Reels = blue rod/reel; Line = red spool; Weights = metallic teardrop sinker; Snaps & Swivels = barrel swivel; Hooks = silver hook; Lures = green/gold crankbait; Bait = pink worm; Equipment = blue kayak with paddle.
 
-- **Rods & Reels:** Google/Android rod-and-reel artwork.
-- **Line:** a spool with a **dark red/orange spool** and **clear/white-ish line**. Do not use the earlier light-blue or green spool treatments.
-- **Weights:** silver/gray teardrop sinker.
-- **Snaps & Swivels:** silver **barrel swivel only**; avoid a snap-swivel or generic chain-link look.
-- **Hooks:** Twitter/Twemoji-style simple hook shape, **silver**, with no odd crossbar through the middle.
-- **Lures:** crankbait in a **Sexy Shad-style** color pattern rather than blue.
-- **Bait:** Fluent-style worm.
-- **Equipment:** Fluent-style kayak at an oblique angle, **light blue**, with a **paddle**.
-
-The final My Gear mockup was approved as the target visual balance: small icons, varied color, and no over-use of light blue or gray.
-
-### Approved Knowledge Base icon set
-
-The actual KB root has exactly five category cards. There is **no Tackle card** on the live KB root.
-
-- **Locations:** retain the Google/Android pushpin seen on the user's Android app: a **round red head with a pale blue/gray needle/stem**. Do not substitute a teardrop map-location pin or folded-map icon.
-- **Species:** side-view **rainbow trout**.
-- **Techniques:** **compass** icon. Do not reuse the lure icon and do not use the angler/fly-casting mockup.
-- **Knots:** Google/Android **blue rope knot** selected from the Android/Fluent/Windows comparison.
-- **Gear Guides:** open book with light pages and blue backing/edge.
-
-### Approved Home icon set
-
-Keep the existing live Home layout and card text. Only change the icons:
-
-- **My Gear:** tackle box.
-- **Knowledge Base:** stack of **three plain books** with no text on the spines; the preferred mockup used green/blue/orange book colors. It must remain visually distinct from the Gear Guides open-book icon.
-- **Catch Log:** jumping **largemouth bass** with a lure in its mouth and fishing line extending from the lure.
-
-### FISH112 implementation status
-
-**Status: OPEN / design selected, implementation pending.** No production icon assets, runtime code, CSS, or tests have been changed for FISH112 yet.
-
-Implementation will touch non-content application/UI assets and therefore uses **Full Application Release**, not FISH108 Fast Content Release. The next unused application/architecture ID after FISH112 is **FISH-TODO-113**.
+The generated final assets—not earlier conceptual third-party-style references—are authoritative for the live implementation.
 
 ## FISH111 — shared layout alignment
 
-FISH111 is complete and production-verified. Fishing Companion now uses one shared horizontal content grid:
+FISH111 remains complete and production-verified. Fishing Companion uses one shared horizontal content grid:
 
 - the site-header brand/connection control and main page content share the same left/right content insets;
 - desktop preserves the 24 px content inset and mobile preserves the existing 16 px inset;
-- long-form Notes/Markdown sections no longer use the former 900 px section cap or 78ch Markdown cap and instead extend through the full main-content width;
+- long-form Notes/Markdown sections extend through the full main-content width;
 - intentionally narrower pictures, details tables, editor forms, and other component-specific layouts retain their separate caps.
 
-## Recent canonical content state relevant to this chat
+## Recent canonical content state
 
-Routine content releases completed before/within this handoff are already canonical and need no follow-up release paperwork:
+Routine FISH108 content releases are canonical and do not require per-item closeout documentation. Current source includes, among other recent work:
 
-- **Banks Lake** exists as a KB/Location and has its representative Steamboat Rock State Park picture.
-- **Electronics Research** exists as a My Gear/Equipment research entry. Its five inline local PNG references on current `main` use `%20`-encoded spaces and therefore match the Markdown parser's expected link syntax.
+- Banks Lake KB/Location with Steamboat Rock representative picture;
+- Electronics Research in My Gear/Equipment with `%20`-encoded local image paths;
+- September 14–15 Technique restructuring, four-season pages, Topwater expansion and curated cross-links;
+- Berkely Trilene XL as a Gear/Line record.
 
-Do not create per-item handoff documents for these routine content releases; Git history and current canonical source are authoritative.
+Git history and current canonical source are authoritative for routine content releases.
 
 ## Current KB editorial architecture
 
 ### Behavior / Habitat vs Techniques
 
-For both bass and trout, broad references have intentionally different purposes:
+For both bass and trout, broad references intentionally have different purposes:
 
 - **Bass Behavior and Habitat** / **Trout Behavior and Habitat**: where fish are likely to be and why. They own enduring location drivers such as habitat, structure/cover, temperature, dissolved oxygen, forage, light, wind/current, depth, waterbody type, and pattern recognition.
 - **Bass Fishing Techniques** / **Trout Fishing Techniques**: how to catch fish once located. They own presentation choice, lure/bait/rig selection, retrieve/cadence, depth control, strike handling, bank/kayak execution, and broad species-specific tactics.
 
-Do not duplicate full seasonal playbooks across those pages. A brief seasonal routing summary is appropriate; detailed seasonal location + presentation strategy belongs in the seasonal pages.
+Detailed seasonal location + presentation strategy belongs in the seasonal pages rather than being duplicated across those broad references.
 
 ### Four-season fishing references
 
-The authoritative seasonal playbooks are:
-
-- Spring Fishing
-- Summer Fishing
-- Fall Fishing
-- Winter Fishing
-
-They cover both bass and trout and combine seasonal location changes with seasonal presentation strategy.
+The authoritative seasonal playbooks are Spring Fishing, Summer Fishing, Fall Fishing, and Winter Fishing. They cover both bass and trout and combine seasonal location changes with seasonal presentation strategy.
 
 ### Topwater reference
 
@@ -157,11 +126,9 @@ Routine Fast Content Releases do not consume an application task ID and do not r
 
 Any changed file outside the three content roots forces full. Runtime/UI/assets, service worker, schema/contracts, tests, build/tooling, dependency, workflow, migration/recovery/offline, or mixed content+code changes use the comprehensive full lane. If eligibility is ambiguous, use full.
 
-### FISH109 and FISH110
+FISH109 remains complete/production-verified: deployment/evidence artifacts are run-attempt-specific and hosted verification has bounded retry/backoff while retaining the exact-current-main guard.
 
-FISH109 is complete/production-verified: deployment/evidence artifacts are run-attempt-specific and hosted verification has bounded retry/backoff while retaining the exact-current-main guard.
-
-FISH110 is complete/production-verified: Gear/KB Add/Edit → **Copy Changes** uses centralized FISH108-aware handoff text and preserves a parseable blank-line boundary before JSON.
+FISH110 remains complete/production-verified: Gear/KB Add/Edit → **Copy Changes** uses centralized FISH108-aware handoff text and preserves a parseable blank-line boundary before JSON.
 
 ## Authoring rules and durable architecture
 
