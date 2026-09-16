@@ -23,6 +23,7 @@ Mack’s Wedding Ring trolling spinner or small kokanee/trout hoochie in white/p
 - If the rig stops producing, first change depth and speed before changing every component
 
 **Trolling Depth Strategy**
+
 Depth matters more than the exact route when trout are suspended.
 
 - If sonar shows fish at 15 feet over 40 feet of water, target 15 feet, not bottom
