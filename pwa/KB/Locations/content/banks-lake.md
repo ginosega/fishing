@@ -2,6 +2,10 @@ Banks Lake is a large, exposed Columbia Basin reservoir with an unusually broad 
 
 For the broader seasonal pattern, see [Fall Fishing](kb://fall-fishing). For bass location and presentation strategy, see [Bass Behavior and Habitat](kb://bass-behavior-and-habitat) and [Bass Fishing Techniques](kb://bass-fishing-techniques). For surface-fishing decisions, see [Topwater Fishing](kb://topwater-fishing).
 
+| Banks Lake - Steamboat Rock State Park - South | Banks Lake - Steamboat Rock State Park - North |
+|---|---|
+| ![](./Banks-Lake-Steamboat-Rock-State-Park-South,png) | ![](./Banks-Lake-SteamBoat-Rock-State-Park-North,png) |
+
 ## September 24-26, 2026 trip priorities
 
 1. **Smallmouth bass — primary dependable target.** Banks is one of Washington's major smallmouth fisheries, and fall fishing improves as the reservoir cools. Fish rocky shorelines, points, boulder fields, submerged rock, saddles, and the first meaningful break near those features. Use dawn/dusk to search shallow and the middle of the day to work deeper structure.
