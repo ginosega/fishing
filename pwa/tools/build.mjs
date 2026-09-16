@@ -17,6 +17,7 @@ if(pendingMedia&&base!=='/fishing/v2-preview/')throw new Error('Pending media ma
 const source=path.resolve(option('--source',path.join(repo,'pwa'))),output=path.resolve(option('--out',path.join(repo,'pwa/dist')));
 const sourceRevision=option('--source-revision',(()=>{try{return execFileSync('git',['rev-parse','HEAD'],{cwd:source,encoding:'utf8'}).trim();}catch{return 'uncommitted-source';}})());
 const cardIconRoot=path.join(repo,'pwa/assets/card-icons');
+const pageHeroRoot=path.join(repo,'pwa/assets/page-hero');
 const write=async(file,bytes)=>{await fs.mkdir(path.dirname(file),{recursive:true});await fs.writeFile(file,bytes);};
 const stableJson=value=>JSON.stringify(value,null,2)+'\n';
 const hashFiles=async root=>{const result=[];async function scan(dir){for(const entry of await fs.readdir(dir,{withFileTypes:true})){const abs=path.join(dir,entry.name);if(entry.isDirectory())await scan(abs);else if(entry.isFile()){const relative=path.relative(root,abs).split(path.sep).join('/'),bytes=await fs.readFile(abs);result.push({path:relative,bytes:bytes.length,sha256:digest(bytes)});}}}await scan(root);return result.sort((a,b)=>a.path.localeCompare(b.path,'en'));};
@@ -30,11 +31,11 @@ export async function build(){
   for(const file of library.files){const src=path.join(source,file.path),dest=path.join(content,file.path);await fs.mkdir(path.dirname(dest),{recursive:true});await fs.copyFile(src,dest);const copied=await fs.readFile(dest);if(copied.length!==file.bytes||digest(copied)!==file.sha256)throw new Error('Source changed while copying: '+file.path);}
   for(const config of Object.values(DOMAIN)){const src=path.join(source,config.file),dest=path.join(content,config.file);await write(dest,await fs.readFile(src));}
   const app=await esbuild.build({entryPoints:[path.join(repo,'pwa/src/entry.mjs')],bundle:true,format:'iife',platform:'browser',target:'es2022',minify:true,write:false,legalComments:'none',define:{'process.env.NODE_ENV':'"production"'}});
-  const baseCss=await fs.readFile(path.join(repo,'pwa/src/styles.css')),cardIconCss=await fs.readFile(path.join(repo,'pwa/src/card-icons.css')),css=Buffer.concat([baseCss,Buffer.from('\n'),cardIconCss]);
-  const inputHashes=await hashFiles(content),cardIconHashes=await hashFiles(cardIconRoot);const lock=await fs.readFile(path.join(repo,'pwa/package-lock.json'));
+  const baseCss=await fs.readFile(path.join(repo,'pwa/src/styles.css')),cardIconCss=await fs.readFile(path.join(repo,'pwa/src/card-icons.css')),pageHeroCss=await fs.readFile(path.join(repo,'pwa/src/page-hero.css')),css=Buffer.concat([baseCss,Buffer.from('\n'),cardIconCss,Buffer.from('\n'),pageHeroCss]);
+  const inputHashes=await hashFiles(content),cardIconHashes=await hashFiles(cardIconRoot),pageHeroHashes=await hashFiles(pageHeroRoot);const lock=await fs.readFile(path.join(repo,'pwa/package-lock.json'));
   const codeHashes=[];for(const dir of ['src','tools'])for(const file of await hashFiles(path.join(repo,'pwa',dir)))codeHashes.push({...file,path:dir+'/'+file.path});
-  const releaseId=digest(Buffer.from(stableJson({sourceRevision,base,pendingMedia,files:inputHashes,cardIcons:cardIconHashes,icon:digest(icon),app:digest(app.outputFiles[0].contents),css:digest(css),lock:digest(lock),code:codeHashes}))).slice(0,32);
-  const releaseRoot=path.join(tmp,'releases',releaseId);await fs.mkdir(releaseRoot,{recursive:true});await fs.rename(content,path.join(releaseRoot,'content'));await fs.cp(cardIconRoot,path.join(releaseRoot,'card-icons'),{recursive:true});
+  const releaseId=digest(Buffer.from(stableJson({sourceRevision,base,pendingMedia,files:inputHashes,cardIcons:cardIconHashes,pageHero:pageHeroHashes,icon:digest(icon),app:digest(app.outputFiles[0].contents),css:digest(css),lock:digest(lock),code:codeHashes}))).slice(0,32);
+  const releaseRoot=path.join(tmp,'releases',releaseId);await fs.mkdir(releaseRoot,{recursive:true});await fs.rename(content,path.join(releaseRoot,'content'));await fs.cp(cardIconRoot,path.join(releaseRoot,'card-icons'),{recursive:true});await fs.cp(pageHeroRoot,path.join(releaseRoot,'page-hero'),{recursive:true});
   await write(path.join(releaseRoot,'app.js'),app.outputFiles[0].contents);await write(path.join(releaseRoot,'styles.css'),css);
   const release={id:releaseId,sourceRevision,schemaVersions:{gear:2,kb:2,catches:2},pendingMedia,manifest:`releases/${releaseId}/manifest.json`};
   const loader=await fs.readFile(path.join(repo,'pwa/src/loader.js'));
