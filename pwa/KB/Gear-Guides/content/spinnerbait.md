@@ -1,18 +1,18 @@
 A subsurface (1–6 ft) bait with one or more spoon-like blades attached offset above and away from the hook on a wire arm. Has a silicone or rubber skirt, sometimes with a plastic bait trailer. Makes a smooth, pulsing vibration depending on blade shape and has lots of flash from the spinning blades. Good for large and smallmouth bass, and pike.
 
-# Use
+## Use
 - Use in lakes, coves, rocky or wooded areas and in clearer water when fish are chasing baitfish
 - Good in wood or brushy cover - the wire frame deflects and prevents snags
 - Use in cold temps, the flash works well
 
-# Gear
+## Gear
 - Rod: Medium to medium-heavy, fast action
 - Reel: Baitcasting
 - Line: Use appropriate line strength for cover and fish size; heavier for big fish or thick cover
 - Tackle: Tie line directly to lure. Adding a snap or swivel can interfere with the wire arm and change the lure’s balance: tying direct keeps a clean presentation and better vibration transfer.
 - Knot: If using fluorocarbon or mono, use a Palomar knot or Improved Clinch. For braid, use a double Palomar or Trilene knot with an extra wrap for security. Retie often, as vibrations stress the knot over time.
 
-# Technique
+## Technique
 - Cast through sparse cover or along the edge of a denser bed
 - Bounce them off structure and cover (weed edges, timber, rocks, docks) as you retrieve - they can deflect off wood and rocks due to the wire arm and draw reaction bites
 - In cold temps use a slower retrieve
@@ -20,7 +20,7 @@ A subsurface (1–6 ft) bait with one or more spoon-like blades attached offset 
 - Fast retrieve keeps bait shallow, slow lets bait track deeper, especially with Colorado blades
 - Use a heavier lure to maintain contact with bottom or structure
 
-# Lures
+## Lures
 - Willow leaf blades: long, narrow, lots of flash, less vibration, better for faster retrieves and clearer water
 - Colorado blades: rounder, broader, more water displacement & vibration, better for murky water or slower retrieves
 - Use a combination or tandem blades when unsure or water is moderately stained
@@ -34,7 +34,7 @@ A subsurface (1–6 ft) bait with one or more spoon-like blades attached offset 
   - Use gold fins in dirty water or on cloudy days, silver when clear
 - Adding a soft plastic trailer (swimbait, grub, or creature) can enhance profile and appeal, especially when fish are short-striking.
 
-## Brands
+## Lure Brands
 |  |  |  |  |
 | --- | --- | --- | --- |
 | Brand / Model | Key Features | Best Species | Ideal Conditions |
@@ -58,7 +58,7 @@ A subsurface (1–6 ft) bait with one or more spoon-like blades attached offset 
 | Pike / Musky / Large Predators | GO-2 Colorado Indy (heavier), 6th Sense Divine (big profile) | ¾ oz+ | Big blades, strong wire, rugged build to handle large fish. |
 | Cold-water bass / early spring | Bling Double Willow Spinnerbait | ½ oz, thin blade | Slow retrieve, lighter activity, high flash to attract inert fish. |
 
-# Links
+## Links
 - Video: [Spinnerbait Fishing Lure Tips and How to Fish Spinnerbaits (Underwater Footage)](https://www.youtube.com/watch?v=r-ba-GqRQOM)
 - My Gear: [Strike King Red Eyed Special](gear://strike-king-red-eyed-special), [6th Sense Divine Spinnerbait](gear://sixth-sense-divine-spinnerbait)
 - KB: [Chatterbait](kb://technique-chatterbait-bladed-jig)
