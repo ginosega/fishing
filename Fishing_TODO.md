@@ -15,7 +15,9 @@ The durable policy is [`pwa/docs/FISH108_Fast_Content_Release_Policy_2026-09-14.
 
 **FISH-TODO-110 — IMPLEMENTED / Copy Changes release routing.** Fishing Companion Add/Edit → Copy Changes uses centralized FISH108-aware handoff text. Eligible content-only packages explicitly use one Fast Content Release PR with lightweight validation/build, merge, production deployment and hosted byte/release-identity verification; project-state churn and Full Application Release are avoided unless validation shows they are actually required.
 
-FISH071–076 and FISH078–110 are complete/implemented. The next unused application/architecture task ID is **FISH-TODO-111**.
+**FISH-TODO-111 — IMPLEMENTED / shared page layout alignment.** The shared site header uses the same horizontal content inset as the main page so the Fishing Companion brand aligns with page content, and long-form Notes/Markdown sections use the full main content width through the right-side page margin. Mobile preserves the same rule with its existing 16 px inset.
+
+FISH071–076 and FISH078–111 are complete/implemented. The next unused application/architecture task ID is **FISH-TODO-112**.
 
 **Fishing Companion v3** — historically `FISH-TODO-077/P2` — remains **DEFERRED**. Future scope may include authentication, direct GitHub save/upload, integrated uploads, offline authoring/outbox/sync, Catch authoring and multi-user generalization. None of that is current production or implicitly approved implementation work.
 
@@ -82,8 +84,8 @@ FISH105 adds a KastKing HyperSeal Waterproof Tackle Box in size 3600, but the su
 
 Use Chat mode by default. Restore actual latest `main` and current open-PR state before repository work.
 
-For routine source-aware Gear/KB/Catch authoring, use the FISH108 Fast Content Release policy and **do not allocate FISH-TODO-111**. Allocate FISH-TODO-111 only for the next application/architecture-level task unless newer current `main` has already allocated it.
+For routine source-aware Gear/KB/Catch authoring, use the FISH108 Fast Content Release policy and **do not allocate FISH-TODO-112**. Allocate FISH-TODO-112 only for the next application/architecture-level task unless newer current `main` has already allocated it.
 
-Do not reopen completed FISH096–FISH110 or Fishing Companion v3 work without an explicit new user request.
+Do not reopen completed FISH096–FISH111 or Fishing Companion v3 work without an explicit new user request.
 
 When the user says **“It’s time to transfer to a new chat”**, ask for confirmation of the full handoff. After confirmation, reconcile current repository/production state, update authoritative records where durable state changed, cross-check them, and finish with a direct GitHub link to `Fishing_New_Chat_Bootstrap_Prompt.md`.

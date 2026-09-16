@@ -77,11 +77,17 @@ Update project-state documents when architecture/product behavior/durable decisi
 
 ## FISH110 — release-aware Copy Changes handoff
 
-**Decision/status:** IMPLEMENTED and production-verified. The Fishing Companion shared Gear/KB editor uses one centralized Copy Changes instruction helper. The handoff must tell the receiving chat to restore current `main` and project instructions, validate the source-aware package against current canonical content, preserve unrelated/newer source changes, and apply only the requested changes.
+**Decision/status:** IMPLEMENTED and production-verified. The Fishing Companion shared Gear/KB editor uses one centralized Copy Changes instruction helper. The handoff must tell the receiving chat to restore current `main` and project instructions, validate the source-aware package against current canonical content, preserve unrelated/newer changes, and apply only the requested changes.
 
 **Decision:** Eligible content-only packages route through one Fast Content Release PR, lightweight validation/build, merge, production deployment, and hosted byte/release-identity verification. Do not automatically run Full Application Release or create/update project-state records unless validation shows they are required. Non-fast changes defer to the repository's current appropriate lane.
 
 **Decision:** Keep the Copy Changes JSON handoff parseable with a blank-line boundary between human instruction and package JSON. Regression coverage must reject the obsolete pre-FISH108 `one feature PR` / `then reconcile project records` boilerplate.
+
+## FISH111 — shared page layout alignment
+
+**Decision/status:** IMPLEMENTED. Fishing Companion uses one shared horizontal content grid for the site shell and page body. The site-header brand and connection-status control align to the same left/right content insets as the main page content. Long-form Notes/Markdown sections are not constrained by the former 900 px section cap or 78ch Markdown cap; they use the full main content width through the right-side page margin. The mobile rule remains the same alignment using the existing 16 px page inset.
+
+**Decision:** Specialized content with an intentional narrower presentation — such as pictures, details tables, and editor forms — keeps its existing component-specific maximum widths. FISH111 broadens the shared long-form Notes/Markdown region, not every component on every page.
 
 ## Domain architecture and authoring boundary
 
@@ -113,6 +119,8 @@ Simple Markdown-only narrative edits to existing canonical files may be made dir
 
 **FISH110:** Copy Changes uses release-aware boilerplate aligned to FISH108; eligible source-aware content packages are routed to Fast Content Release and routine project-state churn is explicitly avoided unless validation shows it is required.
 
+**FISH111:** site-header/page-body horizontal alignment and full-width long-form Notes/Markdown content are shared application rules across Fishing Companion.
+
 ## Backlog decisions
 
 **FISH-TODO-005:** remains **WAITING ON USER**. FISH104 does not explicitly confirm every fish-finder power-system component as installed.
@@ -127,4 +135,4 @@ Simple Markdown-only narrative edits to existing canonical files may be made dir
 
 ## Open application work
 
-FISH071–076 and FISH078–110 are complete/implemented. The next unused **application/architecture** task ID is **FISH-TODO-111** unless actual current `main` already allocated it. Routine Fast Content Releases do not consume that ID.
+FISH071–076 and FISH078–111 are complete/implemented. The next unused **application/architecture** task ID is **FISH-TODO-112** unless actual current `main` already allocated it. Routine Fast Content Releases do not consume that ID.

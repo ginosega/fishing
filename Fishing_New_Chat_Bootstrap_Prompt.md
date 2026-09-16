@@ -131,7 +131,7 @@ FISH109 is complete and production-verified. Pages and hosted-evidence artifacts
 
 ### FISH110 Copy Changes handoff
 
-FISH110 is complete and production-verified. Gear/KB Add/Edit → **Copy Changes** uses one centralized release-aware prompt. The copied instruction tells the receiving chat to restore current `main` and project instructions, validate the source-aware package against current canonical content, preserve unrelated/newer source changes, and apply only the requested changes.
+FISH110 is complete and production-verified. Gear/KB Add/Edit → **Copy Changes** uses one centralized release-aware prompt. The copied instruction tells the receiving chat to restore current `main` and project instructions, validate the source-aware package against current canonical content, preserve unrelated/newer changes, and apply only the requested changes.
 
 If the package is eligible for FISH108 Fast Content Release, follow the copied instruction literally: use one content PR, lightweight content validation/build, merge, production deployment, and hosted byte/release-identity verification. Do **not** run Full Application Release or create/update project-state records unless validation shows they are actually required. If the requested package is not fast-lane eligible, follow the repository's current instructions for the appropriate release lane.
 
@@ -183,6 +183,8 @@ FISH107: current canonical Skylety Fishing Hook Sharpener type is `Tools`; FISH1
 
 FISH110: Copy Changes uses centralized FISH108-aware boilerplate; eligible source-aware content packages are routed to Fast Content Release, non-fast packages defer to the current appropriate lane, and the obsolete automatic feature-PR/project-record-reconciliation instruction is gone.
 
+FISH111: the site header and page body share the same horizontal content insets, and long-form Notes/Markdown sections extend through the full main content width. Intentional narrower component caps such as pictures, details tables, and editor forms remain unchanged.
+
 ## Backlog / future state
 
 `FISH-TODO-005` remains WAITING ON USER; do not infer every fish-finder power component is installed from FISH104 notes.
@@ -193,7 +195,7 @@ The specialized content backlog remains open, including Texas Rig, Carolina Rig,
 
 **Fishing Companion v3** (historically `FISH-TODO-077/P2`) remains DEFERRED. Authentication, direct GitHub save/upload, integrated uploads, offline authoring/outbox/sync, Catch authoring and multi-user generalization are not current production.
 
-FISH071–076 and FISH078–110 are complete/implemented. The next unused **application/architecture** task ID is **FISH-TODO-111** unless actual newer `main` already allocated it. Routine Fast Content Releases—including normal new KB pages—do not consume FISH-TODO-111.
+FISH071–076 and FISH078–111 are complete/implemented. The next unused **application/architecture** task ID is **FISH-TODO-112** unless actual newer `main` already allocated it. Routine Fast Content Releases—including normal new KB pages—do not consume FISH-TODO-112.
 
 ## Working rules
 
