@@ -1,6 +1,6 @@
 # Fishing TODO
 
-## Current project task state — September 15, 2026 handoff
+## Current project task state — September 16, 2026
 
 ### Application / architecture state
 
@@ -11,40 +11,21 @@
 
 The durable policy is [`pwa/docs/FISH108_Fast_Content_Release_Policy_2026-09-14.md`](pwa/docs/FISH108_Fast_Content_Release_Policy_2026-09-14.md). Routine Fast Content Releases do not consume an application/architecture task ID and do not require per-item project-state or production-closeout documentation.
 
-**FISH-TODO-109 — IMPLEMENTED / release-retry hardening.** FISH109 makes Pages deployment reruns safe with run-attempt-specific Pages/hosted-evidence artifacts and bounded retry/backoff for transient hosted-verification failures. Exact-current-main protection remains mandatory.
+**FISH-TODO-109 — IMPLEMENTED / PRODUCTION-VERIFIED / release-retry hardening.** FISH109 makes Pages deployment reruns safe with run-attempt-specific Pages/hosted-evidence artifacts and bounded retry/backoff for transient hosted-verification failures. Exact-current-main protection remains mandatory.
 
-**FISH-TODO-110 — IMPLEMENTED / Copy Changes release routing.** Fishing Companion Add/Edit → Copy Changes uses centralized FISH108-aware handoff text. Eligible content-only packages explicitly use one Fast Content Release PR with lightweight validation/build, merge, production deployment and hosted byte/release-identity verification; project-state churn and Full Application Release are avoided unless validation shows they are actually required.
+**FISH-TODO-110 — IMPLEMENTED / PRODUCTION-VERIFIED / Copy Changes release routing.** Fishing Companion Add/Edit → Copy Changes uses centralized FISH108-aware handoff text. Eligible content-only packages explicitly use one Fast Content Release PR with lightweight validation/build, merge, production deployment and hosted byte/release-identity verification.
 
-**FISH-TODO-111 — IMPLEMENTED / PRODUCTION-VERIFIED / shared page layout alignment.** The site header and page body share the same horizontal content inset, and long-form Notes/Markdown uses the full main content width through the right-side page margin. Mobile preserves the same rule with its existing 16 px inset. Production run #293 completed successfully for the handoff checkpoint source.
+**FISH-TODO-111 — IMPLEMENTED / PRODUCTION-VERIFIED / shared page layout alignment.** The site header and page body share the same horizontal content inset, and long-form Notes/Markdown uses the full main content width through the right-side page margin. Mobile preserves the same rule with its existing 16 px inset.
 
-**FISH-TODO-112 — OPEN / DESIGN SELECTED / fixed cross-platform card icons.** Replace OS-dependent Unicode emoji card icons with bundled fixed artwork while preserving the current live Home, My Gear and Knowledge Base layouts and the current small icon scale. No FISH112 runtime/assets/tests have been implemented yet.
+**FISH-TODO-112 — IMPLEMENTED / PRODUCTION-VERIFIED / USER-VERIFIED / fixed cross-platform card icons.** The Home, My Gear, and Knowledge Base cards now use 16 bundled transparent PNG assets instead of OS-dependent Unicode emoji while preserving the existing card layout, labels, routes, search/Back controls, and navigation. Production PR #168 deployed through Full Application Release workflow #298 / run `35119930916`; hosted release `f5d691d727fd439ff5553f6c7db509f4` from source `89ca4773365f8d99750b9424b5cb9eefb4a29907` passed actual hosted byte/browser verification. The user then visually verified production and confirmed it looks correct. Closeout: [`pwa/docs/FISH112_Production_Closeout_2026-09-16.md`](pwa/docs/FISH112_Production_Closeout_2026-09-16.md).
 
-Approved FISH112 target set:
-
-- **My Gear:** Google/Android Rods & Reels; dark red/orange spool with clear/white-ish Line; silver/gray teardrop Weight; silver barrel Swivel only; silver Twitter/Twemoji-style Hook without a crossbar; Sexy Shad crankbait Lure; Fluent-style Worm; light-blue oblique Fluent-style Kayak with paddle.
-- **Knowledge Base:** Google/Android round red pushpin with pale blue/gray needle for Locations; side-view rainbow trout for Species; compass for Techniques; Google/Android blue rope knot for Knots; open book with blue backing/edge for Gear Guides. The live KB root has exactly these five category cards—no Tackle card.
-- **Home:** tackle box for My Gear; three plain unlabeled stacked books for Knowledge Base; jumping largemouth bass with lure in its mouth and line extending from the lure for Catch Log. The Home Knowledge Base stack must remain visually distinct from the Gear Guides open-book icon.
-
-Implementation notes for FISH112:
-
-- keep current card geometry, copy, search/Back controls, and navigation; do not adopt exploratory scenic headers, enlarged cards, mobile bottom navigation, or other generated-mockup layout changes;
-- bundle fixed assets rather than depending on an installed emoji font;
-- verify licensing/attribution before using or adapting Google/Noto, Microsoft Fluent, and Twemoji artwork;
-- prefer a clean scalable asset format such as SVG where practical;
-- add regression coverage for consistent icon asset rendering/availability;
-- use **Full Application Release** because the work is outside canonical content roots.
-
-FISH071–076 and FISH078–111 are complete/implemented. FISH112 is active. The next unused application/architecture task ID is **FISH-TODO-113**.
+FISH071–076 and FISH078–112 are complete/implemented. The next unused application/architecture task ID is **FISH-TODO-113**.
 
 **Fishing Companion v3** — historically `FISH-TODO-077/P2` — remains **DEFERRED**. Future scope may include authentication, direct GitHub save/upload, integrated uploads, offline authoring/outbox/sync, Catch authoring and multi-user generalization. None of that is current production or implicitly approved implementation work.
 
 ### Recent content work completed — no application task IDs consumed
 
-Recent routine FISH108 content work is complete/canonical and does not need new application IDs or closeout docs:
-
-- Banks Lake KB/Location exists and has its Steamboat Rock State Park representative picture.
-- Electronics Research exists in My Gear/Equipment; current Markdown uses `%20`-encoded local image paths for the five inline PNGs.
-- The September 14–15 Technique restructuring and Topwater/cross-link pass are complete and production-verified.
+Recent routine FISH108 content work is complete/canonical and does not need new application IDs or closeout docs. Current source includes Banks Lake, Electronics Research, the September 14–15 Technique restructuring/Topwater/cross-link work, and Berkely Trilene XL.
 
 The broad Technique redesign does **not** close the separate rig/specialty-page backlog below. Texas Rig, Carolina Rig, Alabama Rig, Neko Rig and Spoons remain open.
 
@@ -96,8 +77,8 @@ FISH105 adds a KastKing HyperSeal Waterproof Tackle Box in size 3600, but the su
 
 Use Chat mode by default. Restore actual latest `main` and current open-PR state before repository work.
 
-For routine source-aware Gear/KB/Catch authoring, use the FISH108 Fast Content Release policy and do not allocate FISH-TODO-113. FISH112 is already allocated to the icon refresh. Allocate FISH-TODO-113 only for the next new application/architecture-level task unless newer `main` has already allocated it.
+For routine source-aware Gear/KB/Catch authoring, use the FISH108 Fast Content Release policy and do not allocate FISH-TODO-113. Allocate FISH-TODO-113 only for the next new application/architecture-level task unless newer `main` has already allocated it.
 
-Do not reopen completed FISH096–FISH111 or Fishing Companion v3 work without an explicit new user request.
+Do not reopen completed FISH096–FISH112 or Fishing Companion v3 work without an explicit new user request.
 
 When the user says **“It’s time to transfer to a new chat”**, ask once for confirmation of the full handoff. After confirmation, reconcile current repository/production state, update authoritative records where durable state changed, preserve unresolved work and purchase uncertainty, cross-check the files, and finish with a direct GitHub link to `Fishing_New_Chat_Bootstrap_Prompt.md`.
