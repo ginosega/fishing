@@ -2,13 +2,13 @@
 
 Persistent Fishing project and source repository for Fishing Companion.
 
-## Current continuation — September 15, 2026
+## Current continuation — September 16, 2026
 
 `ginosega/fishing` is the durable source of truth. Fishing Companion remains a three-domain PWA (Gear, Knowledge Base, Catch) with canonical source under `pwa/Gear/`, `pwa/KB/`, and `pwa/Catches/`.
 
-At this handoff checkpoint, `main` is `e55dcf4a3ab01f67a3f201fc5b7416bf3bc82c4c`, there are no open PRs, and production run #293 completed successfully. Its hosted-verification artifact recorded release `7d4c4f116c4a4830e8a69efdbf51c392` from that exact source revision with counts Gear 81 / KB 57 / Catch 5. Treat those identifiers as a historical checkpoint only: always re-read actual current `main`, open PRs, the latest successful production workflow, and deployed `release.json` before relying on exact production identity.
+Always restore actual latest `main`, current open PRs, and the latest successful production evidence before relying on exact SHA/release/count values. Historical checkpoint identifiers in project Markdown are evidence only.
 
-## Current application work
+## Current application state
 
 ### FISH111 — shared layout alignment
 
@@ -16,35 +16,23 @@ FISH111 is complete and production-verified. The site-header brand/connection co
 
 ### FISH112 — fixed cross-platform card icons
 
-FISH112 is the active application/UI task. The design direction is selected but **not implemented**.
+FISH112 is **complete, production-verified, and user-verified**.
 
-The problem is that most current card icons are raw Unicode emoji, so Windows and Android render different artwork. The approved direction is to replace those OS-dependent glyphs with bundled fixed icon assets while preserving the current Fishing Companion page/card layout and small icon scale. This is an icon replacement, not a card redesign.
+The Home, My Gear, and Knowledge Base cards now use 16 bundled fixed transparent PNG icons instead of OS-dependent Unicode emoji, so Windows, Android, and other platforms render the same artwork. The existing card geometry, text, search/Back controls, routes, and navigation behavior were preserved.
 
-Selected icon direction:
+Production closeout evidence:
 
-- **My Gear**
-  - Rods & Reels — Google/Android rod-and-reel artwork.
-  - Line — spool with a dark red/orange spool and clear/white-ish line.
-  - Weights — silver/gray teardrop sinker.
-  - Snaps & Swivels — silver barrel swivel only, not a snap swivel.
-  - Hooks — Twitter/Twemoji-style simple hook, silver, with no bar through the middle.
-  - Lures — crankbait in a Sexy Shad-style color pattern.
-  - Bait — Fluent-style worm.
-  - Equipment — Fluent-style oblique light-blue kayak with a paddle.
-- **Knowledge Base**
-  - Locations — Google/Android red round-headed pushpin with a pale blue/gray needle stem; do not substitute the teardrop map-pin glyph.
-  - Species — side-view rainbow trout.
-  - Techniques — compass.
-  - Knots — Google/Android blue rope-knot artwork.
-  - Gear Guides — open book with light pages and blue backing/edge.
-- **Home**
-  - My Gear — tackle box.
-  - Knowledge Base — stack of three plain unlabeled books; no text on the spines. This must be visually distinct from the Gear Guides open-book icon.
-  - Catch Log — jumping largemouth bass with a lure in its mouth and fishing line extending from the lure.
+- implementation PR: #168;
+- production source revision: `89ca4773365f8d99750b9424b5cb9eefb4a29907`;
+- production workflow: #298 / run `35119930916`;
+- hosted release: `f5d691d727fd439ff5553f6c7db509f4`;
+- hosted counts: Gear 82 / KB 57 / Catch 5;
+- actual hosted byte/browser verification passed;
+- the user subsequently inspected production and confirmed the result looks correct.
 
-The image-generation mockups created during design are conceptual references only; they are not production assets and some mockups drifted from the actual page layout. Implementation should preserve the existing desktop/mobile layout and only replace the icon artwork. Before committing assets, verify the license/attribution requirements of any Google/Noto, Microsoft Fluent, or Twemoji-derived artwork and choose an appropriate bundled format (preferably SVG where practical).
+Detailed closeout: [`pwa/docs/FISH112_Production_Closeout_2026-09-16.md`](pwa/docs/FISH112_Production_Closeout_2026-09-16.md).
 
-Because FISH112 changes application UI/assets outside the canonical content roots, implementation requires the **Full Application Release** lane. The next unused application/architecture task ID after FISH112 is **FISH-TODO-113**.
+The next unused application/architecture task ID is **FISH-TODO-113** unless newer `main` has already allocated it.
 
 ## Current KB editorial architecture
 
