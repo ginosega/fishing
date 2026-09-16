@@ -4,74 +4,92 @@ Persistent Fishing project and source repository for Fishing Companion.
 
 ## Current continuation — September 15, 2026
 
-The project is in a clean production state after the September 14–15 KB/Techniques redesign and Topwater/cross-link pass. Fishing Companion remains a three-domain PWA (Gear, Knowledge Base, Catch) with canonical source under `pwa/Gear/`, `pwa/KB/`, and `pwa/Catches/`.
+`ginosega/fishing` is the durable source of truth. Fishing Companion remains a three-domain PWA (Gear, Knowledge Base, Catch) with canonical source under `pwa/Gear/`, `pwa/KB/`, and `pwa/Catches/`.
 
-### Current KB editorial structure
+At this handoff checkpoint, `main` is `e55dcf4a3ab01f67a3f201fc5b7416bf3bc82c4c`, there are no open PRs, and production run #293 completed successfully. Its hosted-verification artifact recorded release `7d4c4f116c4a4830e8a69efdbf51c392` from that exact source revision with counts Gear 81 / KB 57 / Catch 5. Treat those identifiers as a historical checkpoint only: always re-read actual current `main`, open PRs, the latest successful production workflow, and deployed `release.json` before relying on exact production identity.
 
-The major fishing-reference pages now have intentionally different jobs:
+## Current application work
 
-- **Bass Behavior and Habitat** and **Trout Behavior and Habitat** answer **where the fish are and why**: enduring habitat, structure/cover, temperature, oxygen, forage, light, wind/current, depth, and pattern-recognition principles.
-- **Bass Fishing Techniques** and **Trout Fishing Techniques** answer **how to catch fish once located**: presentation choice, lure/bait selection, retrieves, rigs, depth control, strike handling, bank/kayak execution, and related tactics.
-- **Spring Fishing**, **Summer Fishing**, **Fall Fishing**, and **Winter Fishing** are the authoritative seasonal playbooks for **both bass and trout**, combining seasonal location changes with seasonal presentation strategy.
-- **Topwater Fishing** is the broad specialized surface-fishing reference. Narrower Gear Guides such as Frog, Popper, Whopper Plopper, Walking Bait, and Buzzbait remain focused companion pages.
+### FISH111 — shared layout alignment
 
-These pages are deliberately complementary. Avoid rebuilding detailed seasonal mini-guides inside the Behavior/Habitat or species-wide Techniques pages unless there is a clear reason; route readers to the seasonal pages instead. Likewise, keep lure-specific mechanics in the relevant Gear Guide when that is the better home.
+FISH111 is complete and production-verified. The site-header brand/connection control and the page body use the same horizontal content insets, and long-form Notes/Markdown extends through the full main-content width. Intentional narrower caps for pictures, detail tables, and editor forms remain unchanged.
 
-Retired/replaced live Technique pages include the old **Bass Fishing**, **Spring Bass Fishing**, **Fall Bass Fishing**, Bass Power and Search Overview, Color and Scent, Paddle-only Kayak Strategy, Seasonal Bass Guidance, and Water Visibility pages. Historical migration/release evidence may still mention them; do not treat those historical references as live canonical content.
+### FISH112 — fixed cross-platform card icons
 
-The September 15 Topwater release also completed a curated cross-link pass across related species, seasonal, location, tackle, and topwater Gear Guide pages. Continue the same editorial standard: add internal links where they materially help the reader, not mechanically on every keyword occurrence.
+FISH112 is the active application/UI task. The design direction is selected but **not implemented**.
+
+The problem is that most current card icons are raw Unicode emoji, so Windows and Android render different artwork. The approved direction is to replace those OS-dependent glyphs with bundled fixed icon assets while preserving the current Fishing Companion page/card layout and small icon scale. This is an icon replacement, not a card redesign.
+
+Selected icon direction:
+
+- **My Gear**
+  - Rods & Reels — Google/Android rod-and-reel artwork.
+  - Line — spool with a dark red/orange spool and clear/white-ish line.
+  - Weights — silver/gray teardrop sinker.
+  - Snaps & Swivels — silver barrel swivel only, not a snap swivel.
+  - Hooks — Twitter/Twemoji-style simple hook, silver, with no bar through the middle.
+  - Lures — crankbait in a Sexy Shad-style color pattern.
+  - Bait — Fluent-style worm.
+  - Equipment — Fluent-style oblique light-blue kayak with a paddle.
+- **Knowledge Base**
+  - Locations — Google/Android red round-headed pushpin with a pale blue/gray needle stem; do not substitute the teardrop map-pin glyph.
+  - Species — side-view rainbow trout.
+  - Techniques — compass.
+  - Knots — Google/Android blue rope-knot artwork.
+  - Gear Guides — open book with light pages and blue backing/edge.
+- **Home**
+  - My Gear — tackle box.
+  - Knowledge Base — stack of three plain unlabeled books; no text on the spines. This must be visually distinct from the Gear Guides open-book icon.
+  - Catch Log — jumping largemouth bass with a lure in its mouth and fishing line extending from the lure.
+
+The image-generation mockups created during design are conceptual references only; they are not production assets and some mockups drifted from the actual page layout. Implementation should preserve the existing desktop/mobile layout and only replace the icon artwork. Before committing assets, verify the license/attribution requirements of any Google/Noto, Microsoft Fluent, or Twemoji-derived artwork and choose an appropriate bundled format (preferably SVG where practical).
+
+Because FISH112 changes application UI/assets outside the canonical content roots, implementation requires the **Full Application Release** lane. The next unused application/architecture task ID after FISH112 is **FISH-TODO-113**.
+
+## Current KB editorial architecture
+
+Broad references have deliberately different jobs:
+
+- **Bass Behavior and Habitat** / **Trout Behavior and Habitat**: where fish are and why — habitat, structure/cover, temperature, oxygen, forage, light, wind/current, depth, and pattern recognition.
+- **Bass Fishing Techniques** / **Trout Fishing Techniques**: how to catch fish once located — presentation choice, lure/bait/rig selection, retrieves, depth control, strike handling, and bank/kayak execution.
+- **Spring Fishing**, **Summer Fishing**, **Fall Fishing**, and **Winter Fishing**: authoritative seasonal playbooks for both bass and trout.
+- **Topwater Fishing**: broad specialized surface-fishing reference; Frog, Popper, Whopper Plopper, Walking Bait, and Buzzbait remain narrower companion Gear Guides.
+
+Retired live Technique pages include Bass Fishing, Spring Bass Fishing, Fall Bass Fishing, Bass Power and Search Overview, Color and Scent, Paddle-only Kayak Strategy, Seasonal Bass Guidance, and Water Visibility. Historical records may still mention them; do not treat those historical references as live canonical content.
+
+Internal `kb://` links should be curated for reader value rather than mechanically added everywhere.
 
 ## Release model
 
-FISH108 establishes the durable two-lane release model:
+FISH108 establishes two release lanes. Full policy: [`pwa/docs/FISH108_Fast_Content_Release_Policy_2026-09-14.md`](pwa/docs/FISH108_Fast_Content_Release_Policy_2026-09-14.md).
 
-- **Fast Content Release** is the default for routine canonical Gear / Knowledge Base / Catch changes when every changed file is under `pwa/Gear/`, `pwa/KB/`, or `pwa/Catches/`.
-- **Full Application Release** is required for runtime, schema, test, build/tooling, workflow, dependency, migration/recovery/offline, or mixed content+code changes.
+- **Fast Content Release**: only when every changed file is canonical content under `pwa/Gear/`, `pwa/KB/`, and/or `pwa/Catches/`.
+- **Full Application Release**: any change outside those roots, including runtime/UI/assets, schema/contracts, tests, build/tooling, workflow, dependency, migration/recovery/offline, or mixed content+code work.
 
-The detailed policy is [`pwa/docs/FISH108_Fast_Content_Release_Policy_2026-09-14.md`](pwa/docs/FISH108_Fast_Content_Release_Policy_2026-09-14.md).
+Routine source-aware content releases do not consume an application task ID or require per-item project-state documentation. Preserve unrelated/newer source changes and user-uploaded bytes. KB `description` is limited to 80 characters. Normalize accidental trailing whitespace unless explicitly asked not to.
 
-Routine `fishing-companion-change-v2` authoring releases use a lightweight content PR, canonical source/build verification, exact-current-main Pages deployment, and dependency-free hosted byte verification. They do **not** consume a new `FISH-TODO-###` application task ID or require per-item README/Context/TODO/bootstrap churn.
+FISH109 provides run-attempt-specific deployment/evidence artifacts and hosted-verification retry hardening. FISH110 centralizes the Gear/KB **Copy Changes** handoff and routes eligible packages into FISH108 Fast Content Release.
 
-FISH109 adds run-attempt-specific deployment/evidence artifacts and bounded retry/backoff for transient hosted-verification failures while preserving the exact-current-main guard.
+## Durable product behavior
 
-FISH110 centralizes the Fishing Companion **Copy Changes** handoff and routes eligible source-aware content packages explicitly into the FISH108 Fast Content Release process while preserving unrelated/newer source changes.
+- Gear/KB Add/Edit remains **Prepare Changes → Copy Changes**, producing `fishing-companion-change-v2`; copying is not saving and the browser does not write GitHub directly.
+- FISH091: ordinary online use does not provision the complete offline library; **Connection Status → Update offline library** explicitly prepares/refreshes it.
+- FISH096: Knot-only ordered `pictureSequence`, with frames under `pwa/KB/Knots/assets/<id>/`; directory contents alone never create a sequence.
+- FISH102: Line-Tackle-Knot Reference is pinned first only on KB → Knots.
+- FISH103: external HTTP(S) links open in a new tab, internal app links remain same-tab, and authoring upload links use physical `/pwa/...` paths.
+- FISH107: Skylety Fishing Hook Sharpener canonical type is `Tools`.
 
-FISH111 establishes one shared horizontal page grid: the site-header brand/connection control align to the same left/right insets as page content, and long-form Notes/Markdown content uses the full main content width. Intentional component-specific caps for pictures, details tables, and editor forms remain unchanged.
+## Backlog / future phase
 
-For the exact currently deployed source/release when needed, use the latest successful `main` production workflow and deployed `release.json`; any checkpoint copied into documentation is historical once `main` advances.
+Preserve purchase uncertainty. `FISH-TODO-005` remains WAITING ON USER and `FISH-TODO-014` remains OPEN. The specialized content backlog still includes Texas Rig, Carolina Rig, Alabama Rig, Neko Rig, and Spoons.
 
-## Current product behavior
-
-Fishing Companion has independent Gear, Knowledge Base and Catch domains. Canonical physical domain source lives under `pwa/Gear/`, `pwa/KB/` and `pwa/Catches/`; logical record/release paths remain `Gear/...`, `KB/...` and `Catches/...`. The active application/build/test system is under `pwa/`.
-
-Gear/KB Add/Edit remains **Prepare Changes → Copy Changes**, producing source-aware `fishing-companion-change-v2` packages. Preparing/copying is not saving; the browser does not write GitHub source directly. Simple Markdown-only narrative edits may be made directly in GitHub. Structured fields, paths, pictures/sequences, specifications, structured links and relationships should use Fishing Companion Edit or an equivalent source-aware workflow.
-
-Authoring notes:
-
-- normalize accidental trailing whitespace unless the user explicitly asks to preserve it;
-- KB `description` values are schema-limited to **80 characters**;
-- preserve unrelated concurrent changes and user-uploaded bytes;
-- validate supplied media bytes/hashes when a source-aware package provides them.
-
-FISH091 remains in force: ordinary online use does not download the complete library. **Connection Status → Update offline library** explicitly creates/refreshes a verified complete offline generation.
-
-FISH096 remains in force: Knot records may optionally have explicit ordered `pictureSequence` frames under logical `KB/Knots/assets/<knot-id>/`; `picture.src` is the final/representative frame.
-
-FISH102 keeps **Line-Tackle-Knot Reference** pinned first only on KB → Knots.
-
-FISH103 keeps external HTTP(S) links new-tab with `noopener noreferrer`, internal navigation same-tab, and authoring upload links on physical `/pwa/...` source paths.
-
-FISH111 keeps the site header and page body on the same horizontal insets and lets long-form Notes/Markdown sections extend to the full right content margin.
-
-## Fishing Companion v3
-
-**Fishing Companion v3** is the preferred name for the future phase historically tracked as `FISH-TODO-077/P2`. It remains **DEFERRED**. Authentication, direct GitHub save/upload, integrated uploads, offline authoring/outbox/sync, Catch authoring, and multi-user generalization are not implemented or implicitly approved.
+**Fishing Companion v3** (historically FISH-TODO-077/P2) remains DEFERRED. Authentication, direct GitHub save/upload, integrated uploads, offline authoring/outbox/sync, Catch authoring, and multi-user generalization are not current production.
 
 ## Project continuation
 
 Chat mode is the permanent default. Do not recommend Work merely because work is complex, lengthy, file-heavy, analytical, research-heavy, or artifact-producing. Use Work only for a genuinely Work-only capability after explaining why and obtaining explicit approval.
 
-At the start of a new chat, restore actual latest `main`, then read in order:
+At the start of a new chat, restore actual latest `main`, confirm open PR state, then read in order:
 
 1. `README.md`
 2. `Fishing_Context.md`
@@ -79,16 +97,6 @@ At the start of a new chat, restore actual latest `main`, then read in order:
 4. `Fishing_Decision_Log.md`
 5. `Fishing_New_Chat_Bootstrap_Prompt.md`
 
-Before repository work, also confirm current open-PR state. For exact current production identity, inspect the latest successful production workflow/release rather than stale narrative metadata.
+When the user says **“It’s time to transfer to a new chat”** or clearly equivalent wording, ask once to confirm the full handoff, then reconcile repository/production state, update durable records, preserve unresolved work, cross-check the files, and finish with a clickable link to `Fishing_New_Chat_Bootstrap_Prompt.md`.
 
-When the user says **“It’s time to transfer to a new chat”** (or clearly equivalent wording), ask for confirmation that they want the full handoff. Once confirmed, reconcile the chat against current repository/production state, update authoritative records where durable state changed, perform a final cross-file consistency check, and finish with a clickable GitHub link to `Fishing_New_Chat_Bootstrap_Prompt.md`.
-
-Preserve unresolved fishing/equipment/content backlog and explicit purchase uncertainty. FISH071–076 and FISH078–111 are complete/implemented; Fishing Companion v3 (`FISH-TODO-077/P2`) remains deferred. The next unused **application/architecture** task ID is **FISH-TODO-112**. Routine Fast Content Releases do not consume that ID.
-
-Historical milestones and exact release evidence remain in Git history and `pwa/docs/`; use [`pwa/docs/README.md`](pwa/docs/README.md) when interpreting dated milestone-era “current” statements.
-
-## Development and publication
-
-Use Node 24 and the locked `pwa/package-lock.json`.
-
-`.github/workflows/fishing-production.yml` is the sole active production pipeline and automatically chooses Fast Content vs Full Application Release from the changed-file set. Documentation-only project-state changes do not publish the application.
+`.github/workflows/fishing-production.yml` is the sole active production publisher. Documentation-only project-state changes do not publish the application.
