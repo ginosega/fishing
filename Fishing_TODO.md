@@ -27,7 +27,7 @@ FISH071–076 and FISH078–113 are complete/implemented. The next unused applic
 
 ### Recent content work completed — no application task IDs consumed
 
-Recent routine FISH108 content work is complete/canonical and does not need new application IDs or closeout docs. Current source includes the Banks Lake representative-picture removal while preserving the page and inline images, Electronics Research, the September 14–15 Technique restructuring/Topwater/cross-link work, and Berkely Trilene XL.
+Recent routine FISH108 content work is complete/canonical and does not need new application IDs or closeout docs. Current source includes the Banks Lake representative-picture removal while preserving the page and inline images, Electronics Research, the September 14–15 Technique restructuring/Topwater/cross-link work, Berkely Trilene XL, the Canyon Insulated Fish Bag, and BaitPop Elite Crawfish Red Scent.
 
 The broad Technique redesign does **not** close the separate rig/specialty-page backlog below. Texas Rig, Carolina Rig, Alabama Rig, Neko Rig and Spoons remain open.
 
@@ -37,25 +37,20 @@ Changing Gear/KB/Catch item counts, canonical path totals and reference totals a
 
 Preserve explicit purchase uncertainty; do not infer ownership or completion without user confirmation.
 
-FISH104 documents a fish-finder power architecture and parts list, but it does **not** explicitly confirm that every listed part is the installed configuration. Therefore FISH-TODO-005 remains WAITING ON USER rather than being closed by inference.
+User responses applied September 16, 2026: the installed fish-finder power system is confirmed as Amped Outdoors 12V 8Ah, 3A fuse, IP68 connector and 22–18 AWG disconnects (resolving FISH-TODO-005); FISH-TODO-006 is no longer needed; FISH-TODO-007 is complete; FISH-TODO-009 is resolved because the Canyon fish bag was purchased instead; FISH-TODO-010 is no longer needed; PowerBait still-rig hook size is resolved as #4 (FISH-TODO-017); the non-slip loop knot is accepted (FISH-TODO-018); and FISH-TODO-032, -033 and -034 are no longer needed. These resolved items are removed from the active table below.
+
+The RVR119 Under Seat Tackle Storage has **not** been purchased, remains on back-order, and is the user's **#1 needed fishing equipment item**. FISH-TODO-008 therefore remains active as an acquisition item rather than a purchase-confirmation question.
 
 FISH105 adds a KastKing HyperSeal Waterproof Tackle Box in size 3600, but the supplied package does **not** explicitly identify that item as the specific “KastKing 3600 deep box” target in FISH-TODO-014. Preserve FISH-TODO-014 as OPEN unless the user explicitly resolves that backlog item.
 
 | ID | Priority | Status | Work item |
 |---|---|---|---|
-| FISH-TODO-005 | P2 | WAITING ON USER | Verify exact installed fish-finder power system; historical Amped Outdoors 12V 8Ah, 3A fuse, IP68 connector and disconnects need confirmation. |
-| FISH-TODO-006 | P2 | OPEN | Verify Bonafide RVR119 brass insert thread sizes. |
-| FISH-TODO-007 | P2 | OPEN | Decide whether/how to modify rear flush rod-holder angle; preserve Pelican installation details and evaluate alternatives to heat-bending. |
-| FISH-TODO-008 | P2 | WAITING ON USER | Confirm whether RVR119 Under Seat Tackle Storage was purchased; do not infer ownership. |
-| FISH-TODO-009 | P2 | WAITING ON USER | Confirm whether YakAttack 38 x 13 fish cooler bag was purchased; verify exact SKU/status. |
-| FISH-TODO-010 | P2 | OPEN | Buy/consider tubes and internal tube jigheads for Lake Washington/Sammamish smallmouth. |
+| FISH-TODO-008 | P2 | OPEN | Purchase RVR119 Under Seat Tackle Storage when available; currently back-ordered and the user's #1 needed fishing equipment item. |
 | FISH-TODO-011 | P2 | OPEN | Buy/consider bullet weights for Texas rigs/Rage Craw. |
 | FISH-TODO-012 | P2 | OPEN | Buy/consider 1/8 oz weighted EWG hooks for Power Jerk Shad/depth control. |
 | FISH-TODO-013 | P2 | OPEN | Buy/consider Carolina Keepers as slip-sinker alternative. |
 | FISH-TODO-014 | P3 | OPEN | Watch for KastKing 3600 deep box. |
 | FISH-TODO-015 | P3 | OPEN | Buy/consider Berkley Warpig, 1/2 oz, 3 in, Blue Shad. |
-| FISH-TODO-017 | P2 | OPEN | Resolve PowerBait still-rig hook size (#4 versus #8). |
-| FISH-TODO-018 | P2 | OPEN | Resolve loop-knot guidance conflict. |
 | FISH-TODO-019 | P2 | OPEN | Build Texas Rig KB page. |
 | FISH-TODO-020 | P3 | OPEN | Build Carolina Rig KB page. |
 | FISH-TODO-021 | P3 | OPEN | Build Alabama Rig KB page. |
@@ -69,9 +64,6 @@ FISH105 adds a KastKing HyperSeal Waterproof Tackle Box in size 3600, but the su
 | FISH-TODO-029 | P2 | OPEN | Determine bow-hatch item tie-offs, including tool bag/bilge pump. |
 | FISH-TODO-030 | P3 | DEFERRED | Evaluate trailer battery for kayak motor/electronics only if motor project returns. |
 | FISH-TODO-031 | P3 | OPEN | Listen/watch Science of the Strike episodes 8 and 16 (dissolved oxygen/turbidity). |
-| FISH-TODO-032 | P3 | OPEN | Continue individual structured Catch records, with no trips/no-bite sessions or inferred relationships. |
-| FISH-TODO-033 | P3 | OPEN | Create regulations recheck checklist for Fish Washington, lake rules, species identification and bait/retention implications. |
-| FISH-TODO-034 | P3 | OPEN | Spot-check authored links in GitHub Preview and PWA. |
 | FISH-TODO-037 | P3 | DEFERRED | Multi-user generalization only as part of a future explicitly approved Fishing Companion v3 requirement. |
 
 ## Continuation rules
