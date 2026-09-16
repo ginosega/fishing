@@ -352,6 +352,43 @@
       }
     },
     {
+      "id": "berkely-trilene-xl",
+      "name": "Berkely Trilene XL",
+      "category": "line",
+      "type": "Monofilament",
+      "specifications": [
+        {
+          "value": "8 lb",
+          "label": "Strength"
+        },
+        {
+          "value": "Clear",
+          "label": "Color"
+        },
+        {
+          "value": "110 yd",
+          "label": "Length"
+        }
+      ],
+      "links": [
+        {
+          "label": "Berkley",
+          "url": "https://www.berkley-fishing.com/products/trilene-xl-monofilament-1285555?_pos=1&_psq=trilene+xl&_psid=61aea453c&_ss=e"
+        },
+        {
+          "label": "Amazon",
+          "url": "https://a.co/d/032d6uTp"
+        }
+      ],
+      "manufacturer": "Berkely",
+      "model": "Trilene XL",
+      "notes": "Gear/Line/content/Berkely Trilene XL.md",
+      "picture": {
+        "src": "Gear/Line/assets/Berkely-Trilene-XL.png",
+        "caption": "Berkely Trilene XL"
+      }
+    },
+    {
       "id": "cylinder-weights",
       "category": "weights",
       "type": "Cylinder weights",
