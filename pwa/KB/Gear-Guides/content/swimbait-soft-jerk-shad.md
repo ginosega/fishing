@@ -5,7 +5,7 @@ into thinking they’re chasing real prey. Used to trigger strikes from bigger
 predators like bass, pike, or trout that are feeding on baitfish. May get less
 last bites, but bigger fish.
 
-# Use
+## Use
 
 - When targeting big fish -
   swimbaits appeal to large, mature fish that prefer a single, substantial
@@ -18,7 +18,7 @@ last bites, but bigger fish.
 - Post-spawn & in the fall,
   when bass are feeding heavily and hunting larger prey
 
-# Gear
+## Gear
 
 - Rod: 7’–8’ heavy or
   extra-heavy power for big baits, lighter for swimbaits. Moderate to fast
@@ -36,7 +36,7 @@ last bites, but bigger fish.
   hard. Okay to use a small snap when swapping hard swimbaits, but not a
   snap-swivel (too heavy)
 
-# Technique
+## Technique
 
 - Target points, ledges, weed
   edges, docks, and around submerged structure
@@ -47,7 +47,7 @@ last bites, but bigger fish.
 - For glide baits, use
   half-turn pauses or gentle twitches to trigger followers
 
-# Bait
+## Bait
 
 |  |  |  |  |  |  |
 | --- | --- | --- | --- | --- | --- |
@@ -56,7 +56,9 @@ last bites, but bigger fish.
 | Hard Jointed Swimbait | Multi-segment hard body (plastic or wood) with realistic “S-swim” | 5″–12″+ | Built-in treble hooks, sometimes line-through | Trophy fish, clear water, big bites | Shimano Armajoint 190SS |
 | Glide Bait | Single joint or multi-segment with wide side-to-side “glide” action | 6″–12″+ | Treble hooks, often large profile | Big bass, open water, reaction strikes | Bass Pro Shops XPS Swerve Glide Swimbait |
 | Line-Through Swimbait | Designed so the line passes through the body; hook separates when fish bites | 5″–9″ | Hidden treble hook, line-through system | Big predators, heavy cover, tricky fish | Big Bite Baits B6 Line‑Thru Swimbait |
-## Related
+
+
+## Links
 
 - My Gear: [Fin-Sanity Bluegill](gear://fin-sanity-bluegill), [6th Sense Divine Swimbait](gear://sixth-sense-divine-swimbait), [Berkley Power Jerk Shad](gear://berkley-powerbait-power-jerk-shad), [VMC Swimbait Jig](gear://vmc-swimbait-jig), [Owner Twistlock Centering Pin Hook](gear://owner-twistlock-black-chrome-centering-pin-hook), [Gamakatsu EWG Worm Offset Hook](gear://gamakatsu-ewg-worm-offset-hook)
 - KB: [Snaps & Swivels](kb://technique-snaps-swivels)
