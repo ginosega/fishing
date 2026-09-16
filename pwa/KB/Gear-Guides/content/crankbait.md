@@ -1,11 +1,11 @@
 Variable depth (2-20+ ft) hyper realistic lures that wobble and sometimes rattle as they are retrieved. Also called plugs.
 
-# Use
+## Use
 - Use near rocks or along edges of structure and vegetation
 - Don't use in vegetation, as the treble hooks will get snagged
 - Retrieve sinking/lipless baits near the bottom over structure, also troll in open water
 
-# Gear
+## Gear
 - Rod: medium to medium-heavy power, moderate action
 - Reel: Baitcaster with 6.8:1 ratio; retrieve a bit more slowly if using higher ratio reel
 - Line:
@@ -16,7 +16,7 @@ Variable depth (2-20+ ft) hyper realistic lures that wobble and sometimes rattle
 - Tackle: Small snap (no swivel) or tie direct. Many crankbaits are tuned for a precise wobble, and bulky snaps or snap-swivels add weight that can ruin the lure’s balance. A small snap makes changing baits faster and lets the lure swing freely.
 - Knot: Use a Palomar or Improved Clinch if tying to a snap. Use a Loop knot if tying direct to preserve the lure's action. Retie often, as vibrations stress the knot over time.
 
-# Technique
+## Technique
 - Retrieve both quickly and slowly, occasionally twitching the lure
 - Retrieve a bit more slowly if using a reel with retrieve > 6.8:1
 - Crankbaits are most effective when they hit or bump structure — rock, wood, ledges on the bottom
@@ -29,7 +29,7 @@ Variable depth (2-20+ ft) hyper realistic lures that wobble and sometimes rattle
 - Lipless crankbaits: Mix up the retrieves - try simple cast & retrieve, yo-yoing the bait up and down in the water column, drag and pause on the bottom, burn and pause to trigger a reaction bite
 - Use the rod tip to manage depth: Rod tip down = deeper, more bottom contact, rod tip up = shallower, more float-up on pauses. Hold the rod tip up when at a distance and lower the tip to hit the bait off the bottom as it approaches the boat.
 
-# Lures
+## Lures
 - Choose lip size and style to get your bait into the depth zone where the fish are holding: short angled lip for shallow, long straight lip for deep, square bills for weedy areas
 - Use square-bills or shallow divers around wood, docks, shallow rocks; use deep divers around points, humps, ledges, standing timber
 - Flat-sided baits produce pressure waves - good for cold and muddy water
@@ -43,7 +43,7 @@ Variable depth (2-20+ ft) hyper realistic lures that wobble and sometimes rattle
   - Use bolder colors in colder water for more contrast
 
 
-## Brands
+## Lure Brands
 
 |  |  |  |  |
 | --- | --- | --- | --- |
@@ -71,6 +71,6 @@ Variable depth (2-20+ ft) hyper realistic lures that wobble and sometimes rattle
 | Pike / Pickerel / Large Predators | Bigger deep divers or lipless with strong vibration | ¾ oz + | Big profile, more aggressive action. |
 | Cold-water bass / pre-spawn / post-spawn | Mid-depth, tight wobble, perhaps flat-sided crankbait | ⅜-½ oz | Fish may be less active; subtle action wins |
 
-# Links
+## Links
 - My Gear: [Strike King KVD Square Bill 1.0](gear://strike-king-kvd-square-bill-1), [Berkley Flicker Shad 5](gear://berkley-flicker-shad-5), [Rebel Crawfish](gear://rebel-crawfish), [Rapala Original Floating](gear://rapala-original-floating), [Berkley Money Badger](gear://berkley-money-badger), [Rapala DT](gear://rapala-dt)
 - KB: [Snaps & Swivels](kb://technique-snaps-swivels), [Palomar Knot](kb://knot-palomar), [Loop / Non-slip Loop Knot](kb://knot-loop-non-slip-loop)
