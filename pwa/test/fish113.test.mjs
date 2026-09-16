@@ -10,7 +10,7 @@ import {isPageHeroRoute} from '../src/page-hero.mjs';
 
 const here=path.dirname(fileURLToPath(import.meta.url));
 const pwa=path.resolve(here,'..');
-const heroName='fishing-companion-mountain-lake.webp';
+const heroName='page-hero.webp';
 
 test('FISH113 limits the shared page hero to the three approved root routes',()=>{
  assert.equal(isPageHeroRoute('#/'),true);
@@ -21,12 +21,14 @@ test('FISH113 limits the shared page hero to the three approved root routes',()=
  assert.equal(isPageHeroRoute('#/kb/category/location'),false);
 });
 
-test('FISH113 bundles responsive hero artwork into the verified release',async()=>{
- const source=path.join(pwa,'assets/page-hero',heroName);
+test('FISH113 bundles the approved responsive hero artwork into the verified release',async()=>{
+ const sourceDir=path.join(pwa,'assets/page-hero');
+ assert.deepEqual((await fs.readdir(sourceDir)).sort(),[heroName]);
+ const source=path.join(sourceDir,heroName);
  const metadata=await sharp(source).metadata();
  assert.equal(metadata.format,'webp');
- assert.equal(metadata.width,1200);
- assert.equal(metadata.height,400);
+ assert.equal(metadata.width,2172);
+ assert.equal(metadata.height,724);
 
  const css=await fs.readFile(path.join(pwa,'src/page-hero.css'),'utf8');
  assert.ok(css.includes(`url("./page-hero/${heroName}")`));

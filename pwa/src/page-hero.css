@@ -19,7 +19,7 @@
   background-image:
     linear-gradient(90deg,rgba(3,24,21,.76) 0%,rgba(3,24,21,.50) 44%,rgba(3,24,21,.18) 100%),
     linear-gradient(180deg,rgba(3,24,21,.08) 0%,rgba(3,24,21,.22) 100%),
-    url("./page-hero/fishing-companion-mountain-lake.webp");
+    url("./page-hero/page-hero.webp");
   background-repeat:no-repeat;
   background-position:center,center,50% 50%;
   background-size:cover,cover,cover;
