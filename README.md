@@ -10,9 +10,23 @@ Always restore actual latest `main`, current open PRs, and the latest successful
 
 ## Current application state
 
-### FISH111 — shared layout alignment
+### FISH113 — responsive scenic page heroes
 
-FISH111 is complete and production-verified. The site-header brand/connection control and the page body use the same horizontal content insets, and long-form Notes/Markdown extends through the full main-content width. Intentional narrower caps for pictures, detail tables, and editor forms remain unchanged.
+FISH113 is **complete, production-verified, and user-verified**.
+
+The Home, My Gear, and Knowledge Base root pages use scenic mountain/lake hero artwork with responsive art direction. Standard/narrow layouts use the 1536 × 512 `page-hero.png`; sufficiently wide landscape layouts use the 3072 × 512 `page-hero-wide.png`. The 3:1 asset is pixel-for-pixel the exact centered crop of the 6:1 master so the swap is visually seamless.
+
+Production closeout evidence:
+
+- final implementation PR: #173;
+- production source revision: `fab438e2833b131204a5e4c29ab1685df0ae8fbf`;
+- production workflow: #312 / run `35139240830`;
+- hosted release: `6a1f85979ecabc197ec66368b9fe0a65`;
+- hosted counts: Gear 82 / KB 57 / Catch 5;
+- actual hosted byte/browser verification passed;
+- the user subsequently inspected production and confirmed no further adjustments are needed.
+
+Detailed closeout: [`pwa/docs/FISH113_Production_Closeout_2026-09-16.md`](pwa/docs/FISH113_Production_Closeout_2026-09-16.md).
 
 ### FISH112 — fixed cross-platform card icons
 
@@ -20,26 +34,16 @@ FISH112 is **complete, production-verified, and user-verified**.
 
 The Home, My Gear, and Knowledge Base cards now use 16 bundled fixed transparent PNG icons instead of OS-dependent Unicode emoji, so Windows, Android, and other platforms render the same artwork. The existing card geometry, text, search/Back controls, routes, and navigation behavior were preserved.
 
-Production closeout evidence:
-
-- implementation PR: #168;
-- production source revision: `89ca4773365f8d99750b9424b5cb9eefb4a29907`;
-- production workflow: #298 / run `35119930916`;
-- hosted release: `f5d691d727fd439ff5553f6c7db509f4`;
-- hosted counts: Gear 82 / KB 57 / Catch 5;
-- actual hosted byte/browser verification passed;
-- the user subsequently inspected production and confirmed the result looks correct.
-
 Detailed closeout: [`pwa/docs/FISH112_Production_Closeout_2026-09-16.md`](pwa/docs/FISH112_Production_Closeout_2026-09-16.md).
 
-The next unused application/architecture task ID is **FISH-TODO-113** unless newer `main` has already allocated it.
+The next unused application/architecture task ID is **FISH-TODO-114** unless newer `main` has already allocated it.
 
 ## Current KB editorial architecture
 
 Broad references have deliberately different jobs:
 
 - **Bass Behavior and Habitat** / **Trout Behavior and Habitat**: where fish are and why — habitat, structure/cover, temperature, oxygen, forage, light, wind/current, depth, and pattern recognition.
-- **Bass Fishing Techniques** / **Trout Fishing Techniques**: how to catch fish once located — presentation choice, lure/bait/rig selection, retrieves, depth control, strike handling, and bank/kayak execution.
+- **Bass Fishing Techniques** / **Trout Fishing Techniques**: how to catch once located — presentation choice, lure/bait/rig selection, retrieves, depth control, strike handling, and bank/kayak execution.
 - **Spring Fishing**, **Summer Fishing**, **Fall Fishing**, and **Winter Fishing**: authoritative seasonal playbooks for both bass and trout.
 - **Topwater Fishing**: broad specialized surface-fishing reference; Frog, Popper, Whopper Plopper, Walking Bait, and Buzzbait remain narrower companion Gear Guides.
 
