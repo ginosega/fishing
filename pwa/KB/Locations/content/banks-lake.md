@@ -4,7 +4,7 @@ For the broader seasonal pattern, see [Fall Fishing](kb://fall-fishing). For bas
 
 | Banks Lake - Steamboat Rock State Park - South | Banks Lake - Steamboat Rock State Park - North |
 |---|---|
-| ![](./Banks-Lake-Steamboat-Rock-State-Park-South.png) | ![](./Banks-Lake-SteamBoat-Rock-State-Park-North.png) |
+| ![Banks Lake - Steamboat Rock State Park - South](./Banks-Lake-Steamboat-Rock-State-Park-South.png) | ![Banks Lake - Steamboat Rock State Park - North](./Banks-Lake-SteamBoat-Rock-State-Park-North.png) |
 
 ## September 24-26, 2026 trip priorities
 
