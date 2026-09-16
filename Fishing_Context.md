@@ -151,6 +151,7 @@ Fishing Companion retains independent Gear, Knowledge Base and Catch domains. KB
 - **FISH103:** canonical physical source stays under `pwa/`; authoring upload links use physical `/pwa/...`; external HTTP(S) links open a new tab with `noopener noreferrer`; internal app/local links remain same-tab; Caption editing retains focus; new-KB Markdown Preview assigns a provisional required content path before whole-library validation.
 - **FISH107:** Skylety Fishing Hook Sharpener is type `Tools`; FISH106's earlier `Kayaks` value is historical evidence only.
 - **FISH110:** Copy Changes uses centralized release-aware FISH108 boilerplate and preserves the parseable blank-line JSON boundary.
+- **FISH111:** shared page alignment uses one horizontal content grid: the site-header brand/connection control and main page content share the same left/right insets, and long-form Notes/Markdown sections expand through the full main content width. Mobile preserves the same rule with its 16 px content inset.
 
 Active Knot sequences remain Palomar, Albright, Arbor, Bowline, FG, Improved Clinch, Modified Uni and Trilene; Non-Slip Loop remains static. Directory contents never create a sequence without explicit canonical references.
 
@@ -164,4 +165,4 @@ The existing rig/content backlog remains open, including Texas Rig, Carolina Rig
 
 **Fishing Companion v3** (historically `FISH-TODO-077/P2`) remains **DEFERRED**. Authentication, direct GitHub save/upload, integrated uploads, offline authoring/outbox/sync, Catch authoring and multi-user generalization are not current production.
 
-FISH071–076 and FISH078–110 are complete/implemented. The next unused **application/architecture** task ID is **FISH-TODO-111**. Routine Fast Content Releases do not consume it.
+FISH071–076 and FISH078–111 are complete/implemented. The next unused **application/architecture** task ID is **FISH-TODO-112**. Routine Fast Content Releases do not consume it.
