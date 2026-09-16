@@ -54,7 +54,6 @@ FISH105 adds a KastKing HyperSeal Waterproof Tackle Box in size 3600, but the su
 | FISH-TODO-013 | P2 | OPEN | Buy/consider Carolina Keepers as slip-sinker alternative. |
 | FISH-TODO-014 | P3 | OPEN | Watch for KastKing 3600 deep box. |
 | FISH-TODO-015 | P3 | OPEN | Buy/consider Berkley Warpig, 1/2 oz, 3 in, Blue Shad. |
-| FISH-TODO-016 | P3 | OPEN | Buy/consider Bait Pop with red flake; water-soluble/shrimp-extract preference. |
 | FISH-TODO-017 | P2 | OPEN | Resolve PowerBait still-rig hook size (#4 versus #8). |
 | FISH-TODO-018 | P2 | OPEN | Resolve loop-knot guidance conflict. |
 | FISH-TODO-019 | P2 | OPEN | Build Texas Rig KB page. |
