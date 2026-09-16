@@ -78,11 +78,7 @@
       "type": "location",
       "name": "Banks Lake",
       "description": "Kayak fishing for bass, walleye, perch, and whitefish from Steamboat Rock",
-      "content": "KB/Locations/content/banks-lake.md",
-      "picture": {
-        "src": "KB/Locations/assets/Banks-Lake-Steamboat-Rock-State-Park.png",
-        "caption": "Banks Lake - Steamboat Rock State Park"
-      }
+      "content": "KB/Locations/content/banks-lake.md"
     },
     {
       "id": "technique-trout-fishing",
