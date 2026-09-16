@@ -36,6 +36,8 @@ FISH109 adds run-attempt-specific deployment/evidence artifacts and bounded retr
 
 FISH110 centralizes the Fishing Companion **Copy Changes** handoff and routes eligible source-aware content packages explicitly into the FISH108 Fast Content Release process while preserving unrelated/newer source changes.
 
+FISH111 establishes one shared horizontal page grid: the site-header brand/connection control align to the same left/right insets as page content, and long-form Notes/Markdown content uses the full main content width. Intentional component-specific caps for pictures, details tables, and editor forms remain unchanged.
+
 For the exact currently deployed source/release when needed, use the latest successful `main` production workflow and deployed `release.json`; any checkpoint copied into documentation is historical once `main` advances.
 
 ## Current product behavior
@@ -59,6 +61,8 @@ FISH102 keeps **Line-Tackle-Knot Reference** pinned first only on KB → Knots.
 
 FISH103 keeps external HTTP(S) links new-tab with `noopener noreferrer`, internal navigation same-tab, and authoring upload links on physical `/pwa/...` source paths.
 
+FISH111 keeps the site header and page body on the same horizontal insets and lets long-form Notes/Markdown sections extend to the full right content margin.
+
 ## Fishing Companion v3
 
 **Fishing Companion v3** is the preferred name for the future phase historically tracked as `FISH-TODO-077/P2`. It remains **DEFERRED**. Authentication, direct GitHub save/upload, integrated uploads, offline authoring/outbox/sync, Catch authoring, and multi-user generalization are not implemented or implicitly approved.
@@ -79,7 +83,7 @@ Before repository work, also confirm current open-PR state. For exact current pr
 
 When the user says **“It’s time to transfer to a new chat”** (or clearly equivalent wording), ask for confirmation that they want the full handoff. Once confirmed, reconcile the chat against current repository/production state, update authoritative records where durable state changed, perform a final cross-file consistency check, and finish with a clickable GitHub link to `Fishing_New_Chat_Bootstrap_Prompt.md`.
 
-Preserve unresolved fishing/equipment/content backlog and explicit purchase uncertainty. FISH071–076 and FISH078–110 are complete/implemented; Fishing Companion v3 (`FISH-TODO-077/P2`) remains deferred. The next unused **application/architecture** task ID is **FISH-TODO-111**. Routine Fast Content Releases do not consume that ID.
+Preserve unresolved fishing/equipment/content backlog and explicit purchase uncertainty. FISH071–076 and FISH078–111 are complete/implemented; Fishing Companion v3 (`FISH-TODO-077/P2`) remains deferred. The next unused **application/architecture** task ID is **FISH-TODO-112**. Routine Fast Content Releases do not consume that ID.
 
 Historical milestones and exact release evidence remain in Git history and `pwa/docs/`; use [`pwa/docs/README.md`](pwa/docs/README.md) when interpreting dated milestone-era “current” statements.
 
