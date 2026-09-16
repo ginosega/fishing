@@ -54,9 +54,21 @@ Any file outside the three canonical content roots forces full. Runtime/UI/asset
 
 **Decision/status:** IMPLEMENTED / PRODUCTION-VERIFIED / USER-VERIFIED.
 
+### Final implementation decision
+
 **Decision:** Home, My Gear, and Knowledge Base card icons use 16 bundled user-approved transparent PNG assets under `pwa/assets/card-icons/` rather than OS-dependent emoji glyphs. Preserve current card geometry, spacing, labels, search/Back controls, routes, navigation, and small icon scale/placement.
 
+**Decision:** The final generated transparent-with-shadow PNG assets are the authoritative artwork. Earlier exploratory Google/Noto, Fluent, Twemoji-style references and mockups are historical design references only and are not the live source assets.
+
+**Decision:** The production build must carry these assets into each content-addressed release and include them in release identity/manifest verification. Regression coverage must continue to protect the exact 16-file set, transparency, card mappings, production-build byte preservation, and manifest inclusion.
+
+### Production closeout
+
+FISH112 was implemented in PR #168 and released through Full Application Release workflow #298 / run `35119930916` from source revision `89ca4773365f8d99750b9424b5cb9eefb4a29907`. Hosted release `f5d691d727fd439ff5553f6c7db509f4` passed actual hosted production byte and browser verification. The user then inspected production and confirmed that it looks correct.
+
 Detailed evidence: [`pwa/docs/FISH112_Production_Closeout_2026-09-16.md`](pwa/docs/FISH112_Production_Closeout_2026-09-16.md).
+
+**Decision:** FISH112 is closed.
 
 ## FISH113 — responsive scenic page heroes
 
