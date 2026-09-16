@@ -1,0 +1,1 @@
+To use, twist the cap to expose the nozzle. Apply a thin coat directly to your soft plastic, hard bait, or jig before each cast. Reapply every 15–20 casts and after each catch. Safe for all freshwater and saltwater species.
