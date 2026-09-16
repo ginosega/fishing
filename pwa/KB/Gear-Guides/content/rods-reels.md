@@ -1,4 +1,4 @@
-# Spinning
+## Spinning
 
 **Use spinning gear when:**
 - You’re fishing light baits (wacky worms, drop shots, Ned rigs, small jerkbaits, inline spinners).
@@ -8,13 +8,14 @@
 - You’re vertical jigging or fishing from a kayak, where easy one-handed control helps.
 
 **Typical spinning combo:**
+
 - **Rod:** Medium-light to medium power, fast action, 6'6"–7'2".
 - **Reel:** 2500–3000 size spinning reel.
 - **Line:** 10–15 lb braid + 6–10 lb fluorocarbon leader.
 
 **Maintenance:** See [11 Places You SHOULD Be Greasing and Oiling Your Spinning Reel](https://www.youtube.com/watch?v=vkCUgxwUtqU).
 
-# Baitcasting
+## Baitcasting
 **Use baitcasting gear when:**
 - You’re throwing heavier lures (spinnerbaits, chatterbaits, crankbaits, swimbaits, topwaters).
 - You’re fishing thick cover (weeds, wood, docks) and need to horse fish out.
@@ -32,7 +33,7 @@
 - [Stop Baitcaster Backlash Before It Happens | Reel Setup & Casting Secrets](https://youtu.be/YDlL1rP7FdU?si=hMxCutcA7itEHhmA)
 - [Shimano SLX DC XT on the water CASTING TUTORIAL](https://www.youtube.com/watch?v=mIcaRiMC_-k)
 
-# Why Use Both
+## Why Use Both
 Because each excels in different conditions:
 - Spinning tackle handles finesse presentations that baitcasters can’t throw effectively. A 1/8 oz Ned rig will backlash on a baitcaster, for example.
 - Baitcasting tackle provides control and torque for reaction baits and power fishing. A 1/2 oz chatterbait or 3/4 oz jig needs the muscle of a baitcaster.
@@ -41,7 +42,7 @@ In short:
 - **Spinning = finesse & light precision**
 - **Baitcasting = power & control**
 
-# Three Rod Quiver
+## Three Rod Quiver
 | Situation | Setup to Use | Example Lure |
 | --- | --- | --- |
 | Clear, calm water – fish are shy | Spinning | Wacky worm, drop shot, Ned rig |
