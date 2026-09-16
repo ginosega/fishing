@@ -12,3 +12,7 @@
 @media(max-width:380px){.record-grid .nav-card,.record-grid .nav-card:has(.card-thumbnail){flex-direction:column;align-items:stretch}.card-thumbnail{width:100%;height:100px}}
 
 .catch-date{display:block;font-weight:400;margin-bottom:6px}
+
+/* FISH111: align the shared header and long-form content to the page content edges. */
+.site-header{padding-inline:0}.header-inner{padding-inline:24px}.section,.markdown-body{width:100%;max-width:none}
+@media(max-width:650px){.site-header{padding-inline:0}.header-inner{padding-inline:16px}}
