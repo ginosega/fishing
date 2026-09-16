@@ -1,0 +1,28 @@
+/* FISH112: fixed cross-platform card icon artwork. */
+.card-icon{
+  width:45px;
+  height:45px;
+  flex:0 0 45px;
+  font-size:0;
+  line-height:0;
+  background-repeat:no-repeat;
+  background-position:left center;
+  background-size:contain;
+}
+.card-icon>svg{display:none}
+.nav-card[href="#/inventory"] .card-icon{background-image:url("./card-icons/home-my-gear.png")}
+.nav-card[href="#/kb"] .card-icon{background-image:url("./card-icons/home-knowledge-base.png")}
+.nav-card[href="#/catches"] .card-icon{background-image:url("./card-icons/home-catch-log.png")}
+.nav-card[href="#/inventory/category/rods-reels"] .card-icon{background-image:url("./card-icons/gear-rods-reels.png")}
+.nav-card[href="#/inventory/category/line"] .card-icon{background-image:url("./card-icons/gear-line.png")}
+.nav-card[href="#/inventory/category/weights"] .card-icon{background-image:url("./card-icons/gear-weights.png")}
+.nav-card[href="#/inventory/category/snaps-swivels"] .card-icon{background-image:url("./card-icons/gear-snaps-swivels.png")}
+.nav-card[href="#/inventory/category/hooks"] .card-icon{background-image:url("./card-icons/gear-hooks.png")}
+.nav-card[href="#/inventory/category/lures"] .card-icon{background-image:url("./card-icons/gear-lures.png")}
+.nav-card[href="#/inventory/category/bait"] .card-icon{background-image:url("./card-icons/gear-bait.png")}
+.nav-card[href="#/inventory/category/accessories"] .card-icon{background-image:url("./card-icons/gear-equipment.png")}
+.nav-card[href="#/kb/category/location"] .card-icon{background-image:url("./card-icons/kb-locations.png")}
+.nav-card[href="#/kb/category/species"] .card-icon{background-image:url("./card-icons/kb-species.png")}
+.nav-card[href="#/kb/category/technique"] .card-icon{background-image:url("./card-icons/kb-techniques.png")}
+.nav-card[href="#/kb/category/knot"] .card-icon{background-image:url("./card-icons/kb-knots.png")}
+.nav-card[href="#/kb/category/equipment"] .card-icon{background-image:url("./card-icons/kb-gear-guides.png")}
