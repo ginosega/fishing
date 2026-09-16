@@ -54,21 +54,38 @@ Any file outside the three canonical content roots forces full. Runtime/UI/asset
 
 **Decision/status:** IMPLEMENTED / PRODUCTION-VERIFIED / USER-VERIFIED.
 
-### Final implementation decision
-
 **Decision:** Home, My Gear, and Knowledge Base card icons use 16 bundled user-approved transparent PNG assets under `pwa/assets/card-icons/` rather than OS-dependent emoji glyphs. Preserve current card geometry, spacing, labels, search/Back controls, routes, navigation, and small icon scale/placement.
-
-**Decision:** The final generated transparent-with-shadow PNG assets are the authoritative artwork. Earlier exploratory Google/Noto, Fluent, Twemoji-style references and mockups are historical design references only and are not the live source assets.
-
-**Decision:** The production build must carry these assets into each content-addressed release and include them in release identity/manifest verification. Regression coverage must continue to protect the exact 16-file set, transparency, card mappings, production-build byte preservation, and manifest inclusion.
-
-### Production closeout
-
-FISH112 was implemented in PR #168 and released through Full Application Release workflow #298 / run `35119930916` from source revision `89ca4773365f8d99750b9424b5cb9eefb4a29907`. Hosted release `f5d691d727fd439ff5553f6c7db509f4` passed actual hosted production byte and browser verification. The user then inspected production and confirmed that it looks correct.
 
 Detailed evidence: [`pwa/docs/FISH112_Production_Closeout_2026-09-16.md`](pwa/docs/FISH112_Production_Closeout_2026-09-16.md).
 
-**Decision:** FISH112 is closed. The next unused application/architecture task ID is **FISH-TODO-113** unless newer `main` has already allocated it.
+## FISH113 — responsive scenic page heroes
+
+**Decision/status:** IMPLEMENTED / PRODUCTION-VERIFIED / USER-VERIFIED / CLOSED.
+
+### Final artwork and responsive behavior
+
+**Decision:** Home, My Gear, and Knowledge Base root pages use the scenic mountain/lake hero artwork under `pwa/assets/page-hero/`. Non-root headers remain unchanged.
+
+**Decision:** The authoritative hero pair is:
+
+- `page-hero.png` — 1536 × 512 (3:1), used for standard/narrow layouts;
+- `page-hero-wide.png` — 3072 × 512 (6:1), used for sufficiently wide landscape layouts.
+
+**Decision:** The 3:1 asset must remain pixel-for-pixel the exact centered crop of the 6:1 master so crossing the responsive breakpoint looks like one continuous scene rather than two separately generated images.
+
+**Decision:** Wide-hero activation is geometry-based responsive art direction, not monitor/display-resolution detection. Preserve the dark overlay treatment and existing page text/card/navigation behavior.
+
+**Decision:** The superseded WebP hero artwork is retired; the final PNG pair is authoritative.
+
+### Production closeout
+
+FISH113's final responsive implementation was merged in PR #173 as source revision `fab438e2833b131204a5e4c29ab1685df0ae8fbf`. Full Application workflow #312 / run `35139240830` deployed hosted release `6a1f85979ecabc197ec66368b9fe0a65` after a targeted retry cleared one unrelated timing-sensitive WebKit offline-cache test. Actual hosted byte/release/browser verification passed.
+
+The user inspected the final live responsive behavior and confirmed: **“It’s great. No more adjustments are needed.”**
+
+Detailed evidence: [`pwa/docs/FISH113_Production_Closeout_2026-09-16.md`](pwa/docs/FISH113_Production_Closeout_2026-09-16.md).
+
+**Decision:** FISH113 is closed. The next unused application/architecture task ID is **FISH-TODO-114** unless newer `main` has already allocated it.
 
 ## KB editorial ownership model
 
@@ -119,4 +136,4 @@ Simple Markdown-only narrative edits may be made directly. Structured record fie
 
 ## Open application work
 
-FISH071–076 and FISH078–112 are complete/implemented. There is no currently allocated open application task after FISH112. The next unused application/architecture task ID is **FISH-TODO-113** unless actual newer `main` has already allocated it. Routine Fast Content Releases do not consume that ID.
+FISH071–076 and FISH078–113 are complete/implemented. There is no currently allocated open application task after FISH113. The next unused application/architecture task ID is **FISH-TODO-114** unless actual newer `main` has already allocated it. Routine Fast Content Releases do not consume that ID.
