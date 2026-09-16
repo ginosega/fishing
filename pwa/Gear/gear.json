@@ -2534,6 +2534,71 @@
       }
     },
     {
+      "id": "canyon-insulated-fish-bag",
+      "name": "Canyon Insulated Fish Bag",
+      "category": "accessories",
+      "type": "Accessories",
+      "specifications": [
+        {
+          "value": "24\" x 15\"",
+          "label": "Size"
+        },
+        {
+          "value": "B-32",
+          "label": "Model #"
+        }
+      ],
+      "links": [
+        {
+          "label": "Canyon",
+          "url": "https://www.fishbagsandstuff.com/catalog/item/8882976/10331526.htm"
+        },
+        {
+          "label": "Amazon",
+          "url": "https://www.fishbagsandstuff.com/catalog/item/8882976/10331526.htm"
+        }
+      ],
+      "manufacturer": "Canyon",
+      "model": "Steelhead/Bait/Kayak Bag",
+      "picture": {
+        "src": "Gear/Equipment/assets/Canyon-Insulated-Fish-Bag.png",
+        "caption": "Canyon Insulated Fish Bag"
+      }
+    },
+    {
+      "id": "baitpop-elite-crawfish-red-scent",
+      "name": "BaitPop Elite Crawfish Red Scent",
+      "category": "accessories",
+      "type": "Accessories",
+      "specifications": [
+        {
+          "value": "Crawfish Red",
+          "label": "Color"
+        },
+        {
+          "value": "20 ml",
+          "label": "Size"
+        }
+      ],
+      "links": [
+        {
+          "label": "BaitPop",
+          "url": "https://baitpop.com/collections/all/products/baitpop-elite-crawfish"
+        },
+        {
+          "label": "Amazon",
+          "url": "https://a.co/d/0a4gL9J7"
+        }
+      ],
+      "manufacturer": "BaitPop",
+      "model": "Elite",
+      "notes": "Gear/Equipment/content/BaitPop Elite Crawfish Red Scent.md",
+      "picture": {
+        "src": "Gear/Equipment/assets/BaitPop-Elite-Crawfish-Red-Scent.png",
+        "caption": "BaitPop Elite Crawfish Red Scent"
+      }
+    },
+    {
       "id": "electronics-research",
       "name": "Electronics Research",
       "category": "accessories",
