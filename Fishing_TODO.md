@@ -65,6 +65,7 @@ FISH105 adds a KastKing HyperSeal Waterproof Tackle Box in size 3600, but the su
 | FISH-TODO-030 | P3 | DEFERRED | Evaluate trailer battery for kayak motor/electronics only if motor project returns. |
 | FISH-TODO-031 | P3 | OPEN | Listen/watch Science of the Strike episodes 8 and 16 (dissolved oxygen/turbidity). |
 | FISH-TODO-037 | P3 | DEFERRED | Multi-user generalization only as part of a future explicitly approved Fishing Companion v3 requirement. |
+| FISH-TODO-038 | P2 | OPEN | Turn the starboard-most rod holder 90° clockwise and remount it. |
 
 ## Continuation rules
 
