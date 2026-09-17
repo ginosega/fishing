@@ -2599,6 +2599,34 @@
       }
     },
     {
+      "id": "lucas-fishing-reel-oil",
+      "name": "Lucas Fishing Reel Oil",
+      "category": "accessories",
+      "type": "Tools",
+      "specifications": [
+        {
+          "value": "1 oz",
+          "label": "Size"
+        }
+      ],
+      "links": [
+        {
+          "label": "Lucas",
+          "url": "https://www.lucasoil.com/product/fishing-reel-oil/"
+        },
+        {
+          "label": "Amazon",
+          "url": "https://a.co/d/08RHQJId"
+        }
+      ],
+      "manufacturer": "Lucas",
+      "model": "Fishing Reel Oil",
+      "picture": {
+        "src": "Gear/Equipment/assets/Lucas-Fishing-Reel-Oil.png",
+        "caption": "Lucas Fishing Reel Oil"
+      }
+    },
+    {
       "id": "electronics-research",
       "name": "Electronics Research",
       "category": "accessories",
