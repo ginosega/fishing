@@ -27,7 +27,7 @@ export async function build(){
  await sharp(icon).raw().toBuffer();
  const maskableArtSize=Math.round(iconMeta.width*0.88);
  const maskableArt=await sharp(icon).trim({background:{r:0,g:0,b:0,alpha:0}}).resize(maskableArtSize,maskableArtSize,{fit:'contain'}).png().toBuffer();
- const maskableIcon=await sharp({create:{width:iconMeta.width,height:iconMeta.height,channels:3,background:'#11665c'}}).composite([{input:maskableArt,gravity:'centre'}]).png().toBuffer();
+ const maskableIcon=await sharp({create:{width:iconMeta.width,height:iconMeta.height,channels:3,background:'#11665c'}}).composite([{input:maskableArt,gravity:'centre'}]).removeAlpha().png().toBuffer();
  const library=await inventorySource(source,{pendingMedia}),tmp=await fs.mkdtemp(path.join(os.tmpdir(),'fishing-v2-'));
  try{
   const content=path.join(tmp,'content');
