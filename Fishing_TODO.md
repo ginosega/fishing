@@ -62,7 +62,6 @@ FISH105 adds a KastKing HyperSeal Waterproof Tackle Box in size 3600, but the su
 | FISH-TODO-027 | P2 | OPEN | Buy/consider NRS ATB Wetshoe size 11. |
 | FISH-TODO-028 | P2 | OPEN | Buy/consider NRS Champion Jacket and Bib, with neoprene cuffs, waterproof zipper and articulated hood requirements. |
 | FISH-TODO-029 | P2 | OPEN | Determine bow-hatch item tie-offs, including tool bag/bilge pump. |
-| FISH-TODO-030 | P3 | DEFERRED | Evaluate trailer battery for kayak motor/electronics only if motor project returns. |
 | FISH-TODO-031 | P3 | OPEN | Listen/watch Science of the Strike episodes 8 and 16 (dissolved oxygen/turbidity). |
 | FISH-TODO-037 | P3 | DEFERRED | Multi-user generalization only as part of a future explicitly approved Fishing Companion v3 requirement. |
 | FISH-TODO-038 | P2 | OPEN | Remount outer rod holders. |
