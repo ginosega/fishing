@@ -1,3 +1,31 @@
+## Contents
+- [Overview](#Overview)
+- [Choosing a Presentation](#Choosing%20a%20Presentation)
+- [Core Bass Techniques](#Core%20Bass%20Techniques)
+  - [Finesse](#Finesse)
+    - [Drop Shot](#Drop%20Shot)
+    - [Ned Rig](#Ned%20Rig)
+    - [Wacky Worm](#Wacky%20Worm)
+  - [Power](#Power)
+    - [Chatterbaits](#Chatterbaits)
+    - [Crankbaits](#Crankbaits)
+    - [Jerkbaits](#Jerkbaits)
+    - [Jigs](#Jigs)
+    - [Spinnerbaits](#Spinnerbaits)
+    - [Swimbaits and Soft Jerkbaits](#Swimbaits%20and%20Soft%20Jerkbaits)
+  - [Topwater](#Topwater)
+    - [Buzzbaits](#Buzzbaits)
+    - [Frogs](#Frogs)
+    - [Poppers](#Poppers)
+    - [Walking Baits](#Walking%20Baits)
+    - [Whopper Plopper](#Whopper%20Plopper)
+- [Water Clarity and Color](#Water%20Clarity%20and%20Color)
+- [Bank Fishing](#Bank%20Fishing)
+- [Kayak Fishing and Electronics](#Kayak%20Fishing%20and%20Electronics)
+- [Detecting Strikes and Setting the Hook](#Detecting%20Strikes%20and%20Setting%20the%20Hook)
+- [A Simple Two-Rod Strategy](#A%20Simple%20Two-Rod%20Strategy)
+- [Links](#Links)
+
 ## Overview
 
 Use [Bass Behavior and Habitat](kb://bass-behavior-and-habitat) to decide **where bass are likely to be**. This page starts with the next question: **once you have found likely fish, what presentation gives you the best chance of catching them?**
@@ -72,7 +100,7 @@ My Gear: [Yamamoto Senko](gear://yamamoto-senko), [VMC Crossover Rings](gear://v
 
 ### Power
 
-#### Chatterbaits / Bladed Jigs
+#### Chatterbaits
 
 See [Chatterbait](kb://technique-chatterbait-bladed-jig).
 
@@ -266,9 +294,9 @@ When you do not yet know the pattern:
 
 Start with the baitcaster to search. When you get a bite, follower, missed strike, or find a high-percentage area, slow down with the spinning rod.
 
-## Videos
+## Links
 
-These are the technique videos already referenced by the related Fishing Companion pages:
+**Videos:** These are the technique videos already referenced by the related Fishing Companion pages:
 
 - [NED RIG - 4 Tips to Catch More Bass With This Simple Lure](https://www.youtube.com/watch?v=6xY7EgZJXM0)
 - [What I WISH Someone Would’ve Told Me About DROPSHOT Fishing](https://www.youtube.com/watch?v=xZVBaLus368)
@@ -280,7 +308,7 @@ These are the technique videos already referenced by the related Fishing Compani
 - [How To Fish EVERY Style Of JIG To Catch More BASS!](https://www.youtube.com/watch?v=ulc6fJ1AVrc)
 - [Basics of Frog Fishing and How to Fish Hollow-body Frog Lures](https://youtu.be/czTtqyDKDcA?si=h9bn95vZ-8Y_xcI1)
 
-## Related Pages
+**Related Pages:**
 
 - Finding bass: [Bass Behavior and Habitat](kb://bass-behavior-and-habitat)
 - Finesse: [Ned Rig](kb://technique-ned-rig), [Drop Shot](kb://technique-drop-shot), [Wacky Worm](kb://technique-wacky-worm)
