@@ -397,13 +397,22 @@ test('FISH084 wording, search, catch date and exact icon',async({page})=>{
  await expect(page.locator('a[href="#/catches"] p')).toHaveText('Recorded catches');
  const manifest=await page.evaluate(async()=>await(await fetch('./manifest.webmanifest')).json());
  const sourceIcon=await fs.readFile(path.join(v2,'icon.png')),meta=await sharp(sourceIcon).metadata();
- expect(manifest.icons[0]).toEqual({src:'./icon.png',sizes:`${meta.width}x${meta.height}`,type:'image/png',purpose:'any'});
+ expect(manifest.icons).toEqual([
+  {src:'./icon.png',sizes:`${meta.width}x${meta.height}`,type:'image/png',purpose:'any'},
+  {src:'./icon-maskable.png',sizes:`${meta.width}x${meta.height}`,type:'image/png',purpose:'maskable'}
+ ]);
  const hostedIcon=Buffer.from(await(await page.request.get(base+'icon.png')).body());expect(hostedIcon).toEqual(sourceIcon);
  expect(meta.hasAlpha).toBe(true);
  const {data:rgba,info}=await sharp(hostedIcon).ensureAlpha().raw().toBuffer({resolveWithObject:true});
  const alpha=(x,y)=>rgba[(y*info.width+x)*info.channels+3];
  for(const [x,y] of [[0,0],[info.width-1,0],[0,info.height-1],[info.width-1,info.height-1]])expect(alpha(x,y)).toBeLessThanOrEqual(1);
  expect(alpha(Math.floor(info.width/2),Math.floor(info.height/2))).toBeGreaterThan(250);
+ const maskable=Buffer.from(await(await page.request.get(base+'icon-maskable.png')).body()),maskMeta=await sharp(maskable).metadata();
+ expect(maskMeta).toMatchObject({format:'png',width:meta.width,height:meta.height,hasAlpha:false});
+ const {data:maskRgb,info:maskInfo}=await sharp(maskable).raw().toBuffer({resolveWithObject:true});
+ const rgb=(x,y)=>[...maskRgb.subarray((y*maskInfo.width+x)*maskInfo.channels,(y*maskInfo.width+x)*maskInfo.channels+3)];
+ for(const [x,y] of [[0,0],[maskInfo.width-1,0],[0,maskInfo.height-1],[maskInfo.width-1,maskInfo.height-1]])expect(rgb(x,y)).toEqual([17,102,92]);
+ expect(maskable.equals(hostedIcon)).toBe(false);
  for(const [hash,title] of [['#/inventory','My Gear'],['#/inventory/category/lures','Lures'],['#/kb','Knowledge Base'],['#/kb/category/equipment','Gear Guides']]){
   await route(page,hash,title);await expect(page.getByPlaceholder('Search '+title,{exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Back',exact:true})).toBeVisible();
  }
