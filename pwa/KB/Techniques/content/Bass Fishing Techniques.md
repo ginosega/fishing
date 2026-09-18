@@ -15,24 +15,36 @@ A useful default is **search first, then slow down**. Cover water with an approp
 
 | Situation | Good Starting Choices | Follow-up / Slower Choice |
 | --- | --- | --- |
-| Cold, clear water | [Jerkbait](kb://technique-jerkbait), [Ned Rig](kb://technique-ned-rig) | [Drop Shot](kb://technique-drop-shot), finesse jig |
-| Clear water / pressured fish | Ned rig, drop shot, [Wacky Worm](kb://technique-wacky-worm), natural swimbait | Smaller profile, lighter line, longer pauses |
-| Shallow grass | [Chatterbait](kb://technique-chatterbait-bladed-jig), swim jig, spinnerbait | Wacky worm, weightless soft plastic |
-| Heavy surface vegetation | [Frog](kb://technique-frogs) | Weedless soft plastic into holes/edges |
-| Docks / wood | [Spinnerbait](kb://technique-spinnerbait), jig, wacky worm | Ned rig or soft plastic around the best targets |
-| Rocky bank / point | [Crankbait](kb://technique-crankbait), football jig | Ned rig, drop shot |
+| Cold, clear water | Jerkbait, Ned Rig | Drop Shot, finesse jig |
+| Clear water / pressured fish | Ned rig, drop shot, Wacky Worm, natural swimbait | Smaller profile, lighter line, longer pauses |
+| Shallow grass | Chatterbait, swim jig, spinnerbait | Wacky worm, weightless soft plastic |
+| Heavy surface vegetation | Frog | Weedless soft plastic into holes/edges |
+| Docks / wood | Spinnerbait, jig, wacky worm | Ned rig or soft plastic around the best targets |
+| Rocky bank / point | Crankbait, football jig | Ned rig, drop shot |
 | Deep fish on sonar | Drop shot, Ned rig | Football jig or deeper crankbait |
-| Suspended / roaming fish | Jerkbait, [Swimbait](kb://technique-swimbait-soft-jerk-shad) | Drop shot positioned at fish depth |
-| Bass chasing bait | Swimbait, jerkbait, crankbait, spinnerbait, [Walking Bait](kb://technique-walking-bait) | Soft jerkbait / fluke |
+| Suspended / roaming fish | Jerkbait, Swimbait | Drop shot positioned at fish depth |
+| Bass chasing bait | Swimbait, jerkbait, crankbait, spinnerbait, Walking Bait | Soft jerkbait / fluke |
 | Stained or muddy water | Chatterbait, spinnerbait, jig, rattling crankbait | Darker/bolder colors, slower presentation near cover |
-| Calm surface / low light | Walking bait, [Popper](kb://technique-popper) | Wacky worm or finesse presentation |
-| Windy / choppy surface | Spinnerbait, chatterbait, [Buzzbait](kb://technique-buzzbait) | Jig or soft plastic in protected pockets |
+| Calm surface / low light | Walking bait, Popper | Wacky worm or finesse presentation |
+| Windy / choppy surface | Spinnerbait, chatterbait, Buzzbait | Jig or soft plastic in protected pockets |
 
 Do not change lures too quickly. First change **retrieve speed, depth, casting angle, and target**. A lure that is appropriate for the conditions may start producing simply because it is finally passing through the correct depth or contacting the right cover.
 
 ## Core Bass Techniques
 
-### Ned Rig
+### Finesse
+
+#### Drop Shot
+
+See [Drop Shot](kb://technique-drop-shot).
+
+Use a drop shot when bass are deep, suspended just off bottom, visible on sonar, or unwilling to chase. It is particularly effective in clear water and around rock, humps, ledges, brush, and deep weed edges.
+
+Keep the weight on bottom and work the bait with small movements and slack line instead of constantly lifting the weight. If fish are visible on sonar, adjust the distance between the hook and weight so the bait is presented at their level.
+
+My Gear: [Cylinder Weights](gear://cylinder-weights), [Gamakatsu G-Finesse Drop Shot Hook](gear://gamakatsu-g-finesse-drop-shot-hook)
+
+#### Ned Rig
 
 See [Ned Rig](kb://technique-ned-rig).
 
@@ -48,17 +60,7 @@ Start with a light mushroom head and increase weight only enough to maintain bot
 
 My Gear: [Z-Man Ned Rig Kit](gear://zman-ned-rig-kit), [Z-Man Finesse ShroomZ](gear://zman-finesse-shroomz)
 
-### Drop Shot
-
-See [Drop Shot](kb://technique-drop-shot).
-
-Use a drop shot when bass are deep, suspended just off bottom, visible on sonar, or unwilling to chase. It is particularly effective in clear water and around rock, humps, ledges, brush, and deep weed edges.
-
-Keep the weight on bottom and work the bait with small movements and slack line instead of constantly lifting the weight. If fish are visible on sonar, adjust the distance between the hook and weight so the bait is presented at their level.
-
-My Gear: [Cylinder Weights](gear://cylinder-weights), [Gamakatsu G-Finesse Drop Shot Hook](gear://gamakatsu-g-finesse-drop-shot-hook)
-
-### Wacky Worm / Senko
+#### Wacky Worm
 
 See [Wacky Worm](kb://technique-wacky-worm).
 
@@ -68,78 +70,9 @@ Cast tight to the target, let the worm fall on semi-slack line, watch for the li
 
 My Gear: [Yamamoto Senko](gear://yamamoto-senko), [VMC Crossover Rings](gear://vmc-crossover-rings), [Gamakatsu Octopus Hook](gear://gamakatsu-octopus-hook), [VMC Redline Weedless Wacky Neko](gear://vmc-redline-weedless-wacky-neko)
 
-### Jigs
+### Power
 
-See [Jigs](kb://technique-jigs).
-
-Jigs are especially useful when bass are relating tightly to cover or bottom structure.
-
-- **Casting / Arky jig:** docks, wood, rocks, and weed edges in shallow to medium depth. Hop, drag, and pause it.
-- **Football jig:** deeper rock, points, and ledges. Keep it on bottom and drag it so the head contacts rock.
-- **Swim jig:** shallow vegetation and cover. Retrieve it through the water column instead of working it on bottom.
-- **Finesse jig:** cold water, pressured fish, and smaller forage.
-
-For bottom-contact jigs, keep enough tension to detect a bite but enough slack for a natural fall. A strike may feel like a tap, extra weight, a mushy feeling, or simply the line moving.
-
-My Gear: [Strike King Tour Grade Football Jig](gear://strike-king-tour-grade-football-jig), [Strike King Premier Pro Model Jig](gear://strike-king-premier-pro-model-jig), [Strike King Rage Craw](gear://strike-king-rage-craw), [YUM Christie Craw](gear://yum-christie-craw)
-
-### Crankbaits
-
-See [Crankbait](kb://technique-crankbait).
-
-Use crankbaits to cover water and make repeated contact with hard structure. They are most effective when the lure **deflects off something**—rock, wood, bottom, a ledge, or the outside of cover—rather than swimming through featureless water.
-
-- Square bills: shallow rock, wood, riprap, docks, and other deflection targets.
-- Mid/deep divers: points, ledges, deeper rock, and offshore structure.
-- Lipless crankbaits: grass, flats, schooling fish, and situations where you want to control depth by counting the bait down.
-
-Vary speed and add pauses after contacting structure. A floating crankbait can back out of snags and may trigger a strike as it rises.
-
-My Gear: [Strike King KVD Square Bill 1.0](gear://strike-king-kvd-square-bill-1), [Rebel Crawfish](gear://rebel-crawfish), [Rapala DT](gear://rapala-dt), [Berkley Money Badger](gear://berkley-money-badger)
-
-### Jerkbaits
-
-See [Jerkbait](kb://technique-jerkbait).
-
-A high-percentage choice for suspended fish, clear water, points, drop-offs, weed edges, and especially cooler water. Work a hard jerkbait with **slack line** so it darts sideways instead of simply pulling straight toward you.
-
-A basic cadence is:
-1. Reel the lure to running depth.
-2. Twitch-twitch.
-3. Pause.
-4. Repeat.
-
-Most bites occur during the pause. Lengthen the pause as water cools or fish become less aggressive; shorten it when fish are actively chasing.
-
-My Gear: [Berkley Stunna](gear://berkley-stunna), [Rapala RipStop](gear://rapala-ripstop), [Rapala Husky Jerk](gear://rapala-husky-jerk), [Berkley Power Jerk Shad](gear://berkley-powerbait-power-jerk-shad)
-
-### Swimbaits and Soft Jerkbaits
-
-See [Swimbait](kb://technique-swimbait-soft-jerk-shad).
-
-Use swimbaits when bass are feeding on baitfish, especially around points, weed edges, docks, ledges, and bait schools. Paddle-tail swimbaits can be counted down and retrieved steadily at the depth of the fish.
-
-Soft jerkbaits / flukes are useful when bass are chasing bait but reject hard moving lures. Rig them weightless or lightly weighted and use twitches followed by pauses to imitate an injured baitfish.
-
-Hard-jointed and glide-style swimbaits are a different presentation from soft plastics: use a slow, natural swimming retrieve with occasional turns or pauses to trigger followers.
-
-My Gear: [Fin-Sanity Bluegill](gear://fin-sanity-bluegill), [6th Sense Divine Swimbait](gear://sixth-sense-divine-swimbait), [Berkley Power Jerk Shad](gear://berkley-powerbait-power-jerk-shad), [VMC Swimbait Jig](gear://vmc-swimbait-jig)
-
-### Spinnerbaits
-
-See [Spinnerbait](kb://technique-spinnerbait).
-
-A versatile search bait around wood, sparse vegetation, docks, rock, wind-blown banks, and stained water. The wire frame lets a spinnerbait deflect through cover better than most treble-hook lures.
-
-- Willow blades: more flash, less vibration, faster retrieve, clearer water.
-- Colorado blades: more vibration, slower retrieve, stained water, low light.
-- Tandem combinations: good general-purpose choice.
-
-Retrieve fast enough to keep the lure working, but try to make contact with cover instead of simply reeling through open water.
-
-My Gear: [Strike King Red Eyed Special](gear://strike-king-red-eyed-special), [6th Sense Divine Spinnerbait](gear://sixth-sense-divine-spinnerbait)
-
-### Chatterbaits / Bladed Jigs
+#### Chatterbaits / Bladed Jigs
 
 See [Chatterbait](kb://technique-chatterbait-bladed-jig).
 
@@ -155,41 +88,90 @@ If fish follow without committing, change trailer size/color, retrieve speed, or
 
 My Gear: [Z-Man Original ChatterBait](gear://zman-original-chatterbait), [Z-Man Elite EVO](gear://zman-elite-evo), [Z-Man Jack Hammer](gear://zman-jack-hammer)
 
-## Topwater
+#### Crankbaits
+
+See [Crankbait](kb://technique-crankbait).
+
+Use crankbaits to cover water and make repeated contact with hard structure. They are most effective when the lure **deflects off something**—rock, wood, bottom, a ledge, or the outside of cover—rather than swimming through featureless water.
+
+- Square bills: shallow rock, wood, riprap, docks, and other deflection targets.
+- Mid/deep divers: points, ledges, deeper rock, and offshore structure.
+- Lipless crankbaits: grass, flats, schooling fish, and situations where you want to control depth by counting the bait down.
+
+Vary speed and add pauses after contacting structure. A floating crankbait can back out of snags and may trigger a strike as it rises.
+
+My Gear: [Strike King KVD Square Bill 1.0](gear://strike-king-kvd-square-bill-1), [Rebel Crawfish](gear://rebel-crawfish), [Rapala DT](gear://rapala-dt), [Berkley Money Badger](gear://berkley-money-badger)
+
+#### Jerkbaits
+
+See [Jerkbait](kb://technique-jerkbait).
+
+A high-percentage choice for suspended fish, clear water, points, drop-offs, weed edges, and especially cooler water. Work a hard jerkbait with **slack line** so it darts sideways instead of simply pulling straight toward you.
+
+A basic cadence is:
+1. Reel the lure to running depth.
+2. Twitch-twitch.
+3. Pause.
+4. Repeat.
+
+Most bites occur during the pause. Lengthen the pause as water cools or fish become less aggressive; shorten it when fish are actively chasing.
+
+My Gear: [Berkley Stunna](gear://berkley-stunna), [Rapala RipStop](gear://rapala-ripstop), [Rapala Husky Jerk](gear://rapala-husky-jerk), [Berkley Power Jerk Shad](gear://berkley-powerbait-power-jerk-shad)
+
+#### Jigs
+
+See [Jigs](kb://technique-jigs).
+
+Jigs are especially useful when bass are relating tightly to cover or bottom structure.
+
+- **Casting / Arky jig:** docks, wood, rocks, and weed edges in shallow to medium depth. Hop, drag, and pause it.
+- **Football jig:** deeper rock, points, and ledges. Keep it on bottom and drag it so the head contacts rock.
+- **Swim jig:** shallow vegetation and cover. Retrieve it through the water column instead of working it on bottom.
+- **Finesse jig:** cold water, pressured fish, and smaller forage.
+
+For bottom-contact jigs, keep enough tension to detect a bite but enough slack for a natural fall. A strike may feel like a tap, extra weight, a mushy feeling, or simply the line moving.
+
+My Gear: [Strike King Tour Grade Football Jig](gear://strike-king-tour-grade-football-jig), [Strike King Premier Pro Model Jig](gear://strike-king-premier-pro-model-jig), [Strike King Rage Craw](gear://strike-king-rage-craw), [YUM Christie Craw](gear://yum-christie-craw)
+
+#### Spinnerbaits
+
+See [Spinnerbait](kb://technique-spinnerbait).
+
+A versatile search bait around wood, sparse vegetation, docks, rock, wind-blown banks, and stained water. The wire frame lets a spinnerbait deflect through cover better than most treble-hook lures.
+
+- Willow blades: more flash, less vibration, faster retrieve, clearer water.
+- Colorado blades: more vibration, slower retrieve, stained water, low light.
+- Tandem combinations: good general-purpose choice.
+
+Retrieve fast enough to keep the lure working, but try to make contact with cover instead of simply reeling through open water.
+
+My Gear: [Strike King Red Eyed Special](gear://strike-king-red-eyed-special), [6th Sense Divine Spinnerbait](gear://sixth-sense-divine-spinnerbait)
+
+#### Swimbaits and Soft Jerkbaits
+
+See [Swimbait](kb://technique-swimbait-soft-jerk-shad).
+
+Use swimbaits when bass are feeding on baitfish, especially around points, weed edges, docks, ledges, and bait schools. Paddle-tail swimbaits can be counted down and retrieved steadily at the depth of the fish.
+
+Soft jerkbaits / flukes are useful when bass are chasing bait but reject hard moving lures. Rig them weightless or lightly weighted and use twitches followed by pauses to imitate an injured baitfish.
+
+Hard-jointed and glide-style swimbaits are a different presentation from soft plastics: use a slow, natural swimming retrieve with occasional turns or pauses to trigger followers.
+
+My Gear: [Fin-Sanity Bluegill](gear://fin-sanity-bluegill), [6th Sense Divine Swimbait](gear://sixth-sense-divine-swimbait), [Berkley Power Jerk Shad](gear://berkley-powerbait-power-jerk-shad), [VMC Swimbait Jig](gear://vmc-swimbait-jig)
+
+### Topwater
 
 See [Topwater Fishing](kb://topwater-fishing).
 
 Topwater is strongest when bass are willing to feed near the surface—often early and late in the day, under overcast skies, during warm seasons, around shallow cover, or when baitfish are visibly being chased.
 
-### Walking Baits
-
-See [Walking Bait](kb://technique-walking-bait).
-
-Use over open water, along weed edges, around points and docks, and around schooling fish. The key is slack line: twitch, allow the bait to glide sideways, pick up slack, and repeat.
-
-### Poppers
-
-See [Popper](kb://technique-popper).
-
-Good around isolated targets, calm water, docks, weed edges, and when fish want a slower topwater presentation. Pop the lure and then pause long enough for the surface rings to begin fading before moving it again.
-
-My Gear: [Rebel Pop-R](gear://rebel-pop-r)
-
-### Buzzbaits
+#### Buzzbaits
 
 See [Buzzbait](kb://technique-buzzbait).
 
 A fast search bait for warm water, low light, wind/chop, shallow cover, and stained water. Begin retrieving immediately so the lure planes onto the surface. Run it as slowly as possible while keeping the blade working, then speed up if fish are aggressive.
 
-### Whopper Plopper
-
-See [Whopper Plopper](kb://technique-whopper-plopper).
-
-A strong search bait when bass are willing to chase near the surface and you want more sound and continuous disturbance than a walking bait or popper. Fish it along points, rocky banks, dock edges, over submerged vegetation, and around schooling baitfish. Start with a steady retrieve, then vary speed or add a brief pause if fish follow without committing.
-
-My Gear: [River2Sea Whopper Plopper 60](gear://river2sea-whopper-plopper-60)
-
-### Frogs
+#### Frogs
 
 See [Frogs](kb://technique-frogs).
 
@@ -198,6 +180,28 @@ Use a frog where exposed hooks cannot go: lily pads, grass mats, slop, reeds, an
 On a blowup, **do not immediately jerk the rod**. Wait until the fish has the frog and you feel its weight, then drive the hooks home and keep pressure on the fish through the cover.
 
 My Gear: [Booyah Pad Crasher](gear://booyah-pad-crasher)
+
+#### Poppers
+
+See [Popper](kb://technique-popper).
+
+Good around isolated targets, calm water, docks, weed edges, and when fish want a slower topwater presentation. Pop the lure and then pause long enough for the surface rings to begin fading before moving it again.
+
+My Gear: [Rebel Pop-R](gear://rebel-pop-r)
+
+#### Walking Baits
+
+See [Walking Bait](kb://technique-walking-bait).
+
+Use over open water, along weed edges, around points and docks, and around schooling fish. The key is slack line: twitch, allow the bait to glide sideways, pick up slack, and repeat.
+
+#### Whopper Plopper
+
+See [Whopper Plopper](kb://technique-whopper-plopper).
+
+A strong search bait when bass are willing to chase near the surface and you want more sound and continuous disturbance than a walking bait or popper. Fish it along points, rocky banks, dock edges, over submerged vegetation, and around schooling baitfish. Start with a steady retrieve, then vary speed or add a brief pause if fish follow without committing.
+
+My Gear: [River2Sea Whopper Plopper 60](gear://river2sea-whopper-plopper-60)
 
 ## Water Clarity and Color
 
