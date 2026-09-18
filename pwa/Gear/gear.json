@@ -1145,12 +1145,20 @@
       "model": "KVD Square Bill 1.0",
       "specifications": [
         {
-          "label": "Color",
-          "value": "Sexy Shad"
+          "value": "Sexy Shad",
+          "label": "Color"
         },
         {
-          "label": "Depth",
-          "value": "2-4 ft"
+          "value": "2-4 ft",
+          "label": "Depth"
+        },
+        {
+          "value": "1/4 oz",
+          "label": "Weight"
+        },
+        {
+          "value": "5",
+          "label": "Hook size"
         }
       ],
       "links": [
