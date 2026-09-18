@@ -29,7 +29,7 @@ Variable depth (2-20+ ft) hyper realistic lures that wobble and sometimes rattle
 - Lipless crankbaits: Mix up the retrieves - try simple cast & retrieve, yo-yoing the bait up and down in the water column, drag and pause on the bottom, burn and pause to trigger a reaction bite
 - Use the rod tip to manage depth: Rod tip down = deeper, more bottom contact, rod tip up = shallower, more float-up on pauses. Hold the rod tip up when at a distance and lower the tip to hit the bait off the bottom as it approaches the boat.
 
-## Lures
+## Lure Selection
 - Choose lip size and style to get your bait into the depth zone where the fish are holding: short angled lip for shallow, long straight lip for deep, square bills for weedy areas
 - Use square-bills or shallow divers around wood, docks, shallow rocks; use deep divers around points, humps, ledges, standing timber
 - Flat-sided baits produce pressure waves - good for cold and muddy water
