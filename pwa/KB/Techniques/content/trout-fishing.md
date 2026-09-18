@@ -1,3 +1,26 @@
+## Contents
+- [Overview](#overview)
+- [Choosing a Presentation](#choosing-a-presentation)
+- [Casting Lures](#casting-lures)
+  - [Spoons and Kastmasters](#spoons-and-kastmasters)
+  - [Inline Spinners](#inline-spinners)
+  - [Small Crankbaits and Jerkbaits](#small-crankbaits-and-jerkbaits)
+- [Still Fishing from Shore](#still-fishing-from-shore)
+  - [Slip Sinker Rig](#slip-sinker-rig)
+  - [Bobber Rig](#bobber-rig)
+- [Trolling from a Kayak](#trolling-from-a-kayak)
+  - [Inline Trolling Rig](#inline-trolling-rig)
+  - [Flasher / Dodger Rig](#flasher-dodger-rig)
+  - [Trolling Depth Strategy](#trolling-depth-strategy)
+- [Streams and Rivers](#streams-and-rivers)
+- [Water Clarity, Light, and Color](#water-clarity-light-and-color)
+- [Bank Fishing Workflow](#bank-fishing-workflow)
+- [Kayak Fishing and Electronics](#kayak-fishing-and-electronics)
+- [Detecting Strikes and Setting the Hook](#detecting-strikes-and-setting-the-hook)
+- [Handling and Regulations](#handling-and-regulations)
+- [Videos](#videos)
+- [Related Pages](#related-pages)
+
 ## Overview
 
 Use [Trout Behavior and Habitat](kb://trout-behavior-and-habitat) to decide **where trout are likely to be and what depth they are using**. This page starts with the next question: **once you have located likely trout, what presentation gives you the best chance of catching them?**
