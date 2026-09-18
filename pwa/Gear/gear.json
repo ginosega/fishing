@@ -1137,6 +1137,42 @@
       }
     },
     {
+      "id": "berkely-warpig",
+      "name": "Berkely Warpig",
+      "category": "lures",
+      "type": "Crankbaits and hard jerkbaits",
+      "specifications": [
+        {
+          "value": "3 in",
+          "label": "Size"
+        },
+        {
+          "value": "1/2 oz",
+          "label": "Weight"
+        },
+        {
+          "value": "Firetail Green Craw",
+          "label": "Color"
+        }
+      ],
+      "links": [
+        {
+          "label": "Berkley",
+          "url": "https://www.berkley-fishing.com/products/warpig-1373962?_pos=1&_psq=warpig&_psid=045e8999f&_ss=e"
+        },
+        {
+          "label": "Amazon",
+          "url": "https://a.co/d/0aTYgB5g"
+        }
+      ],
+      "manufacturer": "Berkely",
+      "model": "Warpig",
+      "picture": {
+        "src": "Gear/Lures/assets/Berkley Warpig.png",
+        "caption": "Berkely Warpig"
+      }
+    },
+    {
       "id": "strike-king-kvd-square-bill-1",
       "category": "lures",
       "type": "Crankbaits and hard jerkbaits",
