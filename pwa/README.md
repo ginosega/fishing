@@ -78,7 +78,7 @@ Authoring constraints worth checking before PR:
 | `contracts/` | Canonical domain schema |
 | `migration/` | Original reconciliation/image approvals and historical migration/recovery evidence |
 | `docs/` | Requirements, designs, durable release policy and historical release evidence |
-| `icon.png` | Canonical app/fav/touch icon |
+| `icon.png` | Canonical transparent app/fav/touch icon source; the build generates the opaque maskable launcher variant |
 | `dist/` | Generated build; ignored by Git |
 
 Logical record/source references and generated release content remain `Gear/...`, `KB/...` and `Catches/...` even though physical repository source lives beneath `pwa/`.
@@ -86,6 +86,8 @@ Logical record/source references and generated release content remain `Gear/...`
 ## Current runtime model
 
 Fishing Companion retains independent Gear, KB and Catch domains. Gear/KB Add/Edit provides **Prepare Changes → Copy Changes** source-aware handoffs; the browser does not write repository source directly.
+
+FISH114 preserves `icon.png` as the approved transparent source and generates `icon-maskable.png` at build time for Android/Edge adaptive-icon installs. The manifest publishes both ordinary (`any`) and maskable entries, and both outputs participate in release identity/verification.
 
 Simple Markdown-only narrative edits to existing canonical content may be made directly in GitHub. Structured record fields, paths, picture metadata/sequences and relationships should continue through Fishing Companion Edit or an equivalent source-aware workflow.
 

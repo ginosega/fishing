@@ -1,6 +1,6 @@
 # Fishing TODO
 
-## Current project task state — September 16, 2026
+## Current project task state — September 18, 2026
 
 ### Application / architecture state
 
@@ -21,13 +21,15 @@ The durable policy is [`pwa/docs/FISH108_Fast_Content_Release_Policy_2026-09-14.
 
 **FISH-TODO-113 — IMPLEMENTED / PRODUCTION-VERIFIED / USER-VERIFIED / responsive scenic page heroes.** Home, My Gear, and Knowledge Base root pages use the final scenic hero pair under `pwa/assets/page-hero/`: 1536 × 512 `page-hero.png` for standard/narrow layouts and 3072 × 512 `page-hero-wide.png` for sufficiently wide landscape layouts. The 3:1 asset is pixel-for-pixel the exact centered crop of the 6:1 master. Final implementation PR #173 deployed through Full Application Release workflow #312 / run `35139240830`; hosted release `6a1f85979ecabc197ec66368b9fe0a65` from source `fab438e2833b131204a5e4c29ab1685df0ae8fbf` passed actual hosted byte/browser verification. The user visually verified production and confirmed no further adjustments are needed. Closeout: [`pwa/docs/FISH113_Production_Closeout_2026-09-16.md`](pwa/docs/FISH113_Production_Closeout_2026-09-16.md).
 
-FISH071–076 and FISH078–113 are complete/implemented. The next unused application/architecture task ID is **FISH-TODO-114**.
+**FISH-TODO-114 — IMPLEMENTED / PRODUCTION-VERIFIED / USER-VERIFIED / Android maskable launcher icon.** The approved transparent `pwa/icon.png` remains unchanged; the build generates an opaque `icon-maskable.png` with `#11665c` background, publishes ordinary + maskable manifest entries, and includes both outputs in release verification. PR #179 deployed through Full Application workflow #349 / run `35306208653` from source `771c80baa21fe17f331614f6658b5278475178ed`; hosted release `9e9cc6e2f388439c1d745c0e74122c33` passed full hosted verification. The user visually verified the installed Android result. Closeout: [`pwa/docs/FISH114_Production_Closeout_2026-09-18.md`](pwa/docs/FISH114_Production_Closeout_2026-09-18.md).
 
-**Fishing Companion v3** — historically `FISH-TODO-077/P2` — remains **DEFERRED**. Future scope may include authentication, direct GitHub save/upload, integrated uploads, offline authoring/outbox/sync, Catch authoring and multi-user generalization. None of that is current production or implicitly approved implementation work.
+FISH071–076 and FISH078–114 are complete/implemented. The next unused application/architecture task ID is **FISH-TODO-115**.
+
+**Fishing Companion v3** — historically `FISH-TODO-077/P2` — remains **DEFERRED** and requires explicit approval before implementation. Deferred scope includes authentication, direct saving to GitHub, integrated browser-side file/image uploads, offline authoring, a queued-change outbox/sync system, Catch authoring, broader multi-user support, and clickable content-Markdown pictures that open in the existing picture viewer. None of this is current production.
 
 ### Recent content work completed — no application task IDs consumed
 
-Recent routine FISH108 content work is complete/canonical and does not need new application IDs or closeout docs. Current source includes the Banks Lake representative-picture removal while preserving the page and inline images, Electronics Research, the September 14–15 Technique restructuring/Topwater/cross-link work, Berkely Trilene XL, the Canyon Insulated Fish Bag, and BaitPop Elite Crawfish Red Scent.
+Recent routine FISH108 content work is complete/canonical and does not need new application IDs or closeout docs. Current source includes the Banks Lake representative-picture removal while preserving the page and inline images, Electronics Research, the September 14–15 Technique restructuring/Topwater/cross-link work, Berkely Trilene XL, the Canyon Insulated Fish Bag, BaitPop Elite Crawfish Red Scent, Lucas Fishing Reel Oil, the September 17 Lake Sammamish Catch, updated Strike King KVD Square Bill specifications, Berkely Warpig, and working Bass/Trout Fishing Techniques tables of contents.
 
 The broad Technique redesign does **not** close the separate rig/specialty-page backlog below. Texas Rig, Carolina Rig, Alabama Rig, Neko Rig and Spoons remain open.
 
@@ -42,6 +44,8 @@ User responses applied September 16, 2026: the installed fish-finder power syste
 The RVR119 Under Seat Tackle Storage has **not** been purchased, remains on back-order, and is the user's **#1 needed fishing equipment item**. FISH-TODO-008 therefore remains active as an acquisition item rather than a purchase-confirmation question.
 
 FISH105 adds a KastKing HyperSeal Waterproof Tackle Box in size 3600, but the supplied package does **not** explicitly identify that item as the specific “KastKing 3600 deep box” target in FISH-TODO-014. Preserve FISH-TODO-014 as OPEN unless the user explicitly resolves that backlog item.
+
+Kayak-maintenance updates applied September 18, 2026: FISH-TODO-030 was explicitly deleted; FISH-TODO-038 is now **Remount outer rod holders**; and FISH-TODO-039 is **Apply T-9 on kayak hardware**.
 
 | ID | Priority | Status | Work item |
 |---|---|---|---|
@@ -63,7 +67,7 @@ FISH105 adds a KastKing HyperSeal Waterproof Tackle Box in size 3600, but the su
 | FISH-TODO-028 | P2 | OPEN | Buy/consider NRS Champion Jacket and Bib, with neoprene cuffs, waterproof zipper and articulated hood requirements. |
 | FISH-TODO-029 | P2 | OPEN | Determine bow-hatch item tie-offs, including tool bag/bilge pump. |
 | FISH-TODO-031 | P3 | OPEN | Listen/watch Science of the Strike episodes 8 and 16 (dissolved oxygen/turbidity). |
-| FISH-TODO-037 | P3 | DEFERRED | Multi-user generalization only as part of a future explicitly approved Fishing Companion v3 requirement. |
+| FISH-TODO-037 | P3 | DEFERRED | Fishing Companion v3 requirements; implementation requires explicit approval: authentication, direct saving to GitHub, integrated browser-side file/image uploads, offline authoring, queued-change outbox/sync, Catch authoring, broader multi-user support, and clickable content-Markdown pictures that open in the existing picture viewer. |
 | FISH-TODO-038 | P2 | OPEN | Remount outer rod holders. |
 | FISH-TODO-039 | P2 | OPEN | Apply T-9 on kayak hardware. |
 
@@ -71,8 +75,8 @@ FISH105 adds a KastKing HyperSeal Waterproof Tackle Box in size 3600, but the su
 
 Use Chat mode by default. Restore actual latest `main` and current open-PR state before repository work.
 
-For routine source-aware Gear/KB/Catch authoring, use the FISH108 Fast Content Release policy and do not allocate FISH-TODO-114. Allocate FISH-TODO-114 only for the next new application/architecture-level task unless newer `main` has already allocated it.
+For routine source-aware Gear/KB/Catch authoring, use the FISH108 Fast Content Release policy and do not allocate FISH-TODO-115. Allocate FISH-TODO-115 only for the next new application/architecture-level task unless newer `main` has already allocated it.
 
-Do not reopen completed FISH096–FISH113 or Fishing Companion v3 work without an explicit new user request.
+Do not reopen completed FISH096–FISH114 or Fishing Companion v3 work without an explicit new user request.
 
 When the user says **“It’s time to transfer to a new chat”**, ask once for confirmation of the full handoff. After confirmation, reconcile current repository/production state, update authoritative records where durable state changed, preserve unresolved work and purchase uncertainty, cross-check the files, and finish with a direct GitHub link to `Fishing_New_Chat_Bootstrap_Prompt.md`.

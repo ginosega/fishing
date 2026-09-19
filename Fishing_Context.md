@@ -1,6 +1,6 @@
 # Fishing Context
 
-## Current authoritative state — September 16, 2026
+## Current authoritative state — September 18, 2026
 
 `ginosega/fishing` is the durable source of truth. Restore actual current `main` and current open-PR state before implementation/release/repository-write work; do not rely on a previously observed commit as though it is still current.
 
@@ -8,23 +8,51 @@ For exact production identity, inspect the latest successful `main` production w
 
 ### Current production checkpoint
 
-FISH113 is the latest completed application change.
+The latest verified hosted production at this handoff is the Fast Content Release for the Bass/Trout Fishing Techniques table-of-contents work.
 
-- production source revision: `fab438e2833b131204a5e4c29ab1685df0ae8fbf`
-- final implementation PR: #173
-- production workflow: **#312** / run `35139240830`
-- hosted release ID: `6a1f85979ecabc197ec66368b9fe0a65`
-- hosted source-derived counts: Gear 82 / KB 57 / Catch 5
-- hosted file count: 380
-- Full Application Release validation: passed after targeted retry of one unrelated timing-sensitive WebKit offline-cache test
+- production source revision: `45b85250d4342326cfd0e103026f1cea7adcbea7`
+- implementation PR: #182
+- production workflow: **#359** / run `35387318153`
+- hosted release ID: `5ad3a0a1bdb76b3c4827114de3ef07b8`
+- hosted source-derived counts: Gear 86 / KB 57 / Catch 6
+- hosted file count: 387
+- release lane: Fast Content Release
 - exact-current-main deployment guard: passed
 - GitHub Pages deployment: passed
-- actual hosted byte/browser verification: passed
-- user visual verification: passed; user confirmed no further adjustments are needed
+- hosted byte/release-identity verification: passed
 
-Detailed closeout: [`pwa/docs/FISH113_Production_Closeout_2026-09-16.md`](pwa/docs/FISH113_Production_Closeout_2026-09-16.md).
+This is a handoff checkpoint. Documentation-only reconciliation may advance `main` without republishing the PWA; always inspect current production evidence when exact identity matters.
 
-The next unused application/architecture task ID is **FISH-TODO-114** unless newer `main` has allocated it.
+FISH114 is the latest completed application/architecture change. The next unused application/architecture task ID is **FISH-TODO-115** unless newer `main` has allocated it.
+
+## FISH114 — Android/Edge maskable launcher icon
+
+**Status: IMPLEMENTED / PRODUCTION-VERIFIED / USER-VERIFIED / CLOSED.**
+
+FISH114 fixes Android/Edge adaptive-icon presentation for installed Fishing Companion shortcuts without changing the approved transparent source icon.
+
+Durable implementation result:
+
+- `pwa/icon.png` remains the approved transparent source and is unchanged;
+- the production build generates an opaque `icon-maskable.png` from that artwork;
+- generated maskable background is `#11665c`;
+- approved artwork is trimmed/resized and centered within the maskable canvas;
+- the web manifest publishes both `purpose: "any"` and `purpose: "maskable"` icon entries;
+- the generated maskable icon participates in release identity and verification;
+- regression coverage checks manifest shape, exact preservation of the ordinary source icon, maskable dimensions/background/opacity, and distinction between the two outputs.
+
+Production closeout:
+
+- implementation PR: #179
+- production source revision: `771c80baa21fe17f331614f6658b5278475178ed`
+- Full Application workflow: **#349** / run `35306208653`
+- hosted release: `9e9cc6e2f388439c1d745c0e74122c33`
+- hosted counts at that release: Gear 85 / KB 57 / Catch 6
+- hosted file count at that release: 386
+- full validation, Pages deployment, and actual hosted byte/browser verification passed
+- the user visually inspected the installed Android result and confirmed it looks great
+
+Detailed closeout: [`pwa/docs/FISH114_Production_Closeout_2026-09-18.md`](pwa/docs/FISH114_Production_Closeout_2026-09-18.md).
 
 ## FISH113 — responsive scenic page heroes
 
@@ -84,7 +112,13 @@ Routine FISH108 content releases are canonical and do not require per-item close
 - Banks Lake KB/Location with its representative picture removed while preserving its Markdown and two inline Steamboat Rock images;
 - Electronics Research in My Gear/Equipment with `%20`-encoded local image paths;
 - September 14–15 Technique restructuring, four-season pages, Topwater expansion and curated cross-links;
-- Berkely Trilene XL as a Gear/Line record.
+- Berkely Trilene XL as a Gear/Line record;
+- Canyon Insulated Fish Bag and BaitPop Elite Crawfish Red Scent;
+- Lucas Fishing Reel Oil as Gear/Equipment/Tools;
+- the September 17 Lake Sammamish largemouth Catch record;
+- Strike King KVD Square Bill 1.0 specifications updated with 1/4 oz weight and #5 hook size;
+- Berkely Warpig as a Gear/Lure record;
+- Bass Fishing Techniques with corrected same-page heading anchors and Trout Fishing Techniques with a matching table of contents.
 
 Git history and current canonical source are authoritative for routine content releases.
 
@@ -157,6 +191,7 @@ FISH110 remains complete/production-verified: Gear/KB Add/Edit → **Copy Change
 - Simple Markdown-only narrative edits may be made directly; structured fields/categories/types/specifications/links/pictures/sequences/paths/relationships should use the source-aware workflow.
 - KB `description` has a schema maximum of 80 characters.
 - Existing IDs stay stable unless intentionally retired/replaced.
+- Same-page Markdown heading links must use the renderer-generated slug: lowercase, punctuation stripped, spaces collapsed to hyphens; for example `## Kayak Fishing and Electronics` is targeted by `#kayak-fishing-and-electronics`. Do not use percent-encoded original heading text as the anchor.
 - `.github/workflows/fishing-production.yml` is the sole active publisher.
 - Fishing Companion keeps independent Gear, KB, and Catch domains. KB types are Location, Species, Equipment/Gear Guide, Technique, and Knot.
 
@@ -172,13 +207,17 @@ Active Knot sequences remain Palomar, Albright, Arbor, Bowline, FG, Improved Cli
 
 ## Backlog and future phase
 
-`FISH-TODO-005` remains **WAITING ON USER**; do not infer every fish-finder power component is installed.
+`FISH-TODO-005` is **RESOLVED**: the user explicitly confirmed the installed fish-finder power system as Amped Outdoors 12V 8Ah, 3A fuse, IP68 connector and 22–18 AWG disconnects.
 
 `FISH-TODO-014` remains **OPEN**; do not infer the HyperSeal 3600 is the historical deep-box watch target without explicit confirmation.
 
 The specialized content backlog remains open, including Texas Rig, Carolina Rig, Alabama Rig, Neko Rig, and Spoons.
 
-**Fishing Companion v3** (historically `FISH-TODO-077/P2`) remains DEFERRED. Authentication, direct GitHub save/upload, integrated uploads, offline authoring/outbox/sync, Catch authoring, and multi-user generalization are not current production.
+**Fishing Companion v3** (historically `FISH-TODO-077/P2`) remains DEFERRED and requires explicit approval before implementation. Deferred scope includes authentication, direct GitHub save/upload, integrated browser-side file/image uploads, offline authoring, an outbox/sync system for queued changes, Catch authoring, broader multi-user support, and making pictures embedded in content Markdown clickable into the existing picture viewer. None of this is current production.
+
+### Current kayak-specific open work
+
+The active backlog includes RVR119 Under Seat Tackle Storage (back-ordered/#1 equipment need), NRS ATB Wetshoe, NRS Champion Jacket/Bib, bow-hatch tie-offs, **Remount outer rod holders** (FISH-TODO-038), and **Apply T-9 on kayak hardware** (FISH-TODO-039). FISH-TODO-030 was explicitly deleted and must not be restored.
 
 ## Operating mode and new-chat protocol
 
