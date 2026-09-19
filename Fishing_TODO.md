@@ -25,7 +25,7 @@ The durable policy is [`pwa/docs/FISH108_Fast_Content_Release_Policy_2026-09-14.
 
 FISH071–076 and FISH078–114 are complete/implemented. The next unused application/architecture task ID is **FISH-TODO-115**.
 
-**Fishing Companion v3** — historically `FISH-TODO-077/P2` — remains **DEFERRED**. Future scope may include authentication, direct GitHub save/upload, integrated uploads, offline authoring/outbox/sync, Catch authoring and multi-user generalization. None of that is current production or implicitly approved implementation work.
+**Fishing Companion v3** — historically `FISH-TODO-077/P2` — remains **DEFERRED** and requires explicit approval before implementation. Deferred scope includes authentication, direct saving to GitHub, integrated browser-side file/image uploads, offline authoring, a queued-change outbox/sync system, Catch authoring, broader multi-user support, and clickable content-Markdown pictures that open in the existing picture viewer. None of this is current production.
 
 ### Recent content work completed — no application task IDs consumed
 
