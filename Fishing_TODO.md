@@ -45,7 +45,7 @@ The RVR119 Under Seat Tackle Storage has **not** been purchased, remains on back
 
 FISH105 adds a KastKing HyperSeal Waterproof Tackle Box in size 3600, but the supplied package does **not** explicitly identify that item as the specific “KastKing 3600 deep box” target in FISH-TODO-014. Preserve FISH-TODO-014 as OPEN unless the user explicitly resolves that backlog item.
 
-Kayak-maintenance updates applied September 18, 2026: FISH-TODO-030 was explicitly deleted; FISH-TODO-038 is now **Remount outer rod holders**; and FISH-TODO-039 is **Apply T-9 on kayak hardware**.
+Kayak-maintenance updates applied September 18, 2026: FISH-TODO-030 was explicitly deleted; FISH-TODO-038 (**Remount outer rod holders**) is complete and removed from the active table; and FISH-TODO-039 remains **Apply T-9 on kayak hardware**.
 
 | ID | Priority | Status | Work item |
 |---|---|---|---|
@@ -68,7 +68,6 @@ Kayak-maintenance updates applied September 18, 2026: FISH-TODO-030 was explicit
 | FISH-TODO-029 | P2 | OPEN | Determine bow-hatch item tie-offs, including tool bag/bilge pump. |
 | FISH-TODO-031 | P3 | OPEN | Listen/watch Science of the Strike episodes 8 and 16 (dissolved oxygen/turbidity). |
 | FISH-TODO-037 | P3 | DEFERRED | Fishing Companion v3 requirements; implementation requires explicit approval: authentication, direct saving to GitHub, integrated browser-side file/image uploads, offline authoring, queued-change outbox/sync, Catch authoring, broader multi-user support, and clickable content-Markdown pictures that open in the existing picture viewer. |
-| FISH-TODO-038 | P2 | OPEN | Remount outer rod holders. |
 | FISH-TODO-039 | P2 | OPEN | Apply T-9 on kayak hardware. |
 
 ## Continuation rules
