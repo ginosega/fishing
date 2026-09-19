@@ -2,13 +2,44 @@
 
 Persistent Fishing project and source repository for Fishing Companion.
 
-## Current continuation — September 16, 2026
+## Current continuation — September 18, 2026
 
 `ginosega/fishing` is the durable source of truth. Fishing Companion remains a three-domain PWA (Gear, Knowledge Base, Catch) with canonical source under `pwa/Gear/`, `pwa/KB/`, and `pwa/Catches/`.
 
 Always restore actual latest `main`, current open PRs, and the latest successful production evidence before relying on exact SHA/release/count values. Historical checkpoint identifiers in project Markdown are evidence only.
 
+### September 18 production checkpoint
+
+The latest verified hosted production at this handoff is the Fast Content Release for the Bass/Trout Fishing Techniques table-of-contents work:
+
+- production source revision: `45b85250d4342326cfd0e103026f1cea7adcbea7`;
+- implementation PR: #182;
+- production workflow: #359 / run `35387318153`;
+- hosted release: `5ad3a0a1bdb76b3c4827114de3ef07b8`;
+- hosted counts: Gear 86 / KB 57 / Catch 6;
+- hosted file count: 387;
+- hosted byte/release-identity verification passed.
+
+This exact production identity is a handoff checkpoint, not permanent truth. Documentation-only reconciliation may advance `main` without republishing the PWA.
+
 ## Current application state
+
+### FISH114 — Android/Edge maskable launcher icon
+
+FISH114 is **complete, production-verified, and user-verified**.
+
+Android/Edge installs now receive a dedicated maskable launcher icon while the approved transparent `pwa/icon.png` source remains unchanged. The build generates `icon-maskable.png` with an opaque `#11665c` background and centered approved artwork, publishes both `any` and `maskable` manifest entries, and includes the generated maskable icon in release identity/verification.
+
+Production closeout evidence:
+
+- implementation PR: #179;
+- production source revision: `771c80baa21fe17f331614f6658b5278475178ed`;
+- Full Application workflow: #349 / run `35306208653`;
+- hosted release: `9e9cc6e2f388439c1d745c0e74122c33`;
+- full validation, Pages deployment, and actual hosted byte/browser verification passed;
+- the user reinstalled/inspected the Android launcher result and confirmed it looks great.
+
+Detailed closeout: [`pwa/docs/FISH114_Production_Closeout_2026-09-18.md`](pwa/docs/FISH114_Production_Closeout_2026-09-18.md).
 
 ### FISH113 — responsive scenic page heroes
 
@@ -36,7 +67,7 @@ The Home, My Gear, and Knowledge Base cards now use 16 bundled fixed transparent
 
 Detailed closeout: [`pwa/docs/FISH112_Production_Closeout_2026-09-16.md`](pwa/docs/FISH112_Production_Closeout_2026-09-16.md).
 
-The next unused application/architecture task ID is **FISH-TODO-114** unless newer `main` has already allocated it.
+The next unused application/architecture task ID is **FISH-TODO-115** unless newer `main` has already allocated it.
 
 ## Current KB editorial architecture
 
@@ -70,12 +101,13 @@ FISH109 provides run-attempt-specific deployment/evidence artifacts and hosted-v
 - FISH102: Line-Tackle-Knot Reference is pinned first only on KB → Knots.
 - FISH103: external HTTP(S) links open in a new tab, internal app links remain same-tab, and authoring upload links use physical `/pwa/...` paths.
 - FISH107: Skylety Fishing Hook Sharpener canonical type is `Tools`.
+- Same-page Markdown links must target the renderer's heading slug: lowercase, punctuation stripped, spaces changed to hyphens (for example `#kayak-fishing-and-electronics`), not percent-encoded original heading text.
 
 ## Backlog / future phase
 
-Preserve purchase uncertainty. `FISH-TODO-005` remains WAITING ON USER and `FISH-TODO-014` remains OPEN. The specialized content backlog still includes Texas Rig, Carolina Rig, Alabama Rig, Neko Rig, and Spoons.
+Preserve purchase uncertainty. FISH-TODO-005 is resolved: the installed fish-finder power system was explicitly confirmed as Amped Outdoors 12V 8Ah, 3A fuse, IP68 connector and 22–18 AWG disconnects. `FISH-TODO-008` remains OPEN/back-ordered and is the user's #1 needed fishing equipment item; `FISH-TODO-014` remains OPEN. The specialized content backlog still includes Texas Rig, Carolina Rig, Alabama Rig, Neko Rig, and Spoons.
 
-**Fishing Companion v3** (historically FISH-TODO-077/P2) remains DEFERRED. Authentication, direct GitHub save/upload, integrated uploads, offline authoring/outbox/sync, Catch authoring, and multi-user generalization are not current production.
+**Fishing Companion v3** (historically FISH-TODO-077/P2) remains DEFERRED and requires explicit approval before implementation. Deferred scope includes authentication, direct GitHub save/upload, integrated browser-side file/image uploads, offline authoring, an outbox/sync system for queued changes, Catch authoring, broader multi-user support, and making Markdown-content images clickable into the picture viewer. None of this is current production.
 
 ## Project continuation
 
