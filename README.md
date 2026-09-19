@@ -37,7 +37,7 @@ Production closeout evidence:
 - Full Application workflow: #349 / run `35306208653`;
 - hosted release: `9e9cc6e2f388439c1d745c0e74122c33`;
 - full validation, Pages deployment, and actual hosted byte/browser verification passed;
-- the user reinstalled/inspected the Android launcher result and confirmed it looks great.
+- the user inspected the Android launcher result and confirmed it looks great.
 
 Detailed closeout: [`pwa/docs/FISH114_Production_Closeout_2026-09-18.md`](pwa/docs/FISH114_Production_Closeout_2026-09-18.md).
 
