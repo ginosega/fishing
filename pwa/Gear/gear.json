@@ -1170,7 +1170,8 @@
       "picture": {
         "src": "Gear/Lures/assets/Berkley Warpig.png",
         "caption": "Berkely Warpig"
-      }
+      },
+      "notes": "Gear/Lures/content/Berkely Warpig.md"
     },
     {
       "id": "strike-king-kvd-square-bill-1",
