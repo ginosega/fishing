@@ -217,7 +217,7 @@ The specialized content backlog remains open, including Texas Rig, Carolina Rig,
 
 ### Current kayak-specific open work
 
-The active backlog includes RVR119 Under Seat Tackle Storage (back-ordered/#1 equipment need), NRS ATB Wetshoe, NRS Champion Jacket/Bib, bow-hatch tie-offs, **Remount outer rod holders** (FISH-TODO-038), and **Apply T-9 on kayak hardware** (FISH-TODO-039). FISH-TODO-030 was explicitly deleted and must not be restored.
+The active backlog includes RVR119 Under Seat Tackle Storage (back-ordered/#1 equipment need), NRS ATB Wetshoe, NRS Champion Jacket/Bib, bow-hatch tie-offs, and **Apply T-9 on kayak hardware** (FISH-TODO-039). FISH-TODO-038 (**Remount outer rod holders**) is complete. FISH-TODO-030 was explicitly deleted and must not be restored.
 
 ## Operating mode and new-chat protocol
 

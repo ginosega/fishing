@@ -203,7 +203,7 @@ FISH107: current canonical Skylety Fishing Hook Sharpener type is `Tools`.
 
 `FISH-TODO-014` remains OPEN; do not infer FISH105's HyperSeal 3600 is the historical deep-box watch target without explicit confirmation.
 
-Kayak-specific active work includes bow-hatch tie-offs, NRS ATB Wetshoe, NRS Champion Jacket/Bib, **Remount outer rod holders** (FISH-TODO-038), and **Apply T-9 on kayak hardware** (FISH-TODO-039). FISH-TODO-030 was explicitly deleted; do not restore it.
+Kayak-specific active work includes bow-hatch tie-offs, NRS ATB Wetshoe, NRS Champion Jacket/Bib, and **Apply T-9 on kayak hardware** (FISH-TODO-039). FISH-TODO-038 (**Remount outer rod holders**) is complete. FISH-TODO-030 was explicitly deleted; do not restore it.
 
 The specialized content backlog remains open, including Texas Rig, Carolina Rig, Alabama Rig, Neko Rig and Spoons.
 
