@@ -97,7 +97,21 @@ The user inspected the final live responsive behavior and confirmed: **“It’s
 
 Detailed evidence: [`pwa/docs/FISH113_Production_Closeout_2026-09-16.md`](pwa/docs/FISH113_Production_Closeout_2026-09-16.md).
 
-**Decision:** FISH113 is closed. The next unused application/architecture task ID is **FISH-TODO-114** unless newer `main` has already allocated it.
+**Decision:** FISH113 is closed.
+
+## FISH114 — Android/Edge maskable launcher icon
+
+**Decision/status:** IMPLEMENTED / PRODUCTION-VERIFIED / USER-VERIFIED / CLOSED.
+
+**Decision:** Preserve the approved transparent `pwa/icon.png` as the ordinary source icon. Generate the Android adaptive/maskable variant at build time rather than replacing or mutating the approved source.
+
+**Decision:** The production manifest publishes both an ordinary `purpose: "any"` icon and a dedicated `purpose: "maskable"` icon. The generated maskable icon uses opaque `#11665c` background, centered approved artwork, and participates in release identity and verification.
+
+FISH114 was implemented in PR #179 from source revision `771c80baa21fe17f331614f6658b5278475178ed`. Full Application workflow #349 / run `35306208653` deployed hosted release `9e9cc6e2f388439c1d745c0e74122c33`; full validation, Pages deployment and actual hosted byte/browser verification passed. The user visually inspected the installed Android result and confirmed it looks great.
+
+Detailed evidence: [`pwa/docs/FISH114_Production_Closeout_2026-09-18.md`](pwa/docs/FISH114_Production_Closeout_2026-09-18.md).
+
+**Decision:** FISH114 is closed. The next unused application/architecture task ID is **FISH-TODO-115** unless newer `main` has already allocated it.
 
 ## KB editorial ownership model
 
@@ -125,6 +139,7 @@ Simple Markdown-only narrative edits may be made directly. Structured record fie
 - Normalize accidental trailing whitespace unless explicitly asked to preserve it.
 - KB `description` maximum is 80 characters.
 - Preserve unrelated concurrent changes and user-uploaded bytes; reconcile newer `main` before merge if it advances.
+- Same-page Markdown heading links must target the renderer-generated slug: lowercase, punctuation stripped, spaces converted to hyphens. Do not use capitalized/percent-encoded original heading text as the anchor target.
 
 ## Durable application behavior
 
@@ -136,7 +151,7 @@ Simple Markdown-only narrative edits may be made directly. Structured record fie
 
 ## Backlog decisions
 
-**FISH-TODO-005:** remains WAITING ON USER. FISH104 does not prove every fish-finder power component is installed.
+**FISH-TODO-005:** resolved. The user explicitly confirmed the installed fish-finder power system as Amped Outdoors 12V 8Ah, 3A fuse, IP68 connector and 22–18 AWG disconnects.
 
 **FISH-TODO-014:** remains OPEN. FISH105's HyperSeal 3600 was not explicitly identified as the historical deep-box watch target.
 
@@ -144,8 +159,8 @@ Simple Markdown-only narrative edits may be made directly. Structured record fie
 
 ## Fishing Companion v3
 
-**Decision:** Fishing Companion v3 is the preferred name for the deferred future phase historically tracked as FISH-TODO-077/P2. It remains DEFERRED. Authentication, direct GitHub save/upload, integrated uploads, offline authoring/outbox/sync, Catch authoring and multi-user generalization are not current production or implicitly approved.
+**Decision:** Fishing Companion v3 is the preferred name for the deferred future phase historically tracked as FISH-TODO-077/P2. It remains DEFERRED and implementation requires explicit approval. Deferred scope includes authentication, direct GitHub save/upload, integrated browser-side file/image uploads, offline authoring, a queued-change outbox/sync system, Catch authoring, broader multi-user support, and making pictures embedded in content Markdown clickable into the existing picture viewer. None of this is current production or implicitly approved.
 
 ## Open application work
 
-FISH071–076 and FISH078–113 are complete/implemented. There is no currently allocated open application task after FISH113. The next unused application/architecture task ID is **FISH-TODO-114** unless actual newer `main` has already allocated it. Routine Fast Content Releases do not consume that ID.
+FISH071–076 and FISH078–114 are complete/implemented. There is no currently allocated open application task after FISH114. The next unused application/architecture task ID is **FISH-TODO-115** unless actual newer `main` has already allocated it. Routine Fast Content Releases do not consume that ID.
