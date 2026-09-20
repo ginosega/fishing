@@ -1153,6 +1153,10 @@
         {
           "value": "Firetail Green Craw",
           "label": "Color"
+        },
+        {
+          "value": "Sinking",
+          "label": "Buoyancy"
         }
       ],
       "links": [
