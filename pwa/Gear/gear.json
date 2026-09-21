@@ -1138,7 +1138,7 @@
     },
     {
       "id": "berkely-warpig",
-      "name": "Berkely Warpig",
+      "name": "Berkley Warpig",
       "category": "lures",
       "type": "Crankbaits and hard jerkbaits",
       "specifications": [
@@ -1151,7 +1151,7 @@
           "label": "Weight"
         },
         {
-          "value": "Firetail Green Craw",
+          "value": "Sexier Shad, Firetail Green Craw",
           "label": "Color"
         },
         {
@@ -1169,11 +1169,11 @@
           "url": "https://a.co/d/0aTYgB5g"
         }
       ],
-      "manufacturer": "Berkely",
+      "manufacturer": "Berkley",
       "model": "Warpig",
       "picture": {
         "src": "Gear/Lures/assets/Berkley Warpig.png",
-        "caption": "Berkely Warpig"
+        "caption": "Berkley Warpig (Sexier Shad)"
       },
       "notes": "Gear/Lures/content/Berkely Warpig.md"
     },
