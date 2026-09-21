@@ -1081,8 +1081,16 @@
       "model": "Crawfish",
       "specifications": [
         {
-          "label": "Variants",
-          "value": "2 in, 1/5 oz, Nest Robber; 1-1/2 in, 1/9 oz, Chartreuse Brown"
+          "value": "2 in, 1/5 oz, Nest Robber; 1-1/2 in, 1/9 oz, Chartreuse Brown",
+          "label": "Variants"
+        },
+        {
+          "value": "6-7'",
+          "label": "Depth"
+        },
+        {
+          "value": "Floating",
+          "label": "Buoyancy"
         }
       ],
       "links": [
