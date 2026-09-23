@@ -1519,6 +1519,63 @@
       }
     },
     {
+      "id": "blue-fox-flash-spinner",
+      "category": "lures",
+      "type": "Inline spinners",
+      "name": "Blue Fox Flash Spinner",
+      "manufacturer": "Blue Fox",
+      "model": "Flash Spinner",
+      "specifications": [
+        {
+          "value": "Blue Shad",
+          "label": "Color"
+        },
+        {
+          "value": "1/8 oz",
+          "label": "Weight"
+        },
+        {
+          "value": "1",
+          "label": "Blade size"
+        }
+      ],
+      "links": [
+        {
+          "label": "Blue Fox",
+          "url": "https://www.rapala.com/us_en/flash-spinner?childSku=us-BFFS1BSD"
+        }
+      ],
+      "notes": "Gear/Lures/content/Blue Fox Flash Spinner.md",
+      "picture": {
+        "src": "Gear/Lures/assets/Blue Fox Flash Spinner.png",
+        "caption": "Blue Fox Flash Spinner"
+      }
+    },
+    {
+      "id": "bad-river-tackle-company-trout-panfish-spinners",
+      "category": "lures",
+      "type": "Inline spinners",
+      "name": "Bad River Tackle Company Trout/Panfish Spinners",
+      "manufacturer": "Bad River Tackle Company",
+      "model": "Trout-Panfish Spinners",
+      "specifications": [
+        {
+          "value": "Black/Yellow, Silver, Yellow Holo",
+          "label": "Colors"
+        },
+        {
+          "value": "1/8 oz",
+          "label": "Weight"
+        }
+      ],
+      "links": [],
+      "notes": "Gear/Lures/content/Bad River Tackle Company TroutPanfish Spinners.md",
+      "picture": {
+        "src": "Gear/Lures/assets/Bad River Tackle Company Trout-Panfish Spinners.png",
+        "caption": "Bad River Tackle Company Trout/Panfish Spinners"
+      }
+    },
+    {
       "id": "generic-1-inline-spinner",
       "category": "lures",
       "type": "Inline spinners",
