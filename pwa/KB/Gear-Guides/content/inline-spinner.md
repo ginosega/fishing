@@ -53,5 +53,5 @@ One or more narrow blades mounted on a straight wire shaft, with a bullet or tor
 | Salmon / Steelhead | Blue Fox Vibrax, Panther Martin | #4–#6 | Bright, high-contrast colors (orange, pink, chartreuse) work best in rivers. |
 
 ## Links
-- My Gear: [Mepps Aglia #3](gear://mepps-aglia-3), [South Bend 3-Piece Classic Dressed Spinners](gear://generic-0-inline-spinner-assortment)
+- My Gear: [Mepps Aglia #3](gear://mepps-aglia-3)
 - KB: [Snaps & Swivels](kb://technique-snaps-swivels), [Trout Fishing](kb://technique-trout-fishing), [Improved Clinch Knot](kb://knot-improved-clinch)
