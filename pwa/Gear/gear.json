@@ -1519,32 +1519,6 @@
       }
     },
     {
-      "id": "generic-0-inline-spinner-assortment",
-      "category": "lures",
-      "type": "Inline spinners",
-      "name": "South Bend 3-Piece Classic Dressed Spinners",
-      "manufacturer": "South Bend",
-      "model": "3-Piece Classic Dressed Spinners",
-      "specifications": [
-        {
-          "label": "Size",
-          "value": "#0"
-        },
-        {
-          "label": "Weight",
-          "value": "1/8 oz"
-        },
-        {
-          "label": "Colors",
-          "value": "Black/Yellow, Blue/Yellow, Chrome, Yellow Holographic"
-        }
-      ],
-      "notes": "Gear/Lures/content/generic-0-inline-spinner-assortment.md",
-      "picture": {
-        "src": "Gear/Lures/assets/south-bend-dressed-spinners.jpg"
-      }
-    },
-    {
       "id": "generic-1-inline-spinner",
       "category": "lures",
       "type": "Inline spinners",
