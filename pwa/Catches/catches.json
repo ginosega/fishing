@@ -62,20 +62,24 @@
       "date": "2026-09-24",
       "size": "12 in",
       "speciesId": "species-smallmouth-bass",
-      "locationId": "location-banks-lake"
+      "locationId": "location-banks-lake",
+      "lureOrBaitId": "zman-ned-rig-kit"
     },
     {
       "id": "catch-2026-09-24-banks-lake-largemouth-01",
       "date": "2026-09-24",
       "size": "14 in",
       "speciesId": "species-largemouth-bass",
-      "locationId": "location-banks-lake"
+      "locationId": "location-banks-lake",
+      "lureOrBaitId": "zman-ned-rig-kit"
     },
     {
       "id": "catch-2026-09-24-banks-lake-whitefish-01",
       "date": "2026-09-24",
       "size": "8 in",
-      "locationId": "location-banks-lake"
+      "locationId": "location-banks-lake",
+      "speciesId": "lake-whitefish",
+      "lureOrBaitId": "zman-ned-rig-kit"
     },
     {
       "id": "catch-2026-09-24-banks-lake-smallmouth-02",
