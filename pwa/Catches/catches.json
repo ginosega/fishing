@@ -63,7 +63,8 @@
       "size": "12 in",
       "speciesId": "species-smallmouth-bass",
       "locationId": "location-banks-lake",
-      "lureOrBaitId": "zman-ned-rig-kit"
+      "lureOrBaitId": "zman-ned-rig-kit",
+      "notes": "Catches/content/catch-2026-09-24-banks-lake-smallmouth-01.md"
     },
     {
       "id": "catch-2026-09-24-banks-lake-largemouth-01",
@@ -71,7 +72,8 @@
       "size": "14 in",
       "speciesId": "species-largemouth-bass",
       "locationId": "location-banks-lake",
-      "lureOrBaitId": "zman-ned-rig-kit"
+      "lureOrBaitId": "zman-ned-rig-kit",
+      "notes": "Catches/content/catch-2026-09-24-banks-lake-largemouth-01.md"
     },
     {
       "id": "catch-2026-09-24-banks-lake-whitefish-01",
@@ -79,7 +81,8 @@
       "size": "8 in",
       "locationId": "location-banks-lake",
       "speciesId": "lake-whitefish",
-      "lureOrBaitId": "zman-ned-rig-kit"
+      "lureOrBaitId": "zman-ned-rig-kit",
+      "notes": "Catches/content/catch-2026-09-24-banks-lake-whitefish-01.md"
     },
     {
       "id": "catch-2026-09-24-banks-lake-smallmouth-02",
@@ -87,7 +90,8 @@
       "size": "15 in",
       "speciesId": "species-smallmouth-bass",
       "locationId": "location-banks-lake",
-      "lureOrBaitId": "berkley-powerbait-power-jerk-shad"
+      "lureOrBaitId": "berkley-powerbait-power-jerk-shad",
+      "notes": "Catches/content/catch-2026-09-24-banks-lake-smallmouth-02.md"
     },
     {
       "id": "catch-2026-09-24-banks-lake-smallmouth-03",
@@ -95,7 +99,8 @@
       "size": "14 in",
       "speciesId": "species-smallmouth-bass",
       "locationId": "location-banks-lake",
-      "lureOrBaitId": "berkley-powerbait-power-jerk-shad"
+      "lureOrBaitId": "berkley-powerbait-power-jerk-shad",
+      "notes": "Catches/content/catch-2026-09-24-banks-lake-smallmouth-03.md"
     }
   ]
 }
