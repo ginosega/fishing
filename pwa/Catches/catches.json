@@ -56,6 +56,42 @@
       "locationId": "location-lake-sammamish",
       "lureOrBaitId": "strike-king-kvd-square-bill-1",
       "notes": "Catches/content/catch-2026-09-17-lake-sammamish-largemouth-01.md"
+    },
+    {
+      "id": "catch-2026-09-24-banks-lake-smallmouth-01",
+      "date": "2026-09-24",
+      "size": "12 in",
+      "speciesId": "species-smallmouth-bass",
+      "locationId": "location-banks-lake"
+    },
+    {
+      "id": "catch-2026-09-24-banks-lake-largemouth-01",
+      "date": "2026-09-24",
+      "size": "14 in",
+      "speciesId": "species-largemouth-bass",
+      "locationId": "location-banks-lake"
+    },
+    {
+      "id": "catch-2026-09-24-banks-lake-whitefish-01",
+      "date": "2026-09-24",
+      "size": "8 in",
+      "locationId": "location-banks-lake"
+    },
+    {
+      "id": "catch-2026-09-24-banks-lake-smallmouth-02",
+      "date": "2026-09-24",
+      "size": "15 in",
+      "speciesId": "species-smallmouth-bass",
+      "locationId": "location-banks-lake",
+      "lureOrBaitId": "berkley-powerbait-power-jerk-shad"
+    },
+    {
+      "id": "catch-2026-09-24-banks-lake-smallmouth-03",
+      "date": "2026-09-24",
+      "size": "14 in",
+      "speciesId": "species-smallmouth-bass",
+      "locationId": "location-banks-lake",
+      "lureOrBaitId": "berkley-powerbait-power-jerk-shad"
     }
   ]
 }
