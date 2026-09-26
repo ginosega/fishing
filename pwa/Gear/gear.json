@@ -2062,16 +2062,20 @@
       "model": "Ned Rig Kit",
       "specifications": [
         {
-          "label": "Size",
-          "value": "3.5 in"
+          "value": "3.5 in",
+          "label": "Size"
         },
         {
-          "label": "Color",
-          "value": "Green Pumpkin"
+          "value": "Green Pumpkin",
+          "label": "Color"
         },
         {
-          "label": "Baits",
-          "value": "Trick ShotZ, Finesse ShadZ, GobyZ"
+          "value": "Finesse TRD stickbait, TRD Tickler, TRD Craw",
+          "label": "Baits"
+        },
+        {
+          "value": "1/6 oz, 1/10 oz",
+          "label": "Jigheads"
         }
       ],
       "links": [
