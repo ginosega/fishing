@@ -2090,6 +2090,81 @@
       }
     },
     {
+      "id": "zman-finesse-shadz",
+      "category": "lures",
+      "type": "Soft plastics and swimbaits",
+      "name": "ZMan Finesse ShadZ",
+      "manufacturer": "ZMan",
+      "model": "Finesse ShadZ",
+      "specifications": [
+        {
+          "value": "4 in",
+          "label": "Size"
+        },
+        {
+          "value": "Green Pumpkin",
+          "label": "Color"
+        }
+      ],
+      "links": [
+        {
+          "label": "ZMan Fishing",
+          "url": "https://zmanfishing.com/products/finesse-shadz"
+        }
+      ],
+      "notes": "Gear/Lures/content/ZMan Finesse ShadZ.md"
+    },
+    {
+      "id": "zman-trick-shotz",
+      "category": "lures",
+      "type": "Soft plastics and swimbaits",
+      "name": "ZMan Trick ShotZ",
+      "manufacturer": "ZMan",
+      "model": "Trick ShotZ",
+      "specifications": [
+        {
+          "value": "3.5 in",
+          "label": "Size"
+        },
+        {
+          "value": "Green Pumpkin",
+          "label": "Color"
+        }
+      ],
+      "links": [
+        {
+          "label": "ZMan Fishing",
+          "url": "https://zmanfishing.com/products/trick-shotz"
+        }
+      ],
+      "notes": "Gear/Lures/content/ZMan Trick ShotZ.md"
+    },
+    {
+      "id": "zman-trd-gobyz",
+      "category": "lures",
+      "type": "Soft plastics and swimbaits",
+      "name": "ZMan TRD GobyZ",
+      "manufacturer": "ZMan",
+      "model": "TRD GobyZ",
+      "specifications": [
+        {
+          "value": "2.4 in",
+          "label": "Size"
+        },
+        {
+          "value": "Green Pumpkin",
+          "label": "Color"
+        }
+      ],
+      "links": [
+        {
+          "label": "ZMan Fishing",
+          "url": "https://zmanfishing.com/products/trd-gobyz"
+        }
+      ],
+      "notes": "Gear/Lures/content/ZMan TRD GobyZ.md"
+    },
+    {
       "id": "berkley-gulp-minnow",
       "category": "lures",
       "type": "Soft plastics and swimbaits",
