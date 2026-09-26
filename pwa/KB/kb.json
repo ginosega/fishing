@@ -347,6 +347,16 @@
       }
     },
     {
+      "id": "lake-whitefish",
+      "type": "species",
+      "name": "Lake whitefish",
+      "content": "KB/Species/content/Lake whitefish.md",
+      "picture": {
+        "src": "KB/Species/assets/Lake whitefish.png",
+        "caption": "Lake whitefish"
+      }
+    },
+    {
       "id": "bowline-knot",
       "name": "Bowline Knot",
       "type": "knot",
