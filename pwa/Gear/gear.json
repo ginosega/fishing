@@ -2112,7 +2112,11 @@
           "url": "https://zmanfishing.com/products/finesse-shadz"
         }
       ],
-      "notes": "Gear/Lures/content/ZMan Finesse ShadZ.md"
+      "notes": "Gear/Lures/content/ZMan Finesse ShadZ.md",
+      "picture": {
+        "src": "Gear/Lures/assets/zman-finesse-shadz.png",
+        "caption": "ZMan Finesse ShadZ"
+      }
     },
     {
       "id": "zman-trick-shotz",
@@ -2137,7 +2141,11 @@
           "url": "https://zmanfishing.com/products/trick-shotz"
         }
       ],
-      "notes": "Gear/Lures/content/ZMan Trick ShotZ.md"
+      "notes": "Gear/Lures/content/ZMan Trick ShotZ.md",
+      "picture": {
+        "src": "Gear/Lures/assets/zman-trick-shotz.png",
+        "caption": "ZMan Trick ShotZ"
+      }
     },
     {
       "id": "zman-trd-gobyz",
@@ -2162,7 +2170,11 @@
           "url": "https://zmanfishing.com/products/trd-gobyz"
         }
       ],
-      "notes": "Gear/Lures/content/ZMan TRD GobyZ.md"
+      "notes": "Gear/Lures/content/ZMan TRD GobyZ.md",
+      "picture": {
+        "src": "Gear/Lures/assets/zman-trd-gobyz.png",
+        "caption": "ZMan TRD GobyZ"
+      }
     },
     {
       "id": "berkley-gulp-minnow",
