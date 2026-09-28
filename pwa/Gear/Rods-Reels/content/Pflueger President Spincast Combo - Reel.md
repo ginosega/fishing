@@ -1,13 +1,13 @@
 Simple, easy-to-use shore-fishing setup intended primarily for trout, kids, guests, and situations where uncomplicated casting is more important than maximum sensitivity or casting performance.
 
-A 6-8 lb monofilament main line is recommended for this setup. Avoid switching to braid or straight fluorocarbon main line unless actual testing shows that the reel handles it well.
+A 6-8 lb monofilament main line is recommended for this setup.
 
-Well suited to PowerBait bottom rigs, bobber-and-worm rigs, and small spoons or inline spinners if they cast adequately on the reel.
+Well suited to PowerBait bottom rigs, bobber-and-worm rigs, and small spoons or inline spinners.
 
 See [Trout Fishing](kb://technique-trout-fishing) for general trout techniques and rigging.
 
 ## Maintenance
-Spincast reels are simple, but old line, dried grease, and sticky pickup pins can make them cast terribly.
+Spincast reels are simple, but old line, dried grease, and sticky pickup pins can make them cast poorly.
 
 **What you need**
 - Paper towels or rag
@@ -18,7 +18,7 @@ Spincast reels are simple, but old line, dried grease, and sticky pickup pins ca
 - Light reel grease
 - New 6-8 lb mono, preferably Berkley Trilene XL
 
-### Step-by-step maintenance 
+### Step-by-step maintenance
 1. **Remove the old line**  
 Cut off and discard all the old line. If it has been sitting for years, it will have memory, weak spots, and coils.
 
