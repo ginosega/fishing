@@ -50,9 +50,4 @@
   - See quick connect and fuse/breaker: [video](https://youtu.be/f6zm8hRho-M?si=XQqJvTW1_Lli4VHq&t=365)
 
 ## Battery
-- Possible to add a voltage regulator to be able to power the motor and electronics off of a single battery, like the Fluxjet?
-  - Yes, with 24-12V DC-DC converter, proper wire gauges, breakers, and battery management system
-- Get battery with Bluetooth
-  - Amped Outdoors, Power Queen, Li Time, Dakota, Newport
-- TODO: see if trailer battery will work
-  - Assuming that the RV requires a 12-volt battery, we can connect a 24 to 12-volt DC to DC converter, as long as the converter can handle the power draw from the trailer. Calculate the total current draw of all trailer devices, like lights, appliances, and any 12V systems, and make sure the converter’s amp rating is comfortably above it.
+- Newport 24V 50Ah LoPRO Lithium LiFePo4 Battery: [Newport](https://newportvessels.com/products/lopro-24v-50ah-lithium-battery)
