@@ -1,6 +1,6 @@
 Simple, easy-to-use shore-fishing setup intended primarily for trout, kids, guests, and situations where uncomplicated casting is more important than maximum sensitivity or casting performance.
 
-A 6 lb monofilament main line is recommended for this setup. Avoid switching to braid or straight fluorocarbon main line unless actual testing shows that the reel handles it well.
+A 6-8 lb monofilament main line is recommended for this setup. Avoid switching to braid or straight fluorocarbon main line unless actual testing shows that the reel handles it well.
 
 Well suited to PowerBait bottom rigs, bobber-and-worm rigs, and small spoons or inline spinners if they cast adequately on the reel.
 
@@ -15,10 +15,8 @@ Spincast reels are simple, but old line, dried grease, and sticky pickup pins ca
 - Toothbrush
 - Mild dish soap and warm water
 - Reel oil, such as Lucas Fishing Reel Oil, Daiwa oil, Shimano oil, or Ardent Reel Butter oil
-- Optional: light reel grease, but only if you open the gear side
-- New 4–6 lb mono, preferably 6 lb Berkley Trilene XL
-
-Avoid WD-40 as the main lubricant. It can clean/displace water, but it is not a good long-term reel oil.
+- Light reel grease
+- New 6-8 lb mono, preferably Berkley Trilene XL
 
 ### Step-by-step maintenance 
 1. **Remove the old line**  
@@ -27,7 +25,7 @@ Cut off and discard all the old line. If it has been sitting for years, it will 
     Do this before cleaning so you can see the spool and pickup system clearly.
 
 2. **Remove the front cone**  
-Unscrew the front cover/cone of the reel. On most push-button/spincast reels, the nose cone simply twists off. Inside you should see the spool, pickup pins, and center shaft.
+Unscrew the front cone of the reel. Inside you will see the spool, pickup pins, and center shaft.
 
 3. **Wipe everything clean**  
 Use a dry cloth, toothbrush, and Q-tips to clean:
@@ -64,15 +62,15 @@ Tighten and loosen the drag knob to make sure it moves smoothly. Pull line off t
 
     If the drag is very sticky, that may require opening the reel farther, but for casual trout fishing, I would first clean, reline, and test it.
 
-8. **Optional: open the side cover**  
-Only do this if you are comfortable, and do it over a tray so parts do not disappear.
+8. Remove the gear body
+Do this over a tray so parts do not disappear.
 
-    If you open the gear side and see old dried grease, wipe away the excess and apply a very small amount of reel grease to the gear teeth. Do not pack the reel full of grease.
+    If you see old dried grease, wipe away the excess and apply a very small amount of reel grease to the gear teeth. Do not pack the reel full of grease.
 
-    For this reel, I’d keep it simple unless it feels rough or makes grinding noises.
+    For this reel, keep it simple unless it feels rough or makes grinding noises.
 
 ## Re-spool it correctly
-Use 6 lb mono.
+Use 6-8 lb mono.
 
 When adding line:
 - do not overfill
