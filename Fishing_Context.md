@@ -6,10 +6,10 @@
 
 ### Current verified production checkpoint
 
-- production source revision: `626e874d3fc88f7ac11dd97988920f90bc2fb8ea`
-- implementation PR: #200
-- production workflow: **#422** / run `36430594308`
-- hosted release ID: `0e2e4d903de78b6affe1d1dc55204c7b`
+- production source revision: `006be1c74e3e64c98be518398298965b3489fa5f`
+- source change: direct `main` content edit to `pwa/Gear/Equipment/content/Electronics Research.md`
+- production workflow: **#423** / run `36452795689`
+- hosted release ID: `51b68e6a7353b876bad9648d1aac8072`
 - hosted counts: **Gear 90 / KB 58 / Catches 11**
 - release lane: Fast Content Release
 - exact-current-main guard: passed
@@ -50,6 +50,7 @@ Current source includes the following durable content changes:
 - Berkley PowerBait Power Jerk Shad Notes wording updated.
 - Banks Lake inline-image filename/case and Markdown formatting corrected while preserving the intended two Steamboat Rock images.
 - Pflueger President Spincast Combo rod/reel Notes were revised; current reel capacity is `110 yd / 4 lb, 90 yd / 6 lb, 70 yd / 8 lb`.
+- Electronics Research motor/battery notes were refreshed with Garmin Force Current and Newport 24V 50Ah LoPRO details.
 
 Current source always controls over this summary.
 
