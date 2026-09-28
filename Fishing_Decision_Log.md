@@ -164,3 +164,20 @@ Simple Markdown-only narrative edits may be made directly. Structured record fie
 ## Open application work
 
 FISH071–076 and FISH078–114 are complete/implemented. There is no currently allocated open application task after FISH114. The next unused application/architecture task ID is **FISH-TODO-115** unless actual newer `main` has already allocated it. Routine Fast Content Releases do not consume that ID.
+## RVR119 motorization research constraints — September 28, 2026
+
+**Decision/constraint:** No kayak motor or propulsion battery has been selected or purchased. Preserve purchase uncertainty until the user explicitly chooses and purchases a system.
+
+**Decision/constraint:** The RVR119 is transported on the F-150 roof rack. Any motorization recommendation must support easy removal of the motor and battery before roof loading; the weight that remains permanently attached to the kayak matters.
+
+**Decision/constraint:** Low-profile battery packaging that can fit beneath the RVR119 seat is strongly preferred. The Newport LoPRO form factor is specifically attractive to the user.
+
+**Current candidate set:** Garmin Force Current with Power Steer; Newport NK180Pro HD + 24V 50Ah LoPRO + Wizard; Newport NK300 HD + 36V 50Ah LoPRO + Wizard. Continue comparing boat-control capability, river ruggedness, installed/removable weight, setup/teardown, realistic range, reliability, cost and serviceability rather than ranking solely by advertised thrust or speed.
+
+**Research finding to preserve:** All three motor systems can be removed for transport. Newport leaves its stern mount/steering hardware installed; Garmin leaves its stern mount and Power Steer rails installed while the motor and pedals are removable. This makes roof-loading weight materially lower than the complete on-water system weight.
+
+## Science of the Strike evidence standard — September 28, 2026
+
+**Decision:** When extracting Science of the Strike transcripts or incorporating them into Fishing Companion, explicitly distinguish study evidence from the hosts' opinions, extrapolations and fishing hypotheses. Do not convert a single study's thresholds, one population's behavior, lab results, or host inferences into universal fishing rules.
+
+**Decision:** Podcast-derived additions should follow the existing KB ownership model rather than create redundant pages. Behavior/Habitat owns enduring location/biology drivers; Fishing Techniques owns execution/presentation; seasonal detail belongs in seasonal pages; electronics-specific implications belong in Electronics Research.
