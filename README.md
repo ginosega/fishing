@@ -10,12 +10,12 @@ Always restore actual latest `main`, current open PRs, and the latest successful
 
 ### September 28 production checkpoint
 
-The latest verified hosted production at this handoff is the Fast Content Release for the Pflueger President spincast reel update:
+The latest verified hosted production at this handoff is the Fast Content Release for the Electronics Research update:
 
-- production source revision: `626e874d3fc88f7ac11dd97988920f90bc2fb8ea`;
-- implementation PR: #200;
-- production workflow: **#422** / run `36430594308`;
-- hosted release ID: `0e2e4d903de78b6affe1d1dc55204c7b`;
+- production source revision: `006be1c74e3e64c98be518398298965b3489fa5f`;
+- source change: direct `main` content edit to `pwa/Gear/Equipment/content/Electronics Research.md`;
+- production workflow: **#423** / run `36452795689`;
+- hosted release ID: `51b68e6a7353b876bad9648d1aac8072`;
 - hosted counts: **Gear 90 / KB 58 / Catches 11**;
 - release lane: Fast Content Release;
 - exact-current-main guard: passed;
@@ -47,6 +47,7 @@ Since the September 18 handoff, routine content work has added or reconciled:
 - Banks Lake inline-image filename/case and Markdown formatting cleanup;
 - Berkley PowerBait Power Jerk Shad Notes wording cleanup;
 - Pflueger President Spincast Combo rod/reel content and reel-capacity updates.
+- Electronics Research motor/battery notes refreshed with Garmin Force Current and Newport 24V 50Ah LoPRO details.
 
 Current canonical source, not this summary, controls exact record values.
 
