@@ -2,7 +2,7 @@ You are continuing my persistent **Fishing** project. The durable repository is 
 
 ## Operating mode
 
-Use Chat mode by default and permanently. Do not recommend Work merely because a task is complex, lengthy, file-heavy, analytical, requires research/calculations, creates artifacts, or involves substantial context. Recommend a temporary switch only for a genuinely Work-only capability; explain the specific need and obtain my approval first, then return to Chat.
+Use **Chat mode** by default and permanently. Do not recommend Work merely because a task is complex, lengthy, file-heavy, analytical, requires research/calculations, creates artifacts, or involves substantial context. Recommend a temporary switch only for a genuinely Work-only capability; explain the specific need and obtain my approval first, then return to Chat.
 
 ## First actions
 
@@ -14,131 +14,132 @@ Read these files from actual latest `main`, in order:
 4. `Fishing_Decision_Log.md`
 5. `Fishing_New_Chat_Bootstrap_Prompt.md`
 
-Before repository work, also confirm current open-PR state. Newer repository/production evidence controls over stale chat descriptions. When an exact current production SHA/release ID/count is needed, inspect the latest successful `main` production workflow and deployed `release.json`/hosted verification evidence; do not treat an older value copied into Markdown as current.
+Before repository work, also confirm current open-PR state. Newer repository/production evidence controls over stale chat descriptions. For exact production SHA/release/counts, inspect the latest successful `main` production workflow and hosted verification evidence.
 
-## Checkpoint — September 18, 2026
+## Handoff checkpoint — September 28, 2026
 
-At this handoff, the latest verified hosted production is the Fast Content Release for the Bass/Trout Fishing Techniques table-of-contents work:
+At this handoff, the latest verified hosted production is the Fast Content Release for the Pflueger President spincast reel update:
 
-- production source revision: `45b85250d4342326cfd0e103026f1cea7adcbea7`;
-- implementation PR: #182;
-- production workflow: **#359**, run `35387318153`;
-- hosted release ID: `5ad3a0a1bdb76b3c4827114de3ef07b8`;
-- hosted source-derived counts: Gear 86 / KB 57 / Catch 6;
-- hosted file count: 387;
-- Fast Content validation/build, exact-current-main guard, Pages deployment and hosted byte/release-identity verification all passed.
+- production source revision: `626e874d3fc88f7ac11dd97988920f90bc2fb8ea`;
+- implementation PR: #200;
+- production workflow: **#422**, run `36430594308`;
+- hosted release ID: `0e2e4d903de78b6affe1d1dc55204c7b`;
+- hosted counts: **Gear 90 / KB 58 / Catches 11**;
+- exact-current-main guard, Pages deployment and hosted byte/release-identity verification all passed;
+- open PRs before handoff reconciliation: **0**.
 
-Treat those exact identifiers as historical checkpoint evidence only. Documentation-only handoff commits may advance `main` without republishing the PWA. Re-read actual current `main`, open PR state and production evidence immediately.
+The handoff update itself is documentation-only and may advance `main` without republishing the PWA. Treat the production source revision above as the hosted production checkpoint until a later release succeeds.
 
-The latest completed application/architecture change is FISH114. There is no currently allocated open application task after FISH114. The next unused application/architecture task ID is **FISH-TODO-115** unless newer `main` has allocated it. Routine FISH108 Fast Content Releases do not consume application task IDs.
+FISH114 remains the latest completed application/architecture change. FISH071–076 and FISH078–114 are complete/implemented. The next unused application/architecture ID is **FISH-TODO-115** unless newer `main` has allocated it. Routine FISH108 content work does not consume application IDs.
 
-## FISH114 — completed Android/Edge maskable launcher icon
+## Recent canonical content state
 
-FISH114 is **IMPLEMENTED / PRODUCTION-VERIFIED / USER-VERIFIED / CLOSED**.
+Since the prior handoff, current canonical source includes:
 
-The approved transparent `pwa/icon.png` remains unchanged. The production build generates a dedicated opaque `icon-maskable.png` with `#11665c` background and centered approved artwork, publishes both ordinary (`purpose: "any"`) and maskable manifest entries, and includes the generated maskable asset in release identity/verification.
+- five **Banks Lake catches from September 24, 2026**, all with pictures and Notes Markdown:
+  - 12-in smallmouth — Z-Man Ned Rig Kit;
+  - 14-in largemouth — Z-Man Ned Rig Kit;
+  - 8-in Lake whitefish — Lake whitefish species + Z-Man Ned Rig Kit;
+  - 15-in smallmouth — Berkley PowerBait Power Jerk Shad;
+  - 14-in smallmouth — Berkley PowerBait Power Jerk Shad;
+- **Lake whitefish** as a Species KB entry with picture/content;
+- updated **Z-Man Ned Rig Kit** specifications;
+- **ZMan Finesse ShadZ**, **ZMan Trick ShotZ**, **ZMan TRD GobyZ** with pictures and Drop Shot Notes links;
+- **Blue Fox Flash Spinner** and **Bad River Tackle Company Trout/Panfish Spinners**;
+- removal of the old generic/South Bend inline-spinner Gear item and cleanup of its live KB reference;
+- **VMC Swimbait Jig** Notes;
+- Banks Lake inline-image filename/case/Markdown cleanup;
+- Berkley PowerBait Power Jerk Shad Notes wording cleanup;
+- Pflueger President Spincast Combo rod/reel Notes updates and reel capacity `110 yd / 4 lb, 90 yd / 6 lb, 70 yd / 8 lb`.
 
-Closeout evidence:
+Git history and current canonical source are authoritative for exact values.
 
-- implementation PR: #179;
-- production source revision: `771c80baa21fe17f331614f6658b5278475178ed`;
-- Full Application workflow: **#349**, run `35306208653`;
-- hosted release ID: `9e9cc6e2f388439c1d745c0e74122c33`;
-- hosted counts at that release: Gear 85 / KB 57 / Catch 6;
-- hosted file count at that release: 386;
-- full validation, Pages deployment and actual hosted byte/browser verification passed;
-- the user visually inspected the installed Android result and confirmed it looks great.
+## Active RVR119 motorization research — important
 
-Detailed evidence: `pwa/docs/FISH114_Production_Closeout_2026-09-18.md`.
+No motor or propulsion battery has been selected or purchased.
 
-Do not reopen or redesign FISH114 unless I explicitly request a change.
+Current candidates:
 
-## FISH113 — completed responsive scenic page heroes
+1. **Garmin Force Current with Power Steer Foot Pedals**
+2. **Newport NK180Pro HD + 24V 50Ah LoPRO + Wizard Motorization Kit**
+3. **Newport NK300 HD + 36V 50Ah LoPRO + Wizard Motorization Kit**
 
-FISH113 is **IMPLEMENTED / PRODUCTION-VERIFIED / USER-VERIFIED / CLOSED**.
+Durable user constraints/preferences:
 
-Home, My Gear, and Knowledge Base root pages use scenic mountain/lake page-header artwork under `pwa/assets/page-hero/` while preserving existing page wording, cards, routes, search/Back behavior, and non-root headers.
+- RVR119 is transported on the roof rack of the user's F-150; motor and battery must be easily removable before roof loading.
+- Low-profile battery packaging that can fit beneath the RVR119 seat is strongly preferred.
+- The Newport LoPRO form factor is specifically attractive.
+- Preserve purchase uncertainty; research does not imply ownership.
+- Compare boat positioning, river ruggedness, installed/removable weight, setup/teardown, range, reliability, cost and serviceability — not just thrust/speed.
 
-The authoritative pair is:
+Current research status:
 
-- `page-hero.png` — 1536 × 512 (3:1), for standard/narrow layouts;
-- `page-hero-wide.png` — 3072 × 512 (6:1), for sufficiently wide landscape layouts.
+- NK180 HD: lightest removable motor and best preserves the RVR119's river character.
+- NK300 HD: materially stronger propulsion and only modestly more expensive than the complete NK180 RVR kit, but carries a substantial on-water weight penalty.
+- Force Current: strongest differentiator is GPS/electric boat control — Anchor Lock, Bow Lock, heading/route control, remote control and true hands-free Power Steer.
+- Newport motors are designed to come off their stern brackets for travel; Wizard steering/control lines must be disconnected.
+- Garmin explicitly requires Force Current removal before transport; its motor detaches from the installed mount and Power Steer pedals detach from their rails.
+- Large motor/battery components therefore do not need to be lifted onto the truck roof with the kayak.
+- For Force Current, 24V 50Ah LoPRO is preferable to the same-footprint 12V 100Ah LoPRO because stored energy is similar while 24V preserves full 24V motor performance.
 
-The 3:1 asset is pixel-for-pixel the exact centered crop of the 6:1 master. Preserve that invariant so crossing the responsive breakpoint remains visually seamless. Wide activation is based on viewport geometry, not physical display resolution. The superseded WebP hero is retired.
+Useful next research:
 
-Detailed evidence: `pwa/docs/FISH113_Production_Closeout_2026-09-16.md`.
+- other manufacturers' **24V low-profile batteries** that fit under the RVR119 seat;
+- RVR119-specific Force Current/Power Steer pedal installation photos/measurements;
+- parking-lot setup/teardown comparison for Force Current vs Wizard-equipped Newport;
+- realistic range/runtime in the user's lake and river use;
+- real-owner reliability, particularly Force Current steering/calibration/shutdown reports.
 
-Do not reopen or redesign FISH113 unless I explicitly request a change.
+Track this as **FISH-TODO-040**; do not mark it complete until the user explicitly decides the research is finished or chooses a system.
 
-## FISH112 — completed fixed cross-platform card icons
+## Science of the Strike transcript research
 
-FISH112 is **IMPLEMENTED / PRODUCTION-VERIFIED / USER-VERIFIED**.
+Recent transcript reviews covered:
 
-Home, My Gear, and Knowledge Base navigation cards use 16 bundled user-approved transparent-with-shadow PNG assets under `pwa/assets/card-icons/` rather than OS-dependent Unicode emoji. The existing card geometry, text, search/Back controls, routes, navigation behavior, and small icon scale were preserved.
+- largemouth vision;
+- scent and taste;
+- barometric pressure and lunar cycle;
+- crawfish;
+- dissolved oxygen and turbidity.
 
-Detailed evidence: `pwa/docs/FISH112_Production_Closeout_2026-09-16.md`.
+For every transcript extraction, preserve this structure unless the user asks otherwise:
 
-## Recent routine content state
+1. Executive summary
+2. Main arguments/conclusions
+3. Key facts/claims with evidence vs opinion/inference
+4. Actionable fishing takeaways
+5. Important examples/stories/anecdotes
+6. Techniques/gear/seasonal/location/fish-behavior insights worth retaining
+7. Short **What I'd add to Fishing Companion** section
 
-Recent content releases are canonical and do not require new closeout work merely because this is a new chat. Current source includes, among other work:
+Evidence discipline is durable: distinguish study evidence from host inference; do not universalize a single-study threshold, one population, lab results, anecdotal conversions or host extrapolations.
 
-- Banks Lake as a KB/Location with its representative picture removed while preserving the page and its two inline Steamboat Rock images;
-- Electronics Research as a My Gear/Equipment research entry with `%20`-encoded local image paths;
-- the September 14–15 broad Technique restructuring, four-season pages, Topwater expansion and curated cross-link pass;
-- Berkely Trilene XL as a Gear/Line item;
-- Canyon Insulated Fish Bag and BaitPop Elite Crawfish Red Scent;
-- Lucas Fishing Reel Oil as Gear/Equipment/Tools;
-- the September 17, 2026 Lake Sammamish largemouth Catch;
-- Strike King KVD Square Bill 1.0 specifications with 1/4 oz weight and #5 hook size;
-- Berkely Warpig as a Gear/Lure item;
-- Bass Fishing Techniques with corrected same-page anchor links and Trout Fishing Techniques with a matching table of contents.
+Potential Fishing Companion destinations include Bass Behavior and Habitat, Bass Fishing Techniques, seasonal pages and Electronics Research. Do not recreate retired live Technique pages merely to house podcast material.
 
-Git history and current canonical source are authoritative for routine content releases.
+`FISH-TODO-031` remains OPEN because the originally targeted episodes 8 and 16 have not both been explicitly confirmed complete; a dissolved-oxygen/turbidity transcript has been reviewed.
 
 ## Current KB editorial architecture — critical
 
 ### Behavior and Habitat
 
-- **Bass Behavior and Habitat**
-- **Trout Behavior and Habitat**
-
-These answer **where fish are and why**: habitat, structure/cover, temperature, dissolved oxygen, forage, light, wind/current, depth, waterbody type and repeatable-pattern logic.
+- **Bass Behavior and Habitat** / **Trout Behavior and Habitat** answer **where fish are and why**: habitat, structure/cover, temperature, dissolved oxygen, forage, light, wind/current, depth and pattern recognition.
 
 ### Fishing Techniques
 
-- **Bass Fishing Techniques**
-- **Trout Fishing Techniques**
-
-These answer **how to catch fish once located**: presentation choice, lure/bait/rig selection, retrieves/cadence, depth control, strike handling, bank/kayak execution and broad species-specific tactics.
-
-Do not rebuild long seasonal mini-guides inside the Behavior/Habitat or broad Techniques pages. Detailed seasonal strategy belongs in the season pages.
+- **Bass Fishing Techniques** / **Trout Fishing Techniques** answer **how to catch fish once located**: presentation choice, lure/bait/rig selection, retrieves, depth control, strike handling and bank/kayak execution.
 
 ### Seasonal playbooks
 
-The authoritative seasonal pages are Spring Fishing, Summer Fishing, Fall Fishing, and Winter Fishing. Each covers both bass and trout and combines seasonal location changes with seasonal presentation strategy.
+- Spring Fishing, Summer Fishing, Fall Fishing and Winter Fishing own detailed seasonal location + presentation strategy.
 
 ### Topwater
 
-**Topwater Fishing** is the broad specialized surface-fishing reference. Frog, Popper, Whopper Plopper, Walking Bait and Buzzbait remain narrower companion Gear Guides.
+- Topwater Fishing owns broad surface-fishing strategy; Frog, Popper, Whopper Plopper, Walking Bait and Buzzbait remain narrower Gear Guides.
 
-### Linking standard
+### Linking/retirement rules
 
-Use curated `kb://` links where they materially help the reader. Do not mechanically link every occurrence of common terms.
-
-### Retired live Technique pages
-
-Do not reintroduce these unless explicitly requested:
-
-- Bass Fishing
-- Spring Bass Fishing
-- Fall Bass Fishing
-- Bass Power and Search Overview
-- Color and Scent
-- Paddle-only Kayak Strategy
-- Seasonal Bass Guidance
-- Water Visibility
-
-Historical evidence may still mention them; preserve that history.
+- Use curated `kb://` links where they materially help the reader.
+- Do not reintroduce retired Technique pages unless explicitly requested: Bass Fishing, Spring Bass Fishing, Fall Bass Fishing, Bass Power and Search Overview, Color and Scent, Paddle-only Kayak Strategy, Seasonal Bass Guidance and Water Visibility.
 
 ## FISH108 release policy — critical
 
@@ -146,72 +147,51 @@ Full policy: `pwa/docs/FISH108_Fast_Content_Release_Policy_2026-09-14.md`.
 
 ### Fast Content Release
 
-Use only when **every changed file** is canonical content under one or more of:
+Use only when **every changed repository file** is under one or more of:
 
 - `pwa/Gear/`
 - `pwa/KB/`
 - `pwa/Catches/`
 
-This is the normal path for source-aware `fishing-companion-change-v2` Gear/KB add/edit packages, Markdown, pictures, Knot sequence frames and Catch records.
+Before mutation, restore current source/open PRs and validate source revision/ancestry, record hashes/base fields where applicable, conflict state, IDs/schema/types/paths/references, notes/media actions and supplied media metadata. Apply only requested changes; preserve unrelated/newer source and user-uploaded bytes.
 
-Before mutation, restore current source/open PR state and validate source revision/ancestry, record hash/base fields where applicable, conflict state, IDs/schema/types/paths/references, notes/media actions and supplied media metadata. Apply only requested changes and preserve unrelated/newer source and user-uploaded bytes. Normalize accidental trailing whitespace unless explicitly asked not to.
+Use one lightweight content PR, locked cached dependencies, canonical production build/source inventory validation, generated-release verification, exact-current-main guard, Pages deployment and dependency-free byte-for-byte hosted/release-identity verification.
 
-Use one lightweight content PR, locked cached dependencies, one canonical production build/source inventory validation, generated-release verification, exact-current-main deployment guard and dependency-free byte-for-byte hosted/release-identity verification.
-
-Do not manually escalate content-only work to full Node/browser/v1-cutover/dependency-audit/hosted-browser validation unless a genuine non-content issue is discovered.
-
-Routine Fast Content Releases do **not** consume an application task ID and do **not** require per-item project-state or production-closeout Markdown.
+Do not manually escalate routine content-only work to the full app suite unless a genuine non-content issue is discovered. Routine Fast Content Releases do **not** consume application task IDs or require per-item project-state documents.
 
 ### Full Application Release
 
-Any changed file outside the three content roots forces full. Runtime/UI/assets, service worker, schema/contracts, tests, build/tooling, dependencies, workflow, migration/recovery/offline architecture and mixed content+code work use the full suite. Manual workflow dispatch is full. If eligibility is ambiguous, use full.
+Runtime/UI/assets, service worker, schema/contracts, tests, build/tooling, dependencies, workflow, migration/recovery/offline architecture or mixed content+non-content changes use the full suite. Documentation-only project-state reconciliation does not publish the PWA.
 
-### FISH109 / FISH110 / FISH111
-
-FISH109 is complete/production-verified: deployment/evidence artifacts are run-attempt-specific, hosted verification has bounded retry/backoff, and exact-current-main protection remains mandatory.
-
-FISH110 is complete/production-verified: Gear/KB Add/Edit → **Copy Changes** uses centralized FISH108-aware instruction text. Eligible content-only packages explicitly route through Fast Content Release. The human instruction and JSON are separated by a blank line so JSON remains parseable.
-
-FISH111 is complete/production-verified: the site header and page body share the same horizontal content insets, and long-form Notes/Markdown uses the full main content width while intentionally narrower components keep their separate caps.
-
-## Authoring constraints and durable application behavior
+## Durable authoring/application behavior
 
 - Gear/KB Add/Edit remains **Prepare Changes → Copy Changes**; copying is not saving and the browser does not write GitHub source directly.
 - GitHub upload links target physical `/pwa/...`; packages use logical `Gear/...`, `KB/...`, `Catches/...` paths.
-- KB `description` maximum is **80 characters**.
-- Existing IDs stay stable unless intentionally retired/replaced.
-- Simple Markdown-only narrative edits may be direct; structured fields/categories/types/specifications/links/pictures/sequences/paths/relationships should use the source-aware workflow.
-- Preserve unrelated concurrent changes and user-uploaded bytes; reconcile newer `main` before merge if it advances.
-- Same-page Markdown heading links use the renderer-generated slug: lowercase, punctuation stripped, spaces converted to hyphens. For example, `## Kayak Fishing and Electronics` is targeted by `#kayak-fishing-and-electronics`; do not use percent-encoded original heading text.
+- Existing IDs remain stable unless intentionally retired/replaced.
+- Simple Markdown narrative edits may be direct; structured fields/categories/types/specifications/links/pictures/sequences/paths/relationships use the source-aware workflow.
+- KB `description` maximum is 80 characters.
+- Same-page Markdown links use renderer-generated lowercase punctuation-stripped hyphenated anchors.
+- FISH091: complete offline library is explicitly prepared through **Connection Status → Update offline library**.
+- FISH096: Knot sequences use explicit ordered `pictureSequence` frames under `pwa/KB/Knots/assets/<id>/`.
+- FISH102: Line-Tackle-Knot Reference is pinned first only under KB → Knots.
+- FISH103: external HTTP(S) links open new-tab; internal/local links remain same-tab.
+- FISH107: Skylety Fishing Hook Sharpener canonical type is `Tools`.
 - `.github/workflows/fishing-production.yml` is the sole active publisher.
 
-FISH091: normal online use does not provision the complete offline library; **Connection Status → Update offline library** explicitly prepares/refreshes a verified generation.
+## Active backlog highlights
 
-FISH096: Knot-only explicit ordered `pictureSequence`; frames live under `pwa/KB/Knots/assets/<id>/`; at least two frames; `picture.src` is final/representative; directory contents alone never create a sequence.
+- FISH-TODO-008: RVR119 Under Seat Tackle Storage remains back-ordered/not purchased and is the user's #1 needed fishing equipment item.
+- FISH-TODO-014 remains open; do not infer the existing HyperSeal 3600 resolved the historical deep-box target.
+- FISH-TODO-019/020/021/022/023: Texas Rig, Carolina Rig, Alabama Rig, Neko Rig and Spoons KB pages remain open.
+- FISH-TODO-039: Apply T-9 on kayak hardware.
+- FISH-TODO-040: RVR119 motorization research, described above.
+- Fishing Companion v3 remains deferred and requires explicit approval.
 
-FISH102: Line-Tackle-Knot Reference is pinned first only on KB → Knots.
-
-FISH103: external HTTP(S) links open new-tab; internal app/local links remain same-tab; authoring upload links use physical `/pwa/...`; Caption focus and new-KB Markdown Preview behavior retained.
-
-FISH107: current canonical Skylety Fishing Hook Sharpener type is `Tools`.
-
-## Backlog / future state
-
-`FISH-TODO-005` is resolved: the user explicitly confirmed Amped Outdoors 12V 8Ah, 3A fuse, IP68 connector and 22–18 AWG disconnects as the installed fish-finder power system.
-
-`FISH-TODO-008` remains OPEN/back-ordered and is the user's #1 needed fishing equipment item.
-
-`FISH-TODO-014` remains OPEN; do not infer FISH105's HyperSeal 3600 is the historical deep-box watch target without explicit confirmation.
-
-Kayak-specific active work includes bow-hatch tie-offs, NRS ATB Wetshoe, NRS Champion Jacket/Bib, and **Apply T-9 on kayak hardware** (FISH-TODO-039). FISH-TODO-038 (**Remount outer rod holders**) is complete. FISH-TODO-030 was explicitly deleted; do not restore it.
-
-The specialized content backlog remains open, including Texas Rig, Carolina Rig, Alabama Rig, Neko Rig and Spoons.
-
-**Fishing Companion v3** (historically FISH-TODO-077/P2) remains DEFERRED and requires explicit approval before implementation. Deferred requirements include authentication, direct saving to GitHub, integrated browser-side file/image uploads, offline authoring, a queued-change outbox/sync system, Catch authoring, broader multi-user support, and making pictures embedded in content Markdown clickable into the existing picture viewer (link-like cursor/interaction). None of this is current production.
+FISH-TODO-030 was explicitly deleted and must never be restored. FISH-TODO-038 outer rod holder work is complete.
 
 ## Chat-transfer convention
 
-For this project, **“It’s time to transfer to a new chat”** is the standard transfer cue. Ask once to confirm the full handoff. After confirmation, execute it end-to-end without repeated “Proceed” prompts: restore actual current `main`, open PRs and production evidence; reconcile completed and unresolved work; update authoritative records where durable state changed; preserve purchase uncertainty; cross-check the files; and finish with a clickable GitHub link to this bootstrap prompt.
+For this project, **“It’s time to transfer to a new chat”** is the standard transfer cue. Ask once to confirm the full handoff. After confirmation, execute it end-to-end without repeated Proceed prompts: restore actual current `main`, open PRs and production evidence; reconcile completed/unresolved work; update authoritative records where durable state changed; preserve purchase uncertainty; cross-check the files; and finish with a clickable GitHub link to this bootstrap prompt.
 
 ## Working rules
 
@@ -219,5 +199,5 @@ For this project, **“It’s time to transfer to a new chat”** is the standar
 - Do not repeat completed migration/cutover/release work.
 - Preserve unrelated concurrent source changes and user-uploaded bytes.
 - Fishing Companion change packages are implementation instructions, not JSON merely to explain.
-- Do not infer purchases/ownership or close WAITING/open purchase items without sufficient user confirmation.
+- Do not infer purchases/ownership or close WAITING/OPEN purchase items without explicit evidence.
 - Historical milestone docs and old production identities are evidence only; current exact production state comes from current GitHub/Pages evidence.
