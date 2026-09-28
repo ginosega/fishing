@@ -890,7 +890,8 @@
       ],
       "picture": {
         "src": "Gear/Hooks/assets/vmc-swimbait-jig.png"
-      }
+      },
+      "notes": "Gear/Hooks/content/VMC Swimbait Jig.md"
     },
     {
       "id": "south-bend-hook-assortment",
