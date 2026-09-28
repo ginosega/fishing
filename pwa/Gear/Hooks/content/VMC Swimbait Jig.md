@@ -1,0 +1,1 @@
+Depth range with a soft plastic swim / jerk bait: 3-10'.
