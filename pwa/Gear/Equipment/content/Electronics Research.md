@@ -50,6 +50,6 @@
 ## Battery
 - Newport 24V 50Ah LoPRO Lithium LiFePo4 Battery: [Newport](https://newportvessels.com/products/lopro-24v-50ah-lithium-battery)
 
-![Newport 24V 50Ah LoPRO Lithium LiFePo4 Battery](Newport-24V-50Ah-LoPRO-Lithium-LiFePo4-Battery.png)
+![Newport 24V 50Ah LoPRO Lithium LiFePo4 Battery](./Newport-24V-50Ah-LoPRO-Lithium-LiFePo4-Battery.png)
 
 - See quick connect and fuse/breaker: [video](https://youtu.be/f6zm8hRho-M?si=XQqJvTW1_Lli4VHq&t=365)
