@@ -45,9 +45,11 @@
 
 ![Wireless Foot Pedals](./Wireless%20Foot%20Pedals.png)
 
-  - Operates on 12- or 24-volt battery
-    - 12V = 40 lbs. thrust, 24V = 50 lbs. This only affects low-end torque (getting up to speed) though, the top speed is the same for each. Look at cost, run time, and weight when deciding. With 24v amperage will be lower so run time will be longer.
-  - See quick connect and fuse/breaker: [video](https://youtu.be/f6zm8hRho-M?si=XQqJvTW1_Lli4VHq&t=365)
+  - Operates on 12- or 24-volt battery. 12V = 40 lbs. thrust, 24V = 50 lbs. With 24v amperage will be lower so run time will be longer.
 
 ## Battery
 - Newport 24V 50Ah LoPRO Lithium LiFePo4 Battery: [Newport](https://newportvessels.com/products/lopro-24v-50ah-lithium-battery)
+
+![Newport 24V 50Ah LoPRO Lithium LiFePo4 Battery](Newport-24V-50Ah-LoPRO-Lithium-LiFePo4-Battery.png)
+
+- See quick connect and fuse/breaker: [video](https://youtu.be/f6zm8hRho-M?si=XQqJvTW1_Lli4VHq&t=365)
