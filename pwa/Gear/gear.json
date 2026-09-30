@@ -2334,6 +2334,10 @@
         {
           "value": "Yellow",
           "label": "Color"
+        },
+        {
+          "value": "34 oz",
+          "label": "Weight"
         }
       ],
       "links": [
@@ -2363,6 +2367,10 @@
         {
           "value": "Yellow",
           "label": "Color"
+        },
+        {
+          "value": "30 oz",
+          "label": "Weight"
         }
       ],
       "links": [
@@ -2373,10 +2381,37 @@
       ],
       "model": "Sting Ray Hybrid 2-Piece Posi-Lok Kayak Paddle",
       "manufacturer": "Aqua Bound",
-      "notes": "Gear/Equipment/content/Aqua Bound Sting Ray Hybrid 2-Piece Posi-Lok Kayak Paddle.md",
       "picture": {
         "src": "Gear/Equipment/assets/Aqua Bound Sting Ray Hybrid 2-Piece Posi-Lok Kayak Paddle.png",
         "caption": "Aqua Bound Sting Ray Hybrid 2-Piece Posi-Lok Kayak Paddle"
+      }
+    },
+    {
+      "id": "wilderness-systems-origin-glass-angler-kayak-paddle",
+      "name": "Wilderness Systems Origin Glass Angler Kayak Paddle",
+      "category": "accessories",
+      "type": "Kayaks",
+      "specifications": [
+        {
+          "value": "240-260 cm",
+          "label": "Length"
+        },
+        {
+          "value": "46 oz",
+          "label": "Weight"
+        }
+      ],
+      "links": [
+        {
+          "label": "Wilderness Systems",
+          "url": "https://www.confluenceoutdoor.com/products/wilderness-systems-origin-glass-angler-kayak-paddle-8070211"
+        }
+      ],
+      "manufacturer": "Wilderness Systems",
+      "model": "Origin Glass Angler",
+      "picture": {
+        "src": "Gear/Equipment/assets/Wilderness Systems Origin Glass Angler Kayak Paddle.png",
+        "caption": "Wilderness Systems Origin Glass Angler Kayak Paddle"
       }
     },
     {
