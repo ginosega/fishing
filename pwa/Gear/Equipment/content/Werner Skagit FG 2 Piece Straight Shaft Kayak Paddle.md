@@ -1,0 +1,1 @@
+![Werner Skagit FG 2 Piece Straight Shaft Kayak Paddle](./Werner-Skagit-Paddle-Size-Chart.png)
