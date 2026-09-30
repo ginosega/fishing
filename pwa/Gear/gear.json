@@ -2322,6 +2322,34 @@
       }
     },
     {
+      "id": "werner-skagit-fg-2-piece-straight-shaft-kayak-paddle",
+      "name": "Werner Skagit FG 2 Piece Straight Shaft Kayak Paddle",
+      "category": "accessories",
+      "type": "Kayaks",
+      "specifications": [
+        {
+          "value": "220 cm",
+          "label": "Length"
+        },
+        {
+          "value": "Yellow",
+          "label": "Color"
+        }
+      ],
+      "links": [
+        {
+          "label": "Werner",
+          "url": "https://wernerpaddles.com/products/werner-skagit-fg-2-piece-straight-shaft-kayak-paddle?_pos=1&_psq=skagit&_psid=c6480afe9&_ss=e"
+        }
+      ],
+      "manufacturer": "Werner",
+      "model": "Skagit FG 2 Piece Straight Shaft",
+      "picture": {
+        "src": "Gear/Equipment/assets/Werner Skagit FG 2 Piece Straight Shaft.png",
+        "caption": "Werner Skagit FG 2 Piece Straight Shaft Kayak Paddle"
+      }
+    },
+    {
       "id": "dagger-axis-10-5",
       "category": "accessories",
       "type": "Kayaks",
