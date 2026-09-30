@@ -2351,6 +2351,35 @@
       "notes": "Gear/Equipment/content/Werner Skagit FG 2 Piece Straight Shaft Kayak Paddle.md"
     },
     {
+      "id": "aqua-bound-sting-ray-hybrid-2-piece-posi-lok-kayak-paddle",
+      "name": "Aqua Bound Sting Ray Hybrid 2-Piece Posi-Lok Kayak Paddle",
+      "category": "accessories",
+      "type": "Kayaks",
+      "specifications": [
+        {
+          "value": "230 cm",
+          "label": "Size"
+        },
+        {
+          "value": "Yellow",
+          "label": "Color"
+        }
+      ],
+      "links": [
+        {
+          "label": "Aqua Bound",
+          "url": "https://www.aquabound.com/collections/best-sellers/products/sting-ray-hybrid-2-piece-posi-lok-kayak-paddle?variant=43607158718677"
+        }
+      ],
+      "model": "Sting Ray Hybrid 2-Piece Posi-Lok Kayak Paddle",
+      "manufacturer": "Aqua Bound",
+      "notes": "Gear/Equipment/content/Aqua Bound Sting Ray Hybrid 2-Piece Posi-Lok Kayak Paddle.md",
+      "picture": {
+        "src": "Gear/Equipment/assets/Aqua Bound Sting Ray Hybrid 2-Piece Posi-Lok Kayak Paddle.png",
+        "caption": "Aqua Bound Sting Ray Hybrid 2-Piece Posi-Lok Kayak Paddle"
+      }
+    },
+    {
       "id": "dagger-axis-10-5",
       "category": "accessories",
       "type": "Kayaks",
