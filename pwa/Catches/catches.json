@@ -101,6 +101,16 @@
       "locationId": "location-banks-lake",
       "lureOrBaitId": "berkley-powerbait-power-jerk-shad",
       "notes": "Catches/content/catch-2026-09-24-banks-lake-smallmouth-03.md"
+    },
+    {
+      "id": "catch-2026-10-02-lake-sammamish-perch-01",
+      "date": "2026-10-02",
+      "time": "11:30",
+      "size": "9 in",
+      "speciesId": "species-perch",
+      "locationId": "location-lake-sammamish",
+      "lureOrBaitId": "berkley-warpig",
+      "notes": "Catches/content/catch-2026-10-02-lake-sammamish-perch-01.md"
     }
   ]
 }
