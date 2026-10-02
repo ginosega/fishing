@@ -1,0 +1,1 @@
+Kayak fishing on the east side of Lake Sammamish, roughly three-fifths of the way north from the south end. Water depth was about 20 ft, but the fish was caught just under the surface. Caught on a Berkley Warpig in Sexier Shad.
