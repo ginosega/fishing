@@ -594,6 +594,13 @@
       }
     },
     {
+      "id": "technique-flutter-spoon",
+      "type": "equipment",
+      "name": "Flutter Spoon",
+      "description": "Falling baitfish presentation for offshore and suspended bass.",
+      "content": "KB/Gear-Guides/content/flutter-spoon.md"
+    },
+    {
       "id": "technique-snaps-swivels",
       "type": "equipment",
       "name": "Snaps & Swivels",
