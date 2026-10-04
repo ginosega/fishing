@@ -2906,7 +2906,10 @@
       "type": "Electronics",
       "specifications": [],
       "links": [],
-      "notes": "Gear/Equipment/content/Electronics Research.md"
+      "notes": "Gear/Equipment/content/Electronics Research.md",
+      "picture": {
+        "src": "Gear/Equipment/assets/Garmin Force Current - large.png"
+      }
     },
     {
       "id": "nrs-zander-pfd",
