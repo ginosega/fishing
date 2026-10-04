@@ -2935,6 +2935,34 @@
         "src": "Gear/Equipment/assets/NRS Zander PFD.jpg",
         "caption": "NRS Zander PFD, Charcoal"
       }
+    },
+    {
+      "id": "yakattack-backwater-drypak",
+      "name": "YakAttack BackWater DryPak",
+      "category": "accessories",
+      "type": "Kayaks",
+      "specifications": [
+        {
+          "value": "28 L",
+          "label": "Size"
+        },
+        {
+          "value": "Grey/Orange",
+          "label": "Color"
+        }
+      ],
+      "links": [
+        {
+          "label": "YakAttack",
+          "url": "https://www.yakattack.us/28l-backwater-drypak-waterproof-backpack-grey-orange/"
+        }
+      ],
+      "manufacturer": "YakAttack",
+      "model": "28L BackWater DryPak",
+      "picture": {
+        "src": "Gear/Equipment/assets/YakAttack 28L BackWater DryPak.png",
+        "caption": "YakAttack 28L BackWater DryPak, Grey/Orange"
+      }
     }
   ]
 }
