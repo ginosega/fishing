@@ -2966,6 +2966,39 @@
         "src": "Gear/Equipment/assets/YakAttack 28L BackWater DryPak.png",
         "caption": "YakAttack 28L BackWater DryPak, Grey/Orange"
       }
+    },
+    {
+      "id": "z-man-shroomz-micro-finesse-jig",
+      "name": "Z-Man ShroomZ Micro Finesse Jig",
+      "category": "lures",
+      "type": "Jigs",
+      "specifications": [
+        {
+          "value": "3/16 oz",
+          "label": "Weight"
+        },
+        {
+          "value": "Pond Scum",
+          "label": "Color"
+        },
+        {
+          "value": "1",
+          "label": "Hook Size"
+        }
+      ],
+      "links": [
+        {
+          "label": "Z-Man",
+          "url": "https://zmanfishing.com/products/shroomz-micro-finesse-jig"
+        }
+      ],
+      "manufacturer": "Z-Man",
+      "model": "ShroomZ Micro Finesse Jig",
+      "notes": "Gear/Lures/content/Z-Man ShroomZ Micro Finesse Jig.md",
+      "picture": {
+        "src": "Gear/Lures/assets/Z-Man ShroomZ Micro Finesse Jig.png",
+        "caption": "Z-Man ShroomZ Micro Finesse Jig, Pond Scum"
+      }
     }
   ]
 }
