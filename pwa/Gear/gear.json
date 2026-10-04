@@ -2094,8 +2094,8 @@
       "id": "zman-finesse-shadz",
       "category": "lures",
       "type": "Soft plastics and swimbaits",
-      "name": "ZMan Finesse ShadZ",
-      "manufacturer": "ZMan",
+      "name": "Z-Man Finesse ShadZ",
+      "manufacturer": "Z-Man",
       "model": "Finesse ShadZ",
       "specifications": [
         {
@@ -2109,22 +2109,22 @@
       ],
       "links": [
         {
-          "label": "ZMan Fishing",
+          "label": "Z-Man",
           "url": "https://zmanfishing.com/products/finesse-shadz"
         }
       ],
       "notes": "Gear/Lures/content/ZMan Finesse ShadZ.md",
       "picture": {
         "src": "Gear/Lures/assets/zman-finesse-shadz.png",
-        "caption": "ZMan Finesse ShadZ"
+        "caption": "Z-Man Finesse ShadZ"
       }
     },
     {
       "id": "zman-trick-shotz",
       "category": "lures",
       "type": "Soft plastics and swimbaits",
-      "name": "ZMan Trick ShotZ",
-      "manufacturer": "ZMan",
+      "name": "Z-Man Trick ShotZ",
+      "manufacturer": "Z-Man",
       "model": "Trick ShotZ",
       "specifications": [
         {
@@ -2138,22 +2138,22 @@
       ],
       "links": [
         {
-          "label": "ZMan Fishing",
+          "label": "Z-Man",
           "url": "https://zmanfishing.com/products/trick-shotz"
         }
       ],
       "notes": "Gear/Lures/content/ZMan Trick ShotZ.md",
       "picture": {
         "src": "Gear/Lures/assets/zman-trick-shotz.png",
-        "caption": "ZMan Trick ShotZ"
+        "caption": "Z-Man Trick ShotZ"
       }
     },
     {
       "id": "zman-trd-gobyz",
       "category": "lures",
       "type": "Soft plastics and swimbaits",
-      "name": "ZMan TRD GobyZ",
-      "manufacturer": "ZMan",
+      "name": "Z-Man TRD GobyZ",
+      "manufacturer": "Z-Man",
       "model": "TRD GobyZ",
       "specifications": [
         {
@@ -2167,14 +2167,14 @@
       ],
       "links": [
         {
-          "label": "ZMan Fishing",
+          "label": "Z-Man",
           "url": "https://zmanfishing.com/products/trd-gobyz"
         }
       ],
       "notes": "Gear/Lures/content/ZMan TRD GobyZ.md",
       "picture": {
         "src": "Gear/Lures/assets/zman-trd-gobyz.png",
-        "caption": "ZMan TRD GobyZ"
+        "caption": "Z-Man TRD GobyZ"
       }
     },
     {
