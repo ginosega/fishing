@@ -1,0 +1,1 @@
+Used with [Ned rig](kb://technique-ned-rig)
