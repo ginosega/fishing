@@ -2999,6 +2999,35 @@
         "src": "Gear/Lures/assets/Z-Man ShroomZ Micro Finesse Jig.png",
         "caption": "Z-Man ShroomZ Micro Finesse Jig, Pond Scum"
       }
+    },
+    {
+      "id": "z-man-finesse-trd",
+      "name": "Z-Man Finesse TRD",
+      "category": "lures",
+      "type": "Soft plastics and swimbaits",
+      "specifications": [
+        {
+          "value": "2.75 in",
+          "label": "Size"
+        },
+        {
+          "value": "Fire Craw",
+          "label": "Color"
+        }
+      ],
+      "links": [
+        {
+          "label": "Z-Man",
+          "url": "https://zmanfishing.com/products/finesse-trd"
+        }
+      ],
+      "manufacturer": "Z-Man",
+      "model": "Finesse TRD",
+      "notes": "Gear/Lures/content/Z-Man Finesse TRD.md",
+      "picture": {
+        "src": "Gear/Lures/assets/Z-Man Finesse TRD.png",
+        "caption": "Z-Man Finesse TRD, Fire Craw"
+      }
     }
   ]
 }
