@@ -75,8 +75,8 @@ For Lake Washington and Lake Sammamish smallmouth, a **4 in spoon around 3/4 oz 
 
 | Brand / Model | Approximate Size / Weight | Notes |
 | --- | --- | --- |
+| [Nichols Lake Fork Flutter Spoon](https://thefishingfactory.com/products/lake-fork-flutter-spoon?variant=45633179582616) | 4 in / 3/4 oz; 5 in / 1 1/8 oz | Strong general-purpose choice; the 4 in model is a good starting size for smallmouth. |
 | Lake Fork Trophy Lures Flutter Spoon | 3-6 in sizes | Classic flutter-spoon profile with multiple sizes for matching forage and depth. |
-| Nichols Lake Fork Flutter Spoon | 4 in / 3/4 oz; 5 in / 1 1/8 oz | Strong general-purpose choice; the 4 in model is a good starting size for smallmouth. |
 | Strike King Sexy Spoon | 4 in and 5.5 in versions | Established offshore bass spoon designed for a rip-and-fall presentation. |
 | 6th Sense Divine Flutter Spoon | About 4.75 in / 1.25 oz | Mid-size offshore spoon for suspended or bottom-oriented fish. |
 | Nichols Ben Parker Mini Magnum / Magnum | Large, heavy spoons | Oversized forage presentation for big bass; requires heavy tackle rated for the lure. |

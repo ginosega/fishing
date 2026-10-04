@@ -598,7 +598,11 @@
       "type": "equipment",
       "name": "Flutter Spoon",
       "description": "Falling baitfish presentation for offshore and suspended bass.",
-      "content": "KB/Gear-Guides/content/flutter-spoon.md"
+      "content": "KB/Gear-Guides/content/flutter-spoon.md",
+      "picture": {
+        "src": "KB/Gear-Guides/assets/Nichols Lures Lake Fork Flutter Spoon.png",
+        "caption": "Nichols Lures Lake Fork Flutter Spoon - Shattered Glass Silver"
+      }
     },
     {
       "id": "technique-snaps-swivels",
