@@ -1957,7 +1957,8 @@
       ],
       "notes": "Gear/Lures/content/sixth-sense-divine-swimbait.md",
       "picture": {
-        "src": "Gear/Lures/assets/sixth-sense-divine-swimbait.webp"
+        "src": "Gear/Lures/assets/sixth-sense-divine-swimbait.png",
+        "caption": "6th Sense Divine Swimbait, Pro Shad"
       }
     },
     {
@@ -1989,7 +1990,8 @@
       ],
       "notes": "Gear/Lures/content/berkley-powerbait-power-jerk-shad.md",
       "picture": {
-        "src": "Gear/Lures/assets/berkley-power-jerk-shad.jpg"
+        "src": "Gear/Lures/assets/berkley-power-jerk-shad.png",
+        "caption": "Berkley PowerBait Power Jerk Shad, Albino"
       }
     },
     {
@@ -2204,7 +2206,8 @@
         }
       ],
       "picture": {
-        "src": "Gear/Lures/assets/berkley-gulp-minnow.webp"
+        "src": "Gear/Lures/assets/berkley-gulp-minnow.png",
+        "caption": "Berkley Gulp! Minnow, Smelt"
       }
     },
     {
