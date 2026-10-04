@@ -1703,8 +1703,10 @@
         }
       ],
       "picture": {
-        "src": "Gear/Lures/assets/luhr-jensen-dodger.jpg"
-      }
+        "src": "Gear/Lures/assets/luhr-jensen-dodger.jpg",
+        "caption": "Luhr Jensen Trout & Kokanee Dodger, Chrome/Silver Prism-Lite"
+      },
+      "notes": "Gear/Lures/content/Luhr Jensen Trout & Kokanee Dodger.md"
     },
     {
       "id": "macks-pee-wee-hoochie",
