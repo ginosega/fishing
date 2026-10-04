@@ -2907,6 +2907,34 @@
       "specifications": [],
       "links": [],
       "notes": "Gear/Equipment/content/Electronics Research.md"
+    },
+    {
+      "id": "nrs-zander-pfd",
+      "name": "NRS Zander PFD",
+      "category": "accessories",
+      "type": "Kayaks",
+      "specifications": [
+        {
+          "value": "Charcoal",
+          "label": "Color"
+        },
+        {
+          "value": "XL/XXL",
+          "label": "Size"
+        }
+      ],
+      "links": [
+        {
+          "label": "NRS",
+          "url": "https://www.nrs.com/nrs-zander-pfd/p4qa"
+        }
+      ],
+      "manufacturer": "NRS",
+      "model": "Zander",
+      "picture": {
+        "src": "Gear/Equipment/assets/NRS Zander PFD.jpg",
+        "caption": "NRS Zander PFD, Charcoal"
+      }
     }
   ]
 }
