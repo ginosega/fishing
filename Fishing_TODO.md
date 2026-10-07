@@ -1,6 +1,6 @@
 # Fishing TODO
 
-## Current project task state — September 28, 2026
+## Current project task state — October 7, 2026
 
 ### Application / architecture state
 
@@ -61,7 +61,13 @@ The RVR119 Under Seat Tackle Storage has **not** been purchased, remains on back
 | FISH-TODO-031 | P3 | OPEN | Continue/confirm Science of the Strike episodes 8 and 16 (dissolved oxygen/turbidity). A dissolved-oxygen/turbidity transcript was reviewed in September; do not close until both originally targeted episodes are confirmed complete. |
 | FISH-TODO-037 | P3 | DEFERRED | Fishing Companion v3 requirements; implementation requires explicit approval. |
 | FISH-TODO-039 | P2 | OPEN | Apply T-9 on kayak hardware. |
-| FISH-TODO-040 | P2 | OPEN | Continue RVR119 motorization research: compare Garmin Force Current + Power Steer against Newport NK180Pro HD / NK300 HD Wizard systems; preserve roof-rack removability requirement and under-seat low-profile battery preference; research alternative 24V low-profile batteries, realistic range, setup/teardown and reliability before any purchase decision. |
+| FISH-TODO-040 | P2 | OPEN | Commission and integrate the purchased Garmin Force Current system on the RVR119: clean/inspect/service exposed items, charge/baseline the Redodo 24V 50Ah battery, reset/re-pair/update/calibrate motor/remote/Power Steer pedals/MOB tag, complete on-water calibration and functional testing, and select a snug hard-plastic storage case/bin with at least 38 × 18 × 8 in usable interior dimensions (orange preferred). |
+
+### Current Force Current ownership / commissioning state
+
+Purchased **October 6, 2026** for **$2,800** from a seller in Gresham, Oregon: Garmin Force Current motor, Power Steer wireless pedals, handheld remote, MOB tag, Redodo 24V 50Ah LiFePO4 battery + charger, high-efficiency prop and weedless prop. The original Garmin receipt is from July 2026; Garmin confirmed to the user that the remaining three-year standard warranty will be honored with the original receipt. Seller reported freshwater-only use.
+
+Storage requirement for the motor/pedals: **hard plastic**, minimum usable interior **38 × 18 × 8 in**, compact/snug, orange preferred. Flexible bags are rejected; the Hyper Tough 50-gallon tote was rejected as too large.
 
 ## Resolved/deleted items that must not be resurrected
 
