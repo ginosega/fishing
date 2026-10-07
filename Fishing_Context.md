@@ -1,23 +1,24 @@
 # Fishing Context
 
-## Current authoritative state — September 28, 2026
+## Current authoritative state — October 7, 2026
 
 `ginosega/fishing` is the durable source of truth. Restore actual current `main` and current open-PR state before repository work. For exact production identity, inspect the latest successful `main` production workflow plus its hosted verification evidence; checkpoint values in project Markdown are historical evidence, not permanent truth.
 
 ### Current verified production checkpoint
 
-- production source revision: `006be1c74e3e64c98be518398298965b3489fa5f`
-- source change: direct `main` content edit to `pwa/Gear/Equipment/content/Electronics Research.md`
-- production workflow: **#423** / run `36452795689`
-- hosted release ID: `51b68e6a7353b876bad9648d1aac8072`
-- hosted counts: **Gear 90 / KB 58 / Catches 11**
+- production source revision: `574228e5cce29b6bb8095204e7233be8e9e68106`
+- source change: Z-Man ShroomZ Micro Finesse Jig description updated to reference Ned rig usage/technique
+- production workflow: **#491** / run `37255448422`
+- hosted release ID: `62631f3b48f069638bf9e48d13b7c195`
+- hosted counts: **Gear 97 / KB 59 / Catches 12**
+- hosted files: **426**
 - release lane: Fast Content Release
 - exact-current-main guard: passed
 - Pages deployment: passed
-- hosted byte/release-identity verification: passed
+- hosted byte/release-identity verification: passed; `hostedBytesMatch: true`
 - open PRs before handoff reconciliation: 0
 
-The September 28 handoff is documentation-only and may move `main` beyond the production source revision above without republishing the PWA.
+The October 7 handoff is documentation-only and may move `main` beyond the production source revision above without republishing the PWA.
 
 ## Application / architecture state
 
@@ -31,7 +32,7 @@ Fishing Companion remains a three-domain PWA:
 
 `.github/workflows/fishing-production.yml` is the sole active production publisher.
 
-## Recent canonical content — September 24–28
+## Recent canonical content — September 24–October 5
 
 Current source includes the following durable content changes:
 
@@ -51,44 +52,64 @@ Current source includes the following durable content changes:
 - Banks Lake inline-image filename/case and Markdown formatting corrected while preserving the intended two Steamboat Rock images.
 - Pflueger President Spincast Combo rod/reel Notes were revised; current reel capacity is `110 yd / 4 lb, 90 yd / 6 lb, 70 yd / 8 lb`.
 - Electronics Research motor/battery notes were refreshed with Garmin Force Current and Newport 24V 50Ah LoPRO details.
+- October releases added/updated Flutter Spoon content, NRS Zander PFD, YakAttack BackWater DryPak, Z-Man ShroomZ Micro Finesse Jig, Z-Man Finesse TRD, Z-Man branding, Luhr Jensen Trout & Kokanee Dodger, Yamamoto Senko and three lure-picture replacements.
 
 Current source always controls over this summary.
 
-## RVR119 motorization research — active / no purchase decision
+## RVR119 Force Current ownership and commissioning — active
 
-The user is researching motorization for the Bonafide RVR119. No motor or battery has been selected or purchased.
+The user **purchased the motorization system on October 6, 2026**. Do not preserve the old “no purchase decision” state.
 
-### Current candidates
+### Owned system
 
-1. **Garmin Force Current with Power Steer Foot Pedals**
-2. **Newport NK180Pro HD + 24V 50Ah LoPRO + Wizard Motorization Kit**
-3. **Newport NK300 HD + 36V 50Ah LoPRO + Wizard Motorization Kit**
+- **Garmin Force Current** trolling motor
+- **Garmin Power Steer wireless foot pedals**
+- Garmin handheld remote
+- Garmin MOB tag
+- **Redodo 24V 50Ah LiFePO4 battery**
+- Redodo battery charger
+- Garmin high-efficiency propeller
+- Garmin weedless propeller
+- used-package purchase price: **$2,800**
+- seller location: Gresham, Oregon
+- original Garmin purchase: **July 2026**
+- original Garmin receipt transferred to the user
+- Garmin support directly confirmed the remaining **three-year standard warranty will be honored with the original receipt**
+- seller confirmed the motor has **never been used in saltwater**
 
-### Durable constraints and preferences
+### Active setup / commissioning work
 
-- The RVR119 is transported on the roof rack of the user's F-150, so motor and battery removal before roof loading is important.
-- A battery that fits beneath the RVR119 seat is strongly preferred.
-- The user specifically likes Newport's low-profile LoPRO form factor.
-- Preserve purchase uncertainty; research/comparison does not imply ownership.
-- Compare not just speed/thrust but also lake-positioning capability, river ruggedness, remaining installed weight, setup/teardown effort, range, reliability, price and serviceability.
+FISH-TODO-040 remains OPEN as the commissioning/integration task. The current baseline procedure is:
 
-### Current research conclusions
+1. document serial/receipt and as-purchased condition;
+2. clean and inspect exposed motor/mount/shaft/rope/connectors/props/anodes; no invasive service on a three-month-old warranted unit unless a fault requires it;
+3. inspect, charge and baseline the Redodo battery and verify the Redodo LiFePO4 charger;
+4. use a 40A protected motor feed and never run the propeller out of water;
+5. clear prior-user Garmin navigation data and restore motor defaults;
+6. restore remote defaults and re-pair the remote, both Power Steer pedals and MOB tag;
+7. update Force Current, remote and pedal software through ActiveCaptain;
+8. calibrate both Power Steer pedals and the handheld remote;
+9. after RVR119 installation, perform on-water motor compass/bow-offset calibration and a complete propulsion/steering/Anchor Lock/MOB functional test.
 
-- The **NK180 HD** is the lightest removable propulsion option and best preserves the RVR119's river-oriented character.
-- The **NK300 HD** is a much stronger propulsion system and only modestly more expensive than the complete NK180 RVR kit, but adds substantial motor+battery weight on the water.
-- The **Force Current** is differentiated primarily by electric steering/GPS boat control — Anchor Lock, Bow Lock, heading/route control, remote control and Power Steer — rather than by raw propulsion.
-- Newport motors are designed to be removed from their stern brackets for travel; the Wizard steering/control lines must be disconnected.
-- Garmin explicitly requires the Force Current motor to be removed before transporting the kayak; the motor detaches from the installed mount and the Power Steer pedals detach from their rails.
-- The large removable components therefore do not need to be lifted onto the F-150 roof with the kayak.
-- For the Force Current, the 24V 50Ah LoPRO is preferable to the same-size 12V 100Ah LoPRO because the two store roughly similar energy while 24V allows the motor's full 24V performance.
+### Storage case search
 
-### Useful next research
+The user wants a **hard-plastic** storage case/bin for the motor and pedals with:
 
-- Find RVR119-specific Power Steer pedal/rail installation photos or measurements.
-- Compare real parking-lot setup/teardown for Force Current vs Wizard-equipped Newport systems.
-- Continue real-owner reliability research, especially Force Current steering/calibration/shutdown reports.
-- Research other manufacturers' **24V low-profile batteries** that can fit beneath the RVR119 seat and compare them with Newport 24V 50Ah LoPRO.
-- Estimate realistic range/runtime for the user's lake and river use rather than relying on marketing maxima.
+- minimum usable internal dimensions **38 × 18 × 8 in**;
+- a snug/compact fit rather than a large tote;
+- **orange preferred**;
+- no flexible bags;
+- no need for Pelican/Otter-level thickness or cost;
+- Hyper Tough 50-gallon bin rejected as too large.
+
+Continue searching by **verified usable interior dimensions**, not exterior dimensions alone.
+
+### Remaining integration considerations
+
+- Motor and battery must remain easy to remove because the RVR119 is transported on the F-150 roof rack.
+- The Force Current motor and Power Steer pedals are removable for transport.
+- The Newport 24V 50Ah LoPRO remains of interest only as a possible future lower-profile battery alternative; the Redodo 24V 50Ah is the currently owned propulsion battery.
+- RVR119-specific mount/pedal placement, power routing, circuit protection and practical setup/teardown remain part of the active installation work.
 
 ## Science of the Strike transcript research
 
@@ -155,5 +176,5 @@ Runtime/UI/assets, service worker, schema/contracts, tests, build/tooling, depen
 - FISH-TODO-014 KastKing 3600 deep-box watch remains open unless explicitly resolved.
 - Texas Rig, Carolina Rig, Alabama Rig, Neko Rig and Spoons KB pages remain open.
 - Fishing Companion v3 remains deferred and requires explicit approval.
-- RVR119 motorization research is active; no purchase decision.
+- RVR119 Force Current purchase is complete; commissioning, storage-case selection and RVR119 installation remain active under FISH-TODO-040.
 - Preserve all other active items in `Fishing_TODO.md`.
