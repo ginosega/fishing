@@ -164,17 +164,19 @@ Simple Markdown-only narrative edits may be made directly. Structured record fie
 ## Open application work
 
 FISH071–076 and FISH078–114 are complete/implemented. There is no currently allocated open application task after FISH114. The next unused application/architecture task ID is **FISH-TODO-115** unless actual newer `main` has already allocated it. Routine Fast Content Releases do not consume that ID.
-## RVR119 motorization research constraints — September 28, 2026
+## RVR119 Force Current purchase and commissioning — October 6–7, 2026
 
-**Decision/constraint:** No kayak motor or propulsion battery has been selected or purchased. Preserve purchase uncertainty until the user explicitly chooses and purchases a system.
+**Decision:** The motorization purchase decision is complete. The user purchased a used **Garmin Force Current + Power Steer wireless foot-pedal system** on October 6, 2026 for **$2,800** from a seller in Gresham, Oregon. The package includes the motor, both Power Steer pedals, Garmin handheld remote, Garmin MOB tag, Redodo 24V 50Ah LiFePO4 battery and charger, high-efficiency propeller and weedless propeller.
 
-**Decision/constraint:** The RVR119 is transported on the F-150 roof rack. Any motorization recommendation must support easy removal of the motor and battery before roof loading; the weight that remains permanently attached to the kayak matters.
+**Warranty evidence:** The seller transferred the original **July 2026** Garmin receipt. The user contacted Garmin directly and Garmin confirmed that the remaining three-year standard warranty will be honored with the original receipt. The seller reported that the motor has never been used in saltwater.
 
-**Decision/constraint:** Low-profile battery packaging that can fit beneath the RVR119 seat is strongly preferred. The Newport LoPRO form factor is specifically attractive to the user.
+**Decision:** FISH-TODO-040 remains OPEN but now tracks **commissioning/integration**, not pre-purchase comparison. The baseline process is to document/clean/inspect, charge and baseline the Redodo battery, clear previous-user data, restore defaults, re-pair controls, install current software through ActiveCaptain, calibrate the pedals/remote, then complete motor compass/bow-offset calibration and full functional testing on the installed RVR119. Do not perform invasive preventive service on the three-month-old warranted motor absent a fault.
 
-**Current candidate set:** Garmin Force Current with Power Steer; Newport NK180Pro HD + 24V 50Ah LoPRO + Wizard; Newport NK300 HD + 36V 50Ah LoPRO + Wizard. Continue comparing boat-control capability, river ruggedness, installed/removable weight, setup/teardown, realistic range, reliability, cost and serviceability rather than ranking solely by advertised thrust or speed.
+**Safety/maintenance constraints:** Preserve Garmin's 40A protected-feed requirement; disconnect battery power before propeller/electrical service; never run the propeller out of water; inspect exposed rope/mount/connectors/props/sacrificial anodes as owner maintenance.
 
-**Research finding to preserve:** All three motor systems can be removed for transport. Newport leaves its stern mount/steering hardware installed; Garmin leaves its stern mount and Power Steer rails installed while the motor and pedals are removable. This makes roof-loading weight materially lower than the complete on-water system weight.
+**Storage decision:** The motor/pedal storage solution must be **hard plastic**, not a flexible bag. Minimum usable internal dimensions are **38 × 18 × 8 in**; snug/compact fit is preferred and **orange is preferred**. Pelican/Otter-level protection/cost is unnecessary. The Hyper Tough 50-gallon tote is too large. Verify actual usable interior dimensions because molded bins often lose substantial space to taper/handles/wheels.
+
+**Transport constraint retained:** The RVR119 is transported on the F-150 roof rack, so the Force Current motor, battery and Power Steer pedals must remain easy to remove before roof loading. The Newport LoPRO is no longer the selected battery; it remains only a possible future low-profile alternative to the currently owned Redodo 24V 50Ah battery.
 
 ## Science of the Strike evidence standard — September 28, 2026
 
