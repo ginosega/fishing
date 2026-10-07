@@ -2,28 +2,29 @@
 
 Persistent Fishing project and source repository for Fishing Companion.
 
-## Current continuation — September 28, 2026
+## Current continuation — October 7, 2026
 
 `ginosega/fishing` is the durable source of truth. Fishing Companion remains a three-domain PWA with canonical source under `pwa/Gear/`, `pwa/KB/`, and `pwa/Catches/`.
 
 Always restore actual latest `main`, current open PRs, and the latest successful production evidence before relying on exact SHA/release/count values. Historical checkpoint identifiers in project Markdown are evidence only.
 
-### September 28 production checkpoint
+### October 7 production checkpoint
 
-The latest verified hosted production at this handoff is the Fast Content Release for the Electronics Research update:
+The latest verified hosted production at this handoff is current `main`:
 
-- production source revision: `006be1c74e3e64c98be518398298965b3489fa5f`;
-- source change: direct `main` content edit to `pwa/Gear/Equipment/content/Electronics Research.md`;
-- production workflow: **#423** / run `36452795689`;
-- hosted release ID: `51b68e6a7353b876bad9648d1aac8072`;
-- hosted counts: **Gear 90 / KB 58 / Catches 11**;
+- production source revision: `574228e5cce29b6bb8095204e7233be8e9e68106`;
+- source change: Z-Man ShroomZ Micro Finesse Jig description updated to reference Ned rig usage/technique;
+- production workflow: **#491** / run `37255448422`;
+- hosted release ID: `62631f3b48f069638bf9e48d13b7c195`;
+- hosted counts: **Gear 97 / KB 59 / Catches 12**;
+- hosted files: **426**;
 - release lane: Fast Content Release;
 - exact-current-main guard: passed;
 - GitHub Pages deployment: passed;
-- hosted byte/release-identity verification: passed;
+- hosted byte/release-identity verification: passed with `hostedBytesMatch: true`;
 - open PRs before handoff reconciliation: **0**.
 
-The handoff itself is documentation-only and may advance `main` without republishing the PWA. The production identity above remains the authoritative hosted checkpoint until a later content/application release succeeds.
+This handoff is documentation-only and may advance `main` without republishing the PWA. The production identity above remains the authoritative hosted checkpoint until a later content/application release succeeds.
 
 ## Current application state
 
@@ -48,28 +49,50 @@ Since the September 18 handoff, routine content work has added or reconciled:
 - Berkley PowerBait Power Jerk Shad Notes wording cleanup;
 - Pflueger President Spincast Combo rod/reel content and reel-capacity updates.
 - Electronics Research motor/battery notes refreshed with Garmin Force Current and Newport 24V 50Ah LoPRO details.
+- October content releases added/updated Flutter Spoon guidance, NRS Zander PFD, YakAttack BackWater DryPak, Z-Man ShroomZ Micro Finesse Jig, Z-Man Finesse TRD, Z-Man branding, Luhr Jensen Trout & Kokanee Dodger, Yamamoto Senko, and the Sixth Sense/Berkley lure pictures.
 
 Current canonical source, not this summary, controls exact record values.
 
-## Current RVR119 motorization research
+## Current RVR119 motorization / commissioning
 
-No motor or battery purchase has been made or selected.
+The motorization purchase decision is complete. On **October 6, 2026**, the user purchased a used **Garmin Force Current with Power Steer wireless foot pedals** for the Bonafide RVR119.
 
-Active candidates are:
+Purchased package:
 
-- **Garmin Force Current with Power Steer Foot Pedals**, most naturally paired with a 24V low-profile battery;
-- **Newport NK180Pro HD + 24V 50Ah LoPRO + Wizard**;
-- **Newport NK300 HD + 36V 50Ah LoPRO + Wizard**.
+- Garmin Force Current trolling motor;
+- Garmin Power Steer wireless foot pedals;
+- Garmin handheld remote and MOB tag;
+- **Redodo 24V 50Ah LiFePO4 battery** and Redodo charger;
+- Garmin high-efficiency propeller and weedless propeller;
+- total purchase price: **$2,800** from the seller in Gresham, Oregon.
 
-Durable constraints/preferences:
+The seller supplied the original **July 2026 Garmin receipt**. Garmin support confirmed directly to the user that the remaining three-year standard warranty will be honored with that original receipt. The motor has never been used in saltwater.
 
-- the RVR119 is transported on the F-150 roof rack, so the motor and battery must be easily removable before roof loading;
-- low-profile battery packaging that fits under the RVR119 seat is strongly preferred;
-- the Newport LoPRO form factor is especially attractive;
-- compare lake-fishing boat control/positioning against river ruggedness, weight, setup/teardown, range, reliability and cost;
-- preserve purchase uncertainty until the user explicitly chooses and purchases a system.
+### Active commissioning work
 
-Current research indicates all three motor systems are removable for transport. The NK180 is the lightest removable motor; the NK300 adds substantially more propulsion at a weight penalty; the Force Current's key differentiator is GPS/electric boat control such as Anchor Lock/Bow Lock and hands-free Power Steer rather than raw propulsion.
+FISH-TODO-040 remains OPEN, but its purpose has changed from purchase research to commissioning and RVR119 integration. Current work is to:
+
+- clean and inspect the motor, mount, shaft, rope, connectors, props and sacrificial anodes without invasive disassembly;
+- fully charge and baseline the Redodo battery/charger;
+- clear prior-user navigation data and restore Garmin factory defaults;
+- reset/re-pair the remote, both Power Steer pedals and MOB tag as applicable;
+- update the motor, remote and pedals through Garmin/ActiveCaptain;
+- calibrate the Power Steer pedals and handheld remote;
+- after installation on the RVR119, perform the required on-water compass/bow-offset calibration and full functional test;
+- preserve the Garmin requirement for a 40A protected power feed and never run the propeller out of water.
+
+### Storage case search
+
+The user is actively looking for a **hard-plastic storage case/bin** for the motor and pedals. Durable requirements:
+
+- minimum usable **internal dimensions: 38 × 18 × 8 in**;
+- snug/compact fit strongly preferred;
+- **orange preferred** if available;
+- hard plastic is required; flexible storage bags are rejected;
+- a heavy/expensive Pelican/Otter-style case is unnecessary;
+- the previously considered Hyper Tough 50-gallon tote is too large.
+
+The Newport LoPRO battery remains an interesting form factor for future packaging, but the currently owned propulsion battery is the Redodo 24V 50Ah LiFePO4.
 
 ## Science of the Strike research
 
