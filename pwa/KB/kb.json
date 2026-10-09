@@ -738,6 +738,13 @@
       "picture": {
         "src": "KB/Knots/assets/Line-Tackle-Knot Reference.png"
       }
+    },
+    {
+      "id": "location-lake-stevens",
+      "type": "location",
+      "name": "Lake Stevens",
+      "description": "Kayak launch choices, bass, perch, trout, kokanee, spots, and seasonal tactics",
+      "content": "KB/Locations/content/lake-stevens.md"
     }
   ]
 }
