@@ -3034,6 +3034,58 @@
         "src": "Gear/Lures/assets/Z-Man Finesse TRD.png",
         "caption": "Z-Man Finesse TRD, Fire Craw"
       }
+    },
+    {
+      "id": "yakattack-fully-loaded-tracpak-combo-kit",
+      "name": "YakAttack Fully Loaded TracPak Combo Kit",
+      "category": "accessories",
+      "type": "Kayaks",
+      "specifications": [
+        {
+          "value": "Orange",
+          "label": "Color"
+        }
+      ],
+      "links": [
+        {
+          "label": "YakAttack",
+          "url": "https://www.yakattack.us/fully-loaded-tracpak-combo-kit-two-boxes-track-mount-handle-and-3-trays/"
+        }
+      ],
+      "manufacturer": "YakAttack",
+      "model": "Fully Loaded TracPak Combo Kit",
+      "picture": {
+        "src": "Gear/Equipment/assets/YakAttack Fully Loaded TracPak Combo Kit.png",
+        "caption": "YakAttack Fully Loaded TracPak Combo Kit, Orange"
+      }
+    },
+    {
+      "id": "yakattack-10l-roll-top-drybag-with-air-valve",
+      "name": "YakAttack 10L Roll-Top Drybag with Air Valve",
+      "category": "accessories",
+      "type": "Kayaks",
+      "specifications": [
+        {
+          "value": "10L",
+          "label": "Size"
+        },
+        {
+          "value": "Orange",
+          "label": "Color"
+        }
+      ],
+      "links": [
+        {
+          "label": "YakAttack",
+          "url": "https://www.yakattack.us/10l-roll-top-drybag-with-air-valve-orange/"
+        }
+      ],
+      "manufacturer": "YakAttack",
+      "model": "10L Roll-Top Drybag with Air Valve",
+      "picture": {
+        "src": "Gear/Equipment/assets/YakAttack 10L Roll-Top Drybag with Air Valve.png",
+        "caption": "YakAttack 10L Roll-Top Drybag with Air Valve, Orange"
+      }
     }
   ]
 }
