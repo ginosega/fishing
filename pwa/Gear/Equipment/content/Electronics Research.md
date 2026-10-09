@@ -1,28 +1,5 @@
 **Last Update: November 28, 2025**
 
-## Motor
-
-[Garmin Force Current](https://www.garmin.com/en-US/p/1059449/)
-
-![Garmin Force Current](./Garmin%20Force%20Current.png)
-
-Get with wireless foot pedals; $3,400 total package
-
-![Wireless Foot Pedals](./Wireless%20Foot%20Pedals.png)
-
-Operates on 12- or 24-volt battery. 12V = 40 lbs. thrust, 24V = 50 lbs. With 24v amperage will be lower so run time will be longer.
-
-Requires the [Bonafide RVR119 Stern Motor Mount](https://bonafidefishing.com/products/stern-motoranchor-mount-rvr?pr_prod_strat=e5_desc&pr_rec_id=1f1321c75&pr_rec_pid=7522817736894&pr_ref_pid=7906896937150&pr_seq=uniform)
-
-![Stern Motor Mount](./Stern%20Motor%20Mount.png)
-
-## Battery
-Newport 24V 50Ah LoPRO Lithium LiFePo4 Battery: [Newport](https://newportvessels.com/products/lopro-24v-50ah-lithium-battery)
-
-![Newport 24V 50Ah LoPRO Lithium LiFePo4 Battery](./Newport-24V-50Ah-LoPRO-Lithium-LiFePo4-Battery.png)
-
-See quick connect and fuse/breaker: [video](https://youtu.be/f6zm8hRho-M?si=XQqJvTW1_Lli4VHq&t=365)
-
 ## Chart Plotter / Fish Finder
 - Garmin technologies:
   - ClearVu: Down-scanning sonar. High resolution but limited field of view.
