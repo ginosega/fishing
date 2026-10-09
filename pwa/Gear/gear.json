@@ -3086,6 +3086,38 @@
         "src": "Gear/Equipment/assets/YakAttack 10L Roll-Top Drybag with Air Valve.png",
         "caption": "YakAttack 10L Roll-Top Drybag with Air Valve, Orange"
       }
+    },
+    {
+      "id": "garmin-force-current-kayak-trolling-motor-with-power-steering-foot-pedals",
+      "name": "Garmin Force Current Kayak Trolling Motor with Power Steering Foot Pedals",
+      "category": "accessories",
+      "type": "Kayaks",
+      "specifications": [
+        {
+          "value": "50 lbs @ 24 V",
+          "label": "Max Thrust"
+        },
+        {
+          "value": "24 V",
+          "label": "Voltage"
+        }
+      ],
+      "links": [
+        {
+          "label": "Garmin",
+          "url": "https://www.garmin.com/en-US/p/1059449/"
+        },
+        {
+          "label": "Support Center",
+          "url": "https://support.garmin.com/en-US/?partNumber=010-02864-00&tab=topics"
+        }
+      ],
+      "manufacturer": "Garmin",
+      "model": "Force Current with Power Steer Foot Pedals",
+      "picture": {
+        "src": "Gear/Equipment/assets/Garmin Force Current - large.png",
+        "caption": "Garmin Force Current Kayak Trolling Motor with Power Steer Foot Pedals"
+      }
     }
   ]
 }
