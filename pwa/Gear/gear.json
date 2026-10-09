@@ -2907,14 +2907,14 @@
     },
     {
       "id": "electronics-research",
-      "name": "Motor & Electronics Research",
+      "name": "Electronics Research",
       "category": "accessories",
       "type": "Electronics",
       "specifications": [],
       "links": [],
       "notes": "Gear/Equipment/content/Electronics Research.md",
       "picture": {
-        "src": "Gear/Equipment/assets/Garmin Force Current - large.png"
+        "src": "Gear/Equipment/assets/Electronics Research.png"
       }
     },
     {
