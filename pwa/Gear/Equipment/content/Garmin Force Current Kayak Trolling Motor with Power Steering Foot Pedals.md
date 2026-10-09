@@ -7,3 +7,5 @@ Wireless foot pedals:
 ![Stern Motor Mount](./Stern%20Motor%20Mount.png)
 
 [Redodo 24V 50Ah Bluetooth Lithium Trolling Motor Battery](https://www.redodopower.com/products/redodo-24v-50ah-trolling-motor-battery-with-bluetooth?_pos=5&_psq=24&_psid=0039eb3a0&_ss=e&variant=43816549384282)
+
+![Redodo 24V 50Ah Bluetooth Lithium Trolling Motor Battery](./Redodo-24V-50Ah-Bluetooth-Lithium-Trolling-Motor-Battery.png)
