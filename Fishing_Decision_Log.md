@@ -164,6 +164,16 @@ Simple Markdown-only narrative edits may be made directly. Structured record fie
 ## Open application work
 
 FISH071–076 and FISH078–114 are complete/implemented. There is no currently allocated open application task after FISH114. The next unused application/architecture task ID is **FISH-TODO-115** unless actual newer `main` has already allocated it. Routine Fast Content Releases do not consume that ID.
+## October 12, 2026 project handoff reconciliation
+
+**Audit outcome:** PRs #221–#228 are all merged and deployed; the interrupted Banks Lake representative image change in PR #228 was successfully finished (production workflow #517 / run `38207507318`). As verified at the start of this documentation-only handoff: published source `e71c9ab6a90da46f8b46c7977bf476a1633fa94c`, release `0f4bd1f9e9e12b2b1981d61b48e3e501`, **100 Gear / 60 KB / 12 Catches**, **431 hosted files**, `hostedBytesMatch: true`, and **0 open PRs**. These are dated evidence, not permanent future-state values.
+
+**Canonical content clarification:** `electronics-research` was renamed **Electronics Research** and intentionally refocused on chart plotters/fish finders; the prior motor/battery Notes sections are no longer on that page. Garmin Force Current Gear and maintenance/component Notes now cover motor content. A Lake Stevens Location guide was added, and the Banks Lake Location now has a representative picture. These are completed content changes; no new architecture task was allocated.
+
+**Outstanding equipment clarification:** FISH-TODO-040 remains **OPEN** pending commissioning/installation/functional testing and case-fit/cushioning decisions. A 48 × 19 × 14 in hard-plastic lidded bin is being evaluated, but exact **interior** dimensions and purchased status were not confirmed. Do not claim the case/foam installation is completed. The historical under-seat tackle tray back-order and other open purchase items are not implicitly resolved.
+
+**Release decision unchanged:** Documentation-only reconciliation does not trigger PWA publication because the publisher's `push`/`pull_request` path filters exclude the root project Markdown files. Handoff commits may move `main` ahead of the last deployed production source SHA; distinguish these identities rather than reporting an outdated production release as current `main`.
+
 ## RVR119 Force Current purchase and commissioning — October 6–7, 2026
 
 **Decision:** The motorization purchase decision is complete. The user purchased a used **Garmin Force Current + Power Steer wireless foot-pedal system** on October 6, 2026 for **$2,800** from a seller in Gresham, Oregon. The package includes the motor, both Power Steer pedals, Garmin handheld remote, Garmin MOB tag, Redodo 24V 50Ah LiFePO4 battery and charger, high-efficiency propeller and weedless propeller.
