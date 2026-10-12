@@ -1,6 +1,6 @@
 # Fishing TODO
 
-## Current project task state — October 7, 2026
+## Current project task state — October 12, 2026
 
 ### Application / architecture state
 
@@ -30,6 +30,8 @@ Routine FISH108 content work is complete/canonical and does not consume applicat
 - Banks Lake inline-image/case/format cleanup;
 - Berkley PowerBait Power Jerk Shad Notes cleanup;
 - Pflueger President Spincast Combo rod/reel Notes and reel-capacity update.
+
+Additional **October 8–12 completed content**: orange YakAttack TracPak combo and 10L drybag; Garmin Force Current with Power Steer Gear/Notes and maintenance update; Electronics Research renamed and refocused on fish finders with new image; new Lake Stevens Location fishing plan; Banks Lake Location representative picture (PR #228 successfully completed). Verified content counts: **100 Gear / 60 KB / 12 Catches**, in production workflow **#517**, release `0f4bd1f9e9e12b2b1981d61b48e3e501` at this handoff. None requires an application task ID.
 
 Current canonical source controls exact values and counts.
 
@@ -61,13 +63,13 @@ The RVR119 Under Seat Tackle Storage has **not** been purchased, remains on back
 | FISH-TODO-031 | P3 | OPEN | Continue/confirm Science of the Strike episodes 8 and 16 (dissolved oxygen/turbidity). A dissolved-oxygen/turbidity transcript was reviewed in September; do not close until both originally targeted episodes are confirmed complete. |
 | FISH-TODO-037 | P3 | DEFERRED | Fishing Companion v3 requirements; implementation requires explicit approval. |
 | FISH-TODO-039 | P2 | OPEN | Apply T-9 on kayak hardware. |
-| FISH-TODO-040 | P2 | OPEN | Commission and integrate the purchased Garmin Force Current system on the RVR119: clean/inspect/service exposed items, charge/baseline the Redodo 24V 50Ah battery, reset/re-pair/update/calibrate motor/remote/Power Steer pedals/MOB tag, complete on-water calibration and functional testing, and select a snug hard-plastic storage case/bin with at least 38 × 18 × 8 in usable interior dimensions (orange preferred). |
+| FISH-TODO-040 | P2 | OPEN | Commission and integrate the purchased Garmin Force Current system on the RVR119: clean/inspect/service exposed items, charge/baseline the Redodo 24V 50Ah battery, reset/re-pair/update/calibrate motor/remote/Power Steer pedals/MOB tag, complete on-water calibration and functional testing, and fit/protect a snug hard-plastic storage case/bin with at least 38 × 18 × 8 in **verified usable interior** dimensions (orange preferred); determine safe reusable cushioning without encasing the electronics in spray foam. |
 
 ### Current Force Current ownership / commissioning state
 
 Purchased **October 6, 2026** for **$2,800** from a seller in Gresham, Oregon: Garmin Force Current motor, Power Steer wireless pedals, handheld remote, MOB tag, Redodo 24V 50Ah LiFePO4 battery + charger, high-efficiency prop and weedless prop. The original Garmin receipt is from July 2026; Garmin confirmed to the user that the remaining three-year standard warranty will be honored with the original receipt. Seller reported freshwater-only use.
 
-Storage requirement for the motor/pedals: **hard plastic**, minimum usable interior **38 × 18 × 8 in**, compact/snug, orange preferred. Flexible bags are rejected; the Hyper Tough 50-gallon tote was rejected as too large.
+Storage requirement for the motor/pedals: **hard plastic**, minimum usable interior **38 × 18 × 8 in**, compact/snug, orange preferred. Flexible bags are rejected; the Hyper Tough 50-gallon tote was rejected as too large. A **48 × 19 × 14 in lidded bin** is now being considered/discussed for foam inserts; **confirmed usable interior measurements and actual purchase/ownership status are not established**. Consider cut closed-cell EVA/PE foam before sprayed construction foam, protect controls and connectors, and avoid moisture entrapment.
 
 ## Resolved/deleted items that must not be resurrected
 
