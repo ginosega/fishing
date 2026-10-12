@@ -191,3 +191,7 @@ Runtime/UI/assets, service worker, schema/contracts, tests, build/tooling, depen
 - Fishing Companion v3 remains deferred and requires explicit approval.
 - RVR119 Force Current purchase is complete; commissioning, storage-case selection and RVR119 installation remain active under FISH-TODO-040.
 - Preserve all other active items in `Fishing_TODO.md`.
+
+## Next-chat entry point
+
+After handoff, open [Fishing_New_Chat_Bootstrap_Prompt.md](Fishing_New_Chat_Bootstrap_Prompt.md) from latest `main`, copy its instructions to a new Chat-mode Fishing conversation, and freshly resolve GitHub/production identity before acting.
