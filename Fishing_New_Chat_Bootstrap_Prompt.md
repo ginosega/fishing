@@ -16,21 +16,21 @@ Read these files from actual latest `main`, in order:
 
 Before repository work, also confirm current open-PR state. Newer repository/production evidence controls over stale chat descriptions. For exact production SHA/release/counts, inspect the latest successful `main` production workflow and hosted verification evidence.
 
-## Handoff checkpoint — October 7, 2026
+## Handoff checkpoint — October 12, 2026
 
-At this handoff, the latest verified hosted production is current `main`:
+Verified production **before** this documentation-only reconciliation:
 
-- production source revision: `574228e5cce29b6bb8095204e7233be8e9e68106`;
-- source change: Z-Man ShroomZ Micro Finesse Jig description updated to reference Ned rig usage/technique;
-- production workflow: **#491**, run `37255448422`;
-- hosted release ID: `62631f3b48f069638bf9e48d13b7c195`;
-- hosted counts: **Gear 97 / KB 59 / Catches 12**;
-- hosted files: **426**;
-- exact-current-main guard, Pages deployment and hosted byte/release-identity verification all passed;
-- `hostedBytesMatch: true`;
-- open PRs before handoff reconciliation: **0**.
+- source revision: `e71c9ab6a90da46f8b46c7977bf476a1633fa94c`;
+- last production change: Banks Lake Location representative picture, **PR #228 merged**;
+- workflow **#517** / run `38207507318`, Fast Content Release, succeeded;
+- hosted release ID: `0f4bd1f9e9e12b2b1981d61b48e3e501`;
+- hosted counts: **100 Gear / 60 KB / 12 Catches**, **431 files**;
+- exact-current-main guard, Pages deployment and byte/release-identity verification succeeded: `hostedBytesMatch: true`;
+- open PRs before handoff: **0**.
 
-The handoff update itself is documentation-only and may advance `main` without republishing the PWA. Treat the production source revision above as the hosted production checkpoint until a later release succeeds.
+This handoff changes only the five root project Markdown records and **does not publish a new PWA release**. Thus the post-handoff `main` commit may differ from the production source revision above. Always inspect the latest workflow, hosted verification and actual `main` at new-chat start.
+
+
 
 FISH114 remains the latest completed application/architecture change. FISH071–076 and FISH078–114 are complete/implemented. The next unused application/architecture ID is **FISH-TODO-115** unless newer `main` has allocated it. Routine FISH108 content work does not consume application IDs.
 
@@ -53,8 +53,19 @@ Since the prior handoff, current canonical source includes:
 - Banks Lake inline-image filename/case/Markdown cleanup;
 - Berkley PowerBait Power Jerk Shad Notes wording cleanup;
 - Pflueger President Spincast Combo rod/reel Notes updates and reel capacity `110 yd / 4 lb, 90 yd / 6 lb, 70 yd / 8 lb`.
-- Electronics Research motor/battery notes refreshed with Garmin Force Current and Newport 24V 50Ah LoPRO details.
+- Earlier motor/battery research in Electronics Research was replaced; its **current Notes are focused on chart plotters/fish finders**. Garmin Force Current has its own Gear record and maintenance Notes.
 - October releases added/updated Flutter Spoon content, NRS Zander PFD, YakAttack BackWater DryPak, Z-Man ShroomZ Micro Finesse Jig, Z-Man Finesse TRD, Z-Man branding, Luhr Jensen Trout & Kokanee Dodger, Yamamoto Senko and three lure-picture replacements.
+
+### October 8–12 verified content additions/edits
+
+- **PR #221:** YakAttack Fully Loaded TracPak Combo Kit (orange) and YakAttack 10L Roll-Top Drybag (orange), using existing images.
+- **PRs #222–224:** Garmin Force Current with Power Steer foot pedals Gear item, component Notes, and final display name.
+- **PR #225:** Electronics Research renamed/refocused to chart plotters/fish finders; dedicated picture. Do **not** reinstate old motor/battery Notes on that page.
+- **PR #226:** Lake Stevens Location fishing guide for launch/access, bass, trout, kokanee and perch.
+- **PR #227:** Garmin Force Current maintenance checklist and illustrated components Notes.
+- **PR #228:** Banks Lake Location representative picture (uploaded image preserved). The previous ChatGPT turn was interrupted, but this PR was **merged and production verified**, so do **not** reopen it.
+
+Current authoritative content at the handoff: **100 Gear / 60 KB / 12 Catches**, including **10 Locations**.
 
 Git history and current canonical source are authoritative for exact values.
 
@@ -95,7 +106,7 @@ Current work:
 
 Do not run the propeller out of water. Do not perform invasive preventive service on this three-month-old warrantied motor unless a fault requires it.
 
-### Active storage-case search
+### Active storage-case search and foam insert
 
 Find a **hard-plastic** storage case/bin for the motor and pedals:
 
@@ -105,7 +116,10 @@ Find a **hard-plastic** storage case/bin for the motor and pedals:
 - no flexible bags;
 - no need for expensive/heavy Pelican/Otter-level construction;
 - Hyper Tough 50-gallon tote was rejected as too large;
-- verify **usable interior dimensions**, not exterior dimensions alone.
+- verify **usable interior dimensions**, not exterior dimensions alone;
+- a **48 × 19 × 14 in lidded hard-plastic bin** is being discussed for the foam-insert solution; purchase/ownership and actual usable interior dimensions were **not confirmed**;
+- use a protective insert that leaves the Force Current controls, shaft, pedals and connectors unloaded. Cut closed-cell EVA/PE sheet foam is the safe default; rigid Fireblock/Gaps & Cracks spray foam should not directly encase the gear. Window & Door low-expansion foam was considered as a **test**, not selected as the permanent design;
+- **FISH-TODO-040 remains OPEN**; do not infer the storage or commissioning work is done.
 
 Transport constraint remains: the kayak goes on the F-150 roof rack, so the motor, propulsion battery and pedals must remain readily removable before roof loading. The Newport 24V 50Ah LoPRO remains only a possible future lower-profile battery alternative; the **Redodo 24V 50Ah is the currently owned battery**.
 
