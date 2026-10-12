@@ -1,24 +1,20 @@
 # Fishing Context
 
-## Current authoritative state — October 7, 2026
+## Current authoritative state — October 12, 2026
 
 `ginosega/fishing` is the durable source of truth. Restore actual current `main` and current open-PR state before repository work. For exact production identity, inspect the latest successful `main` production workflow plus its hosted verification evidence; checkpoint values in project Markdown are historical evidence, not permanent truth.
 
-### Current verified production checkpoint
+### October 12 verified production checkpoint
 
-- production source revision: `574228e5cce29b6bb8095204e7233be8e9e68106`
-- source change: Z-Man ShroomZ Micro Finesse Jig description updated to reference Ned rig usage/technique
-- production workflow: **#491** / run `37255448422`
-- hosted release ID: `62631f3b48f069638bf9e48d13b7c195`
-- hosted counts: **Gear 97 / KB 59 / Catches 12**
-- hosted files: **426**
-- release lane: Fast Content Release
-- exact-current-main guard: passed
-- Pages deployment: passed
-- hosted byte/release-identity verification: passed; `hostedBytesMatch: true`
-- open PRs before handoff reconciliation: 0
+- production source revision: `e71c9ab6a90da46f8b46c7977bf476a1633fa94c`;
+- latest source change: add the **September 24, 2026 Banks Lake representative picture** to the Banks Lake Location record (PR [#228](https://github.com/ginosega/fishing/pull/228));
+- production workflow: **#517** / run `38207507318`, **Fast Content Release**;
+- hosted release ID: `0f4bd1f9e9e12b2b1981d61b48e3e501`;
+- hosted counts: **Gear 100 / KB 60 / Catches 12**; hosted files: **431**;
+- exact-current-main guard, Pages publication and hosted byte/release-identity verification passed: `hostedBytesMatch: true`;
+- **PR #228 is merged; open PRs: 0** at the start of this reconciliation.
 
-The October 7 handoff is documentation-only and may move `main` beyond the production source revision above without republishing the PWA.
+This October 12 handoff only changes the five root project Markdown files. These documentation-only changes **do not publish the PWA**; after merging the handoff, `main` can be ahead of the production source revision. For the next task, always recheck actual current `main`, open PRs and latest successful hosted verification rather than assuming these identifiers are current.
 
 ## Application / architecture state
 
@@ -51,10 +47,23 @@ Current source includes the following durable content changes:
 - Berkley PowerBait Power Jerk Shad Notes wording updated.
 - Banks Lake inline-image filename/case and Markdown formatting corrected while preserving the intended two Steamboat Rock images.
 - Pflueger President Spincast Combo rod/reel Notes were revised; current reel capacity is `110 yd / 4 lb, 90 yd / 6 lb, 70 yd / 8 lb`.
-- Electronics Research motor/battery notes were refreshed with Garmin Force Current and Newport 24V 50Ah LoPRO details.
+- Earlier Electronics Research motor/battery material was superseded: current **Electronics Research** Notes contain chart plotter/fish-finder material only.
 - October releases added/updated Flutter Spoon content, NRS Zander PFD, YakAttack BackWater DryPak, Z-Man ShroomZ Micro Finesse Jig, Z-Man Finesse TRD, Z-Man branding, Luhr Jensen Trout & Kokanee Dodger, Yamamoto Senko and three lure-picture replacements.
 
 Current source always controls over this summary.
+
+## October 8–12 canonical content reconciliation
+
+The following content changes are **implemented, merged and hosted-verified**, not outstanding application tasks:
+
+- **PR #221:** two orange YakAttack Gear items — Fully Loaded TracPak Combo Kit and 10L Roll-Top Drybag with Air Valve; both use previously uploaded PNGs.
+- **PRs #222–224:** Garmin Force Current with Power Steer Foot Pedals Gear entry, illustrated component Notes, and corrected display name. Current Gear ID remains `garmin-force-current-kayak-trolling-motor-with-power-steering-foot-pedals`.
+- **PR #225:** `electronics-research` is now **Electronics Research**, with a new representative PNG; its Notes cover **chart plotters/fish finders**. Earlier motor and battery research sections were removed from this page. Do not restore them solely because prior handoff documents mentioned them.
+- **PR #226:** detailed **Lake Stevens** kayak-fishing Location page, including North Cove/Davies Beach launches, bass/perch/trout/kokanee strategies, tackle from My Gear, seasonal patterns and regulations. It has no representative picture; one was not requested.
+- **PR #227:** expanded Garmin Force Current Notes with a maintenance checklist and component links/three inline pictures; the canonical Gear metadata and picture were unchanged.
+- **PR #228:** Banks Lake Location representative picture `KB/Locations/assets/2026-09-24 Banks Lake, WA.png`, using the uploaded PNG without altering it. This was the release interrupted in ChatGPT, but it **subsequently passed PR validation, merged and deployed** in production run #517.
+
+Current canonical source has **100 Gear / 60 KB / 12 Catches**, including **10 Location** KB entries. The published application has no new architecture/feature work from these releases. Keep all source-aware validation, fast-release and ownership rules unchanged.
 
 ## RVR119 Force Current ownership and commissioning — active
 
@@ -103,6 +112,10 @@ The user wants a **hard-plastic** storage case/bin for the motor and pedals with
 - Hyper Tough 50-gallon bin rejected as too large.
 
 Continue searching by **verified usable interior dimensions**, not exterior dimensions alone.
+
+### Storage-case cushioning and fit — current exploration
+
+The current discussion concerns a **48 × 19 × 14 in lidded hard-plastic bin** for the motor and pedals. Its **actual usable interior dimensions and purchase/ownership status are not independently confirmed**; the old minimum **38 × 18 × 8 in usable interior** remains the fit requirement until measurements confirm otherwise. The user is considering a custom cushioning insert. Cut **closed-cell EVA or polyethylene foam** is the safer reusable baseline. Construction **Fireblock/Gaps & Cracks** spray foam is too firm/unpredictable for direct equipment cushioning; flexible Window & Door foam is only a cautious sample experiment, not an approved permanent solution. Never apply expanding foam to the motor or pedals directly, and do not compromise connectors/shaft/controls or trap water.
 
 ### Remaining integration considerations
 
