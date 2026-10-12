@@ -2,29 +2,23 @@
 
 Persistent Fishing project and source repository for Fishing Companion.
 
-## Current continuation — October 7, 2026
+## Current continuation — October 12, 2026
 
 `ginosega/fishing` is the durable source of truth. Fishing Companion remains a three-domain PWA with canonical source under `pwa/Gear/`, `pwa/KB/`, and `pwa/Catches/`.
 
 Always restore actual latest `main`, current open PRs, and the latest successful production evidence before relying on exact SHA/release/count values. Historical checkpoint identifiers in project Markdown are evidence only.
 
-### October 7 production checkpoint
+### October 12 verified production checkpoint
 
-The latest verified hosted production at this handoff is current `main`:
+- production source revision: `e71c9ab6a90da46f8b46c7977bf476a1633fa94c`;
+- latest source change: add the **September 24, 2026 Banks Lake representative picture** to the Banks Lake Location record (PR [#228](https://github.com/ginosega/fishing/pull/228));
+- production workflow: **#517** / run `38207507318`, **Fast Content Release**;
+- hosted release ID: `0f4bd1f9e9e12b2b1981d61b48e3e501`;
+- hosted counts: **Gear 100 / KB 60 / Catches 12**; hosted files: **431**;
+- exact-current-main guard, Pages publication and hosted byte/release-identity verification passed: `hostedBytesMatch: true`;
+- **PR #228 is merged; open PRs: 0** at the start of this reconciliation.
 
-- production source revision: `574228e5cce29b6bb8095204e7233be8e9e68106`;
-- source change: Z-Man ShroomZ Micro Finesse Jig description updated to reference Ned rig usage/technique;
-- production workflow: **#491** / run `37255448422`;
-- hosted release ID: `62631f3b48f069638bf9e48d13b7c195`;
-- hosted counts: **Gear 97 / KB 59 / Catches 12**;
-- hosted files: **426**;
-- release lane: Fast Content Release;
-- exact-current-main guard: passed;
-- GitHub Pages deployment: passed;
-- hosted byte/release-identity verification: passed with `hostedBytesMatch: true`;
-- open PRs before handoff reconciliation: **0**.
-
-This handoff is documentation-only and may advance `main` without republishing the PWA. The production identity above remains the authoritative hosted checkpoint until a later content/application release succeeds.
+This October 12 handoff only changes the five root project Markdown files. These documentation-only changes **do not publish the PWA**; after merging the handoff, `main` can be ahead of the production source revision. For the next task, always recheck actual current `main`, open PRs and latest successful hosted verification rather than assuming these identifiers are current.
 
 ## Current application state
 
@@ -48,10 +42,23 @@ Since the September 18 handoff, routine content work has added or reconciled:
 - Banks Lake inline-image filename/case and Markdown formatting cleanup;
 - Berkley PowerBait Power Jerk Shad Notes wording cleanup;
 - Pflueger President Spincast Combo rod/reel content and reel-capacity updates.
-- Electronics Research motor/battery notes refreshed with Garmin Force Current and Newport 24V 50Ah LoPRO details.
+- Electronics Research previously covered motor/battery research; **its current Notes were refocused on chart plotters and fish finders** on October 9.
 - October content releases added/updated Flutter Spoon guidance, NRS Zander PFD, YakAttack BackWater DryPak, Z-Man ShroomZ Micro Finesse Jig, Z-Man Finesse TRD, Z-Man branding, Luhr Jensen Trout & Kokanee Dodger, Yamamoto Senko, and the Sixth Sense/Berkley lure pictures.
 
 Current canonical source, not this summary, controls exact record values.
+
+## October 8–12 canonical content reconciliation
+
+The following content changes are **implemented, merged and hosted-verified**, not outstanding application tasks:
+
+- **PR #221:** two orange YakAttack Gear items — Fully Loaded TracPak Combo Kit and 10L Roll-Top Drybag with Air Valve; both use previously uploaded PNGs.
+- **PRs #222–224:** Garmin Force Current with Power Steer Foot Pedals Gear entry, illustrated component Notes, and corrected display name. Current Gear ID remains `garmin-force-current-kayak-trolling-motor-with-power-steering-foot-pedals`.
+- **PR #225:** `electronics-research` is now **Electronics Research**, with a new representative PNG; its Notes cover **chart plotters/fish finders**. Earlier motor and battery research sections were removed from this page. Do not restore them solely because prior handoff documents mentioned them.
+- **PR #226:** detailed **Lake Stevens** kayak-fishing Location page, including North Cove/Davies Beach launches, bass/perch/trout/kokanee strategies, tackle from My Gear, seasonal patterns and regulations. It has no representative picture; one was not requested.
+- **PR #227:** expanded Garmin Force Current Notes with a maintenance checklist and component links/three inline pictures; the canonical Gear metadata and picture were unchanged.
+- **PR #228:** Banks Lake Location representative picture `KB/Locations/assets/2026-09-24 Banks Lake, WA.png`, using the uploaded PNG without altering it. This was the release interrupted in ChatGPT, but it **subsequently passed PR validation, merged and deployed** in production run #517.
+
+Current canonical source has **100 Gear / 60 KB / 12 Catches**, including **10 Location** KB entries. The published application has no new architecture/feature work from these releases. Keep all source-aware validation, fast-release and ownership rules unchanged.
 
 ## Current RVR119 motorization / commissioning
 
@@ -91,6 +98,10 @@ The user is actively looking for a **hard-plastic storage case/bin** for the mot
 - hard plastic is required; flexible storage bags are rejected;
 - a heavy/expensive Pelican/Otter-style case is unnecessary;
 - the previously considered Hyper Tough 50-gallon tote is too large.
+
+### Storage-case cushioning and fit — current exploration
+
+The current discussion concerns a **48 × 19 × 14 in lidded hard-plastic bin** for the motor and pedals. Its **actual usable interior dimensions and purchase/ownership status are not independently confirmed**; the old minimum **38 × 18 × 8 in usable interior** remains the fit requirement until measurements confirm otherwise. The user is considering a custom cushioning insert. Cut **closed-cell EVA or polyethylene foam** is the safer reusable baseline. Construction **Fireblock/Gaps & Cracks** spray foam is too firm/unpredictable for direct equipment cushioning; flexible Window & Door foam is only a cautious sample experiment, not an approved permanent solution. Never apply expanding foam to the motor or pedals directly, and do not compromise connectors/shaft/controls or trap water.
 
 The Newport LoPRO battery remains an interesting form factor for future packaging, but the currently owned propulsion battery is the Redodo 24V 50Ah LiFePO4.
 
