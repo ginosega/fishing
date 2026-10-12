@@ -31,7 +31,7 @@ Routine FISH108 content work is complete/canonical and does not consume applicat
 - Berkley PowerBait Power Jerk Shad Notes cleanup;
 - Pflueger President Spincast Combo rod/reel Notes and reel-capacity update.
 
-Additional **October 8–12 completed content**: orange YakAttack TracPak combo and 10L drybag; Garmin Force Current with Power Steer Gear/Notes and maintenance update; Electronics Research renamed and refocused on fish finders with new image; new Lake Stevens Location fishing plan; Banks Lake Location representative picture (PR #228 successfully completed). Verified content counts: **100 Gear / 60 KB / 12 Catches**, in production workflow **#517**, release `0f4bd1f9e9e12b2b1981d61b48e3e501` at this handoff. None requires an application task ID.
+Additional **October 8–12 completed content**: orange YakAttack TracPak combo and 10L drybag; Garmin Force Current with Power Steer Gear/Notes and maintenance update; Electronics Research renamed and refocused on fish finders with new image; new Lake Stevens Location fishing plan; Banks Lake Location representative picture (**PR #228 merged and deployed**). Verified production source: `e71c9ab6a90da46f8b46c7977bf476a1633fa94c`, counts **100 Gear / 60 KB / 12 Catches**, workflow **#517**, release `0f4bd1f9e9e12b2b1981d61b48e3e501` at this handoff. None requires an application task ID. This **documentation-only reconciliation does not publish a PWA release**.
 
 Current canonical source controls exact values and counts.
 
