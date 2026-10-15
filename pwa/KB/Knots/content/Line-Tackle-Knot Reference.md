@@ -16,3 +16,6 @@
 - To snap: Improved Clinch
 - To hook: Improved Clinch, or Palomar for heavier tackle
 - To lure: Use snap for more action, otherwise Palomar
+
+**Links**
+- [Animated Knots](https://www.animatedknots.com/)
