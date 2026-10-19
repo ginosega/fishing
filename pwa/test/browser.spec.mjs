@@ -461,3 +461,77 @@ test('FISH103 KB caption typing retains focus',async({page})=>{
 test('FISH103 new KB Markdown preview validates provisional content path',async({page})=>{
  await openReady(page);await route(page,'#/kb/add/knot','Add Entry');const form=page.locator('.editor-form');await form.getByRole('textbox',{name:'Name',exact:true}).fill('FISH103 Preview Test');await form.locator('.markdown-editor').fill('Preview body with [Internal](kb://knot-palomar) and [External](https://example.com).');await form.getByRole('button',{name:'Preview Markdown',exact:true}).click();const preview=form.locator('.markdown-preview');await expect(preview).toBeVisible();await expect(preview).toContainText('Preview body');expect(await form.textContent()).not.toContain('kb schema:');await expect(preview.getByRole('link',{name:'External',exact:true})).toHaveAttribute('target','_blank');await expect(preview.getByRole('link',{name:'Internal',exact:true})).not.toHaveAttribute('target','_blank');
 });
+
+
+/*
+ * P0-B diagnostic measurements: the full original media is loaded by small
+ * grid thumbnails. These CI figures describe local desktop/headless browser
+ * runs only, NOT Android on-device timing or an approved performance target.
+ */
+for(const sample of [
+ {id:'gear-lures',hash:'#/inventory/lures',width:1280,height:900},
+ {id:'kb-techniques',hash:'#/kb/technique',width:390,height:844}
+]){
+ test('P0-B grid media probe: '+sample.id,async({page})=>{
+  await page.setViewportSize({width:sample.width,height:sample.height});
+  const manifest=await readJson(path.join(initial.root,initial.pointer.manifest));
+  const sizes=new Map(manifest.files.map(x=>[x.path,x.bytes]));
+  for(const pass of ['first','repeat']){
+   state.reads.length=0;
+   await page.goto(base+sample.hash,{waitUntil:'domcontentloaded'});
+   await expect.poll(()=>page.locator('.record-grid img.card-thumbnail').count(),{timeout:30000}).toBeGreaterThan(0);
+   const snapshot=await page.evaluate(async()=>{
+    const all=[...document.querySelectorAll('.record-grid img.card-thumbnail')];
+    const above=all.filter(img=>{const box=img.getBoundingClientRect();return box.bottom>0&&box.top<window.innerHeight&&box.right>0&&box.left<window.innerWidth;});
+    await Promise.allSettled(above.map(img=>img.decode()));
+    await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+    const resources=performance.getEntriesByType('resource');
+    const elapsedMs=Math.round(performance.now());
+    const info=img=>{
+     const timing=resources.filter(entry=>entry.name===img.src).at(-1);
+     return {path:decodeURIComponent(new URL(img.src).pathname).slice(new URL('.',location.href).pathname.length),
+       loaded:img.complete&&img.naturalWidth>0,mode:img.loading,
+       intrinsic:[img.naturalWidth,img.naturalHeight],paintedHeight:Math.round(img.getBoundingClientRect().height),
+       responseEndMs:timing?Math.round(timing.responseEnd):null,
+       resourceDurationMs:timing?Math.round(timing.duration):null};
+    };
+    return {elapsedMs,all:all.map(info),above:above.map(info)};
+   });
+   const enriched=snapshot.above.map(x=>({...x,bytes:sizes.get(x.path)||null}));
+   expect(enriched.length).toBeGreaterThan(0);
+   expect(enriched.every(x=>x.loaded)).toBeTruthy();
+   const stat={profile:sample.id,pass,viewport:sample.width+'x'+sample.height,
+    elapsedToDecodedAboveFoldMs:snapshot.elapsedMs,totalCards:snapshot.all.length,
+    aboveFoldCards:enriched.length,aboveFoldOriginalBytes:enriched.reduce((s,x)=>s+(x.bytes||0),0),
+    aboveFoldLargestBytes:Math.max(...enriched.map(x=>x.bytes||0)),
+    imgLoadingModes:[...new Set(enriched.map(x=>x.mode))],
+    firstFive:enriched.slice(0,5),
+    imageFileReads:state.reads.filter(x=>/\\.(?:png|jpe?g|webp|gif)$/i.test(x)).length};
+   console.log('P0_IMAGE_METRIC '+JSON.stringify(stat));
+  }
+ });
+}
+
+/*
+ * P0-C control: link markup is not suppressed by the SPA router and opens
+ * normal browser popups. This cannot emulate Android's installed PWA shell.
+ */
+test('P0-C desktop external links open a new context for structured and Markdown URLs',async({page,context})=>{
+ await openReady(page);
+ await context.route('https://**/*',route=>route.fulfill({status:200,contentType:'text/html',body:'<!doctype html><title>External test destination</title><p>External test destination</p>'}));
+ for(const sample of [
+  {hash:'#/inventory/item/daiwa-tatula-xt-rod',link:()=>page.locator('.links-list a').first()},
+  {hash:'#/kb/knot-palomar',link:()=>page.getByRole('link',{name:'Palomar Knot',exact:true})}
+ ]){
+  await page.goto(base+sample.hash,{waitUntil:'domcontentloaded'});
+  const anchor=sample.link();
+  await expect(anchor).toHaveAttribute('target','_blank');
+  await expect(anchor).toHaveAttribute('rel','noopener noreferrer');
+  const destination=await anchor.getAttribute('href');
+  const [popup]=await Promise.all([page.waitForEvent('popup',{timeout:15000}),anchor.click()]);
+  await expect.poll(()=>popup.url()).toBe(destination);
+  console.log('P0_LINK_METRIC '+JSON.stringify({source:sample.hash,destination,openedPopup:true,displayMode:await page.evaluate(()=>matchMedia('(display-mode: standalone)').matches?'standalone':'browser')}));
+  await popup.close();
+  expect(page.url()).toContain(sample.hash);
+ }
+});
