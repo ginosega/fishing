@@ -1,12 +1,12 @@
 # Fishing Companion v3 — Technical Architecture and Design Review
 
-**Status:** **DRAFT / PROPOSED — NOT APPROVED.** This document is for separate technical-design review. It is not authorization to implement, deploy, migrate, configure credentials, or change production.
+**Status:** **TECHNICAL DESIGN APPROVED AS-IS — October 19, 2026.** The user explicitly signed off on the complete design at [the reviewed revision](https://github.com/ginosega/fishing/blob/a34806a9c4e8c75c4a19008b9837fa249990e2b8/pwa/docs/Fishing_Companion_v3_Technical_Design.md) (file blob `ba0a97a2dfd4b4491854a62a020bc9036fddd294`). See [design approval record](Fishing_Companion_v3_Technical_Design_Approval_2026-10-19.md). A separate UX preview/review is requested **before implementation**; the staged implementation plan and its separate authorization are still pending. No application changes, secrets configuration, deployment, or v3 cutover are authorized by design sign-off alone.
 **Date:** October 19, 2026
 **Repository:** `ginosega/fishing`
 **Source inspected:** `aa64a13e3204ede57ef5b133e1152c957a20b662` on `main` (no open PRs at start of design research).
 **Authority:** [Approved v3 requirements](Fishing_Companion_v3_Requirements.md), signed off October 19, 2026; [exact reviewed revision](https://github.com/ginosega/fishing/blob/121fafc496238caca1b593885e8f83d4f8f9a865/pwa/docs/Fishing_Companion_v3_Requirements.md); [requirements approval](Fishing_Companion_v3_Requirements_Approval_2026-10-19.md); approved [v2 baseline](Fishing_Companion_v2_Approved_Baseline.md); [FISH091](FISH091_Online_Only_Default_Requirements_2026-09-11.md); [FISH108](FISH108_Fast_Content_Release_Policy_2026-09-14.md).
 
-**Approval gates:** Requirements **approved**. Technical design **pending separate review/sign-off**. Staged implementation plan and its authorization **pending**. Production v2 remains authoritative and operational.
+**Approval gates:** Requirements **approved**. Technical design **approved as-is on October 19, 2026**. UX flow preview/review **requested before implementation**; staged implementation plan and its authorization **pending**. Production v2 remains authoritative and operational.
 
 ## 1. Decision summary
 
@@ -103,7 +103,7 @@ Test a *non-production* GitHub App login service with one of these designs:
 
 **Acceptance proof (real devices):** Sign in; close/reopen the ordinary browser and the installed PWA; restart the device; follow callback from GitHub; handle an expired session; sign out/revoke; test Chrome/Edge Android and Safari iPhone, including blocked third-party cookies. Record whether auth state is genuinely retained and the PWA regains focus correctly. A desktop emulator does not establish this behavior.
 
-**Decision required in design review:** Endorse **A** as the architecture, with **AUTH-P0** as a mandatory pre-implementation feasibility gate and no silent custom-domain adoption. The exact provider/hostname/session-transport choice remains a **conditional implementation-design decision** requiring documented evidence and user approval before the security-dependent work proceeds.
+**Approved design direction:** Architecture **A**, subject to the mandatory **AUTH-P0** authentication feasibility gate and no silent custom-domain adoption. The exact provider/hostname/session-transport choice remains a **conditional implementation-design decision** requiring documented evidence and user approval before security-dependent implementation proceeds.
 
 ### 3.5 Minimal service and operational state
 
@@ -338,9 +338,9 @@ v3 preview has isolated hosting path/SW scope and no production credentials. Mai
 | V3-OPS-01..04 | 3.5–5, 8, 11 |
 | V3-X-01..08 | 2–14 |
 
-## 16. Review checklist / decisions before design approval
+## 16. Approved design decisions and conditional implementation gates
 
-Please review the proposed design with these explicit choices in mind:
+The user approved this design **as-is** on October 19, 2026, including the following architectural decisions and their documented technical feasibility gates:
 
 - **T1 — Approve or revise the trusted GitHub App + small serverless publication service** instead of browser-held GitHub credentials. It is an architectural change to support a secure one-click flow, not a second data store.
 - **T2 — Agree on the AUTH-P0 feasibility gate**: we will not assume cookie persistence or authentication return works on installed PWAs. Choose final session transport/hosting after the measured proof, with your approval if a custom domain or riskier browser-held app session is required.
@@ -352,7 +352,7 @@ Please review the proposed design with these explicit choices in mind:
 - **T8 — Approve isolated v2 maintenance bug releases when independently safe**, requiring separate release authorization and full application validation.
 - **T9 — Confirm no additional v3 features** (no Catch photos/GPS, broad users, offline queued sync, alternative repository, or permanent backend content database).
 
-**Design remains NOT APPROVED.** A design sign-off (possibly after updates) approves the architecture only. The next gate is a detailed, testable staged implementation plan and its separate explicit user authorization; no code changes or production deployment are authorized by publication of this draft.
+**Design APPROVED AS-IS on October 19, 2026.** The user requested a screen-level preview of GitHub sign-in, editor Save-and-Publish, and refreshed Connection Status **before implementation**. That UX preview is a review deliverable, not a new feature or application implementation. The next authorization gate is a detailed, testable staged implementation plan and separate explicit user approval; no code changes, secrets setup, or production deployment are authorized by publication or approval of this design. AUTH-P0 and conditional hosting/security decisions remain required as specified.
 
 ## 17. External technical references (reviewed October 19, 2026)
 
