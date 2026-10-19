@@ -98,3 +98,90 @@ test('release icon rename accepts cached historical names and still requires an 
  const f=fixture('d'.repeat(32),'unrecognized.png');
  assert.throws(()=>validateManifest(f.manifest,f.pointer,'/fishing/v2-preview/'),/Missing required release icon/);
 });
+
+
+/*
+ * P0 diagnostics: a GitHub Pages deploy replaces the release tree while an old
+ * installed/open tab still has immutable /releases/A/ URLs in its DOM.
+ *
+ * This intentionally captures the v2 failure as HTTP 503 responses,
+ * NOT as acceptable v3 behavior. Once fixed, replace these diagnostic
+ * assertions with an invariant that old-tab resources remain available.
+ */
+function withPinnedArticle(f){
+ const network=new Map(f.network),files=[...f.manifest.files];
+ const paths=[
+  'releases/'+f.id+'/content/Gear/Lures/content/stale-open-tab.md',
+  'releases/'+f.id+'/content/Gear/Lures/assets/stale-open-tab.png'
+ ];
+ for(const path of paths){
+  const bytes=Buffer.from('fixture resource '+path);
+  network.set(abs(path),bytes);
+  files.push({path,bytes:bytes.length,sha256:hash(bytes)});
+ }
+ const manifest={...f.manifest,files,totalBytes:files.reduce((sum,file)=>sum+file.bytes,0)};
+ const manifestBytes=Buffer.from(JSON.stringify(manifest));
+ const pointer={...f.pointer,manifestSha256:hash(manifestBytes)};
+ network.set(abs(pointer.manifest),manifestBytes);
+ network.set(abs('release.json'),Buffer.from(JSON.stringify(pointer)));
+ return {...f,network,manifest,pointer,article:paths[0],picture:paths[1]};
+}
+function replaceHostedRelease(network,release){
+ network.clear();
+ for(const [url,bytes] of release.network)network.set(url,bytes);
+}
+
+test('P0 diagnostic: held online tab loses unrequested A article and image when Pages replaces A with B',async()=>{
+ const a=withPinnedArticle(old),b=withPinnedArticle(next);
+ const caches=storage(),network=new Map(a.network),runtime=await worker(caches,network);
+ await runtime.install();await runtime.activate();
+ // Tab initially loaded release A; it has not yet requested this Markdown/image.
+ assert.equal((await (await runtime.fetch('release.json','cors','held-tab')).json()).id,a.id);
+ assert.equal((await runtime.fetch('releases/'+a.id+'/app.js','cors','held-tab')).status,200);
+ assert.deepEqual(await markers(caches),[]);
+ replaceHostedRelease(network,b); // Fresh GitHub Pages artifact contains only release B.
+ // Existing worker still remembers A, but old immutable bytes disappeared from hosting.
+ const article=await runtime.fetch(a.article,'cors','held-tab');
+ const picture=await runtime.fetch(a.picture,'cors','held-tab');
+ assert.equal(article.status,503);
+ assert.equal(picture.status,503);
+ // New tabs can still fetch the coherent B release.
+ assert.equal((await (await runtime.fetch('release.json','cors','new-tab')).json()).id,b.id);
+ assert.equal((await runtime.fetch(b.article,'cors','new-tab')).status,200);
+});
+
+test('P0 diagnostic: worker restart forgets held-tab release A and returns HTTP 503 after B deployment',async()=>{
+ const a=withPinnedArticle(old),b=withPinnedArticle(next);
+ const caches=storage(),network=new Map(a.network),original=await worker(caches,network);
+ await original.install();await original.activate();
+ assert.equal((await (await original.fetch('release.json','cors','held-tab')).json()).id,a.id);
+ replaceHostedRelease(network,b);
+ const restarted=await worker(caches,network);
+ await restarted.install();await restarted.activate();
+ assert.equal((await restarted.fetch(a.article,'cors','held-tab')).status,503);
+ assert.equal((await restarted.fetch(a.picture,'cors','held-tab')).status,503);
+ assert.equal((await (await restarted.fetch('release.json','cors','new-tab')).json()).id,b.id);
+ assert.equal((await restarted.fetch(b.picture,'cors','new-tab')).status,200);
+});
+
+test('P0 control: explicitly prepared verified A library serves old pinned resources after B deploy and worker restart',async()=>{
+ const a=withPinnedArticle(old),b=withPinnedArticle(next);
+ const caches=storage(),network=new Map(a.network),original=await worker(caches,network);
+ await original.install();await original.activate();
+ assert.equal((await (await original.fetch('release.json','cors','held-tab')).json()).id,a.id);
+ const status=await original.message('PREPARE');
+ assert.equal(status.status.state,'Ready');
+ assert.equal(status.status.releaseId,a.id);
+ replaceHostedRelease(network,b);
+ const restarted=await worker(caches,network);
+ await restarted.install();await restarted.activate();
+ const article=await restarted.fetch(a.article,'cors','held-tab');
+ const picture=await restarted.fetch(a.picture,'cors','held-tab');
+ assert.equal(article.status,200);
+ assert.equal(picture.status,200);
+ assert.equal(await article.text(),a.network.get(abs(a.article)).toString());
+ assert.equal(await picture.text(),a.network.get(abs(a.picture)).toString());
+ assert.equal((await (await restarted.fetch('release.json','cors','new-tab')).json()).id,b.id);
+});
+
+test.todo('V3/P2 regression: unprepared held online tab retains verified A pictures and Markdown after B deployment and worker restart');
