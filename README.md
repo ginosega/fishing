@@ -2,9 +2,11 @@
 
 Persistent Fishing project and source repository for Fishing Companion.
 
-**October 19, 2026 v3 planning checkpoint:** [v3 requirements](pwa/docs/Fishing_Companion_v3_Requirements.md), [technical design](pwa/docs/Fishing_Companion_v3_Technical_Design.md), and [UX screens/flows](pwa/docs/Fishing_Companion_v3_UX_Review.md) were **separately approved**; see [requirements approval](pwa/docs/Fishing_Companion_v3_Requirements_Approval_2026-10-19.md), [technical design approval](pwa/docs/Fishing_Companion_v3_Technical_Design_Approval_2026-10-19.md), and [UX approval](pwa/docs/Fishing_Companion_v3_UX_Approval_2026-10-19.md). A [staged implementation plan](pwa/docs/Fishing_Companion_v3_Implementation_Plan.md) is drafted **for review, not approved**. **No implementation or deployment authorization.** Published v2 unchanged.
+**October 19, 2026 — v3 approvals and full handoff checkpoint:** The [v3 requirements](pwa/docs/Fishing_Companion_v3_Requirements.md), [technical design](pwa/docs/Fishing_Companion_v3_Technical_Design.md), [UX](pwa/docs/Fishing_Companion_v3_UX_Review.md), and [staged implementation plan](pwa/docs/Fishing_Companion_v3_Implementation_Plan.md) are **all separately APPROVED**. The plan's [approval record](pwa/docs/Fishing_Companion_v3_Implementation_Plan_Approval_2026-10-19.md) records the user's caveat: **perform this full new-chat handoff before beginning P0/any implementation**. No app code, hosting, authentication setup or deployment was changed here. The [bootstrap prompt](Fishing_New_Chat_Bootstrap_Prompt.md) is the starting point for the new Chat conversation; actual latest main and production must be reverified there.
 
-## Current continuation — October 12, 2026
+**Latest verified published PWA as observed during handoff:** workflow **#520** / run **38686171921**, `main` source SHA `4fc893d044b72e61fbc36cfd82103af55bc36f97`, hosted release `f5eab01e9d5af6101f03a7094de5b565`, **100 Gear / 60 KB / 12 Catches, 431 files, hostedBytesMatch=true** (October 15, 2026 UTC). Latest `main` when beginning handoff: `7cc7eea06a110e041dbf552855957713df4b1c51`, 0 open PRs. Subsequent documentation-only handoff merge advances `main` but **does not deploy**. These are historical as-of-checkpoint facts; recheck them in new chat.
+
+## Previous continuation checkpoint — October 12, 2026 (historical)
 
 `ginosega/fishing` is the durable source of truth. Fishing Companion remains a three-domain PWA with canonical source under `pwa/Gear/`, `pwa/KB/`, and `pwa/Catches/`.
 
