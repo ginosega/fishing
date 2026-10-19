@@ -216,7 +216,7 @@ Runtime/UI/assets, service worker, schema/contracts, tests, build/tooling, depen
 - FISH-TODO-019/020/021/022/023: Texas Rig, Carolina Rig, Alabama Rig, Neko Rig and Spoons KB pages remain open.
 - FISH-TODO-039: Apply T-9 on kayak hardware.
 - FISH-TODO-040: purchased Force Current commissioning/integration and hard-plastic storage-case selection, described above.
-- Fishing Companion v3 requirements **APPROVED / SIGNED OFF October 19, 2026**. See [approved requirements](pwa/docs/Fishing_Companion_v3_Requirements.md) and [approval record](pwa/docs/Fishing_Companion_v3_Requirements_Approval_2026-10-19.md). **Proceed with separately reviewed technical design only**; design sign-off, app implementation, and deployment remain unauthorized. Offline authoring/sync and broad multi-user support are excluded. Local draft recovery is provisional and removable at testing.
+- Fishing Companion v3 requirements **AND technical design approved as-is October 19, 2026**. See [requirements](pwa/docs/Fishing_Companion_v3_Requirements.md), [design](pwa/docs/Fishing_Companion_v3_Technical_Design.md), [design approval record](pwa/docs/Fishing_Companion_v3_Technical_Design_Approval_2026-10-19.md) and [UX review draft](pwa/docs/Fishing_Companion_v3_UX_Review.md). **Show/review sign-in, submit-publish and Connection Status mockups before implementation.** Staged implementation plan, explicit implementation authorization and deployment remain pending. AUTH-P0 mandatory; offline queue/sync excluded; draft recovery provisional.
 
 FISH-TODO-030 was explicitly deleted and must never be restored. FISH-TODO-038 outer rod holder work is complete.
 
