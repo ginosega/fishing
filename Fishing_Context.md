@@ -1,6 +1,12 @@
 # Fishing Context
 
-## Current authoritative state — October 12, 2026
+## Latest handoff reconciliation — October 19, 2026
+
+**v3 planning state:** Requirements, technical design, UX screens/flows and staged implementation plan have **all been explicitly APPROVED**. The [implementation-plan approval](pwa/docs/Fishing_Companion_v3_Implementation_Plan_Approval_2026-10-19.md) has a mandatory **full new-chat transfer before P0**. No P0 investigation or v3 implementation has yet begun; no new provider/domain/permissions or production cutover is preapproved. The [new-chat bootstrap](Fishing_New_Chat_Bootstrap_Prompt.md) now carries the current start instructions. Begin P0 only after restoring fresh actual main/current open PRs/latest hosted production identity in that new Chat conversation. AUTH-P0 proof and staged approvals/Work-mode checkpoints remain binding.
+
+**Latest successful production evidence observed during handoff (October 15, 2026 UTC):** Fast Content Release workflow **#520** / run **38686171921**, production source `4fc893d044b72e61fbc36cfd82103af55bc36f97`, release ID `f5eab01e9d5af6101f03a7094de5b565`, **431 hosted files / 100 Gear / 60 KB / 12 Catches**, `hostedBytesMatch: true` from deploy-content verification log. Latest main at start of handoff was `7cc7eea06a110e041dbf552855957713df4b1c51` with **zero open PRs**. Subsequent documentation-only reconciliation moves main ahead without updating published PWA. All identities are checkpoint snapshots, not substitutes for new-chat verification.
+
+## Previous authoritative audit checkpoint — October 12, 2026 (historical)
 
 `ginosega/fishing` is the durable source of truth. Restore actual current `main` and current open-PR state before repository work. For exact production identity, inspect the latest successful `main` production workflow plus its hosted verification evidence; checkpoint values in project Markdown are historical evidence, not permanent truth.
 
@@ -188,7 +194,7 @@ Runtime/UI/assets, service worker, schema/contracts, tests, build/tooling, depen
 - RVR119 Under Seat Tackle Storage remains back-ordered/not purchased and is the user's #1 needed fishing equipment item.
 - FISH-TODO-014 KastKing 3600 deep-box watch remains open unless explicitly resolved.
 - Texas Rig, Carolina Rig, Alabama Rig, Neko Rig and Spoons KB pages remain open.
-- Fishing Companion v3 requirements, technical design, and sign-in/Save-and-Publish/Connection Status [UX screens/flows](pwa/docs/Fishing_Companion_v3_UX_Review.md) are **separately approved as of October 19, 2026**. [UX approval record](pwa/docs/Fishing_Companion_v3_UX_Approval_2026-10-19.md) pins the reviewed baseline. The [staged implementation plan](pwa/docs/Fishing_Companion_v3_Implementation_Plan.md) is **DRAFT / NOT APPROVED**. Implementation, service setup, and deployment remain unauthorized; AUTH-P0 authentication feasibility gate is mandatory; offline queued sync excluded and local drafts provisional.
+- Fishing Companion v3 requirements, technical design, UX screens/flows **and staged implementation plan** are all approved as of October 19, 2026. [Approved plan](pwa/docs/Fishing_Companion_v3_Implementation_Plan.md) · [plan approval/caveat](pwa/docs/Fishing_Companion_v3_Implementation_Plan_Approval_2026-10-19.md). **First transfer to a new Chat before beginning P0**; restart baseline investigation there. Preserve FISH108, single-author public-readable GitHub App architecture and UX, AUTH-P0 real-device login/session feasibility, excluded offline queued sync/multi-user/Catch pictures, provisional removable local drafts, and separate approvals for provider/permissions, v2 maintenance releases, and v3 production cutover.
 - RVR119 Force Current purchase is complete; commissioning, storage-case selection and RVR119 installation remain active under FISH-TODO-040.
 - Preserve all other active items in `Fishing_TODO.md`.
 
