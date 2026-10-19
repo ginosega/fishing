@@ -188,7 +188,7 @@ Runtime/UI/assets, service worker, schema/contracts, tests, build/tooling, depen
 - RVR119 Under Seat Tackle Storage remains back-ordered/not purchased and is the user's #1 needed fishing equipment item.
 - FISH-TODO-014 KastKing 3600 deep-box watch remains open unless explicitly resolved.
 - Texas Rig, Carolina Rig, Alabama Rig, Neko Rig and Spoons KB pages remain open.
-- Fishing Companion v3 remains deferred and requires explicit approval.
+- Fishing Companion v3 **requirements were expressly approved October 19, 2026**, as recorded in [approved requirements](pwa/docs/Fishing_Companion_v3_Requirements.md) and [approval record](pwa/docs/Fishing_Companion_v3_Requirements_Approval_2026-10-19.md). Technical design preparation/review is authorized; separate design and implementation approvals remain outstanding. Offline authoring and queued sync are excluded; local draft recovery is provisional and removable after testing.
 - RVR119 Force Current purchase is complete; commissioning, storage-case selection and RVR119 installation remain active under FISH-TODO-040.
 - Preserve all other active items in `Fishing_TODO.md`.
 

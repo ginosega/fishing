@@ -1,6 +1,6 @@
-# Fishing Companion v3 — Requirements (Draft for Review)
+# Fishing Companion v3 — Approved Requirements
 
-**Status:** DRAFT — discussion and user requirements review; **NOT APPROVED**. No design, implementation, or release authorization is implied.
+**Status:** **REQUIREMENTS APPROVED — October 19, 2026.** The user explicitly reviewed and signed off on the exact requirements in [the final review revision](https://github.com/ginosega/fishing/blob/121fafc496238caca1b593885e8f83d4f8f9a865/pwa/docs/Fishing_Companion_v3_Requirements.md), reviewed file blob `2e23686d59cf8ca4fa0ac77ce54cea9379e2b1a1`. See [v3 requirements approval record](Fishing_Companion_v3_Requirements_Approval_2026-10-19.md). **Technical design may now be prepared and reviewed; design approval, implementation, and production release remain unauthorized.**
 **Date:** October 19, 2026
 **Repository:** ginosega/fishing
 **Draft baseline:** main at 4fc893d044b72e61fbc36cfd82103af55bc36f97
@@ -11,7 +11,7 @@
 
 Fishing Companion v3 is primarily an online authoring and reliability upgrade to the existing three-domain PWA. Preserve the useful v2 architecture, canonical GitHub sources, visual language, and verified release model. Reduce friction between editing content and seeing it in production while improving mobile reliability and image-loading performance.
 
-This is a **requirements draft**, incorporating the user's October 2026 scope discussion and Android link observations. Where the discussion has not settled exact behavior, this document records an open decision rather than silently choosing an implementation. Explicit user approval of this requirements document is required before the technical design begins. Separate explicit approval of the design and implementation plan is required before application implementation.
+This is the **approved requirements baseline**, incorporating the user's October 2026 scope discussion and Android link observations. Any intentionally unresolved technical details remain decisions for the separately reviewed design rather than silently chosen implementations. The user approved these requirements on October 19, 2026. Separate explicit approval of the technical design and implementation plan is required before application implementation.
 
 The original v2 requirements and approved changes remain authoritative for behavior not intentionally changed in this document.
 
@@ -242,7 +242,7 @@ The original v2 requirements and approved changes remain authoritative for behav
 
 The **requirements, technical design, and implementation plan each require separate explicit user approval**. The below ordering is a working proposal, not permission to implement.
 
-1. Finalize this requirements document and obtain explicit requirements approval.
+1. **Completed October 19, 2026:** Finalize this requirements document and obtain explicit requirements approval.
 2. Research architectural alternatives and approve a technical design: secure GitHub authorization/writes; publication workflow; media transaction semantics; draft isolation; release/service-worker coherence; thumbnail design; fault recovery and tests.
 3. Review a staged implementation/release plan and explicitly authorize implementation.
 4. Investigate/fix reliability and performance defects (deployment consistency, Android installed-PWA links, card-image loading, Markdown viewer). **Preferred:** release independently verified, low-risk bug fixes as v2 maintenance when ready, rather than hold them for the complete v3 cutover; leave tightly coupled v3 changes within v3. Each maintenance release still requires normal approvals and the appropriate Full Application Release process.
@@ -273,7 +273,7 @@ No PR implementing any application/runtime feature is authorized by this documen
 
 ## 7. Traceability and review record
 
-This draft derives from the user's v3 wishlist and October 16–19 scope and Android testing feedback, including:
+This approved requirements baseline derives from the user's v3 wishlist and October 16–19 scope and Android testing feedback, including:
 - Deferred offline authoring/synchronization and broad multi-user support.
 - Explicit exclusion of Catch photography and optional capture enhancements.
 - Agreement on Automatic / Work Offline connection concept.
@@ -288,4 +288,4 @@ This draft derives from the user's v3 wishlist and October 16–19 scope and And
 - Early warning before Work-only investigations or test capabilities are required; user-assisted installed Android PWA diagnosis if needed.
 - Preferred independently releasable, approved v2 maintenance fixes for isolated reliability defects.
 
-**Review status:** Awaiting the user's review and explicit approval. Until approval, all requirement IDs are proposed, not a signed-off baseline. No application/source changes, implementation, migration, or production deployment should be inferred from this requirements-document PR.
+**Review status:** **Requirements signed off October 19, 2026**, as documented in [Fishing_Companion_v3_Requirements_Approval_2026-10-19.md](Fishing_Companion_v3_Requirements_Approval_2026-10-19.md). Only approval/status metadata was updated after the reviewed revision; no requirements were added, removed, or rewritten. This approval authorizes technical design preparation and review only, not application implementation, migration, or production deployment.

@@ -14,7 +14,7 @@
 
 FISH071–076 and FISH078–114 are complete/implemented. The next unused application/architecture task ID is **FISH-TODO-115**.
 
-**Fishing Companion v3** — historically FISH-TODO-077 — remains **DEFERRED** and requires explicit approval before implementation. Deferred scope includes authentication, direct GitHub saving/uploads, offline authoring, queued-change outbox/sync, Catch authoring, broader multi-user support, and clickable content-Markdown pictures.
+**Fishing Companion v3 (FISH-TODO-037): REQUIREMENTS APPROVED October 19, 2026; TECHNICAL DESIGN NEXT; IMPLEMENTATION NOT AUTHORIZED.** See [approved requirements](pwa/docs/Fishing_Companion_v3_Requirements.md) and [requirements approval record](pwa/docs/Fishing_Companion_v3_Requirements_Approval_2026-10-19.md). Approved scope emphasizes authorized online saving/uploads, Catch Add/Edit, Markdown Picture Viewer, connection modes, performance and reliability; full offline authoring/sync and broad multi-user support are excluded. Local draft recovery is provisional and removable if testing shows reliability concerns.
 
 ### Recent routine content work completed
 
@@ -61,7 +61,7 @@ The RVR119 Under Seat Tackle Storage has **not** been purchased, remains on back
 | FISH-TODO-028 | P2 | OPEN | Buy/consider NRS Champion Jacket and Bib, with neoprene cuffs, waterproof zipper and articulated hood requirements. |
 | FISH-TODO-029 | P2 | OPEN | Determine bow-hatch item tie-offs, including tool bag/bilge pump. |
 | FISH-TODO-031 | P3 | OPEN | Continue/confirm Science of the Strike episodes 8 and 16 (dissolved oxygen/turbidity). A dissolved-oxygen/turbidity transcript was reviewed in September; do not close until both originally targeted episodes are confirmed complete. |
-| FISH-TODO-037 | P3 | DEFERRED | Fishing Companion v3 requirements; implementation requires explicit approval. |
+| FISH-TODO-037 | P3 | REQUIREMENTS APPROVED / DESIGN PENDING | Fishing Companion v3: requirements signed off October 19; prepare and separately approve technical design; implementation requires a further explicit authorization. |
 | FISH-TODO-039 | P2 | OPEN | Apply T-9 on kayak hardware. |
 | FISH-TODO-040 | P2 | OPEN | Commission and integrate the purchased Garmin Force Current system on the RVR119: clean/inspect/service exposed items, charge/baseline the Redodo 24V 50Ah battery, reset/re-pair/update/calibrate motor/remote/Power Steer pedals/MOB tag, complete on-water calibration and functional testing, and fit/protect a snug hard-plastic storage case/bin with at least 38 × 18 × 8 in **verified usable interior** dimensions (orange preferred); determine safe reusable cushioning without encasing the electronics in spray foam. |
 
@@ -90,6 +90,6 @@ Use Chat mode by default. Restore actual latest `main` and open-PR state before 
 
 For routine source-aware Gear/KB/Catch authoring, use FISH108 Fast Content Release and do not allocate FISH-TODO-115. Allocate FISH-TODO-115 only for the next new application/architecture-level task unless newer `main` already allocated it.
 
-Do not reopen completed FISH096–FISH114 or Fishing Companion v3 without an explicit new request.
+Do not reopen completed FISH096–FISH114 without an explicit new request. Fishing Companion v3 requirements have been expressly approved; technical design preparation is now authorized, but implementation and production deployment still require separate explicit approval.
 
 When the user says **“It’s time to transfer to a new chat”**, ask once for confirmation of the full handoff. After confirmation, reconcile current repository/production state, update authoritative records where durable state changed, preserve unresolved work and purchase uncertainty, cross-check the files, and finish with a direct GitHub link to `Fishing_New_Chat_Bootstrap_Prompt.md`.
