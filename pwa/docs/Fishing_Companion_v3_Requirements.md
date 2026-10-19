@@ -17,7 +17,7 @@ The original v2 requirements and approved changes remain authoritative for behav
 
 ## 2. Product principles and scope
 
-1. **Read publicly, author privately.** The published Fishing Companion remains publicly readable, anonymously and by default. Public/unauthenticated pages show no sign-in option and no authoring controls. Editing and publishing are available only to the repository owner's authorized GitHub identity; previously authenticated owner sessions should be recognized automatically where technically and securely possible. No broad multi-user capabilities.
+1. **Read publicly, author privately.** The published Fishing Companion remains publicly readable, anonymously and by default. Public/unauthenticated pages have no authoring controls and no prominent sign-in option in the normal navigation. The only anonymous sign-in entry point is a discreet **Sign in with GitHub** link at the bottom of **Connection Status**. Editing and publishing are available only to the repository owner's authorized GitHub identity; previously authenticated owner sessions should be recognized automatically where technically and securely possible. No broad multi-user capabilities.
 2. **GitHub stays canonical.** Gear, Knowledge Base, and Catch records, Markdown, and source images continue to live in ginosega/fishing. Browser drafts are not canonical records.
 3. **Online publishing, offline reading.** Offline authoring, automatic sync/outbox publishing, and cross-device draft synchronization are explicitly deferred beyond v3.
 4. **Reliability before novelty.** Fix the deployment-refresh and Android installed-PWA external-link issues, improve image-heavy page loading, and preserve existing content and references.
@@ -27,7 +27,7 @@ The original v2 requirements and approved changes remain authoritative for behav
 
 ### Included
 
-- GitHub-authorized access to Add/Edit/Save/Upload, with anonymous public read-only access as the default, no public sign-in affordance, and automatic recognition of valid existing owner sessions.
+- GitHub-authorized access to Add/Edit/Save/Upload, with anonymous public read-only access as the default, a discreet Sign in with GitHub link confined to Connection Status, and automatic recognition of valid existing owner sessions.
 - Direct online saving of Gear and Knowledge Base changes through GitHub and the verified production process.
 - Integrated browser-side selection, validation, and upload of supported local files/images as part of authored changes, including Knot picture sequences.
 - Catch Add/Edit using the existing Catch schema.
@@ -54,21 +54,21 @@ The original v2 requirements and approved changes remain authoritative for behav
 
 ### V3-AUTH — Authentication and editor authorization
 
-**V3-AUTH-01.** Anonymous use is the default. Visitors can navigate and read all publicly published Gear, KB, and Catch content, including images, without signing in or seeing a Sign In option on public pages.
+**V3-AUTH-01.** Anonymous use is the default. Visitors can navigate and read all publicly published Gear, KB, and Catch content, including images, without signing in. Public pages must not show prominent sign-in buttons, authorization prompts, or editing controls in ordinary navigation; a discreet **Sign in with GitHub** link is permitted only inside Connection Status.
 
-**V3-AUTH-02.** Add/Edit/Save/Upload actions require an authenticated GitHub identity explicitly authorized for this repository. Anonymous and unauthorized visitors see neither authoring controls nor sign-in prompts/options in ordinary site navigation. Hiding buttons or obscuring an owner-access address is not a security boundary: the trusted write path must independently reject unauthorized publishing.
+**V3-AUTH-02.** Add/Edit/Save/Upload actions require an authenticated GitHub identity explicitly authorized for this repository. Anonymous and unauthorized visitors see no authoring controls. Ordinary navigation does not offer sign-in; the discreet Connection Status link is available but grants no privileges by itself. Authentication must not imply authorization: the trusted write path must independently reject GitHub identities other than the approved owner, even if someone discovers or uses that link.
 
 **V3-AUTH-03.** No GitHub long-lived token, app private key, client secret, or equivalent credential may be embedded in public site files or exposed to an unauthorized browser session. Authentication and authorization failure must fail closed for writes without preventing ordinary public reading.
 
-**V3-AUTH-04.** On ordinary page visits, automatically detect and restore a previously established valid owner session without requiring a repetitive sign-in action. If no valid session exists, remain in anonymous reading mode without unsolicited sign-in UI. Support an intentional owner-only entry flow for initial authentication and expired-session recovery, plus sign-out and clear authentication-failure messages within that owner flow. A failed or expired session must not destroy the current edit.
+**V3-AUTH-04.** On ordinary page visits, automatically detect and restore a previously established valid owner session without requiring repetitive sign-in. If no valid session exists, remain in anonymous reading mode without a popup or redirect. For initial authentication or an expired session, the user intentionally opens **Connection Status** and activates **Sign in with GitHub**; no dedicated bookmarked owner-access URL is required. Once the approved owner is authenticated, expose authoring controls and replace the sign-in link in Connection Status with a compact signed-in GitHub identity indicator and **Sign out** control. If another GitHub account authenticates, show a clear authorization failure but no authoring controls. An expired session or failed sign-in must not destroy an in-progress edit.
 
-**V3-AUTH-05.** Test authentication and return navigation in desktop browser tabs and installed Android/iOS PWA contexts. The observed Android installed-PWA external-link bug is relevant to this flow.
+**V3-AUTH-05.** Test authentication and return navigation in desktop browser tabs and installed Android/iOS PWA contexts, including the Connection Status sign-in link, successful owner authentication, unauthorized-account rejection, sign-out, and expired-session recovery. The observed Android installed-PWA external-link bug is relevant to this flow.
 
-**V3-AUTH-06.** Preserve least-privilege access and an auditable record of the GitHub changes submitted through the application. An owner-entry link, route, gesture, or bookmark is only a navigation affordance, never proof of authorization.
+**V3-AUTH-06.** Preserve least-privilege access and an auditable record of the GitHub changes submitted through the application. The Connection Status sign-in link is only an entry point to GitHub authentication, never proof of repository authorization.
 
-**V3-AUTH-07.** Do not depend on silent recognition of a person who has no valid previous app session or equivalent authorized credentials. Initial authentication, credential expiry, revocation, privacy restrictions, or a new browser/device may require explicit GitHub authentication. Prefer securely managed, renewable server-side sessions where justified; no public PWA bundle may expose sensitive write credentials. The exact owner-entry/renewal UX is subject to a focused requirements decision.
+**V3-AUTH-07.** Do not depend on silent recognition of a person who has no valid previous app session or equivalent authorized credentials. Initial authentication, credential expiry, revocation, privacy restrictions, or a new browser/device may require explicit GitHub authentication via Connection Status. Prefer securely managed, renewable server-side sessions where justified; no public PWA bundle may expose sensitive write credentials. The session and authentication mechanism remain technical-design decisions, not reasons to introduce another visible sign-in entry point.
 
-**Design deferred:** GitHub App/serverless intermediary versus other secure options; session-cookie/origin constraints, how credentials are stored/renewed, and platform-specific installed-PWA re-entry; the exact owner-entry and recovery experience remains an **open requirements decision**. Public users are not offered sign-in.
+**Design deferred:** GitHub App/serverless intermediary versus other secure options; session-cookie/origin constraints, how credentials are stored/renewed, and platform-specific installed-PWA authentication return. The **product entry point is now decided**: an unobtrusive link within Connection Status, with automatic restoration of a valid owner session and explicit GitHub authentication when required. The link is visible to anonymous users; publishing remains restricted by independently checked authorization.
 
 ### V3-SAVE — Direct GitHub saving and publication
 
@@ -132,7 +132,7 @@ The original v2 requirements and approved changes remain authoritative for behav
 
 **V3-CONNECTION-05.** Mode changes, update checks, and release transitions must never erase or overwrite an unpublished edit or locally recovered draft.
 
-**V3-CONNECTION-06.** Refresh the visual design and usability of Connection Status to match the polish and styling of the rest of Fishing Companion. Keep the actual network status and selected operating mode clearly differentiated.
+**V3-CONNECTION-06.** Refresh the visual design and usability of Connection Status to match the polish and styling of the rest of Fishing Companion. Keep actual network status and selected operating mode clearly differentiated. At the bottom of the dialog, show a small **Sign in with GitHub** link to anonymous users; after the approved owner signs in, show their GitHub identity (for example, **Signed in as ginosega**) and **Sign out** instead. Do not add a header, navigation, or page-level sign-in control.
 
 **V3-CONNECTION-07 (provisional).** If the user selects Work Offline while an authenticated editor is open, explain the mode change and allow the already-open draft to continue being edited locally, without publishing, subject to the same local-draft reliability tests and possible removal gate as V3-DRAFT-07. Do not create a general offline authoring or queued-publication system.
 
@@ -246,7 +246,7 @@ The **requirements, technical design, and implementation plan each require separ
 2. Research architectural alternatives and approve a technical design: secure GitHub authorization/writes; publication workflow; media transaction semantics; draft isolation; release/service-worker coherence; thumbnail design; fault recovery and tests.
 3. Review a staged implementation/release plan and explicitly authorize implementation.
 4. Investigate/fix reliability and performance defects (deployment consistency, Android installed-PWA links, card-image loading, Markdown viewer). **Preferred:** release independently verified, low-risk bug fixes as v2 maintenance when ready, rather than hold them for the complete v3 cutover; leave tightly coupled v3 changes within v3. Each maintenance release still requires normal approvals and the appropriate Full Application Release process.
-5. Build GitHub authentication/direct publishing and local draft recovery behind a removable feature gate. Validate owner-session auto-recognition, explicit reauthentication fallback, and no public sign-in UI before dependent authoring features.
+5. Build GitHub authentication/direct publishing and local draft recovery behind a removable feature gate. Validate owner-session auto-recognition, Connection Status sign-in and sign-out, unauthorized-account rejection, and the absence of prominent public sign-in or editing controls before dependent authoring features.
 6. Integrate media uploads and Catch Add/Edit.
 7. Implement Automatic/Work Offline mode and related reading/storage controls.
 8. Run cross-platform system testing and scope-removal gate for draft recovery; conduct acceptance review before v3 cutover.
@@ -257,7 +257,7 @@ No PR implementing any application/runtime feature is authorized by this documen
 
 **D1 — RESOLVED: Save/publication semantics.** One **Save and Publish** action, automatic publication after validation, no additional confirmation or approval, GitHub PR handling behind the scenes. The editor may be left while publishing proceeds; publishing status and eventual verified result must remain accessible.
 
-**D2 — PARTLY RESOLVED; owner recovery decision outstanding.** Anonymous browsing is the default. Ordinary public pages show **no sign-in option and no Add/Edit controls**. Only the repository owner's authorized GitHub identity can publish. Automatically recognize and restore an existing valid owner session on routine visits, with minimal friction. A newly used browser or an expired/revoked session cannot be assumed to identify the owner silently. **Decision needed before design approval:** confirm a separate, owner-intended bookmarked entry route or equivalent unobtrusive manual entry for first-time/expired-session authentication. The route must never be treated as security; the server must validate GitHub identity and authorization. Review feasibility of persistent secure sessions across supported browsers/installed PWAs, including cross-origin cookie limits.
+**D2 — RESOLVED: Authentication entry and authorization UX.** Anonymous browsing is the default, with **no Add/Edit controls or prominent sign-in link** in ordinary navigation. A discreet **Sign in with GitHub** link is displayed at the bottom of Connection Status, including on anonymous visits; no separate owner URL or bookmark is needed. Existing valid owner sessions are automatically restored, showing authorized editing controls. Connection Status then shows the GitHub account and **Sign out**. New devices or expired sessions use that same link for explicit authentication. No username other than the authorized GitHub identity receives write privileges. The link is not a security boundary: authorization is enforced by the trusted write path. Cookie/session and installed-PWA return details remain for technical design.
 
 **D3 — RESOLVED: Draft behavior.** Drafts are device-local, not shared; display an automatic Restore/Discard prompt on entry when a matching draft exists. Preserve the explicit remove-at-testing gate and no queued publication.
 
@@ -282,7 +282,7 @@ This draft derives from the user's v3 wishlist and October 16–19 scope and And
 - Agreement with staged engineering plan, requirements/design sign-off, and later explicit implementation authorization.
 - Provisional device-local draft recovery and already-open-editor local continuation after Work Offline selection, both removable if reliability testing fails.
 - Android link diagnosis limited to external-link activation in installed-PWA mode, not general browser tabs; YouTube links work when delegated to the YouTube app.
-- Anonymous-by-default browsing, no public Sign In or editing links, automatic recognition of existing authorized owner sessions, and a clearly documented open owner reauthentication-access decision.
+- Anonymous-by-default browsing, no prominent public Sign In or editing controls, a discreet GitHub sign-in link in Connection Status, automatic owner-session recognition, and owner identity/Sign out controls once authenticated. D2 is resolved; session mechanics remain for technical design.
 - Single Save and Publish action with publication continuing after the editor is left; Copy Changes removed from v3 user-facing UI.
 - Persistent Work Offline preference and an improved Connection Status visual design.
 - Early warning before Work-only investigations or test capabilities are required; user-assisted installed Android PWA diagnosis if needed.
