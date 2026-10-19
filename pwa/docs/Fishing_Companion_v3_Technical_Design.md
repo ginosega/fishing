@@ -2,8 +2,8 @@
 
 **Status:** **DRAFT / PROPOSED — NOT APPROVED.** This document is for separate technical-design review. It is not authorization to implement, deploy, migrate, configure credentials, or change production.
 **Date:** October 19, 2026
-**Repository:** \`ginosega/fishing\`
-**Source inspected:** \`aa64a13e3204ede57ef5b133e1152c957a20b662\` on \`main\` (no open PRs at start of design research).
+**Repository:** `ginosega/fishing`
+**Source inspected:** `aa64a13e3204ede57ef5b133e1152c957a20b662` on `main` (no open PRs at start of design research).
 **Authority:** [Approved v3 requirements](Fishing_Companion_v3_Requirements.md), signed off October 19, 2026; [exact reviewed revision](https://github.com/ginosega/fishing/blob/121fafc496238caca1b593885e8f83d4f8f9a865/pwa/docs/Fishing_Companion_v3_Requirements.md); [requirements approval](Fishing_Companion_v3_Requirements_Approval_2026-10-19.md); approved [v2 baseline](Fishing_Companion_v2_Approved_Baseline.md); [FISH091](FISH091_Online_Only_Default_Requirements_2026-09-11.md); [FISH108](FISH108_Fast_Content_Release_Policy_2026-09-14.md).
 
 **Approval gates:** Requirements **approved**. Technical design **pending separate review/sign-off**. Staged implementation plan and its authorization **pending**. Production v2 remains authoritative and operational.
@@ -14,7 +14,7 @@ The proposed architecture **retains the existing static GitHub Pages PWA and can
 
 The browser gains: unobtrusive GitHub sign-in within Connection Status; one **Save and Publish** action; an optional/removable device-local draft layer; existing-image upload support; Catch Add/Edit; reader-mode selection; markdown image viewing; release-aware navigation; and build-generated card thumbnails.
 
-**Critical conditional decision: session transport and PWA OAuth return.** The recommended GitHub App + serverless publication service is strong, but the existing \`https://ginosega.github.io/fishing/\` site and a separately hosted API are *cross-origin, often cross-site*. Cross-site cookies are not reliable on every supported browser. We should **not** declare silent owner recognition solved merely by choosing HttpOnly cookies. Before approving final hosting/session mechanics, validate the options in a non-production authentication proof of concept on real installed Android/iOS PWAs. Section 3 defines the decision gate. This document does **not** presume that a custom domain, a third-party cookie exception, or persistent browser-held OAuth tokens are approved.
+**Critical conditional decision: session transport and PWA OAuth return.** The recommended GitHub App + serverless publication service is strong, but the existing `https://ginosega.github.io/fishing/` site and a separately hosted API are *cross-origin, often cross-site*. Cross-site cookies are not reliable on every supported browser. We should **not** declare silent owner recognition solved merely by choosing HttpOnly cookies. Before approving final hosting/session mechanics, validate the options in a non-production authentication proof of concept on real installed Android/iOS PWAs. Section 3 defines the decision gate. This document does **not** presume that a custom domain, a third-party cookie exception, or persistent browser-held OAuth tokens are approved.
 
 Other deliberately open decisions and measurable test gates are summarized in Section 16.
 
@@ -24,16 +24,16 @@ At the inspected baseline:
 
 | Area | Existing component and behavior | v3 design action |
 |---|---|---|
-| PWA startup | \`pwa/src/loader.js\` loads no-store \`release.json\`, validates the manifest SHA, then loads release-pinned app/CSS. | Preserve integrity; coordinate safe release transitions and owner-session UI. |
-| Service worker | \`pwa/src/sw.mjs\` selects online-first verified release or complete explicitly prepared offline generation, pins a context per client in an in-memory map, and checks bytes. | Make release resolution survive service-worker restarts; support persisted Work Offline selection and consistent navigation. |
-| Offline control | \`pwa/src/offline.mjs\` and Connection Status in \`ui.mjs\` implement explicit complete-library preparation, status, and reload. | Separate mode, network reachability, library readiness and identity; keep FISH091 atomicity; refresh visual layout. |
-| Domains | \`pwa/Gear/gear.json\`, \`pwa/KB/kb.json\`, \`pwa/Catches/catches.json\` are schema v2, validated through \`validation.mjs\` and \`contracts/schema.json\`. | Preserve schema/IDs; add Catch browser authoring, not a new Catch data model. |
-| Forms | \`pwa/src/editor.mjs\` has Gear/KB forms, picture and sequence selection, browser image validation, markdown preview, \`Prepare Changes → Copy Changes\`. | Reuse form components; replace user-facing copy handoff with Save and Publish; keep the source-aware package logic internally. |
-| Source-aware edits | \`pwa/src/handoff.mjs\` implements \`fishing-companion-change-v2\`, base source revision/record fingerprint/field bases, narrative hashes and media metadata; \`promoteChange\` flags conflicts. | Extend trusted promotion for direct publishing and Catches; no force-overwrite and no silent loss of newer source edits. |
-| Markdown / viewer | \`pwa/src/markdown.mjs\` resolves internal/external/local links and sanitizes HTML; \`viewer.mjs\` has picture, pinch, zoom and Knot sequence controls. | Attach viewer behavior to ordinary local Markdown images; retain hyperlink behavior and sanitizer. |
-| Card images | \`pwa/src/ui.mjs\` uses \`loading='lazy'\` but full-resolution original sources for cards. | Emit disposable, hashed build thumbnails and choose image priority based on viewport. |
-| Build | \`pwa/tools/build.mjs\` assembles content-addressed releases, manifest, release pointer; \`sharp\` already installed. | Add deterministic derived thumbnails without modifying canonical images or undermining manifest/release identity. |
-| CI/CD | \`.github/workflows/fishing-production.yml\` PR classification: content-only = build/verify; noncontent = full tests. After merge: guarded Pages deploy then hosted byte/release verification. | Reuse FISH108; require exact PR-head/merge-base, completed CI and hosted verification before reporting Live. |
+| PWA startup | `pwa/src/loader.js` loads no-store `release.json`, validates the manifest SHA, then loads release-pinned app/CSS. | Preserve integrity; coordinate safe release transitions and owner-session UI. |
+| Service worker | `pwa/src/sw.mjs` selects online-first verified release or complete explicitly prepared offline generation, pins a context per client in an in-memory map, and checks bytes. | Make release resolution survive service-worker restarts; support persisted Work Offline selection and consistent navigation. |
+| Offline control | `pwa/src/offline.mjs` and Connection Status in `ui.mjs` implement explicit complete-library preparation, status, and reload. | Separate mode, network reachability, library readiness and identity; keep FISH091 atomicity; refresh visual layout. |
+| Domains | `pwa/Gear/gear.json`, `pwa/KB/kb.json`, `pwa/Catches/catches.json` are schema v2, validated through `validation.mjs` and `contracts/schema.json`. | Preserve schema/IDs; add Catch browser authoring, not a new Catch data model. |
+| Forms | `pwa/src/editor.mjs` has Gear/KB forms, picture and sequence selection, browser image validation, markdown preview, `Prepare Changes → Copy Changes`. | Reuse form components; replace user-facing copy handoff with Save and Publish; keep the source-aware package logic internally. |
+| Source-aware edits | `pwa/src/handoff.mjs` implements `fishing-companion-change-v2`, base source revision/record fingerprint/field bases, narrative hashes and media metadata; `promoteChange` flags conflicts. | Extend trusted promotion for direct publishing and Catches; no force-overwrite and no silent loss of newer source edits. |
+| Markdown / viewer | `pwa/src/markdown.mjs` resolves internal/external/local links and sanitizes HTML; `viewer.mjs` has picture, pinch, zoom and Knot sequence controls. | Attach viewer behavior to ordinary local Markdown images; retain hyperlink behavior and sanitizer. |
+| Card images | `pwa/src/ui.mjs` uses `loading='lazy'` but full-resolution original sources for cards. | Emit disposable, hashed build thumbnails and choose image priority based on viewport. |
+| Build | `pwa/tools/build.mjs` assembles content-addressed releases, manifest, release pointer; `sharp` already installed. | Add deterministic derived thumbnails without modifying canonical images or undermining manifest/release identity. |
+| CI/CD | `.github/workflows/fishing-production.yml` PR classification: content-only = build/verify; noncontent = full tests. After merge: guarded Pages deploy then hosted byte/release verification. | Reuse FISH108; require exact PR-head/merge-base, completed CI and hosted verification before reporting Live. |
 
 **Known v2 limits, not established root causes:** (1) Android installed Chrome PWA fails to open ordinary external links while normal Chrome/Edge tabs work; YouTube app links succeed. (2) An already-open session sometimes cannot load pages/images after publishing until manually refreshed. (3) card pictures visibly fill over ~3–4 seconds on PC and mobile. Root causes must be measured and reproduced, not assumed from code inspection.
 
@@ -53,7 +53,7 @@ GitHub's official documentation supports GitHub App web authorization, recommend
 
 ### 3.2 Recommended trust boundaries
 
-\`\`\`text
+```text
  Anonymous / owner browser (GitHub Pages PWA; read-only files public)
        |                   |
        | Public GET        | Authenticated HTTPS publish/status operations
@@ -76,24 +76,24 @@ GitHub's official documentation supports GitHub App web authorization, recommend
                                  |
                                  v
                        verified hosted release identity
-\`\`\`
+```
 
 **Trust:** The PWA is always a public, potentially attacker-controlled client. All write authority and GitHub App private keys remain server-side. A public sign-in link in Connection Status conveys no trust. The service checks GitHub's immutable **numeric user ID**, not just the changeable username, before creating *any* write operation. Keep a server-side one-repository allowlist and reject arbitrary repository/path/workflow requests.
 
-**GitHub App installation:** Install only for \`ginosega/fishing\`. Start with repository Contents read/write and Pull Requests read/write; add only the minimum read permissions required for CI/run verification (e.g. Actions/Checks read after checking exact endpoint requirements). **Do not grant Actions write, Administration, Secrets or Pages write** merely for publishing. Let the existing GitHub Actions Pages publisher own actual deployment. Recheck necessary permissions against the APIs and any branch rules during the implementation plan.
+**GitHub App installation:** Install only for `ginosega/fishing`. Start with repository Contents read/write and Pull Requests read/write; add only the minimum read permissions required for CI/run verification (e.g. Actions/Checks read after checking exact endpoint requirements). **Do not grant Actions write, Administration, Secrets or Pages write** merely for publishing. Let the existing GitHub Actions Pages publisher own actual deployment. Recheck necessary permissions against the APIs and any branch rules during the implementation plan.
 
 ### 3.3 GitHub authentication and unobtrusive UI
 
 - Public sessions: no Add/Edit; the only visible sign-in entry is a small **Sign in with GitHub** link at the bottom of **Connection Status**; no owner bookmark or secret route.
 - On launch: check for a **valid previously established application owner session** unobtrusively. If authorized, show Add/Edit, and in Connection Status display the GitHub identity and **Sign out**. If not, stay publicly readable with no redirect or popup.
-- Sign-in begins only from a user action. Use GitHub App authorization-code web flow, with secure \`state\`, PKCE (S256), replay-resistant one-time callback, and strong callback/return URL validation. The server exchanges the code and resolves the authenticated GitHub numeric identity.
+- Sign-in begins only from a user action. Use GitHub App authorization-code web flow, with secure `state`, PKCE (S256), replay-resistant one-time callback, and strong callback/return URL validation. The server exchanges the code and resolves the authenticated GitHub numeric identity.
 - An unauthorized GitHub account may complete GitHub login but **never** gains a publishing session. Show an appropriately discreet access-denied message; public reading remains available.
 - Expiry/revocation: revoke/expire the application session, hide authoring controls, preserve an active local draft (if enabled), and offer reauthentication via Connection Status. Sign out must invalidate server-side rights; clearing client UI alone is insufficient.
-- On Android/iOS installed PWAs, do not rely on \`target="_blank"\`, popups or \`window.open\` for OAuth. Design a user-initiated full navigation / callback / reentry flow and empirically verify preservation or recovery of the original app context. Never put access tokens or persistent session secrets in URL fragments/query strings or log them.
+- On Android/iOS installed PWAs, do not rely on `target="_blank"`, popups or `window.open` for OAuth. Design a user-initiated full navigation / callback / reentry flow and empirically verify preservation or recovery of the original app context. Never put access tokens or persistent session secrets in URL fragments/query strings or log them.
 
 ### 3.4 **Mandatory session/origin feasibility gate (AUTH-P0)**
 
-**Fact:** \`ginosega.github.io\` and a separately hosted API do not share an origin, and may be cross-site. An HttpOnly cookie from that API sent as a third-party cookie can be blocked by modern browsers. CORS alone cannot bypass that restriction.
+**Fact:** `ginosega.github.io` and a separately hosted API do not share an origin, and may be cross-site. An HttpOnly cookie from that API sent as a third-party cookie can be blocked by modern browsers. CORS alone cannot bypass that restriction.
 
 Test a *non-production* GitHub App login service with one of these designs:
 
@@ -123,15 +123,15 @@ No second editable Gear/KB/Catch store; GitHub remains the only canonical author
 1. Owner edits Gear/KB/Catch using familiar form; browser validates schema fields and selected files for fast feedback.
 2. **Save and Publish** freezes an immutable submission snapshot, including field-base values, Markdown body/old SHA, media filenames/bytes/digests, base source SHA, and randomly generated idempotency key. No extra confirmation or PR approval prompt.
 3. Browser sends package and media to the trusted API. **Only after the service durably accepts the operation** may the user freely leave the editor while publishing continues. A distinct in-flight status is shown; do not pretend it is Live.
-4. Service authenticates and authorizes owner and upload limits; validates the requested domain and record; loads **actual latest \`main\`**, canonical JSON/Markdown/reference files, and current media metadata; applies source-aware patch or reports explicit conflicts.
-5. For valid content-only changes, create **one** branch commit/PR with only the approved canonical \`pwa/Gear/**\`, \`pwa/KB/**\`, or \`pwa/Catches/**\` paths. Do not update TODO/Decision Log for a routine edit. For any change needing schema/runtime/tooling adjustment, **stop** and require the separate Full Application Release review; the public editor must not silently expand privileges.
-6. Await exact PR-head lightweight content validation. Revalidate PR head and current \`main\` just before merging. If the main branch moved, compare/conflict-check again and rebuild/revalidate as necessary. Never merge from stale validation.
+4. Service authenticates and authorizes owner and upload limits; validates the requested domain and record; loads **actual latest `main`**, canonical JSON/Markdown/reference files, and current media metadata; applies source-aware patch or reports explicit conflicts.
+5. For valid content-only changes, create **one** branch commit/PR with only the approved canonical `pwa/Gear/**`, `pwa/KB/**`, or `pwa/Catches/**` paths. Do not update TODO/Decision Log for a routine edit. For any change needing schema/runtime/tooling adjustment, **stop** and require the separate Full Application Release review; the public editor must not silently expand privileges.
+6. Await exact PR-head lightweight content validation. Revalidate PR head and current `main` just before merging. If the main branch moved, compare/conflict-check again and rebuild/revalidate as necessary. Never merge from stale validation.
 7. Merge automatically when the safe content PR is eligible and repository branch rules allow it. The existing production workflow rebuilds against exact merged SHA, deploys Pages, and performs hosted byte/release identity verification. Report **Live / Verified** only after the correct target source SHA is verified live.
 8. Preserve a queryable operation record independent of the currently open browser. Returning to the site or Connection Status/publication status can recover submitted status and final result. Release retries must not produce duplicate records.
 
 ### 4.2 State machine
 
-\`\`\`text
+```text
 Editing
   -> Submitting -> Accepted -> Validating -> Awaiting safe merge
   -> Merged -> Deploying -> Verifying -> Live / Verified
@@ -139,19 +139,19 @@ Editing
 At any stage -> Failed (recoverable reason) or Conflict (review required)
 Accepted/Validating/etc. -> Pending (when disconnected or service restarted)
 No status transition to Live without hosted source + byte verification.
-\`\`\`
+```
 
 The browser is allowed to navigate away after **Accepted**. A second edit of the **same record** should be blocked or clearly serialized until the first operation resolves; unrelated records may be edited while publishing. A failed operation leaves the original submitted snapshot recoverable; the server cannot modify an already-submitted snapshot without a new explicit user Save.
 
 ### 4.3 Exactly what the service may write
 
-Permitlist repository \`ginosega/fishing\`, one approved domain, and canonical paths. Validate record schema and source-aware package fields server-side; do not trust client-side hashes as proofs. Use GitHub Git tree / commit APIs (or equivalent) so the JSON update, Markdown replacement and images form **one atomic branch commit**, not an inconsistent chain of separately committed files. Restrict to known MIME/size/path rules and prevent traversal, schema escapes and GitHub API path injection.
+Permitlist repository `ginosega/fishing`, one approved domain, and canonical paths. Validate record schema and source-aware package fields server-side; do not trust client-side hashes as proofs. Use GitHub Git tree / commit APIs (or equivalent) so the JSON update, Markdown replacement and images form **one atomic branch commit**, not an inconsistent chain of separately committed files. Restrict to known MIME/size/path rules and prevent traversal, schema escapes and GitHub API path injection.
 
-For edits: compare requested base field values against current values; use \`promoteChange\` in review/conflict mode (not \`overwrite\`), then perform full source inventory/reference validation on the prospective tree. For adds: check current ID/path collisions and allocate only legal IDs. Preserve **unaffected or newer fields and files** on latest main; a repository-wide rewrite or stale JSON overwrite is forbidden.
+For edits: compare requested base field values against current values; use `promoteChange` in review/conflict mode (not `overwrite`), then perform full source inventory/reference validation on the prospective tree. For adds: check current ID/path collisions and allocate only legal IDs. Preserve **unaffected or newer fields and files** on latest main; a repository-wide rewrite or stale JSON overwrite is forbidden.
 
 **Media:** Selected local images must be part of the same candidate commit as the corresponding record/Notes. Staged bytes are verified against declared hash, file format and limits again on the trusted side; the canonical CI build independently checks all referenced resources. Knot sequence frames remain ordered with final frame as representative picture. No Catch photo picker is added. Existing Markdown images retain valid relative paths; locally selected new images in Markdown need explicit path/validation support or a clear user instruction, not a missing-reference publication.
 
-**GitHub events:** Use the GitHub App installation token for the service's PR/merge actions, not a repository \`GITHUB_TOKEN\` when expecting the normal push/PR workflows. GitHub restricts recursive workflow triggering by events created with \`GITHUB_TOKEN\`; the App can trigger the normal release events. See official docs in Section 17.
+**GitHub events:** Use the GitHub App installation token for the service's PR/merge actions, not a repository `GITHUB_TOKEN` when expecting the normal push/PR workflows. GitHub restricts recursive workflow triggering by events created with `GITHUB_TOKEN`; the App can trigger the normal release events. See official docs in Section 17.
 
 ### 4.4 Conflict, failure, branch protection, recovery
 
@@ -160,13 +160,13 @@ For edits: compare requested base field values against current values; use \`pro
 - **PR gate:** select and validate the exact expected CI run/commit SHA, not a generic green status. Before unattended auto-merge, verify repository branch/ruleset settings allow an approved bot merge without an impossible self-approval requirement. If required external human review is configured, **stop and discuss**—do not bypass security settings silently.
 - **Main advancement race:** GitHub merge protection and service-side compare/retry must be designed as one coherent optimistic-concurrency protocol; do not rely on a single read before PR creation.
 - **CI failure:** do not merge; show actionable validation failure and leave accepted operation/auditable PR available for investigation.
-- **Post-merge deploy failure:** do not report Live. The source may already be on main; record \`Merged / Deployment failed\` and allow a controlled retry/recovery under release rules. Do not automatically rewrite main or claim rollback without verifying it.
+- **Post-merge deploy failure:** do not report Live. The source may already be on main; record `Merged / Deployment failed` and allow a controlled retry/recovery under release rules. Do not automatically rewrite main or claim rollback without verifying it.
 - **Host verification:** require matching GitHub merged SHA, release manifest identity, Pages publication, and actual hosted bytes (FISH108). Never infer success from a PR merge alone.
 - **Audit:** every published change references GitHub PR, merge SHA, workflow run, release ID, and hosted verification result; sensitive session material is never logged.
 
 ### 4.5 Suggested service contract (illustrative, not authorized implementation)
 
-\`\`\`text
+```text
 GET  /session             -> {authenticated, authorized, userDisplay?}
 GET  /auth/github/start   -> initiate state/PKCE auth flow (user gesture)
 GET  /auth/github/callback-> validate code, establish authorized session
@@ -174,7 +174,7 @@ POST /session/signout     -> revoke session
 POST /publications       -> accept one source-aware change + bounded binary media
 GET  /publications/:id   -> durable state, error classification, PR/run/release refs
 GET  /publications       -> recent authorized owner's operations
-\`\`\`
+```
 
 API bodies and response codes are **design examples**, not finalized public contracts. Use server-side CSRF/origin/replay protection appropriate to the eventual session transport. Enforce attachment size, total-request size, rate, timeout and authorization limits; consider signed short-lived upload staging for large Knot sequences if normal requests cannot fit platform limits. Never accept caller-supplied GitHub API URLs, arbitrary refs or deployment workflow changes.
 
@@ -182,7 +182,7 @@ API bodies and response codes are **design examples**, not finalized public cont
 
 Use a small, separately testable local repository abstraction backed by IndexedDB, not by the service-worker Cache Storage used for the published offline library.
 
-- Key existing records by \`domain + stable ID\`; new unsaved records get a durable temporary draft ID. Store structured form values, Markdown, base source revision, base record fingerprint/base fields, media \`Blob\`s plus names/hashes and editor schema version.
+- Key existing records by `domain + stable ID`; new unsaved records get a durable temporary draft ID. Store structured form values, Markdown, base source revision, base record fingerprint/base fields, media `Blob`s plus names/hashes and editor schema version.
 - Debounce changes, write transactionally and expose honest status (**Saving locally**, **Draft saved on this device**, **Unable to save locally**). If storage is denied/quota exhausted, keep the editor usable in memory and show a clear warning; don't claim preservation.
 - On opening a record with a matching unpublished draft, prompt **Restore / Discard**. Do not auto-apply stale drafts. Resolve conflicts against current GitHub source before publishing.
 - Draft never uploads or publishes itself, even after reconnection. Work Offline may allow *continued editing of an already-open editor* with an explicit notice and no Save-and-Publish action; don't create a new offline-authoring workflow.
@@ -190,38 +190,38 @@ Use a small, separately testable local repository abstraction backed by IndexedD
 - Keep browser draft DB **separate** from explicit offline release caches and SW upgrades. Do not store GitHub credentials in drafts. Sign-out on a shared device should warn about locally retained unpublished content and provide a safe discard option; never silently upload/discard.
 - Validate data size, schema upgrades, forced eviction, update/removal and service-worker lifetime behavior on Windows/Android/iOS. Request persistent storage where supported, but do not promise durability beyond browser policies.
 
-**Removal gate:** \`DraftStore\` and editor-continues-when-Work-Offline may be disabled/removed together before v3 acceptance. Core online authoring, Save and Publish, unsaved-edit guard, and conflict safety **must still work**. A removal decision is visible to the user; do not force v3 delivery to depend on fragile local persistence.
+**Removal gate:** `DraftStore` and editor-continues-when-Work-Offline may be disabled/removed together before v3 acceptance. Core online authoring, Save and Publish, unsaved-edit guard, and conflict safety **must still work**. A removal decision is visible to the user; do not force v3 delivery to depend on fragile local persistence.
 
 ## 6. Catch Add/Edit without schema expansion
 
-Extend the existing editor to domain \`catches\` and existing \`pwa/contracts/schema.json\` / \`validation.mjs\` semantics. Fields: stable ID, required local date, optional local time, optional text size, optional species, location, *owned* lure/bait link, optional Markdown notes. Use current taxonomies/references; no mandatory picture, no GPS, no sessions/trips, no equipment-setups or additional structured facts.
+Extend the existing editor to domain `catches` and existing `pwa/contracts/schema.json` / `validation.mjs` semantics. Fields: stable ID, required local date, optional local time, optional text size, optional species, location, *owned* lure/bait link, optional Markdown notes. Use current taxonomies/references; no mandatory picture, no GPS, no sessions/trips, no equipment-setups or additional structured facts.
 
-Date/time are local strings with deliberate user input; do not silently invent catches, timestamps, precision, or locations. Keep current descending Catch Log order, existing history relationships, and derived Species picture. New Catch Notes use approved \`Catches/content/\` paths and source-aware direct publishing. Catch authoring may use its own \`fishing-companion-change-v2\` domain extension, versioned with compatibility tests rather than redefining existing Gear/KB packages.
+Date/time are local strings with deliberate user input; do not silently invent catches, timestamps, precision, or locations. Keep current descending Catch Log order, existing history relationships, and derived Species picture. New Catch Notes use approved `Catches/content/` paths and source-aware direct publishing. Catch authoring may use its own `fishing-companion-change-v2` domain extension, versioned with compatibility tests rather than redefining existing Gear/KB packages.
 
 ## 7. Markdown image Picture Viewer and external links
 
 ### 7.1 Clickable Markdown images
 
-Keep the current MarkdownIt + DOMPurify pipeline. In a sanitized article, decorate only locally resolved, approved Markdown \`img\` nodes with accessible activation behavior. On click or keyboard activation, call \`openViewer\` with the **original verified release image URL**; retain alt text/caption where available, scrolling and touch access. Avoid intercepting images inside an ordinary \`a\` link, Knot sequence frames, remote image URLs or unrelated UI images. No unsafe Markdown HTML/event handlers. Missing images show an error/placeholder without breaking the article.
+Keep the current MarkdownIt + DOMPurify pipeline. In a sanitized article, decorate only locally resolved, approved Markdown `img` nodes with accessible activation behavior. On click or keyboard activation, call `openViewer` with the **original verified release image URL**; retain alt text/caption where available, scrolling and touch access. Avoid intercepting images inside an ordinary `a` link, Knot sequence frames, remote image URLs or unrelated UI images. No unsafe Markdown HTML/event handlers. Missing images show an error/placeholder without breaking the article.
 
 ### 7.2 Android installed-PWA external-link fix
 
 **Evidence:** ordinary web links work in normal Android Chrome and Edge tabs; fail on Chrome *installed PWA* short taps; long-press in installed app offers browser opening; YouTube can open the YouTube app in installed Chrome. Other installed browsers remain unverified.
 
-Centralize outbound-link handling for structured Links and Markdown. Use explicit URLs and real user gesture; compare default anchor, \`target\` semantics, explicit external navigation and documented Android PWA behavior **on actual installed devices**. Preserve safe URL validation and \`noopener noreferrer\` where applicable. A solution may use a controlled external-link affordance/browser handoff, but must not silently replace a stable in-app session with a broken navigation, interrupt an unsaved editor, or break YouTube app delegation. Do not claim that \`window.open\` or \`target='_blank'\` is reliably supported until tested. OAuth redirects from Connection Status must receive a separate installed-PWA test.
+Centralize outbound-link handling for structured Links and Markdown. Use explicit URLs and real user gesture; compare default anchor, `target` semantics, explicit external navigation and documented Android PWA behavior **on actual installed devices**. Preserve safe URL validation and `noopener noreferrer` where applicable. A solution may use a controlled external-link affordance/browser handoff, but must not silently replace a stable in-app session with a broken navigation, interrupt an unsaved editor, or break YouTube app delegation. Do not claim that `window.open` or `target='_blank'` is reliably supported until tested. OAuth redirects from Connection Status must receive a separate installed-PWA test.
 
 ## 8. Work Offline and Connection Status redesign
 
 **Mode is not connectivity.** Model at least:
-- \`mode\`: **Automatic** or **Work Offline** (user preference, persistent across restarts).
-- \`network\`: browser-reported online/offline; distinguish this weak hint from actual reachability.
-- \`library\`: Not prepared / Updating / Ready / Repair needed; show selected release and bytes.
-- \`auth\`: Anonymous / Authorized owner / Session expired; only GitHub owner sees authoring controls.
-- \`publication\`: none / in progress / failed / verified, visible without misleading offline status.
+- `mode`: **Automatic** or **Work Offline** (user preference, persistent across restarts).
+- `network`: browser-reported online/offline; distinguish this weak hint from actual reachability.
+- `library`: Not prepared / Updating / Ready / Repair needed; show selected release and bytes.
+- `auth`: Anonymous / Authorized owner / Session expired; only GitHub owner sees authoring controls.
+- `publication`: none / in progress / failed / verified, visible without misleading offline status.
 
-Persist the selected mode in a **service-worker-readable** store (e.g. dedicated Cache Storage metadata or an explicitly shared IndexedDB key), not merely \`localStorage\` inaccessible to the worker. Hydrate it **before** startup network attempts. Treat updates as versioned/atomic state changes across page and SW; acknowledge a mode selection only after worker configuration commits.
+Persist the selected mode in a **service-worker-readable** store (e.g. dedicated Cache Storage metadata or an explicitly shared IndexedDB key), not merely `localStorage` inaccessible to the worker. Hydrate it **before** startup network attempts. Treat updates as versioned/atomic state changes across page and SW; acknowledge a mode selection only after worker configuration commits.
 
-- **Automatic:** prefer the latest coherent verified online release; if unreachable and a complete offline library is prepared, use it. A timeout/abort strategy may be required for weak service; verify behavior rather than relying solely on \`navigator.onLine\`.
+- **Automatic:** prefer the latest coherent verified online release; if unreachable and a complete offline library is prepared, use it. A timeout/abort strategy may be required for weak service; verify behavior rather than relying solely on `navigator.onLine`.
 - **Work Offline:** read the selected complete verified offline library even when online; suppress normal app-data network fetches and GitHub publishing/auth checks; permit deliberate switch back to Automatic to obtain new content. If no complete library, explain and refuse the mode transition without stranding user.
 - Preserve FISH091 explicit Update Offline Library, atomic staging, previous-good fallback, verified bytes, and distinction between current online release vs prepared offline release. Don't recopy the entire library on startup or silently download new offline generations.
 - When an editor is open and Work Offline is selected, notify immediately; provisional support for local continuation is tied to the draft removal gate. No uploads/publications until back in Automatic and explicitly requested by user.
@@ -231,7 +231,7 @@ Persist the selected mode in a **service-worker-readable** store (e.g. dedicated
 
 ### 9.1 Root-cause hypotheses to test, not assume
 
-The current SW stores \`clientContexts\` in a volatile in-memory map. On SW termination/restart, a client may need to recover its release pin; the loader uses a current \`release.json\`, while an already-open app may still reference URLs for an old release. GitHub Pages currently publishes a new complete \`dist\`, and **the design must verify whether old release files remain hosted**; never assume they do. A mismatch can manifest as a 503 for pinned assets. Other candidates include update activation timing, stale navigation shell, Cache Storage eviction, and fallback-selection errors.
+The current SW stores `clientContexts` in a volatile in-memory map. On SW termination/restart, a client may need to recover its release pin; the loader uses a current `release.json`, while an already-open app may still reference URLs for an old release. GitHub Pages currently publishes a new complete `dist`, and **the design must verify whether old release files remain hosted**; never assume they do. A mismatch can manifest as a 503 for pinned assets. Other candidates include update activation timing, stale navigation shell, Cache Storage eviction, and fallback-selection errors.
 
 ### 9.2 Target invariants
 
@@ -252,13 +252,13 @@ Introduce a safe **new release available** state. When editor clean and publicat
 
 ## 10. Card image performance and build-generated derivatives
 
-The currently rendered card uses original content image URLs with \`loading='lazy'\`. Sharp is already in the locked build dependencies. Do **not** start with an assumed exact thumbnail size, format or timing target.
+The currently rendered card uses original content image URLs with `loading='lazy'`. Sharp is already in the locked build dependencies. Do **not** start with an assumed exact thumbnail size, format or timing target.
 
 Design:
 1. Benchmark real PC + Android initial viewport appearance, card grid scrolling, transfer bytes, image decode, and service-worker fetch/verification time. Capture network, cache hit/miss and slow-network variability.
-2. Generate deterministic, orientation-correct, format-appropriate **card-size derivatives** from canonical images at build time; preserve original bytes and all explicit picture paths. Derived filenames/content maps are immutable under release identity (e.g. \`releases/<release-id>/thumbnails/...\` or another nonrecursive release-bound path).
-3. Include all generated derivatives and a deterministic mapping in the release manifest/hash verification. Never add them to canonical \`pwa/Gear/\`, \`pwa/KB/\` or \`pwa/Catches/\`. If animating originals, decide whether a static representative thumbnail is acceptable before implementation.
-4. Prioritize immediately visible cards; keep near/below-viewport loading measured rather than artificially slow. Preserve layout slots/aspect ratio and \`decoding='async'\` where appropriate, and only use prefetch within a bounded resource budget.
+2. Generate deterministic, orientation-correct, format-appropriate **card-size derivatives** from canonical images at build time; preserve original bytes and all explicit picture paths. Derived filenames/content maps are immutable under release identity (e.g. `releases/<release-id>/thumbnails/...` or another nonrecursive release-bound path).
+3. Include all generated derivatives and a deterministic mapping in the release manifest/hash verification. Never add them to canonical `pwa/Gear/`, `pwa/KB/` or `pwa/Catches/`. If animating originals, decide whether a static representative thumbnail is acceptable before implementation.
+4. Prioritize immediately visible cards; keep near/below-viewport loading measured rather than artificially slow. Preserve layout slots/aspect ratio and `decoding='async'` where appropriate, and only use prefetch within a bounded resource budget.
 5. Original image remains on detail and Picture Viewer. Offline complete-library sizing includes any derivatives as well as originals, with explicit size reporting; ensure release file/byte budget is respected.
 6. Establish quantitative acceptance metrics after profiling: visible-first-row completion, p75/p95 card appearance, transferred bytes and service-worker CPU/verification, all compared with a v2 baseline on representative devices.
 
@@ -270,7 +270,7 @@ No blanket quality loss, changed canonical image bytes, mandatory image resubmis
 
 - Source-aware patch: base/current/add conflict matrix, field-level independent edits, narrative SHA mismatch, missing and malicious media, duplicate ID/path/case collisions, Knot frame validation, Catch references, authorized paths only.
 - Security: anonymous/mismatched GitHub numeric ID cannot publish; tampered client session, expired/revoked credentials, CSRF/state/PKCE replay, CORS/origin failures, over-size upload, nonimage disguised payload, arbitrary target repo/ref, unauthorized action; no secrets in static PWA/manifest/logs.
-- Publication: idempotent duplicate Save; service restart after accepted submission; PR validation fail; moving main; PR merge failure; Pages deploy fail; hosted hash mismatch; correct final status; exact source/PR/CI/merged SHA matching; no \`GITHUB_TOKEN\`-suppressed workflow event.
+- Publication: idempotent duplicate Save; service restart after accepted submission; PR validation fail; moving main; PR merge failure; Pages deploy fail; hosted hash mismatch; correct final status; exact source/PR/CI/merged SHA matching; no `GITHUB_TOKEN`-suppressed workflow event.
 - Draft: IndexedDB denied/evicted/quota full, media Blob persistence, schema upgrade, restored draft conflict, interrupted reload, sign-out, successful publish clearing only correct draft, disable/remove layer without breaking online editing.
 - Offline/SW: Automatic vs Work Offline persisted, no prepared cache, network false positives, weak signal/timeouts, offline update failure, SW termination, stale app open at deployment, release pin/manifest hash mismatch, pristine/recovered draft during update.
 - Images/UI: deterministic build thumbnail bytes/map, original retained, Markdown viewer activation with keyboard/pointer, linked-image noninterference, accessible Connection Status, Catch authoring form and history.
@@ -363,9 +363,9 @@ Source-based GitHub/PWA design guidance, **not claims that a chosen integration 
 - GitHub: [Best practices for GitHub Apps](https://docs.github.com/en/apps/creating-github-apps/about-creating-github-apps/best-practices-for-creating-a-github-app)
 - GitHub: [GitHub App installation tokens and scoped permissions](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation)
 - GitHub: [Git trees for atomic candidate source updates](https://docs.github.com/en/rest/git/trees)
-- GitHub: [GitHub Actions triggering; \`GITHUB_TOKEN\` event limitations](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/trigger-a-workflow)
+- GitHub: [GitHub Actions triggering; `GITHUB_TOKEN` event limitations](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/trigger-a-workflow)
 - GitHub: [Creating pull requests via fine-grained credentials](https://docs.github.com/en/rest/pulls/pulls)
 - MDN: [CORS and third-party cookie policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS)
 - Chrome Developers: [Installed PWA navigation management](https://developer.chrome.com/docs/capabilities/pwa-navigation-management)
 
-**Evidence boundary:** Repository facts above were read from \`main\`. External references establish available APIs and browser limitations, not actual installed PWA behavior, which still requires device testing.
+**Evidence boundary:** Repository facts above were read from `main`. External references establish available APIs and browser limitations, not actual installed PWA behavior, which still requires device testing.
