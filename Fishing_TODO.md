@@ -1,6 +1,6 @@
 # Fishing TODO
 
-## Current project task state — October 12, 2026
+## Current project task state — October 19, 2026
 
 ### Application / architecture state
 
@@ -14,7 +14,7 @@
 
 FISH071–076 and FISH078–114 are complete/implemented. The next unused application/architecture task ID is **FISH-TODO-115**.
 
-**Fishing Companion v3 (FISH-TODO-037): REQUIREMENTS, DESIGN AND UX APPROVED October 19, 2026; IMPLEMENTATION PLAN DRAFT FOR REVIEW; IMPLEMENTATION NOT AUTHORIZED.** [Requirements](pwa/docs/Fishing_Companion_v3_Requirements.md), [design](pwa/docs/Fishing_Companion_v3_Technical_Design.md), [UX](pwa/docs/Fishing_Companion_v3_UX_Review.md), [UX approval record](pwa/docs/Fishing_Companion_v3_UX_Approval_2026-10-19.md), [draft implementation plan](pwa/docs/Fishing_Companion_v3_Implementation_Plan.md). No extra features. AUTH-P0 mandatory; no offline authoring/sync or broad multi-user support; local drafts provisional.
+**Fishing Companion v3 (FISH-TODO-037): REQUIREMENTS + DESIGN + UX + IMPLEMENTATION PLAN APPROVED October 19, 2026, WITH MANDATORY NEW-CHAT TRANSFER FIRST.** [Approved requirements](pwa/docs/Fishing_Companion_v3_Requirements.md) · [approved design](pwa/docs/Fishing_Companion_v3_Technical_Design.md) · [approved UX](pwa/docs/Fishing_Companion_v3_UX_Review.md) · [approved implementation plan](pwa/docs/Fishing_Companion_v3_Implementation_Plan.md) · [plan approval with transfer caveat](pwa/docs/Fishing_Companion_v3_Implementation_Plan_Approval_2026-10-19.md). Complete [full handoff](Fishing_New_Chat_Bootstrap_Prompt.md), **then begin P0 in a new Chat**, freshly restoring main/PR/production evidence. No implementation, GitHub App setup, hosting or deployment in the handoff chat. AUTH-P0 required before security-dependent work. New provider/cost/domain/permissions, separately released v2 fixes and v3 cutover require their own stage-specific approvals. Excluded: offline sync/queue, broad multi-user, Catch photos/GPS; drafts provisional/removable.
 
 ### Recent routine content work completed
 
@@ -61,7 +61,7 @@ The RVR119 Under Seat Tackle Storage has **not** been purchased, remains on back
 | FISH-TODO-028 | P2 | OPEN | Buy/consider NRS Champion Jacket and Bib, with neoprene cuffs, waterproof zipper and articulated hood requirements. |
 | FISH-TODO-029 | P2 | OPEN | Determine bow-hatch item tie-offs, including tool bag/bilge pump. |
 | FISH-TODO-031 | P3 | OPEN | Continue/confirm Science of the Strike episodes 8 and 16 (dissolved oxygen/turbidity). A dissolved-oxygen/turbidity transcript was reviewed in September; do not close until both originally targeted episodes are confirmed complete. |
-| FISH-TODO-037 | P3 | REQUIREMENTS + DESIGN + UX APPROVED / PLAN REVIEW | v3: staged implementation plan drafted; separate explicit plan/implementation authorization and later production cutover approval pending. |
+| FISH-TODO-037 | P3 | PLAN APPROVED / TRANSFER BEFORE P0 | v3: all four gates approved October 19 with mandatory full new-chat handoff before starting P0; proceed under staged safeguards after fresh source/production restoration. No production cutover approval. |
 | FISH-TODO-039 | P2 | OPEN | Apply T-9 on kayak hardware. |
 | FISH-TODO-040 | P2 | OPEN | Commission and integrate the purchased Garmin Force Current system on the RVR119: clean/inspect/service exposed items, charge/baseline the Redodo 24V 50Ah battery, reset/re-pair/update/calibrate motor/remote/Power Steer pedals/MOB tag, complete on-water calibration and functional testing, and fit/protect a snug hard-plastic storage case/bin with at least 38 × 18 × 8 in **verified usable interior** dimensions (orange preferred); determine safe reusable cushioning without encasing the electronics in spray foam. |
 
@@ -90,6 +90,6 @@ Use Chat mode by default. Restore actual latest `main` and open-PR state before 
 
 For routine source-aware Gear/KB/Catch authoring, use FISH108 Fast Content Release and do not allocate FISH-TODO-115. Allocate FISH-TODO-115 only for the next new application/architecture-level task unless newer `main` already allocated it.
 
-Do not reopen completed FISH096–FISH114 without an explicit new request. Fishing Companion v3 requirements, design and UX screens/flows have separate approvals; its [implementation plan](pwa/docs/Fishing_Companion_v3_Implementation_Plan.md) remains **draft, not approved**. Implementation, service provisioning and production deployment still require explicit authorization.
+Do not reopen completed FISH096–FISH114 without an explicit new request. Fishing Companion v3 requirements, design, UX and implementation plan are each approved. **Full transfer to a new Chat must occur before P0 work.** Implement only within the approved staged plan after source/production restoration and satisfy all conditional security/provider/release gates; v3 production cutover requires separate explicit sign-off.
 
 When the user says **“It’s time to transfer to a new chat”**, ask once for confirmation of the full handoff. After confirmation, reconcile current repository/production state, update authoritative records where durable state changed, preserve unresolved work and purchase uncertainty, cross-check the files, and finish with a direct GitHub link to `Fishing_New_Chat_Bootstrap_Prompt.md`.
