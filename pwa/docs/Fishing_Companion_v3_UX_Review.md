@@ -1,10 +1,10 @@
-# Fishing Companion v3 — UX Flow Review (Proposed)
+# Fishing Companion v3 — Approved UX Flows
 
-**Status:** **DRAFT — FOR USER UX REVIEW; NOT APPROVED.** These are proposed presentation details for the already-approved v3 requirements and technical design, not new features or implementation authorization.
+**Status:** **UX SCREENS AND FLOWS APPROVED — October 19, 2026.** The user expressly approved the reviewed sign-in, editor/Save-and-Publish and refreshed Connection Status screens and flows. The exact reviewed document is pinned at [main revision `f0ead8e94edffda6f073cde30e44fc24b7c5c3af`](https://github.com/ginosega/fishing/blob/f0ead8e94edffda6f073cde30e44fc24b7c5c3af/pwa/docs/Fishing_Companion_v3_UX_Review.md), file blob `e661e59791f756b8d1a67a6cbdcacada42cbebcc`. See [UX approval record](Fishing_Companion_v3_UX_Approval_2026-10-19.md). **Implementation plan approval and implementation authorization remain pending.**
 **Date:** October 19, 2026
 **Authority:** [Approved v3 requirements](Fishing_Companion_v3_Requirements.md), [approved v3 technical design](Fishing_Companion_v3_Technical_Design.md), [design approval](Fishing_Companion_v3_Technical_Design_Approval_2026-10-19.md).
 
-This document is a durable companion to the interactive Chat review. It proposes wording/layout/interaction details and explicitly notes alternatives requiring feedback. Actual UI testing has not occurred.
+This document preserves the user-approved screen/flow proposal shown in Chat, including the downloadable nonfunctional preview and visual mockups. It establishes approved UI behavior, not proof of real-device behavior or application implementation. Actual functional UI testing has not occurred.
 
 ## 1. Overall design principles
 
@@ -161,7 +161,7 @@ Suggested visual treatment: accessible single-column sections, subtle dividers, 
 | Draft store unavailable | Explain saving locally failed; online Save and Publish remains usable; do not claim preserved work |
 | Deploy completes while app open | Preserve coherent release; prompt/safely transition; no broken images/pages/manual emergency refresh |
 
-## 7. UX review checklist (not yet approved)
+## 7. Approved UX review checklist
 
 **UX-1.** Connection Status as the only anonymous sign-in entry, identity + Sign out after authentication.
 
@@ -173,4 +173,4 @@ Suggested visual treatment: accessible single-column sections, subtle dividers, 
 
 **UX-5.** Compact, explicit failure/recovery and provisional draft states; no offline publication queue.
 
-Once the user reviews this mockup, adjust only presentation and approved flow details. If proposed feedback materially changes signed-off requirements or design, request an explicit amendment before implementation. **No implementation plan is approved by this UX draft.**
+**UX sign-off:** The user stated, “I approve the screens and flows,” on October 19, 2026, after reviewing the visual examples and interactive demonstration. Approval covers UX-1 through UX-5 and the illustrated scenarios. Substantive changes to approved behavior require a separately reviewed amendment. **The implementation plan and application implementation are not approved by this UX sign-off.**
