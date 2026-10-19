@@ -2,7 +2,7 @@
 
 Persistent Fishing project and source repository for Fishing Companion.
 
-**October 19, 2026 v3 planning checkpoint:** [v3 requirements](pwa/docs/Fishing_Companion_v3_Requirements.md) and [technical design](pwa/docs/Fishing_Companion_v3_Technical_Design.md) were **separately approved as-is**; see [requirements approval](pwa/docs/Fishing_Companion_v3_Requirements_Approval_2026-10-19.md) and [technical design approval](pwa/docs/Fishing_Companion_v3_Technical_Design_Approval_2026-10-19.md). The user requested a [screen-level UX preview](pwa/docs/Fishing_Companion_v3_UX_Review.md) before implementation. **UX review, staged implementation planning and explicit implementation authorization remain pending**. Documentation-only; published v2 unchanged.
+**October 19, 2026 v3 planning checkpoint:** [v3 requirements](pwa/docs/Fishing_Companion_v3_Requirements.md), [technical design](pwa/docs/Fishing_Companion_v3_Technical_Design.md), and [UX screens/flows](pwa/docs/Fishing_Companion_v3_UX_Review.md) were **separately approved**; see [requirements approval](pwa/docs/Fishing_Companion_v3_Requirements_Approval_2026-10-19.md), [technical design approval](pwa/docs/Fishing_Companion_v3_Technical_Design_Approval_2026-10-19.md), and [UX approval](pwa/docs/Fishing_Companion_v3_UX_Approval_2026-10-19.md). A [staged implementation plan](pwa/docs/Fishing_Companion_v3_Implementation_Plan.md) is drafted **for review, not approved**. **No implementation or deployment authorization.** Published v2 unchanged.
 
 ## Current continuation — October 12, 2026
 
