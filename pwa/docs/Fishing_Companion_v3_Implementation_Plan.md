@@ -1,6 +1,6 @@
-# Fishing Companion v3 — Staged Implementation Plan (Draft for Approval)
+# Fishing Companion v3 — Approved Staged Implementation Plan
 
-**Status:** **DRAFT — NOT APPROVED; NO IMPLEMENTATION AUTHORIZATION.** This plan implements, but does not amend, the separately signed-off requirements, technical design and UX flows.
+**Status:** **APPROVED WITH NEW-CHAT HANDOFF PRECONDITION — October 19, 2026.** User approved the exact [reviewed plan at commit `7cc7eea06a110e041dbf552855957713df4b1c51`](https://github.com/ginosega/fishing/blob/7cc7eea06a110e041dbf552855957713df4b1c51/pwa/docs/Fishing_Companion_v3_Implementation_Plan.md), file blob `8d23d327033b1b348abb53d8462ccd2bb8dc0513`, **provided a full project handoff to a new Chat conversation happens before P0 implementation work**. See [plan approval and transfer record](Fishing_Companion_v3_Implementation_Plan_Approval_2026-10-19.md). Implementation may begin only in the new chat, following fresh baseline checks and all existing scoped stage gates; no production cutover or new provider/domain/permission approval is implied.
 **Date:** October 19, 2026
 **Repository:** `ginosega/fishing`
 **Plan baseline:** inspected `main` at `f0ead8e94edffda6f073cde30e44fc24b7c5c3af` before drafting; refresh `main`, PR state and production evidence before beginning any authorized work.
@@ -9,9 +9,9 @@
 
 ## 1. What implementation-plan approval would and would not mean
 
-The user's explicit approval of this plan would authorize **the specified v3 implementation work only within the approved architecture, UX and stage gates**, unless the user restricts the authorization. It would **not** pre-authorize: a new public domain, a paid third-party service, deployment of GitHub App credentials without scoped approval, policy/ruleset bypasses, unsafe auto-merging, code/data migrations outside agreed scope, removal of reliability checks, or a production v3 cutover without final user acceptance.
+The user's October 19 approval authorizes **the specified v3 implementation work only after the requested full new-chat handoff and fresh P0 restoration in that new chat**, and only within the approved architecture, UX and stage gates. It would **not** pre-authorize: a new public domain, a paid third-party service, deployment of GitHub App credentials without scoped approval, policy/ruleset bypasses, unsafe auto-merging, code/data migrations outside agreed scope, removal of reliability checks, or a production v3 cutover without final user acceptance.
 
-**Until that explicit authorization occurs, this entire plan is a proposal.** No code, production workflow, secrets, hosted API, GitHub App, preview environment, or production state may be created as part of this documentation exercise.
+**Handoff precondition:** Plan approval is recorded, but no P0 investigation, code, production workflow, secrets, hosted API, GitHub App, preview environment, or production change may start **in the old chat**. Complete full GitHub/state reconciliation and transfer first. In the **new chat**, restore actual current `main` and production evidence again, then begin authorized P0 under this plan. Separate authorizations remain required for new vendors, paid services, permissions, deployment and cutover where specified.
 
 Design choices requiring empirical feasibility proof (especially AUTH-P0 browser/PWA authentication) remain conditional. The implementation plan must be updated and reapproved if that proof materially changes the approved architecture or UX.
 
@@ -177,7 +177,7 @@ Current requirements, design and UX approvals are **complete**, but **G0 has not
 - Do not give background-work promises or defer the answer. Provide a complete current-phase deliverable each time. Use manageable PRs/checkpoints and visible issue reporting rather than starting a long opaque multi-stage process.
 - Estimate schedules only after AUTH-P0, repository permissions, preview hosting and test/device capabilities are known. Avoid an arbitrary calendar commitment unsupported by the architecture's main feasibility gate.
 
-## 6. User decisions needed before implementation authorization
+## 6. User decisions resolved by plan approval; downstream gate decisions remain
 
 **I1 — Plan scope and sequence:** Accept this staged plan and the suggested order, including optional early v2 maintenance only through its own approved release gate.
 
@@ -189,6 +189,6 @@ Current requirements, design and UX approvals are **complete**, but **G0 has not
 
 **I5 — Cutover gate:** Confirm that a later specific approval is required to replace v2 production with v3 after preview acceptance and rollback testing.
 
-The approved requirements, architecture and UX are not reopened by these questions. They ask only for authorization to execute the corresponding staged work safely.
+**Decision outcome October 19, 2026:** I1–I5 were approved as written with the explicit new-chat transfer precondition. They do not waive their own stage-specific consent and feasibility checks (especially AUTH-P0/provider/permissions, separate v2 maintenance releases and later v3 production cutover). Requirements, architecture and UX remain unchanged.
 
-**Overall status: This plan is a draft for user review. No application implementation, external service provisioning, GitHub App installation or production deployment has begun or been authorized.**
+**Overall status: APPROVED WITH HANDOFF PRECONDITION.** The old chat may perform only documentation-only plan approval and full project handoff. P0 starts after the user opens a new Chat conversation with the updated bootstrap instructions. No app changes, external service provisioning, GitHub App installation or production deployment took place during approval/handoff. AUTH-P0, optional draft removal gate and later cutover approval remain mandatory.
