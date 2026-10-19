@@ -17,7 +17,7 @@ The original v2 requirements and approved changes remain authoritative for behav
 
 ## 2. Product principles and scope
 
-1. **Read publicly, author privately.** The published Fishing Companion remains publicly readable. Editing and publishing are available only to the repository owner's authorized GitHub identity. No broad multi-user capabilities.
+1. **Read publicly, author privately.** The published Fishing Companion remains publicly readable, anonymously and by default. Public/unauthenticated pages show no sign-in option and no authoring controls. Editing and publishing are available only to the repository owner's authorized GitHub identity; previously authenticated owner sessions should be recognized automatically where technically and securely possible. No broad multi-user capabilities.
 2. **GitHub stays canonical.** Gear, Knowledge Base, and Catch records, Markdown, and source images continue to live in ginosega/fishing. Browser drafts are not canonical records.
 3. **Online publishing, offline reading.** Offline authoring, automatic sync/outbox publishing, and cross-device draft synchronization are explicitly deferred beyond v3.
 4. **Reliability before novelty.** Fix the deployment-refresh and Android installed-PWA external-link issues, improve image-heavy page loading, and preserve existing content and references.
@@ -27,7 +27,7 @@ The original v2 requirements and approved changes remain authoritative for behav
 
 ### Included
 
-- GitHub-authorized access to Add/Edit/Save/Upload, with public read-only access retained.
+- GitHub-authorized access to Add/Edit/Save/Upload, with anonymous public read-only access as the default, no public sign-in affordance, and automatic recognition of valid existing owner sessions.
 - Direct online saving of Gear and Knowledge Base changes through GitHub and the verified production process.
 - Integrated browser-side selection, validation, and upload of supported local files/images as part of authored changes, including Knot picture sequences.
 - Catch Add/Edit using the existing Catch schema.
@@ -37,7 +37,7 @@ The original v2 requirements and approved changes remain authoritative for behav
 - Correct, consistent update handling without broken pages or missing images after deployment.
 - Fix external web links in Android installed-PWA mode.
 - Lightweight local draft preservation/recovery during interrupted online editing, **provisionally included and expressly removable if reliability testing fails**.
-- Clear publication status, conservative recovery/rollback, limited offline-storage information, and Copy Diagnostics capability.
+- Clear publication status, conservative recovery/rollback, limited offline-storage information, Copy Diagnostics capability, and a visual refresh of the Connection Status screen consistent with the rest of Fishing Companion.
 
 ### Explicitly excluded / deferred
 
@@ -54,19 +54,21 @@ The original v2 requirements and approved changes remain authoritative for behav
 
 ### V3-AUTH — Authentication and editor authorization
 
-**V3-AUTH-01.** Anonymous visitors can navigate and read all publicly published Gear, KB, and Catch content, including images, without signing in.
+**V3-AUTH-01.** Anonymous use is the default. Visitors can navigate and read all publicly published Gear, KB, and Catch content, including images, without signing in or seeing a Sign In option on public pages.
 
-**V3-AUTH-02.** Add/Edit/Save/Upload actions require an authenticated GitHub identity explicitly authorized for this repository. Anonymous visitors should not be presented with functional authoring controls. Hiding buttons is not the security boundary: unauthorized publishing must also be rejected by the trusted write path.
+**V3-AUTH-02.** Add/Edit/Save/Upload actions require an authenticated GitHub identity explicitly authorized for this repository. Anonymous and unauthorized visitors see neither authoring controls nor sign-in prompts/options in ordinary site navigation. Hiding buttons or obscuring an owner-access address is not a security boundary: the trusted write path must independently reject unauthorized publishing.
 
 **V3-AUTH-03.** No GitHub long-lived token, app private key, client secret, or equivalent credential may be embedded in public site files or exposed to an unauthorized browser session. Authentication and authorization failure must fail closed for writes without preventing ordinary public reading.
 
-**V3-AUTH-04.** Support sign-in and sign-out, clear expired-authentication messaging, and recovery from an interrupted authentication flow. A failed or expired session must not destroy the current edit.
+**V3-AUTH-04.** On ordinary page visits, automatically detect and restore a previously established valid owner session without requiring a repetitive sign-in action. If no valid session exists, remain in anonymous reading mode without unsolicited sign-in UI. Support an intentional owner-only entry flow for initial authentication and expired-session recovery, plus sign-out and clear authentication-failure messages within that owner flow. A failed or expired session must not destroy the current edit.
 
 **V3-AUTH-05.** Test authentication and return navigation in desktop browser tabs and installed Android/iOS PWA contexts. The observed Android installed-PWA external-link bug is relevant to this flow.
 
-**V3-AUTH-06.** Preserve least-privilege access and an auditable record of the GitHub changes submitted through the application.
+**V3-AUTH-06.** Preserve least-privilege access and an auditable record of the GitHub changes submitted through the application. An owner-entry link, route, gesture, or bookmark is only a navigation affordance, never proof of authorization.
 
-**Design deferred:** GitHub App/serverless intermediary versus other secure options; how credentials are stored/renewed; exact sign-in UI; definition of the single authorized identity.
+**V3-AUTH-07.** Do not depend on silent recognition of a person who has no valid previous app session or equivalent authorized credentials. Initial authentication, credential expiry, revocation, privacy restrictions, or a new browser/device may require explicit GitHub authentication. Prefer securely managed, renewable server-side sessions where justified; no public PWA bundle may expose sensitive write credentials. The exact owner-entry/renewal UX is subject to a focused requirements decision.
+
+**Design deferred:** GitHub App/serverless intermediary versus other secure options; session-cookie/origin constraints, how credentials are stored/renewed, and platform-specific installed-PWA re-entry; the exact owner-entry and recovery experience remains an **open requirements decision**. Public users are not offered sign-in.
 
 ### V3-SAVE — Direct GitHub saving and publication
 
@@ -78,15 +80,15 @@ The original v2 requirements and approved changes remain authoritative for behav
 
 **V3-SAVE-04.** The write flow must use the appropriate release lane: content-only eligible changes through FISH108 Fast Content Release; application/schema/runtime changes through the Full Application Release process. Preserve canonical validation/build, GitHub change history, production publication, and hosted byte/release-identity verification.
 
-**V3-SAVE-05.** Show understandable stages, including at minimum Editing, Saving/Submitting, Validating, Publishing, Live/Verified, Failed, and Conflict. Distinguish GitHub acceptance from confirmed successful production publication. Permit safe retry where appropriate without duplicate or unintended changes.
+**V3-SAVE-05.** Provide one **Save and Publish** action that automatically initiates source-aware validation and the GitHub/production publishing workflow without an additional user confirmation, per-change approval, or manual merge. Show understandable stages, including at minimum Editing, Saving/Submitting, Validating, Publishing, Live/Verified, Failed, and Conflict. Distinguish GitHub acceptance from confirmed successful production publication. Permit safe retry where appropriate without duplicate or unintended changes.
 
 **V3-SAVE-06.** If the source has changed since the edit began, detect and report conflicts. Preserve all user-authored local changes and provide a recoverable path to reconciliation. Automatically accept nonconflicting changes only when source-aware validation establishes safety.
 
-**V3-SAVE-07.** Prevent accidental duplicate submissions; disable or guard conflicting actions while a submission is pending. A navigation, reload, sign-out, authentication interruption, or failed workflow must not silently lose uncommitted work.
+**V3-SAVE-07.** Prevent accidental duplicate submissions; disable or guard conflicting actions while a submission is pending. The editor may be left while a submitted publication progresses. Its status and final verified outcome must remain discoverable on return or subsequent visits. A navigation, reload, sign-out, authentication interruption, or failed workflow must not silently lose uncommitted work.
 
-**V3-SAVE-08.** Existing v2 Copy Changes handoff may remain as an explicitly labeled fallback/export or troubleshooting method if useful; its fate is a design decision, not a requirement to remove it.
+**V3-SAVE-08.** Remove the v2 **Copy Changes** user-facing handoff/export fallback from the v3 interface. Do not retain a parallel manual JSON copy/paste publication workflow. Preserve any internal source-aware change-package logic needed for validation, conflict safety, and release correctness.
 
-**Open requirement decision:** Should normal Save automatically publish after validation, with GitHub PRs handled behind the scenes, or require separate user confirmation/approval for each publication? The discussed product preference favors simple one-click operation but this has not yet been explicitly decided.
+**Confirmed user decision:** A single **Save and Publish** action automatically publishes after validation, without a separate confirmation or approval. GitHub PRs may be handled behind the scenes; the editor may be left while publishing proceeds. Final verification must still be reported.
 
 ### V3-UPLOAD — Integrated images and files
 
@@ -120,7 +122,7 @@ The original v2 requirements and approved changes remain authoritative for behav
 
 ### V3-CONNECTION — User-selected reading mode
 
-**V3-CONNECTION-01.** Connection Status provides **Automatic** (online preferred, complete verified offline-library fallback) and **Work Offline** (use the prepared offline library even if the device has network connectivity). Show selected mode, actual browser/network status, prepared-library availability/release identity, and update state separately.
+**V3-CONNECTION-01.** Connection Status provides **Automatic** (online preferred, complete verified offline-library fallback) and **Work Offline** (use the prepared offline library even if the device has network connectivity). Show selected mode, actual browser/network status, prepared-library availability/release identity, and update state separately. The Work Offline preference persists across application restarts until intentionally changed.
 
 **V3-CONNECTION-02.** Work Offline must not initiate ordinary app-content network requests or direct GitHub publishing. It is an offline-reading mode, not permission to queue or synchronize writes. Explain unavailable online-only actions clearly.
 
@@ -130,7 +132,11 @@ The original v2 requirements and approved changes remain authoritative for behav
 
 **V3-CONNECTION-05.** Mode changes, update checks, and release transitions must never erase or overwrite an unpublished edit or locally recovered draft.
 
-**Open requirement decision:** Whether Work Offline preference persists after app restart and whether an authenticated editor already open when mode changes may continue locally (without publishing) should be specified during review.
+**V3-CONNECTION-06.** Refresh the visual design and usability of Connection Status to match the polish and styling of the rest of Fishing Companion. Keep the actual network status and selected operating mode clearly differentiated.
+
+**V3-CONNECTION-07 (provisional).** If the user selects Work Offline while an authenticated editor is open, explain the mode change and allow the already-open draft to continue being edited locally, without publishing, subject to the same local-draft reliability tests and possible removal gate as V3-DRAFT-07. Do not create a general offline authoring or queued-publication system.
+
+**Confirmed user decisions:** Work Offline persists across app restarts. If mode changes while an authorized editor is already open, notify the user and provisionally permit local continuation without publishing; this behavior is part of the removable draft-recovery support layer.
 
 ### V3-PERF — Faster image-heavy pages
 
@@ -175,7 +181,7 @@ The original v2 requirements and approved changes remain authoritative for behav
 
 **V3-DRAFT-01.** While an authorized user is editing, retain unsent changes in memory and, if this feature remains enabled, automatically store a recoverable local draft on the same device with clear success/failure status.
 
-**V3-DRAFT-02.** A partially completed edit must remain recoverable after a temporary network loss, accidental app closure, reload, or service-worker update when the browser retains the local data. Restore/discard must be an explicit user choice on reopening the relevant record.
+**V3-DRAFT-02.** A partially completed edit must remain recoverable after a temporary network loss, accidental app closure, reload, or service-worker update when the browser retains the local data. When re-entering a record with a saved device-local draft, show an **automatic restore-or-discard prompt**; do not silently restore or discard.
 
 **V3-DRAFT-03.** Include relevant structured fields, Markdown, original record source revision/base information, and selected local media when feasible within browser storage limits. Drafts must not be silently interpreted as published records.
 
@@ -185,7 +191,7 @@ The original v2 requirements and approved changes remain authoritative for behav
 
 **V3-DRAFT-06.** Store drafts separately from offline-library caches and release assets. Successful production publication should clear a draft only after the verified completion condition has been met; an unsuccessful attempt should retain recovery material.
 
-**V3-DRAFT-07 (explicit removal gate).** Implement this feature as an independently disableable/removable layer, with a tested fallback to the safe online editor. If v3 reliability testing reveals substantial regressions, the feature can be removed from v3 before cutover without delaying or compromising core direct-saving behavior. The user has authorized this contingency in advance; any actual scope removal will be reported for review.
+**V3-DRAFT-07 (explicit removal gate).** Implement local draft persistence/recovery **and local continuation of an already-open editor after switching Work Offline** as an independently disableable/removable support layer, with a tested fallback to the safe online editor. If v3 reliability testing reveals substantial regressions, the feature can be removed from v3 before cutover without delaying or compromising core direct-saving behavior. The user has authorized this contingency in advance; any actual scope removal will be reported for review.
 
 **Not guaranteed:** Browser storage permanence, backup on another device, background publishing, or a full offline-first authoring experience.
 
@@ -215,6 +221,8 @@ The original v2 requirements and approved changes remain authoritative for behav
 
 **V3-X-07 — Evidence.** Keep traceable acceptance test results for representative real user workflows and hosted release identity; do not equate a successful GitHub commit with a verified deployment.
 
+**V3-X-08 — Testing capability checkpoint.** Before investigations, visual/cross-browser acceptance testing, or deployment work requiring capabilities unavailable in the current Chat environment, proactively identify the specific missing capability, recommend a temporary Work-mode switch only if needed, and request the user's approval before switching. GitHub-source analysis and connector-supported workflow review may proceed in Chat. Installed Android PWA behavior may still require user-device testing with step-by-step instructions regardless of mode. Do not start a high-risk release step without confirming the necessary tools are available.
+
 ### Representative end-to-end acceptance scenarios
 
 1. Anonymous user reads all domains; cannot publish even by invoking the write endpoint directly.
@@ -237,31 +245,31 @@ The **requirements, technical design, and implementation plan each require separ
 1. Finalize this requirements document and obtain explicit requirements approval.
 2. Research architectural alternatives and approve a technical design: secure GitHub authorization/writes; publication workflow; media transaction semantics; draft isolation; release/service-worker coherence; thumbnail design; fault recovery and tests.
 3. Review a staged implementation/release plan and explicitly authorize implementation.
-4. Investigate/fix reliability and performance defects (deployment consistency, Android installed-PWA links, card-image loading, Markdown viewer); these could be independent v2 maintenance changes if specifically approved.
-5. Build GitHub authentication/direct publishing and local draft recovery behind a removable feature gate.
+4. Investigate/fix reliability and performance defects (deployment consistency, Android installed-PWA links, card-image loading, Markdown viewer). **Preferred:** release independently verified, low-risk bug fixes as v2 maintenance when ready, rather than hold them for the complete v3 cutover; leave tightly coupled v3 changes within v3. Each maintenance release still requires normal approvals and the appropriate Full Application Release process.
+5. Build GitHub authentication/direct publishing and local draft recovery behind a removable feature gate. Validate owner-session auto-recognition, explicit reauthentication fallback, and no public sign-in UI before dependent authoring features.
 6. Integrate media uploads and Catch Add/Edit.
 7. Implement Automatic/Work Offline mode and related reading/storage controls.
 8. Run cross-platform system testing and scope-removal gate for draft recovery; conduct acceptance review before v3 cutover.
 
 No PR implementing any application/runtime feature is authorized by this document.
 
-## 6. Open decisions for user requirements review
+## 6. Decisions and remaining questions for requirements review
 
-**D1 — Save/publication semantics.** Prefer single **Save and Publish** action that automatically initiates the verified production process after validation, with any GitHub PR entirely behind the scenes? Or require confirmation/approval for every content change? Define whether the editor waits for publication or may be left while publication proceeds.
+**D1 — RESOLVED: Save/publication semantics.** One **Save and Publish** action, automatic publication after validation, no additional confirmation or approval, GitHub PR handling behind the scenes. The editor may be left while publishing proceeds; publishing status and eventual verified result must remain accessible.
 
-**D2 — Authorization UX.** Confirm editing requires GitHub sign-in and only the owner's authorized identity; decide whether public pages hide Edit controls entirely or show a Sign in to edit affordance. Full private site access is out of scope.
+**D2 — PARTLY RESOLVED; owner recovery decision outstanding.** Anonymous browsing is the default. Ordinary public pages show **no sign-in option and no Add/Edit controls**. Only the repository owner's authorized GitHub identity can publish. Automatically recognize and restore an existing valid owner session on routine visits, with minimal friction. A newly used browser or an expired/revoked session cannot be assumed to identify the owner silently. **Decision needed before design approval:** confirm a separate, owner-intended bookmarked entry route or equivalent unobtrusive manual entry for first-time/expired-session authentication. The route must never be treated as security; the server must validate GitHub identity and authorization. Review feasibility of persistent secure sessions across supported browsers/installed PWAs, including cross-origin cookie limits.
 
-**D3 — Draft behavior.** Confirm drafts are device-local, not shared; choose whether automatic restore prompt appears on entry versus a manually accessible Recover Draft option. Preserve the right to remove this feature at testing gate.
+**D3 — RESOLVED: Draft behavior.** Drafts are device-local, not shared; display an automatic Restore/Discard prompt on entry when a matching draft exists. Preserve the explicit remove-at-testing gate and no queued publication.
 
-**D4 — Connection selection.** Confirm whether Work Offline is persistent across app restarts; clarify behavior for an editor already open if a user switches to offline mode.
+**D4 — RESOLVED with provisional editor-continuation support.** Work Offline preference persists across restarts. Switching modes while an authorized editor is open informs the user and provisionally allows further editing of that open draft locally; no publishing while offline, and the behavior can be pulled with local draft recovery if reliability is unacceptable.
 
-**D5 — Source and edit UX.** Decide whether to retain Copy Changes as optional manual export/fallback; confirm existing forms remain generally familiar and Save/Publish reports final verified production state.
+**D5 — RESOLVED: Source and edit UX.** Remove the user-facing Copy Changes manual export/fallback. Keep existing editors generally familiar; single Save and Publish must report the final verified production state.
 
-**D6 — Bug reproduction.** Collect exact failing regular external URL(s), device/browser/installed-app modes as convenient; record updated-release broken-page/image symptom when it next occurs. These observations refine acceptance tests, not prerequisites for requirements discussion.
+**D6 — RESOLVED as investigation workflow.** During implementation/testing, provide the user with concrete step-by-step reproduction instructions **when help is needed**, rather than requesting further troubleshooting now. Preserve the already supplied Android Chrome/Edge evidence; investigate production-update breakage on the next suitable release or controlled test.
 
-**D7 — Performance targets.** Determine representative device/network baselines and explicit measurement thresholds during design/profiling. The observed 3–4-second card-image appearance is user-reported and not yet instrumented.
+**D7 — RESOLVED as measurement workflow.** Investigate and measure representative device/network baselines and establish quantitative acceptance thresholds during design/profiling. The user's observed 3–4-second card-image appearance is not yet instrumented. Provide clear testing instructions if user-device evidence is necessary.
 
-**D8 — Maintenance strategy.** Decide whether independently repairable reliability fixes should ship as v2 maintenance before the full v3 release or remain bundled into v3. Such fixes still require normal approval and release procedures.
+**D8 — RECOMMENDED IMPLEMENTATION STRATEGY.** Independently repairable, low-risk reliability bug fixes should normally ship as approved v2 maintenance once validated, so users receive fixes before v3 cutover. Strongly coupled or high-risk application rewrites remain in v3. This is a release-planning recommendation, not blanket authorization to implement or deploy.
 
 ## 7. Traceability and review record
 
@@ -272,7 +280,12 @@ This draft derives from the user's v3 wishlist and October 16–19 scope and And
 - Noticeable 3–4-second tile-image appearance on desktop and mobile.
 - Agreement that public reading remains open, with one GitHub-authorized author/publisher.
 - Agreement with staged engineering plan, requirements/design sign-off, and later explicit implementation authorization.
-- Provisional local draft recovery with an explicit option to remove it if testing harms reliability.
+- Provisional device-local draft recovery and already-open-editor local continuation after Work Offline selection, both removable if reliability testing fails.
 - Android link diagnosis limited to external-link activation in installed-PWA mode, not general browser tabs; YouTube links work when delegated to the YouTube app.
+- Anonymous-by-default browsing, no public Sign In or editing links, automatic recognition of existing authorized owner sessions, and a clearly documented open owner reauthentication-access decision.
+- Single Save and Publish action with publication continuing after the editor is left; Copy Changes removed from v3 user-facing UI.
+- Persistent Work Offline preference and an improved Connection Status visual design.
+- Early warning before Work-only investigations or test capabilities are required; user-assisted installed Android PWA diagnosis if needed.
+- Preferred independently releasable, approved v2 maintenance fixes for isolated reliability defects.
 
 **Review status:** Awaiting the user's review and explicit approval. Until approval, all requirement IDs are proposed, not a signed-off baseline. No application/source changes, implementation, migration, or production deployment should be inferred from this requirements-document PR.
