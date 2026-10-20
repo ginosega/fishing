@@ -1,7 +1,7 @@
 # Fishing Companion v3 — P0-B/P0-C Image and External-Link Diagnostics
 
 **Recorded:** October 19, 2026 (Pacific time)  
-**Status:** Source inventory and desktop CI benchmark complete; full test PR validation passed at exact diagnostic head. One Android real-device structured Gear link works in both installed Chrome PWA and regular Chrome tab. The historical external-link failure remains **unreproduced**, and on-device image latency, possible edge-case external links, and proposed-thumbnail visual/performance acceptance remain open.
+**Status — corrected October 19, 2026:** Desktop CI and thumbnail byte benchmarks passed. The owner clarified that **a link opening inside the installed Android Fishing Companion PWA is a failure**: it must open in the regular system browser, preferably a browser tab. The Daiwa physical-device test reproduced this undesired in-app behavior. P0-C remains OPEN pending proof of a safe and technically feasible browser handoff.
 
 See [approved v3 implementation plan](Fishing_Companion_v3_Implementation_Plan.md), [P0 baseline](Fishing_Companion_v3_P0_Baseline_2026-10-19.md), and [stale-session diagnostics](Fishing_Companion_v3_P0_Stale_Session_Diagnostics_2026-10-19.md).
 
@@ -65,7 +65,7 @@ Representative byte measurements: Z-Man Jack Hammer 2,787,253 → 13,318; Bass B
 
 **Previously observed:** ordinary external links were sometimes reported to do nothing on a normal tap from the installed Chrome Android PWA, while browser-tab links worked, long-press `Open in browser` worked, and YouTube app links opened.
 
-**New owner-run real-device control (October 19, 2026): PASS for one representative structured external link.** On the existing installed Android Fishing Companion app, **My Gear → Rods & Reels → Daiwa Tatula XT → Daiwa product link** opened the Daiwa product page **in-app**. The identical link on the identical Fishing Companion page inside a regular Chrome tab opened the product page **in a new Chrome tab**. Owner did not provide browser version, install mechanism or a UI trace. Do not equate “in-app” with a verified Chrome Custom Tab implementation without examining the shell. This result demonstrates successful link activation on that device/path, rather than reproducing the historical no-response symptom.
+**Owner's clarified acceptance result (October 19, 2026): FAIL for installed Android PWA, PASS for normal Chrome.** The Daiwa Tatula XT structured external link opened **inside the installed Fishing Companion app**, which is **exactly the behavior the owner wants changed**. The identical link from a regular Chrome browser tab opened in a **new browser tab**, as desired. The criterion is a real **out-of-app normal-browser handoff**, not just successful destination loading. The precise installed-app surface (Custom Tab or other view) is unverified; YouTube native-app delegation and internal app routing must remain intact.
 
 **Source facts:**
 
@@ -79,12 +79,12 @@ Relevant public platform guidance: [MDN on standalone web apps](https://develope
 
 ### Remaining conditional device evidence
 
-1. The Daiwa structured Gear-link normal-tap versus regular Chrome-tab control is **completed and passed**; do not request the same test again without a new hypothesis.
-2. If the historical failure recurs, record the exact item/link URL, page type (Gear structured link versus Markdown), what appeared (nothing, brief tab, chooser, in-app page), and whether Chrome browser-tab behavior differs. Compare with a YouTube link only if the failure is reproducible. Browser/Android versions and installation source can then help isolate it.
-3. Browser/Android version, installation route, installed Edge behavior and optional remote inspection should be collected only when needed for a reproducible failure; do not assume this Daiwa success diagnoses every external link.
+1. The Daiwa external-link control is **completed and FAILS the installed-app requirement**. Re-test only to verify a new nonproduction candidate implementation.
+2. Test normal external-browser handoff in an isolated, installed Chrome/Edge Android PWA (the Daiwa structured link and Markdown control), and determine whether the URL lands in a real browser tab versus an in-app Custom Tab. Preserve YouTube native app links and ordinary browser tab opening.
+3. Record Android/Chrome version and installation origin when evaluating candidates; the observed Daiwa in-app behavior is already a reproducible **UX failure**, not a successful acceptance result.
 4. Test prospective remediation in **nonproduction** installed Chrome/Edge on Android, with a regression matrix for YouTube delegation, desktop/browser tabs, malicious URLs, accessibility and external navigation escape. No speculative `rel` removal, forced `_self` navigation, browser-UI mode change, or JS popup fallback without evidence.
 
-**Disposition after the real-device control:** no reproducible defect in the tested structured Gear-link path; **defer a speculative Android link fix**. Do not claim all links are fixed, and resume the investigation if a specific reproducible failure is observed.
+**Corrected disposition — OPEN, reproduced against the owner's desired UX.** Existing `target='_blank'` links may launch a Chrome Custom Tab inside/attached to the installed PWA. Google's manifest guidance states that Chrome Android uses Custom Tabs for these links; that is **not equivalent** to opening a normal browser tab (https://github.com/GoogleChrome/web.dev/blob/main/src/site/content/en/progressive-web-apps/add-manifest/index.md). There is no verified portable Web API guaranteeing an external regular browser tab from a Chrome-installed PWA. Android intent URLs are a **nonproduction-only feasibility experiment**, not an approved fix, and may show an app chooser (https://stackoverflow.com/questions/77703509/how-do-i-make-an-android-pwa-open-external-links-in-the-actual-browser-not-a-we). P0-C remains OPEN until the owner observes a true regular-browser handoff on a test candidate, or explicitly accepts a fallback after evidence of platform limitations. No production source/release change is approved.
 
 ## Release and governance
 

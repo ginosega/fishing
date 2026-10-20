@@ -164,9 +164,9 @@ The original v2 requirements and approved changes remain authoritative for behav
 
 ### V3-LINK — External links in installed Android PWA
 
-**V3-LINK-01.** Ordinary external HTTP(S) web links in structured Links and Markdown Content/Notes must reliably open their destination from Android installed-PWA mode as well as ordinary browser tabs, without disrupting the Fishing Companion session.
+**V3-LINK-01.** Ordinary external HTTP(S) links in structured Links and Markdown Content/Notes must **leave an Android installed Fishing Companion PWA and open in the regular system web browser, preferably in a new browser tab, rather than a page/view attached to the installed app**. Ordinary browser-tab mode must still open a new browser tab; internal Fishing Companion routes remain in-app. Preserve the Fishing Companion session. **Owner clarification October 19, 2026:** a working Daiwa link opened inside the installed app and was explicitly judged a *failure*; successful URL activation alone is not sufficient. A reliable full-browser handoff is an unresolved platform feasibility requirement, not an assumed capability.
 
-**V3-LINK-02.** Preserve working YouTube and other verified app-link behavior, safe link validation, and appropriate tab/window/navigation semantics. Do not automatically force the same-tab or new-tab behavior until platform testing determines reliable and acceptable UX.
+**V3-LINK-02.** Preserve working YouTube/native app-link delegation, safe link validation, and appropriate tab/window/navigation semantics. Do not count Chrome Custom Tabs or the installed-app in-app view as satisfying V3-LINK-01. If no reliable browser handoff can be demonstrated in a nonproduction installed-Android experiment, report the limitation and ask for an owner UX decision rather than shipping an unproven workaround.
 
 **V3-LINK-03.** Test Android Chrome and Edge as both browser tabs and installed PWAs, representative ordinary external links, YouTube app links, and long-press menu behavior. Also regression-test supported desktop and iOS clients.
 
@@ -176,6 +176,8 @@ The original v2 requirements and approved changes remain authoritative for behav
 - Long-press in the installed Chrome app exposes an option to open an external link in the browser.
 - YouTube links successfully open the YouTube app, verified in Edge browser mode and Chrome installed-app mode.
 - Installed Edge and iOS app behavior remain unverified. The underlying cause is not established.
+
+**Clarified Android evidence:** On October 19, 2026 the user tested the same Daiwa Tatula XT external link from (a) the installed Fishing Companion, where it opened **inside the app** (**FAIL against V3-LINK-01**), and (b) a regular Chrome tab, where it opened in a **new Chrome tab** (**PASS**). This replaces any interpretation that the successful in-app page load resolved the defect. Whether the in-app surface was a Custom Tab remains unverified.
 
 ### V3-DRAFT — Local draft recovery (provisional, removable)
 
