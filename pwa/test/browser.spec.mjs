@@ -506,7 +506,7 @@ for(const sample of [
     aboveFoldLargestBytes:Math.max(...enriched.map(x=>x.bytes||0)),
     imgLoadingModes:[...new Set(enriched.map(x=>x.mode))],
     firstFive:enriched.slice(0,5),
-    imageFileReads:state.reads.filter(x=>/\\.(?:png|jpe?g|webp|gif)$/i.test(x)).length};
+    imageFileReads:state.reads.filter(x=>/\.(?:png|jpe?g|webp|gif)$/i.test(x)).length};
    console.log('P0_IMAGE_METRIC '+JSON.stringify(stat));
   }
  });
