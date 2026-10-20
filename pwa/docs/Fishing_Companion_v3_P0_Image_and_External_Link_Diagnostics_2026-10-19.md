@@ -1,6 +1,6 @@
 # Fishing Companion v3 — P0-B/P0-C Image and External-Link Diagnostics
 
-**Recorded:** October 19–20, 2026 (Pacific time)  
+**Recorded:** October 19, 2026 (Pacific time)  
 **Status:** Source inventory complete; draft-only Playwright/browser and nondestructive thumbnail benchmark CI initiated. Actual Android installed-PWA reproduction and cross-device performance acceptance remain open.
 
 See [approved v3 implementation plan](Fishing_Companion_v3_Implementation_Plan.md), [P0 baseline](Fishing_Companion_v3_P0_Baseline_2026-10-19.md), and [stale-session diagnostics](Fishing_Companion_v3_P0_Stale_Session_Diagnostics_2026-10-19.md).
@@ -28,6 +28,27 @@ Largest examples: Lures Z-Man Jack Hammer 2,787,253 bytes, Strike King Red Eyed 
 - PR workflow [#522](https://github.com/ginosega/fishing/actions/runs/39344837588) tests initial browser probes. Updated head [#523](https://github.com/ginosega/fishing/actions/runs/39345000450) includes nondestructive derivative benchmark. **Consult the final exact-head CI result and job logs; there are no asserted timing or conversion numbers in this document until the runs finish.**
 
 **Provisional direction:** deterministic, disposable card derivatives, stored separate from canonical originals, referenced by a manifest-aware mapping and included in release identities, per-file SHA verification and complete offline budget. Do not change source pictures, original detail-view resolution, FISH108 content eligibility or production without a separately approved v2 maintenance release. Acceptability requires actual perceptual comparison (photographs vs illustrations, transparency), mobile pixel density, successful image rendering and measured timing gain.
+
+### Measured browser-run evidence (CI #522, diagnostic head `48a9e8c53530`)
+
+The local GitHub Actions runner executed the probes in Chromium and WebKit against the generated release; both new image probes and both external-popup checks completed in each engine.
+
+| Engine | Page / viewport | Navigation | Elapsed to decode all above-fold images and two animation frames |
+|---|---|---|---:|
+| Chromium | Gear Lures / 1280×900 | First; repeat | 680 ms; 730 ms |
+| Chromium | KB Techniques / 390×844 | First; repeat | 778 ms; 811 ms |
+| WebKit | Gear Lures / 1280×900 | First; repeat | 1,103 ms; 927 ms |
+| WebKit | KB Techniques / 390×844 | First; repeat | 784 ms; 669 ms |
+
+- Gear Lures: 12 above-fold image elements, representing **5,055,100 original bytes (4.82 MiB)** in the release manifest.
+- KB Techniques at 390px: four above-fold image elements, representing **12,262,437 original bytes (11.69 MiB)** in the release manifest.
+- These are **local, unthrottled, headless, repeatable CI browser observations**, measuring time from navigation to all selected above-fold images decoded plus two animation frames. They are **not first-image visual paint times**, actual bytes observed over an Android mobile radio, or a reproduction of the user-reported 3–4-second delay.
+- The initial probe's `imageFileReads` counter used an over-escaped regex and erroneously logged zero even though browser resource timings existed. **Ignore this field for #522/#523**; it was corrected in the subsequent exact head `92728ca66cb` (run #524). Manifest referenced bytes are accurate independently of that diagnostic counter.
+- Both a structured Gear external link and a Palomar Knot YouTube Markdown link produced a new popup context in **desktop browser** mode in both engines. This does **not** validate Android YouTube app delegation or Android installed-PWA link taps.
+- **Overall run #522 failed** in a separate pre-existing WebKit offline-integrity test: `tampered prepared content is rejected; online retry does not silently repair the complete library` expected status `Incomplete` but observed `Downloading` for 12 seconds. Its relationship to test environment timing is not yet established; no application source or offline behavior was changed by the probe PR. [Full failure log](https://github.com/ginosega/fishing/actions/runs/39344837588). **Do not describe full #522 CI as passed.**
+
+Updated probe/derivative run [#523](https://github.com/ginosega/fishing/actions/runs/39345000450) and regex-corrected exact-head run [#524](https://github.com/ginosega/fishing/actions/runs/39345445909) were still in progress/pending at the time this measurement appendix was added. Final exact-head acceptance and the converted WebP byte budget must be reviewed separately before recommending release.
+
 
 ## P0-C: External-link activation in installed Android PWA
 
