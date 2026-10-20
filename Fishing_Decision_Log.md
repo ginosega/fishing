@@ -6,6 +6,12 @@ This file records **current durable decisions**. Detailed historical release evi
 
 **Decision:** Chat mode is the permanent default. Do not recommend Work merely because work is complex, lengthy, file-heavy, analytical, research/calculation-heavy or artifact-producing. Use a temporary Work switch only for a genuinely Work-only capability after explaining the need and obtaining explicit user approval.
 
+## Fishing Companion v3 P0-C — accepted Chrome Android external links (October 20, 2026)
+
+**Owner decision:** Accept Google's [documented Chrome Android PWA behavior](https://web.dev/articles/add-manifest): tapping an ordinary external link with `target="_blank"` in an installed Chrome PWA may open it in a browser-powered **Chrome Custom Tab** attached to the app, rather than a separate regular-browser tab. On October 19 the owner initially preferred an out-of-app Chrome tab and observed that the Daiwa Gear link opened in-app, while ordinary Chrome opened it in a new tab. After verifying Google's platform documentation on October 20, the owner explicitly accepted the installed-PWA behavior and directed the project to move on. This **supersedes** the prior out-of-app requirement. P0-C is **CLOSED — ACCEPTED NATIVE BEHAVIOR / NO CODE CHANGE**.
+
+**Preserve:** existing external link activation and safe `noopener noreferrer`, internal app routing, YouTube native-app delegation, and normal browser-tab new-tab behavior. Do **not** pursue Android intent/browser-escape hacks or a v2 maintenance release merely to force a regular tab. This acceptance is specific to Chrome Android, not proof about Edge/iOS installed behavior. The separate v3 **AUTH-P0 sign-in/callback return feasibility gate remains mandatory**. Source evidence and disposition: [P0-B/P0-C diagnostics](pwa/docs/Fishing_Companion_v3_P0_Image_and_External_Link_Diagnostics_2026-10-19.md).
+
 ## New-chat transfer and handoff
 
 **Decision:** When the user says **“It’s time to transfer to a new chat”** or clearly equivalent wording, ask once for confirmation that they want the full project handoff. Once confirmed, execute it end-to-end without repeated “Proceed” prompts: restore actual latest `main`, open PRs and current production evidence; reconcile durable state; update authoritative records where project state actually changed; preserve unresolved work and purchase uncertainty; cross-check records/bootstrap; and finish with a clickable GitHub link to `Fishing_New_Chat_Bootstrap_Prompt.md`.
