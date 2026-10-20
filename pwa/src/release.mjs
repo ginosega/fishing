@@ -37,6 +37,21 @@ export function validateManifest(manifest,pointer,base){
   entries.set(file.path,file);
  }
  assert(manifest.totalBytes===total,'Release byte count mismatch');
+ // Generated thumbnails are optional for historical releases, but every
+ // advertised mapping must point to a verified immutable asset in this release.
+ if(manifest.cardThumbnails!=null){
+  assert(manifest.cardThumbnails&&typeof manifest.cardThumbnails==='object'&&!Array.isArray(manifest.cardThumbnails),'Invalid card thumbnail mapping');
+  const names=new Set();
+  for(const [original,thumbnail] of Object.entries(manifest.cardThumbnails)){
+   releasePath(original);
+   assert(entries.has(`releases/${pointer.id}/content/${original}`),'Unverified source picture for thumbnail');
+   assert(typeof thumbnail==='string'&&/^[a-f0-9]{64}\.webp$/.test(thumbnail),'Invalid card thumbnail filename');
+   assert(!names.has(thumbnail),'Card thumbnail filename collision');
+   names.add(thumbnail);
+   assert(entries.has(`releases/${pointer.id}/card-thumbnails/${thumbnail}`),'Missing verified card thumbnail');
+  }
+ }
+
  const required=['index.html','loader.js','sw.js','manifest.webmanifest',`releases/${pointer.id}/app.js`,`releases/${pointer.id}/styles.css`,`releases/${pointer.id}/content/Gear/gear.json`,`releases/${pointer.id}/content/KB/kb.json`,`releases/${pointer.id}/content/Catches/catches.json`];
  // Historical icon names remain valid for already-cached releases.
  assert(entries.has('icon.png')||entries.has('revised-icon.png')||entries.has('icon.svg'),'Missing required release icon');
