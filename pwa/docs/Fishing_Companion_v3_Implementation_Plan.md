@@ -63,7 +63,7 @@ Dependencies are intentional. Each package has a separate PR or small PR series 
 **Depends on:** P0 root-cause evidence and separate release approval; independent of authentication where possible.
 
 **Candidates**
-1. Android installed-PWA **out-of-app regular browser handoff** for HTTP(S) external links (not merely loading them in a Custom Tab/in-app view), preserving YouTube app delegation and normal browser-tab behavior. The October 19 owner-run Daiwa link test **reproduced the undesired in-app outcome**; feasibility of forcing a regular browser tab requires real-device testing and a separate acceptance decision if platform constraints prevent it.
+1. **P0-C CLOSED — accepted Chrome Android PWA behavior (October 20, 2026).** The user accepted Google's documented behavior whereby ordinary external `target="_blank"` links from an installed Chrome Android PWA open in a Chrome Custom Tab; normal browser tabs continue opening new browser tabs, and YouTube/native app delegation must remain intact. No external-browser escape workaround, additional Android intent experiment, v2 maintenance fix or release is required for this item. This supersedes the October 19 out-of-app regular browser requirement and does not affect the separate installed-PWA authentication callback feasibility gate.
 2. Post-deployment open-session release consistency, preventing missing pages/pictures; preserve exact verified releases.
 3. Card-grid image rendering/loading improvements, including deterministic build thumbnails if their benefit is validated and the change can safely be independently released.
 4. Markdown local-image Picture Viewer activation when self-contained and regression-safe.
