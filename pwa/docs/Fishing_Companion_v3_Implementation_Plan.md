@@ -63,7 +63,7 @@ Dependencies are intentional. Each package has a separate PR or small PR series 
 **Depends on:** P0 root-cause evidence and separate release approval; independent of authentication where possible.
 
 **Candidates**
-1. Android installed-PWA HTTP(S) external-link activation, preserving YouTube app delegation and ordinary desktop/browser behavior.
+1. Android installed-PWA **out-of-app regular browser handoff** for HTTP(S) external links (not merely loading them in a Custom Tab/in-app view), preserving YouTube app delegation and normal browser-tab behavior. The October 19 owner-run Daiwa link test **reproduced the undesired in-app outcome**; feasibility of forcing a regular browser tab requires real-device testing and a separate acceptance decision if platform constraints prevent it.
 2. Post-deployment open-session release consistency, preventing missing pages/pictures; preserve exact verified releases.
 3. Card-grid image rendering/loading improvements, including deterministic build thumbnails if their benefit is validated and the change can safely be independently released.
 4. Markdown local-image Picture Viewer activation when self-contained and regression-safe.
