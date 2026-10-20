@@ -2,6 +2,8 @@
 
 ## Current project task state — October 19, 2026
 
+**V3 P0 investigation update — October 20, 2026:** P0 new-chat restoration completed; controlled stale-release/session diagnostic CI passed (#521). P0-B source-image size/timing and candidate WebP byte-budget tests passed (#523/#524); nonproduction thumbnail visual/performance prototype remains open. **P0-C Android Chrome installed-PWA external-link behavior is CLOSED by explicit owner acceptance of documented Chrome Custom Tabs; no workaround or v2 fix.** Real installed-PWA GitHub-auth redirect feasibility is **separately unresolved for AUTH-P0**. Follow the approved v3 plan and its separate approval gates; no production code change or cutover was authorized by this disposition.
+
 ### Application / architecture state
 
 - **FISH-TODO-108 — IMPLEMENTED.** Two-lane release policy: Fast Content Release for routine canonical Gear/KB/Catch content, Full Application Release for application/runtime/tooling/schema/workflow changes.
