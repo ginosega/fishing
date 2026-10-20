@@ -1,7 +1,7 @@
 # Fishing Companion v3 — P0-B/P0-C Image and External-Link Diagnostics
 
 **Recorded:** October 19, 2026 (Pacific time)  
-**Status — corrected October 19, 2026:** Desktop CI and thumbnail byte benchmarks passed. The owner clarified that **a link opening inside the installed Android Fishing Companion PWA is a failure**: it must open in the regular system browser, preferably a browser tab. The Daiwa physical-device test reproduced this undesired in-app behavior. P0-C remains OPEN pending proof of a safe and technically feasible browser handoff.
+**Final disposition update — October 20, 2026:** Desktop CI and thumbnail byte benchmarks passed. **P0-C is CLOSED — OWNER ACCEPTED CHROME ANDROID NATIVE CUSTOM TAB BEHAVIOR; NO CODE CHANGE.** On October 19, the owner originally preferred a separate browser tab; on October 20, after verifying Google's official Chrome Android PWA behavior, the owner accepted the in-app/Custom Tab navigation and requested moving on. P0-B image-performance follow-up remains separate and open.
 
 See [approved v3 implementation plan](Fishing_Companion_v3_Implementation_Plan.md), [P0 baseline](Fishing_Companion_v3_P0_Baseline_2026-10-19.md), and [stale-session diagnostics](Fishing_Companion_v3_P0_Stale_Session_Diagnostics_2026-10-19.md).
 
@@ -61,30 +61,15 @@ Representative byte measurements: Z-Man Jack Hammer 2,787,253 → 13,318; Bass B
 **Validation:** run #523 completed successfully, including 54 preview-browser and 56 production-browser acceptance checks. Exact-head run #524 also completed successfully (54 preview and 56 production browser checks), including the fixed image read counter and both desktop link activation controls. The single transient WebKit assertion failure observed in earlier run #522 did not reproduce in either full passing rerun. Preserve the original failure as an investigated intermittent signal; do not claim it was definitively understood or fixed.
 
 
-## P0-C: External-link activation in installed Android PWA
+## P0-C: External-link behavior in installed Android Chrome PWA — CLOSED
 
-**Previously observed:** ordinary external links were sometimes reported to do nothing on a normal tap from the installed Chrome Android PWA, while browser-tab links worked, long-press `Open in browser` worked, and YouTube app links opened.
+**Owner decision October 20, 2026 — ACCEPTED PLATFORM BEHAVIOR, NO FIX.** Google's [official PWA manifest guidance](https://web.dev/articles/add-manifest) states that on Android, links with `target="_blank"` open in a **Chrome Custom Tab**. Chrome's [Custom Tabs documentation](https://developer.chrome.com/docs/android/custom-tabs/guide-get-started) confirms Custom Tabs are browser-powered in-app web experiences, rather than ordinary external tab navigation.
 
-**Owner's clarified acceptance result (October 19, 2026): FAIL for installed Android PWA, PASS for normal Chrome.** The Daiwa Tatula XT structured external link opened **inside the installed Fishing Companion app**, which is **exactly the behavior the owner wants changed**. The identical link from a regular Chrome browser tab opened in a **new browser tab**, as desired. The criterion is a real **out-of-app normal-browser handoff**, not just successful destination loading. The precise installed-app surface (Custom Tab or other view) is unverified; YouTube native-app delegation and internal app routing must remain intact.
+**Physical-device evidence (October 19):** On the owner's Android device, the external Daiwa Tatula XT Gear product link opened in-app from installed Fishing Companion but opened in a **new Chrome browser tab** from the same page in regular Chrome. The owner initially described the in-app behavior as unwanted; **on October 20, explicitly accepted this documented Chrome behavior and asked that the project move on**. This later accepted behavior **supersedes** the out-of-app browser-tab requirement recorded in [PR #246](https://github.com/ginosega/fishing/pull/246). Do not reclassify an otherwise-working Chrome Custom Tab as a defect simply because it is attached to the installed PWA.
 
-**Source facts:**
+**Source and validation:** `pwa/src/ui.mjs` and `pwa/src/markdown.mjs` already use `target="_blank" rel="noopener noreferrer"` for structured/Markdown external links; app internal `#/...` routes remain within the SPA. Diagnostic [PR #242](https://github.com/ginosega/fishing/pull/242) exercised browser new-tab behavior in Chromium and WebKit; full CI [#523](https://github.com/ginosega/fishing/actions/runs/39345000450) and [#524](https://github.com/ginosega/fishing/actions/runs/39345445909) passed. No changes to links or Android intents are necessary.
 
-- Manifest `display:'standalone'` and scope `./`.
-- Both `pwa/src/markdown.mjs` for external HTTP(S) Markdown links and `pwa/src/ui.mjs` for structured `record.links` emit `target='_blank' rel='noopener noreferrer'`.
-- Internal SPA interception is restricted to `#/...` navigation; ordinary external click handling is **not** intercepted by the app.
-- Existing `FISH103` browser test asserts safe link attributes but does not click links.
-- [Draft PR #242](https://github.com/ginosega/fishing/pull/242) adds controlled desktop Chromium/WebKit popup activation for one structured Gear and one Markdown KB link; log prefix `P0_LINK_METRIC`. This checks the desktop/control path, **not** Android installed Chrome, Android Custom Tabs, installed Edge PWA, or YouTube app association.
-
-Relevant public platform guidance: [MDN on standalone web apps](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/How_to/Create_a_standalone_app) explains manifest display mode, and [Google Chrome web.dev manifest guidance](https://github.com/GoogleChrome/web.dev/blob/main/src/site/content/en/progressive-web-apps/add-manifest/index.md) describes `target='_blank'` in installed Android PWAs as opening Chrome Custom Tabs. Actual OS/app versions and installed-shell delegation can differ; these references **do not establish the cause** of the owner's incident.
-
-### Remaining conditional device evidence
-
-1. The Daiwa external-link control is **completed and FAILS the installed-app requirement**. Re-test only to verify a new nonproduction candidate implementation.
-2. Test normal external-browser handoff in an isolated, installed Chrome/Edge Android PWA (the Daiwa structured link and Markdown control), and determine whether the URL lands in a real browser tab versus an in-app Custom Tab. Preserve YouTube native app links and ordinary browser tab opening.
-3. Record Android/Chrome version and installation origin when evaluating candidates; the observed Daiwa in-app behavior is already a reproducible **UX failure**, not a successful acceptance result.
-4. Test prospective remediation in **nonproduction** installed Chrome/Edge on Android, with a regression matrix for YouTube delegation, desktop/browser tabs, malicious URLs, accessibility and external navigation escape. No speculative `rel` removal, forced `_self` navigation, browser-UI mode change, or JS popup fallback without evidence.
-
-**Corrected disposition — OPEN, reproduced against the owner's desired UX.** Existing `target='_blank'` links may launch a Chrome Custom Tab inside/attached to the installed PWA. Google's manifest guidance states that Chrome Android uses Custom Tabs for these links; that is **not equivalent** to opening a normal browser tab (https://github.com/GoogleChrome/web.dev/blob/main/src/site/content/en/progressive-web-apps/add-manifest/index.md). There is no verified portable Web API guaranteeing an external regular browser tab from a Chrome-installed PWA. Android intent URLs are a **nonproduction-only feasibility experiment**, not an approved fix, and may show an app chooser (https://stackoverflow.com/questions/77703509/how-do-i-make-an-android-pwa-open-external-links-in-the-actual-browser-not-a-we). P0-C remains OPEN until the owner observes a true regular-browser handoff on a test candidate, or explicitly accepts a fallback after evidence of platform limitations. No production source/release change is approved.
+**Boundaries:** The accepted behavior applies specifically to **installed Chrome Android PWAs**, not a universal claim about installed Edge/iOS. Existing YouTube native-app delegation, safe external URLs, ordinary browser-tab behavior and internal routes remain required. A new, distinct *failure to load* an external link should be investigated separately if actually reproduced. **OAuth sign-in redirect/callback behavior is not covered**; AUTH-P0 still requires installed-PWA device validation. No speculative regular-browser escape workaround, nonproduction Android intent experiment or v2 maintenance production release is warranted for P0-C.
 
 ## Release and governance
 
