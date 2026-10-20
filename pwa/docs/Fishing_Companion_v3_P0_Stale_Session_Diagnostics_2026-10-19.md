@@ -6,7 +6,7 @@
 
 ## Investigation artifacts
 
-- [Draft diagnostic PR #240](https://github.com/ginosega/fishing/pull/240), branch `test/v3-p0-stale-session-20261019`, initial test commit `e96d782f04ed6cd5fd6920538a4b96253489e8fb`.
+- [Completed/closed unmerged diagnostic PR #240](https://github.com/ginosega/fishing/pull/240), branch `test/v3-p0-stale-session-20261019`, initial test commit `e96d782f04ed6cd5fd6920538a4b96253489e8fb`.
 - [Full Application Release PR validation run #521](https://github.com/ginosega/fishing/actions/runs/39342907392) — check current final status rather than inferring it from this dated document. The core-test + preview-build stage passed at the time of this report.
 - Existing test fixture: `pwa/test/offline-integrity.test.mjs`, which compiles the **real current** `pwa/src/sw.mjs` into an isolated in-memory service-worker environment with SHA-verified A/B release manifests, response simulation and CacheStorage fixture.
 - Production v2 remains the last verified release `f5eab01e9d5af6101f03a7094de5b565`, source `4fc893d044b72e61fbc36cfd82103af55bc36f97`; PR test validation does **not** deploy or modify production.
@@ -41,8 +41,8 @@ Neither mechanism by itself justifies an unmeasured or unapproved change to offl
 
 ## Engineering and approval status
 
-**Completed in this work package:** Updated/current main and open-PR audit; isolated A/B worker test additions; source-level observations of 503 failures and verified A fallback; core Node test/preview-build validation passing. Draft PR is unmerged to avoid triggering a new production build/deployment.
+**Completed in this work package:** Updated/current main and open-PR audit; isolated A/B worker test additions; source-level observations of 503 failures and verified A fallback; core Node test/preview-build validation passing. Diagnostic PR #240 is **closed unmerged**, avoiding a production build/deployment.
 
 **Still open:** final Chromium/WebKit full workflow result; optional browser/real-device reproductions; quantitative failure timing, fix selection, rollback/acceptance criteria, and a separate explicit v2 maintenance release decision if an independent fix is proposed.
 
-**Guardrail:** `pwa/test/*` changes count as **Full Application Release**, not FISH108 content. Do not merge draft PR #240 or ship any v2 reliability fix solely under this P0 investigative approval. Revalidate head/base/checks and obtain the agreed separate maintenance approval before an application-release merge.
+**Guardrail:** `pwa/test/*` changes count as **Full Application Release**, not FISH108 content. PR #240 was **closed unmerged**. Do not ship any v2 reliability fix solely under this P0 investigative approval. Revalidate head/base/checks and obtain the agreed separate maintenance approval before an application-release merge.
