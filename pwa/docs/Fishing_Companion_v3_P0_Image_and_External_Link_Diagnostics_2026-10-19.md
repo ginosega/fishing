@@ -22,7 +22,7 @@ Largest examples: Lures Z-Man Jack Hammer 2,787,253 bytes, Strike King Red Eyed 
 
 ### Controlled test/measurement implementation
 
-- [Diagnostic draft PR #242](https://github.com/ginosega/fishing/pull/242) has **test-only**, unmerged changes; it must not be merged under investigative P0 approval because `pwa/test/**` triggers the full app production release lane when merged.
+- [Diagnostic PR #242](https://github.com/ginosega/fishing/pull/242) is **CLOSED WITHOUT MERGE** after test/benchmark completion. It contains **test-only**, nonproduction changes; it was not merged under investigative P0 approval because `pwa/test/**` triggers the full app production release lane when merged.
 - Browser probe: Gear Lures at 1280×900 and KB Techniques at 390×844, first and repeat navigation; record above-fold visible image count, original manifest bytes, browser resource timings, last decode + double animation frame and logged `P0_IMAGE_METRIC`. The 390px test is a *mobile-sized desktop engine*, **not Android emulation**.
 - Candidate-size benchmark: create **in memory only** a 512×270 maximum, WebP quality 80 derivative using existing locked Sharp dependency for every Lures and Techniques original; log `P0_THUMBNAIL_METRIC` source/candidate totals and examples. Originals are read, never overwritten. This is a byte-budget experiment, not a shipping format or visual-acceptance decision.
 - PR workflow [#522](https://github.com/ginosega/fishing/actions/runs/39344837588) tests initial browser probes. Updated head [#523](https://github.com/ginosega/fishing/actions/runs/39345000450) includes nondestructive derivative benchmark. **Full validation passed** on both [run #523](https://github.com/ginosega/fishing/actions/runs/39345000450) and the exact final diagnostic head [run #524](https://github.com/ginosega/fishing/actions/runs/39345445909), `92728ca66cb89d8f9490b61194a7827714803206`. No deployment was triggered.
@@ -73,4 +73,4 @@ Representative byte measurements: Z-Man Jack Hammer 2,787,253 → 13,318; Bass B
 
 ## Release and governance
 
-P0 investigations are allowed. PR #242 and its nonproduction tests are **not automatically authorized to merge**; any `pwa/test`, `pwa/src`, build or worker change merged to main triggers the Full Application Release path. Production v2 and its released image bytes remain unchanged. The independent v2 maintenance-vs-v3 deferral decision and real-device evidence belong in the P0 recommendation/acceptance gate. No new provider, identity, secret or cost is introduced.
+P0 investigations and their documentation are complete for external-link behavior. Diagnostic PR #242 was **closed unmerged**, preserving test evidence and avoiding the Full Application Release path for `pwa/test` changes. Production v2 and original images remain unchanged. P0-B thumbnail design/prototype and release decisions remain separately open; no provider, identity, secret or cost was introduced.
