@@ -1,5 +1,21 @@
 # Fishing Context
 
+## Latest handoff state — October 21, 2026, after FISH117
+
+The owner is transferring to a new Chat after authorizing and completing two further v2 maintenance phases following the approved v3 plan. **Current pre-handoff `main` was `c42d0e737151608b53ffd0de6fa29dbbd76eba32`; open PRs: none.** The documentation-only handoff PR will move `main` beyond the published source without republishing. Verify fresh state before acting; old checkpoints further down this file are historical.
+
+**Latest live PWA:** [main production Full Application workflow #543](https://github.com/ginosega/fishing/actions/runs/39690549053) fully successful; source `ab1c59a61c748e9a8a1da2b31d87e1d86c96ac9f`, release `131ebca9c6d46fa1c1d815ad43a318f6`, **577 files / 100 Gear / 60 KB / 12 Catches**; actual GitHub Pages verified bytes, manifest and browser tests passed. [FISH117 report](pwa/docs/Fishing_Companion_FISH117_Static_Artwork_Optimization_2026-10-21.md).
+
+**Application work finished:** FISH115 full-resolution Gear/KB picture originals plus release-generated card thumbnails and compatible security patches deployed via PR #252; FISH116 P0-A stale-session 404/503 resolved through safe verified whole-release transitions and dirty-editor protection via PR #254, with old hosted releases not retained; FISH117 16 static category icons plus two scenic headers optimized to release-only WebP via PR #258 (PR #259 corrected a WebKit test fixture, no runtime change). Owners accepted Android Chrome installed-PWA external link behavior (P0-C) without changing it. FISH117 reduces static artwork bytes **17,090,051 → 253,660 (98.5%)**. The owner deliberately skipped visual/performance preview and plans to evaluate the deployed appearance/loading personally; no owner result or actual device timing is recorded. **Next unused application ID: FISH-TODO-118**.
+
+**v3 remains approved but not yet cut over:** The requirements, technical design, sign-in/submit/publish/Connection Status UX, and staged implementation plan were approved October 19. P0 investigation and optional v2 reliability/performance fixes have since been completed. Next unresolved gate is **P1 AUTH-P0**: obtain scoped permission/provider/hosting approval before provisioning, prove secure GitHub App-backed single-owner sign-in and session restoration/callback in installed Android/iOS PWAs, and halt on any insecure cross-site cookie or credential-exposure approach. No signed-off v3 deployment or GitHub App provider installation has occurred. Requirements exclude background offline sync, multi-user roles and Catch pictures/GPS. Routine Gear/KB/Catch content remains under FISH108 Fast Content Release.
+
+**Other active user work preserved:** Bonafide RVR119 Garmin Force Current commissioning, 24V Redodo battery and removable storage-case/foam design (FISH-TODO-040), backordered under-seat tackle tray watch (FISH-TODO-008), KastKing box watch (014), open purchase, fishing-research and KB-article items in `Fishing_TODO.md`; no inference of purchase or closure. Do not let the newer PWA releases erase these tasks.
+
+**New-chat procedure:** Start with [Fishing_New_Chat_Bootstrap_Prompt.md](Fishing_New_Chat_Bootstrap_Prompt.md), read the five canonical files in order, inspect current `main`/PRs/latest successful hosted run, and act in Chat mode. Older October 12/19 "not yet started" text below reflects historical snapshots, not today's status.
+
+---
+
 ## Latest handoff reconciliation — October 19, 2026
 
 **v3 planning state:** Requirements, technical design, UX screens/flows and staged implementation plan have **all been explicitly APPROVED**. The [implementation-plan approval](pwa/docs/Fishing_Companion_v3_Implementation_Plan_Approval_2026-10-19.md) has a mandatory **full new-chat transfer before P0**. No P0 investigation or v3 implementation has yet begun; no new provider/domain/permissions or production cutover is preapproved. The [new-chat bootstrap](Fishing_New_Chat_Bootstrap_Prompt.md) now carries the current start instructions. Begin P0 only after restoring fresh actual main/current open PRs/latest hosted production identity in that new Chat conversation. AUTH-P0 proof and staged approvals/Work-mode checkpoints remain binding.
