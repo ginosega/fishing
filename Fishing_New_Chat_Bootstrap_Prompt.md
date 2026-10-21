@@ -1,5 +1,39 @@
 You are continuing my persistent **Fishing** project. The durable repository is `ginosega/fishing` on GitHub. Restore current state from actual latest `main` before acting; do not rely on an old chat or assume a previously observed commit/release is still current.
 
+## CURRENT NEW-CHAT START — October 21, 2026, after FISH117 production closeout
+
+**This is the authorized continuation of the user's Fishing project after requesting a new chat.** The owner approved Fishing Companion v3 requirements, technical design, sign-in/edit/publish/Connection Status UX and staged P0–P8 plan on October 19. All these approvals **remain valid**. P0 analysis and the early v2 reliability/performance maintenance packages have subsequently been implemented and released; **do not restart P0 or ask for earlier approvals**. Read the five files listed in **First actions** and freshly inspect GitHub state before acting.
+
+### Verified GitHub and hosted baseline as of October 21
+
+- **Pre-handoff latest `main`:** `c42d0e737151608b53ffd0de6fa29dbbd76eba32`, with **zero open pull requests**. The documentation-only handoff PR created after this checkpoint will advance `main` **without deploying new PWA bytes**. Always recheck latest actual `main` and open PRs upon starting the new chat.
+- **Latest successful main production workflow:** [Full Application run #543](https://github.com/ginosega/fishing/actions/runs/39690549053), source revision `ab1c59a61c748e9a8a1da2b31d87e1d86c96ac9f`, **completed successfully** with build/source validation, Chromium/WebKit preview + production-root browser acceptance, Pages deployment, actual hosted file-byte and manifest/release-identity checks.
+- **Live PWA:** https://ginosega.github.io/fishing/ · hosted release ID `131ebca9c6d46fa1c1d815ad43a318f6`; manifest **577 files / 100 Gear / 60 KB / 12 Catches**. [Exact hosted evidence](https://github.com/ginosega/fishing/actions/runs/39690549053/artifacts/12388114804). A historical failed main [run #541](https://github.com/ginosega/fishing/actions/runs/39685562142) was a WebKit second offline-reload fixture edge; corrected by PR #259, then successful PR run #542 and main deployment #543. **No unresolved deployment incident** or open release PR remains at the checkpoint.
+- **Completed FISH115:** [PR #252](https://github.com/ginosega/fishing/pull/252) released manifest-verified Gear/KB card WebP thumbnails, retaining canonical original media for detail/viewer, and necessary compatible dependency security patches.
+- **Completed FISH116 / P0-A:** [PR #254](https://github.com/ginosega/fishing/pull/254) released a verified coherent current-release transition for stale clean tabs. Existing unsaved editor content is protected. New releases supersede older Pages assets; do **not** reintroduce older online asset retention. Owner reproduced original icon failure on held Windows Edge tab (old-release 404s, service-worker 503s) and approved fix; it passed main production #535 and subsequent full #543. Android/iOS field acceptance remains unperformed.
+- **Completed FISH117:** [PR #258](https://github.com/ginosega/fishing/pull/258) made **16** canonical 1254×1254 card icons and **2** scenic hero PNGs into **small generated, transparency-safe WebP display images** shipped instead of the big originals; source PNGs remain intact. [PR #259](https://github.com/ginosega/fishing/pull/259) corrected *only* a WebKit browser-fixture issue without runtime image/JS changes. Build source static artwork total **17,090,051 bytes → 253,660 output bytes (98.5% fewer static asset bytes)**, not 98.5% faster page loads. User **explicitly waived pre-release visual/device/performance tests**, authorized direct v2 release and **will inspect the live site personally**; **do not claim user appearance or device-speed approval yet**. [Detailed release report](pwa/docs/Fishing_Companion_FISH117_Static_Artwork_Optimization_2026-10-21.md).
+- **P0-C:** User accepted normal Chrome Android installed-PWA external-link opening in a Chrome Custom Tab; no workaround or v2 fix. **Do not confuse this with AUTH-P0 installed-PWA OAuth reentry**, which is still open.
+- **Next unused application/architecture task ID:** **FISH-TODO-118**. Regular eligible Gear, KB and Catch source-aware content uses FISH108 Fast Content Release and does not allocate architecture IDs.
+
+### Next v3 work: P1 AUTH-P0 feasibility gate, not production cutover
+
+The next unresolved architecture dependency in the [approved staged plan](pwa/docs/Fishing_Companion_v3_Implementation_Plan.md) is **AUTH-P0**: assess secure owner-only GitHub login via GitHub App plus minimal trusted publishing broker, real desktop and *installed Android/iOS PWA* OAuth callback/return, automatic restoration of existing sessions, expiry/revocation and cross-origin cookies. Prepare an evidence-based minimal **GitHub App permission matrix, provider/hosting/cost options and test plan**. Before provisioning a GitHub App/provider, modifying repository permissions/rules or committing any infrastructure cost, obtain **separate explicit user approval**. Do not expose GitHub credentials in browser code, rely silently on third-party cookies, bypass branch protections, or change approved UX. P3 publishing service and P4 Save and Publish must not proceed without AUTH-P0 success. Final v3 production cutover likewise requires a distinct approval. No new provider, app, OAuth secrets or v3 backend have been provisioned at this checkpoint.
+
+**Approved v3 product rules:** Anonymous read-only usage by default with discreet Sign In entry only in Connection Status; just one authorized owner can edit/publish, restoring valid sessions automatically if possible. One Save and Publish (Gear/KB/Catches under approved schema), secure GitHub/App-backed publishing with atomic validated changes, integrated images for Gear/KB, no Catch pictures, no offline queued sync or broad multi-user features. Connection Status distinguishes network / Work Offline / owner authorization and publish state. Local drafts are provisional and may be removed if unreliable. The UI screens, technical design and requirements are already signed off.
+
+### Continue all fishing and equipment tracks
+
+Preserve the open RVR119 **Garmin Force Current** commissioning/24V Redodo battery, pedals/MOB tag/on-water calibration, removable bin/cushioning task **FISH-TODO-040** (hard plastic, minimum usable internal **38 × 18 × 8 inches**, orange preferred); the backordered RVR119 under-seat tackle tray watch **FISH-TODO-008** and KastKing box watch **014**; open fishing-research, tackle and KB editorial tasks. Do not infer a purchase from a Gear record or close open tasks without explicit evidence. Historical Science of the Strike evidence standards and KB category ownership rules remain in the later sections and decision log.
+
+### New-chat operating instruction
+
+1. Read **README → Fishing_Context → Fishing_TODO → Fishing_Decision_Log → this bootstrap**, from actual latest `main`, and check live production/PR state.
+2. Treat the previous October 12/19 headings below as **historical snapshots**. Do not follow old commands to restart already completed P0 analysis or publish already released v2 fixes. Today's primary release is #543, not #520 or #535.
+3. Acknowledge the verified v2 improvements and ask only for any genuinely needed separate infrastructure/permission decision before P1 setup. The user may first report a visual/performance issue from personally checking FISH117; address that if raised. Otherwise proceed under the **already approved** AUTH-P0 plan in Chat mode, with a focused security/hosting test proposal rather than reopening requirements.
+4. Use Full Application Release and hosted proof for app/runtime changes, FISH108 Fast Content Release for eligible content. Never treat a documentation-only `main` commit as a new production release. Keep explicit approval gates for provider/permissions/costs and v3 cutover.
+
+---
+
 ## Operating mode
 
 Use **Chat mode** by default and permanently. Do not recommend Work merely because a task is complex, lengthy, file-heavy, analytical, requires research/calculations, creates artifacts, or involves substantial context. Recommend a temporary switch only for a genuinely Work-only capability; explain the specific need and obtain my approval first, then return to Chat.
@@ -16,7 +50,7 @@ Read these files from actual latest `main`, in order:
 
 Before repository work, also confirm current open-PR state. Newer repository/production evidence controls over stale chat descriptions. For exact production SHA/release/counts, inspect the latest successful `main` production workflow and hosted verification evidence.
 
-## CURRENT NEW-CHAT START — October 19, 2026 v3 handoff
+## Previous v3 planning handoff — October 19, 2026 (HISTORICAL, already executed)
 
 **The owner has ALREADY approved Fishing Companion v3 requirements, technical design, UX screens/flows AND the staged implementation plan.** Do not ask for these approvals again. The implementation-plan approval has one explicit prerequisite: **full reconciliation/transfer to this new Chat conversation before beginning P0 or any v3 implementation**. The previous chat performed only documentation approval, latest-main/open-PR/production evidence handoff, and durable-file reconciliation; **P0 itself was not executed, no app code changed, and no deployment or GitHub App/service setup occurred**.
 
@@ -25,7 +59,7 @@ Before repository work, also confirm current open-PR state. Newer repository/pro
 - [Approved sign-in / editing-and-publishing / Connection Status UX](pwa/docs/Fishing_Companion_v3_UX_Review.md) and [UX approval](pwa/docs/Fishing_Companion_v3_UX_Approval_2026-10-19.md)
 - [Approved staged implementation plan, P0–P8](pwa/docs/Fishing_Companion_v3_Implementation_Plan.md) and [conditional approval record](pwa/docs/Fishing_Companion_v3_Implementation_Plan_Approval_2026-10-19.md). Exact user-reviewed plan commit `7cc7eea06a110e041dbf552855957713df4b1c51`, blob `8d23d327033b1b348abb53d8462ccd2bb8dc0513`.
 
-### Work to begin in this new chat
+### Old October 19 start instructions (HISTORICAL; P0 and P2 work completed)
 
 **Start P0 — Restore production and source baseline, investigate/measure reliability and plan tests — only after the first-actions restoration above and verification that the October 19 handoff PR was merged.** Re-read the approved plan, discover current GitHub permissions and exact latest main, open PR state, current production workflow and hosted `release.json`; audit current source/UI/offline/release/tests and safe preview strategy. Investigate and baseline the **Android installed-PWA external-link issue**, **post-deployment stale-session missing images/pages** and **3–4-second card-image appearance**. Gather user-device evidence via short step-by-step instructions as needed. Do not prematurely blame service worker or image sizes without reproduction/measurement. P0 is authorized by the approved plan **in this new chat**; stay within its scope and report results and proposed next stage.
 
