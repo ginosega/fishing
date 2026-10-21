@@ -6,6 +6,14 @@ This file records **current durable decisions**. Detailed historical release evi
 
 **Decision:** Chat mode is the permanent default. Do not recommend Work merely because work is complex, lengthy, file-heavy, analytical, research/calculation-heavy or artifact-producing. Use a temporary Work switch only for a genuinely Work-only capability after explaining the need and obtaining explicit user approval.
 
+## P0-A reliability architecture — new release supersedes old (October 21, 2026)
+
+**Owner direction:** Proceed with fixing post-deployment stale sessions and **do not retain assets from older hosted releases**. A newer release should supersede the previous one. This is a decision for coherent current-release transition, **not** approval to merge/deploy a new v2 application maintenance build.
+
+**Implemented in draft PR #254:** The controlled service worker verifies the latest network release and its manifest before informing a tab. Clean old tabs reload the **entire** application on the same hash route, so JS/JSON/CSS/Markdown/images all come from B. Dirty editors retain changes and show a warning; no automatic destructive reload. Controller changes are no longer indiscriminately presented as app updates. No additional hosted release retention or automatic offline-media provisioning is introduced. [Implementation and test evidence](pwa/docs/Fishing_Companion_v3_P0A_Transition_Fix_2026-10-21.md).
+
+**Acceptance state:** Full Application pull-request [workflow #534](https://github.com/ginosega/fishing/actions/runs/39643607290) completed successfully with 46 core, 54 preview and 56 production-root browser tests. The simulated A-removal regression, dirty editing, offline integrity and unrelated app acceptance passed; deployment jobs skipped. **PR #254 remains draft/unmerged**, the independent v2 reliability production release still needs explicit owner go-ahead, and live Android/iOS update testing has not been performed. First release of this change cannot retroactively fix already-open unpatched A tabs; subsequent release transitions are covered by new code.
+
 ## P0-A field result and verified v2 thumbnail release — October 21, 2026
 
 **Verified deployment:** Owner approved thumbnails and the minimum security dependency patch set. [PR #252](https://github.com/ginosega/fishing/pull/252) merged application source `805972165f88f10898807639d8b9591ce0cf3d08`; [main Full Application run #531](https://github.com/ginosega/fishing/actions/runs/39624670945) **succeeded**, including actual GitHub Pages browser/release verification of B `9f6464d53fe49d1e986bb35d2630c21a`, 577 files / 100 Gear / 60 KB / 12 Catches. The original detail pictures were retained; card thumbnails and DOMPurify/markdown-it/fast-uri/argparse compatible patches are production. No new hosting or other v3 feature.
