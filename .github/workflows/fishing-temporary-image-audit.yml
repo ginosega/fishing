@@ -1,0 +1,52 @@
+name: Temporary card icon and hero image byte audit
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/fishing-temporary-image-audit.yml'
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: pwa/package-lock.json
+      - name: Install locked image-processing dependencies
+        working-directory: pwa
+        run: npm ci --no-fund
+      - name: Inspect source dimensions and estimate derivatives (no files changed)
+        working-directory: pwa
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs/promises';
+          import path from 'node:path';
+          import sharp from 'sharp';
+          const fmt=n=>Math.round(n*10)/10;
+          const kb=b=>fmt(b/1024);
+          const groups=[['home','assets/card-icons',n=>n.startsWith('home-')],['gear','assets/card-icons',n=>n.startsWith('gear-')],['kb','assets/card-icons',n=>n.startsWith('kb-')],['hero','assets/page-hero',()=>true]];
+          const summary={};
+          for(const [group,dir,filter] of groups){
+            const names=(await fs.readdir(dir)).filter(n=>n.endsWith('.png')&&filter(n)).sort();
+            let original=0, webp=0, png=0;
+            for(const name of names){
+              const file=path.join(dir,name);
+              const buffer=await fs.readFile(file);
+              const meta=await sharp(buffer).metadata();
+              const isHero=group==='hero';
+              const target=isHero?(name.includes('wide')?2560:1440):128;
+              const converted=await sharp(buffer).rotate().resize({width:target,height:isHero?undefined:target,fit:'inside',withoutEnlargement:true}).webp({quality:82,alphaQuality:95,effort:4}).toBuffer();
+              const pngOptimized=await sharp(buffer).rotate().resize({width:target,height:isHero?undefined:target,fit:'inside',withoutEnlargement:true}).png({compressionLevel:9,effort:7}).toBuffer();
+              original+=buffer.length;webp+=converted.length;png+=pngOptimized.length;
+              console.log('AUDIT_FILE '+JSON.stringify({group,name,dimensions:meta.width+'x'+meta.height,alpha:meta.hasAlpha,bytes:buffer.length,webp82Bytes:converted.length,pngResizedBytes:pngOptimized.length,targetMaxWidth:target,ratio:fmt(buffer.length/converted.length)}));
+            }
+            summary[group]={count:names.length,originalBytes:original,webp82Bytes:webp,pngResizedBytes:png,originalKiB:kb(original),webp82KiB:kb(webp),savingsPct:fmt(100*(1-webp/original))};
+          }
+          console.log('AUDIT_SUMMARY '+JSON.stringify(summary));
+          NODE
