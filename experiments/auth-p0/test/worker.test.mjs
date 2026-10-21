@@ -1,0 +1,165 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import handler from '../src/worker.mjs';
+
+const ORIGIN = 'https://fishing-auth-p0.example.workers.dev';
+class FakeDB {
+  constructor() { this.flows = new Map(); this.sessions = new Map(); }
+  prepare(sql) {
+    const db = this;
+    return {
+      bind(...args) {
+        return {
+          async run() {
+            if (sql.startsWith('INSERT INTO auth_flows')) db.flows.set(args[0], { code_verifier: args[1], expires_at: args[2] });
+            else if (sql.startsWith('INSERT INTO sessions')) db.sessions.set(args[0], { github_id: args[1], expires_at: args[2] });
+            else if (sql.startsWith('DELETE FROM sessions WHERE github_id')) {
+              for (const [key, s] of db.sessions) if (String(s.github_id) === String(args[0])) db.sessions.delete(key);
+            } else if (sql.startsWith('DELETE FROM sessions WHERE token_hash')) db.sessions.delete(args[0]);
+            else throw new Error(`Unexpected DB run: ${sql}`);
+            return { success: true };
+          },
+          async first() {
+            if (sql.startsWith('DELETE FROM auth_flows')) {
+              const record = db.flows.get(args[0]);
+              if (record && record.expires_at > args[1]) {
+                db.flows.delete(args[0]);
+                return { code_verifier: record.code_verifier };
+              }
+              return null;
+            }
+            if (sql.startsWith('SELECT github_id')) {
+              const record = db.sessions.get(args[0]);
+              return record && record.expires_at > args[1] ? record : null;
+            }
+            throw new Error(`Unexpected DB first: ${sql}`);
+          },
+        };
+      },
+    };
+  }
+}
+function env() {
+  return { APP_ORIGIN: ORIGIN, OWNER_GITHUB_ID: '1111', GITHUB_CLIENT_ID: 'Iv1.placeholder',
+    GITHUB_CLIENT_SECRET: 'test-secret-not-real', DB: new FakeDB() };
+}
+const req = (path, opts = {}) => new Request(ORIGIN + path, opts);
+function cookieValue(res, name) {
+  const c = res.headers.getSetCookie().find(v => v.startsWith(name + '='));
+  assert.ok(c, `Cookie ${name} must exist`);
+  return c.split(';')[0];
+}
+const mockGitHub = (t, id = 1111) => {
+  let hits = 0;
+  t.mock.method(globalThis, 'fetch', async (input, opts) => {
+    hits++;
+    const url = typeof input === 'string' ? input : input.url;
+    if (url === 'https://github.com/login/oauth/access_token') {
+      const body = JSON.parse(opts.body);
+      assert.equal(body.client_secret, 'test-secret-not-real');
+      assert.match(body.code_verifier, /^[A-Za-z0-9_-]{43}$/);
+      assert.equal(body.redirect_uri, ORIGIN + '/auth/callback');
+      return Response.json({ access_token: 'ghu_test_token_never_issued_to_client', token_type: 'bearer' });
+    }
+    if (url === 'https://api.github.com/user') {
+      assert.equal(opts.headers.Authorization, 'Bearer ghu_test_token_never_issued_to_client');
+      return Response.json({ id, login: id === 1111 ? 'owner' : 'someoneelse' });
+    }
+    throw new Error(`Unexpected outgoing fetch: ${url}`);
+  });
+  return () => hits;
+};
+async function startFlow(e) {
+  const res = await handler.fetch(req('/auth/start'), e);
+  assert.equal(res.status, 303);
+  const u = new URL(res.headers.get('Location'));
+  assert.equal(u.host, 'github.com');
+  assert.equal(u.pathname, '/login/oauth/authorize');
+  assert.equal(u.searchParams.get('code_challenge_method'), 'S256');
+  assert.match(u.searchParams.get('code_challenge'), /^[A-Za-z0-9_-]{43}$/);
+  assert.match(res.headers.getSetCookie().join(' '), /Secure; HttpOnly; SameSite=Lax/);
+  return { state: u.searchParams.get('state'), flowCookie: cookieValue(res, '__Host-fish_p0_flow') };
+}
+async function callback(e, flow) {
+  return handler.fetch(req('/auth/callback?state=' + flow.state + '&code=fake_one_time_code',
+    { headers: { Cookie: flow.flowCookie } }), e);
+}
+
+test('anonymous session is read-only and no publishing endpoint exists', async () => {
+  const e = env();
+  const session = await handler.fetch(req('/session'), e);
+  assert.deepEqual(await session.json(), { authenticated: false, authorized: false });
+  assert.equal(session.headers.get('Access-Control-Allow-Origin'), null);
+  assert.equal((await handler.fetch(req('/publications', { method: 'POST' }), e)).status, 404);
+  const home = await handler.fetch(req('/'), e);
+  assert.equal(home.status, 200);
+  assert.match(await home.text(), /manifest.webmanifest/);
+  assert.match(home.headers.get('Content-Security-Policy'), /frame-ancestors 'none'/);
+});
+
+test('owner OAuth callback is one-time and session persists until revoked', async (t) => {
+  const e = env();
+  const hits = mockGitHub(t);
+  const flow = await startFlow(e);
+  const res = await callback(e, flow);
+  assert.equal(res.status, 303);
+  assert.equal(res.headers.get('Location'), '/');
+  const sid = cookieValue(res, '__Host-fish_p0_session');
+  assert.match(res.headers.getSetCookie().join(' '), /Max-Age=604800/);
+  assert.deepEqual(await (await handler.fetch(req('/session', { headers: { Cookie: sid } }), e)).json(),
+    { authenticated: true, authorized: true });
+  assert.equal((await callback(e, flow)).status, 400, 'state replay rejected');
+  assert.equal(hits(), 2, 'callback replay must not contact GitHub');
+  const signout = await handler.fetch(req('/session/signout', { method: 'POST', headers: {
+    Cookie: sid, Origin: ORIGIN, 'Sec-Fetch-Site': 'same-origin', 'X-Fish-P0-Intent': 'signout',
+  } }), e);
+  assert.equal(signout.status, 200);
+  assert.deepEqual(await (await handler.fetch(req('/session', { headers: { Cookie: sid } }), e)).json(),
+    { authenticated: false, authorized: false });
+});
+
+test('unauthorized GitHub account gets no session', async (t) => {
+  const e = env();
+  mockGitHub(t, 9999);
+  const flow = await startFlow(e);
+  const res = await callback(e, flow);
+  assert.equal(res.status, 403);
+  assert.ok(!res.headers.getSetCookie().some(v => v.startsWith('__Host-fish_p0_session=')));
+  assert.equal(e.DB.sessions.size, 0);
+});
+
+test('OAuth state must match an initiating browser cookie and cannot be reused', async (t) => {
+  const e = env();
+  const hits = mockGitHub(t);
+  const flow = await startFlow(e);
+  assert.equal((await handler.fetch(req('/auth/callback?code=bogus&state=' + flow.state), e)).status, 400);
+  assert.equal((await handler.fetch(req('/auth/callback?code=bogus&state=wrong', { headers: { Cookie: flow.flowCookie } }), e)).status, 400);
+  assert.equal(hits(), 0);
+  e.DB.flows.values().next().value.expires_at = 0;
+  assert.equal((await callback(e, flow)).status, 400, 'expired state rejected');
+  assert.equal(hits(), 0);
+});
+
+test('cross-origin or forged signout is rejected and revoke-all clears sessions', async (t) => {
+  const e = env();
+  mockGitHub(t);
+  const flow = await startFlow(e);
+  const sid = cookieValue(await callback(e, flow), '__Host-fish_p0_session');
+  const wrong = await handler.fetch(req('/session/signout', { method: 'POST', headers: {
+    Cookie: sid, Origin: 'https://malicious.example', 'X-Fish-P0-Intent': 'signout',
+  } }), e);
+  assert.equal(wrong.status, 403);
+  assert.equal(e.DB.sessions.size, 1);
+  const revoke = await handler.fetch(req('/session/revoke-all', { method: 'POST', headers: {
+    Cookie: sid, Origin: ORIGIN, 'Sec-Fetch-Site': 'same-origin', 'X-Fish-P0-Intent': 'signout',
+  } }), e);
+  assert.equal(revoke.status, 200);
+  assert.equal(e.DB.sessions.size, 0);
+});
+
+test('wrong host and malformed environment fail closed', async () => {
+  const e = env();
+  assert.equal((await handler.fetch(new Request('https://other.workers.dev/session'), e)).status, 421);
+  e.APP_ORIGIN = 'http://not-https.example';
+  assert.equal((await handler.fetch(req('/session'), e)).status, 503);
+});
