@@ -30,7 +30,7 @@ async function scenario({initial=A,dirty=false,online=true}={}){
    else if(value===undefined)delete globalThis[name];else globalThis[name]=value;
   }
  };
- return {offline,restore,setRemote:x=>{remote=x;},setDirty:x=>{edited=x;},fire:async(where,kind)=>{listeners[where].get(kind)?.();await new Promise(r=>setImmediate(r));},get reloads(){return reloads;},get notices(){return notices;}};
+ return {offline,restore,setRemote:x=>{remote=x;},setDirty:x=>{edited=x;},fire:async(where,kind)=>{listeners[where].get(kind)?.();await new Promise(r=>setTimeout(r,50));},get reloads(){return reloads;},get notices(){return notices;}};
 }
 test('no false update notice on first controller activation with matching release',async()=>{
  const x=await scenario();try{await x.offline.start();await x.fire('worker','controllerchange');assert.equal(x.reloads,0);assert.equal(x.notices.length,0);assert.equal(await x.offline.checkCurrent(),true);}finally{x.restore();}
