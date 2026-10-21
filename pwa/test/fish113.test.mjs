@@ -22,7 +22,7 @@ test('FISH113 limits the shared page hero to the three approved root routes',()=
  assert.equal(isPageHeroRoute('#/kb/category/location'),false);
 });
 
-test('FISH113 bundles matching 3:1 and 6:1 responsive hero artwork into the verified release',async()=>{
+test('FISH113 preserves matching PNG masters and publishes compressed responsive WebP heroes',async()=>{
  const sourceDir=path.join(pwa,'assets/page-hero');
  assert.deepEqual((await fs.readdir(sourceDir)).sort(),[standardHero,wideHero].sort());
  const standardSource=path.join(sourceDir,standardHero);
@@ -43,8 +43,8 @@ test('FISH113 bundles matching 3:1 and 6:1 responsive hero artwork into the veri
  assert.equal(Buffer.compare(standardPixels,centeredWidePixels),0,'The 3:1 hero must be the exact centered crop of the 6:1 hero');
 
  const css=await fs.readFile(path.join(pwa,'src/page-hero.css'),'utf8');
- assert.ok(css.includes(`url("./page-hero/${standardHero}")`));
- assert.ok(css.includes(`url("./page-hero/${wideHero}")`));
+ assert.ok(css.includes(`url("./page-hero/${standardHero.replace(/\.png$/,'.webp')}")`));
+ assert.ok(css.includes(`url("./page-hero/${wideHero.replace(/\.png$/,'.webp')}")`));
  assert.match(css,/background-size:cover,cover,cover/);
  assert.match(css,/@media\(min-width:1100px\) and \(min-aspect-ratio:4\/3\)/);
  assert.match(css,/min-height:max\(190px,calc\(100vw \/ 6\)\)/);
@@ -62,13 +62,18 @@ test('FISH113 bundles matching 3:1 and 6:1 responsive hero artwork into the veri
   const manifest=JSON.parse(await fs.readFile(path.join(out,release.manifest),'utf8'));
   for(const heroName of [standardHero,wideHero]){
    const source=path.join(sourceDir,heroName);
-   const built=path.join(releaseRoot,'page-hero',heroName);
-   assert.deepEqual(await fs.readFile(built),await fs.readFile(source));
-   assert.ok(manifest.files.some(file=>file.path===`releases/${release.id}/page-hero/${heroName}`));
+   const published=heroName.replace(/\.png$/,'.webp');
+   const bytes=await fs.readFile(path.join(releaseRoot,'page-hero',published));
+   const meta=await sharp(bytes).metadata();
+   assert.equal(meta.format,'webp');
+   assert.equal(meta.width,heroName===wideHero?2560:1440);
+   assert(bytes.length<(await fs.stat(source)).size/5);
+   assert.ok(manifest.files.some(file=>file.path===`releases/${release.id}/page-hero/${published}`&&file.bytes===bytes.length));
+   assert.ok(!manifest.files.some(file=>file.path===`releases/${release.id}/page-hero/${heroName}`));
   }
   const releaseCss=await fs.readFile(path.join(releaseRoot,'styles.css'),'utf8');
-  assert.ok(releaseCss.includes(`./page-hero/${standardHero}`));
-  assert.ok(releaseCss.includes(`./page-hero/${wideHero}`));
+  assert.ok(releaseCss.includes(`./page-hero/${standardHero.replace(/\.png$/,'.webp')}`));
+  assert.ok(releaseCss.includes(`./page-hero/${wideHero.replace(/\.png$/,'.webp')}`));
  }finally{
   await fs.rm(temporary,{recursive:true,force:true});
  }
