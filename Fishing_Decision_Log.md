@@ -1,5 +1,17 @@
 # Fishing Decision Log
 
+## October 21, 2026 transfer — durable release and work-sequence decisions
+
+**Requested transfer:** The owner asked to open a fresh Fishing chat after completing the category-icon and scenic-header optimization. Pre-handoff `main` `c42d0e737151608b53ffd0de6fa29dbbd76eba32`, no open PRs; latest successful actual hosted deployment [#543](https://github.com/ginosega/fishing/actions/runs/39690549053), production source `ab1c59a61c748e9a8a1da2b31d87e1d86c96ac9f`, release `131ebca9c6d46fa1c1d815ad43a318f6`, 577 files / 100 Gear / 60 KB / 12 Catches. This handoff is a **documentation-only** update, no new code/deploy.
+
+**FISH117 owner's choice:** Publish compact WebP derivatives of 16 Home/Gear/KB category icons and the two responsive scenic headers immediately to v2, maintaining original source PNGs in GitHub. Owner deliberately waived separate pre-release visual review, physical Android preview, and additional page-load timing; they will inspect appearance and performance *on live production*. Core/release/integrity/browser validations were not waived. FISH117 is engineering-complete after source PR #258, isolated WebKit offline test fixture PR #259, production workflow #543. Original 17,090,051 bytes → shipped WebP 253,660 bytes (98.5% less in this subset), **not proof of a 98.5% faster page**. No subjective owner result recorded yet.
+
+**Other completed P0 choices:** P0-A stale sessions transition coherently to the latest SHA-verified release without online retention of old assets; dirty edits are preserved, released via PR #254. P0-B Gear/KB photo cards use small generated thumbnails while details retain canonical full-resolution originals, released via PR #252. P0-C native Android Chrome PWA Custom Tab link handling is accepted; no workaround.
+
+**Next v3 gate:** AUTH-P0 P1 requires an evidence-based owner-session/OAuth/installed-PWA feasibility test and explicit user approval of minimal GitHub App permissions, new provider/domain/secrets/cost before setup. Existing approved v3 requirements/technical design/UX/staged plan do not preapprove those resources or later production v3 cutover. Chat mode remains default; do not suggest Work merely for complexity. All unrelated fishing gear/KB TODOs persist. Next unused app ID FISH-TODO-118.
+
+---
+
 This file records **current durable decisions**. Detailed historical release evidence remains in Git history and dated `pwa/docs/` records rather than being repeated here.
 
 ## Operating mode
