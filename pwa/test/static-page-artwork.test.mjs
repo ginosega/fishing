@@ -36,7 +36,8 @@ test('static page art conversion retains source PNGs and generates complete dete
    assert.deepEqual(a,b,'deterministic build derivative');
    const data=await sharp(a).metadata();
    assert.equal(data.format,'webp');
-   assert.equal(data.hasAlpha,true,'transparency retained');
+   const originalStats=await sharp(path.join(assets,dir,filename)).stats();
+   if(originalStats.channels[3]?.min<255)assert.equal(data.hasAlpha,true,'actual transparent pixels must be preserved');
    if(dir==='card-icons')assert.deepEqual([data.width,data.height],[128,128]);
    else assert(data.width<=(filename.includes('wide')?2560:1440));
   }
