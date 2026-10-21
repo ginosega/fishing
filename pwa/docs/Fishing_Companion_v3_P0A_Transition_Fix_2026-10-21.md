@@ -1,8 +1,23 @@
-# P0-A — Coherent Current-Release Transition Fix (Nonproduction)
+# P0-A — Coherent Current-Release Transition Fix (Deployed October 21, 2026)
 
 **Reviewed:** October 21, 2026  
 **Implementation:** [draft PR #254](https://github.com/ginosega/fishing/pull/254), exact checked head `1131f1e824142775168428f837d16724e164f3a5`.  
 **Validation:** [Full Application CI #534](https://github.com/ginosega/fishing/actions/runs/39643607290) **SUCCESS**: core tests **46 passed, 0 failed**; preview Chromium/WebKit **54 passed**, production-root Chromium/WebKit **56 passed**. Both browser scopes covered the removed-previous-release My Gear card-icons case and protection of dirty editors. Deploy-content/deploy-full **skipped**. **No production merge, Pages deployment or hosted acceptance yet.**
+
+## Production release closeout — October 21, 2026
+
+The owner separately authorized production deployment of the validated reliability fix. [PR #254](https://github.com/ginosega/fishing/pull/254) was marked ready and merged **without code changes** from the tested head, producing `main` merge commit `953cba549515b08aec76a8408868a6b3bdac2117`. The only intervening `main` updates since the prior PR base were nonoverlapping documentation.
+
+[Full Application main workflow #535](https://github.com/ginosega/fishing/actions/runs/39676555110) **SUCCEEDED** after rerunning core tests, Chromium/WebKit preview and production-root browser acceptance, then publishing GitHub Pages and verifying the actual hosted bytes, release identity and browser behavior.
+
+- Live URL: https://ginosega.github.io/fishing/
+- **Hosted release ID:** `855b2b33d7d3fdca7ac5e92be881824b`
+- **Production source revision:** `953cba549515b08aec76a8408868a6b3bdac2117`
+- **Hosted manifest:** 577 files, counts 100 Gear / 60 KB / 12 Catches
+- **Host verification artifact:** [actual-hosted-production-verification-1](https://github.com/ginosega/fishing/actions/runs/39676555110/artifacts/12381174185)
+- **No legacy Pages assets:** The new release supersedes old releases. Prepared offline libraries retain prior explicit semantics. Tabs open on the **pre-fix** JS may need one manual refresh at this transition; future deployments are addressed by the new transition handler.
+
+**Disposition:** P0-A reliability fix implemented, validated, merged and hosted-verified. Real physical Android/iOS confirmation was not part of acceptance. AUTH-P0, GitHub App/provider permission setup, and v3 cutover remain separate gates.
 
 ## Owner architecture decision
 
@@ -19,8 +34,8 @@ The separate, explicitly prepared and verified **offline library** remains intac
 - `pwa/test/release-transition.test.mjs` verifies matching releases/no false notices, clean-client reload, editor protection, unavailable network, service-worker controller activation.
 - `pwa/test/browser.spec.mjs` simulates removal of old hosted release assets when B replaces A, proving a clean old tab navigates into B without requesting deleted A card-icons, in both Chromium and WebKit. Existing dirty-editor acceptance tests also pass.
 
-## Remaining gate
+## Release authorization gate — satisfied
 
-This code is **implemented and CI-validated only**. User authorization to *develop* the P0-A fix is **not authorization for a separate live v2 Full Application maintenance release**. Keep PR #254 draft/unmerged until owner explicitly approves the specific production deployment; recheck current `main`, exact PR head, full suite, rollback readiness, and actual hosted release/byte verification at release time.
+The separate production authorization was explicitly granted, PR #254 merged, and main Full Application workflow #535 verified the live hosted release. The previously stated pre-release hold applied before that authorization and is now **closed**.
 
 A real previously deployed A tab cannot retroactively gain this fix before its first load of the new application code. The improvement covers transition behavior starting with the release that implements it and all subsequent replacements, under the user-approved no-old-assets model. Physical Android/iPhone testing remains unperformed; desktop browser simulation does not prove every browser lifecycle state.
