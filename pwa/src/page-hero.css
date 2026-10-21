@@ -1,6 +1,6 @@
 /* FISH113: shared responsive hero artwork for Home, My Gear, and Knowledge Base. */
 .page-header.page-hero{
-  --page-hero-image:url("./page-hero/page-hero.png");
+  --page-hero-image:url("./page-hero/page-hero.webp");
   position:relative;
   isolation:isolate;
   min-height:clamp(190px,18vw,280px);
@@ -44,7 +44,7 @@
    preserving a seamless focal match with the centered 3:1 crop. */
 @media(min-width:1100px) and (min-aspect-ratio:4/3){
   .page-header.page-hero{
-    --page-hero-image:url("./page-hero/page-hero-wide.png");
+    --page-hero-image:url("./page-hero/page-hero-wide.webp");
     min-height:max(190px,calc(100vw / 6));
   }
 }

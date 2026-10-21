@@ -15,7 +15,7 @@ const icons=[
  'kb-locations.png','kb-species.png','kb-techniques.png','kb-knots.png','kb-gear-guides.png'
 ];
 
-test('FISH112 bundles the 16 approved transparent fixed card icons',async()=>{
+test('FISH112 retains canonical transparent PNGs and publishes only optimized card icons',async()=>{
  const sourceDir=path.join(pwa,'assets/card-icons');
  const sourceNames=(await fs.readdir(sourceDir)).sort();
  assert.deepEqual(sourceNames,[...icons].sort());
@@ -26,7 +26,7 @@ test('FISH112 bundles the 16 approved transparent fixed card icons',async()=>{
  }
 
  const css=await fs.readFile(path.join(pwa,'src/card-icons.css'),'utf8');
- for(const name of icons)assert.ok(css.includes(`url("./card-icons/${name}")`),name+' missing from source stylesheet');
+ for(const name of icons)assert.ok(css.includes(`url("./card-icons/${name.replace(/\.png$/,'.webp')}")`),name+' missing optimized URL from stylesheet');
  assert.match(css,/\.card-icon\{[\s\S]*font-size:0;[\s\S]*background-size:contain;/);
 
  const temporary=await fs.mkdtemp(path.join(os.tmpdir(),'fish112-build-'));
@@ -39,9 +39,15 @@ test('FISH112 bundles the 16 approved transparent fixed card icons',async()=>{
   const manifest=JSON.parse(await fs.readFile(path.join(out,release.manifest),'utf8'));
   const releaseCss=await fs.readFile(path.join(releaseRoot,'styles.css'),'utf8');
   for(const name of icons){
-   assert.deepEqual(await fs.readFile(path.join(releaseRoot,'card-icons',name)),await fs.readFile(path.join(sourceDir,name)),name);
-   assert.ok(manifest.files.some(file=>file.path===`releases/${release.id}/card-icons/${name}`),name+' missing from release manifest');
-   assert.ok(releaseCss.includes(`./card-icons/${name}`),name+' missing from release stylesheet');
+   const published=name.replace(/\.png$/,'.webp');
+   const bytes=await fs.readFile(path.join(releaseRoot,'card-icons',published));
+   const meta=await sharp(bytes).metadata();
+   assert.equal(meta.format,'webp');
+   assert.deepEqual([meta.width,meta.height],[128,128]);
+   assert(bytes.length<(await fs.stat(path.join(sourceDir,name))).size/10);
+   assert.ok(manifest.files.some(file=>file.path===`releases/${release.id}/card-icons/${published}`&&file.bytes===bytes.length),name+' missing verified derivative');
+   assert.ok(!manifest.files.some(file=>file.path===`releases/${release.id}/card-icons/${name}`),'original PNG not needed in published release');
+   assert.ok(releaseCss.includes(`./card-icons/${published}`),name+' missing from release stylesheet');
   }
  }finally{await fs.rm(temporary,{recursive:true,force:true});}
 });
