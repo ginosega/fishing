@@ -14,7 +14,7 @@ const prefix=process.env.FISHING_BASE||'/fishing/v2-preview/';
 const production=prefix==='/fishing/';
 const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript','.css':'text/css','.json':'application/json','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.webp':'image/webp','.gif':'image/gif'};
 let server,base,temporary,initial,next,fixture;
-const state={legacy:false,disconnected:false,current:'initial',fail:new Set(),corrupt:new Set(),writes:[],reads:[]};
+const state={legacy:false,disconnected:false,current:'initial',removeOld:false,fail:new Set(),corrupt:new Set(),writes:[],reads:[]};
 const readJson=file=>fs.readFile(file,'utf8').then(JSON.parse);
 const sourceData=async()=>({gear:await readJson(path.join(v2,'Gear/gear.json')),kb:await readJson(path.join(v2,'KB/kb.json')),catches:await readJson(path.join(v2,'Catches/catches.json'))});
 const encoded=value=>value.split('/').map(encodeURIComponent).join('/');
@@ -50,6 +50,7 @@ async function serve(request,response){
   if(relative.includes('\\')||relative.split('/').some(x=>x==='..'))throw new Error('Unsafe test path');
   if(state.legacy){const bytes=await fs.readFile(path.join(process.env.FISHING_V1_DIST,relative));response.writeHead(200,{'Content-Type':mime[path.extname(relative)]||'application/octet-stream','Cache-Control':'no-store'});response.end(bytes);return;}
   const release=relative.startsWith('releases/'+initial.id+'/')?initial:relative.startsWith('releases/'+next.id+'/')?next:state.current==='next'?next:initial;
+  if(state.removeOld&&state.current==='next'&&relative.startsWith('releases/'+initial.id+'/')){response.writeHead(404);response.end('Previous release removed from hosting');return;}
   if(state.fail.has(relative)){response.writeHead(503);response.end('Injected unavailable asset');return;}
   const file=path.resolve(release.root,relative);if(!file.startsWith(release.root+path.sep))throw new Error('Unsafe test path');
   let bytes=await fs.readFile(file);if(state.corrupt.has(relative)){bytes=Buffer.from(bytes);bytes[bytes.length-1]^=1;}
@@ -84,7 +85,7 @@ async function cacheInfo(page){return page.evaluate(async()=>{const names=(await
 // One worker and separate browser contexts keep all service-worker/cache tests isolated.
 test.beforeAll(async()=>{await prepare();server=createServer(serve);await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));base=`http://127.0.0.1:${server.address().port}${prefix}`;});
 test.afterAll(async()=>{if(server)await new Promise(resolve=>server.close(resolve));if(temporary)await fs.rm(temporary,{recursive:true,force:true});});
-test.beforeEach(()=>{state.legacy=false;state.disconnected=false;state.current='initial';state.fail.clear();state.corrupt.clear();state.writes.length=0;state.reads.length=0;});
+test.beforeEach(()=>{state.legacy=false;state.disconnected=false;state.current='initial';state.removeOld=false;state.fail.clear();state.corrupt.clear();state.writes.length=0;state.reads.length=0;});
 
 test('online-only first visit stays usable without a complete cache; explicit update prepares verified offline use',async({page,context})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
@@ -264,6 +265,27 @@ test('mobile layout and isolated worker scope',async({browser})=>{
  }finally{await context.close();}
 });
 
+
+test('P0-A: clean old tab automatically transitions before loading removed My Gear card icons',async({page})=>{
+ await openReady(page);
+ await expect(page.locator('#app-notice')).not.toContainText('was updated');
+ state.current='next';state.removeOld=true;
+ const oldErrors=[];
+ page.on('response',response=>{if(response.url().includes('/releases/'+initial.id+'/')&&response.status()>=400)oldErrors.push(response.url()+' '+response.status());});
+ await page.getByRole('link',{name:'My Gear'}).click();
+ await expect.poll(()=>page.evaluate(()=>window.__FISHING_V2__?.releaseId),{timeout:90000}).toBe(next.id);
+ await expect(heading(page,'My Gear')).toBeVisible();
+ await expect(page.locator('.nav-grid .nav-card')).toHaveCount(8);
+ expect(new URL(page.url()).hash).toBe('#/inventory');
+ const cardImages=await page.evaluate(async()=>await Promise.all([...document.querySelectorAll('.nav-grid .nav-card')].filter(x=>x.querySelector('.card-icon')).map(async card=>{
+  const icon=getComputedStyle(card.querySelector('.card-icon')).backgroundImage;
+  const found=icon.match(/url\\(["']?(.+?)["']?\\)/);
+  if(!found)return {image:icon,ok:true};
+  const result=await fetch(found[1]);return {image:icon,ok:result.ok};
+ })));
+ expect(cardImages.every(x=>x.ok)).toBeTruthy();
+ expect(oldErrors).toEqual([]);
+});
 
 test('new release waits for explicit reload and protects a dirty editor',async({page})=>{
  await openReady(page);

@@ -8,7 +8,7 @@ const scope='https://example.test/fishing/v2-preview/',abs=p=>new URL(p,scope).h
 const hash=x=>createHash('sha256').update(x).digest('hex');
 function fixture(id,icon='icon.png'){
  const schemaVersions={gear:2,kb:2,catches:2};
- const paths=['index.html','loader.js','sw.js','manifest.webmanifest',icon,`releases/${id}/app.js`,`releases/${id}/styles.css`,...['Gear/gear','KB/kb','Catches/catches'].map(p=>`releases/${id}/content/${p}.json`)];
+ const paths=['index.html','loader.js','sw.js','manifest.webmanifest',icon,`releases/${id}/app.js`,`releases/${id}/styles.css`,`releases/${id}/card-icons/gear-rods-reels.png`,`releases/${id}/content/KB/Techniques/technique.md`,...['Gear/gear','KB/kb','Catches/catches'].map(p=>`releases/${id}/content/${p}.json`)];
  const network=new Map(paths.map(p=>[abs(p),Buffer.from(p+' '+id)]));
  const files=paths.map(path=>({path,bytes:network.get(abs(path)).length,sha256:hash(network.get(abs(path)))}));
  const manifest={format:'fishing-companion-release-v2',releaseId:id,sourceRevision:id,base:'/fishing/v2-preview/',schemaVersions,files,totalBytes:files.reduce((n,e)=>n+e.bytes,0)};
@@ -97,4 +97,20 @@ test('release icon rename accepts cached historical names and still requires an 
  }
  const f=fixture('d'.repeat(32),'unrecognized.png');
  assert.throws(()=>validateManifest(f.manifest,f.pointer,'/fishing/v2-preview/'),/Missing required release icon/);
+});
+
+test('verified current-release query detects A-to-B replacement without serving mismatched data',async()=>{
+ const caches=storage(),network=new Map(old.network),runtime=await worker(caches,network);
+ await runtime.install();
+ assert.equal((await runtime.message('CHECK_CURRENT')).releaseId,old.id);
+ assert.equal((await runtime.fetch('index.html','navigate')).status,200);
+ network.clear();for(const [url,bytes] of next.network)network.set(url,bytes);
+ assert.equal((await runtime.message('CHECK_CURRENT')).releaseId,next.id);
+ for(const file of [`releases/${old.id}/card-icons/gear-rods-reels.png`,`releases/${old.id}/content/KB/Techniques/technique.md`])
+  assert.equal((await runtime.fetch(file)).status,503);
+ assert.equal((await runtime.fetch('index.html','navigate','fresh-client')).status,200);
+ assert.equal((await (await runtime.fetch('release.json','cors','fresh-client')).json()).id,next.id);
+ assert.deepEqual(await markers(caches),[],'ordinary online use never caches the complete previous release');
+ const corrupt=Buffer.from('tampered');network.set(abs(next.pointer.manifest),corrupt);
+ assert.equal((await runtime.message('CHECK_CURRENT')).releaseId,null,'never trust an unverifiable B manifest');
 });
