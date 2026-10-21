@@ -8,6 +8,7 @@ import * as esbuild from 'esbuild';
 import sharp from 'sharp';
 import {inventorySource,digest} from './library.mjs';
 import {generateCardThumbnails} from './card-thumbnails.mjs';
+import {generateStaticPageArtwork} from './static-page-artwork.mjs';
 import {encodedPath,DOMAIN} from '../src/shared.mjs';
 const here=path.dirname(fileURLToPath(import.meta.url)),repo=path.resolve(here,'../..');
 const args=process.argv.slice(2),option=(key,fallback)=>args.find(x=>x.startsWith(key+'='))?.slice(key.length+1)||fallback;
@@ -19,8 +20,7 @@ const cardThumbnails=!args.includes('--without-card-thumbnails');
 if(pendingMedia&&base!=='/fishing/v2-preview/')throw new Error('Pending media may only be built for the isolated preview');
 const source=path.resolve(option('--source',path.join(repo,'pwa'))),output=path.resolve(option('--out',path.join(repo,'pwa/dist')));
 const sourceRevision=option('--source-revision',(()=>{try{return execFileSync('git',['rev-parse','HEAD'],{cwd:source,encoding:'utf8'}).trim();}catch{return 'uncommitted-source';}})());
-const cardIconRoot=path.join(repo,'pwa/assets/card-icons');
-const pageHeroRoot=path.join(repo,'pwa/assets/page-hero');
+const pageAssetsRoot=path.join(repo,'pwa/assets');
 const write=async(file,bytes)=>{await fs.mkdir(path.dirname(file),{recursive:true});await fs.writeFile(file,bytes);};
 const stableJson=value=>JSON.stringify(value,null,2)+'\n';
 const hashFiles=async root=>{const result=[];async function scan(dir){for(const entry of await fs.readdir(dir,{withFileTypes:true})){const abs=path.join(dir,entry.name);if(entry.isDirectory())await scan(abs);else if(entry.isFile()){const relative=path.relative(root,abs).split(path.sep).join('/'),bytes=await fs.readFile(abs);result.push({path:relative,bytes:bytes.length,sha256:digest(bytes)});}}}await scan(root);return result.sort((a,b)=>a.path.localeCompare(b.path,'en'));};
@@ -37,12 +37,13 @@ export async function build(){
   for(const file of library.files){const src=path.join(source,file.path),dest=path.join(content,file.path);await fs.mkdir(path.dirname(dest),{recursive:true});await fs.copyFile(src,dest);const copied=await fs.readFile(dest);if(copied.length!==file.bytes||digest(copied)!==file.sha256)throw new Error('Source changed while copying: '+file.path);}
   for(const config of Object.values(DOMAIN)){const src=path.join(source,config.file),dest=path.join(content,config.file);await write(dest,await fs.readFile(src));}
   const thumbs=cardThumbnails?await generateCardThumbnails({data:library.data,source,destination:path.join(tmp,'card-thumbnails')}):null;
+  const artwork=await generateStaticPageArtwork({assets:pageAssetsRoot,destination:path.join(tmp,'static-page-artwork')});
   const app=await esbuild.build({entryPoints:[path.join(repo,'pwa/src/entry.mjs')],bundle:true,format:'iife',platform:'browser',target:'es2022',minify:true,write:false,legalComments:'none',define:{'process.env.NODE_ENV':'"production"'}});
   const baseCss=await fs.readFile(path.join(repo,'pwa/src/styles.css')),cardIconCss=await fs.readFile(path.join(repo,'pwa/src/card-icons.css')),pageHeroCss=await fs.readFile(path.join(repo,'pwa/src/page-hero.css')),css=Buffer.concat([baseCss,Buffer.from('\n'),cardIconCss,Buffer.from('\n'),pageHeroCss]);
-  const inputHashes=await hashFiles(content),thumbnailHashes=thumbs?await hashFiles(path.join(tmp,'card-thumbnails')):[],cardIconHashes=await hashFiles(cardIconRoot),pageHeroHashes=await hashFiles(pageHeroRoot);const lock=await fs.readFile(path.join(repo,'pwa/package-lock.json'));
+  const inputHashes=await hashFiles(content),thumbnailHashes=thumbs?await hashFiles(path.join(tmp,'card-thumbnails')):[],staticImageHashes=await hashFiles(path.join(tmp,'static-page-artwork')),originalStaticImageHashes=await hashFiles(pageAssetsRoot);const lock=await fs.readFile(path.join(repo,'pwa/package-lock.json'));
   const codeHashes=[];for(const dir of ['src','tools'])for(const file of await hashFiles(path.join(repo,'pwa',dir)))codeHashes.push({...file,path:dir+'/'+file.path});
-  const releaseId=digest(Buffer.from(stableJson({sourceRevision,base,pendingMedia,cardThumbnails:thumbs?.mapping||null,thumbnailFiles:thumbnailHashes,files:inputHashes,cardIcons:cardIconHashes,pageHero:pageHeroHashes,icon:digest(icon),maskableIcon:digest(maskableIcon),app:digest(app.outputFiles[0].contents),css:digest(css),lock:digest(lock),code:codeHashes}))).slice(0,32);
-  const releaseRoot=path.join(tmp,'releases',releaseId);await fs.mkdir(releaseRoot,{recursive:true});await fs.rename(content,path.join(releaseRoot,'content'));if(thumbs)await fs.rename(path.join(tmp,'card-thumbnails'),path.join(releaseRoot,'card-thumbnails'));await fs.cp(cardIconRoot,path.join(releaseRoot,'card-icons'),{recursive:true});await fs.cp(pageHeroRoot,path.join(releaseRoot,'page-hero'),{recursive:true});
+  const releaseId=digest(Buffer.from(stableJson({sourceRevision,base,pendingMedia,cardThumbnails:thumbs?.mapping||null,thumbnailFiles:thumbnailHashes,files:inputHashes,staticArt:staticImageHashes,sourceStaticArt:originalStaticImageHashes,icon:digest(icon),maskableIcon:digest(maskableIcon),app:digest(app.outputFiles[0].contents),css:digest(css),lock:digest(lock),code:codeHashes}))).slice(0,32);
+  const releaseRoot=path.join(tmp,'releases',releaseId);await fs.mkdir(releaseRoot,{recursive:true});await fs.rename(content,path.join(releaseRoot,'content'));if(thumbs)await fs.rename(path.join(tmp,'card-thumbnails'),path.join(releaseRoot,'card-thumbnails'));await fs.rename(path.join(tmp,'static-page-artwork','card-icons'),path.join(releaseRoot,'card-icons'));await fs.rename(path.join(tmp,'static-page-artwork','page-hero'),path.join(releaseRoot,'page-hero'));
   await write(path.join(releaseRoot,'app.js'),app.outputFiles[0].contents);await write(path.join(releaseRoot,'styles.css'),css);
   const release={id:releaseId,sourceRevision,schemaVersions:{gear:2,kb:2,catches:2},pendingMedia,manifest:`releases/${releaseId}/manifest.json`};
   const loader=await fs.readFile(path.join(repo,'pwa/src/loader.js'));
@@ -60,7 +61,7 @@ export async function build(){
   await write(path.join(tmp,'release.json'),stableJson(release));
   for(const file of files){const bytes=await fs.readFile(path.join(tmp,file.path));if(bytes.length!==file.bytes||digest(bytes)!==file.sha256)throw new Error('Final artifact mismatch: '+file.path);}
   await fs.rm(output,{recursive:true,force:true});await fs.mkdir(path.dirname(output),{recursive:true});await fs.rename(tmp,output);
-  console.log(stableJson({releaseId,sourceRevision,files:files.length,bytes:manifest.totalBytes,cardThumbnails:thumbs?{files:thumbs.originals,sourceBytes:thumbs.sourceBytes,generatedBytes:thumbs.generatedBytes}:null,counts:manifest.counts,pendingMedia:library.pending.length,output}));
+  console.log(stableJson({releaseId,sourceRevision,files:files.length,bytes:manifest.totalBytes,cardThumbnails:thumbs?{files:thumbs.originals,sourceBytes:thumbs.sourceBytes,generatedBytes:thumbs.generatedBytes}:null,staticPageArtwork:{files:artwork.files,sourceBytes:artwork.sourceBytes,generatedBytes:artwork.generatedBytes},counts:manifest.counts,pendingMedia:library.pending.length,output}));
   return {releaseId,output,manifest};
  }catch(error){await fs.rm(tmp,{recursive:true,force:true});throw error;}
 }
