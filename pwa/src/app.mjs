@@ -11,7 +11,13 @@ export async function bootstrap({root,release}){
   data[domain]=await response.json();
  }
  const maps=validateRecords(data);
- const context={root,base,release,manifest:globalThis.__FISHING_BOOT__.manifest,data,maps,asset:file=>new URL('content/'+encodedPath(file),base).href};
+ const manifest=globalThis.__FISHING_BOOT__.manifest;
+ const asset=file=>new URL('content/'+encodedPath(file),base).href;
+ const thumbnail=file=>{
+  const thumb=manifest.cardThumbnails?.[file];
+  return thumb?new URL('card-thumbnails/'+encodedPath(thumb),base).href:asset(file);
+ };
+ const context={root,base,release,manifest,data,maps,asset,thumbnail};
  window.__FISHING_V2__={releaseId:release.id,sourceRevision:release.sourceRevision,counts:{gear:data.gear.items.length,kb:data.kb.entities.length,catches:data.catches.catches.length}};
  createApp(context);
 }
