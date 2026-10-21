@@ -127,6 +127,9 @@ self.addEventListener('message',event=>{
  const message=event.data||{};
  if(message.type==='HELLO')event.ports[0]?.postMessage({protocol:'fishing-companion-v2',base,capabilities:{onlineDefault:true,explicitOffline:true}});
  if(message.type==='STATUS')event.waitUntil(state().then(status=>event.ports[0]?.postMessage({type:'FISHING_V2_STATUS',status})));
+ if(message.type==='CHECK_CURRENT')event.waitUntil(loadOnlineContext()
+  .then(context=>event.ports[0]?.postMessage({type:'FISHING_V2_CURRENT',releaseId:context.pointer.id}))
+  .catch(()=>event.ports[0]?.postMessage({type:'FISHING_V2_CURRENT',releaseId:null})));
  if(message.type==='PREPARE'||message.type==='REPAIR')event.waitUntil(prepareRelease().then(()=>state(),error=>state({message:error.message,failed:[]})).then(status=>event.ports[0]?.postMessage({type:'FISHING_V2_STATUS',status})));
 });
 self.addEventListener('fetch',event=>{
