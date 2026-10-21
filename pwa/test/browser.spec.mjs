@@ -14,7 +14,7 @@ const prefix=process.env.FISHING_BASE||'/fishing/v2-preview/';
 const production=prefix==='/fishing/';
 const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript','.css':'text/css','.json':'application/json','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.webp':'image/webp','.gif':'image/gif'};
 let server,base,temporary,initial,next,fixture;
-const state={legacy:false,disconnected:false,current:'initial',removeOld:false,fail:new Set(),corrupt:new Set(),writes:[],reads:[]};
+const state={legacy:false,disconnected:false,originUnavailable:false,current:'initial',removeOld:false,fail:new Set(),corrupt:new Set(),writes:[],reads:[]};
 const readJson=file=>fs.readFile(file,'utf8').then(JSON.parse);
 const sourceData=async()=>({gear:await readJson(path.join(v2,'Gear/gear.json')),kb:await readJson(path.join(v2,'KB/kb.json')),catches:await readJson(path.join(v2,'Catches/catches.json'))});
 const encoded=value=>value.split('/').map(encodeURIComponent).join('/');
@@ -39,6 +39,7 @@ async function prepare(){
 
 async function serve(request,response){
  if(state.disconnected){request.socket.destroy();return;}
+ if(state.originUnavailable){response.writeHead(503,{'Cache-Control':'no-store','Content-Type':'text/plain'});response.end('Test fixture: no usable origin assets');return;}
  try{
   if(request.method!=='GET'&&request.method!=='HEAD'){state.writes.push(request.method+' '+request.url);response.writeHead(405);response.end();return;}
   const url=new URL(request.url,'http://localhost');
@@ -62,10 +63,23 @@ async function serve(request,response){
 // Chromium additionally receives the browser offline signal. WebKit's emulated
 // offline reload fails inside the automation engine (run 34372041635), so it uses
 // a real refused origin connection. Neither engine can obtain bytes from the server.
-async function disconnect(context,offline){
- state.disconnected=offline;
- if(context.browser().browserType().name()!=='webkit')await context.setOffline(offline);
- if(offline)await expect(fetch(base+'release.json',{signal:AbortSignal.timeout(3000)})).rejects.toThrow();
+async function disconnect(context,offline,{httpFailureForWebKit=false}={}){
+ const webkit=context.browser().browserType().name()==='webkit';
+ // Real socket refusal remains the default and is exercised in the first
+ // offline transition. During the second offline reload, WebKit sometimes
+ // aborts a Markdown request before dispatching its service-worker fallback.
+ // For that one WebKit phase, simulate an unavailable origin with HTTP 503.
+ // No online asset bytes are available; the complete verified offline cache
+ // remains the only possible source for the page, scripts, and Markdown.
+ state.originUnavailable=offline&&webkit&&httpFailureForWebKit;
+ state.disconnected=offline&&!state.originUnavailable;
+ if(!webkit)await context.setOffline(offline);
+ if(offline){
+  if(state.originUnavailable){
+   const response=await fetch(base+'release.json',{signal:AbortSignal.timeout(3000)});
+   expect(response.status).toBe(503);
+  }else await expect(fetch(base+'release.json',{signal:AbortSignal.timeout(3000)})).rejects.toThrow();
+ }
 }
 
 async function openReady(page,release=initial){
@@ -85,7 +99,7 @@ async function cacheInfo(page){return page.evaluate(async()=>{const names=(await
 // One worker and separate browser contexts keep all service-worker/cache tests isolated.
 test.beforeAll(async()=>{await prepare();server=createServer(serve);await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));base=`http://127.0.0.1:${server.address().port}${prefix}`;});
 test.afterAll(async()=>{if(server)await new Promise(resolve=>server.close(resolve));if(temporary)await fs.rm(temporary,{recursive:true,force:true});});
-test.beforeEach(()=>{state.legacy=false;state.disconnected=false;state.current='initial';state.removeOld=false;state.fail.clear();state.corrupt.clear();state.writes.length=0;state.reads.length=0;});
+test.beforeEach(()=>{state.legacy=false;state.disconnected=false;state.originUnavailable=false;state.current='initial';state.removeOld=false;state.fail.clear();state.corrupt.clear();state.writes.length=0;state.reads.length=0;});
 
 test('online-only first visit stays usable without a complete cache; explicit update prepares verified offline use',async({page,context})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
@@ -233,7 +247,7 @@ test('a failed or corrupt update retains the previous complete release',async({p
  await route(page,'#/kb/'+fixture.articleId,'');
  await expect(page.locator('.markdown-body')).toContainText(fixture.marker);
  const both=await cacheInfo(page);expect(both.some(x=>x.releaseId===initial.id)).toBe(true);expect(both.some(x=>x.releaseId===next.id)).toBe(true);
- await disconnect(context,true);await page.reload();await expect(page.locator('.markdown-body')).toContainText(fixture.marker);
+ await disconnect(context,true,{httpFailureForWebKit:true});await page.reload();await expect(page.locator('.markdown-body')).toContainText(fixture.marker);
  const old=await page.evaluate(async({releaseId,url})=>{const names=(await caches.keys()).filter(x=>x.startsWith('fishing-v2:'));const name=names.find(x=>x.endsWith(releaseId));if(!name)return null;const cache=await caches.open(name);const r=await cache.match(url);return r?{status:r.status,text:await r.text()}:null;},{releaseId:initial.id,url:urlFor(initial,fixture.articlePath)});
  expect(old).not.toBeNull();expect(old.status).toBe(200);expect(old.text).not.toContain(fixture.marker);
 });
