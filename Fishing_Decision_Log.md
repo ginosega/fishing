@@ -6,6 +6,12 @@ This file records **current durable decisions**. Detailed historical release evi
 
 **Decision:** Chat mode is the permanent default. Do not recommend Work merely because work is complex, lengthy, file-heavy, analytical, research/calculation-heavy or artifact-producing. Use a temporary Work switch only for a genuinely Work-only capability after explaining the need and obtaining explicit user approval.
 
+## P0-A stale-session v2 maintenance release — deployed and verified October 21, 2026
+
+**Owner authorization:** Explicitly approved merging and deploying [PR #254](https://github.com/ginosega/fishing/pull/254) after successful CI of the no-prior-hosted-assets transition fix. On October 21, merge commit `953cba549515b08aec76a8408868a6b3bdac2117` triggered [Full Application workflow #535](https://github.com/ginosega/fishing/actions/runs/39676555110). Full validation, Pages deployment and real hosted byte/release/browser checks **all passed**. Verified production release `855b2b33d7d3fdca7ac5e92be881824b` (source `953cba549515b08aec76a8408868a6b3bdac2117`, **577 files, 100 Gear / 60 KB / 12 Catches**). [P0-A design and production closeout](pwa/docs/Fishing_Companion_v3_P0A_Transition_Fix_2026-10-21.md).
+
+**Result:** Clean stale tabs atomically navigate to the most recently SHA/manifest-verified release, retaining the hash route. Dirty editors are protected, and spurious `controllerchange` update messages are removed. Older online release files are **not** retained on Pages; independently prepared offline libraries remain as before. **One-time transition caveat:** tabs already running the pre-fix production JS may still need a manual refresh to load the fix. This is automated browser/hosted acceptance, not field proof for every Android/iOS scenario. No GitHub App provider, OAuth or v3 cutover permission has been established by this release.
+
 ## P0-A reliability architecture — new release supersedes old (October 21, 2026)
 
 **Owner direction:** Proceed with fixing post-deployment stale sessions and **do not retain assets from older hosted releases**. A newer release should supersede the previous one. This is a decision for coherent current-release transition, **not** approval to merge/deploy a new v2 application maintenance build.
