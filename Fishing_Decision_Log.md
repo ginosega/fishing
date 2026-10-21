@@ -6,6 +6,12 @@ This file records **current durable decisions**. Detailed historical release evi
 
 **Decision:** Chat mode is the permanent default. Do not recommend Work merely because work is complex, lengthy, file-heavy, analytical, research/calculation-heavy or artifact-producing. Use a temporary Work switch only for a genuinely Work-only capability after explaining the need and obtaining explicit user approval.
 
+## P0-A field-diagnostics plan — accepted October 21, 2026
+
+**Owner decision:** Use the separately approved thumbnail improvement as a practical opportunity to investigate the pre-existing stale-session defect in production, **provided an old Windows Edge browser tab is prepared and its release ID is captured before deploying**. The owner requests detailed step-by-step assistance collecting failed requests and release IDs. See [P0-A production deployment field-test instructions](pwa/docs/Fishing_Companion_P0A_Production_Deployment_Field_Test_Instructions_2026-10-21.md). Compare old session against a fresh tab after a verified Pages deploy; do not refresh or clear data before recording evidence. The observed outcome may be no failure; that would not negate the isolated source-level reproduction.
+
+**Release authorization remains distinct:** Agreeing to the diagnostic *plan* is not blanket authority to deploy. Complete the old-tab preparation, then obtain explicit user go-ahead for the **thumbnail-only v2 Full Application Release**. PR #248 remains draft and production unchanged until that gate is satisfied. Separately investigate/develop and release the P0-A reliability fix after evidence; v3 AUTH-P0/cutover gates are unaffected.
+
 ## Fishing Companion v3 P0-B — thumbnail improvement approved (October 21, 2026)
 
 **Owner decision:** Approves release-scoped, deterministic 512 × 270 maximum WebP thumbnails for Gear and Knowledge Base cards, keeping original pictures at full resolution on detail pages and in the viewer. Accepts the measured CI reduction in above-fold image bytes and roughly 1.6–2.1× faster end-to-end above-fold decode/paint-completion timings. Owner explicitly **waives further visual-quality review and Android-preview creation/device comparison**; do not propose a separate public preview repository. This does not imply a real Android speed measurement occurred. Evidence: [P0-B prototype report](pwa/docs/Fishing_Companion_v3_P0B_Thumbnail_Prototype_2026-10-20.md) and [draft PR #248](https://github.com/ginosega/fishing/pull/248), exact-head [CI #526](https://github.com/ginosega/fishing/actions/runs/39436154092) success.
