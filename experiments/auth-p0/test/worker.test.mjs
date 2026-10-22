@@ -197,3 +197,52 @@ test('both source and dashboard-editor workers expose the manifest and icons und
     assert.equal(bytes.getUint32(20), size);
   }
 });
+
+test('one-time OAuth state binds exact allowlisted gateway callback target', async (t) => {
+  const e = env();
+  const hits = mockGitHub(t);
+  const bad = await handler.fetch(req('/auth/start?return=https%3A%2F%2Fevil.example'), e);
+  assert.equal(bad.status, 400);
+  assert.equal(e.DB.flows.size, 0);
+  const unexpected = await handler.fetch(req('/auth/start?return=%2Ffishing%2F..%2Fauth'), e);
+  assert.equal(unexpected.status, 400);
+  const start = await handler.fetch(req('/auth/start?return=%2Ffishing%2F'), e);
+  assert.equal(start.status, 303);
+  const u = new URL(start.headers.get('Location'));
+  const state = u.searchParams.get('state');
+  assert.match(state, /^[A-Za-z0-9_-]{43}\\.f$/);
+  const flowCookie = cookieValue(start, '__Host-fish_p0_flow');
+  const cb = await handler.fetch(req('/auth/callback?state='+state+'&code=one_time_code',
+    {headers:{Cookie:flowCookie}}),e);
+  assert.equal(cb.status,303);
+  assert.equal(cb.headers.get('Location'),'/fishing/');
+  assert.equal(hits(),2);
+  assert.equal((await handler.fetch(req('/auth/callback?state='+state+'&code=one_time_code',
+    {headers:{Cookie:flowCookie}}),e)).status,400);
+  assert.equal(hits(),2);
+});
+
+test('gateway stays read-only through both Worker entry points and strips browser credentials', async t => {
+  const editor = (await import('../cloudflare-editor-worker.js')).default;
+  const upstreamCalls=[];
+  t.mock.method(globalThis,'fetch',async(url,init)=>{
+    upstreamCalls.push({url,init});
+    return new Response('untouched published bytes',{status:200,headers:{'Content-Type':'text/plain','Set-Cookie':'upstream=bad'}});
+  });
+  for(const impl of [handler,editor]){
+    const e=env();
+    const reqOptions={headers:{Cookie:'__Host-fish_p0_session=private',Authorization:'Bearer hidden'}};
+    const resp=await impl.fetch(req('/fishing/release.json',reqOptions),e);
+    assert.equal(resp.status,200);
+    assert.equal(await resp.text(),'untouched published bytes');
+    assert.equal(resp.headers.get('Set-Cookie'),null);
+    assert.equal((await impl.fetch(req('/fishing/release.json',{method:'POST'}),e)).status,405);
+    assert.equal((await impl.fetch(req('/publications',{method:'POST'}),e)).status,404);
+  }
+  assert.equal(upstreamCalls.length,2);
+  for(const call of upstreamCalls){
+    assert.equal(call.url,'https://ginosega.github.io/fishing/release.json');
+    assert.deepEqual(call.init.headers,{'Accept':'*/*'});
+    assert.equal(call.init.redirect,'manual');
+  }
+});
