@@ -6,6 +6,8 @@ This is a deliberately separate implementation in `experiments/auth-p0/`. It doe
 
 **Evidence ordering:** The initial matrix below is a historical snapshot of the standalone harness tests *before* the gateway checks. Later entries supersede its then-pending revoke-all/offline/PWA gateway items. The [G1 closeout](AUTH_P0_G1_Closeout_and_Hosting_Decision_2026-10-22.md) is the consolidated current assessment; do not mark historical rows as newly tested without owner evidence.
 
+**Owner approval recorded, October 22, 2026:** The owner explicitly approved the [formal G1 closeout and hosting decision](AUTH_P0_G1_Closeout_and_Hosting_Decision_2026-10-22.md) **as written**. The approved document remains unchanged. The exact scope and conditional outcomes are preserved in the separate [approval record](AUTH_P0_G1_Closeout_Approval_2026-10-22.md): **conditional gateway architecture direction approved; G1-A–E approved as the next tests; GitHub authorization-revocation/session lifetime policy still requires a later choice; AUTH-P0/G1 remains OPEN; P3 and production cutover remain unauthorized.**
+
 ## Owner-reported live field evidence — October 22, 2026
 
 **Test deployment:** Cloudflare Free Worker `fishing-auth-p0-test` on `https://fishing-auth-p0-test.ginosega.workers.dev`, with D1 database `fishing-auth-p0`, `DB` binding, `APP_ORIGIN` and encrypted OAuth client/owner-ID settings. GitHub App `fishing-companion-auth-p0`, OAuth-only, no repository installation or GitHub write permissions. No secret values or OAuth tokens are committed or recorded here. This is the standalone same-origin PWA proof, **not** an integration with `https://ginosega.github.io/fishing/`.
