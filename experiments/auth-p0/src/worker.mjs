@@ -1,3 +1,4 @@
+import {gatewayResponse} from '../gateway.mjs';
 /**
  * Fishing Companion AUTH-P0: isolated same-origin authentication feasibility worker.
  * No repository modification, publishing, or GitHub App installation tokens.
@@ -108,6 +109,8 @@ const TEST_HTML = `<!doctype html>
 <button id="signout" type="button" hidden>Sign out</button>
 <button id="revoke" type="button" hidden>Revoke all test sessions</button></section>
 <p>Tests: sign in, close and reopen, installed PWA return, sign out, revocation, blocked cookies.</p>
+ <p><a href="/fishing/">Open read-only Fishing Companion via the isolated gateway</a></p>
+ <p><a href="/auth/start?return=%2Ffishing%2F">Start owner sign-in then return to the gateway PWA</a> (not a feature of production Fishing Companion)</p>
 </main><script src="/test-client.js" defer></script></body></html>`;
 const TEST_JS = `const statusNode=document.querySelector('#status');
 const signin=document.querySelector('#signin');const signout=document.querySelector('#signout');const revoke=document.querySelector('#revoke');
@@ -131,6 +134,8 @@ export default {
     const url = new URL(req.url);
     const path = url.pathname;
     try {
+      const proxied = await gatewayResponse(req);
+      if (proxied) return proxied;
       if (req.method === 'GET' && path === '/') return response(TEST_HTML, 200, 'text/html; charset=utf-8');
       if (req.method === 'GET' && path === '/test-client.js') return response(TEST_JS, 200, 'text/javascript; charset=utf-8');
       if (req.method === 'GET' && path === '/test.css') return response(TEST_CSS, 200, 'text/css; charset=utf-8');
@@ -139,7 +144,9 @@ export default {
         return response({ authenticated: !!session, authorized: !!session && String(session.github_id) === String(env.OWNER_GITHUB_ID) });
       }
       if (req.method === 'GET' && path === '/auth/start') {
-        const state = nonce();
+        const destination = url.searchParams.get('return');
+        if (destination !== null && destination !== '/fishing/') return error(400, 'Invalid return target');
+        const state = nonce() + (destination === '/fishing/' ? '.f' : '');
         const verifier = nonce();
         await env.DB.prepare('INSERT INTO auth_flows (state_hash, code_verifier, expires_at) VALUES (?, ?, ?)')
           .bind(await hash(state), verifier, nowSeconds() + FLOW_SECONDS).run();
@@ -157,7 +164,7 @@ export default {
         const state = url.searchParams.get('state');
         const code = url.searchParams.get('code');
         const flow = cookies(req)[FLOW_COOKIE];
-        if (!state || !code || !flow || state !== flow || !/^[A-Za-z0-9_-]{43}$/.test(state))
+        if (!state || !code || !flow || state !== flow || !/^[A-Za-z0-9_-]{43}(?:\.f)?$/.test(state))
           return withCookies(error(400, 'Invalid OAuth callback'), [clearFlow]);
         // Atomic, single-use state. Parallel callbacks cannot both consume the row.
         const pending = await env.DB.prepare('DELETE FROM auth_flows WHERE state_hash = ? AND expires_at > ? RETURNING code_verifier')
@@ -169,7 +176,7 @@ export default {
         const sid = nonce();
         await env.DB.prepare('INSERT INTO sessions (token_hash, github_id, expires_at) VALUES (?, ?, ?)')
           .bind(await hash(sid), identity.id, nowSeconds() + SESSION_SECONDS).run();
-        return redirect('/', [clearFlow, setCookie(SESSION_COOKIE, sid, SESSION_SECONDS)]);
+        return redirect(state.endsWith('.f') ? '/fishing/' : '/', [clearFlow, setCookie(SESSION_COOKIE, sid, SESSION_SECONDS)]);
       }
       if (req.method === 'POST' && (path === '/session/signout' || path === '/session/revoke-all')) {
         if (!originAllowed(req, env.APP_ORIGIN)) return error(403, 'Cross-origin or invalid request');
