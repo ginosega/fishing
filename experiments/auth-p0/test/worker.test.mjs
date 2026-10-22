@@ -163,3 +163,37 @@ test('wrong host and malformed environment fail closed', async () => {
   e.APP_ORIGIN = 'http://not-https.example';
   assert.equal((await handler.fetch(req('/session'), e)).status, 503);
 });
+
+test('both source and dashboard-editor workers expose the manifest and icons under CSP', async () => {
+  const editor = (await import('../cloudflare-editor-worker.js')).default;
+  for (const handlerToTest of [handler, editor]) {
+    const e = env();
+    const home = await handlerToTest.fetch(req('/'), e);
+    assert.equal(home.status, 200);
+    const csp = home.headers.get('Content-Security-Policy');
+    assert.match(csp, /default-src 'none'/);
+    assert.match(csp, /manifest-src 'self'/);
+    assert.match(csp, /img-src 'self'/);
+    assert.match(csp, /script-src 'self'/);
+    assert.match(await home.text(), /rel="manifest"/);
+  }
+  const e = env();
+  const editorManifest = await editor.fetch(req('/manifest.webmanifest'), e);
+  assert.equal(editorManifest.status, 200);
+  assert.match(editorManifest.headers.get('Content-Type'), /application\/manifest\+json/);
+  const manifest = await editorManifest.json();
+  assert.equal(manifest.display, 'standalone');
+  assert.ok(manifest.icons.some(icon => icon.sizes === '192x192'));
+  assert.ok(manifest.icons.some(icon => icon.sizes === '512x512'));
+  const sw = await editor.fetch(req('/sw.js'), e);
+  assert.equal(sw.status, 200);
+  assert.match(await sw.text(), /addEventListener\('fetch'/);
+  for (const [size, path] of [[192, '/icon-192.png'], [512, '/icon-512.png']]) {
+    const icon = await editor.fetch(req(path), e);
+    assert.equal(icon.status, 200);
+    assert.equal(icon.headers.get('Content-Type'), 'image/png');
+    const bytes = new DataView(await icon.arrayBuffer());
+    assert.equal(bytes.getUint32(16), size);
+    assert.equal(bytes.getUint32(20), size);
+  }
+});
