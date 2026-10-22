@@ -1,5 +1,8 @@
 # FISH118 / AUTH-P0 — Session transport and hosting decision brief (2026-10-22)
 
+> **Later same-day result:** The owner-approved read-only gateway was deployed and passed Windows/Android PWA, release metadata, offline, installed Android OAuth reentry, same-origin session, and cross-device revoke-all field checks. The conditional Architecture A recommendation and remaining security/hosting decisions are consolidated in the [formal G1 closeout and hosting decision draft](AUTH_P0_G1_Closeout_and_Hosting_Decision_2026-10-22.md). Historical 'not yet deployed' / 'field proof pending' statements below describe the proposal stage and are no longer the current test status. **AUTH-P0/G1 is not formally closed; no production or P3 approval is implied.**
+
+
 **Approval update (October 22, 2026):** The owner explicitly approved the limited isolated Cloudflare Free Worker **read-only `/fishing/` proxy experiment** recommended below. Source and automated tests are prepared in draft PR #262; a separate Cloudflare editor deployment and real-device acceptance are still needed. This is *not* approval for any production URL change, paid domain, installed GitHub App, write permissions, publishing API, v3 cutover or automatic merger.
 
 **Status:** technical options assessment and recommendation for an *isolated, read-only next feasibility proof*; **NOT** approval to relocate production, adopt a custom domain, install the GitHub App, enable write permissions, incur charges, or proceed to P3 publishing/P4 integration. Remains in draft PR #262. Production `main` and GitHub Pages are unchanged.
