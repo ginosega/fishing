@@ -12,6 +12,73 @@
  * No repository modification, publishing, or GitHub App installation tokens.
  * All GitHub OAuth tokens are used solely for identity verification and discarded.
  */
+// Read-only same-origin Pages gateway: exact same source as gateway.mjs.
+/**
+ * AUTH-P0 only: immutable-origin, read-only forwarding for published public Fishing Companion bytes.
+ * Do not add publishing APIs, user-supplied upstream URLs, credential forwarding or HTML injection.
+ * The canonical GitHub Pages /fishing/ release is verified by its existing PWA SW/manifest.
+ */
+const GATEWAY_PREFIX = '/fishing/';
+const GATEWAY_ORIGIN = 'https://ginosega.github.io';
+const GATEWAY_CACHE_POLICY = 'no-store';
+const GATEWAY_HEADERS = {
+  'Cache-Control': GATEWAY_CACHE_POLICY,
+  'X-Content-Type-Options': 'nosniff',
+  'Referrer-Policy': 'no-referrer',
+  'X-Frame-Options': 'DENY',
+};
+
+/** Return a Response for gateway routes, or null for non-gateway routes. */
+async function gatewayResponse(request) {
+  const url = new URL(request.url);
+  const path = url.pathname;
+  if (path === '/fishing') {
+    return new Response(null, {status: 308, headers: {...GATEWAY_HEADERS, Location: GATEWAY_PREFIX}});
+  }
+  if (!path.startsWith(GATEWAY_PREFIX)) return null;
+  if (request.method !== 'GET' && request.method !== 'HEAD') {
+    return new Response('Read-only gateway', {status: 405, headers: {...GATEWAY_HEADERS, Allow: 'GET, HEAD'}});
+  }
+  // Do not let differing slash/backslash decoding or encoded NULs reclassify paths downstream.
+  if (/%(?:2f|5c|00)/i.test(path) || path.includes('\\')) {
+    return new Response('Invalid asset path', {status: 400, headers: GATEWAY_HEADERS});
+  }
+  // Upstream hostname is hard-coded. Forward no inbound cookies, Authorization,
+  // Origin, Forwarded, CORS or other browser request headers to Pages.
+  const upstream = new URL(GATEWAY_ORIGIN);
+  upstream.pathname = path;
+  upstream.search = url.search;
+  let result;
+  try {
+    result = await fetch(upstream.href, {
+      method: request.method,
+      headers: {'Accept': '*/*'},
+      redirect: 'manual',
+      cache: 'no-store',
+      signal: AbortSignal.timeout(12000),
+    });
+  } catch {
+    return new Response('Public gateway upstream unavailable', {status: 502, headers: GATEWAY_HEADERS});
+  }
+  if (result.status >= 300 && result.status < 400) {
+    // Never follow untrusted upstream redirect or reflect its Location header.
+    return new Response('Public gateway redirect denied', {status: 502, headers: GATEWAY_HEADERS});
+  }
+  if (result.status !== 200 && result.status !== 404) {
+    return new Response('Public gateway upstream error', {status: 502, headers: GATEWAY_HEADERS});
+  }
+  if (result.status === 404) {
+    return new Response('Public file not found', {status: 404, headers: GATEWAY_HEADERS});
+  }
+  const headers = new Headers(GATEWAY_HEADERS);
+  const contentType = result.headers.get('Content-Type');
+  if (contentType) headers.set('Content-Type', contentType);
+  // Body must remain a byte-for-byte untouched stream (no HTML rewriting).
+  // No upstream Set-Cookie, Location, Access-Control-Allow-Origin, Content-Length,
+  // Transfer-Encoding, Content-Encoding or other response metadata is reflected.
+  return new Response(request.method === 'HEAD' ? null : result.body, {status: 200, headers});
+}
+
 const FLOW_COOKIE = '__Host-fish_p0_flow';
 const SESSION_COOKIE = '__Host-fish_p0_session';
 const FLOW_SECONDS = 600;
@@ -136,6 +203,8 @@ const TEST_HTML = `<!doctype html>
 <button id="signout" type="button" hidden>Sign out</button>
 <button id="revoke" type="button" hidden>Revoke all test sessions</button></section>
 <p>Tests: sign in, close and reopen, installed PWA return, sign out, revocation, blocked cookies.</p>
+ <p><a href="/fishing/">Open read-only Fishing Companion via the isolated gateway</a></p>
+ <p><a href="/auth/start?return=%2Ffishing%2F">Start owner sign-in then return to the gateway PWA</a> (not a feature of production Fishing Companion)</p>
 </main><script src="/test-client.js" defer></script></body></html>`;
 const TEST_JS = `const statusNode=document.querySelector('#status');
 const signin=document.querySelector('#signin');const signout=document.querySelector('#signout');const revoke=document.querySelector('#revoke');
@@ -159,6 +228,8 @@ export default {
     const url = new URL(req.url);
     const path = url.pathname;
     try {
+      const proxied = await gatewayResponse(req);
+      if (proxied) return proxied;
       const staticAsset = p0Static(req, path);
       if (staticAsset) return staticAsset;
       if (req.method === 'GET' && path === '/') return response(TEST_HTML, 200, 'text/html; charset=utf-8');
@@ -169,7 +240,9 @@ export default {
         return response({ authenticated: !!session, authorized: !!session && String(session.github_id) === String(env.OWNER_GITHUB_ID) });
       }
       if (req.method === 'GET' && path === '/auth/start') {
-        const state = nonce();
+        const destination = url.searchParams.get('return');
+        if (destination !== null && destination !== '/fishing/') return error(400, 'Invalid return target');
+        const state = nonce() + (destination === '/fishing/' ? '.f' : '');
         const verifier = nonce();
         await env.DB.prepare('INSERT INTO auth_flows (state_hash, code_verifier, expires_at) VALUES (?, ?, ?)')
           .bind(await hash(state), verifier, nowSeconds() + FLOW_SECONDS).run();
@@ -187,7 +260,7 @@ export default {
         const state = url.searchParams.get('state');
         const code = url.searchParams.get('code');
         const flow = cookies(req)[FLOW_COOKIE];
-        if (!state || !code || !flow || state !== flow || !/^[A-Za-z0-9_-]{43}$/.test(state))
+        if (!state || !code || !flow || state !== flow || !/^[A-Za-z0-9_-]{43}(?:\.f)?$/.test(state))
           return withCookies(error(400, 'Invalid OAuth callback'), [clearFlow]);
         // Atomic, single-use state. Parallel callbacks cannot both consume the row.
         const pending = await env.DB.prepare('DELETE FROM auth_flows WHERE state_hash = ? AND expires_at > ? RETURNING code_verifier')
@@ -199,7 +272,7 @@ export default {
         const sid = nonce();
         await env.DB.prepare('INSERT INTO sessions (token_hash, github_id, expires_at) VALUES (?, ?, ?)')
           .bind(await hash(sid), identity.id, nowSeconds() + SESSION_SECONDS).run();
-        return redirect('/', [clearFlow, setCookie(SESSION_COOKIE, sid, SESSION_SECONDS)]);
+        return redirect(state.endsWith('.f') ? '/fishing/' : '/', [clearFlow, setCookie(SESSION_COOKIE, sid, SESSION_SECONDS)]);
       }
       if (req.method === 'POST' && (path === '/session/signout' || path === '/session/revoke-all')) {
         if (!originAllowed(req, env.APP_ORIGIN)) return error(403, 'Cross-origin or invalid request');
