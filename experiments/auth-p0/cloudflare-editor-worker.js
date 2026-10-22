@@ -52,7 +52,7 @@ async function gatewayResponse(request) {
   try {
     result = await fetch(upstream.href, {
       method: request.method,
-      headers: {'Accept': '*/*'},
+      headers: {'Accept': '*/*', 'Accept-Encoding': 'identity'},
       redirect: 'manual',
       cache: 'no-store',
       signal: AbortSignal.timeout(12000),
@@ -69,6 +69,11 @@ async function gatewayResponse(request) {
   }
   if (result.status === 404) {
     return new Response('Public file not found', {status: 404, headers: GATEWAY_HEADERS});
+  }
+  // Forward only identity-encoded bodies; otherwise cached release hashes would not match.
+  const encoding = result.headers.get('Content-Encoding');
+  if (encoding && encoding.toLowerCase() !== 'identity') {
+    return new Response('Unsupported upstream asset encoding', {status: 502, headers: GATEWAY_HEADERS});
   }
   const headers = new Headers(GATEWAY_HEADERS);
   const contentType = result.headers.get('Content-Type');
