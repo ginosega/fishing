@@ -242,7 +242,7 @@ test('gateway stays read-only through both Worker entry points and strips browse
   assert.equal(upstreamCalls.length,2);
   for(const call of upstreamCalls){
     assert.equal(call.url,'https://ginosega.github.io/fishing/release.json');
-    assert.deepEqual(call.init.headers,{'Accept':'*/*'});
+    assert.deepEqual(call.init.headers,{'Accept':'*/*','Accept-Encoding':'identity'});
     assert.equal(call.init.redirect,'manual');
   }
 });
