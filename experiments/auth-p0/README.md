@@ -1,8 +1,10 @@
 # AUTH-P0 — GitHub identity and installed-PWA feasibility experiment
 
-**Status: isolated, nonproduction P1 feasibility test DEPLOYED at https://fishing-auth-p0-test.ginosega.workers.dev; user-verified Windows Edge and Android Chrome installed-PWA sign-in/persistence on October 22, 2026. Not part of the Fishing Companion production application. AUTH-P0 cross-origin integration gate remains OPEN.**
+**Current status (October 22, 2026): isolated, nonproduction AUTH-P0 test DEPLOYED, with strong real-device PASS evidence for the read-only Cloudflare gateway, OAuth/PWA reentry, cross-device revocation, and Windows/Android verified offline operation and persistence. AUTH-P0/G1 remains OPEN pending targeted security/operational proof and the owner's hosting/session policy decision. See the [formal G1 closeout and hosting decision draft](AUTH_P0_G1_Closeout_and_Hosting_Decision_2026-10-22.md). Production is unchanged; PR #262 remains draft/unmerged.**
 
 This is a deliberately separate implementation in `experiments/auth-p0/`. It does not import the live PWA, alter its UX, install a GitHub App, publish to `main`, enable repository writes or configure a live host. Do not merge this draft PR into the application release path. Only a separate, future approved v3 publishing stage may add the actual write API.
+
+**Evidence ordering:** The initial matrix below is a historical snapshot of the standalone harness tests *before* the gateway checks. Later entries supersede its then-pending revoke-all/offline/PWA gateway items. The [G1 closeout](AUTH_P0_G1_Closeout_and_Hosting_Decision_2026-10-22.md) is the consolidated current assessment; do not mark historical rows as newly tested without owner evidence.
 
 ## Owner-reported live field evidence — October 22, 2026
 
@@ -35,7 +37,7 @@ The owner directly performed the following tests on their own devices and report
 
 ## Approved next-phase read-only gateway experiment — October 22, 2026
 
-**Owner authorization:** The owner explicitly approved extending the **existing Cloudflare AUTH-P0 test Worker only** with a read-only `/fishing/` gateway of `https://ginosega.github.io/fishing/`. The separate OAuth-only GitHub App/Cloudflare Free configuration is retained. No production Pages URL, deployed v2 source, GitHub App permission, installation, custom domain, paid service, canonical authored content, or workflow is changed. **As of this repository update, the new Worker code is prepared on this draft branch but deployment and real-device acceptance have not yet been confirmed.**
+**Owner authorization:** The owner explicitly approved extending the **existing Cloudflare AUTH-P0 test Worker only** with a read-only `/fishing/` gateway of `https://ginosega.github.io/fishing/`. The separate OAuth-only GitHub App/Cloudflare Free configuration is retained. No production Pages URL, deployed v2 source, GitHub App permission, installation, custom domain, paid service, canonical authored content, or workflow is changed. **Historical implementation note:** the original gateway code was prepared before deployment; the subsequent owner-confirmed live deployment and real-device tests are recorded below and assessed in the formal G1 closeout.
 
 The gateway source is [`gateway.mjs`](gateway.mjs), imported by [`src/worker.mjs`](src/worker.mjs) and inlined without dependency in the [dashboard editor version](cloudflare-editor-worker.js). Route `/fishing/` and children are GET/HEAD only and proxy to the **hard-coded** Pages hostname/path without any inbound cookies, Authorization or browser headers. Reject redirects, unsupported encoding, invalid paths, upstream failures and write methods. Never rewrite public app bytes or reflect upstream `Set-Cookie`. Workers explicitly request identity encoding and fail closed on compressed upstream assets to protect SHA-verified PWA content. Proxy response caching is disabled for this experiment.
 
