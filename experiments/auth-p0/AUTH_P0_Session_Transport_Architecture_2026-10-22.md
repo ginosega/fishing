@@ -1,5 +1,7 @@
 # FISH118 / AUTH-P0 — Session transport and hosting decision brief (2026-10-22)
 
+**Approval update (October 22, 2026):** The owner explicitly approved the limited isolated Cloudflare Free Worker **read-only `/fishing/` proxy experiment** recommended below. Source and automated tests are prepared in draft PR #262; a separate Cloudflare editor deployment and real-device acceptance are still needed. This is *not* approval for any production URL change, paid domain, installed GitHub App, write permissions, publishing API, v3 cutover or automatic merger.
+
 **Status:** technical options assessment and recommendation for an *isolated, read-only next feasibility proof*; **NOT** approval to relocate production, adopt a custom domain, install the GitHub App, enable write permissions, incur charges, or proceed to P3 publishing/P4 integration. Remains in draft PR #262. Production `main` and GitHub Pages are unchanged.
 
 ## Decision in one paragraph
@@ -47,9 +49,9 @@ The existing `https://ginosega.github.io/fishing/` static PWA and `https://fishi
 
 **Immediately approved by the user earlier:** Cloudflare Free/GitHub App OAuth-only nonproduction test and the already completed same-origin harness field tests.
 
-**Not approved as of writing:** deploying additional static gateway routing; adopting a different launch URL; using a purchased custom domain; browser-held application session tokens; GitHub App write permissions or installation; P3 publishing service; v3 production cutover. Ask explicit authorization for each material change before doing it.
+**Not approved as of writing:** a production gateway cutover; adopting a different launch URL; using a purchased custom domain; browser-held application session tokens; GitHub App write permissions or installation; P3 publishing service; v3 production cutover. Ask explicit authorization for each material change before doing it.
 
-**Suggested decision for the owner:** *“May we extend the existing Cloudflare AUTH-P0 test Worker with a read-only `/fishing/` proxy of the existing published site, test installed Android auth/offline/release behavior on that new test URL, and keep the actual Pages site and existing installed PWA untouched?”*
+**Owner-approved feasibility experiment (implementation prepared, deployment pending):** *“May we extend the existing Cloudflare AUTH-P0 test Worker with a read-only `/fishing/` proxy of the existing published site, test installed Android auth/offline/release behavior on that new test URL, and keep the actual Pages site and existing installed PWA untouched?”*
 
 ## References checked October 22, 2026
 
