@@ -210,7 +210,7 @@ test('one-time OAuth state binds exact allowlisted gateway callback target', asy
   assert.equal(start.status, 303);
   const u = new URL(start.headers.get('Location'));
   const state = u.searchParams.get('state');
-  assert.match(state, /^[A-Za-z0-9_-]{43}\\.f$/);
+  assert.match(state, /^[A-Za-z0-9_-]{43}\.f$/);
   const flowCookie = cookieValue(start, '__Host-fish_p0_flow');
   const cb = await handler.fetch(req('/auth/callback?state='+state+'&code=one_time_code',
     {headers:{Cookie:flowCookie}}),e);
