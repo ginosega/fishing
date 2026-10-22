@@ -1,8 +1,37 @@
 # AUTH-P0 — GitHub identity and installed-PWA feasibility experiment
 
-**Status: nonproduction P1 proof only. Not deployed. No GitHub App or Cloudflare resources are created by this repository code.**
+**Status: isolated, nonproduction P1 feasibility test DEPLOYED at https://fishing-auth-p0-test.ginosega.workers.dev; user-verified Windows Edge and Android Chrome installed-PWA sign-in/persistence on October 22, 2026. Not part of the Fishing Companion production application. AUTH-P0 cross-origin integration gate remains OPEN.**
 
 This is a deliberately separate implementation in `experiments/auth-p0/`. It does not import the live PWA, alter its UX, install a GitHub App, publish to `main`, enable repository writes or configure a live host. Do not merge this draft PR into the application release path. Only a separate, future approved v3 publishing stage may add the actual write API.
+
+## Owner-reported live field evidence — October 22, 2026
+
+**Test deployment:** Cloudflare Free Worker `fishing-auth-p0-test` on `https://fishing-auth-p0-test.ginosega.workers.dev`, with D1 database `fishing-auth-p0`, `DB` binding, `APP_ORIGIN` and encrypted OAuth client/owner-ID settings. GitHub App `fishing-companion-auth-p0`, OAuth-only, no repository installation or GitHub write permissions. No secret values or OAuth tokens are committed or recorded here. This is the standalone same-origin PWA proof, **not** an integration with `https://ginosega.github.io/fishing/`.
+
+The owner directly performed the following tests on their own devices and reported outcomes in the Fishing project chat. Device OS build, Chrome/Edge exact versions and timestamp-by-test were not collected.
+
+| Device, browser/app | Scenario | Field result |
+| --- | --- | --- |
+| Windows Microsoft Edge ordinary browser | GitHub OAuth sign-in and approved owner identity | **PASS** — authenticated owner displayed |
+| Windows Edge ordinary browser | Close tab, open new tab | **PASS** — existing session recognized |
+| Windows Edge ordinary browser | Close all Edge windows, relaunch Edge | **PASS** — existing session recognized |
+| Android Chrome ordinary browser | GitHub OAuth sign-in | **PASS** — authenticated owner displayed |
+| Android Chrome home-screen shortcut | First launch from shortcut | **PASS** — session recognized; **not** considered standalone PWA proof |
+| Android Chrome standalone installed PWA | Chrome offered `Install app`, app installed/launched | **PASS** — existing owner session recognized |
+| Android standalone installed PWA | Sign out, then start GitHub OAuth from within PWA | **PASS** — callback returned to installed PWA; sign-in succeeded |
+| Android Chrome and installed PWA | Sign out inside installed PWA, switch to and refresh existing Chrome tab | **PASS** — Chrome reported signed out |
+| Android standalone installed PWA | Fully dismiss from Android recent-apps screen, then relaunch | **PASS** — session persisted |
+| Android standalone installed PWA | Restart Android phone, launch installed PWA | **PASS** — session persisted |
+| iPhone/iOS | All real-device scenarios | **NOT TESTED** — owner has no iPhone; explicitly chose to skip |
+| Android Edge installed PWA | All real-device scenarios | **NOT TESTED** |
+| Live GitHub Pages site to separately hosted Worker | Cross-origin authorization/session/cookie transport | **NOT TESTED**; principal unresolved P1 design gate |
+| Unauthorized different GitHub account | Live OAuth sign-in denial | **NOT TESTED**; mock unit tests cover basic denial |
+| Explicit revoke-all, session expiry, authorization cancellation | Live device cases | **NOT TESTED**; unit-level revocation/expiry/state checks are not equivalent |
+| Blocking third-party cookies | Live browser test with GitHub Pages as caller | **NOT TESTED**; do not assume CORS solves blocked third-party cookies |
+
+**Observed bug and correction:** The first deployed dashboard-editor Worker did not permit PWA manifest/icon loading under the strict CSP. Android Chrome offered `Create shortcut` but not `Install app`. On October 22 the experiment branch added `manifest-src 'self'; img-src 'self'` and a source-level regression check for CSP and manifest/assets; the owner deployed the corrected single-file Worker `cloudflare-editor-worker.js`, after which Chrome offered genuine installation. This fixes the same-origin test harness only.
+
+**Interpretation:** One owner, first-party Cloudflare hostname, HttpOnly app cookie, and real installed Android Chrome PWA proved successful for tested sign-in, same-app OAuth reentry, sign-out, session sharing, browser/app restart and Android device restart. It **does not establish** usable first-party authentication for the GitHub Pages production origin. Original first-party cookies are scoped to `ginosega.workers.dev`; GitHub Pages `ginosega.github.io` calls would be cross-site and may lose cookies under privacy controls. No production app, repository authoring route or publishing service was deployed. **Keep P1 AUTH-P0 gate open**, keep this PR draft/unmerged; evaluate and separately approve an end-to-end session transport for the Pages-hosted app before P3/P4 implementation or any cutover. iOS is explicitly untested rather than passed/failed.
 
 ## Design to verify
 
@@ -67,7 +96,7 @@ For each of the following, record date, device/OS/browser version, app installat
 
 | Environment | Start signed out | OAuth owner callback | Close/reopen persistence | Device restart persistence | Sign out and revoke-all | Unauthorized account | Block third-party cookies |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Windows Edge/Chrome browser tab | Pending | Pending | Pending | Pending | Pending | Pending | Pending |
+| Windows Edge/Chrome browser tab | Not assessed; see owner-reported results above | Pending | Pending | Pending | Pending | Pending | Pending |
 | Android Chrome **installed** PWA | Pending | Pending | Pending | Pending | Pending | Pending | Pending |
 | Android Edge **installed** PWA (if supported) | Pending | Pending | Pending | Pending | Pending | Pending | Pending |
 | iPhone Safari **Home Screen** PWA | Pending | Pending | Pending | Pending | Pending | Pending | Pending |
