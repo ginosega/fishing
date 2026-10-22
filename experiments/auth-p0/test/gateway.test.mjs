@@ -12,7 +12,7 @@ test('forwards immutable-origin public bytes, query and nothing sensitive', asyn
     return new Response(bytes, {status:200, headers:{
       'Content-Type':'image/png', 'Set-Cookie':'malicious=1',
       Location:'https://evil.example', 'Access-Control-Allow-Origin':'*',
-      'Content-Encoding':'br', 'Content-Length':'6',
+      'Content-Encoding':'identity', 'Content-Length':'6',
     }});
   });
   const out = await gatewayResponse(req('/fishing/releases/abc/images/My%20Photo.png?test=1', {
@@ -29,7 +29,7 @@ test('forwards immutable-origin public bytes, query and nothing sensitive', asyn
   assert.deepEqual(new Uint8Array(await out.arrayBuffer()), bytes);
   assert.equal(calls.length, 1);
   assert.equal(calls[0].url, 'https://ginosega.github.io/fishing/releases/abc/images/My%20Photo.png?test=1');
-  assert.deepEqual(calls[0].init.headers, {'Accept':'*/*'});
+  assert.deepEqual(calls[0].init.headers, {'Accept':'*/*','Accept-Encoding':'identity'});
   assert.equal(calls[0].init.redirect, 'manual');
   assert.equal(calls[0].init.method, 'GET');
 });
@@ -38,7 +38,7 @@ test('HEAD metadata only, never returns a body or forwards credentials', async t
   t.mock.method(globalThis, 'fetch', async (url, init) => {
     assert.equal(url,'https://ginosega.github.io/fishing/release.json');
     assert.equal(init.method, 'HEAD');
-    assert.deepEqual(init.headers, {'Accept':'*/*'});
+    assert.deepEqual(init.headers, {'Accept':'*/*','Accept-Encoding':'identity'});
     return new Response(null,{status:200,headers:{'Content-Type':'application/json','Set-Cookie':'s=secret'}});
   });
   const out = await gatewayResponse(req('/fishing/release.json',{method:'HEAD',headers:{Cookie:'abc'}}));
@@ -91,6 +91,10 @@ test('handles missing upstream file and other upstream failures without reflecti
   out=await gatewayResponse(req('/fishing/index.html'));
   assert.equal(out.status,502);
   assert.equal(await out.text(),'Public gateway upstream error');
+  mock.mock.mockImplementation(async()=>new Response('compressed',{status:200,headers:{'Content-Encoding':'br'}}));
+  out=await gatewayResponse(req('/fishing/index.html'));
+  assert.equal(out.status,502);
+  assert.equal(await out.text(),'Unsupported upstream asset encoding');
   mock.mock.mockImplementation(async()=>{throw new Error('origin stack trace')});
   out=await gatewayResponse(req('/fishing/index.html'));
   assert.equal(out.status,502);
