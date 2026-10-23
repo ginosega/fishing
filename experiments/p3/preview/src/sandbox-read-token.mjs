@@ -57,7 +57,8 @@ export function createSandboxReadTokenIssuer({env,request=fetch}={}){
    jwt,'POST',{repository_ids:[ID],permissions:{contents:'read'}});
   ok(typeof grant?.token==='string'&&grant.token.length>=12&&
    grant?.permissions?.contents==='read'&&
-   Object.keys(grant.permissions).length===1&&
+   Object.entries(grant.permissions).every(([k,v])=>
+    (k==='contents'&&v==='read')||(k==='metadata'&&v==='read'))&&
    Array.isArray(grant.repositories)&&grant.repositories.length===1&&
    grant.repositories[0]?.id===ID&&grant.repositories[0]?.full_name===REPO,
    'READ_GRANT_SCOPE_MISMATCH');
