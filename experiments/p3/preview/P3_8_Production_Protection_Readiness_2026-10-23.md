@@ -3,6 +3,15 @@
 **Date:** October 23, 2026
 **Decision:** Owner will **not** upgrade to a paid GitHub plan. Use the existing private sandbox for synthetic tests without auto-merge, and require enforceable **GitHub Free public repository branch protection** on \`ginosega/fishing\` before v3 production auto-publishing. Keep publisher-side independently validated exact-sha checks and GitHub enforcement. No production rollout or live rules configuration is authorized by this source-only work.
 
+## Separate staged workflow PR #264 — unmerged
+
+Owner directed continued implementation with no GitHub plan upgrade. To avoid mixing production CI changes into experimental P3 publisher source, a separate **draft, unmerged [PR #264](https://github.com/ginosega/fishing/pull/264)** was created from unchanged production main SHA `35e88c47d96f4d7021afa642fdee9e6616c65e83`.
+
+The staged workflow removes only pull-request path filters (retaining the existing main/push and hosted deployment restrictions), preserves FISH108 fast content and full application validation, adds a docs-only non-release PR lane, and provides one stable always-evaluated `fishing-merge-ready` final job. A separate `pwa/test/merge-gate-policy.test.mjs` suite tests changed-file classification with real Git and Bash. A caught regression in mixed Markdown/canonical file order was corrected to require the full lane regardless of changed-file ordering.
+
+This remains **source-only**. PR #264 is unmerged, branch protection remains disabled, and full application PR acceptance at the latest head must be confirmed before further review. There is no change to production main, hosted Pages, GitHub App permissions, Cloudflare or publishing. The owner must separately approve any live workflow merge and later branch protection activation.
+
+---
 ## Actual GitHub facts checked on October 23
 
 | Repository | ID | Visibility | Main SHA | Status |
