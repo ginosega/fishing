@@ -2,9 +2,9 @@ import {verifyReadOnlySandboxInstallation} from './github-app-readonly.mjs';
 
 /**
  * P3 Cloudflare Free sandbox deployment sentinel.
- * Deliberately NO GitHub API, OAuth callback, writable routes, tokens
- * or automatic production upgrade. Publishing remains disabled.
- * P3-1 infrastructure readiness only, NOT P3-2 publishing.
+ * No GitHub write API, OAuth callback or publish routes.
+ * Temporary secret-guarded, read-only GitHub App installation probe ONLY.
+ * Publishing remains disabled.
  */
 const json=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{
  'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store',
