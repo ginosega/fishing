@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createPrivateKey,createPublicKey,generateKeyPairSync,verify as verifySig} from 'node:crypto';
-import {appJwt,verifyReadOnlySandboxInstallation} from '../src/github-app-readonly.mjs';
+import {appJwt,verifyReadOnlySandboxInstallation,GitHubProbeError} from '../src/github-app-readonly.mjs';
 const {privateKey,publicKey}=generateKeyPairSync('rsa',{modulusLength:2048});
 const pemPkcs1=privateKey.export({type:'pkcs1',format:'pem'}).toString();
 const pemPkcs8=privateKey.export({type:'pkcs8',format:'pem'}).toString();
@@ -57,4 +57,25 @@ test('P3-G05 never attempts an API call when publishing flag true, IDs missing o
   await assert.rejects(verifyReadOnlySandboxInstallation({env:{...settings,...changes},request:f.request,now:1234567}));
   assert.equal(f.calls.length,0);
  }
+});
+
+test('P3-G06 classification never exposes GitHub App private-key material or raw API body',async()=>{
+ const malformed={...settings,P3_GITHUB_PRIVATE_KEY:'invalid-PEM-must-not-appear'};
+ await assert.rejects(verifyReadOnlySandboxInstallation({env:malformed,now:1234567}),error=>{
+  assert.equal(error instanceof GitHubProbeError,true);
+  assert.equal(error.code,'app_key_signing_failed');
+  assert.doesNotMatch(error.message,/invalid-PEM|private key|ghs_/);
+  return true;
+ });
+ const failure=fakeFetch({granted:false});
+ await assert.rejects(verifyReadOnlySandboxInstallation({env:settings,request:failure.request,now:1234567}),error=>{
+  assert.equal(error.code,'installation_token_http_0');
+  assert.doesNotMatch(error.message,/ghs_/);
+  return true;
+ });
+ const mismatch=fakeFetch({repoId:1350909744});
+ await assert.rejects(verifyReadOnlySandboxInstallation({env:settings,request:mismatch.request,now:1234567}),error=>{
+  assert.equal(error.code,'sandbox_identity_mismatch');
+  return true;
+ });
 });
