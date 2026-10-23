@@ -38,6 +38,27 @@ const run=async(root,...args)=>{
  })).stdout.trim();}
  catch{deny('CHECKOUT_GIT_FAILED');}
 };
+// A Git checkout may legitimately contain tracked symlinks. None may be
+// trusted as canonical input: a symlinked Gear/KB root or Markdown/media file
+// could otherwise escape the checkout before the inventory opens it.
+async function verifyCanonicalTree(pwa){
+ const required=['Gear','KB','Catches'];
+ for(const name of required){
+  const info=await fs.lstat(path.join(pwa,name));
+  assert(info.isDirectory()&&!info.isSymbolicLink(),'CHECKOUT_UNSAFE_TREE');
+ }
+ let count=0;
+ async function visit(directory){
+  for(const entry of await fs.readdir(directory,{withFileTypes:true})){
+   count++;
+   assert(count<=20000,'CHECKOUT_TOO_MANY_FILES');
+   assert(!entry.isSymbolicLink(),'CHECKOUT_UNSAFE_TREE');
+   if(entry.isDirectory())await visit(path.join(directory,entry.name));
+   else assert(entry.isFile(),'CHECKOUT_UNSAFE_TREE');
+  }
+ }
+ await visit(pwa);
+}
 export function createTrustedSandboxCandidate({trustedCheckout,store,
  sourceAware=createCanonicalSourceAware(),releaseCheckout,
 }={}){
@@ -67,6 +88,7 @@ export function createTrustedSandboxCandidate({trustedCheckout,store,
    assert(REMOTES.has(origin),'CHECKOUT_REMOTE_DENIED');
    const pwa=await fs.realpath(path.join(root,'pwa'));
    assert(pwa.startsWith(root+path.sep),'CHECKOUT_PATH_ESCAPE');
+   await verifyCanonicalTree(pwa);
    const source=await sourceAware.promote({
     package:structuredClone(snapshot.package),
     media:[],snapshot:{mainSha:baseSha,root:pwa},
