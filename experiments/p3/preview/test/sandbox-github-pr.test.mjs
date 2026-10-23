@@ -6,7 +6,7 @@ const ID=1430581407,OP='p3_00000000-1111-4111-8111-123456789abc';
 const BRANCH='p3-test-'+OP.slice(3),API='https://api.github.com/repos/ginosega/fishing-p3-sandbox';
 const rejected=code=>e=>(assert.equal(e instanceof SandboxPRError,true),assert.equal(e.code,code),true);
 function mock({main=SHA,repoId=ID,privateRepo=true,valid=true,changePath='Gear/Gear.json',
- issueScope=true,branchExists=false,noPR=false,malformedPR=false,disabled=false,mainMovesOnSecond=false}={}){
+ issueScope=true,branchExists=false,noPR=false,malformedPR=false,disabled=false,mainMovesOnSecond=false,receiptFailure=false}={}){
  const trace=[];let mainReads=0;
  const state={branch:branchExists?COMMIT:null,pr:branchExists&&!noPR?prRecord():null,receipt:null};
  function prRecord(){return {number:15,head:{sha:COMMIT,ref:BRANCH,repo:{id:ID}},
@@ -62,6 +62,7 @@ function mock({main=SHA,repoId=ID,privateRepo=true,valid=true,changePath='Gear/G
  const adapter=createSandboxPRAdapter({request,issueToken,trustedCandidate,publishingGate:()=>!disabled,
   knownReceipt:async()=>state.receipt,
   onBranchCreated:async value=>{
+   if(receiptFailure)return null;
    state.receipt={repositoryId:value.repositoryId,baseSha:value.baseSha,headSha:value.headSha};
    return state.receipt;
   }});
@@ -144,15 +145,11 @@ test('P3-P10 receipt-backed orphan branch safely creates only missing draft PR',
  assert.equal(s.trace.filter(x=>x.method==='POST').length,1);
  assert(s.trace.some(x=>x.method==='POST'&&x.url.endsWith('/pulls')));
 });
-test('P3-P11 branch created without persisted receipt fails, never creates PR',async()=>{
- const s=mock();
- const adapter=createSandboxPRAdapter({
-  request:async(...args)=>s.trace.push(...args),
-  issueToken:async()=>({repositoryId:ID,permissions:{contents:'write',pull_requests:'write'},token:'abc_def_123456'}),
-  trustedCandidate:async()=>({validated:true,sourceRevision:SHA,changes:[]}),
-  publishingGate:()=>false,
- });
- await assert.rejects(submit(adapter),rejected('WRITES_DISABLED'));
+test('P3-P11 branch creation without durable receipt stops before PR',async()=>{
+ const s=mock({receiptFailure:true});
+ await assert.rejects(submit(s.adapter),rejected('BRANCH_RECEIPT_NOT_DURABLE'));
+ assert.equal(s.trace.filter(x=>x.method==='POST'&&x.url.endsWith('/git/refs')).length,1);
+ assert.equal(s.trace.filter(x=>x.method==='POST'&&x.url.endsWith('/pulls')).length,0);
 });
 test('P3-P07 alternate repository ID cannot be configured even with fake request',()=>{
  assert.throws(()=>createSandboxPRAdapter({
