@@ -21,6 +21,7 @@
 - [Schema preflight tests](test/p3-schema-preflight.test.mjs) generate canonical 0001 with SQLite, then test schema drift, invalid/ambiguous ledger, unexpected 0002/0003 objects, wrong database/binding UUID, forged expected reference, duplicate metadata and SELECT-only access.
 - This is **not** a Cloudflare Worker route, cron, scheduler, deployed Node runtime, verified remote migration history or live App/DB integration. D1 observation recording can write *only* its isolated lease/evidence rows when a future trusted runtime enables it. No GitHub write API exists in this read-only composition.
 - A coincident source CI run never implies a production deployment; the public main and both isolated service settings remain unchanged.
+- Source verification: [GitHub Actions run #40035275719](https://github.com/ginosega/fishing/actions/runs/40035275719) completed **success: 80 PWA + 43 standalone + 140 preview = 263/263 tests passed**. The branch received a subsequent test-title-only correction; its own exact-head CI must be checked before final closeout.
 
 ## Next operational gates — withheld
 
