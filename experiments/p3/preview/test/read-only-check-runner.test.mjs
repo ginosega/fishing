@@ -113,7 +113,7 @@ test('P3-R04 restart does not re-read prior successful check',async()=>{
  assert.equal(f.requests.length,prior);
  assert.equal((await f.build().checkHistory(OP)).length,1);
 });
-test('P3-R05 pending observation and later success respect cooldown and lease',async()=>{
+test('P3-R05 pending observation and later failed-check review respect cooldown and lease',async()=>{
  const f=await fixture();f.approve();f.setPending();
  assert.equal((await f.build().observeCheck(OP)).state,'RetryScheduled');
  const after=f.requests.length;
