@@ -32,5 +32,7 @@ jobs:
       - name: Exercise isolated standalone broker suite
         working-directory: experiments/p3
         run: npm test
+      - name: Verify browser-paste Worker bundle matches source exactly
+        run: node experiments/p3/preview/tools/build-dashboard.mjs
       - name: Exercise unpublished Cloudflare sandbox deny-by-default worker
         run: node --test experiments/p3/preview/test/*.test.mjs
