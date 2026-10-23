@@ -21,6 +21,67 @@ const shape=rows=>Array.isArray(rows)&&rows.every(row=>
  row.sql.trim().length>0);
 const required=['p3_sessions','p3_operations','p3_events','p3_sessions_owner_expiry',
  'p3_operations_state_lease','p3_events_operation'];
+
+/**
+ * Independent, pinned six-object definition from 0001_initial.sql. A caller
+ * cannot claim an altered local reference is canonical by copying the remote
+ * schema into the expected list. Changes to 0001 require source review here.
+ */
+const PINNED_0001=Object.freeze({
+ p3_sessions:[
+  'table',String.raw`CREATE TABLE IF NOT EXISTS p3_sessions (
+  token_hash TEXT PRIMARY KEY NOT NULL,
+  github_id INTEGER NOT NULL,
+  csrf_hash TEXT NOT NULL,
+  expires_at INTEGER NOT NULL,
+  created_at INTEGER NOT NULL
+ )`,
+ ],
+ p3_sessions_owner_expiry:[
+  'index','CREATE INDEX IF NOT EXISTS p3_sessions_owner_expiry ON p3_sessions(github_id,expires_at)',
+ ],
+ p3_operations:[
+  'table',String.raw`CREATE TABLE IF NOT EXISTS p3_operations (
+  operation_id TEXT PRIMARY KEY NOT NULL,
+  github_id INTEGER NOT NULL,
+  repo_id INTEGER NOT NULL,
+  idempotency_key_hash TEXT NOT NULL,
+  payload_sha256 TEXT NOT NULL,
+  state TEXT NOT NULL CHECK(state IN ('Accepted','Validating','Checking','Merging','Deploying','Verifying','Live','Conflict','Failed')),
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL,
+  lease_owner TEXT,
+  lease_expires_at INTEGER,
+  pr_number INTEGER,
+  pr_head_sha TEXT,
+  main_base_sha TEXT,
+  merge_sha TEXT,
+  workflow_run_id INTEGER,
+  verified_release_id TEXT,
+  reason_code TEXT,
+  UNIQUE(github_id,repo_id,idempotency_key_hash)
+ )`,
+ ],
+ p3_operations_state_lease:[
+  'index','CREATE INDEX IF NOT EXISTS p3_operations_state_lease ON p3_operations(state,lease_expires_at)',
+ ],
+ p3_events:[
+  'table',String.raw`CREATE TABLE IF NOT EXISTS p3_events (
+  event_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  operation_id TEXT NOT NULL REFERENCES p3_operations(operation_id),
+  event_type TEXT NOT NULL,
+  from_state TEXT,
+  to_state TEXT,
+  event_at INTEGER NOT NULL,
+  error_code TEXT,
+  details_digest TEXT
+ )`,
+ ],
+ p3_events_operation:[
+  'index','CREATE INDEX IF NOT EXISTS p3_events_operation ON p3_events(operation_id,event_at)',
+ ],
+});
+
 const output=(status,blockers,extra={})=>Object.freeze({
  status,blockers:Object.freeze([...new Set(blockers)]),
  safeToApply:false,needsOwnerReview:true,...extra,
@@ -52,7 +113,9 @@ export function auditP3SchemaPreflight({
  const expected=toMap(source0001,'SOURCE');
  const actual=toMap(observedSchema,'REMOTE');
  if(expected.size!==6||required.some(name=>!expected.has(name))||
-   [...expected.keys()].some(name=>!required.includes(name)))
+   [...expected.keys()].some(name=>!required.includes(name))||
+   Object.entries(PINNED_0001).some(([name,[type,sql]])=>
+    expected.get(name)?.type!==type||expected.get(name)?.sql!==normalize(sql)))
   add('UNTRUSTED_0001_REFERENCE');
  for(const [name,definition] of expected){
   const found=actual.get(name);
