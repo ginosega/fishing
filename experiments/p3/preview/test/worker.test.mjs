@@ -46,7 +46,7 @@ const confirmed={verified:true,repository:'ginosega/fishing-p3-sandbox',
 test('P3-I06 diagnostic remains disabled without temporary secret or with wrong method',async()=>{
  let invoked=0;
  const sentinel=createWorker({verify:async()=>{invoked++;return confirmed;}});
- assert.equal((await sentinel.fetch(probeReq(),env())).status,403);
+ assert.equal((await sentinel.fetch(probeReq(),{...probeEnv(),P3_DIAGNOSTIC_KEY:undefined})).status,403);
  assert.equal((await sentinel.fetch(probeReq('GET'),probeEnv())).status,404);
  assert.equal((await sentinel.fetch(probeReq('POST','incorrect-guess-not-the-secret-123456'),probeEnv())).status,403);
  assert.equal(invoked,0);
