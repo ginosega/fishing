@@ -6,8 +6,9 @@ const ID=1430581407,OP='p3_00000000-1111-4111-8111-123456789abc';
 const BRANCH='p3-test-'+OP.slice(3),API='https://api.github.com/repos/ginosega/fishing-p3-sandbox';
 const rejected=code=>e=>(assert.equal(e instanceof SandboxPRError,true),assert.equal(e.code,code),true);
 function mock({main=SHA,repoId=ID,privateRepo=true,valid=true,changePath='Gear/Gear.json',
- issueScope=true,branchExists=false,noPR=false,malformedPR=false,disabled=false}={}){
- const trace=[];const state={branch:branchExists?COMMIT:null,pr:branchExists&&!noPR?prRecord():null};
+ issueScope=true,branchExists=false,noPR=false,malformedPR=false,disabled=false,mainMovesOnSecond=false}={}){
+ const trace=[];let mainReads=0;
+ const state={branch:branchExists?COMMIT:null,pr:branchExists&&!noPR?prRecord():null,receipt:null};
  function prRecord(){return {number:15,head:{sha:COMMIT,ref:BRANCH,repo:{id:ID}},
    base:{ref:'main',repo:{id:ID}},state:'open',merged_at:null};}
  const json=(value,status=200)=>({ok:status>=200&&status<300,status,json:async()=>value});
@@ -16,11 +17,15 @@ function mock({main=SHA,repoId=ID,privateRepo=true,valid=true,changePath='Gear/G
   assert(url===API||url.startsWith(API+'/'),'other repo URL forbidden');
   assert.equal(init.headers['User-Agent'],'fishing-p3-sandbox-publisher');
   if(init.method==='GET'&&url===API)return json({id:repoId,full_name:'ginosega/fishing-p3-sandbox',private:privateRepo});
-  if(init.method==='GET'&&url.endsWith('/git/ref/heads/main'))return json({object:{sha:main}});
+  if(init.method==='GET'&&url.endsWith('/git/ref/heads/main')){
+   mainReads++;return json({object:{sha:mainMovesOnSecond&&mainReads>1?'f'.repeat(40):main}});
+  }
   if(init.method==='GET'&&url.endsWith('/git/ref/heads/'+BRANCH))
    return state.branch?json({object:{sha:state.branch}}):json({message:'not found'},404);
   if(init.method==='GET'&&url.endsWith('/git/commits/'+SHA))
    return json({sha:SHA,tree:{sha:TREE}});
+  if(init.method==='GET'&&url.endsWith('/git/commits/'+COMMIT))
+   return json({sha:COMMIT,tree:{sha:TREE},parents:[{sha:SHA}]});
   if(init.method==='GET'&&url.includes('/pulls?'))return json(state.pr?[state.pr]:[]);
   if(init.method==='POST'&&url.endsWith('/git/blobs')){
    assert.equal(init.body.includes('base64'),true);return json({sha:BLOB},201);
@@ -54,21 +59,24 @@ function mock({main=SHA,repoId=ID,privateRepo=true,valid=true,changePath='Gear/G
   return {validated:valid,sourceRevision:baseSha,
    changes:[{action:'write',path:changePath,body:'{"test":true}\n'}]};
  };
- const adapter=createSandboxPRAdapter({request,issueToken,trustedCandidate,publishingGate:()=>!disabled});
+ const adapter=createSandboxPRAdapter({request,issueToken,trustedCandidate,publishingGate:()=>!disabled,
+  knownReceipt:async()=>state.receipt});
  return {trace,state,adapter};
 }
 const submit=adapter=>adapter.createDraft({operationId:OP,domain:'gear',expectedMainSha:SHA});
 test('P3-P01 sandbox content branch and draft PR only, exact fixed repo',async()=>{
  const s=mock();
  const out=await submit(s.adapter);
- assert.deepEqual(out,{number:15,branch:BRANCH,headSha:COMMIT,state:'open',merged:false,reused:false});
+ assert.deepEqual(out,{number:15,branch:BRANCH,headSha:COMMIT,state:'open',merged:false,baseSha:SHA,reused:false});
  const posts=s.trace.filter(x=>x.method==='POST').map(x=>x.url.split(API)[1]);
  assert.deepEqual(posts,['/git/blobs','/git/trees','/git/commits','/git/refs','/pulls']);
  assert(s.trace.filter(x=>x.tokenRequest).every(x=>x.tokenRequest.repositoryId===ID));
  assert.equal(s.trace.some(x=>x.url?.includes('/merge')),false);
 });
 test('P3-P02 replay retrieves same PR without new GitHub writes',async()=>{
- const s=mock();await submit(s.adapter);const n=s.trace.length;
+ const s=mock();const first=await submit(s.adapter);
+ s.state.receipt={repositoryId:ID,baseSha:first.baseSha,headSha:first.headSha};
+ const n=s.trace.length;
  const again=await submit(s.adapter);
  assert.equal(again.number,15);assert.equal(again.reused,true);
  assert.equal(s.trace.slice(n).filter(x=>x.method==='POST').length,0);
@@ -107,6 +115,21 @@ test('P3-P06 rejected PR head identity never reports success or merges',async()=
  const s=mock({malformedPR:true});
  await assert.rejects(submit(s.adapter),rejected('PR_IDENTITY_MISMATCH'));
  assert.equal(s.trace.some(x=>x.url?.includes('/merge')),false);
+});
+test('P3-P08 pre-existing PR without operation receipt is never trusted as success',async()=>{
+ const s=mock({branchExists:true});
+ await assert.rejects(submit(s.adapter),rejected('BRANCH_RECONCILIATION_REQUIRED'));
+ assert.equal(s.trace.filter(x=>x.method==='POST').length,0);
+ const t=mock({branchExists:true});
+ t.state.receipt={repositoryId:ID,baseSha:SHA,headSha:'f'.repeat(40)};
+ await assert.rejects(submit(t.adapter),rejected('BRANCH_RECONCILIATION_REQUIRED'));
+ assert.equal(t.trace.filter(x=>x.method==='POST').length,0);
+});
+test('P3-P09 moving main before branch creation is a hard stop',async()=>{
+ const s=mock({mainMovesOnSecond:true});
+ await assert.rejects(submit(s.adapter),rejected('MAIN_MOVED_AFTER_VALIDATION'));
+ assert.equal(s.trace.some(x=>x.method==='POST'&&x.url.endsWith('/git/refs')),false);
+ assert.equal(s.trace.some(x=>x.method==='POST'&&x.url.endsWith('/pulls')),false);
 });
 test('P3-P07 alternate repository ID cannot be configured even with fake request',()=>{
  assert.throws(()=>createSandboxPRAdapter({
