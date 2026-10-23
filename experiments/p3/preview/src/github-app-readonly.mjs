@@ -6,6 +6,8 @@
  * executing, and must never return GitHub tokens to an HTTP response.
  */
 const SANDBOX='ginosega/fishing-p3-sandbox';
+// Exact repository ID confirmed using the GitHub connector after access was granted.
+const SANDBOX_REPOSITORY_ID=1430581407;
 const API='https://api.github.com';
 const headers={'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2026-03-10'};
 const ensure=(ok,msg)=>{if(!ok)throw new Error(msg);};
@@ -59,7 +61,7 @@ export async function verifyReadOnlySandboxInstallation({env,request=fetch,now=M
  });
  ensure(repository.ok,'Sandbox is not accessible to GitHub App installation');
  const details=await repository.json();
- ensure(details?.full_name===SANDBOX&&details.private===true&&Number.isSafeInteger(details.id),
+ ensure(details?.full_name===SANDBOX&&details.private===true&&details.id===SANDBOX_REPOSITORY_ID,
   'Installation access resolved to an unexpected repository');
  // Never return the key, GitHub installation token, owner secrets or JWT.
  return Object.freeze({verified:true,repository:SANDBOX,repositoryId:details.id,
