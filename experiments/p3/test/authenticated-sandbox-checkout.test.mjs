@@ -5,6 +5,8 @@ import os from 'node:os';
 import path from 'node:path';
 import {execFile as cb} from 'node:child_process';
 import {promisify} from 'node:util';
+import {generateKeyPairSync} from 'node:crypto';
+import {createP3TrustedNodeValidation} from '../src/p3-trusted-node-validation.mjs';
 import {createAuthenticatedSandboxCheckout,AuthenticatedCheckoutError} from '../src/authenticated-sandbox-checkout.mjs';
 import {createTrustedSandboxCandidate} from '../src/trusted-sandbox-candidate.mjs';
 import {createCanonicalSourceAware} from '../src/source-aware.mjs';
@@ -180,4 +182,47 @@ test('P3-A06 no arbitrary checkout deletion or path supplied by caller',async t=
  assert((await fs.stat(f.root)).isDirectory());
  await assert.rejects(p.readMainSha({repositoryId:1350909744}),deny('REPOSITORY_DENIED'));
  assert.equal(p.calls.length,0);
+});
+
+test('P3-A07 Node composition uses actual App-scoped token, exact checkout and canonical source; no writes',async t=>{
+ const f=await fixture(t);
+ const privateKey=generateKeyPairSync('rsa',{modulusLength:2048}).privateKey
+  .export({format:'pem',type:'pkcs1'}).toString();
+ const env={P3_GITHUB_APP_ID:'1001',P3_GITHUB_INSTALLATION_ID:'2002',
+  P3_GITHUB_PRIVATE_KEY:privateKey,P3_WRITE_ENABLED:'false'};
+ const calls=[];
+ const inst={id:2002,app_id:1001,account:{login:'ginosega'},
+  repository_selection:'selected',suspended_at:null,permissions:{contents:'write',pull_requests:'write'}};
+ const response=obj=>({ok:true,json:async()=>obj});
+ const request=async(url,init)=>{
+  calls.push({url,method:init.method});
+  if(url==='https://api.github.com/app/installations/2002')return response(inst);
+  if(url==='https://api.github.com/repos/'+REPO+'/installation')return response(inst);
+  if(url==='https://api.github.com/app/installations/2002/access_tokens'){
+   assert.deepEqual(JSON.parse(init.body),{repository_ids:[ID],permissions:{contents:'read'}});
+   return response({token:'sandbox_ephemeral_read_grant',
+    permissions:{contents:'read',metadata:'read'},repositories:[{id:ID,full_name:REPO}]});
+  }
+  if(url===API)return response({id:ID,full_name:REPO,private:true,archived:false});
+  if(url===API+'/git/ref/heads/main')
+   return response({ref:'refs/heads/main',object:{type:'commit',sha:f.sha}});
+  if(url===API+'/git/commits/'+f.sha)return response({sha:f.sha,tree:{sha:f.tree}});
+  throw Error('Unexpected GitHub request '+url);
+ };
+ const gitExec=async(cmd,args,opts)=>{
+  if(args.includes('fetch'))
+   return exec('git',['-C',args[1],'-c','protocol.file.allow=always',
+    'fetch','--no-tags','--depth=1',f.bare,'refs/heads/main'],opts);
+  return exec(cmd,args,opts);
+ };
+ const service=createP3TrustedNodeValidation({
+  env,request,gitExec,
+  store:{readSnapshot:async()=>({package:await gearPackage(f),media:[]})},
+ });
+ assert.deepEqual(await service.readMainSha({repositoryId:ID}),{repositoryId:ID,sha:f.sha});
+ const result=await service.validateCandidate({baseSha:f.sha,domain:'gear',operationId:OP});
+ assert.equal(result.validated,true);
+ assert.equal(JSON.parse(result.changes[0].body).items[0].name,'Updated Rod');
+ assert.equal(calls.filter(x=>x.method==='POST').length,2,'only installation token POSTs are allowed');
+ assert(calls.every(x=>!x.url.includes('/git/refs')&&!x.url.endsWith('/pulls')));
 });
