@@ -61,7 +61,7 @@ export function createD1CheckObservationStore({
   const row=await sql(
    'INSERT INTO p3_ci_observations '+
    '(operation_id,repo_id,pr_number,head_sha,base_sha,branch,state,check_run_id,reason_code,attempts,observed_at,next_poll_at) '+
-   'SELECT operation_id,repo_id,pr_number,pr_head_sha,main_base_sha,?,?,?,?,?,?,?,? '+
+   'SELECT operation_id,repo_id,pr_number,pr_head_sha,main_base_sha,?,?,?,?,?,?,? '+
    'FROM p3_operations WHERE operation_id=? AND github_id=? AND repo_id=? AND state=? '+
    'AND lease_owner=? AND lease_expires_at>? AND pr_number=? AND pr_head_sha=? AND main_base_sha=? '+
    'ON CONFLICT(operation_id) DO UPDATE SET '+
