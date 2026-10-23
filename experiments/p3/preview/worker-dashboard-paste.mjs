@@ -56,6 +56,39 @@ async function verifyReadOnlySandboxInstallation({env,request=fetch,now=Math.flo
  let jwt;
  try{jwt=await appJwt({appId:env.P3_GITHUB_APP_ID,privateKey:env.P3_GITHUB_PRIVATE_KEY,now,cryptoApi});}
  catch{proofError('app_key_signing_failed');}
+ const jwtHeaders={...headers,Authorization:'Bearer '+jwt};
+ let installationResponse;
+ try{installationResponse=await request(API+'/app/installations/'+env.P3_GITHUB_INSTALLATION_ID,{
+   method:'GET',headers:jwtHeaders,
+ });}catch{proofError('app_installation_lookup_network_failure');}
+ if(!installationResponse?.ok)
+   proofError('app_installation_lookup_http_'+permittedStatus(installationResponse?.status));
+ let installation;
+ try{installation=await installationResponse.json();}catch{proofError('app_installation_lookup_malformed_response');}
+ if(installation?.id!==Number(env.P3_GITHUB_INSTALLATION_ID)||
+    installation?.app_id!==Number(env.P3_GITHUB_APP_ID))
+   proofError('app_installation_id_mismatch');
+ if(installation?.account?.login!=='ginosega')
+   proofError('app_installation_owner_mismatch');
+ if(installation?.suspended_at!=null)proofError('app_installation_suspended');
+ if(installation?.repository_selection!=='selected')
+   proofError('app_installation_scope_not_selected');
+ if(!['read','write'].includes(installation?.permissions?.contents)||
+    installation?.permissions?.pull_requests!=='write')
+   proofError('app_installation_permissions_mismatch');
+ let sandboxInstallationResponse;
+ try{sandboxInstallationResponse=await request(API+'/repos/'+SANDBOX+'/installation',{
+  method:'GET',headers:jwtHeaders,
+ });}catch{proofError('sandbox_installation_lookup_network_failure');}
+ if(!sandboxInstallationResponse?.ok)
+   proofError('sandbox_installation_lookup_http_'+permittedStatus(sandboxInstallationResponse?.status));
+ let sandboxInstallation;
+ try{sandboxInstallation=await sandboxInstallationResponse.json();}
+ catch{proofError('sandbox_installation_lookup_malformed_response');}
+ if(sandboxInstallation?.id!==installation.id||
+    sandboxInstallation?.app_id!==installation.app_id||
+    sandboxInstallation?.account?.login!=='ginosega')
+   proofError('sandbox_installation_mismatch');
  let grant;
  try{
   grant=await request(API+'/app/installations/'+env.P3_GITHUB_INSTALLATION_ID+'/access_tokens',{
