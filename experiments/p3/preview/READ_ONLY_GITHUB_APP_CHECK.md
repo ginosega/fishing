@@ -4,6 +4,20 @@
 
 **Current status:** The source and test suite are committed to draft PR #263; Cloudflare deployment of this diagnostic is **not yet reported or verified**. ChatGPT has no Cloudflare management connection and cannot run it against stored Cloudflare secrets.
 
+## Live proof completed — HTTP 200 (owner reported)
+
+The owner completed the hosted read-only test with the corrected outbound GitHub `User-Agent`. The Edge console returned:
+
+```json
+{"verified":true,"repository":"ginosega/fishing-p3-sandbox","repositoryId":1430581407,"tokenScope":"contents:read","publishingEnabled":false}
+```
+
+**This closes the P3-2 read-only installation-authentication proof as PASS.** The owner supplied the HTTP 200 response and diagnostic key **length 48**, but no secret or private key content was shared. The Worker authenticated to GitHub and verified the *exact private sandbox*, requesting only a restricted, read-only installation token. The earlier GitHub API 403 errors cleared after adding the required `User-Agent: fishing-p3-sandbox-publisher` request header.
+
+**Immediate next action:** Delete the `P3_DIAGNOSTIC_KEY` **Cloudflare Secret**, deploy the resulting Worker settings change, and optionally verify that an attempted diagnostic call now returns 403. This cleanup remains **pending owner confirmation**. Retain the other four settings; `P3_WRITE_ENABLED` must stay exactly `false`. Do not repeat the App credential registration steps or expose keys in chat.
+
+Read-only proof does not authorize a writable sandbox publishing trial. The G3 privileged-write hardening, trusted owner session, CSRF, idempotent D1 operation coordination, branch protection / required exact-head source checks and deployment identity verification remain distinct pending gates.
+
 ## One additional temporary secret
 
 To prevent anyone on the Internet from triggering the sandbox token check, the diagnostic route requires a fresh **temporary** high-entropy key, **separate** from the GitHub App PEM and unrelated to OAuth passwords. This key is a test-only capability, and we will delete it after verification.
