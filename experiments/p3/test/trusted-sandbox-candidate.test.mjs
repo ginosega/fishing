@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtemp,mkdir,writeFile,appendFile,rm} from 'node:fs/promises';
+import {mkdtemp,mkdir,writeFile,appendFile,rm,symlink} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {execFileSync} from 'node:child_process';
@@ -82,5 +82,31 @@ test('P3-T05 source-aware errors propagate, and checkout gets cleaned up',async(
   const x=bridge(f,{sourceAware:{promote:async()=>{throw new Error('canonical inventory invalid');}}});
   await assert.rejects(call(x.adapter,f.sha),/canonical inventory invalid/);
   assert.equal(x.counts().cleanups,1);
+ }finally{await f.cleanup();}
+});
+
+test('P3-T06 a tracked symlink under canonical source is rejected before promoter runs',async()=>{
+ const f=await fixture();
+ try{
+  await symlink('/etc/hosts',path.join(f.root,'pwa','Gear','unsafe.md'));
+  git(f.root,'add','.');
+  git(f.root,'commit','-q','-m','unsafe tracked link');
+  f.sha=git(f.root,'rev-parse','HEAD');
+  const x=bridge(f);
+  await assert.rejects(call(x.adapter,f.sha),denied('CHECKOUT_UNSAFE_TREE'));
+  assert.deepEqual(x.counts(),{validated:0,cleanups:1});
+ }finally{await f.cleanup();}
+});
+test('P3-T07 a symlinked canonical root cannot escape the isolated checkout',async()=>{
+ const f=await fixture();
+ try{
+  await rm(path.join(f.root,'pwa','KB'),{recursive:true});
+  await symlink('/etc',path.join(f.root,'pwa','KB'));
+  git(f.root,'add','.');
+  git(f.root,'commit','-q','-m','symlinked root');
+  f.sha=git(f.root,'rev-parse','HEAD');
+  const x=bridge(f);
+  await assert.rejects(call(x.adapter,f.sha),denied('CHECKOUT_UNSAFE_TREE'));
+  assert.deepEqual(x.counts(),{validated:0,cleanups:1});
  }finally{await f.cleanup();}
 });
