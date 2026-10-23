@@ -30,9 +30,10 @@ function base64(s){
 }
 const statusCode=s=>[401,403,404,409,422].includes(s)?s:0;
 export function createSandboxPRAdapter({request=fetch,issueToken,trustedCandidate,
- publishingGate=()=>false,allowedRepoId=ID}={}){
+ publishingGate=()=>false,knownReceipt=async()=>null,allowedRepoId=ID}={}){
  ok(typeof request==='function'&&typeof issueToken==='function'&&
   typeof trustedCandidate==='function'&&typeof publishingGate==='function'&&
+  typeof knownReceipt==='function'&&
   allowedRepoId===ID,'INVALID_CONFIGURATION');
  async function api(token,method,path,body,allow404=false){
   ok(path===API||path.startsWith(API+'/'),'REPOSITORY_DENIED');
@@ -92,9 +93,19 @@ export function createSandboxPRAdapter({request=fetch,issueToken,trustedCandidat
   const existing=await api(t,'GET',API+'/git/ref/heads/'+branch,undefined,true);
   if(existing){
    ok(sha(existing.object?.sha),'INVALID_BRANCH');
+   // An unknown existing branch is NOT an idempotency proof. Trust only an
+   // exact receipt retrieved from durable, server-owned operation state.
+   const receipt=await knownReceipt({operationId,repositoryId:ID});
+   ok(receipt?.repositoryId===ID&&receipt?.baseSha===base&&
+      receipt?.headSha===existing.object.sha,'BRANCH_RECONCILIATION_REQUIRED');
+   const previousCommit=await api(t,'GET',API+'/git/commits/'+receipt.headSha);
+   ok(previousCommit?.sha===receipt.headSha&&previousCommit.parents?.length===1&&
+      previousCommit.parents[0]?.sha===base,'BRANCH_RECONCILIATION_REQUIRED');
    const current=await onePR(t,branch);
    ok(current,'BRANCH_RECONCILIATION_REQUIRED');
-   return {...checked(current,branch,existing.object.sha),reused:true};
+   const checkedPr=checked(current,branch,receipt.headSha);
+   ok(!checkedPr.merged&&checkedPr.state==='open','PR_NOT_OPEN');
+   return {...checkedPr,baseSha:base,reused:true};
   }
   const entries=await plan(base,domain,operationId);
   const parent=await api(t,'GET',API+'/git/commits/'+base);
@@ -111,6 +122,10 @@ export function createSandboxPRAdapter({request=fetch,issueToken,trustedCandidat
    message:'FISH118 P3 sandbox sample '+operationId,tree:next.sha,parents:[base],
   });
   ok(sha(commit?.sha),'INVALID_NEW_COMMIT');
+  // Prevent making a branch from a main SHA that moved during blob/tree
+  // preparation. A moved main is a conflict, not an implicit rebase.
+  const freshMain=await api(t,'GET',API+'/git/ref/heads/main');
+  ok(freshMain?.object?.sha===base,'MAIN_MOVED_AFTER_VALIDATION');
   const created=await api(t,'POST',API+'/git/refs',{ref:'refs/heads/'+branch,sha:commit.sha});
   ok(created?.ref==='refs/heads/'+branch&&created?.object?.sha===commit.sha,'BRANCH_CREATE_FAILED');
   const present=await onePR(t,branch);
@@ -119,7 +134,12 @@ export function createSandboxPRAdapter({request=fetch,issueToken,trustedCandidat
    body:'Isolated publishing test: '+operationId+'. No production code and no automatic merge.',
    draft:true,
   });
-  return {...checked(pr,branch,commit.sha),reused:!!present};
+  const proven=checked(pr,branch,commit.sha);
+  ok(!proven.merged&&proven.state==='open','PR_NOT_OPEN');
+  // Persist baseSha/headSha in D1 after this function returns. If a
+  // crash occurred before receipt durability, manual reconciliation is
+  // deliberately required instead of silently trusting branch metadata.
+  return {...proven,baseSha:base,reused:!!present};
  }
  return Object.freeze({createDraft});
 }
