@@ -8,7 +8,7 @@ const pemPkcs8=privateKey.export({type:'pkcs8',format:'pem'}).toString();
 const settings={P3_GITHUB_APP_ID:'1001',P3_GITHUB_INSTALLATION_ID:'2002',
  P3_GITHUB_PRIVATE_KEY:pemPkcs1,P3_WRITE_ENABLED:'false'};
 const un64=s=>Buffer.from(s.replace(/-/g,'+').replace(/_/g,'/'),'base64');
-const fakeFetch=({repo='ginosega/fishing-p3-sandbox',privateRepo=true,permission='read',granted=true,correctRepo=true}={})=>{
+const fakeFetch=({repo='ginosega/fishing-p3-sandbox',privateRepo=true,permission='read',granted=true,correctRepo=true,repoId=1430581407}={})=>{
  const calls=[];
  const request=async(url,init)=>{
   calls.push({url,init});
@@ -21,7 +21,7 @@ const fakeFetch=({repo='ginosega/fishing-p3-sandbox',privateRepo=true,permission
   }
   assert.equal(url,'https://api.github.com/repos/ginosega/fishing-p3-sandbox');
   assert.equal(init.headers.Authorization,'Bearer ghs_demo_opaque_token');
-  return {ok:correctRepo,json:async()=>({full_name:repo,private:privateRepo,id:4444})};
+  return {ok:correctRepo,json:async()=>({full_name:repo,private:privateRepo,id:repoId})};
  };
  return {request,calls};
 };
@@ -41,12 +41,12 @@ test('P3-G02 PKCS8 app keys and escaped PEM newlines accepted',async()=>{
 test('P3-G03 narrowed installation token only, exact private sandbox read verified',async()=>{
  const f=fakeFetch();
  const result=await verifyReadOnlySandboxInstallation({env:settings,request:f.request,now:1234567});
- assert.deepEqual(result,{verified:true,repository:'ginosega/fishing-p3-sandbox',repositoryId:4444,private:true,tokenScope:'contents:read',publishingEnabled:false});
+ assert.deepEqual(result,{verified:true,repository:'ginosega/fishing-p3-sandbox',repositoryId:1430581407,private:true,tokenScope:'contents:read',publishingEnabled:false});
  assert.equal(f.calls.length,2);
  assert.equal(JSON.stringify(result).includes('ghs_'),false);
 });
 test('P3-G04 refuses incorrect repository, non-private repo, bad scope or installation failure',async()=>{
- for(const opts of [{repo:'ginosega/fishing'},{privateRepo:false},{permission:'write'},{granted:false},{correctRepo:false}]){
+ for(const opts of [{repo:'ginosega/fishing'},{repoId:1350909744},{privateRepo:false},{permission:'write'},{granted:false},{correctRepo:false}]){
   const f=fakeFetch(opts);
   await assert.rejects(verifyReadOnlySandboxInstallation({env:settings,request:f.request,now:1234567}));
  }
