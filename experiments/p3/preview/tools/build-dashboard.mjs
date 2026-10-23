@@ -4,9 +4,9 @@
 import fs from 'node:fs/promises';
 const root=new URL('../',import.meta.url);
 const header="/* GENERATED SINGLE-FILE CLOUDFLARE DASHBOARD BUNDLE. NO GITHUB WRITE OPERATIONS. Source: src/github-app-readonly.mjs + src/worker.mjs. Delete P3_DIAGNOSTIC_KEY after the test to disable the probe. */\n\n";
-const helper=(await fs.readFile(new URL('src/github-app-readonly.mjs',root),'utf8')).replace(/^export async function /gm,'async function ');
+const helper=(await fs.readFile(new URL('src/github-app-readonly.mjs',root),'utf8')).replace(/^export async function /gm,'async function ').replace(/^export class /gm,'class ');
 const worker=(await fs.readFile(new URL('src/worker.mjs',root),'utf8'))
- .replace(/^import \{verifyReadOnlySandboxInstallation\} from '\.\/github-app-readonly\.mjs';\s*\n/,'')
+ .replace(/^import .*github-app-readonly.*;\s*\n/,'')
  .replace(/^export function createWorker/gm,'function createWorker');
 if(helper.includes('export ')||worker.startsWith('import ')||!worker.endsWith('export default createWorker();\n'))throw Error('Unexpected source imports/exports');
 // Remove full-line // comments from the browser copy; safe even if pasted onto one line.
