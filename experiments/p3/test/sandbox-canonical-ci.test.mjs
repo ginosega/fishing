@@ -128,7 +128,16 @@ test('P3-H10 inactive workflow template uses a pinned trusted script and NO PR-e
  assert.match(yaml,/repository: ginosega\/fishing-p3-sandbox/);
  assert.match(yaml,/repository: ginosega\/fishing/);
  assert.match(yaml,/ref: \$\{\{ github\.event\.pull_request\.head\.sha \}\}/);
- assert.match(yaml,/ref: 5c69a4880855a6a7c47c660345dc48816e5c99a6/);
+ assert.match(yaml,/ref: e75b6009f947b03568124ddf8d2c513a63c4025c/);
  assert.match(yaml,/node trusted\/experiments\/p3\/preview\/tools\/validate-sandbox-head\.mjs/);
  assert.doesNotMatch(yaml,/working-directory: sandbox|run:\s*npm\s+(test|install|ci).*sandbox/);
+});
+
+test('P3-H11 valid but non-synthetic production-style records are refused',async t=>{
+ const f=await setup(t);
+ const head=await f.commit('pwa/Gear/gear.json',JSON.stringify({
+  schemaVersion:2,items:[{...gear.items[0],id:'user-real-rod'}],
+ }));
+ await assert.rejects(validateSandboxHead(f.target(head)),
+  denied('NON_SYNTHETIC_SANDBOX_SOURCE'));
 });
