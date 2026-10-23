@@ -1,6 +1,6 @@
 # FISH118 P3-7 — Minimal canonical fixture and inactive exact-PR-head sandbox CI
 
-**Date:** October 23, 2026. **Status:** Source-only design, fixture, verifier and tests on draft PR #263. **Not installed in private sandbox.** No cloud deployment, migration, live GitHub write, GitHub App permission change, pull request, merge or production release.
+**Date:** October 23, 2026. **Status:** Source-only design, fixture, verifier and tests on draft PR #263. **Not installed in private sandbox.** No cloud deployment, migration, live sandbox GitHub write, GitHub App permission change, sandbox pull request, merge or production release.
 
 ## Authority and restored baseline
 
@@ -30,7 +30,7 @@ If approved and installed in sandbox default branch as .github/workflows/fishing
 1. pull_request to main only (never pull_request_target), job has only GitHub Actions contents:read rights, and no stored App key or outside secrets.
 2. Read-only actions/checkout pins the sandbox source to GitHub's exact pull_request.head.sha with complete baseline history and credentials not persisted.
 3. A *second* read-only checkout obtains trusted public Fishing source from immutable reviewed SHA **e75b6009f947b03568124ddf8d2c513a63c4025c**. A separate exact SHA assertion guards this source.
-4. It installs lockfile dependencies **only** from the trusted public Fishing repo and invokes the trusted validator on sandbox source as data, passing signed GitHub event identity/base/head values only through environment variables. It does not execute scripts from the PR branch.
+4. It installs lockfile dependencies **only** from the trusted public Fishing repo and invokes the trusted validator on sandbox source as data, passing GitHub-supplied event identity/base/head values only through environment variables. It does not execute scripts from the PR branch.
 5. This yields a CI job named validate-sandbox-head. It is **not** a required check, merge or published hosted-release proof until actual branch protections and a fully approved publishing lifecycle exist.
 
 Potential limitations to test at actual installation: same-repo private Actions availability, public trusted checkout from a private repository workflow, rate limits, and branch-rule support. Existing Github App has Contents/PR R/W but no Checks:read; this workflow alone does not change that. The separate App check-runs API permission request requires separate approval. No branch-rule bypass is permitted.
