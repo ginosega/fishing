@@ -31,12 +31,12 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: ginosega/fishing
-          ref: 5c69a4880855a6a7c47c660345dc48816e5c99a6
+          ref: e75b6009f947b03568124ddf8d2c513a63c4025c
           persist-credentials: false
           path: trusted
       - name: Verify immutable trusted validator revision
         env:
-          P3_TRUSTED_SHA: 5c69a4880855a6a7c47c660345dc48816e5c99a6
+          P3_TRUSTED_SHA: e75b6009f947b03568124ddf8d2c513a63c4025c
         run: |
           set -euo pipefail
           test "$(git -C trusted rev-parse HEAD)" = "$P3_TRUSTED_SHA"
