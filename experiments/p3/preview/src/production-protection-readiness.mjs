@@ -51,6 +51,68 @@ export function auditProductionBranchSummary({repository,branch,
  });
 }
 
+
+/**
+ * GitHub Rulesets and classic branch protection are independent APIs:
+ * an active ruleset protects the branch while the classic branch-protection
+ * summary can still report enabled:false. This read-only audit verifies the
+ * real Ruleset 25742040, not just a manually interpreted screenshot.
+ */
+export function auditProductionRuleset({repository,branch,ruleset,
+ requiredCheck=PROPOSED_REQUIRED_CHECK}={}){
+ const blockers=[];
+ const need=(condition,code)=>{if(!condition)blockers.push(code);};
+ need(repository?.id===PRODUCTION_REPOSITORY.id&&
+  repository?.full_name===PRODUCTION_REPOSITORY.fullName&&
+  repository?.private===false,'WRONG_OR_PRIVATE_REPOSITORY');
+ need(branch?.name==='main'&&safeSha(branch?.commit?.sha)&&
+  branch?.protected===true,'MAIN_NOT_PROTECTED');
+ need(ruleset?.id===25742040&&ruleset?.source==='ginosega/fishing'&&
+  ruleset?.source_type==='Repository'&&ruleset?.target==='branch'&&
+  ruleset?.enforcement==='active','RULESET_NOT_ACTIVE_OR_TRUSTED');
+ const conditions=ruleset?.conditions?.ref_name;
+ need(Array.isArray(conditions?.include)&&
+  (conditions.include.includes('~DEFAULT_BRANCH')||
+   conditions.include.includes('refs/heads/main'))&&
+  Array.isArray(conditions.exclude)&&conditions.exclude.length===0,
+  'MAIN_NOT_TARGETED');
+ need(Array.isArray(ruleset?.bypass_actors)&&
+  ruleset.bypass_actors.length===0&&
+  ruleset?.current_user_can_bypass==='never',
+  'RULESET_HAS_BYPASS');
+ const rules=Array.isArray(ruleset?.rules)?ruleset.rules:[];
+ const get=(name)=>rules.filter(x=>x?.type===name);
+ need(get('deletion').length===1,'DELETION_ALLOWED');
+ need(get('non_fast_forward').length===1,'FORCE_PUSH_ALLOWED');
+ const prs=get('pull_request');
+ need(prs.length===1&&prs[0]?.parameters?.required_approving_review_count===0&&
+  prs[0]?.parameters?.require_code_owner_review===false&&
+  prs[0]?.parameters?.require_last_push_approval===false&&
+  Array.isArray(prs[0]?.parameters?.required_reviewers)&&
+  prs[0].parameters.required_reviewers.length===0,
+  'PR_RULE_INCORRECT');
+ const statusRules=get('required_status_checks');
+ const checks=statusRules[0]?.parameters;
+ need(statusRules.length===1&&
+  checks?.strict_required_status_checks_policy===true&&
+  checks?.do_not_enforce_on_create===false,
+  'CHECKS_NOT_ENFORCED_STRICTLY');
+ const required=checks?.required_status_checks;
+ need(requiredCheck===PROPOSED_REQUIRED_CHECK&&
+  Array.isArray(required)&&required.length===1&&
+  required[0]?.context===requiredCheck&&
+  required[0]?.integration_id===EXPECTED_ACTIONS_APP_ID,
+  'REQUIRED_CHECK_INCORRECT');
+ return Object.freeze({
+  observedReady:blockers.length===0,
+  blockers:Object.freeze(blockers),
+  rulesetId:ruleset?.id??null,
+  // Does not authorize a merge; the live caller still needs exact PR head,
+  // current base, actual successful Actions check, and GitHub enforcement.
+  neverAuthorizesMerge:true,
+ });
+}
+
 export function auditExactPRCheck({pullRequest,checks,expectedHeadSha,
  expectedBaseSha,requiredCheck=PROPOSED_REQUIRED_CHECK}={}){
  const blockers=[];
