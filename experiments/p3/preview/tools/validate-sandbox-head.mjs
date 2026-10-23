@@ -97,6 +97,13 @@ export async function validateSandboxHead({
  // This is the actual canonical source inventory, including Ajv, Markdown,
  // references, image decoding and hashes. No source files are executed.
  const result=await inventorySource(pwa,{pendingMedia:false});
+ // This private P3 repository is for synthetic tests only, not a second copy
+ // of the owner's production Fishing data. It is not yet a Catch editor.
+ assert(result.data.gear.items.length<=10&&result.data.kb.entities.length<=10&&
+  result.data.catches.catches.length===0&&
+  result.data.gear.items.every(item=>item.id?.startsWith('p3-'))&&
+  result.data.kb.entities.every(item=>item.id?.includes('p3-')),
+  'NON_SYNTHETIC_SANDBOX_SOURCE');
  return Object.freeze({
   repositoryId:SANDBOX_ID,headSha:expectedHeadSha,baseSha:expectedBaseSha,
   changedFiles:paths.length,files:limits.files,bytes:limits.bytes,
