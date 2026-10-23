@@ -49,7 +49,7 @@ export async function verifyReadOnlySandboxInstallation({env,request=fetch,now=M
  const jwt=await appJwt({appId:env.P3_GITHUB_APP_ID,privateKey:env.P3_GITHUB_PRIVATE_KEY,now,cryptoApi});
  const grant=await request(API+'/app/installations/'+env.P3_GITHUB_INSTALLATION_ID+'/access_tokens',{
   method:'POST',headers:{...headers,Authorization:'Bearer '+jwt,'Content-Type':'application/json'},
-  body:JSON.stringify({repositories:['fishing-p3-sandbox'],permissions:{contents:'read'}}),
+  body:JSON.stringify({repository_ids:[SANDBOX_REPOSITORY_ID],permissions:{contents:'read'}}),
  });
  ensure(grant.ok,'GitHub refused restricted installation token');
  const body=await grant.json();
