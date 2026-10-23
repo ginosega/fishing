@@ -4,7 +4,7 @@ on:
     branches: [main, feature/v2-implementation-20260908]
     paths: ['pwa/**', '!pwa/docs/**', '!pwa/README.md', '.github/workflows/**']
   pull_request:
-    paths: ['pwa/**', '!pwa/docs/**', '!pwa/README.md', '.github/workflows/**']
+    # Every PR must emit the same required check, including docs-only PRs.
   workflow_dispatch:
 permissions:
   contents: read
@@ -42,15 +42,30 @@ jobs:
             files="$(git diff --name-only "$base" "$GITHUB_SHA")"
           fi
           if [[ "$mode" != 'full' ]]; then
-            mode='content'
+            mode='docs'
             if [[ -z "$files" ]]; then
               mode='full'
             else
               while IFS= read -r file; do
                 [[ -z "$file" ]] && continue
                 case "$file" in
-                  pwa/Gear/*|pwa/KB/*|pwa/Catches/*) ;;
-                  *) mode='full'; break ;;
+                  pwa/Gear/*|pwa/KB/*|pwa/Catches/*)
+                    if [[ "$mode" == 'docs' ]]; then
+                      mode='content'
+                    fi
+                    ;;
+                  *.md)
+                    # Markdown outside canonical content roots has no published
+                    # runtime effect. Mixed canonical + docs changes are full.
+                    if [[ "$mode" == 'content' ]]; then
+                      mode='full'
+                      break
+                    fi
+                    ;;
+                  *)
+                    mode='full'
+                    break
+                    ;;
                 esac
               done <<< "$files"
             fi
@@ -164,6 +179,62 @@ jobs:
             pwa/.preview-test-output/
           include-hidden-files: true
           retention-days: 90
+
+  validate-docs:
+    if: needs.classify.outputs.mode == 'docs' && github.event_name == 'pull_request'
+    needs: classify
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify documentation-only diff has no whitespace errors
+        shell: bash
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+          git diff --check "$PR_BASE_SHA"...HEAD
+
+  merge-ready:
+    name: fishing-merge-ready
+    if: ${{ always() && github.event_name == 'pull_request' }}
+    needs: [classify, validate-content, validate-full, validate-docs]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Require the correct FISH108 validation lane
+        shell: bash
+        env:
+          LANE: ${{ needs.classify.outputs.mode }}
+          CLASSIFY: ${{ needs.classify.result }}
+          CONTENT: ${{ needs.validate-content.result }}
+          FULL: ${{ needs.validate-full.result }}
+          DOCS: ${{ needs.validate-docs.result }}
+        run: |
+          set -euo pipefail
+          [[ "$CLASSIFY" == 'success' ]] || exit 1
+          case "$LANE" in
+            content)
+              [[ "$CONTENT" == 'success' && "$FULL" == 'skipped' && "$DOCS" == 'skipped' ]]
+              ;;
+            full)
+              [[ "$FULL" == 'success' && "$CONTENT" == 'skipped' && "$DOCS" == 'skipped' ]]
+              ;;
+            docs)
+              [[ "$DOCS" == 'success' && "$CONTENT" == 'skipped' && "$FULL" == 'skipped' ]]
+              ;;
+            *)
+              echo 'Missing or invalid source classification' >&2
+              exit 1
+              ;;
+          esac
 
   deploy-content:
     if: needs.classify.outputs.mode == 'content' && github.ref == 'refs/heads/main' && github.event_name == 'push'
