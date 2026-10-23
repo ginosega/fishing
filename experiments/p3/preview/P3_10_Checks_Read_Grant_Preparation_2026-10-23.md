@@ -2,6 +2,17 @@
 
 **Date:** October 23, 2026. **Scope:** Owner expressly approved adding only `Checks: read` to the dedicated `fishing-p3-sandbox-publisher` GitHub App. Current status: approved by owner, but **not yet confirmed granted on the GitHub installation**; owner action required in GitHub’s App registration and installation UI. The connected GitHub interface does not expose GitHub App registration administration.
 
+## Post-approval one-shot integration proof prepared
+
+After the owner confirmed the GitHub App permission change was completed, the ChatGPT GitHub connector revalidated the synthetic sandbox PR and Actions evidence: PR #1 is still open/draft/unmerged; `main` remains `e37db3e8cf80f9c54badc1e56ef97382ccefec87`; PR head `7e39c018081e9677b33c3bcab7ebe80b44d924f8`; check-run ID `120492395098` from GitHub Actions ID `15368` is `completed/success`.
+
+**Independent permission-verification limitation:** This GitHub connector explicitly disallows querying `GET /apps/fishing-p3-sandbox-publisher` and `GET /repos/ginosega/fishing-p3-sandbox/installation`, and it cannot mint a token using credentials of the separate custom publisher App. The owner's UI confirmation is evidence of the administrative action but is **not** a live App-installation scope read. Do not mark this specific App credential check complete yet.
+
+Added [tools/verify-sandbox-check-read.mjs](tools/verify-sandbox-check-read.mjs), a trusted Node one-shot proof that composes the P3-10 restricted token issuer and P3-9 read-only observer. It pins the exact existing synthetic PR #1, requires explicit `P3_CHECK_READ_PROOF_ENABLED=true` **and** `P3_WRITE_ENABLED=false`, checks the installed App's read grant, and returns only a small immutable record (`verified:true`, repo ID, PR identity, exact check run, `canMerge:false`, `canDeploy:false`). The CLI emits only error codes on failure; it never prints App JWTs, GitHub installation tokens or private key material. Source tests use local temporary RSA keys and mocked GitHub responses, never real secrets.
+
+**Actual live test pending:** Run this script only in a trusted Node environment with existing App ID/installation ID/private key delivered through secrets (not command-line arguments, GitHub logs or ChatGPT messages). Existing Cloudflare Worker secrets cannot be inspected through the GitHub connector, and this Node program is not automatically deployed into Cloudflare. A secure, separately approved execution path must be established before claiming live proof. If the user wants ChatGPT to navigate Cloudflare's GUI and establish that path, a temporary switch to ChatGPT Work is appropriate; any Worker code change/deploy is a distinct operational approval gate. No production or Cloudflare config changed.
+
+---
 ## Requested administrative change (owner-approved, UI pending)
 
 Open [GitHub Developer Settings → GitHub Apps](https://github.com/settings/apps), edit `fishing-p3-sandbox-publisher`, choose **Permissions & events**, change **Repository permissions → Checks** from **No access** to **Read-only**, and save. GitHub requires the owner to separately approve the newly requested permissions for the existing installation. Maintain *Only select repositories* = `ginosega/fishing-p3-sandbox`. Do not change any other App permission, add production access, enable publisher writes, create or merge PRs, or deploy Cloudflare Worker changes. GitHub docs: [modifying an App](https://docs.github.com/en/apps/maintaining-github-apps/modifying-a-github-app-registration).
