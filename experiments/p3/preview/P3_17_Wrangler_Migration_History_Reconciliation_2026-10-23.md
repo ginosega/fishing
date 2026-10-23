@@ -48,6 +48,11 @@ Report only the three counts. If *any* count is not zero, stop: the source-only 
 
 Stop on unexpected Wrangler migration table creation during an *inspection* command, schema drift, nonempty operation/session/event tables, any extra migration file, unexpected DB name/UUID, changed Worker/version, `P3_WRITE_ENABLED` not false, missing fresh recovery point, migration-tool output not understood, or a partial remote migration. Wrangler's automatic per-migration rollback is not sufficient to assume a multi-stage batch had no side effects. **Do not run guessed DROP/INSERT fixes or D1 `time-travel restore` without analyzing intervening writes and obtaining destructive-recovery approval.** On Cloudflare Free, the Time Travel history window is seven days; a restore replaces the isolated database state, not just a migration ledger. [Time Travel reference](https://developers.cloudflare.com/d1/reference/time-travel/).
 
+## Validation evidence
+
+- [GitHub Actions isolated P3 source validation #40042317013](https://github.com/ginosega/fishing/actions/runs/40042317013) completed successfully on rehearsal-source revision `79c8668a71279fe4d1c3a029b145755a8701abdb`: **272/272 tests passed** (80 PWA, 43 standalone broker and 149 preview tests). Nine new P3-L01 through P3-L09 reconciliation cases passed. This does **not** constitute Wrangler-CLI or Cloudflare-hosted migration execution.
+- A later report-only commit will require an additional exact-head CI check before the final P3-17 checkpoint is declared validated.
+
 ## 6. Approval disposition
 
 **P3-17 authorization:** source-only rehearsal, pure plan module, tests and this document on PR #263. **No authorization** to run remote Wrangler migrations or even establish a remote ledger. No new Cloudflare services, permissions, secrets, DB clones, Worker deployment or GitHub sandbox write.
