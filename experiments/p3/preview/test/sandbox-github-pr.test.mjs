@@ -60,7 +60,11 @@ function mock({main=SHA,repoId=ID,privateRepo=true,valid=true,changePath='Gear/G
    changes:[{action:'write',path:changePath,body:'{"test":true}\n'}]};
  };
  const adapter=createSandboxPRAdapter({request,issueToken,trustedCandidate,publishingGate:()=>!disabled,
-  knownReceipt:async()=>state.receipt});
+  knownReceipt:async()=>state.receipt,
+  onBranchCreated:async value=>{
+   state.receipt={repositoryId:value.repositoryId,baseSha:value.baseSha,headSha:value.headSha};
+   return state.receipt;
+  }});
  return {trace,state,adapter};
 }
 const submit=adapter=>adapter.createDraft({operationId:OP,domain:'gear',expectedMainSha:SHA});
@@ -130,6 +134,25 @@ test('P3-P09 moving main before branch creation is a hard stop',async()=>{
  await assert.rejects(submit(s.adapter),rejected('MAIN_MOVED_AFTER_VALIDATION'));
  assert.equal(s.trace.some(x=>x.method==='POST'&&x.url.endsWith('/git/refs')),false);
  assert.equal(s.trace.some(x=>x.method==='POST'&&x.url.endsWith('/pulls')),false);
+});
+test('P3-P10 receipt-backed orphan branch safely creates only missing draft PR',async()=>{
+ const s=mock({branchExists:true,noPR:true});
+ s.state.receipt={repositoryId:ID,baseSha:SHA,headSha:COMMIT};
+ const result=await submit(s.adapter);
+ assert.equal(result.number,15);
+ assert.equal(result.reused,false);
+ assert.equal(s.trace.filter(x=>x.method==='POST').length,1);
+ assert(s.trace.some(x=>x.method==='POST'&&x.url.endsWith('/pulls')));
+});
+test('P3-P11 branch created without persisted receipt fails, never creates PR',async()=>{
+ const s=mock();
+ const adapter=createSandboxPRAdapter({
+  request:async(...args)=>s.trace.push(...args),
+  issueToken:async()=>({repositoryId:ID,permissions:{contents:'write',pull_requests:'write'},token:'abc_def_123456'}),
+  trustedCandidate:async()=>({validated:true,sourceRevision:SHA,changes:[]}),
+  publishingGate:()=>false,
+ });
+ await assert.rejects(submit(adapter),rejected('WRITES_DISABLED'));
 });
 test('P3-P07 alternate repository ID cannot be configured even with fake request',()=>{
  assert.throws(()=>createSandboxPRAdapter({
