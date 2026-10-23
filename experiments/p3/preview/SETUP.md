@@ -84,6 +84,12 @@ The owner directed continuation beyond P3-3. Implemented the [GitHub draft-PR ad
 
 [Detailed P3-4 evidence and remaining gates](P3_4_Sandbox_Draft_PR_Adapter_2026-10-23.md). The private sandbox's branch remains unprotected. The App's currently granted Contents/PR R/W rights do **not** include the **Checks: read** permission needed for the exact-head private-repo check-runs endpoint; no permission change is authorized or applied by this source-only work. No automatic merge before confirmed branch rules and separately approved initial test merge.
 
+## P3-5 trusted source validation and durable draft PR orchestration
+
+The owner authorized continuation; [P3-5 implementation and test report](P3_5_Trusted_Validation_and_D1_Dispatch_2026-10-23.md) documents the new **server-side authenticated acceptance, D1 leased dispatch, trusted exact Git SHA validation, durable branch receipt, and sandbox draft-PR recovery**. These are **source-only** modules, not installed or routed in Cloudflare. The existing Worker remains disabled and does not have Node process/file-system capabilities required by the canonical validator. [Isolated CI #39963806331](https://github.com/ginosega/fishing/actions/runs/39963806331) passed **73/73 PWA, 22/22 broker/source, and 56/56 preview/SQLite/authorization/GitHub simulation tests**; no actual token-based GitHub content write occurred.
+
+The sandbox still needs populated controlled canonical test source, a trusted GitHub-authenticated exact-head checkout mechanism, reviewed owner-session issuance, effective branch rules and CI, safe service deployment, and separate approval for the first actual sandbox PR/merge. The **`0002` D1 migration remains unapplied**. Do not copy the Node dispatcher into the manually deployed Cloudflare Worker or set `P3_WRITE_ENABLED=true`.
+
 ## Sandbox protection finding
 
 The newly created private sandbox currently has **no protected branches, no PRs, and a README only**. This is a valid empty test baseline, not a safeguarded publishing destination. Before the first real merge, configure repository rules appropriate to the available GitHub plan: require a pull request, require successful exact-head validation status, restrict force pushes and deletion, and **do not allow the publishing App to bypass branch rules**. Do not assume an App-created PR can merge automatically without satisfying required checks and any human-review rule.
