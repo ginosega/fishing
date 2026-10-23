@@ -113,10 +113,14 @@ export function auditP3SchemaPreflight({
  const expected=toMap(source0001,'SOURCE');
  const actual=toMap(observedSchema,'REMOTE');
  if(expected.size!==6||required.some(name=>!expected.has(name))||
-   [...expected.keys()].some(name=>!required.includes(name))||
-   Object.entries(PINNED_0001).some(([name,[type,sql]])=>
-    expected.get(name)?.type!==type||expected.get(name)?.sql!==normalize(sql)))
+   [...expected.keys()].some(name=>!required.includes(name)))
   add('UNTRUSTED_0001_REFERENCE');
+ for(const [name,[type,sql]] of Object.entries(PINNED_0001)){
+  if(expected.get(name)?.type!==type||expected.get(name)?.sql!==normalize(sql)){
+   add('UNTRUSTED_0001_REFERENCE');
+   add('PINNED_DEFINITION_MISMATCH_'+name.toUpperCase());
+  }
+ }
  for(const [name,definition] of expected){
   const found=actual.get(name);
   if(!found)add('MISSING_0001_OBJECT');
