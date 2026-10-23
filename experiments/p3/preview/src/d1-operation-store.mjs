@@ -116,6 +116,30 @@ export function createD1OperationStore({DB,ownerGitHubId,repositoryId=SANDBOX_ID
   check(stored?.request_json===payload && stored?.payload_sha256===payloadHash,'CORRUPT_SNAPSHOT');
   return {...publicRecord(row),inserted:row.operation_id===candidate};
  }
+ async function branchReceipt(operationId){
+  check(opId(operationId),'INVALID_OPERATION_ID');
+  const row=await sql('SELECT main_base_sha,pr_head_sha FROM p3_operations WHERE operation_id=? AND github_id=? AND repo_id=? AND state IN (?,?)',
+   operationId,ownerGitHubId,SANDBOX_ID,'Validating','Checking').first();
+  if(!row||!row.main_base_sha||!row.pr_head_sha)return null;
+  return Object.freeze({repositoryId:SANDBOX_ID,baseSha:row.main_base_sha,headSha:row.pr_head_sha});
+ }
+ async function saveBranchReceipt({operationId,leaseOwner,baseSha,headSha}={}){
+  check(opId(operationId)&&token(leaseOwner)&&/^[0-9a-f]{40}$/.test(baseSha??'')&&
+   /^[0-9a-f]{40}$/.test(headSha??'')&&baseSha!==headSha,'INVALID_RECEIPT');
+  const at=ts();
+  // The branch already exists in GitHub; commit evidence survives the lease.
+  // Only its owning, unexpired Validiating worker may save it, and values
+  // cannot be changed once set (including a replay after lease recovery).
+  const row=await sql(
+   'UPDATE p3_operations SET main_base_sha=?,pr_head_sha=?,updated_at=? '+
+   'WHERE operation_id=? AND github_id=? AND repo_id=? AND state=? AND lease_owner=? '+
+   'AND lease_expires_at>? AND (main_base_sha IS NULL OR main_base_sha=?) '+
+   'AND (pr_head_sha IS NULL OR pr_head_sha=?) '+
+   'RETURNING main_base_sha,pr_head_sha',
+   baseSha,headSha,at,operationId,ownerGitHubId,SANDBOX_ID,'Validating',leaseOwner,at,
+   baseSha,headSha).first();
+  return row?Object.freeze({repositoryId:SANDBOX_ID,baseSha:row.main_base_sha,headSha:row.pr_head_sha}):null;
+ }
  async function readSnapshot(operationId){
   check(opId(operationId),'INVALID_OPERATION_ID');
   const row=await sql('SELECT r.request_json,r.payload_sha256,o.payload_sha256 AS operation_sha FROM p3_requests r JOIN p3_operations o ON r.operation_id=o.operation_id WHERE o.operation_id=? AND o.github_id=? AND o.repo_id=?',operationId,ownerGitHubId,SANDBOX_ID).first();
@@ -154,5 +178,5 @@ export function createD1OperationStore({DB,ownerGitHubId,repositoryId=SANDBOX_ID
   const rows=await sql('SELECT e.event_id,e.event_type,e.from_state,e.to_state,e.event_at,e.error_code FROM p3_events e JOIN p3_operations o ON o.operation_id=e.operation_id WHERE e.operation_id=? AND o.github_id=? AND o.repo_id=? ORDER BY e.event_id',operationId,ownerGitHubId,SANDBOX_ID).all();
   return (rows?.results||[]).map(row=>({eventType:row.event_type,from:row.from_state,to:row.to_state,at:row.event_at,error:row.error_code}));
  }
- return Object.freeze({accept,get,readSnapshot,claim,advance,events});
+ return Object.freeze({accept,get,readSnapshot,branchReceipt,saveBranchReceipt,claim,advance,events});
 }
