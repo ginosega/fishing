@@ -83,3 +83,22 @@ test('P3-S08 malformed source snapshot rejected without mutating original',async
  await assert.rejects(promote(pkg,{...s,mainSha:'wrong'}),e=>e.code==='VALIDATION');
  assert.deepEqual(JSON.parse(await fs.readFile(path.join(s.root,'Gear/gear.json'),'utf8')).items,[baseGear]);
 });
+
+test('P3-S09 broker accepts only a fully validated canonical candidate before simulated PR creation',async t=>{
+ const s=await fixture(t);
+ const {createBroker}=await import('../../experiments/p3/src/broker.mjs');
+ const {memoryStore,fakeGitHub}=await import('../../experiments/p3/src/memory-adapters.mjs');
+ const github=fakeGitHub();
+ github.readSnapshot=async()=>s;
+ const broker=createBroker({store:memoryStore(),github,sourceAware:adapter,
+  ownerGitHubId:54321,repositoryId:98765,repositoryName:'owner/disposable-test',
+  origin:'https://preview.example.workers.dev',now:()=>1_000_000});
+ const req={session:{githubId:54321,expiresAt:4_000_000,csrf:'secret'},
+  http:{origin:'https://preview.example.workers.dev',fetchSite:'same-origin',method:'POST',intent:'publish',csrf:'secret'},
+  repository:{id:98765,name:'owner/disposable-test'},idempotencyKey:'example-idempotency-0001',
+  package:await editGear(),media:[]};
+ const accepted=await broker.submit(req);
+ assert.equal((await broker.step(accepted.id)).state,'Validating');
+ assert.equal((await broker.step(accepted.id)).state,'Checking');
+ assert.equal(github.stats().created,1);
+});
