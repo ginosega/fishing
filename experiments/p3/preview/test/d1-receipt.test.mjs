@@ -19,7 +19,7 @@ test('P3-R01 immutable branch receipt recorded under claimed lease and visible a
  const e=await setup();
  const receipt=await e.store.saveBranchReceipt({operationId:e.operationId,leaseOwner:LEASE1,baseSha:A,headSha:B});
  assert.deepEqual(receipt,{repositoryId:1430581407,baseSha:A,headSha:B});
- const resumed=e.store();
+ const resumed=e.store;
  assert.deepEqual(await resumed.branchReceipt(e.operationId),receipt);
  assert.deepEqual(await e.store.saveBranchReceipt({operationId:e.operationId,leaseOwner:LEASE1,baseSha:A,headSha:B}),receipt);
  assert.equal(e.sql.prepare('SELECT COUNT(*) AS n FROM p3_events').get().n,2);
