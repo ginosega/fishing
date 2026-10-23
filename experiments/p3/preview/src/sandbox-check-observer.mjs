@@ -89,8 +89,8 @@ export function createSandboxCheckObserver({
   const check=matches[0];
   ensure(goodNumber(check?.id)&&check?.app?.id===ACTIONS_APP_ID&&
    check?.head_sha===expectedHeadSha,'CHECK_IDENTITY_DENIED');
-  ensure(check?.status==='completed'&&check?.conclusion==='success',
-   'CHECK_NOT_SUCCESSFUL');
+  ensure(check?.status==='completed','CHECK_PENDING');
+  ensure(check?.conclusion==='success','CHECK_NOT_SUCCESSFUL');
   // Recheck both mutable objects after reading CI so an intervening push or
   // PR head/base movement never becomes an accepted snapshot.
   const lastMain=await read(token,mainUrl);
