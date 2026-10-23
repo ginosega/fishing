@@ -44,8 +44,8 @@ const run=async(root,...args)=>{
 async function verifyCanonicalTree(pwa){
  const required=['Gear','KB','Catches'];
  for(const name of required){
-  const info=await fs.lstat(path.join(pwa,name));
-  assert(info.isDirectory()&&!info.isSymbolicLink(),'CHECKOUT_UNSAFE_TREE');
+  const info=await fs.lstat(path.join(pwa,name)).catch(()=>null);
+  assert(info?.isDirectory()&&!info.isSymbolicLink(),'CHECKOUT_UNSAFE_TREE');
  }
  let count=0;
  async function visit(directory){
@@ -86,6 +86,8 @@ export function createTrustedSandboxCandidate({trustedCheckout,store,
    assert(!dirty,'CHECKOUT_DIRTY');
    const origin=await run(root,'remote','get-url','origin');
    assert(REMOTES.has(origin),'CHECKOUT_REMOTE_DENIED');
+   const pwaEntry=await fs.lstat(path.join(root,'pwa')).catch(()=>null);
+   assert(pwaEntry?.isDirectory()&&!pwaEntry.isSymbolicLink(),'CHECKOUT_UNSAFE_TREE');
    const pwa=await fs.realpath(path.join(root,'pwa'));
    assert(pwa.startsWith(root+path.sep),'CHECKOUT_PATH_ESCAPE');
    await verifyCanonicalTree(pwa);
