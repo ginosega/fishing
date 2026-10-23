@@ -1,6 +1,6 @@
 # FISH118 P3-16 — Read-only Cloudflare inventory and evidence collection
 
-**October 23, 2026 — in progress; REMOTE EVIDENCE NOT YET COLLECTED.** This is a read-only inventory stage, not permission to migrate, deploy, restore, enable publishing, or schedule CI polling. No Cloudflare tool or connected Cloudflare account is available in this Chat. The owner may execute the following read-only commands on their authenticated Windows/PowerShell workstation and share only sanitized metadata.
+**October 23, 2026 — in progress; first remote inventory evidence received from owner-run read-only Wrangler queries.** This is a read-only inventory stage, not permission to migrate, deploy, restore, enable publishing, or schedule CI polling. No Cloudflare tool or connected Cloudflare account is available in this Chat. The owner may execute the following read-only commands on their authenticated Windows/PowerShell workstation and share only sanitized metadata.
 
 ## Grounded source checkpoint
 
@@ -9,13 +9,25 @@
 - Private synthetic sandbox main: `e37db3b18bd9948bf4453d7f885f868e830a9a9a`; no new sandbox PR, no merge.
 - Cloudflare account and live Worker binding details are **not visible** through the connected GitHub account. Owner previously created the isolated Worker `fishing-p3-sandbox-preview` and D1 `fishing-p3-sandbox`, reportedly with `P3_WRITE_ENABLED=false`, manual schema 0001. Source migrations 0002 and 0003 have **not** been approved or applied.
 
+## Owner-run read-only Cloudflare evidence — October 23, 2026
+
+**Provenance:** Owner supplied outputs of `npx.cmd` Wrangler calls from a locally authenticated Windows PowerShell session; GitHub connector did **not** independently access Cloudflare. No database UUID, Cloudflare account ID, personal email, signing key, app token, or secret is included in this document.
+
+- Owner-run `d1 info` reported database **`fishing-p3-sandbox`**, `num_tables=3`, 53,248 bytes (52 KiB), Western North America region (`WNAM`), replication disabled, created October 23, 2026 at 04:14:11 UTC. D1 info output did not provide a storage-version field; **Time Travel availability remains unverified**. The reported 24-hour query/write activity is historical and does not establish the cause or indicate publishing.
+- Owner-run `wrangler deployments status --name fishing-p3-sandbox-preview --json` returned a dashboard-sourced deployment, 100% assigned to one version, deployed October 23, 2026 at 06:13:18 UTC, version prefix `0a9133eb`. This confirms a Worker deployment record, **not** its current behavior, `P3_WRITE_ENABLED` or actual DB binding; those remain pending owner verification.
+- Owner-run remote SELECT against `sqlite_master` reported **exactly three P3 tables and three P3 indexes**: `p3_sessions`, `p3_operations`, `p3_events`, `p3_sessions_owner_expiry`, `p3_operations_state_lease`, `p3_events_operation`. Their definitions match the checked-in `migrations/0001_initial.sql` in columns, constraints, unique key and index definitions, after SQLite removes `IF NOT EXISTS` and normalizes whitespace. No `p3_requests`, CI-observation table or 0002/0003 triggers appeared. This supports **manual 0001 installed as expected**.
+- Second remote SELECT returned **zero** `d1_migrations` tables (`n=0`). Wrangler migration history is therefore **absent**. The manually initialized 0001 should not be considered tracked by Wrangler. **Do not run a blind `wrangler d1 migrations apply` or create ledger entries without a reviewed reconciliation plan.**
+- Both shared remote SELECT results report `success:true`, `changes:0`, `changed_db:false`, `rows_written:0`; the reported commands made **no D1 changes**.
+
+**Still pending before final P3-16 closeout:** confirm the Worker's native `DB` binding matches the isolated D1 (report yes/no, no UUID); verify that `P3_WRITE_ENABLED=false` remains configured; read-only `PRAGMA foreign_key_check`; review remote Time Travel support/bookmark readiness; and check hosted `/health` and `/session` still deny publishing. No schema migration or deployment is approved.
+
 ## First pass: database and Worker metadata only
 
 From a local PowerShell terminal where Wrangler is already authenticated, these commands are **GET/read-only CLI operations**. Wrangler may require installing the local CLI package in npm cache. Stop if it asks to deploy, create a D1 database, apply migrations, or change Cloudflare configuration. Never share account identifiers, database UUIDs, environment variables, JWTs, App signing keys, API tokens, or private Wrangler configuration.
 
 ```powershell
-npx --yes wrangler@4 d1 info fishing-p3-sandbox --json
-npx --yes wrangler@4 deployments status --name fishing-p3-sandbox-preview --json
+npx.cmd --yes wrangler@4 d1 info fishing-p3-sandbox --json
+npx.cmd --yes wrangler@4 deployments status --name fishing-p3-sandbox-preview --json
 ```
 
 From the first output, record **only**: database `name` (must equal `fishing-p3-sandbox`), storage `version` (expected beta/new backend), approximate size, and that the D1 ID matches the **deployed Worker `DB` binding**, compared privately. From the second, record Worker name, latest deployed version/date and any deploy discrepancies, but avoid disclosing account IDs or private configuration.
@@ -25,15 +37,15 @@ From the first output, record **only**: database `name` (must equal `fishing-p3-
 The following queries are **SELECT/PRAGMA only**. Use `--remote`, because Wrangler without it may inspect a disposable local database and produce misleading results. Name the exact sandbox D1, never AUTH-P0 or production.
 
 ```powershell
-npx --yes wrangler@4 d1 execute fishing-p3-sandbox --remote --command "SELECT type,name,sql FROM sqlite_master WHERE sql IS NOT NULL AND (name LIKE 'p3_%') ORDER BY type,name;" --json
-npx --yes wrangler@4 d1 execute fishing-p3-sandbox --remote --command "SELECT count(*) AS n FROM sqlite_master WHERE type='table' AND name='d1_migrations';" --json
-npx --yes wrangler@4 d1 execute fishing-p3-sandbox --remote --command "PRAGMA foreign_key_check;" --json
+npx.cmd --yes wrangler@4 d1 execute fishing-p3-sandbox --remote --command "SELECT type,name,sql FROM sqlite_master WHERE sql IS NOT NULL AND (name LIKE 'p3_%') ORDER BY type,name;" --json
+npx.cmd --yes wrangler@4 d1 execute fishing-p3-sandbox --remote --command "SELECT count(*) AS n FROM sqlite_master WHERE type='table' AND name='d1_migrations';" --json
+npx.cmd --yes wrangler@4 d1 execute fishing-p3-sandbox --remote --command "PRAGMA foreign_key_check;" --json
 ```
 
 **Only if the second query returns n=1:**
 
 ```powershell
-npx --yes wrangler@4 d1 execute fishing-p3-sandbox --remote --command "SELECT name FROM d1_migrations ORDER BY id;" --json
+npx.cmd --yes wrangler@4 d1 execute fishing-p3-sandbox --remote --command "SELECT name FROM d1_migrations ORDER BY id;" --json
 ```
 
 If that table does not exist, **do not run `wrangler d1 migrations apply`**, and do not manually add a migration-history row. We need to reconcile manual 0001 against the real schema. We deliberately defer `wrangler migrations list` until the ledger's existence is known, to avoid relying on any potentially initializing behavior.
@@ -45,7 +57,7 @@ For schema verification, also compare `sqlite_master.sql`, `PRAGMA table_info` a
 After confirming the exact sandbox D1 target:
 
 ```powershell
-npx --yes wrangler@4 d1 time-travel info fishing-p3-sandbox --json
+npx.cmd --yes wrangler@4 d1 time-travel info fishing-p3-sandbox --json
 Invoke-RestMethod -Method Get -Uri 'https://fishing-p3-sandbox-preview.ginosega.workers.dev/health'
 Invoke-RestMethod -Method Get -Uri 'https://fishing-p3-sandbox-preview.ginosega.workers.dev/session'
 ```
