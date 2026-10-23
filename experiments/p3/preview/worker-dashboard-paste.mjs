@@ -80,7 +80,7 @@ async function verifyReadOnlySandboxInstallation({env,request=fetch,now=Math.flo
 const json=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{
  'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store',
  'X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer',
- 'Content-Security-Policy':"default-src 'none'; frame-ancestors 'none'",
+ 'Content-Security-Policy':"default-src 'none'; connect-src 'self'; frame-ancestors 'none'",
 }});
 const fail=()=>json({ok:false,ready:false},503);
 // Only a high-entropy, owner-controlled Secret permits the temporary probe.
