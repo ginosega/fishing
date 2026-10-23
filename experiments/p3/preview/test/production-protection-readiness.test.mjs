@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {auditProductionBranchSummary,auditExactPRCheck,
+import {auditProductionBranchSummary,auditProductionRuleset,auditExactPRCheck,
  PROPOSED_REQUIRED_CHECK,EXPECTED_ACTIONS_APP_ID,
 } from '../src/production-protection-readiness.mjs';
 
@@ -126,4 +126,86 @@ test('P3-P09 check names are fixed by reviewed policy, not untrusted request',()
  assert(auditExactPRCheck(a).blockers.includes('MISSING_OR_AMBIGUOUS_CHECK'));
  assert(auditProductionBranchSummary({repository:repo(),branch:protectedMain(),
   requiredCheck:'other-check'}).blockers.includes('STABLE_REQUIRED_CHECK_NOT_CONFIGURED'));
+});
+
+
+const observedRuleset=()=>({
+ id:25742040,name:'main',target:'branch',source_type:'Repository',
+ source:'ginosega/fishing',enforcement:'active',
+ conditions:{ref_name:{exclude:[],include:['~DEFAULT_BRANCH']}},
+ rules:[
+  {type:'deletion'},
+  {type:'non_fast_forward'},
+  {type:'pull_request',parameters:{
+   required_approving_review_count:0,required_reviewers:[],
+   require_code_owner_review:false,require_last_push_approval:false,
+   require_extra_approval_for_unattributed_changes:true,
+  }},
+  {type:'required_status_checks',parameters:{
+   strict_required_status_checks_policy:true,do_not_enforce_on_create:false,
+   required_status_checks:[{context:name,integration_id:EXPECTED_ACTIONS_APP_ID}],
+  }},
+ ],
+ bypass_actors:[],current_user_can_bypass:'never',
+});
+const actualProtectedBranch=()=>({
+ name:'main',protected:true,commit:{sha:SHA1},
+ protection:{enabled:false,required_status_checks:{
+  enforcement_level:'off',contexts:[],checks:[],
+ }},
+});
+test('P3-P10 actual active public ruleset protects main despite classic branch API being off',()=>{
+ const result=auditProductionRuleset({
+  repository:repo(),branch:actualProtectedBranch(),ruleset:observedRuleset(),
+ });
+ assert.equal(result.observedReady,true);
+ assert.deepEqual(result.blockers,[]);
+ assert.equal(result.rulesetId,25742040);
+ assert.equal(result.neverAuthorizesMerge,true);
+});
+test('P3-P11 missing ruleset, disabled ruleset or untargeted branch fail closed',()=>{
+ const edits=[
+  [x=>x.ruleset=null,'RULESET_NOT_ACTIVE_OR_TRUSTED'],
+  [x=>x.ruleset.enforcement='disabled','RULESET_NOT_ACTIVE_OR_TRUSTED'],
+  [x=>x.ruleset.id=5,'RULESET_NOT_ACTIVE_OR_TRUSTED'],
+  [x=>x.ruleset.conditions.ref_name.include=[],'MAIN_NOT_TARGETED'],
+  [x=>x.ruleset.conditions.ref_name.exclude=['refs/heads/main'],'MAIN_NOT_TARGETED'],
+  [x=>x.branch.protected=false,'MAIN_NOT_PROTECTED'],
+ ];
+ for(const [mutate,code] of edits){
+  const state={repository:repo(),branch:actualProtectedBranch(),ruleset:observedRuleset()};
+  mutate(state);
+  assert(auditProductionRuleset(state).blockers.includes(code),code);
+ }
+});
+test('P3-P12 any ruleset bypass, force push, deletion or weakened PR requirement fails',()=>{
+ const edits=[
+  [x=>x.bypass_actors=[{actor_id:1}],'RULESET_HAS_BYPASS'],
+  [x=>x.current_user_can_bypass='always','RULESET_HAS_BYPASS'],
+  [x=>x.rules=x.rules.filter(z=>z.type!=='deletion'),'DELETION_ALLOWED'],
+  [x=>x.rules=x.rules.filter(z=>z.type!=='non_fast_forward'),'FORCE_PUSH_ALLOWED'],
+  [x=>x.rules=x.rules.filter(z=>z.type!=='pull_request'),'PR_RULE_INCORRECT'],
+  [x=>x.rules.find(z=>z.type==='pull_request').parameters.required_approving_review_count=1,
+   'PR_RULE_INCORRECT'],
+ ];
+ for(const [mutate,code] of edits){
+  const ruleset=observedRuleset();mutate(ruleset);
+  assert(auditProductionRuleset({repository:repo(),branch:actualProtectedBranch(),ruleset})
+   .blockers.includes(code),code);
+ }
+});
+test('P3-P13 check source, exact name, and strict/current settings cannot be weakened',()=>{
+ const edits=[
+  [x=>x.strict_required_status_checks_policy=false,'CHECKS_NOT_ENFORCED_STRICTLY'],
+  [x=>x.do_not_enforce_on_create=true,'CHECKS_NOT_ENFORCED_STRICTLY'],
+  [x=>x.required_status_checks[0].integration_id=99,'REQUIRED_CHECK_INCORRECT'],
+  [x=>x.required_status_checks[0].context='other','REQUIRED_CHECK_INCORRECT'],
+  [x=>x.required_status_checks=[],'REQUIRED_CHECK_INCORRECT'],
+ ];
+ for(const [mutate,code] of edits){
+  const ruleset=observedRuleset();
+  mutate(ruleset.rules.find(x=>x.type==='required_status_checks').parameters);
+  assert(auditProductionRuleset({repository:repo(),branch:actualProtectedBranch(),ruleset})
+   .blockers.includes(code),code);
+ }
 });
