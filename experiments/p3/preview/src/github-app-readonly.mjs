@@ -1,9 +1,8 @@
 /**
- * Isolated, NOT ROUTED GitHub App proof for the private P3 sandbox.
- * This is NOT called by the currently deployed disabled Cloudflare Worker.
+ * Isolated, read-only GitHub App installation proof for the P3 sandbox.
+ * Only the secret-guarded preview diagnostic calls this proof; no write API.
  * No GitHub repo writes or browser-visible tokens. No credentials in source.
- * A later security-reviewed endpoint must authenticate the owner before
- * executing, and must never return GitHub tokens to an HTTP response.
+ * Never return GitHub tokens to an HTTP response or logs.
  */
 const SANDBOX='ginosega/fishing-p3-sandbox';
 // Exact repository ID confirmed using the GitHub connector after access was granted.
