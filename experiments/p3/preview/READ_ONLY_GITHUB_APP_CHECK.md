@@ -48,6 +48,27 @@ console.log(response.status, await response.text());
 
 If you see **HTTP 403**, the temporary key is missing/wrong, the secret wasn't deployed, or the key is too short. If **HTTP 503**, the App credentials, installation, exact sandbox scope, GitHub availability or configuration may have failed; do not assume authentication succeeded. Share only the **HTTP status and JSON response (no secrets)** in chat.
 
+### Diagnostic 503 follow-up (October 22)
+
+The owner completed this test with a **48-character key**. The Worker returned `503 {"ok":false,"ready":false}`, confirming the request reached the P3 Worker but the initial diagnostic didn't distinguish its fail-closed causes. **No sandbox authentication PASS and no GitHub write is claimed.**
+
+The current source adds a **nonsecret `code`** field to authorized 503 responses. To use it:
+
+1. First inspect **`P3_WRITE_ENABLED`** in the *P3 preview Worker*: type **Text**, value exactly **`false`** (lowercase); do **not** set it true.
+2. Leave `P3_DIAGNOSTIC_KEY` and the four stored App bindings unchanged. **Do not regenerate or paste any private key.**
+3. Copy the **latest single-file [`worker-dashboard-paste.mjs`](worker-dashboard-paste.mjs)** into the P3 Cloudflare Worker code editor and **Deploy**. Confirm `/health` still returns `{"ok":true,"ready":false,"mode":"preview-no-publishing"}`.
+4. Repeat the Edge console POST above with the *same saved temporary key*. A 503 now contains one of the **nonsecret stage codes** below; send back its full JSON (not your key):
+   - `write_flag_not_false`: `P3_WRITE_ENABLED` absent or not exactly the text `false`
+   - `invalid_app_identifiers`: App ID or Installation ID missing/non-numeric
+   - `missing_app_private_key` / `app_key_signing_failed`: PEM Secret missing or unusable
+   - `installation_token_http_401`, `...403`, `...404` or `...0`: GitHub rejected the App JWT, token scope or installation (or another HTTP failure)
+   - `installation_token_scope_mismatch`: minted token missing expected Contents-read permission
+   - `sandbox_read_http_403`, `...404`, `sandbox_identity_mismatch`: sandbox read or identity failed
+   - `unexpected_proof_error`: some other source issue; never expose the raw GitHub error or secrets
+5. If still 403 after redeploy, confirm `P3_DIAGNOSTIC_KEY` is still a Cloudflare Secret. If a different 503 response appears, don't repeatedly rotate the key; diagnose the returned stage first.
+
+The extra diagnostic details are only available after successful comparison against the temporary `P3_DIAGNOSTIC_KEY`. They never return GitHub response bodies, App private keys, JWTs, or installation tokens. All publishing endpoints remain disabled.
+
 **Alternative:** The Workers dashboard quick editor may expose an **HTTP** testing tab where you can set method **POST**, path `/_internal/verify-sandbox`, and header `X-P3-Diagnostic-Key`; be careful that it must target the **actual deployed Worker origin**, not a temporary preview hostname, because the Worker rejects any origin other than `APP_ORIGIN`. The Edge method above is deterministic for the deployed URL.
 
 ## Immediately disable the diagnostic when finished
