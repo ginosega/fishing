@@ -62,6 +62,12 @@ A **non-networked-by-default** source helper now exists at [`src/github-app-read
 
 Sources: [GitHub generating installation tokens](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-an-installation-access-token-for-a-github-app), [Cloudflare Worker secrets](https://developers.cloudflare.com/workers/configuration/secrets/).
 
+## Owner credential setup completed — protected read-only diagnostic next
+
+The owner confirms the four original bindings **`P3_GITHUB_APP_ID`, `P3_GITHUB_INSTALLATION_ID`, `P3_GITHUB_PRIVATE_KEY` (Cloudflare Secret) and `P3_WRITE_ENABLED=false`** have been saved to the isolated P3 Worker. Their *values have never been shared in chat* and cannot be independently read by this GitHub connection. This confirms **configuration only**, not that the actual GitHub App key/token works.
+
+The next safe check is the [**browser-only read-only GitHub App diagnostic**](READ_ONLY_GITHUB_APP_CHECK.md). This uses an **additional temporary, owner-created `P3_DIAGNOSTIC_KEY` Secret** as an authorization gate, a [single-file Cloudflare Worker editor bundle](worker-dashboard-paste.mjs), and a same-origin POST. It verifies the exact private sandbox repository ID `1430581407` with a short-lived GitHub installation token explicitly scoped to `contents:read`. No GitHub content writes, PRs or automation occur. Delete the temporary diagnostic key after one result; publishing remains disabled.
+
 ## Sandbox protection finding
 
 The newly created private sandbox currently has **no protected branches, no PRs, and a README only**. This is a valid empty test baseline, not a safeguarded publishing destination. Before the first real merge, configure repository rules appropriate to the available GitHub plan: require a pull request, require successful exact-head validation status, restrict force pushes and deletion, and **do not allow the publishing App to bypass branch rules**. Do not assume an App-created PR can merge automatically without satisfying required checks and any human-review rule.
