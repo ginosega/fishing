@@ -29,7 +29,7 @@ const required=['p3_sessions','p3_operations','p3_events','p3_sessions_owner_exp
  */
 const PINNED_0001=Object.freeze({
  p3_sessions:[
-  'table',String.raw`CREATE TABLE IF NOT EXISTS p3_sessions (
+  'table',String.raw`CREATE TABLE p3_sessions (
   token_hash TEXT PRIMARY KEY NOT NULL,
   github_id INTEGER NOT NULL,
   csrf_hash TEXT NOT NULL,
@@ -38,10 +38,10 @@ const PINNED_0001=Object.freeze({
  )`,
  ],
  p3_sessions_owner_expiry:[
-  'index','CREATE INDEX IF NOT EXISTS p3_sessions_owner_expiry ON p3_sessions(github_id,expires_at)',
+  'index','CREATE INDEX p3_sessions_owner_expiry ON p3_sessions(github_id,expires_at)',
  ],
  p3_operations:[
-  'table',String.raw`CREATE TABLE IF NOT EXISTS p3_operations (
+  'table',String.raw`CREATE TABLE p3_operations (
   operation_id TEXT PRIMARY KEY NOT NULL,
   github_id INTEGER NOT NULL,
   repo_id INTEGER NOT NULL,
@@ -63,10 +63,10 @@ const PINNED_0001=Object.freeze({
  )`,
  ],
  p3_operations_state_lease:[
-  'index','CREATE INDEX IF NOT EXISTS p3_operations_state_lease ON p3_operations(state,lease_expires_at)',
+  'index','CREATE INDEX p3_operations_state_lease ON p3_operations(state,lease_expires_at)',
  ],
  p3_events:[
-  'table',String.raw`CREATE TABLE IF NOT EXISTS p3_events (
+  'table',String.raw`CREATE TABLE p3_events (
   event_id INTEGER PRIMARY KEY AUTOINCREMENT,
   operation_id TEXT NOT NULL REFERENCES p3_operations(operation_id),
   event_type TEXT NOT NULL,
@@ -78,7 +78,7 @@ const PINNED_0001=Object.freeze({
  )`,
  ],
  p3_events_operation:[
-  'index','CREATE INDEX IF NOT EXISTS p3_events_operation ON p3_events(operation_id,event_at)',
+  'index','CREATE INDEX p3_events_operation ON p3_events(operation_id,event_at)',
  ],
 });
 
