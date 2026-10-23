@@ -43,6 +43,7 @@ jobs:
           fi
           if [[ "$mode" != 'full' ]]; then
             mode='docs'
+            seen_docs=false
             if [[ -z "$files" ]]; then
               mode='full'
             else
@@ -50,13 +51,16 @@ jobs:
                 [[ -z "$file" ]] && continue
                 case "$file" in
                   pwa/Gear/*|pwa/KB/*|pwa/Catches/*)
-                    if [[ "$mode" == 'docs' ]]; then
-                      mode='content'
+                    if [[ "$seen_docs" == true ]]; then
+                      mode='full'
+                      break
                     fi
+                    mode='content'
                     ;;
                   *.md)
                     # Markdown outside canonical content roots has no published
                     # runtime effect. Mixed canonical + docs changes are full.
+                    seen_docs=true
                     if [[ "$mode" == 'content' ]]; then
                       mode='full'
                       break
