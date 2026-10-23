@@ -48,7 +48,7 @@ A **non-networked-by-default** source helper now exists at [`src/github-app-read
 
 1. Open [your GitHub Apps](https://github.com/settings/apps), select **Edit** for `fishing-p3-sandbox-publisher`, and find the **App ID** (numeric; *not* the Client ID).
 2. From that App's **Install App** page, select its installation on the `ginosega` account and **Configure**. Confirm repository access is **Only select repositories**, containing **`ginosega/fishing-p3-sandbox` only**. The installation ID is the number in the GitHub browser URL, e.g. `github.com/settings/installations/<installation-id>`; **do not** substitute the App ID for the Installation ID.
-3. From the App's **General** settings page, use **Generate a private key**, saving the downloaded PEM file *locally*. **Never paste its content in ChatGPT, GitHub, any issue/PR, or any tracked source file.**
+3. In the GitHub App settings sidebar, click **Credentials → Key pairs → New key** (GitHub's current interface). GitHub downloads a PEM private-key file to your computer. Keep it local and secure. **Never paste its contents in ChatGPT, GitHub, an issue/PR, or tracked source.**
 4. In Cloudflare **Workers & Pages**, open **`fishing-p3-sandbox-preview`** (not AUTH-P0) → **Settings** → **Variables and Secrets** → **Add**. Add:
    - `P3_GITHUB_APP_ID`: **Text**, numeric App ID.
    - `P3_GITHUB_INSTALLATION_ID`: **Text**, numeric Installation ID.
