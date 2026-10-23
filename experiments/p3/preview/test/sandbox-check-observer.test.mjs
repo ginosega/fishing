@@ -130,7 +130,7 @@ test('P3-C07 changed PR SHA, repo ID, branch, state, draft, merge status or numb
 });
 test('P3-C08 failed, skipped, pending or forged Actions check never passes',async()=>{
  for(const [patch,code] of [
-  [{status:'in_progress',conclusion:null},'CHECK_NOT_SUCCESSFUL'],
+  [{status:'in_progress',conclusion:null},'CHECK_PENDING'],
   [{status:'completed',conclusion:'failure'},'CHECK_NOT_SUCCESSFUL'],
   [{status:'completed',conclusion:'skipped'},'CHECK_NOT_SUCCESSFUL'],
   [{status:'completed',conclusion:'neutral'},'CHECK_NOT_SUCCESSFUL'],
