@@ -44,7 +44,7 @@ test('P3-F01 fixture is actually accepted by existing full canonical inventory',
  assert.equal(result.data.kb.entities.length,1);
  assert.equal(result.data.catches.catches.length,0);
  assert.equal(result.pending.length,0);
- assert(result.files.length>=4);
+ assert(result.files.some(x=>x.path==='KB/Locations/content/P3 Test Lake.md'));
 });
 test('P3-H01 exact GitHub event PR head, ancestor, changed paths and canonical inventory succeed',async t=>{
  const f=await setup(t);
