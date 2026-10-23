@@ -2,6 +2,10 @@
 
 **Owner approval:** October 22, 2026: isolated Cloudflare Free Worker/D1 plus disposable GitHub sandbox with least-privilege publishing rights approved. **Current state:** source configuration only. ChatGPT's available provider connectors cannot create Cloudflare Worker/D1 resources, create a GitHub repository or configure a GitHub App, so none of those resources is claimed as created. Do not send API tokens, App private keys, D1 IDs, installation IDs or callback secrets in chat.
 
+## Owner-reported environment progress — October 22, 2026
+
+The owner reports completing the browser-based setup and confirming the new **preview Worker is running and can reach its isolated D1 database**. This is owner-reported positive connectivity evidence, not independent Cloudflare deployment/health or schema validation. The **three P3 D1 tables have not yet been confirmed created**, and the separate GitHub sandbox repository/App installation have not yet been reported complete. Next browser-only step: open `fishing-p3-sandbox` in Cloudflare D1 → Console, execute the exact SQL from [`migrations/0001_initial.sql`](migrations/0001_initial.sql), then verify `p3_sessions`, `p3_operations`, and `p3_events` exist. **Use only `fishing-p3-sandbox`, never the AUTH-P0 database**. This manually creates schema; if using Wrangler migrations later, account for prior application to avoid schema drift. Publication stays disabled.
+
 ## Exact isolation boundaries
 
 - **Separate new Worker:** `fishing-p3-sandbox-preview`, **not** the currently functioning AUTH-P0 test Worker.
