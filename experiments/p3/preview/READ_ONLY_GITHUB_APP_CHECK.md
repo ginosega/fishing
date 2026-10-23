@@ -67,6 +67,16 @@ The current source adds a **nonsecret `code`** field to authorized 503 responses
    - `unexpected_proof_error`: some other source issue; never expose the raw GitHub error or secrets
 5. If still 403 after redeploy, confirm `P3_DIAGNOSTIC_KEY` is still a Cloudflare Secret. If a different 503 response appears, don't repeatedly rotate the key; diagnose the returned stage first.
 
+### Token HTTP 403 even after owner settings match
+
+The owner confirmed that the GitHub App ID, installation ID, selected sandbox repository, and requested permissions **all match in the GitHub UI**, but the live diagnostic still returned `installation_token_http_403`. GitHub documents both the token-issuance endpoint's 403 status and the JWT-authenticated, **read-only** endpoints `GET /app/installations/{id}` and `GET /repos/ginosega/fishing-p3-sandbox/installation`.
+
+The latest Worker diagnostic now runs those two GET preflight checks before it attempts the token POST. The first checks that GitHub sees the expected numeric App ID and installation ID, `ginosega` account, installation not suspended, selected-only repository scope, **Contents read/write** and **Pull requests write**. The second confirms the *same App installation* is attached to the private sandbox. Any failure returns a fixed, nonsecret code such as `app_installation_lookup_http_403`, `app_installation_id_mismatch`, `app_installation_permissions_mismatch`, or `sandbox_installation_lookup_http_404`; token issuance is not attempted if the preflight fails. If the two GET calls pass but the POST still fails, the response remains `installation_token_http_403`, proving the denial is limited to token creation rather than a missing installation.
+
+To run the improved check, **do not change or regenerate any existing GitHub App values**. Re-copy the latest [`worker-dashboard-paste.mjs`](worker-dashboard-paste.mjs) using GitHub **Raw**, replace only the P3 preview Worker source through Cloudflare **Edit code**, **Deploy**, confirm `/health`, and run the **same diagnostic key POST** from Edge Console. Share only the new HTTP status and JSON body.
+
+The new code does **not** collect or disclose the GitHub API response body, signed JWT, PEM or installation access token. Publishing stays off; delete the temporary diagnostic secret after testing.
+
 The extra diagnostic details are only available after successful comparison against the temporary `P3_DIAGNOSTIC_KEY`. They never return GitHub response bodies, App private keys, JWTs, or installation tokens. All publishing endpoints remain disabled.
 
 **Alternative:** The Workers dashboard quick editor may expose an **HTTP** testing tab where you can set method **POST**, path `/_internal/verify-sandbox`, and header `X-P3-Diagnostic-Key`; be careful that it must target the **actual deployed Worker origin**, not a temporary preview hostname, because the Worker rejects any origin other than `APP_ORIGIN`. The Edge method above is deterministic for the deployed URL.
