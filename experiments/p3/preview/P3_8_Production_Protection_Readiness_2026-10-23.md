@@ -1,0 +1,64 @@
+# FISH118 P3-8 — GitHub Free public-production protection readiness
+
+**Date:** October 23, 2026
+**Decision:** Owner will **not** upgrade to a paid GitHub plan. Use the existing private sandbox for synthetic tests without auto-merge, and require enforceable **GitHub Free public repository branch protection** on \`ginosega/fishing\` before v3 production auto-publishing. Keep publisher-side independently validated exact-sha checks and GitHub enforcement. No production rollout or live rules configuration is authorized by this source-only work.
+
+## Actual GitHub facts checked on October 23
+
+| Repository | ID | Visibility | Main SHA | Status |
+| --- | ---: | --- | --- | --- |
+| \`ginosega/fishing\` | \`1350909744\` | Public | \`35e88c47d96f4d7021afa642fdee9e6616c65e83\` | \`protected:false\`, checks enforcement off |
+| \`ginosega/fishing-p3-sandbox\` | \`1430581407\` | Private | \`e37db3b18bd9948bf4453d7f885f868e830a9a9a\` | \`protected:false\`, checks enforcement off; GitHub Free private rulesets endpoint returned HTTP 403 |
+
+The private synthetic draft [PR #1](https://github.com/ginosega/fishing-p3-sandbox/pull/1) passed an actual exact-head GitHub Actions job \`validate-sandbox-head\` on [run #39976510965](https://github.com/ginosega/fishing-p3-sandbox/actions/runs/39976510965). It stays draft, open, unmerged; this did NOT exercise the publisher GitHub App or a GitHub merge. Source drafts [#262](https://github.com/ginosega/fishing/pull/262) and [#263](https://github.com/ginosega/fishing/pull/263) stay unmerged. Existing hosted production release is unaffected.
+
+GitHub documentation establishes that protected branches are available on public repositories under GitHub Free; branch rules can require PRs, checks, and force-push/deletion restrictions. Branch protection can apply to admins when configured. No payment or repository visibility change is necessary for the *public production repository*.
+
+## FISH108 compatibility blocker found: do NOT enable required checks yet
+
+The current production workflow is \`.github/workflows/fishing-production.yml\` and its exact job names are:
+
+- \`classify\` determines \`content\` versus \`full\` from changed paths;
+- \`validate-content\` runs only if \`classify\` selects \`content\`;
+- \`validate-full\` runs only for \`full\`;
+- \`deploy-content\` and \`deploy-full\` run only for corresponding main/push publication with hosted verification.
+
+Crucially, the **entire pull_request workflow has a path filter**: \`pwa/**\` excluding \`pwa/docs/**\` and \`pwa/README.md\`, or changes to \`.github/workflows/**\`. Root documentation-only PRs may trigger no workflow at all. Marking the existing lane-specific or deployment jobs as required could block legitimate PRs, or produce a "skipped counts as success" ambiguity. The exact deployed FISH108 Fast Content Release policy must be preserved, including its lightweight validation for canonical-only Gear/KB/Catches edits and full validation for runtime/schema/workflow changes.
+
+**Recommended separately-reviewed PR before activating protection:**
+
+1. Modify the production workflow's **pull_request** trigger to run for *all* PRs (remove PR path filters). Retain the existing main/push filters so documentation-only main commits do **not** initiate Pages deployment.
+2. Keep existing \`content\` and \`full\` release lanes. Add an explicit \`docs-only\` non-release classification for genuinely documentation-only PRs, with a lightweight source check; if docs-only detection is ambiguous, use the full lane. Do not reclassify runtime/schema/media-transform or mixed changes as fast content.
+3. Add **one unique, always-evaluated, never-skipped final PR job** with stable job/check name \`fishing-merge-ready\`. It depends on \`classify\` and the relevant lane jobs and fails unless classification succeeded **and exactly the intended lane's validation succeeded**. It must not depend on deployment jobs, which are correctly absent/skipped in PRs. It must fail on missing, failed, cancelled or ambiguous validation rather than treating an absent workflow as passed. Make the PR job available for changes only to docs and for content-only changes.
+4. Prove three PR types before requiring this check: a content-only change should run the FISH108 fast lane; a runtime/workflow change must run full; a docs-only change must generate the stable required check **without deploying**. Test failure injection, check job uniqueness, concurrent base changes, and external GitHub App-created PR workflows. Github docs state that a PR created by a GitHub App installation token normally triggers GitHub Actions, unlike most events created with the workflow \`GITHUB_TOKEN\`.
+5. Only **after** that workflow modification has passed the normal Full Application Release process and GitHub Pages hosted verification, enable protected \`main\` through GitHub's owner/admin settings and require \`fishing-merge-ready\` from **GitHub Actions** (observed App ID \`15368\`) on an up-to-date PR branch. Use **zero required human approvals** if supported, consistent with the signed-off single-owner automatic publishing UX. Require PR creation and no bypass, no force pushes, no deletion, and apply the restrictions to admin too. Do **not** rely on a required human reviewer, which would defeat automatic publishing.
+6. Verify the effective settings through GitHub's owner/admin UI plus a known good/bad nonproduction PR before v3 cutover. Ordinary connected GitHub installation permissions **cannot read the administration-only full protection endpoint**, so the read-only \`GET /branches/main\` response is necessary but not a complete proof.
+
+**Owner confirmation is required before changing live production workflow/rules.** In particular, enabling rules ahead of the stable required check may disrupt routine content and full releases. If ordinary documentation PRs are unexpectedly blocked, **do not bypass checks or remove protection silently**; correct the workflow/rules through a separately reviewed rollback.
+
+## Additional publisher-side safeguards (independent of branch protection)
+
+The new source-only, read-only \`src/production-protection-readiness.mjs\` exports:
+
+- \`auditProductionBranchSummary\`: pinned public production repository numeric ID and \`main\`; checks \`protected:true\`, required check \`fishing-merge-ready\`, status check enforcement level \`everyone\`, and the required check's Actions App source \`15368\`. It always returns \`needsOwnerAdminVerification:true\` and \`neverAuthorizesMerge:true\`: branch summary does **not** prove full admin bypass/PR/force-push protections.
+- \`auditExactPRCheck\`: checks that an open, **non-draft**, unmerged same-repo PR has the exact expected head AND base SHAs, and that one unambiguous check-run on the exact head is \`completed/success\` and created by GitHub Actions App \`15368\`; rejects missing, stale, untrusted, skipped, neutral, failing, duplicate, and incomplete check-run responses. It **does not call GitHub** or merge.
+
+[Source test suite](test/production-protection-readiness.test.mjs) uses mocked branch/PR/check objects and tests every fail-closed case. No GitHub App Checks permission was granted, no REST live merge/branch write was performed and these modules are not deployed.
+
+For actual server-side use, implement a separate securely authorized GitHub REST check-run fetch. A GitHub App checking a **private** sandbox requires \`Checks: read\`, which the installed P3 App does not currently have. **Do not expand its permissions silently**; owner permission review is still necessary. The public production repository may expose check metadata to public read requests, but access still needs safe rate limiting and direct trusted-source validation, not browser-provided claims. GitHub's REST merge endpoint accepts a mandatory expected PR head \`sha\`; the publisher must supply it and reread the base immediately before merge to detect conflict.
+
+**Draft PR incompatibility:** Existing P3 prototype creates a draft PR, which GitHub cannot merge. The eventual publisher must transition to ready-for-review **after** checks and owner policy controls, then independently reacquire PR/check/base evidence before an expected-sha merge. This is a separate future permission, source, and live-test gate. Do not auto-convert private synthetic smoke PR #1 or merge it.
+
+## Gate status
+
+- **Completed:** factual repo/workflow audit; owner choice to stay on GitHub Free; controlled synthetic private PR exact-head CI; source-only production branch/read-only exact-check audit tests; proposed FISH108-compatible stable check design.
+- **Blocked/not started:** production \`fishing-merge-ready\` job; live public branch protection; owner-admin full rule verification; publisher check-run REST token; GitHub App write/merge protocol; hosted production v3 cutover.
+- **Still prohibited:** changing production \`main\`, Github App permissions, private sandbox PR #1 merge, AUTH-P0 Worker, Cloudflare P3 Worker/\`P3_WRITE_ENABLED=false\`, D1 0002, or v3 production publication without their corresponding approval.
+
+## Official GitHub references
+
+- [About protected branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches)
+- [Troubleshooting required status checks](https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/troubleshooting-required-status-checks)
+- [Workflow trigger events and GitHub App tokens](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/trigger-a-workflow)
+- [Check runs and read permissions](https://docs.github.com/en/rest/checks/runs)
+- [PR merge head-SHA preconditions](https://docs.github.com/en/rest/pulls/pulls)
