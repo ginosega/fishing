@@ -2,6 +2,25 @@
 
 **Date:** October 23, 2026. **Status:** Source-only design, fixture, verifier and tests on draft PR #263. **Not installed in private sandbox.** No cloud deployment, migration, live sandbox GitHub write, GitHub App permission change, sandbox pull request, merge or production release.
 
+
+## Post-approval sandbox installation — completed October 23, 2026
+
+The owner subsequently **explicitly approved** adding the four synthetic canonical files to the separate private sandbox and installing the previously reviewed, read-only GitHub Actions workflow there. This approval does **not** include creating a sandbox publication PR, merging anything, new GitHub App permissions, provisioning a Node runner, changing Cloudflare Worker configuration, applying D1 migration 0002, or production changes. Earlier “not installed” and “next approval boundary” language below describes the pre-approval source-only checkpoint and is now historical for this specific fixture/workflow installation.
+
+Using the connected owner-authorized GitHub repository interface, one non-force, expected-head-guarded commit was written directly to **`ginosega/fishing-p3-sandbox` `main`**:
+
+- Previous HEAD: `310bc3e8cf80f9c54badc1e56ef97382ccefec87`
+- New HEAD: **[`e37db3b18bd9948bf4453d7f885f868e830a9a9a`](https://github.com/ginosega/fishing-p3-sandbox/commit/e37db3b18bd9948bf4453d7f885f868e830a9a9a)**
+- Added: `pwa/Gear/gear.json`, `pwa/KB/kb.json`, `pwa/KB/Locations/content/P3 Test Lake.md`, `pwa/Catches/catches.json`, and `.github/workflows/fishing-p3-sandbox-exact-head.yml`.
+- The existing `README.md` remained unchanged. GitHub's compare API independently verified **exactly five added files**, one commit ahead and zero behind; the main ref and exact fixture Git blob IDs were read back independently. No sandbox PR was created.
+- The workflow file was verified in the sandbox default branch with `pull_request` trigger, `contents: read`, two `persist-credentials: false` checkouts, fixed trusted validator SHA `e75b6009f947b03568124ddf8d2c513a63c4025c`, and no publishing/deploy/merge route. The obsolete template-only header was replaced with a factual sandbox-only comment; workflow behavior otherwise matches the reviewed template.
+
+**Verification limit:** No sandbox `pull_request` event has occurred since this workflow was installed, so there is **no real private-sandbox exact-head CI execution or successful check yet**. The available GitHub connector can verify workflow contents in the default branch but does not allow the GitHub Actions workflow-list endpoint; workflow registration or runtime execution is therefore not independently proven. P3 source/test CI in `ginosega/fishing` had passed 73/73 PWA, 43/43 broker/fixture/exact-head and 61/61 preview/security on [run #39973980866](https://github.com/ginosega/fishing/actions/runs/39973980866), which is **not** a live private sandbox PR check.
+
+**Remaining gates:** The private sandbox's rulesets API returned a documented plan-related HTTP 403; branch protection is not verified, and automatic merge stays disabled. The dedicated publisher GitHub App and Cloudflare P3 Worker were not used in this installation. The P3 Worker remains at its last owner-confirmed `P3_WRITE_ENABLED=false`; no new remote configuration inspection is claimed. Any App-created sandbox branch/draft PR or sandbox merge requires its separate explicit approval and appropriate safeguards. Production `ginosega/fishing` `main` and AUTH-P0 Worker remain untouched.
+
+---
+
 ## Authority and restored baseline
 
 The approved Fishing v3 requirements/design/UX/plan and AUTH-P0 owner decisions remain binding. Current P3-6 handoff and source report remain the prerequisite. The private sandbox currently has only its README on main SHA 310bc3e8cf80f9c54badc1e56ef97382ccefec87. Production main was 35e88c47d96f4d7021afa642fdee9e6616c65e83 and latest verified Pages release 131ebca9c6d46fa1c1d815ad43a318f6. P3 App installation is restricted to numeric sandbox ID 1430581407, and P3_WRITE_ENABLED=false. PR #263 and #262 stay draft.
