@@ -22,7 +22,7 @@ After the owner removed the temporary diagnostic key, the project implemented an
 - **Separate new D1 DB:** `fishing-p3-sandbox`. Do not migrate AUTH-P0 D1 or any production database.
 - **No public-write routes:** `src/worker.mjs` implements only anonymous `GET /health` and `GET /session`; publication/auth/operation paths return 503. A successful health check returns `ready:false` and `mode:preview-no-publishing`.
 - **Hostname:** only a new `workers.dev` test hostname, matched exactly against the `APP_ORIGIN` binding. No custom domain, no Pages URL changes.
-- **No write-capable GitHub App credentials in the Worker yet.** No GitHub API calls in the scaffold.
+- **Publishing remains disabled despite stored GitHub App credentials.** The App PEM Secret is present in the isolated P3 Worker per the owner's setup. Only the **restricted Contents-read diagnostic** has been exercised. No GitHub write API call or public publishing route is implemented. The separate temporary diagnostic key was subsequently removed per owner confirmation.
 - **No new paid services.** Keep Cloudflare Free and check plan before applying any resource.
 
 ## Operator-side Cloudflare creation (not executed by ChatGPT)
@@ -46,13 +46,13 @@ After the owner removed the temporary diagnostic key, the project implemented an
 
 See [official GitHub App installation steps](https://docs.github.com/en/apps/using-github-apps/installing-a-github-app-from-a-third-party) and [GitHub App permissions](https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/choosing-permissions-for-a-github-app).
 
-## P3-2 next: read-only GitHub App proof (not yet connected to Worker)
+## P3-2 complete: read-only GitHub App installation proof
 
 The owner reports creating/installing the `fishing-p3-sandbox-publisher` test App **on the private sandbox only**. The ChatGPT GitHub connector now **does** access the private `ginosega/fishing-p3-sandbox` repository and verified numeric repository ID `1430581407`. That access is independent of the publishing App's installation; the App's actual scoped permissions still need a separate validation.
 
 The read-only helper is now pinned to the **verified numeric repository ID `1430581407`**, so a matching name with a different ID is rejected.
 
-A **non-networked-by-default** source helper now exists at [`src/github-app-readonly.mjs`](src/github-app-readonly.mjs). It supports GitHub-generated RSA/PKCS8 PEM keys, signs an RS256 App JWT in memory, requests a **one-hour installation token scoped to `fishing-p3-sandbox` with Contents read only**, then reads and checks the exact private repository identity. It returns only nonsecret metadata. **It is not imported or invoked by the current disabled Worker; it has not accessed GitHub or used real secrets.** Unit tests use fake HTTP responses and ephemeral test RSA keys.
+A **non-networked-by-default** source helper now exists at [`src/github-app-readonly.mjs`](src/github-app-readonly.mjs). It supports GitHub-generated RSA/PKCS8 PEM keys, signs an RS256 App JWT in memory, requests a **one-hour installation token scoped to `fishing-p3-sandbox` with Contents read only**, then reads and checks the exact private repository identity. It returns only nonsecret metadata. **It is imported by the temporary P3 read-only diagnostic code and was exercised against the actual GitHub sandbox as confirmed by the owner's HTTP 200 response.** Unit tests separately use fake HTTP responses and ephemeral test RSA keys. The owner has since removed the diagnostic-key Secret, disabling authorization for repeat calls.
 
 **Browser-only preparation — without sharing secrets in chat:**
 
@@ -66,7 +66,7 @@ A **non-networked-by-default** source helper now exists at [`src/github-app-read
    - `P3_WRITE_ENABLED`: **Text**, exactly `false` (or leave the existing `false` value unchanged).
    Click **Deploy** to apply bindings. Preserve the existing `APP_ORIGIN` and `DB` binding unchanged. GitHub installation token is **not** a stored secret; it will be minted on demand, expire after one hour, and never reach the browser.
 5. Delete any unnecessary duplicate *local* downloaded PEM copies after Cloudflare confirms the secret exists, but first check that the private key is stored safely and can be rotated later.
-6. **Stop here**: current deployed preview Worker remains disabled and has no GitHub API route. The code must be connected to a server-only, owner-authenticated test operation and verified before touching any GitHub PR/write API. Never expose or print the PEM, JWT, or installation access token.
+6. **This setup phase is complete**: the deployed P3 Worker has a guarded read-only GitHub probe, but its temporary diagnostic-key Secret has been removed. It has **no writable publication route**. A separate server-authenticated operation service and privilege tests are mandatory before any GitHub PR/write API is permitted. Never expose or print the PEM, JWT, or installation access token.
 
 **ChatGPT repository selection has now been updated successfully:** private sandbox visible and numeric ID independently verified. This does not verify or alter the publishing GitHub App's independent repository installation scope.
 
