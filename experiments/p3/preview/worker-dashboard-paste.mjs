@@ -1,6 +1,4 @@
-// GENERATED SINGLE-FILE CLOUDFLARE DASHBOARD BUNDLE; NO GITHUB WRITE OPERATIONS.
-// Source: src/github-app-readonly.mjs + src/worker.mjs.
-// After the diagnostic, delete P3_DIAGNOSTIC_KEY to disable the proof route.
+/* GENERATED SINGLE-FILE CLOUDFLARE DASHBOARD BUNDLE. NO GITHUB WRITE OPERATIONS. Source: src/github-app-readonly.mjs + src/worker.mjs. Delete P3_DIAGNOSTIC_KEY after the test to disable the probe. */
 
 /**
  * Isolated, read-only GitHub App installation proof for the P3 sandbox.
@@ -9,7 +7,6 @@
  * Never return GitHub tokens to an HTTP response or logs.
  */
 const SANDBOX='ginosega/fishing-p3-sandbox';
-// Exact repository ID confirmed using the GitHub connector after access was granted.
 const SANDBOX_REPOSITORY_ID=1430581407;
 const API='https://api.github.com';
 const headers={'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2026-03-10'};
@@ -58,7 +55,6 @@ async function verifyReadOnlySandboxInstallation({env,request=fetch,now=Math.flo
  const body=await grant.json();
  ensure(body?.permissions?.contents==='read' && typeof body.token==='string'&&body.token.length>=12,
   'GitHub returned no verified read-only installation token');
- // A private sandbox is verified with the actual short-lived installation token.
  const repository=await request(API+'/repos/'+SANDBOX,{
   method:'GET',headers:{...headers,Authorization:'Bearer '+body.token},
  });
@@ -66,7 +62,6 @@ async function verifyReadOnlySandboxInstallation({env,request=fetch,now=Math.flo
  const details=await repository.json();
  ensure(details?.full_name===SANDBOX&&details.private===true&&details.id===SANDBOX_REPOSITORY_ID,
   'Installation access resolved to an unexpected repository');
- // Never return the key, GitHub installation token, owner secrets or JWT.
  return Object.freeze({verified:true,repository:SANDBOX,repositoryId:details.id,
    private:true,tokenScope:'contents:read',publishingEnabled:false});
 }
@@ -83,8 +78,6 @@ const json=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:
  'Content-Security-Policy':"default-src 'none'; connect-src 'self'; frame-ancestors 'none'",
 }});
 const fail=()=>json({ok:false,ready:false},503);
-// Only a high-entropy, owner-controlled Secret permits the temporary probe.
-// Constant-time comparison of equal-length SHA-256 digests, no token logging.
 async function authorizedProbe(request,env){
  const received=request.headers.get('X-P3-Diagnostic-Key');
  const expected=env?.P3_DIAGNOSTIC_KEY;
@@ -101,8 +94,6 @@ function createWorker({verify=verifyReadOnlySandboxInstallation}={}){
  async fetch(request,env){
   let url;
   try{url=new URL(request.url);}catch{return fail();}
-  // This Worker is meant for a single explicitly configured new
-  // preview hostname. Never return authenticated status on a mismatch.
   if(!env?.APP_ORIGIN || url.origin!==env.APP_ORIGIN || url.protocol!=='https:')return fail();
   if(url.pathname==='/health'){
    if(request.method!=='GET')return json({ok:false},405);
@@ -113,8 +104,6 @@ function createWorker({verify=verifyReadOnlySandboxInstallation}={}){
     return json({ok:true,ready:false,mode:'preview-no-publishing'});
    }catch{return fail();}
   }
-  // One temporary proof-of-installation route. It NEVER writes GitHub;
-  // it may only read the exact private sandbox with a scoped one-hour token.
   if(url.pathname==='/_internal/verify-sandbox'){
    if(request.method!=='POST')return json({error:'Not found'},404);
    if(env?.P3_WRITE_ENABLED!=='false')return fail();
@@ -132,7 +121,6 @@ function createWorker({verify=verifyReadOnlySandboxInstallation}={}){
    if(request.method!=='GET')return json({ok:false},405);
    return json({authenticated:false,authorized:false});
   }
-  // All write-oriented and privileged routes are disabled.
   if(url.pathname.startsWith('/publications')||url.pathname.startsWith('/operations')||
      url.pathname.startsWith('/auth')||url.pathname.startsWith('/session/'))
     return json({error:'Publishing not enabled'},503);
