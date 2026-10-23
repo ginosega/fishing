@@ -41,7 +41,8 @@ function validateSubmission(req,settings){
  assert(typeof idempotencyKey==='string' && /^[a-zA-Z0-9_-]{12,96}$/.test(idempotencyKey),'INVALID_REQUEST','Invalid idempotency key');
  assert(pkg?.format==='fishing-companion-change-v2' && ['gear','kb'].includes(pkg.domain) && ['add','edit'].includes(pkg.operation),'INVALID_PACKAGE','Unsupported change package');
  assert(idOk(pkg.id)&&pkg.base?.schemaVersion===2&&clean(pkg.base.sourceRevision),'INVALID_PACKAGE','Invalid identity/base');
- assert(pkg.record && typeof pkg.record==='object' && !Array.isArray(pkg.record),'INVALID_PACKAGE','Missing record');
+ assert(pkg.operation!=='add' || (pkg.record && typeof pkg.record==='object' && !Array.isArray(pkg.record)),'INVALID_PACKAGE','Add requires a new record');
+ assert(pkg.operation!=='edit' || (pkg.changes && typeof pkg.changes==='object' && pkg.changes.baseFields && typeof pkg.changes.baseFields==='object'),'INVALID_PACKAGE','Edit requires source-aware base fields');
  assert(media && Array.isArray(media) && media.length<=12,'MEDIA','Invalid media count');
  const paths=new Set();let bytes=0;
  for(const file of media){
