@@ -17,7 +17,7 @@ const digest=s=>createHash('sha256').update(s).digest('hex');
 const git=(root,...args)=>execFileSync('git',['-C',root,...args],{encoding:'utf8'}).trim();
 async function setup({publishing=true,missingReceipt=false}={}){
  const repo=await mkdtemp(path.join(tmpdir(),'fishing-p3-dispatcher-'));
- await mkdir(path.join(repo,'pwa','Gear'),{recursive:true});
+ for(const name of ['Gear','KB','Catches'])await mkdir(path.join(repo,'pwa',name),{recursive:true});
  await writeFile(path.join(repo,'pwa','Gear','notes.md'),'Base\n');
  git(repo,'init','-q');
  git(repo,'config','user.name','Test');git(repo,'config','user.email','test@example.invalid');
