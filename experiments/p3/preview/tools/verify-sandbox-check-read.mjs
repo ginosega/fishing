@@ -6,6 +6,8 @@
  * Server-owned target: the already approved synthetic sandbox draft PR #1.
  * A successful result never means an automatic merge is permitted.
  */
+import path from 'node:path';
+import {pathToFileURL} from 'node:url';
 import {createSandboxCheckReadTokenIssuer} from '../src/sandbox-check-read-token.mjs';
 import {createSandboxCheckObserver} from '../src/sandbox-check-observer.mjs';
 
@@ -55,7 +57,7 @@ export async function verifySandboxCheckGrant({env,request=fetch}={}){
   canDeploy:false,
  });
 }
-if(process.argv[1]&&import.meta.url===new URL('file://'+process.argv[1]).href){
+if(process.argv[1]&&import.meta.url===pathToFileURL(path.resolve(process.argv[1])).href){
  try{
   console.log(JSON.stringify(await verifySandboxCheckGrant({env:process.env})));
  }catch(e){
