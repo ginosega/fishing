@@ -3,6 +3,24 @@
 **Date:** October 23, 2026. **Status:** Source-only design, fixture, verifier and tests on draft PR #263. **Not installed in private sandbox.** No cloud deployment, migration, live sandbox GitHub write, GitHub App permission change, sandbox pull request, merge or production release.
 
 
+## Post-approval real private-sandbox PR CI smoke test — passed October 23, 2026
+
+After a further owner instruction to proceed, the repository protection limitations were reconfirmed. The private sandbox `main` branch API reports `protected:false` and `required_status_checks.enforcement_level:off`. The private-repo rulesets endpoint reports **HTTP 403** requiring an eligible plan or public visibility, consistent with [GitHub's protected branch documentation](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches). No plan, visibility, permissions, protections, or automatic-merge settings were changed. This prevents treating CI success as an enforced pre-merge gate. It does **not** prevent running a strictly read-only synthetic test PR, provided no merge is attempted.
+
+The owner-authorized GitHub connector created branch `experiment/p3-7-ci-smoke` from fixture main SHA `e37db3b18bd9948bf4453d7f885f868e830a9a9a` and committed a **single purely synthetic Gear label change**, `P3 Test Rod` → `P3 Test Rod - CI Smoke Test`, under `pwa/Gear/gear.json`. The resulting head SHA is `7e39c018081e9677b33c3bcab7ebe80b44d924f8`; GitHub compare reports one commit, one changed file (one line changed). Opened **[private-sandbox draft PR #1](https://github.com/ginosega/fishing-p3-sandbox/pull/1)**, prominently marked **DO NOT MERGE**. This was a connector/owner action, **not** a GitHub App publisher write or publishing-service test.
+
+**Confirmed actual private GitHub Actions run [#39976510965](https://github.com/ginosega/fishing-p3-sandbox/actions/runs/39976510965): SUCCESS**, with job `validate-sandbox-head` completed successfully at exact PR head. Runner logs verify both Git checkout SHAs, locked trusted Node validator dependencies, exact GitHub event head/base/repo assertions, canonical allowed diff and full inventory. Trusted validator returned:
+
+```json
+{"repositoryId":1430581407,"headSha":"7e39c018081e9677b33c3bcab7ebe80b44d924f8","baseSha":"e37db3b18bd9948bf4453d7f885f868e830a9a9a","changedFiles":1,"files":4,"bytes":608,"gear":1,"kb":1,"catches":0}
+```
+
+This proves the sandbox workflow is **registered and triggerable**, and the trusted exact-head validator succeeds against a real private sandbox PR. It does not prove a privileged GitHub App token can read private status checks, produce a PR, or merge. PR #1 is intentionally open/draft/unmerged, and the canonical sandbox `main` remains at fixture SHA `e37db3b18bd9948bf4453d7f885f868e830a9a9a`. Production is unaffected.
+
+**Gate still closed:** No automatic merge while private branch status checks and PR requirements cannot be enforced, and no first publisher-generated branch or PR without its distinct approval. GitHub Pro/Team (or other eligible account arrangements) could enable branch protections for a private repository, but any plan/payment or repository-visibility change requires the owner's specific approval. No bypass via a direct `main` push or non-PR publishing path is approved.
+
+---
+
 ## Post-approval sandbox installation — completed October 23, 2026
 
 The owner subsequently **explicitly approved** adding the four synthetic canonical files to the separate private sandbox and installing the previously reviewed, read-only GitHub Actions workflow there. This approval does **not** include creating a sandbox publication PR, merging anything, new GitHub App permissions, provisioning a Node runner, changing Cloudflare Worker configuration, applying D1 migration 0002, or production changes. Earlier “not installed” and “next approval boundary” language below describes the pre-approval source-only checkpoint and is now historical for this specific fixture/workflow installation.
