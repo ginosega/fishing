@@ -5,7 +5,7 @@ export const sample={package:{format:'fishing-companion-change-v2',domain:'gear'
 export function sandbox(){
  const sql=new DatabaseSync(':memory:');
  sql.exec('PRAGMA foreign_keys=ON;');
- for(const n of ['0001_initial.sql','0002_durable_snapshot_and_audit.sql'])
+ for(const n of ['0001_initial.sql','0002_durable_snapshot_and_audit.sql','0003_ci_observation_recovery.sql'])
   sql.exec(readFileSync(new URL('../migrations/'+n,import.meta.url),'utf8'));
  let at=1800000000,seq=0;
  const prepared=(q,args=[])=>({
