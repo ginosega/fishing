@@ -3,8 +3,9 @@
  *
  * Source-only: no Worker route, no live App scope expansion, no GitHub writes,
  * no branch update, no draft->ready transition, and NO MERGE authority.
- * The dedicated GitHub App currently does NOT have Checks:read permission;
- * do not enable this module until a separately approved token issuer exists.
+ * The owner's isolated live P3-11 test confirmed Checks:read on the dedicated
+ * App installation. This module remains unintegrated and disabled by default;
+ * do not enable it without a separately reviewed trusted runtime/deployment.
  *
  * Caller fields must come from a server-owned immutable D1 branch receipt,
  * never a browser request or an untrusted PR body.
