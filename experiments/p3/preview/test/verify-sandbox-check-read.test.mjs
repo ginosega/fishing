@@ -106,7 +106,7 @@ test('P3-L02 missing explicit one-shot flag or write-disabled state refuses with
  }
 });
 test('P3-L03 Checks permission absent on App installation is a hard stop',async()=>{
- const f=fixture({checks:undefined});
+ const f=fixture({checks:null});
  await assert.rejects(verifySandboxCheckGrant({env:env(),request:f.request}),
   e=>e.code==='CHECKS_INSTALLATION_NOT_APPROVED');
  assert(!f.calls.some(x=>x.method==='POST'));
