@@ -116,3 +116,19 @@ test('P3-H09 moved base SHA is not silently accepted or rebased',async t=>{
  await assert.rejects(validateSandboxHead({...f.target(head),expectedBaseSha:wrong}),
   denied('GIT_VERIFICATION_FAILED'));
 });
+
+test('P3-H10 inactive workflow template uses a pinned trusted script and NO PR-executed code',async()=>{
+ const location=fileURLToPath(new URL('../preview/templates/fishing-p3-sandbox-exact-head.example.yml',import.meta.url));
+ const yaml=await fs.readFile(location,'utf8');
+ assert.match(yaml,/name: Fishing P3 sandbox exact-PR-head validation/);
+ assert.match(yaml,/\bon:\s*\n\s*pull_request:/);
+ assert.doesNotMatch(yaml,/pull_request_target|workflow_run|permissions:\s*write/);
+ assert.match(yaml,/permissions:\s*\n\s*contents: read/);
+ assert.equal((yaml.match(/persist-credentials: false/g)||[]).length,2);
+ assert.match(yaml,/repository: ginosega\/fishing-p3-sandbox/);
+ assert.match(yaml,/repository: ginosega\/fishing/);
+ assert.match(yaml,/ref: \$\{\{ github\.event\.pull_request\.head\.sha \}\}/);
+ assert.match(yaml,/ref: 5c69a4880855a6a7c47c660345dc48816e5c99a6/);
+ assert.match(yaml,/node trusted\/experiments\/p3\/preview\/tools\/validate-sandbox-head\.mjs/);
+ assert.doesNotMatch(yaml,/working-directory: sandbox|run:\s*npm\s+(test|install|ci).*sandbox/);
+});
