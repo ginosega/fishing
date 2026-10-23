@@ -3,6 +3,23 @@
 **Date:** October 23, 2026
 **Decision:** Owner will **not** upgrade to a paid GitHub plan. Use the existing private sandbox for synthetic tests without auto-merge, and require enforceable **GitHub Free public repository branch protection** on \`ginosega/fishing\` before v3 production auto-publishing. Keep publisher-side independently validated exact-sha checks and GitHub enforcement. No production rollout or live rules configuration is authorized by this source-only work.
 
+## Production CI workflow release completed — October 23, 2026
+
+Following the owner's "Proceed" instruction, the separate full-application required-check workflow PR #264 was fully reviewed against production main, then **merged (squash)** with an immutable expected-head-SHA guard:
+
+- Production main source/merge SHA: \`4a1a8c44317b56a4d47e818db9cd2b5587a966d8\`.
+- PR #264 head: \`7c6d65fcf8405d1be6557d0b93ab586cce304ea3\`. Final PR exact-head [full CI run #39986130452](https://github.com/ginosega/fishing/actions/runs/39986130452) PASSED, including the unique \`fishing-merge-ready\` check.
+- Separate smoke draft PRs [#265](https://github.com/ginosega/fishing/pull/265) (docs-only) and [#266](https://github.com/ginosega/fishing/pull/266) (canonical Catches formatting-only change) targeted the unmerged workflow branch, **not production main**. Both live Actions workflows succeeded, each verified the intended lane and \`fishing-merge-ready\`, and both PRs were **closed unmerged**.
+- Production main [GitHub Actions run #39990546320](https://github.com/ginosega/fishing/actions/runs/39990546320) initially failed one WebKit preview-only offline navigation heading timeout (53 browser tests passed, one failed), and correctly prevented deployment. Retrying the failed jobs at **run attempt 2** passed the full validation and completed GitHub Pages deployment plus **actual hosted byte/release identity and browser verification**. No source changes, test bypasses, or schema/production content modifications were needed to pass.
+- Hosted source revision: \`4a1a8c44317b56a4d47e818db9cd2b5587a966d8\`. Hosted release ID: **\`504d615b2bef361da06d655ee621d43a\`**. **577 verified hosted files**; counts **100 Gear / 60 KB / 12 Catches**. Hosted acceptance includes online/offline transition, release identity and application navigation; [hosted evidence artifact #12519043138](https://github.com/ginosega/fishing/actions/runs/39990546320/artifacts/12519043138).
+- The released workflow is now on public production main and preserves the FISH108 Fast Content Release policy; it requires no paid GitHub plan.
+
+**STILL OPEN — GitHub branch-protection configuration.** The connected GitHub integration cannot write admin branch-rule settings. The owner needs to open \`ginosega/fishing\` → Settings → Branches → Add rule for \`main\` and enable **Require a pull request before merging** (no required human approvals for single-owner publishing), **Require status checks to pass** → \`fishing-merge-ready\` from **GitHub Actions**, **require branch up-to-date** (strict), **Do not allow bypassing** (including administrators), and disallow branch deletion and force pushes. Do not require a deployment check (the deployment is after merge), and do not require a second human reviewer. The branch must be independently verified as \`protected:true\` and the rules verified by the owner's GitHub admin UI after setup before declaring the production auto-merge protection gate satisfied. No private sandbox or GitHub plan change is needed.
+
+The experimental publisher code still has **no production cutover**. The private sandbox PR #1 remains draft/unmerged; v3 P3 writes, App permission expansion and D1 migration 0002 remain disabled/unapplied.
+
+---
+
 ## Separate staged workflow PR #264 — unmerged
 
 Owner directed continued implementation with no GitHub plan upgrade. To avoid mixing production CI changes into experimental P3 publisher source, a separate **draft, unmerged [PR #264](https://github.com/ginosega/fishing/pull/264)** was created from unchanged production main SHA `35e88c47d96f4d7021afa642fdee9e6616c65e83`.
