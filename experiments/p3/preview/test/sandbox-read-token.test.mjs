@@ -73,3 +73,10 @@ test('P3-R04 no private key or incorrect installation configuration fail closed'
   assert.equal(f.calls.length,0);
  }
 });
+
+test('P3-R05 GitHub mandatory metadata-read is accepted, but added privileges are not',async()=>{
+ const expected=fixture({grantPermissions:{contents:'read',metadata:'read'}});
+ const issuer=createSandboxReadTokenIssuer({env,request:expected.request});
+ const grant=await issuer.issueReadToken(scope);
+ assert.deepEqual(grant.permissions,{contents:'read'});
+});
