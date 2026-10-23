@@ -67,6 +67,16 @@ The current source adds a **nonsecret `code`** field to authorized 503 responses
    - `unexpected_proof_error`: some other source issue; never expose the raw GitHub error or secrets
 5. If still 403 after redeploy, confirm `P3_DIAGNOSTIC_KEY` is still a Cloudflare Secret. If a different 503 response appears, don't repeatedly rotate the key; diagnose the returned stage first.
 
+### Required GitHub User-Agent fix (October 22)
+
+The owner reconfirmed that GitHub App ID, installation ID, sandbox selection, and permissions match. The latest Worker then returned `{"ok":false,"ready":false,"code":"app_installation_lookup_http_403"}` from the *first JWT-authenticated GET*, before any token request. Source review found a concrete bug: the common outbound GitHub request headers were missing the required **`User-Agent`** field. GitHub explicitly documents returning **HTTP 403** for missing/invalid User-Agent. Cloudflare Workers must not be assumed to provide a suitable default. The header is now supplied explicitly as `User-Agent: fishing-p3-sandbox-publisher` in **every** GitHub API subrequest; tests enforce it across the entire preflight and read-only path.
+
+**Next action:** The owner needs only to re-copy the latest [single-file Worker code](worker-dashboard-paste.mjs), replace the existing code in the **P3 preview Worker**, and Deploy. Confirm the unchanged `/health` response and rerun the *existing* Edge console POST with the **existing** 48-character temporary diagnostic key. Do not recreate or share GitHub App private keys, rotate/recreate App IDs, or change Cloudflare settings. `P3_WRITE_ENABLED` must remain `false`. If a new failure code appears, share only the nonsecret status/JSON body and diagnose that stage; after a 200 result, delete the temporary diagnostic key secret.
+
+**This is a plausible root-cause fix based on published GitHub requirements, not a claimed live success**; until the owner reruns the hosted diagnostic the real App installation has not passed its read-only check.
+
+Sources: [GitHub User-Agent requirement](https://docs.github.com/en/rest/using-the-rest-api/getting-started-with-the-rest-api#user-agent), [Cloudflare fetch request header support](https://developers.cloudflare.com/workers/runtime-apis/fetch/).
+
 ### Token HTTP 403 even after owner settings match
 
 The owner confirmed that the GitHub App ID, installation ID, selected sandbox repository, and requested permissions **all match in the GitHub UI**, but the live diagnostic still returned `installation_token_http_403`. GitHub documents both the token-issuance endpoint's 403 status and the JWT-authenticated, **read-only** endpoints `GET /app/installations/{id}` and `GET /repos/ginosega/fishing-p3-sandbox/installation`.
