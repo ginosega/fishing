@@ -42,26 +42,43 @@ async function appJwt({appId,privateKey,now=Math.floor(Date.now()/1000),cryptoAp
  const signature=await cryptoApi.subtle.sign('RSASSA-PKCS1-v1_5',key,new TextEncoder().encode(message));
  return message+'.'+encoded(signature);
 }
+class GitHubProbeError extends Error {
+ constructor(code){super('Read-only GitHub App verification failed');this.name='GitHubProbeError';this.code=code;}
+}
+const proofError=code=>{throw new GitHubProbeError(code);};
+const permittedStatus=status=>[401,403,404,422].includes(status)?status:0;
 async function verifyReadOnlySandboxInstallation({env,request=fetch,now=Math.floor(Date.now()/1000),cryptoApi=crypto}={}){
- ensure(id(env?.P3_GITHUB_APP_ID)&&id(env?.P3_GITHUB_INSTALLATION_ID),'Missing sandbox GitHub App identifiers');
- ensure(env?.P3_WRITE_ENABLED!=='true','Read-only inspection requires disabled publishing');
- ensure(typeof env?.P3_GITHUB_PRIVATE_KEY==='string','Missing private key secret');
- const jwt=await appJwt({appId:env.P3_GITHUB_APP_ID,privateKey:env.P3_GITHUB_PRIVATE_KEY,now,cryptoApi});
- const grant=await request(API+'/app/installations/'+env.P3_GITHUB_INSTALLATION_ID+'/access_tokens',{
-  method:'POST',headers:{...headers,Authorization:'Bearer '+jwt,'Content-Type':'application/json'},
-  body:JSON.stringify({repository_ids:[SANDBOX_REPOSITORY_ID],permissions:{contents:'read'}}),
- });
- ensure(grant.ok,'GitHub refused restricted installation token');
- const body=await grant.json();
- ensure(body?.permissions?.contents==='read' && typeof body.token==='string'&&body.token.length>=12,
-  'GitHub returned no verified read-only installation token');
- const repository=await request(API+'/repos/'+SANDBOX,{
-  method:'GET',headers:{...headers,Authorization:'Bearer '+body.token},
- });
- ensure(repository.ok,'Sandbox is not accessible to GitHub App installation');
- const details=await repository.json();
- ensure(details?.full_name===SANDBOX&&details.private===true&&details.id===SANDBOX_REPOSITORY_ID,
-  'Installation access resolved to an unexpected repository');
+ if(!id(env?.P3_GITHUB_APP_ID)||!id(env?.P3_GITHUB_INSTALLATION_ID))
+   proofError('invalid_app_identifiers');
+ if(env?.P3_WRITE_ENABLED!=='false')proofError('write_flag_not_false');
+ if(typeof env?.P3_GITHUB_PRIVATE_KEY!=='string'||!env.P3_GITHUB_PRIVATE_KEY)
+   proofError('missing_app_private_key');
+ let jwt;
+ try{jwt=await appJwt({appId:env.P3_GITHUB_APP_ID,privateKey:env.P3_GITHUB_PRIVATE_KEY,now,cryptoApi});}
+ catch{proofError('app_key_signing_failed');}
+ let grant;
+ try{
+  grant=await request(API+'/app/installations/'+env.P3_GITHUB_INSTALLATION_ID+'/access_tokens',{
+   method:'POST',headers:{...headers,Authorization:'Bearer '+jwt,'Content-Type':'application/json'},
+   body:JSON.stringify({repository_ids:[SANDBOX_REPOSITORY_ID],permissions:{contents:'read'}}),
+  });
+ }catch{proofError('installation_token_network_failure');}
+ if(!grant?.ok)proofError('installation_token_http_'+permittedStatus(grant?.status));
+ let body;
+ try{body=await grant.json();}catch{proofError('installation_token_malformed_response');}
+ if(body?.permissions?.contents!=='read'||typeof body.token!=='string'||body.token.length<12)
+   proofError('installation_token_scope_mismatch');
+ let repository;
+ try{
+  repository=await request(API+'/repos/'+SANDBOX,{
+   method:'GET',headers:{...headers,Authorization:'Bearer '+body.token},
+  });
+ }catch{proofError('sandbox_read_network_failure');}
+ if(!repository?.ok)proofError('sandbox_read_http_'+permittedStatus(repository?.status));
+ let details;
+ try{details=await repository.json();}catch{proofError('sandbox_read_malformed_response');}
+ if(details?.full_name!==SANDBOX||details.private!==true||details.id!==SANDBOX_REPOSITORY_ID)
+   proofError('sandbox_identity_mismatch');
  return Object.freeze({verified:true,repository:SANDBOX,repositoryId:details.id,
    private:true,tokenScope:'contents:read',publishingEnabled:false});
 }
@@ -106,16 +123,18 @@ function createWorker({verify=verifyReadOnlySandboxInstallation}={}){
   }
   if(url.pathname==='/_internal/verify-sandbox'){
    if(request.method!=='POST')return json({error:'Not found'},404);
-   if(env?.P3_WRITE_ENABLED!=='false')return fail();
    if(!await authorizedProbe(request,env))return json({error:'Forbidden'},403);
+   if(env?.P3_WRITE_ENABLED!=='false')return json({ok:false,ready:false,code:'write_flag_not_false'},503);
    try{
     const result=await verify({env});
     if(result?.verified!==true||result?.repository!=='ginosega/fishing-p3-sandbox'||
        result?.repositoryId!==1430581407||result?.tokenScope!=='contents:read'||
-       result?.publishingEnabled!==false)return fail();
+       result?.publishingEnabled!==false)return json({ok:false,ready:false,code:'unexpected_proof_result'},503);
     return json({verified:true,repository:result.repository,
       repositoryId:result.repositoryId,tokenScope:'contents:read',publishingEnabled:false});
-   }catch{return fail();}
+   }catch(e){
+    return json({ok:false,ready:false,code:e instanceof GitHubProbeError?e.code:'unexpected_proof_error'},503);
+   }
   }
   if(url.pathname==='/session'){
    if(request.method!=='GET')return json({ok:false},405);
