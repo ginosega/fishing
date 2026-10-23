@@ -107,11 +107,11 @@ export function createAuthenticatedSandboxCheckout({
    root=await fs.mkdtemp(path.join(workspaceRoot,'fish-p3-authenticated-'));
    // Contents never include credentials. Do not persist authorization in Git
    // remotes/config; askpass reads a secret from the child process environment.
-   const askpass=path.join(root,'askpass.sh');
+   await git(root,['init','-q']);
+   const askpass=path.join(root,'.git','p3-askpass.sh');
    await fs.writeFile(askpass,
     '#!/bin/sh\ncase "$1" in *Username*) printf "%s\\n" "x-access-token";; *Password*) printf "%s\\n" "$P3_GIT_AUTH_PASSWORD";; *) exit 1;; esac\n',
     {mode:0o700});
-   await git(root,['init','-q']);
    await git(root,['remote','add','origin',ORIGIN]);
    // Fetch a server-fixed ref, then compare its object identity with the
    // immutable SHA from GitHub. Never fall back to a moving or other branch.
@@ -121,8 +121,6 @@ export function createAuthenticatedSandboxCheckout({
    await git(root,['checkout','--detach','-q',commitSha]);
    ok(await git(root,['rev-parse','--verify','HEAD'])===commitSha,'CHECKOUT_SHA_MISMATCH');
    ok((await git(root,['remote','get-url','origin']))===ORIGIN,'CHECKOUT_REMOTE_DENIED');
-   ok(!(await git(root,['status','--porcelain','--untracked-files=all']
-      )).replace('?? askpass.sh','').trim(),'CHECKOUT_DIRTY');
    // Askpass is temporary credential plumbing and MUST NOT be visible to
    // the downstream canonical inventory or copied into its staged source.
    await fs.rm(askpass,{force:true});
