@@ -15,7 +15,7 @@ const fakeFetch=({repo='ginosega/fishing-p3-sandbox',privateRepo=true,permission
   if(url.endsWith('/access_tokens')){
    assert.equal(init.method,'POST');
    assert.match(init.headers.Authorization,/^Bearer \S+/);
-   assert.deepEqual(JSON.parse(init.body),{repositories:['fishing-p3-sandbox'],permissions:{contents:'read'}});
+   assert.deepEqual(JSON.parse(init.body),{repository_ids:[1430581407],permissions:{contents:'read'}});
    assert(!init.body.includes('ginosega/fishing"'));
    return {ok:granted,json:async()=>({permissions:{contents:permission},token:'ghs_demo_opaque_token'})};
   }
