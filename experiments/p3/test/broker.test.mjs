@@ -121,3 +121,16 @@ test('P3-016 candidate validator may not assert unvalidated source',async()=>{
  const {id}=await x.broker.submit(request());await x.broker.step(id);
  assert.equal((await x.broker.step(id)).state,'Failed');assert.equal(x.github.stats().created,0);
 });
+
+
+test('P3-017 accepts canonical edit packages without record and requires add record',async()=>{
+ const x=setup();
+ const edit=request();delete edit.package.record;
+ assert.equal((await x.broker.submit(edit)).inserted,true);
+ const badAdd=request();badAdd.idempotencyKey='another-unique-0002';
+ badAdd.package.operation='add';delete badAdd.package.record;
+ await assert.rejects(x.broker.submit(badAdd),e=>e.code==='INVALID_PACKAGE');
+ const missingBase=request();missingBase.idempotencyKey='another-unique-0003';
+ delete missingBase.package.record;delete missingBase.package.changes;
+ await assert.rejects(x.broker.submit(missingBase),e=>e.code==='INVALID_PACKAGE');
+});
