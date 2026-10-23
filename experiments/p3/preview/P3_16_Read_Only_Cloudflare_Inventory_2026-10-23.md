@@ -19,7 +19,15 @@
 - Second remote SELECT returned **zero** `d1_migrations` tables (`n=0`). Wrangler migration history is therefore **absent**. The manually initialized 0001 should not be considered tracked by Wrangler. **Do not run a blind `wrangler d1 migrations apply` or create ledger entries without a reviewed reconciliation plan.**
 - Both shared remote SELECT results report `success:true`, `changes:0`, `changed_db:false`, `rows_written:0`; the reported commands made **no D1 changes**.
 
-**Still pending before final P3-16 closeout:** confirm the Worker's native `DB` binding matches the isolated D1 (report yes/no, no UUID); verify that `P3_WRITE_ENABLED=false` remains configured; read-only `PRAGMA foreign_key_check`; review remote Time Travel support/bookmark readiness; and check hosted `/health` and `/session` still deny publishing. No schema migration or deployment is approved.
+### Subsequent read-only integrity and recovery evidence — October 23, 2026
+
+- Owner executed remote `PRAGMA foreign_key_check` via `npx.cmd` Wrangler. Reported **`results:[]`, `success:true`**, with `changes:0`, `changed_db:false`, `rows_written:0`. This supports **no current foreign-key violations** and confirms the query performed no mutation.
+- Owner ran `wrangler d1 time-travel info fishing-p3-sandbox --json` locally and confirmed **successful execution with a recovery bookmark**. The bookmark value was **not provided to ChatGPT or recorded in GitHub**. Time Travel access is available; no restore was attempted. Storage version still was not separately identified by `d1 info`.
+- Owner inspected Cloudflare Dashboard and confirmed **`DB` binding points to the same isolated `fishing-p3-sandbox` D1**, and **`P3_WRITE_ENABLED` is literally `false`**. This is owner-reported configuration verification, not a direct ChatGPT Cloudflare account read.
+- Wrangler migration ledger remains **absent** (`d1_migrations` count 0), so schema migration `0002`/`0003` requires an independently approved migration-history reconciliation and safety plan before any execution.
+
+**Still pending before P3-16 closeout:** GET the existing hosted `/health` and `/session` anonymously (read-only) and confirm health still returns `ready:false` / `mode:preview-no-publishing` and session still returns `authenticated:false`, `authorized:false`. This Chat's web access to these Worker endpoints was not available; obtain locally. Do not test or activate publishing endpoints. No schema migration or deployment is approved.
+
 
 ## First pass: database and Worker metadata only
 
