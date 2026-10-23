@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import worker,{createWorker} from '../src/worker.mjs';
 import dashboardWorker from '../worker-dashboard-paste.mjs';
+import {GitHubProbeError} from '../src/github-app-readonly.mjs';
 const ORIGIN='https://fishing-p3-sandbox-preview.example.workers.dev';
 const env=()=>({APP_ORIGIN:ORIGIN,DB:{prepare(sql){assert.equal(sql,'SELECT 1 AS alive');return {first:async()=>({alive:1})}}}});
 const send=(path,config={})=>worker.fetch(new Request(ORIGIN+path,config),env());
@@ -106,4 +107,19 @@ test('P3-I11 single-file dashboard worker preserves same deny-by-default behavio
  const unauthorized=await dashboardWorker.fetch(probeReq('POST','wrong diagnostic value 123456789012345'),probeEnv());
  assert.equal(unauthorized.status,403);
  assert.equal((await dashboardWorker.fetch(new Request(ORIGIN+'/publications',{method:'POST'}),probeEnv())).status,503);
+});
+
+test('P3-I12 authorized diagnostics distinguish write flag and GitHub stage without leaking credentials',async()=>{
+ const withWrongFlag={...probeEnv(),P3_WRITE_ENABLED:'TRUE'};
+ const notVerified=createWorker({verify:async()=>{throw Error('must not enter network');}});
+ const a=await notVerified.fetch(probeReq(),withWrongFlag);
+ assert.equal(a.status,503);
+ assert.equal((await a.json()).code,'write_flag_not_false');
+ const broken=createWorker({verify:async()=>{throw new GitHubProbeError('installation_token_http_401');}});
+ const b=await broken.fetch(probeReq(),probeEnv());
+ assert.equal(b.status,503);
+ assert.deepEqual(await b.json(),{ok:false,ready:false,code:'installation_token_http_401'});
+ const missingSecret=await broken.fetch(probeReq(),{...probeEnv(),P3_DIAGNOSTIC_KEY:undefined});
+ assert.equal(missingSecret.status,403);
+ assert.deepEqual(await missingSecret.json(),{error:'Forbidden'});
 });
