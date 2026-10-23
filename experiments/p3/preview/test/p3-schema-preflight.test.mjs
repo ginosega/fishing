@@ -30,7 +30,7 @@ const audit=(input={})=>{
 };
 test('P3-M01 exact manually established 0001 plus tracked ledger is only owner-review ready, never approved to apply',()=>{
  const result=audit();
- assert.equal(result.status,'READY_FOR_OWNER_REVIEW');
+ assert.equal(result.status,'READY_FOR_OWNER_REVIEW',JSON.stringify(result.blockers));
  assert.equal(result.verified0001,true);
  assert.equal(result.safeToApply,false);
  assert.equal(result.needsOwnerReview,true);
