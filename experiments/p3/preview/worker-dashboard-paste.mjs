@@ -9,7 +9,8 @@
 const SANDBOX='ginosega/fishing-p3-sandbox';
 const SANDBOX_REPOSITORY_ID=1430581407;
 const API='https://api.github.com';
-const headers={'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2026-03-10'};
+const headers={'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2026-03-10',
+ 'User-Agent':'fishing-p3-sandbox-publisher'};
 const ensure=(ok,msg)=>{if(!ok)throw new Error(msg);};
 const id=value=>typeof value==='string'&&/^[1-9]\d{0,15}$/.test(value);
 const encoded=data=>btoa(String.fromCharCode(...new Uint8Array(data))).replace(/=/g,'').replace(/\+/g,'-').replace(/\//g,'_');
