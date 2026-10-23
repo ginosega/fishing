@@ -11,7 +11,7 @@ const denied=code=>e=>(assert.equal(e instanceof TrustedCandidateError,true),ass
 function git(root,...args){return execFileSync('git',['-C',root,...args],{encoding:'utf8'}).trim();}
 async function fixture(){
  const root=await mkdtemp(path.join(tmpdir(),'fish-p3-trusted-'));
- await mkdir(path.join(root,'pwa','Gear'),{recursive:true});
+ for(const name of ['Gear','KB','Catches'])await mkdir(path.join(root,'pwa',name),{recursive:true});
  await writeFile(path.join(root,'pwa','Gear','sample.md'),'One\n');
  git(root,'init','-q');git(root,'config','user.name','Sandbox test');
  git(root,'config','user.email','test@example.invalid');
