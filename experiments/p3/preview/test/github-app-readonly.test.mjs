@@ -18,6 +18,10 @@ const fakeFetch=({repo='ginosega/fishing-p3-sandbox',privateRepo=true,permission
   repository_selection:selected,permissions:{contents,pull_requests:pulls},
   suspended_at:suspended};
  const request=async(url,init)=>{
+  // GitHub requires User-Agent; Cloudflare Workers do not guarantee a valid default.
+  assert.equal(init.headers['User-Agent'],'fishing-p3-sandbox-publisher');
+  assert.equal(init.headers['X-GitHub-Api-Version'],'2026-03-10');
+  assert.equal(init.headers.Accept,'application/vnd.github+json');
   calls.push({url,init});
   if(url==='https://api.github.com/app/installations/2002' && init.method==='GET'){
    assert.match(init.headers.Authorization,/^Bearer \S+/);
