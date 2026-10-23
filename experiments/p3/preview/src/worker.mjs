@@ -1,4 +1,4 @@
-import {verifyReadOnlySandboxInstallation} from './github-app-readonly.mjs';
+import {verifyReadOnlySandboxInstallation,GitHubProbeError} from './github-app-readonly.mjs';
 
 /**
  * P3 Cloudflare Free sandbox deployment sentinel.
@@ -46,16 +46,19 @@ export function createWorker({verify=verifyReadOnlySandboxInstallation}={}){
   // it may only read the exact private sandbox with a scoped one-hour token.
   if(url.pathname==='/_internal/verify-sandbox'){
    if(request.method!=='POST')return json({error:'Not found'},404);
-   if(env?.P3_WRITE_ENABLED!=='false')return fail();
    if(!await authorizedProbe(request,env))return json({error:'Forbidden'},403);
+   if(env?.P3_WRITE_ENABLED!=='false')return json({ok:false,ready:false,code:'write_flag_not_false'},503);
    try{
     const result=await verify({env});
     if(result?.verified!==true||result?.repository!=='ginosega/fishing-p3-sandbox'||
        result?.repositoryId!==1430581407||result?.tokenScope!=='contents:read'||
-       result?.publishingEnabled!==false)return fail();
+       result?.publishingEnabled!==false)return json({ok:false,ready:false,code:'unexpected_proof_result'},503);
     return json({verified:true,repository:result.repository,
       repositoryId:result.repositoryId,tokenScope:'contents:read',publishingEnabled:false});
-   }catch{return fail();}
+   }catch(e){
+    // Hardcoded stage codes only; never send exception messages or GitHub API bodies.
+    return json({ok:false,ready:false,code:e instanceof GitHubProbeError?e.code:'unexpected_proof_error'},503);
+   }
   }
   if(url.pathname==='/session'){
    if(request.method!=='GET')return json({ok:false},405);
