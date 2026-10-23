@@ -13,6 +13,7 @@ function setup({
  mainMovedInitially=false,mainMovedFinally=false,
  prOverride=null,prMovedFinally=false,checkOverride=null,
  checksOverride=null,missingReadToken=false,httpError=null,
+ networkFailure=null,invalidJson=null,
 }={}){
  const calls=[];let mainReads=0,prReads=0,issued=0;
  const pr=()=>({number:PR,state:'open',draft:true,merged:false,
@@ -27,6 +28,8 @@ function setup({
   assert.equal(init.method,'GET');
   assert.equal(init.headers['User-Agent'],'fishing-p3-sandbox-publisher');
   if(httpError&&url.includes(httpError))return json({message:'denied'},403);
+  if(networkFailure&&url.includes(networkFailure))throw Error('connection refused');
+  if(invalidJson&&url.includes(invalidJson))return {ok:true,status:200,json:async()=>{throw Error('bad JSON');}};
   if(url===API)return json({id:repoId,full_name:'ginosega/fishing-p3-sandbox',private:true});
   if(url===API+'/git/ref/heads/main'){
    mainReads++;
@@ -152,9 +155,15 @@ test('P3-C09 missing, duplicate and truncated check responses fail',async()=>{
   await assert.rejects(s.observer.observe(receipt()),denied(code));
  }
 });
-test('P3-C10 GitHub 403, network, invalid JSON and missing ability are never success',async()=>{
- const s=setup({httpError:'/check-runs'});
- await assert.rejects(s.observer.observe(receipt()),denied('GITHUB_READ_FAILED'));
+test('P3-C10 GitHub 403, network errors and invalid JSON are never success',async()=>{
+ for(const [options,code] of [
+  [{httpError:'/check-runs'},'GITHUB_READ_FAILED'],
+  [{networkFailure:'/check-runs'},'GITHUB_NETWORK_ERROR'],
+  [{invalidJson:'/check-runs'},'INVALID_GITHUB_JSON'],
+ ]){
+  const s=setup(options);
+  await assert.rejects(s.observer.observe(receipt()),denied(code));
+ }
 });
 test('P3-C11 positive observation has no git mutation, deployment or merge method',async()=>{
  const s=setup();
