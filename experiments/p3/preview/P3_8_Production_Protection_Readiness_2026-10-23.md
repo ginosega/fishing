@@ -1,8 +1,24 @@
 # FISH118 P3-8 — GitHub Free public-production protection readiness
 
 **Date:** October 23, 2026
-**Decision:** Owner will **not** upgrade to a paid GitHub plan. Use the existing private sandbox for synthetic tests without auto-merge, and require enforceable **GitHub Free public repository branch protection** on `ginosega/fishing` before v3 production auto-publishing. Keep publisher-side independently validated exact-sha checks and GitHub enforcement. The required-check workflow has now been released and hosted-verified as described below. GitHub branch-protection settings remain unconfigured; no v3 production cutover is authorized.
+**Decision:** Owner will **not** upgrade to a paid GitHub plan. Use the existing private sandbox for synthetic tests without auto-merge, and require enforceable **GitHub Free public repository branch protection** on `ginosega/fishing` before v3 production auto-publishing. Keep publisher-side independently validated exact-sha checks and GitHub enforcement. The required-check workflow has now been released and hosted-verified as described below. The public production main ruleset is now active and independently verified as documented below. No v3 production cutover is authorized.
 
+## Public main GitHub Free ruleset — ACTIVE AND VERIFIED October 23, 2026
+
+The owner created and enabled [repository ruleset #25742040](https://github.com/ginosega/fishing/rules/25742040) using GitHub Free. The GitHub connector independently verified the actual saved rules:
+
+- Public `ginosega/fishing` repository; pinned numeric ID `1350909744`; ruleset name `main`, target `branch`, enforcement **active**.
+- Branch condition includes `~DEFAULT_BRANCH` (actual default is `main`) and excludes no branches.
+- `bypass_actors: []` and `current_user_can_bypass: "never"`: no account, App or admin bypass exceptions.
+- Rules `deletion`, `non_fast_forward` (no force pushes), `pull_request` (0 required human reviews), and `required_status_checks`.
+- Strict up-to-date check (`strict_required_status_checks_policy: true`), no creation exemption, exact `fishing-merge-ready` pinned to **GitHub Actions integration ID `15368`**.
+- `GET /branches/main` returned **`protected: true`** and still pointed to the verified production source SHA `4a1a8c44317b56a4d47e818db9cd2b5587a966d8`. The *legacy* `protection.enabled: false` field is from a different branch-protection mechanism; it does not override the active ruleset.
+
+The source-only readiness module now additionally exposes `auditProductionRuleset()`, requiring exact active ruleset identity and all of the above safeguards, with adversarial tests. It is **read-only and never authorizes merges**. The prior classic branch audit remains for older configuration diagnostics.
+
+**Production branch protection is configured and independently verified.** This does not authorize v3 publishing, GitHub App permission expansion, private sandbox merges, P3 Cloudflare write enablement, D1 migration 0002 or v3 cutover. No paid GitHub plan, visibility change or new deployment is needed.
+
+---
 ## Production CI workflow release completed — October 23, 2026
 
 Following the owner's "Proceed" instruction, the separate full-application required-check workflow PR #264 was fully reviewed against production main, then **merged (squash)** with an immutable expected-head-SHA guard:
@@ -14,7 +30,7 @@ Following the owner's "Proceed" instruction, the separate full-application requi
 - Hosted source revision: `4a1a8c44317b56a4d47e818db9cd2b5587a966d8`. Hosted release ID: **`504d615b2bef361da06d655ee621d43a`**. **577 verified hosted files**; counts **100 Gear / 60 KB / 12 Catches**. Hosted acceptance includes online/offline transition, release identity and application navigation; [hosted evidence artifact #12519043138](https://github.com/ginosega/fishing/actions/runs/39990546320/artifacts/12519043138).
 - The released workflow is now on public production main and preserves the FISH108 Fast Content Release policy; it requires no paid GitHub plan.
 
-**STILL OPEN — GitHub branch-protection configuration.** The connected GitHub integration cannot write admin branch-rule settings. The owner needs to open `ginosega/fishing` → Settings → Branches → Add rule for `main` and enable **Require a pull request before merging** (no required human approvals for single-owner publishing), **Require status checks to pass** → `fishing-merge-ready` from **GitHub Actions**, **require branch up-to-date** (strict), **Do not allow bypassing** (including administrators), and disallow branch deletion and force pushes. Do not require a deployment check (the deployment is after merge), and do not require a second human reviewer. The branch must be independently verified as `protected:true` and the rules verified by the owner's GitHub admin UI after setup before declaring the production auto-merge protection gate satisfied. No private sandbox or GitHub plan change is needed.
+**HISTORICAL — GitHub branch-protection configuration was still open at this earlier checkpoint.** The connected GitHub integration cannot write admin branch-rule settings. The owner needs to open `ginosega/fishing` → Settings → Branches → Add rule for `main` and enable **Require a pull request before merging** (no required human approvals for single-owner publishing), **Require status checks to pass** → `fishing-merge-ready` from **GitHub Actions**, **require branch up-to-date** (strict), **Do not allow bypassing** (including administrators), and disallow branch deletion and force pushes. Do not require a deployment check (the deployment is after merge), and do not require a second human reviewer. The branch must be independently verified as `protected:true` and the rules verified by the owner's GitHub admin UI after setup before declaring the production auto-merge protection gate satisfied. No private sandbox or GitHub plan change is needed.
 
 The experimental publisher code still has **no production cutover**. The private sandbox PR #1 remains draft/unmerged; v3 P3 writes, App permission expansion and D1 migration 0002 remain disabled/unapplied.
 
