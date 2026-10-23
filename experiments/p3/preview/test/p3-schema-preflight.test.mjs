@@ -93,7 +93,8 @@ test('P3-M06 partially applied 0002 or 0003 objects are detected as unexpected P
 test('P3-M07 no caller can replace pinned six-object 0001 reference with a manipulated remote schema',()=>{
  const r=reference();
  for(const malicious of [[],r.source0001.slice(0,5),
-  [...r.source0001,{name:'p3_fake',type:'table',sql:'CREATE TABLE p3_fake(id)'}]]){
+  [...r.source0001,{name:'p3_fake',type:'table',sql:'CREATE TABLE p3_fake(id)'}],
+  r.source0001.map(x=>x.name==='p3_operations'?{...x,sql:x.sql.replace('created_at INTEGER','created_at TEXT')}:x)]){
   const out=audit({source0001:malicious,observedSchema:malicious});
   assert.equal(out.status,'BLOCKED');
   assert(out.blockers.includes('UNTRUSTED_0001_REFERENCE'));
