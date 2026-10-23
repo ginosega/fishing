@@ -1,10 +1,10 @@
-# P3-1 Cloudflare Free preview setup (approved, not yet provisioned)
+# P3-1/2 Cloudflare Free preview and GitHub sandbox setup
 
-**Owner approval:** October 22, 2026: isolated Cloudflare Free Worker/D1 plus disposable GitHub sandbox with least-privilege publishing rights approved. **Current state:** source configuration only. ChatGPT's available provider connectors cannot create Cloudflare Worker/D1 resources, create a GitHub repository or configure a GitHub App, so none of those resources is claimed as created. Do not send API tokens, App private keys, D1 IDs, installation IDs or callback secrets in chat.
+**Owner approval:** October 22, 2026: isolated Cloudflare Free Worker/D1 plus disposable GitHub sandbox with least-privilege publishing rights approved. **Current state:** Owner reports the isolated Worker/D1 provisioned, P3 tables and indexes verified, private sandbox repository created and publishing GitHub App installed on the sandbox. The available GitHub connector still cannot retrieve the new private repository (404), so independent App installation scope and hosted Cloudflare identity have not been established here. Do not send API tokens, App private keys, D1 IDs, installation IDs or callback secrets in chat.
 
 ## Owner-reported environment progress — October 22, 2026
 
-The owner reports that the new **preview Worker is running and reaches its isolated D1 database**, and that **all three P3 tables and all three expected indexes are created and verified** in the browser Console. An initial attempt to paste a commented migration into Cloudflare's single-line Console failed because its leading `--` comment disabled the SQL; the owner removed this blocker. **The owner also reports creating the private `ginosega/fishing-p3-sandbox` GitHub repository**. These are owner-reported results; Cloudflare deployment identity is not independently verifiable through the current connection. **The GitHub sandbox returned 404 through the available GitHub connector on October 22; this does not establish that the private repository does not exist, and likely requires refreshing the connector's allowed repository selection.** The dedicated sandbox GitHub App registration/installation has not been reported complete. The Worker remains disabled for publishing; never change AUTH-P0 or production. Never paste `--` comments into the flattened D1 browser Console.
+The owner reports that the new **preview Worker is running and reaches its isolated D1 database**, and that **all three P3 tables and all three expected indexes are created and verified** in the browser Console. An initial attempt to paste a commented migration into Cloudflare's single-line Console failed because its leading `--` comment disabled the SQL; the owner removed this blocker. **The owner also reports creating the private `ginosega/fishing-p3-sandbox` GitHub repository**. These are owner-reported results; Cloudflare deployment identity is not independently verifiable through the current connection. **The GitHub sandbox returned 404 through the available GitHub connector on October 22; this does not establish that the private repository does not exist, and likely requires refreshing the connector's allowed repository selection.** The owner subsequently confirmed **creating and installing the dedicated publishing GitHub App on the private sandbox**; the access scope remains **owner-reported, not independently verified**. The Worker remains disabled for publishing; never change AUTH-P0 or production. Never paste `--` comments into the flattened D1 browser Console.
 
 ## Exact isolation boundaries
 
@@ -26,7 +26,7 @@ The owner reports that the new **preview Worker is running and reaches its isola
 
 **Important:** The command examples are run by an owner with Cloudflare access, not by this conversation. A Cloudflare dashboard interaction may use the same settings. Never grant a blanket Cloudflare account write token to GitHub or store a token in a repository. If CI deployment is later approved, use a narrowly scoped Cloudflare token via GitHub Actions secrets and source-controlled pinned deployments; see [Cloudflare official GitHub Actions guidance](https://developers.cloudflare.com/workers/ci-cd/external-cicd/github-actions/).
 
-## GitHub sandbox (approved, not yet created)
+## GitHub sandbox (owner reports completed)
 
 1. Create a **private, independent** repository `ginosega/fishing-p3-sandbox` at [GitHub New Repository](https://github.com/new). Do not fork, copy canonical production data, or grant any App access to `ginosega/fishing`.
 2. Use a **dedicated test publishing GitHub App**, distinct from the read-only/OAuth AUTH-P0 test App, in [GitHub Developer Settings](https://github.com/settings/apps). Minimal repository permissions: **Contents: Read/write; Pull requests: Read/write; Metadata: Read (GitHub mandatory)**. Grant Checks/Actions **read-only only if necessary** for the exact endpoints; never grant Administration, Secrets, Pages or Actions write.
@@ -35,6 +35,30 @@ The owner reports that the new **preview Worker is running and reaches its isola
 5. After the repository exists, record only its nonsecret repository ID and name, the App permission set, and the no-production-access condition. Do not send App private keys/credentials in chat.
 
 See [official GitHub App installation steps](https://docs.github.com/en/apps/using-github-apps/installing-a-github-app-from-a-third-party) and [GitHub App permissions](https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/choosing-permissions-for-a-github-app).
+
+## P3-2 next: read-only GitHub App proof (not yet connected to Worker)
+
+The owner reports creating/installing the `fishing-p3-sandbox-publisher` test App **on the private sandbox only**. The ChatGPT GitHub connector does **not** currently see the new private `ginosega/fishing-p3-sandbox` repository; access from this connector is independent of the publishing App's installation.
+
+A **non-networked-by-default** source helper now exists at [`src/github-app-readonly.mjs`](src/github-app-readonly.mjs). It supports GitHub-generated RSA/PKCS8 PEM keys, signs an RS256 App JWT in memory, requests a **one-hour installation token scoped to `fishing-p3-sandbox` with Contents read only**, then reads and checks the exact private repository identity. It returns only nonsecret metadata. **It is not imported or invoked by the current disabled Worker; it has not accessed GitHub or used real secrets.** Unit tests use fake HTTP responses and ephemeral test RSA keys.
+
+**Browser-only preparation — without sharing secrets in chat:**
+
+1. Open [your GitHub Apps](https://github.com/settings/apps), select **Edit** for `fishing-p3-sandbox-publisher`, and find the **App ID** (numeric; *not* the Client ID).
+2. From that App's **Install App** page, select its installation on the `ginosega` account and **Configure**. Confirm repository access is **Only select repositories**, containing **`ginosega/fishing-p3-sandbox` only**. The installation ID is the number in the GitHub browser URL, e.g. `github.com/settings/installations/<installation-id>`; **do not** substitute the App ID for the Installation ID.
+3. From the App's **General** settings page, use **Generate a private key**, saving the downloaded PEM file *locally*. **Never paste its content in ChatGPT, GitHub, any issue/PR, or any tracked source file.**
+4. In Cloudflare **Workers & Pages**, open **`fishing-p3-sandbox-preview`** (not AUTH-P0) → **Settings** → **Variables and Secrets** → **Add**. Add:
+   - `P3_GITHUB_APP_ID`: **Text**, numeric App ID.
+   - `P3_GITHUB_INSTALLATION_ID`: **Text**, numeric Installation ID.
+   - `P3_GITHUB_PRIVATE_KEY`: **Secret**, complete PEM file contents including BEGIN/END lines and original line breaks.
+   - `P3_WRITE_ENABLED`: **Text**, exactly `false` (or leave the existing `false` value unchanged).
+   Click **Deploy** to apply bindings. Preserve the existing `APP_ORIGIN` and `DB` binding unchanged. GitHub installation token is **not** a stored secret; it will be minted on demand, expire after one hour, and never reach the browser.
+5. Delete any unnecessary duplicate *local* downloaded PEM copies after Cloudflare confirms the secret exists, but first check that the private key is stored safely and can be rotated later.
+6. **Stop here**: current deployed preview Worker remains disabled and has no GitHub API route. The code must be connected to a server-only, owner-authenticated test operation and verified before touching any GitHub PR/write API. Never expose or print the PEM, JWT, or installation access token.
+
+If the owner wishes ChatGPT to inspect the private sandbox repository directly, they may **separately update the ChatGPT GitHub connector's selected repository access** to include `ginosega/fishing-p3-sandbox` without dropping existing `ginosega/fishing` access. This does **not** change the publishing GitHub App's repository installation scope.
+
+Sources: [GitHub generating installation tokens](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-an-installation-access-token-for-a-github-app), [Cloudflare Worker secrets](https://developers.cloudflare.com/workers/configuration/secrets/).
 
 ## Gates still necessary before testing a real publication
 
