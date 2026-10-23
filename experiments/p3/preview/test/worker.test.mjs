@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import worker,{createWorker} from '../src/worker.mjs';
+import dashboardWorker from '../worker-dashboard-paste.mjs';
 const ORIGIN='https://fishing-p3-sandbox-preview.example.workers.dev';
 const env=()=>({APP_ORIGIN:ORIGIN,DB:{prepare(sql){assert.equal(sql,'SELECT 1 AS alive');return {first:async()=>({alive:1})}}}});
 const send=(path,config={})=>worker.fetch(new Request(ORIGIN+path,config),env());
@@ -93,4 +94,16 @@ test('P3-I10 full publishing endpoints remain disabled even with correct diagnos
   });
   assert.equal((await sentinel.fetch(req,probeEnv())).status,503);
  }
+});
+
+test('P3-I11 single-file dashboard worker preserves same deny-by-default behavior',async()=>{
+ const health=await dashboardWorker.fetch(new Request(ORIGIN+'/health'),env());
+ assert.equal(health.status,200);
+ const anon=await dashboardWorker.fetch(new Request(ORIGIN+'/session'),env());
+ assert.deepEqual(await anon.json(),{authenticated:false,authorized:false});
+ const noProof=await dashboardWorker.fetch(probeReq(),probeEnv());
+ assert.equal(noProof.status,503,'real App credentials absent in synthetic environment');
+ const unauthorized=await dashboardWorker.fetch(probeReq('POST','wrong diagnostic value 123456789012345'),probeEnv());
+ assert.equal(unauthorized.status,403);
+ assert.equal((await dashboardWorker.fetch(new Request(ORIGIN+'/publications',{method:'POST'}),probeEnv())).status,503);
 });
