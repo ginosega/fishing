@@ -30,10 +30,11 @@ function base64(s){
 }
 const statusCode=s=>[401,403,404,409,422].includes(s)?s:0;
 export function createSandboxPRAdapter({request=fetch,issueToken,trustedCandidate,
- publishingGate=()=>false,knownReceipt=async()=>null,allowedRepoId=ID}={}){
+ publishingGate=()=>false,knownReceipt=async()=>null,
+ onBranchCreated=async()=>false,allowedRepoId=ID}={}){
  ok(typeof request==='function'&&typeof issueToken==='function'&&
   typeof trustedCandidate==='function'&&typeof publishingGate==='function'&&
-  typeof knownReceipt==='function'&&
+  typeof knownReceipt==='function'&&typeof onBranchCreated==='function'&&
   allowedRepoId===ID,'INVALID_CONFIGURATION');
  async function api(token,method,path,body,allow404=false){
   ok(path===API||path.startsWith(API+'/'),'REPOSITORY_DENIED');
@@ -102,10 +103,16 @@ export function createSandboxPRAdapter({request=fetch,issueToken,trustedCandidat
    ok(previousCommit?.sha===receipt.headSha&&previousCommit.parents?.length===1&&
       previousCommit.parents[0]?.sha===base,'BRANCH_RECONCILIATION_REQUIRED');
    const current=await onePR(t,branch);
-   ok(current,'BRANCH_RECONCILIATION_REQUIRED');
-   const checkedPr=checked(current,branch,receipt.headSha);
+   // If the branch receipt is durable but PR creation failed after it, the
+   // same leased operation may safely complete the missing draft PR.
+   const pr=current??await api(t,'POST',API+'/pulls',{
+    title:'P3 sandbox test '+operationId,head:branch,base:'main',
+    body:'Isolated publishing test: '+operationId+'. No production code and no automatic merge.',
+    draft:true,
+   });
+   const checkedPr=checked(pr,branch,receipt.headSha);
    ok(!checkedPr.merged&&checkedPr.state==='open','PR_NOT_OPEN');
-   return {...checkedPr,baseSha:base,reused:true};
+   return {...checkedPr,baseSha:base,reused:!!current};
   }
   const entries=await plan(base,domain,operationId);
   const parent=await api(t,'GET',API+'/git/commits/'+base);
@@ -128,6 +135,13 @@ export function createSandboxPRAdapter({request=fetch,issueToken,trustedCandidat
   ok(freshMain?.object?.sha===base,'MAIN_MOVED_AFTER_VALIDATION');
   const created=await api(t,'POST',API+'/git/refs',{ref:'refs/heads/'+branch,sha:commit.sha});
   ok(created?.ref==='refs/heads/'+branch&&created?.object?.sha===commit.sha,'BRANCH_CREATE_FAILED');
+  // This callback must save an exact immutable receipt under the D1 worker
+  // lease BEFORE creating the PR. A crash before this point requires manual
+  // reconciliation; never claim an orphaned branch was idempotently applied.
+  const recorded=await onBranchCreated({operationId,repositoryId:ID,baseSha:base,
+   headSha:commit.sha,branch});
+  ok(recorded?.repositoryId===ID&&recorded?.baseSha===base&&
+   recorded?.headSha===commit.sha,'BRANCH_RECEIPT_NOT_DURABLE');
   const present=await onePR(t,branch);
   const pr=present??await api(t,'POST',API+'/pulls',{
    title:'P3 sandbox test '+operationId,head:branch,base:'main',
