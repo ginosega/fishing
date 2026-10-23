@@ -1,6 +1,6 @@
 # FISH118 P3-16 — Read-only Cloudflare inventory and evidence collection
 
-**October 23, 2026 — in progress; first remote inventory evidence received from owner-run read-only Wrangler queries.** This is a read-only inventory stage, not permission to migrate, deploy, restore, enable publishing, or schedule CI polling. No Cloudflare tool or connected Cloudflare account is available in this Chat. The owner may execute the following read-only commands on their authenticated Windows/PowerShell workstation and share only sanitized metadata.
+**October 23, 2026 — COMPLETE: owner-executed read-only Cloudflare inventory and hosted sentinel verification.** This is a read-only inventory stage, not permission to migrate, deploy, restore, enable publishing, or schedule CI polling. No Cloudflare tool or connected Cloudflare account is available in this Chat. The owner may execute the following read-only commands on their authenticated Windows/PowerShell workstation and share only sanitized metadata.
 
 ## Grounded source checkpoint
 
@@ -13,8 +13,8 @@
 
 **Provenance:** Owner supplied outputs of `npx.cmd` Wrangler calls from a locally authenticated Windows PowerShell session; GitHub connector did **not** independently access Cloudflare. No database UUID, Cloudflare account ID, personal email, signing key, app token, or secret is included in this document.
 
-- Owner-run `d1 info` reported database **`fishing-p3-sandbox`**, `num_tables=3`, 53,248 bytes (52 KiB), Western North America region (`WNAM`), replication disabled, created October 23, 2026 at 04:14:11 UTC. D1 info output did not provide a storage-version field; **Time Travel availability remains unverified**. The reported 24-hour query/write activity is historical and does not establish the cause or indicate publishing.
-- Owner-run `wrangler deployments status --name fishing-p3-sandbox-preview --json` returned a dashboard-sourced deployment, 100% assigned to one version, deployed October 23, 2026 at 06:13:18 UTC, version prefix `0a9133eb`. This confirms a Worker deployment record, **not** its current behavior, `P3_WRITE_ENABLED` or actual DB binding; those remain pending owner verification.
+- Owner-run `d1 info` reported database **`fishing-p3-sandbox`**, `num_tables=3`, 53,248 bytes (52 KiB), Western North America region (`WNAM`), replication disabled, created October 23, 2026 at 04:14:11 UTC. D1 info output did not provide a storage-version field; Time Travel bookmark availability was separately verified by the owner. The reported 24-hour query/write activity is historical and does not establish the cause or indicate publishing.
+- Owner-run `wrangler deployments status --name fishing-p3-sandbox-preview --json` returned a dashboard-sourced deployment, 100% assigned to one version, deployed October 23, 2026 at 06:13:18 UTC, version prefix `0a9133eb`. This confirms a Worker deployment record. The owner subsequently checked the hosted endpoints and dashboard `P3_WRITE_ENABLED` / DB binding separately.
 - Owner-run remote SELECT against `sqlite_master` reported **exactly three P3 tables and three P3 indexes**: `p3_sessions`, `p3_operations`, `p3_events`, `p3_sessions_owner_expiry`, `p3_operations_state_lease`, `p3_events_operation`. Their definitions match the checked-in `migrations/0001_initial.sql` in columns, constraints, unique key and index definitions, after SQLite removes `IF NOT EXISTS` and normalizes whitespace. No `p3_requests`, CI-observation table or 0002/0003 triggers appeared. This supports **manual 0001 installed as expected**.
 - Second remote SELECT returned **zero** `d1_migrations` tables (`n=0`). Wrangler migration history is therefore **absent**. The manually initialized 0001 should not be considered tracked by Wrangler. **Do not run a blind `wrangler d1 migrations apply` or create ledger entries without a reviewed reconciliation plan.**
 - Both shared remote SELECT results report `success:true`, `changes:0`, `changed_db:false`, `rows_written:0`; the reported commands made **no D1 changes**.
@@ -22,11 +22,11 @@
 ### Subsequent read-only integrity and recovery evidence — October 23, 2026
 
 - Owner executed remote `PRAGMA foreign_key_check` via `npx.cmd` Wrangler. Reported **`results:[]`, `success:true`**, with `changes:0`, `changed_db:false`, `rows_written:0`. This supports **no current foreign-key violations** and confirms the query performed no mutation.
-- Owner ran `wrangler d1 time-travel info fishing-p3-sandbox --json` locally and confirmed **successful execution with a recovery bookmark**. The bookmark value was **not provided to ChatGPT or recorded in GitHub**. Time Travel access is available; no restore was attempted. Storage version still was not separately identified by `d1 info`.
+- Owner ran `wrangler d1 time-travel info fishing-p3-sandbox --json` locally and confirmed **successful execution with a recovery bookmark**. The bookmark value is **deliberately omitted from GitHub**. Time Travel access is available; no restore was attempted. Storage version still was not separately identified by `d1 info`.
 - Owner inspected Cloudflare Dashboard and confirmed **`DB` binding points to the same isolated `fishing-p3-sandbox` D1**, and **`P3_WRITE_ENABLED` is literally `false`**. This is owner-reported configuration verification, not a direct ChatGPT Cloudflare account read.
 - Wrangler migration ledger remains **absent** (`d1_migrations` count 0), so schema migration `0002`/`0003` requires an independently approved migration-history reconciliation and safety plan before any execution.
 
-**Still pending before P3-16 closeout:** GET the existing hosted `/health` and `/session` anonymously (read-only) and confirm health still returns `ready:false` / `mode:preview-no-publishing` and session still returns `authenticated:false`, `authorized:false`. This Chat's web access to these Worker endpoints was not available; obtain locally. Do not test or activate publishing endpoints. No schema migration or deployment is approved.
+**Hosted sentinel verified; P3-16 read-only checks complete.** The owner invoked anonymous PowerShell `Invoke-RestMethod -Method Get` calls against the existing `fishing-p3-sandbox-preview.ginosega.workers.dev` Worker. GET `/health` returned **`ok:true`, `ready:false`, `mode:preview-no-publishing`**; GET `/session` returned **`authenticated:false`, `authorized:false`**. Neither call changes data, grants publishing authority, or exercises any write endpoint. Together with the owner-verified DB binding, disabled flag, FK integrity and Time Travel, these close the **read-only inventory scope only**. Migration history remains a separate required reconciliation gate; no migration or deployment is approved.
 
 
 ## First pass: database and Worker metadata only
@@ -83,7 +83,7 @@ The Time Travel query must be read-only: **never call `time-travel restore`**. R
 
 ## Return evidence, not credentials
 
-Request a sanitized summary containing: D1 name and version, Worker deployed identity (no UUID required), confirmation whether Worker `DB` binding matches selected D1 (yes/no), list of P3 object names/types, whether 0002/0003 objects already exist, whether `d1_migrations` exists and its **filenames only**, `PRAGMA foreign_key_check` count, Time Travel support, health/session response, and any error messages with account IDs removed. Report status remains **PENDING** until these facts are actually observed; do not imply remote verification from source tests.
+Request a sanitized summary containing: D1 name and version, Worker deployed identity (no UUID required), confirmation whether Worker `DB` binding matches selected D1 (yes/no), list of P3 object names/types, whether 0002/0003 objects already exist, whether `d1_migrations` exists and its **filenames only**, `PRAGMA foreign_key_check` count, Time Travel support, health/session response, and any error messages with account IDs removed. Read-only inventory evidence is now complete and attributed to owner-executed Wrangler/PowerShell checks; do not mistake that for a live write/publisher validation.
 
 ## Sources
 
@@ -93,4 +93,4 @@ Request a sanitized summary containing: D1 name and version, Worker deployed ide
 - [D1 Time Travel and backups](https://developers.cloudflare.com/d1/reference/time-travel/)
 - [Free-plan D1 limits](https://developers.cloudflare.com/d1/platform/limits/)
 
-**Next gate:** review actual read-only Cloudflare evidence and report any drift. Isolated D1 migrations 0002/0003, Worker deployment and GitHub sandbox writes remain separately approval-gated. No Work mode switch is necessary.
+**P3-16 disposition: COMPLETE (READ-ONLY).** Next unresolved blocker: `d1_migrations` table is absent because schema `0001` was initialized manually. Prepare and review an explicit migration-ledger reconciliation and additive `0002`/`0003` rollout procedure using the isolated sandbox, with a fresh recovery bookmark/rollback assessment; obtain separate affirmative user approval **before** any SQL mutation. Cloudflare Worker deployment, GitHub sandbox writes, merging or production cutover remain separately gated. No Work mode switch is necessary.
