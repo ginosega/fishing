@@ -11,7 +11,7 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {DOMAIN,safePath,categoryFolder} from '../../../pwa/src/shared.mjs';
 import {validatePackage,promoteChange,ChangeConflictError} from '../../../pwa/src/handoff.mjs';
-import {loadSource,inventorySource} from '../../../pwa/tools/library.mjs';
+import {loadSource,inventorySource,fileUnder} from '../../../pwa/tools/library.mjs';
 import {BrokerError} from './broker.mjs';
 
 const digest=bytes=>createHash('sha256').update(bytes).digest('hex');
@@ -88,7 +88,7 @@ export function createCanonicalSourceAware(){
     if(!Array.isArray(arr))fail('Missing canonical records');
     const current=arr.find(r=>r.id===pkg.id);
     const narrative=current?.[pkg.domain==='gear'?'notes':'content'];
-    const currentText=narrative?await fs.readFile(path.join(base,pathInside(narrative)),'utf8'):'';
+    const currentText=narrative?await fs.readFile(await fileUnder(base,pathInside(narrative)),'utf8'):'';
     const edit=await promoteChange({
      package:pkg,currentRecord:current,currentText,sourceRevision:snapshot.mainSha,
      conflictPolicy:'review'
