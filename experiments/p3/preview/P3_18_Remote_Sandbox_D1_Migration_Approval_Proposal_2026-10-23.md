@@ -1,6 +1,14 @@
-# FISH118 P3-18 — Remote isolated D1 migration approval proposal (NOT APPROVED)
+# FISH118 P3-18 — Remote isolated D1 migration approval and gated execution plan (R1 ONLY)
 
-**October 23, 2026. Status: PROPOSAL FOR REVIEW ONLY.** This is a controlled *future* procedure, not permission to run `--remote`, create/alter `d1_migrations`, migrate schemas, deploy, activate publishing, merge a PR, change GitHub App permissions, or write to the private synthetic GitHub sandbox.
+**October 23, 2026. Status: R1 ONLY CONDITIONALLY APPROVED by the owner in this chat; remote preflight and execution not yet performed.** The owner's immediate `proceed` responded to an explicit invitation to approve **R1 only** after reviewing this proposal. Approval covers only verified application of **unchanged `0001_initial.sql`** to the isolated `fishing-p3-sandbox` D1, by Wrangler's native migration mechanism, **after fresh preflight/target/bookmark verification and a one-file interactive preview**. It does not authorize R2, R3, remote restores, deploys, merges, GitHub write operations, or publishing activation.
+
+
+## R1 conditional approval checkpoint — October 23, 2026
+
+- Owner responded **`proceed`** immediately after the assistant explicitly requested approval for **R1 only**. Interpret narrowly as R1 approval, with all conditions in this document still binding.
+- **No remote SQL migration, ledger creation, D1 restore, Worker deploy, or publishing activation has occurred.** The next owner-run commands will prepare a restricted remote-only config and perform *read-only* R1 preflight. Do not run migration apply until those results have been reviewed and the live single-file target/prompt is verified.
+- Recheck the exact named isolated database's UUID against the earlier privately retained owner-verified configuration; verify remote 0001 schema (six objects and full definitions), missing Wrangler ledger, all three empty application tables, FK integrity and disabled hosted Worker. A new private Time Travel bookmark is required immediately before any remote mutation.
+- When the approved R1 is eventually applied, Wrangler may create its **own** `d1_migrations` table and record `0001_initial.sql`; it may **not** make 0002/0003 available in the restricted folder. Any discrepancy cancels the R1 authorization until reviewed.
 
 ## Authority and scope
 
@@ -17,15 +25,15 @@
 
 | Stage | Exact changes Wrangler may make | Expected after stage | Approval |
 |---|---|---|---|
-| **R1: ledger reconciliation** | Apply only unchanged idempotent `0001_initial.sql` to already-existing 0001 remote schema; Wrangler establishes/records its own `d1_migrations` entry | Original six P3 objects unchanged; ledger only 0001; three P3 row counts still zero | **Explicit approval for R1 only — NOT GIVEN** |
+| **R1: ledger reconciliation** | Apply only unchanged idempotent `0001_initial.sql` to already-existing 0001 remote schema; Wrangler establishes/records its own `d1_migrations` entry | Original six P3 objects unchanged; ledger only 0001; three P3 row counts still zero | **Owner approved R1 only, conditional on fresh checks; NOT EXECUTED** |
 | **R2: durable request/audit** | Apply only `0002_durable_snapshot_and_audit.sql` | Four P3 tables, three indexes, three triggers; ledger exactly 0001–0002 | **Separate explicit approval after verifying R1 — NOT GIVEN** |
 | **R3: CI observation recovery** | Apply only `0003_ci_observation_recovery.sql` | Six P3 tables, three indexes, five triggers; ledger exactly 0001–0003 | **Separate explicit approval after verifying R2 — NOT GIVEN** |
 
 **Never execute a normal remote apply with all three migrations initially discoverable.** Because `d1 migrations apply` processes pending files in order, the *temporary private* migration folder is staged as **0001 only → 0001+0002 → 0001+0002+0003**, and every stage stops for verification before adding the next. Do not run remote apply using the synthetic `LOCAL_P3` configuration.
 
-## Private target configuration and immutable staging (prepare only after separate approval)
+## Private target configuration and immutable staging (R1 preflight preparation permitted)
 
-Use a **new, clearly named private remote-only Wrangler config** under a temporary directory, separate from the existing synthetic local rehearsal `$cfg`. The remote config must select **only** `fishing-p3-sandbox` by its real UUID obtained from `wrangler d1 list`, with `DB` binding, migration directory set to a **private restricted folder**, and no remote `AUTH-P0` binding. Keep `P3_WRITE_ENABLED=false`; no need to deploy this config to a Worker. Double-check `Get-Content` locally without sharing IDs, and compare account/UUID privately against deployed Worker binding. The earlier unconfigured call treated the database name as an API identifier and returned authentication error 10000: **every future D1 command must use explicit `--config` and the `DB` binding.**
+For the conditionally approved R1 preflight, use a **new, clearly named private remote-only Wrangler config** under a temporary directory, separate from the existing synthetic local rehearsal `$cfg`. The remote config must select **only** `fishing-p3-sandbox` by its real UUID obtained from `wrangler d1 list`, with `DB` binding, migration directory set to a **private restricted folder**, and no remote `AUTH-P0` binding. Keep `P3_WRITE_ENABLED=false`; no need to deploy this config to a Worker. Double-check `Get-Content` locally without sharing IDs, and compare account/UUID privately against deployed Worker binding. The earlier unconfigured call treated the database name as an API identifier and returned authentication error 10000: **every future D1 command must use explicit `--config` and the `DB` binding.**
 
 Before each stage validate the private folder's **exact filenames and SHA-256 fingerprints** against the immutable source (use `Get-FileHash` or a bytewise check). Staging must not introduce any additional SQL files or subdirectories. Confirm Wrangler version 4.152.0, account identity, correct DB `production` storage backend, D1 UUID match, feature branch source, and still-disabled hosted Worker.
 
@@ -64,7 +72,7 @@ Failures or ambiguous results are immediate STOP conditions. Do not rerun partia
 
 ## What this proposal does not approve
 
-This document is not authorization to run R1, R2, R3, alter `P3_WRITE_ENABLED`, bind production, create/deploy new Worker code, use GitHub App write scopes, create or merge a sandbox PR, enable schedulers, or merge [draft PR #263](https://github.com/ginosega/fishing/pull/263). R1/R2/R3 are **three separate human approval decisions** after each prior-stage verification. Do not use a general user `Proceed` from earlier source-only work as approval for any stage.
+**R1 only has received conditional owner approval** in direct response to the R1 approval request. Execution **must not start** until the fresh owner-run preflight has been checked, the sole correct D1 target and pending-file preview are established, and a new pre-change Time Travel bookmark is privately retained. This approval does **not** authorize R2, R3, changing `P3_WRITE_ENABLED`, binding production, creating/deploying Worker code, using GitHub App write scopes, creating or merging a sandbox PR, enabling schedulers, or merging [draft PR #263](https://github.com/ginosega/fishing/pull/263). R2 and R3 require their own later explicit approvals after the prior-stage postflight is verified. No `Proceed` from a prior source-only stage constitutes approval for these later stages.
 
 ## References
 
