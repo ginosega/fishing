@@ -11,11 +11,11 @@ const nonce='some-secure-random-nonce-0123456789abc';
 const op='p3_00000001-1111-4111-8111-123456789abc';
 const key='owner-operation-key-0123456789';
 function context(){
+ const f=sandbox();
  const env={DB:f.DB,P3_OWNER_GITHUB_ID:String(owner),P3_WRITE_ENABLED:'false',
   P3_COMMAND_CLIENT_ENABLED:'false',P3_COMMAND_BRIDGE_ENABLED:'false',
   APP_ORIGIN:'https://fishing-p3-sandbox-preview.ginosega.workers.dev',
   P3_BRIDGE_HMAC_SECRET:secret};
- const f=sandbox();
  f.sql.exec(readFileSync(new URL('../migrations/0004_command_nonce_ledger.sql',import.meta.url),'utf8'));
  let approved=false,sends=0;
  const service=createP3NativeAcceptanceService({
