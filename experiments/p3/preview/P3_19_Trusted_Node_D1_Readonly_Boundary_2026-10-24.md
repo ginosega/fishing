@@ -1,6 +1,6 @@
 # FISH118 P3-19 — Trusted Node to isolated D1 read-only boundary
 
-**October 24, 2026 — SOURCE-ONLY increment on draft PR #263.** The isolated R1/R2/R3 schema is completed and verified through private GitHub Actions; the P3 Worker is still a disabled, anonymous sentinel. Production main, preview Worker deployment, private sandbox writes/PR merge and P3 publishing have **not** been activated by this change.
+**October 24, 2026 — SOURCE IMPLEMENTED AND REAL SANDBOX READ-ONLY SMOKE PASSED on draft PR #263.** The isolated R1/R2/R3 schema is completed and verified through private GitHub Actions; the P3 Worker is still a disabled, anonymous sentinel. Production main, preview Worker deployment, private sandbox writes/PR merge and P3 publishing have **not** been activated by this change.
 
 ## The current architectural gap
 
@@ -24,3 +24,15 @@ The owner-approved P3 design still calls for atomic, owner-scoped, replay-safe d
 - Cloudflare D1 Worker binding: https://developers.cloudflare.com/d1/worker-api/
 - Outstanding question on D1 REST batch atomic semantics: https://github.com/cloudflare/workers-sdk/issues/15904
 - Approved architecture: `pwa/docs/Fishing_Companion_v3_Technical_Design.md`; current P3-14/P3-18 project status within this draft.
+
+## Live sandbox proof — October 24, 2026
+
+A separate infrastructure-only private sandbox [PR #6](https://github.com/ginosega/fishing-p3-sandbox/pull/6) added `.github/workflows/fishing-p3-trusted-read-smoke.yml` and narrowly permitted that exact workflow path in the existing infrastructure CI allowlist without changing synthetic-content validation. PR #6 passed private sandbox CI and was squash-merged to sandbox `main` at `cf4258738c1b016704fe594a6dd1b7112482971f`.
+
+Its automatic `push` [GitHub Actions run #40123656675](https://github.com/ginosega/fishing-p3-sandbox/actions/runs/40123656675), using pinned public P3 source commit `250ee91e9270b216239d487f700a0b18b91e8aef`, completed **success**. The actual `live-read-only` job logs show:
+
+> PASS: GitHub Actions trusted Node direct D1 read-only owner-scoped adapter executed three queries on isolated sandbox; all synthetic sentinel rows absent; preview Worker disabled/anonymous.
+
+This verifies **actual Node → Cloudflare D1 REST API connection**, exact D1 target identity, three allowlisted operation/CI read queries with numeric owner/repo binding, and still-disabled hosted Worker in a trusted Actions runner. Existing repository secrets were used by Actions; no values appear in logs/source. The test did **not** execute D1 writes, `DB.batch()`, owner authentication/authoring, App write token issuance, branch creation, PR merge, deployment, or production publishing. Public Fishing production `main` and experimental PR statuses are unchanged.
+
+**Next:** Implement and review a narrowly authenticated, replay-resistant **atomic D1 write boundary** on the isolated Worker binding, without generic SQL endpoints; only afterward activate a trusted sandbox draft-PR writer and verify the dedicated GitHub App's repository-restricted write grants. Cloudflare REST batch atomicity remains unproven and must not be silently assumed. No deployment is authorized solely by this successful read smoke.
