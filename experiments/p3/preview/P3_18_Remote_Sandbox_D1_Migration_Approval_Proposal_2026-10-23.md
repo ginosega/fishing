@@ -35,6 +35,18 @@ The owner executed the corrected, single guarded Windows PowerShell block and re
 
 This confirms the owner-side remote target UUID/name/storage identity check against the previously verified private config, canonical 0001 byte hash against the successful disposable local rehearsal, and a fresh private directory containing exactly one migration SQL file. No D1 write or remote migration has occurred. **Next: fresh SQL/Worker read-only preflight, privately capture Time Travel recovery bookmark immediately before R1 apply, then guarded single-file migration R1 only.**
 
+### Owner-confirmed R1 remote read-only SQL and Worker preflight — PASSED
+
+Owner ran the fully guarded R1 **remote read-only** checks using the newly verified private `$r1Cfg` and reported:
+
+- `PASS: Six remote 0001 schema definitions match local rehearsal.`
+- `PASS: Remote Wrangler ledger absent.`
+- `PASS: All three P3 tables contain zero rows.`
+- `PASS: No foreign-key violations.`
+- `R1 READ-ONLY PREFLIGHT PASSED.` / `No remote database modifications performed.`
+- Cloudflare Dashboard re-confirmed `fishing-p3-sandbox-preview` Worker `DB` binding to the isolated `fishing-p3-sandbox` and `P3_WRITE_ENABLED` literally `false`.
+
+**R1 stage decision:** conditionally approved previously and the remote preflight now PASSED; **R1 migration apply NOT YET RUN**. Next prerequisite: obtain a fresh private pre-change Time Travel bookmark via Wrangler `d1 time-travel info DB --config $r1Cfg --json`, confirm the file is privately retained, re-guard exact DB binding/one-file SQL hash immediately before an interactive **R1-only** `d1 migrations apply DB --remote --config $r1Cfg`, then read-only postflight. Never stage 0002/0003 before reviewing R1. R2/R3 not approved.
 ## Authority and scope
 
 - **Sole target:** Cloudflare D1 **`fishing-p3-sandbox`** bound as **`DB`** to **`fishing-p3-sandbox-preview`**. Explicitly exclude `fishing-auth-p0` and any production D1/Worker.
