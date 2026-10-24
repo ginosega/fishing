@@ -1,10 +1,31 @@
-# FISH118 P3-18 — Remote isolated D1 migrations: R1 and R2 COMPLETE; R3 requires separate approval
+# FISH118 P3-18 — Remote isolated D1 migrations R1, R2 and R3 COMPLETE
 
-**October 24, 2026 — CURRENT DISPOSITION: isolated remote R1 and R2 COMPLETED; remote R3 APPROVED FOR GUARDED EXECUTION, NOT YET APPLIED.** Owner-run Wrangler 4.152.0 R2 was restricted to exactly `0002_durable_snapshot_and_audit.sql`, applied successfully, and passed comprehensive scripted postflight (canonical ten-object schema, ordered 0001+0002 ledger, empty application tables, no FK violations, hosted preview anonymous and disabled). Experimental PRs remain draft; no Worker deploy, GitHub writes, publishing enablement, executed R3 migration or production cutover. Historical R1/R2 conditional plans below document earlier stages and must not be interpreted as current instructions to reapply them.
+**October 24, 2026 — FINAL DISPOSITION: R1, R2 and R3 COMPLETED AND VERIFIED on isolated Cloudflare D1 `fishing-p3-sandbox`.** The owner-triggered R3 Github Actions migration applied canonical `0003_ci_observation_recovery.sql` once; final independent segmented read-only D1 verification proved ordered 0001+0002+0003 ledger, 14 exact canonical schema definitions (six tables, three indexes, five triggers), six empty P3 application tables, clean foreign keys and hosted preview still anonymous/disabled. Earlier failed workflows were due to postflight SQL verification errors (the precise cause of error 7500 remains unidentified), not proof the migration failed. **No reapply, restore, ledger edit, Worker deploy, sandbox publishing, P3_WRITE_ENABLED activation, experimental PR merge or production cutover is authorized.** The private sandbox GitHub Actions workflow remains read-only. Previous R1/R2/R3 gate text below is historical, superseded by this final closeout.
 
 
 
-## R3 owner authorization — October 24, 2026 (operator execution pending)
+## R3 remote sandbox migration — FINAL CLOSEOUT (October 24, 2026)
+
+**R3 COMPLETE / VERIFIED.** The owner separately authorized exactly the canonical `0003_ci_observation_recovery.sql` for isolated remote `fishing-p3-sandbox`. Work switched from locally run PowerShell scripts to a manual-only GitHub Actions workflow in the private `ginosega/fishing-p3-sandbox` repository.
+
+**Preflight:** [run #40116451442](https://github.com/ginosega/fishing-p3-sandbox/actions/runs/40116451442) completed successfully: Cloudflare API/Wrangler D1 UUID, name and backend matched; immutable 0001/0002/0003 SQL hashes matched; pre-R3 migration ledger exactly 0001+0002; 10 canonical schema objects, four empty tables, clean foreign keys; anonymous/disabled preview Worker; only 0003 pending.
+
+**One remote migration:** [owner-dispatched R3 apply run #40116809827](https://github.com/ginosega/fishing-p3-sandbox/actions/runs/40116809827) repeated and passed all safeguards, saved a fresh private pre-R3 D1 Time Travel bookmark as an Actions artifact before any write, and invoked Wrangler 4.152.0 to apply only 0003 on the verified isolated remote D1. **Wrangler returned exit success.** Its postflight failed on the first subsequent read-only D1 query, so the *run as a whole* was marked failed; that did not justify reapplying the migration. No retry, restore, manual SQL edit, GitHub publishing write or Worker deployment occurred.
+
+**Verification incident:** Read-only [postflight run #40117755726](https://github.com/ginosega/fishing-p3-sandbox/actions/runs/40117755726) failed at the first aggregate schema query. Read-only [diagnostic run #40118647640](https://github.com/ginosega/fishing-p3-sandbox/actions/runs/40118647640) proved Wrangler `SELECT 1` and Cloudflare D1 API `SELECT 1` both worked, while the aggregate schema query returned HTTP 400 / Cloudflare code 7500. The exact underlying cause remains undetermined. Security/incident PRs #3–#5 changed the sandbox workflow to **read-only only**, adding separately verified segmented schema queries and preventing repeat migration dispatch.
+
+**Conclusive independent verification:** [GitHub Actions run #40122355363](https://github.com/ginosega/fishing-p3-sandbox/actions/runs/40122355363) on private sandbox main `c9a0598678e2568ec7cd92c40cb9540c3e85021c`, manual mode `diagnose`, finished **completed/success**. Actual logs confirm:
+
+- **13 guard unit tests passed**, exact Cloudflare/Wrangler D1 identity, original immutable three SQL files.
+- Wrangler and native D1 API `SELECT 1` passed; hosted preview Worker disabled and anonymous.
+- `PASS: migration ledger` with exactly ordered **0001_initial.sql, 0002_durable_snapshot_and_audit.sql, 0003_ci_observation_recovery.sql**.
+- `PASS: schema object names/types` and **14 separate exact definition checks** matching all **six tables, three indexes and five triggers**.
+- Six separate `PASS: empty P3 table` checks: `p3_sessions`, `p3_operations`, `p3_events`, `p3_requests`, `p3_ci_observations`, `p3_ci_observation_audit`.
+- `PASS: foreign-key integrity`, final `R3 REMOTE SANDBOX MIGRATION VERIFIED by segmented Cloudflare D1 READ-ONLY queries` statement.
+
+**Scope and recovery controls:** P3-18 isolated R1/R2/R3 migration work is complete, **not** the publisher implementation. Keep the sandbox Actions workflow in read-only diagnostic mode, with no R3 apply/restore/Worker deployment route. The pre-R3 Time Travel bookmark exists only in the private run #40116809827's artifact, subject to **seven-day retention**; never expose it in public PR/chat or restore unnecessarily. Public production `ginosega/fishing` main and sandbox synthetic content PR #1 were not modified by this migration, while experimental P1 AUTH-P0 PR #262 and P3 PR #263 remain draft and unmerged. Further P3 write permission, sandbox Worker service deployment, publishing activation, merge and production v3 cutover require their own authorization.
+
+## R3 owner authorization — October 24, 2026 (historical pre-execution checkpoint)
 
 **Separate stage approval received:** After the completed R2 closeout, the assistant asked, “Would you like to authorize R3?” The owner replied **“yes.”** This is a narrowly scoped approval for **only unchanged `0003_ci_observation_recovery.sql`** on the already-approved isolated Cloudflare Free D1 `fishing-p3-sandbox`, with preserved safety controls. The approval does **not** authorize any other SQL, recovery restore, Worker deployment, `P3_WRITE_ENABLED` change, GitHub write/merge, PR merge, production changes, or v3 cutover.
 
@@ -12,7 +33,7 @@
 
 **Recovery and interactive gate:** save a **fresh pre-R3 D1 Time Travel bookmark privately**; never publish its value or Cloudflare account/DB configuration. Wrangler's interactive remote prompt must show exactly 0003 against the verified isolated `DB` resource before user confirmation. On unexpected target/file, STOP/CANCEL. Afterward, require the exact 0001/0002/0003 ledger, **14 P3 schema objects** (6 tables / 3 indexes / 5 triggers), zero unexpected application data, FK clean and still-disabled/anonymous Worker. Do not automatically retry, reapply SQL, manually edit migrations ledger, or restore after a partial/unclear failure; review evidence first.
 
-**Execution status:** owner authorization is recorded and a guarded Windows PowerShell R3 operator script has been prepared in this conversation using the corrected R2 script as the baseline; its immutable 0003 bytes matched the GitHub blob SHA and its schema expectations passed a local SQLite rehearsal. **No remote Cloudflare R3 migration has been executed or independently verified by ChatGPT at this checkpoint**; the user must run the operator script and share sanitized terminal results before R3 is marked complete. Keep [PR #263](https://github.com/ginosega/fishing/pull/263) draft/unmerged.
+**Historical pre-execution checkpoint (superseded above):** A PowerShell script had been prepared, but remote R3 execution was instead performed through the private GitHub Actions workflow. Successful read-only verification followed. No R3 migration remains pending. Keep [PR #263](https://github.com/ginosega/fishing/pull/263) draft/unmerged.
 
 ## R2 authorization record — October 24, 2026 (no remote execution yet)
 
@@ -38,7 +59,7 @@ The owner subsequently ran the corrected R2 operator script and supplied this sa
 
 **Evidence boundary:** Cloudflare migration and checks were performed on the owner's authenticated Windows/Wrangler environment; ChatGPT reviewed the supplied output and canonical code in draft PR #263 but did **not independently query Cloudflare**. No recovery-bookmark values or private database identifiers are stored in GitHub. Preserve the private recovery bookmark if created; do not initiate a restore after this successful stage.
 
-**Next gate: R3 NOT AUTHORIZED.** `0003_ci_observation_recovery.sql` adds two CI observation/audit tables plus two triggers. It requires a **separate owner approval**; fresh isolated-target/config and unchanged-source checks; prior 0001+0002 ledger, ten schema definitions, empty application rows, FK-clean and disabled hosted Worker proof; a fresh private Time Travel bookmark; and a restricted migration directory containing exactly 0001+0002+0003, with **only 0003 pending**. If separately authorized and executed, verify six tables/three indexes/five triggers and ordered ledger 0001+0002+0003. **Do not apply R3, deploy a Worker, enable publishing, write to or merge GitHub repositories, or cut over v3 without their respective additional approvals.**
+**Historical R2 next gate (superseded above): R3 not yet authorized at that checkpoint.** `0003_ci_observation_recovery.sql` adds two CI observation/audit tables plus two triggers. It requires a **separate owner approval**; fresh isolated-target/config and unchanged-source checks; prior 0001+0002 ledger, ten schema definitions, empty application rows, FK-clean and disabled hosted Worker proof; a fresh private Time Travel bookmark; and a restricted migration directory containing exactly 0001+0002+0003, with **only 0003 pending**. If separately authorized and executed, verify six tables/three indexes/five triggers and ordered ledger 0001+0002+0003. **Do not apply R3, deploy a Worker, enable publishing, write to or merge GitHub repositories, or cut over v3 without their respective additional approvals.**
 
 ## R1 remote migration final disposition — COMPLETE (owner-executed and verified)
 
