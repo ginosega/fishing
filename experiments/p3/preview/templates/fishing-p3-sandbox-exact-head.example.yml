@@ -1,0 +1,58 @@
+# FISH118 P3-7: INACTIVE TEMPLATE — DO NOT DEPLOY WITHOUT SEPARATE APPROVAL
+# Intended future location (sandbox repo ONLY):
+# .github/workflows/fishing-p3-sandbox-exact-head.yml
+#
+# This file is stored in ginosega/fishing draft PR #263 under experiments.
+# It is NOT a live GitHub Actions workflow in the private sandbox.
+name: Fishing P3 sandbox exact-PR-head validation
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: fishing-p3-sandbox-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  validate-sandbox-head:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Fetch EXACT sandbox PR head, including main history
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: ginosega/fishing-p3-sandbox
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          fetch-depth: 0
+          path: sandbox
+      - name: Fetch immutable, reviewed Fishing canonical validator
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: ginosega/fishing
+          ref: e75b6009f947b03568124ddf8d2c513a63c4025c
+          persist-credentials: false
+          path: trusted
+      - name: Verify immutable trusted validator revision
+        env:
+          P3_TRUSTED_SHA: e75b6009f947b03568124ddf8d2c513a63c4025c
+        run: |
+          set -euo pipefail
+          test "$(git -C trusted rev-parse HEAD)" = "$P3_TRUSTED_SHA"
+      - name: Set up Node for trusted canonical validator
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Install locked dependencies from TRUSTED Fishing source only
+        working-directory: trusted/pwa
+        run: npm ci --no-audit --no-fund
+      - name: Verify SAME-repository exact head/base SHA, allowed diff and FULL canonical source
+        env:
+          P3_SANDBOX_ROOT: ${{ github.workspace }}/sandbox
+          P3_PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          P3_PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          P3_HEAD_REPO_ID: ${{ github.event.pull_request.head.repo.id }}
+          P3_BASE_REPO_ID: ${{ github.event.pull_request.base.repo.id }}
+          P3_BASE_REF: ${{ github.event.pull_request.base.ref }}
+        run: node trusted/experiments/p3/preview/tools/validate-sandbox-head.mjs

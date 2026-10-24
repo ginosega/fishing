@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 2,
+  "items": [
+    {
+      "id": "p3-test-rod",
+      "category": "rods-reels",
+      "type": "Spinning rod",
+      "name": "P3 Test Rod",
+      "manufacturer": "Fixture Only"
+    }
+  ]
+}

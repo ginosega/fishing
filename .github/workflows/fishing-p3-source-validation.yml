@@ -1,0 +1,38 @@
+name: Fishing P3 isolated source validation
+on:
+  pull_request:
+    paths:
+      - 'experiments/p3/**'
+      - 'pwa/test/p3-*.test.mjs'
+      - '.github/workflows/fishing-p3-source-validation.yml'
+permissions:
+  contents: read
+concurrency:
+  group: fishing-p3-source-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  verify-source-and-sandbox:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: pwa/package-lock.json
+      - name: Install locked canonical validator dependencies
+        working-directory: pwa
+        run: npm ci --no-audit --no-fund
+      - name: Exercise all PWA source unit tests including P3 mock + real-source tests
+        working-directory: pwa
+        run: npm test
+      - name: Exercise isolated standalone broker suite
+        working-directory: experiments/p3
+        run: npm test
+      - name: Verify browser-paste Worker bundle matches source exactly
+        run: node experiments/p3/preview/tools/build-dashboard.mjs
+      - name: Exercise unpublished Cloudflare sandbox deny-by-default worker
+        run: node --test experiments/p3/preview/test/*.test.mjs

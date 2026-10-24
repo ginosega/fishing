@@ -1,0 +1,6 @@
+# Never check in live Cloudflare bindings, environment secrets, or state.
+wrangler.jsonc
+.dev.vars
+.env
+.wrangler/
+node_modules/

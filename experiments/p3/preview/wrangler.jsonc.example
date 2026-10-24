@@ -1,0 +1,21 @@
+{
+  // Copy to wrangler.jsonc after creating ONE NEW Cloudflare Free D1 sandbox.
+  // Do not commit account secrets, real binding IDs or token material.
+  "name": "fishing-p3-sandbox-preview",
+  "main": "src/worker.mjs",
+  "compatibility_date": "2026-10-22",
+  "workers_dev": true,
+  "vars": {
+    // Replace with exact new preview Worker HTTPS origin.
+    "APP_ORIGIN": "https://REPLACE-P3-PREVIEW.SUBDOMAIN.workers.dev",
+    "P3_WRITE_ENABLED": "false"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "fishing-p3-sandbox",
+      "database_id": "REPLACE_WITH_NEW_SANDBOX_D1_DATABASE_UUID",
+      "migrations_dir": "migrations"
+    }
+  ]
+}
