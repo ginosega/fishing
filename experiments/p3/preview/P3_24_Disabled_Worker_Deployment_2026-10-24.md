@@ -30,6 +30,14 @@ The previous three D1 secrets already exist in that private repository and are r
 
 This deployment is source-only infrastructure code until those explicit manual operator actions. It does not create a public command route, publish content, issue GitHub App write tokens, run migrations or alter production. The future trusted Node → Worker command enablement is a **separate** owner-reviewed change.
 
+## Partial-success deployment incident and read-only reconciliation — October 24, 2026
+
+The owner-dispatched [sandbox GitHub Actions run #40132650257](https://github.com/ginosega/fishing-p3-sandbox/actions/runs/40132650257), `deploy-disabled` mode on private sandbox main `db616b94a19b2760a00518f775580e58d9c83978`, concluded **failure**. Actual logs show the reviewed pinned source/identity/secret-format checks passed; both `workers.dev` and version URLs were still disabled; and **Wrangler `deploy` exited successfully**. However, the subsequent read-only postflight stopped on `Disabled Worker D1 binding mismatch`. This is a **possible successfully deployed but not yet independently verified state**; failure is not proof that the new code did not deploy. Do **not** rerun deployment, restore the database, change the Worker, or expose credentials.
+
+Provider documentation makes `database_id` the canonical D1 binding metadata field and marks `id` deprecated. The prior verifier used `id` first. This creates a plausible postflight false negative, but the specific cause has **not yet been proven** from current remote metadata. [Private sandbox PR #10](https://github.com/ginosega/fishing-p3-sandbox/pull/10) added redacted per-field presence/equality diagnostics and changed validation to prefer canonical `database_id` with deprecated `id` fallback only if the canonical field is absent; a mismatched canonical database remains a hard stop. Six original tests plus new canonical/legacy tests passed sandbox infrastructure CI. PR #10 was squash-merged to private sandbox main `f52bcde9140a21188d7a0ab8ecfe1859fa9fc763` **without touching Cloudflare**.
+
+For incident containment, that same PR removed `deploy-disabled` from the workflow and deleted its deploy step and executable deploy CLI handler: `Fishing P3 disabled command bridge (read-only reconciliation)` now supports **manual `postflight` or `preflight` only**, no push trigger, deployment, database write or secret upload. Next owner action is one manual `postflight` dispatch on sandbox `main`. Review sanitized job logs; if it passes, close the incident after verifying D1/secret/false flags/no URLs. If it fails, stop and analyze reported booleans/metadata shape before considering any fresh deployment authorization. No retries or assumptions of failure.
+
 ## Postdeploy verification / blockers
 
 - Confirm GitHub CI exact source SHA and deployment guard, separately scoped Cloudflare Worker deploy token, exact account and D1 UUID.
