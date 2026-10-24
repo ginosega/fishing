@@ -33,7 +33,12 @@ function fixture({approved=false,authorized=true,enable=false}={}){
  async function request({url=target,method='POST',headers={},body,nonce='nonce-verified-ingress-01234567890abc'}={}){
   const payload=body??JSON.stringify({action:'accept',idempotencyKey:'trusted-key-0123456789',
    snapshot:sample});
-  const sig=await signP3InternalCommand({secret,nonce,timestamp:when,body:payload});
+  // An oversized inbound body cannot be signed by the reviewed signer.
+  // Sign an ordinary request, then independently send hostile oversize bytes
+  // to exercise ingress streaming limits *before* the downstream HMAC gate.
+  const toSign=new TextEncoder().encode(payload).length>8192?
+   JSON.stringify({action:'accept',idempotencyKey:'trusted-key-0123456789',snapshot:sample}):payload;
+  const sig=await signP3InternalCommand({secret,nonce,timestamp:when,body:toSign});
   return new Request(url,{method,headers:{'Content-Type':'application/json',
     'Cf-Access-Jwt-Assertion':token,'CF-Access-Client-Id':'do-not-forward',
     'CF-Access-Client-Secret':'do-not-forward-secret',
