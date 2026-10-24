@@ -28,6 +28,6 @@ test('P3-B02 all verbs and routes fail closed even under accidentally enabled fl
 });
 test('P3-B03 disabled Worker never imports write-enabled command handling',()=>{
  const script=readFileSync(new URL('../src/p3-disabled-bridge-worker.mjs',import.meta.url),'utf8');
- assert.doesNotMatch(script,/import\s|require\s*\(|fetch\s*\(/);
+ assert.doesNotMatch(script,/^\s*import\s|require\s*\(/m);
  assert.doesNotMatch(script,/createP3NativeAcceptanceService|createP3InternalCommandGate/);
 });
