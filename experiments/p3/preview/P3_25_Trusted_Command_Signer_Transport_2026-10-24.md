@@ -10,6 +10,12 @@ A caller can request **only** `accept` with a bounded Gear/KB text-only v2 snaps
 
 The `transport` is an explicitly injected private, trusted capability. **No default `fetch` exists and no route is enabled.** This is a source-only seam for future reviewed transport; a fake transport is used in tests to call the actual source-only internal HMAC gate and locally atomic D1 operation store. The logical Request URL is the original fixed sandbox preview-origin constant from P3-20 and is NOT an authorized public destination. Do not call global `fetch` with that URL or route commands through the currently public preview Worker.
 
+## Passing source CI — October 24, 2026
+
+The verified source-test result is [GitHub Actions run #40134946824](https://github.com/ginosega/fishing/actions/runs/40134946824), job #120994375117, against corrected draft source commit `d4401cb35ea5877e93a859802c02ae9d55d08b49`: **completed/success**. Independently reviewed logs show **80 PWA + 43 broker + 187 P3 = 310 of 310 passing tests**, including **P3-T01 through P3-T08**. The initial source-test fixture mistakenly omitted and then initialized its local `DB` binding after reference; the fixture was corrected in two follow-up source commits before this successful result. No remote Worker dispatch, D1 write, GitHub App write or deployment occurred.
+
+Cloudflare's current [service binding documentation](https://developers.cloudflare.com/workers/runtime-apis/bindings/service-bindings/) explicitly supports one Worker calling another without a public URL, while its [HTTP binding documentation](https://developers.cloudflare.com/workers/runtime-apis/bindings/service-bindings/http/) specifies invoking `env.BINDING.fetch(request)` from the *calling Worker*. This confirms the technical need for a separate, authenticated ingress/caller between GitHub Actions and the private command Worker; the current synthetic transport callback must not be mistaken for a deployed private connection.
+
 ## Critical unresolved runtime connection
 
 GitHub Actions' Node runner cannot directly call a Cloudflare Worker **service binding**: service bindings are available to another Cloudflare Worker. The new command Worker has `workers_dev=false`, version URLs disabled, no custom routes and no public command route. Therefore neither GitHub Actions nor a browser can reach it now. It would be incorrect to wire the injected transport directly to a public URL, expose the signing secret to the PWA, enable `P3_WRITE_ENABLED` or claim this implementation delivers end-to-end publishing.
