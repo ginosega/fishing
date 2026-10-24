@@ -1,6 +1,14 @@
 # Fishing TODO
 
-## October 21, 2026 new-chat transfer — active checkpoint
+## Active v3 task — FISH-TODO-118 / P3-18, October 24, 2026
+
+**FISH-TODO-118 IN PROGRESS (not unallocated):** P1 AUTH-P0/G1 owner-accepted/closed with documented 7-day-session risk and feasibility waivers (iOS, live negative/expiry tests, metrics and cross-origin byte comparison not verified); draft [PR #262](https://github.com/ginosega/fishing/pull/262) stays unmerged. P3 sandbox/broker source in draft [PR #263](https://github.com/ginosega/fishing/pull/263), owner-approved isolated Cloudflare Free P3 Worker/D1 and GitHub sandbox, publishing disabled. P3-17 local Wrangler migrations 0001–0003 complete. **P3-18 remote R1 migration is COMPLETED** and ledger contains 0001 only, with six schema objects, 0 P3 app rows, FK clean, private recovery bookmark, and anonymous/disabled hosted Worker. The [P3-18 R1 final report and R2 review gate](https://github.com/ginosega/fishing/blob/4e5f084a8be0f766b157d021a8346710dc38f85a/experiments/p3/preview/P3_18_Remote_Sandbox_D1_Migration_Approval_Proposal_2026-10-23.md) on PR #263 is the authority; do not redo R1.
+
+**NEXT OPEN APPROVAL GATE: P3-18 R2** — review `0002_durable_snapshot_and_audit.sql` (one table/three triggers) and seek separate explicit authorization *before* any isolated remote migration. R2 restricted directory must contain only 0001+0002, list only 0002 pending, pass fresh identity/hash/schema/empty-data/FK/Worker-disabled checks and preserve a new private Time Travel bookmark. R3 is a later distinct gate. No Worker deploy, repository write, draft-PR merge, enabling publishing or production v3 cutover approved. Production [#672](https://github.com/ginosega/fishing/actions/runs/39990546320): `4a1a8c4`, release `504d615b2bef361da06d655ee621d43a`, 577 files / 100 Gear / 60 KB / 12 Catches. Sandbox `main` unchanged `e37db3b`. Preserve all existing OPEN equipment/KB tasks below. This handoff is documentation-only.
+
+---
+
+## Historical October 21, 2026 new-chat transfer
 
 **Release engineering:** FISH115 (record-card thumbnails and security patches), FISH116 (P0-A stale-session reliability fix), and FISH117 (small WebP category icons/scenic headers) are **implemented, authorized, merged and hosted-verified**. **Latest [production workflow #543](https://github.com/ginosega/fishing/actions/runs/39690549053) succeeded**, source `ab1c59a61c748e9a8a1da2b31d87e1d86c96ac9f`, release `131ebca9c6d46fa1c1d815ad43a318f6`, **577 hosted files, counts 100/60/12**. Pre-handoff `main` `c42d0e737151608b53ffd0de6fa29dbbd76eba32`, **0 open PRs**. The new handoff PR is documentation only and is not a production deployment. FISH117 measured 18 assets **17,090,051 original bytes vs 253,660 shipped bytes**; the user chose to visually/time-check the live site rather than run prepublication acceptance and **has not yet provided that subjective result**. [FISH117 report](pwa/docs/Fishing_Companion_FISH117_Static_Artwork_Optimization_2026-10-21.md).
 
