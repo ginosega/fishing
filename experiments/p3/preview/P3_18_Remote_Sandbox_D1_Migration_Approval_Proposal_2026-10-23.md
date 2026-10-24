@@ -1,8 +1,21 @@
 # FISH118 P3-18 — Remote isolated D1 migration approval and gated execution plan (R1 ONLY)
 
-**October 23, 2026. Status: R1 ONLY CONDITIONALLY APPROVED by the owner in this chat; remote preflight and execution not yet performed.** The owner's immediate `proceed` responded to an explicit invitation to approve **R1 only** after reviewing this proposal. Approval covers only verified application of **unchanged `0001_initial.sql`** to the isolated `fishing-p3-sandbox` D1, by Wrangler's native migration mechanism, **after fresh preflight/target/bookmark verification and a one-file interactive preview**. It does not authorize R2, R3, remote restores, deploys, merges, GitHub write operations, or publishing activation.
+**October 24, 2026. Status: R1 remote database postflight PASSED; actual migration command transcript and pre-change bookmark confirmation not yet supplied.** The owner's immediate `proceed` responded to an explicit invitation to approve **R1 only** after reviewing this proposal. Approval covers only verified application of **unchanged `0001_initial.sql`** to the isolated `fishing-p3-sandbox` D1, by Wrangler's native migration mechanism, **after fresh preflight/target/bookmark verification and a one-file interactive preview**. It does not authorize R2, R3, remote restores, deploys, merges, GitHub write operations, or publishing activation.
 
 
+## R1 remote postflight — verified, operational evidence still outstanding (October 24, 2026)
+
+The owner ran **four read-only remote queries** using Wrangler v4.152.0 against the approved `DB` binding in the isolated Cloudflare D1 **after** the R1-only apply instructions had been provided. The queries returned:
+
+- `SELECT name FROM d1_migrations ORDER BY id`: **exactly one row, `0001_initial.sql`**, `success:true`, `changed_db:false`, `rows_written:0`.
+- `sqlite_master` P3 definitions: exactly the **three original P3 tables and three original indexes**, with expected column definitions, index definitions, table constraints, names and no 0002/0003 tables/triggers. The definitions provided are consistent with the reviewed canonical 0001 SQL; this is an evidence review of the returned SQL, not a new automated full-definition comparison.
+- `SELECT` P3 table counts: **sessions 0, operations 0, events 0**.
+- `PRAGMA foreign_key_check`: **no violations**, `success:true`.
+- Remote D1 reported `size_after:61440`, up from 53248 in the prior preflight, consistent with a new Wrangler ledger. The postflight SELECTs themselves wrote **zero rows**.
+
+**R1 database-state result: PASS.** The remote database now has Wrangler's 0001 ledger history while retaining the exact expected original named P3 schema objects and zero application data. This is strong evidence that the remote ledger reconciliation occurred; **the transcript of `d1 migrations apply DB --remote` was not supplied**, so the exact CLI preview, selected file, confirmation, command exit status and whether the pre-change Time Travel bookmark was privately captured **remain unverified**. Do **not** claim the migration command itself or the bookmark was observed in the supplied record.
+
+**Safety / remaining gate:** Owner must confirm whether the original R1 apply displayed *only* 0001, completed successfully, and saved the fresh pre-change bookmark privately (without sharing its value). Check hosted anonymous `/health` and `/session` still report disabled/not authorized, and verify Worker `P3_WRITE_ENABLED=false` and binding remain unchanged. Do not retry 0001 or attempt recovery. **R2 and R3 are not approved** and must not be run; request separate R2 authorization only after R1 evidence is complete.
 ## R1 conditional approval checkpoint — October 23, 2026
 
 - Owner responded **`proceed`** immediately after the assistant explicitly requested approval for **R1 only**. Interpret narrowly as R1 approval, with all conditions in this document still binding.
@@ -62,7 +75,7 @@ Owner ran the fully guarded R1 **remote read-only** checks using the newly verif
 
 | Stage | Exact changes Wrangler may make | Expected after stage | Approval |
 |---|---|---|---|
-| **R1: ledger reconciliation** | Apply only unchanged idempotent `0001_initial.sql` to already-existing 0001 remote schema; Wrangler establishes/records its own `d1_migrations` entry | Original six P3 objects unchanged; ledger only 0001; three P3 row counts still zero | **Owner approved R1 only, conditional on fresh checks; NOT EXECUTED** |
+| **R1: ledger reconciliation** | Apply only unchanged idempotent `0001_initial.sql` to already-existing 0001 remote schema; Wrangler establishes/records its own `d1_migrations` entry | Original six P3 objects unchanged; ledger only 0001; three P3 row counts still zero | **R1 database postflight passed; CLI apply transcript and bookmark confirmation still pending** |
 | **R2: durable request/audit** | Apply only `0002_durable_snapshot_and_audit.sql` | Four P3 tables, three indexes, three triggers; ledger exactly 0001–0002 | **Separate explicit approval after verifying R1 — NOT GIVEN** |
 | **R3: CI observation recovery** | Apply only `0003_ci_observation_recovery.sql` | Six P3 tables, three indexes, five triggers; ledger exactly 0001–0003 | **Separate explicit approval after verifying R2 — NOT GIVEN** |
 
