@@ -29,6 +29,12 @@ Owner's new PowerShell diagnostic printed **no environment-variable names matchi
 A fresh owner-run diagnostic in the same PowerShell session corrected the previous code's nested-array handling by using `ConvertFrom-Json -InputObject ($raw -join "`n")` with the direct pipeline to `Where-Object`. It returned **DatabasesParsed = 2**, **SandboxMatches = 1**, **IdentityMatches = True**, **StorageVersionMatches = True**. This rules out an actual D1 UUID mismatch in the latest owner-supplied inventory: the earlier script comparison failed due to incorrect PowerShell array wrapping.
 
 **Next preparation:** replace the flawed construction with a guarded single-block script; recover the approved local reference file by its recorded isolated temp directory, hash-match unchanged canonical 0001, and stage **only 0001** in a **new** private config with verified UUID/binding. The old failed config must not be reused. Do not run migration until fresh remote read-only schema/row/ledger/FK preflight and a current private Time Travel bookmark are verified. **R1 is approved conditionally but NOT executed; R2/R3 remain unapproved.**
+### Owner-confirmed guarded R1 configuration preparation — PASSED
+
+The owner executed the corrected, single guarded Windows PowerShell block and reported all four success lines: `PASS: D1 identity verified.`, `PASS: Canonical 0001 SHA-256 verified.`, `PASS: Exactly one migration file staged.`, and `PASS: R1 configuration ready for read-only preflight.`, followed by `No remote database changes performed.`
+
+This confirms the owner-side remote target UUID/name/storage identity check against the previously verified private config, canonical 0001 byte hash against the successful disposable local rehearsal, and a fresh private directory containing exactly one migration SQL file. No D1 write or remote migration has occurred. **Next: fresh SQL/Worker read-only preflight, privately capture Time Travel recovery bookmark immediately before R1 apply, then guarded single-file migration R1 only.**
+
 ## Authority and scope
 
 - **Sole target:** Cloudflare D1 **`fishing-p3-sandbox`** bound as **`DB`** to **`fishing-p3-sandbox-preview`**. Explicitly exclude `fishing-auth-p0` and any production D1/Worker.
