@@ -1,3 +1,4 @@
+import {P3AccessError} from './p3-access-jwt-verifier.mjs';
 /**
  * FISH118 P3-26 — SOURCE ONLY, no live route. Proposed Access ingress Worker.
  * Requires a separately reviewed Access policy+JWT config and private Worker
@@ -88,6 +89,13 @@ export function createP3AccessIngress({
    // No downstream error bodies or internal exception text cross the ingress.
    return json(503,{ok:false,code:'COMMAND_NOT_ACCEPTED'});
   }catch(e){
+   // Invalid signed Access identity is a denial. Unavailable/rotating JWKS
+   // is an availability failure, never an authentication bypass.
+   if(e instanceof P3AccessError){
+    return json(e.code==='ACCESS_TOKEN_INVALID'||e.code==='ACCESS_IDENTITY_DENIED'?403:503,
+     {ok:false,code:e.code==='ACCESS_TOKEN_INVALID'||e.code==='ACCESS_IDENTITY_DENIED'?
+      'ACCESS_DENIED':'ACCESS_VERIFICATION_UNAVAILABLE'});
+   }
    if(e instanceof P3IngressError){
     return json(e.code==='INVALID_ROUTE'?404:
      ['ACCESS_REQUIRED','INVALID_ACCESS_CONFIG','ACCESS_TOKEN_INVALID',
