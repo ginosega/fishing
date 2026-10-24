@@ -10,6 +10,15 @@
 - Recheck the exact named isolated database's UUID against the earlier privately retained owner-verified configuration; verify remote 0001 schema (six objects and full definitions), missing Wrangler ledger, all three empty application tables, FK integrity and disabled hosted Worker. A new private Time Travel bookmark is required immediately before any remote mutation.
 - When the approved R1 is eventually applied, Wrangler may create its **own** `d1_migrations` table and record `0001_initial.sql`; it may **not** make 0002/0003 available in the restricted folder. Any discrepancy cancels the R1 authorization until reviewed.
 
+## R1 owner-executed preparation attempt — BLOCKED (no remote mutation)
+
+The owner opened a fresh Windows PowerShell session and began the private R1 preflight script. Wrangler 4.152.0 `d1 list --json` returned **Cloudflare API authentication code 10000** when requesting the D1 database list, despite previous successful `whoami` OAuth permission and database queries. This is an **unresolved D1 API authentication/access failure**, not proof that the database or its SQL schema changed.
+
+The script then continued interactively after thrown exceptions: JSON parsing of failed list output failed, `$db` could not be verified, and the new config was written using an **unverified/null database UUID**. The local rehearsal `$root` variable was absent in the new PowerShell session, so the hash comparison against the previously verified local file **never ran**. The script's final `Write-Host` messages were unconditional and incorrectly printed success; **they must not be treated as valid verification**.
+
+Result: a canonical 0001 SQL file was downloaded into a new temporary local directory, but the private R1 configuration and source-hash evidence are **invalid**. There was **no remote SQL, migration apply, D1 ledger initialization, restore, Worker deployment or publishing activation**. **R1 is STOPPED. Do not reuse `$r1Cfg` from this attempt or run any `--remote` migration.**
+
+Remediation: diagnose intermittent D1 API code 10000 without exposing tokens, verify Wrangler credential *source* and account identity, and independently reestablish the exact D1 UUID/config. Reconstruct the local rehearsal path from trusted evidence or use a pinned canonical-file SHA-256; do not rely on a stale `$root` PowerShell variable. Replace line-by-line unsafe script fragments with **a single terminating `try { ... } catch { ... }` guarded preparation procedure** that cannot display a success message after errors. R1's owner approval is conditional, **not an instruction to bypass failed preflight**.
 ## Authority and scope
 
 - **Sole target:** Cloudflare D1 **`fishing-p3-sandbox`** bound as **`DB`** to **`fishing-p3-sandbox-preview`**. Explicitly exclude `fishing-auth-p0` and any production D1/Worker.
