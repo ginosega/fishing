@@ -71,7 +71,14 @@ After the local-only apply:
 
 **Conclusion:** Real Wrangler 4.152.0 locally reconciled an identical manually initialized schema by safely replaying the unchanged, idempotent 0001 while establishing its normal local migration ledger. This is an important proof of method, **not permission or proof that a future remote execution will succeed**. Recheck schema, live row counts, Worker isolation, available recovery bookmark and exact migration directory immediately before any separately approved remote stage.
 
-**Next rehearsal option (LOCAL ONLY):** stage the unchanged canonical 0002 file alongside the existing 0001 in the same local migration directory, independently confirm only 0002 is pending, apply with explicit `--local` after reviewing the prompt, and verify only expected 0002 table/triggers, ledger prefix, and FK integrity. Repeat separately for 0003. Never include both new files in the same pending set before inspecting the 0002 results. No remote migration authorization.
+### Local-only Wrangler 4.152.0 migration 0002 discovery — PASSED
+
+The owner subsequently added the unchanged canonical `0002_durable_snapshot_and_audit.sql` from immutable source commit `d58833d3f4faa093f6a78b883af89f82eafddfb0` to the same synthetic local migration directory alongside `0001_initial.sql`, with no 0003 file. Guard checks confirmed the synthetic `LOCAL_P3` binding and exactly these two migration filenames.
+
+The owner ran `npx.cmd --yes wrangler@4.152.0 d1 migrations list LOCAL_P3 --local --persist-to $state --config $cfg`. Wrangler printed **`Resource location: local`** and exactly **one pending migration: `0002_durable_snapshot_and_audit.sql`**. This confirms local ordered pending-file discovery and that 0001 remains recorded.
+
+**No 0002 apply has been performed yet.** Next authorized activity is exclusively the interactive local apply with `--local --persist-to` using the already verified synthetic config and directory. On success, inspect the local `d1_migrations` filenames (expected exactly 0001, 0002), `sqlite_master` P3 objects (expected unchanged six 0001 objects + `p3_requests` and three 0002 triggers), and `PRAGMA foreign_key_check` (expected zero rows); rerun local migrations list (expected none). If the prompt lists anything other than 0002, cancel and investigate. No remote migration or production/sandbox mutation is authorized.
+
 ## 5. Operator-stage outline — **NOT FOR EXECUTION YET**
 
 1. **Private target/config review.** Confirm selected Cloudflare account, exact target `fishing-p3-sandbox` and the matching UUID in the deployed Worker's `DB` binding. Keep local `wrangler.jsonc` untracked with `APP_ORIGIN` and `P3_WRITE_ENABLED=false`; do not paste config secrets/UUIDs into Chat or source control. Use only a private temporary migration directory **in the same Wrangler config context** whose contents initially are an *unchanged copy* of canonical `0001_initial.sql`, never 0002 or 0003. Verify file equality with hashes and `d1 migrations list --local` during a disposable *local* Wrangler rehearsal.
