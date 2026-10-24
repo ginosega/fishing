@@ -1,6 +1,20 @@
-# FISH118 P3-22 — Guarded remote R4 D1 preflight
+# FISH118 P3-22 — Guarded isolated R4 migration COMPLETE
 
-**October 24, 2026 — PRE-FLIGHT VERIFIED / R4 NOT APPLIED.** After source-only P3-20/21 and owner direction to proceed, the next isolated schema stage was prepared in the private `ginosega/fishing-p3-sandbox` GitHub Actions infrastructure. There has been no Worker deploy, publishing enablement, App write, PR merge or production change.
+**October 24, 2026 — FINAL STATUS: R4 APPLIED AND VERIFIED.** After source-only P3-20/21 and owner direction to proceed, the next isolated schema stage was prepared in the private `ginosega/fishing-p3-sandbox` GitHub Actions infrastructure. There has been no Worker deploy, publishing enablement, App write, PR merge or production change.
+
+## R4 remote sandbox migration — FINAL CLOSEOUT (October 24, 2026)
+
+**R4 COMPLETE / VERIFIED.** Owner manually dispatched [private GitHub Actions run #40126508797](https://github.com/ginosega/fishing-p3-sandbox/actions/runs/40126508797) with stage `apply-r4` on private sandbox `main` at `150d4f6814a2458f754e45f2b28b0d87b9e234b1`. The actual run returned **completed/success**; the independently reviewed steps and sanitized logs establish:
+
+- Six local R4 safety-unit tests passed. Source preparation rechecked the exact sandbox D1 account/name/UUID/backend using Cloudflare GET and Wrangler inventory, plus immutable 0001–0004 SQL bytes.
+- Before any mutation, *fresh live preflight* confirmed ledger exactly 0001+0002+0003, all **14** existing object definitions individually canonical, six empty application tables, clean FK, anonymous and disabled preview Worker, and **only `0004_command_nonce_ledger.sql` pending**.
+- The owner-only **pre-R4 D1 Time Travel bookmark** was saved locally and then successfully uploaded **before** the migration into **private artifact `p3-r4-private-recovery-40126508797`**. This private artifact has the workflow's seven-day retention; never disclose its contents or initiate an unnecessary restore.
+- After a second successful preflight, Wrangler executed the **single R4 migration** and returned success. The subsequent segmented, independent read-only **postflight passed**: `PASS: R4 postflight: exact ledger, canonical 16 objects individually checked, all expected rows empty, FK clean, hosted Worker disabled.`
+- Final schema is **7 P3 tables, 4 P3 indexes, 5 P3 triggers**, exact ordered migration history 0001 → 0002 → 0003 → 0004, seven zero-row P3 tables (including `p3_command_nonces`), no FK violations. This proves the new nonce ledger exists remotely; the source-only service is **not yet deployed or accepting requests**.
+
+**Hold after closeout:** Do not reapply R4 or run another migration or restore. The current R4 workflow retains a manual apply option for historical use; it must **not** be used again against this database. Existing preview Worker remains `P3_WRITE_ENABLED=false` and anonymous. No GitHub App content/PR writes, sandbox publisher service deployment, HMAC secret creation, draft PR, merge, or production cutover occurred. A separate security review and explicit approval remain mandatory before deploying or enabling an internal command service.
+
+The earlier preflight-only checkpoint and human execution instructions below are **historical**, superseded by this final closeout.
 
 ## Automated source and identity safeguards
 
@@ -19,7 +33,7 @@ All source SQL is fetched from fixed immutable Fishing draft commit `3e70b7b2482
 
 The new R4 file adds exactly `p3_command_nonces` and index `p3_command_nonces_consumed_at`. Expected postflight is **16 P3 objects** (seven tables, four indexes, five triggers), ordered ledger 0001+0002+0003+0004, seven empty P3 application/nonce tables, clean foreign keys and preview Worker still disabled/anonymous.
 
-## Remaining human execution boundary
+## Historical human execution boundary (completed; do not repeat)
 
 The GitHub connector can review runs, jobs and sanitized logs but **cannot initiate `workflow_dispatch`**. The owner must invoke `Fishing P3 isolated D1 R4 (auto preflight, manual apply)` from the private repository's Actions tab, branch `main`, mode `apply-r4`, and enter **exactly** `APPLY-R4-ONLY-TO-FISHING-P3-SANDBOX`. This manual action reruns the preflight, privately uploads a fresh D1 Time Travel bookmark **before** the sole remote R4 migration, and performs segmented postflight. Bookmarks remain a private seven-day Actions artifact; do not paste identifiers, tokens, or bookmarks into chats or PRs. Do not rerun `apply-r4` if the job fails after the migration step: review remote state first. No automatic restore.
 
