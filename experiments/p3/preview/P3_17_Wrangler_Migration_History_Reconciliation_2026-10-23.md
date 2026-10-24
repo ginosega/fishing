@@ -90,7 +90,13 @@ Post-apply owner-executed **local-only** read results:
 
 The reconciliation and additive 0002 sequence therefore passed a **real local Wrangler migration tool rehearsal**. This does not prove cloud/remote migration success, migration-backup durability, trigger semantics in hosted Cloudflare D1, or permission to mutate the remote database. Full `sqlite_master.sql` definition comparisons were not separately rerun locally after applying 0002; the source-based SQLite tests cover structural/trigger expectations independently.
 
-**Next owner-only activity:** add *only* immutable canonical `0003_ci_observation_recovery.sql` to the same synthetic local migration directory and run `d1 migrations list ... --local --persist-to` to check **only 0003** pending. Do not apply 0003 until that output is reviewed. No `--remote`, real migration ledger creation, Cloudflare D1 schema changes, publishing enablement or production deployment is authorized.
+### Local-only Wrangler 4.152.0 migration 0003 discovery — PASSED
+
+The owner added the unchanged canonical `0003_ci_observation_recovery.sql` from immutable source commit `d58833d3f4faa093f6a78b883af89f82eafddfb0` to the same synthetic local rehearsal migration directory. Guard checks verified the exact synthetic `LOCAL_P3` binding and exactly three canonical migration filenames: `0001_initial.sql`, `0002_durable_snapshot_and_audit.sql`, and `0003_ci_observation_recovery.sql`.
+
+The owner executed `npx.cmd --yes wrangler@4.152.0 d1 migrations list LOCAL_P3 --local --persist-to $state --config $cfg` and Wrangler reported **`Resource location: local`** with **only `0003_ci_observation_recovery.sql` pending**. This independently confirms ordered pending-file discovery, with 0001 and 0002 tracked as applied.
+
+**No local 0003 apply has yet occurred.** The next authorized activity is an interactive **local-only** 0003 apply, but only if the prompt again displays exactly 0003. Verify the local ledger is exactly 0001/0002/0003, the final P3 objects comprise **six tables, three indexes and five triggers** (two new CI-observation tables and two triggers), `PRAGMA foreign_key_check` has zero rows, and no local migrations are pending. Stop if any result differs. The remote Cloudflare database remains unchanged; remote migrations remain separately approval-gated.
 
 ## 5. Operator-stage outline — **NOT FOR EXECUTION YET**
 
@@ -114,4 +120,4 @@ Stop on unexpected Wrangler migration table creation during an *inspection* comm
 
 **P3-17 authorization:** source-only rehearsal, pure plan module, tests and this document on PR #263. **No authorization** to run remote Wrangler migrations or even establish a remote ledger. No new Cloudflare services, permissions, secrets, DB clones, Worker deployment or GitHub sandbox write.
 
-**Next recommended check:** real local Wrangler replay of 0001 and subsequent separate 0002 apply **both passed**. Add only unchanged canonical 0003 to the isolated local migration directory, verify pending migration discovery, then review before another **local-only** apply. A future remote-operation plan and user approval remain separate gates. Chat mode is sufficient.
+**Next recommended check:** real local Wrangler 0001 and 0002 apply both passed, and only canonical **0003** is now pending locally. Execute the separately reviewed **local-only 0003 apply**, then inspect its schema, migration ledger and FK integrity. A future remote-operation plan and explicit user approval remain separate gates. Chat mode is sufficient.
