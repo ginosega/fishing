@@ -22,6 +22,10 @@ The nonce ledger insertion and Accepted+snapshot batch are **two separate durabl
 5. **GitHub writes:** accepting an operation is **not** permission to call `createDraftStep`. A second trusted runner proof must demonstrate full source-aware content validation, correct GitHub App installation id and least-privilege sandbox-only tokens, lease idempotency and exact PR head CI. The private GitHub Free sandbox cannot safely auto-merge; keep all PRs draft/unmerged until a separate review.
 6. **Production:** public `ginosega/fishing` `main`, Pages, P1 AUTH-P0 experiment, original sandbox synthetic PR #1, and live app user experience are all unchanged. No production cutover authorization.
 
+## Source test closeout — October 24, 2026
+
+Full repository [GitHub Actions run #40127405968](https://github.com/ginosega/fishing/actions/runs/40127405968) on source commit `3553ff439c51627d3fa0bf922539c0bafd4d6d1d` **completed/success**. The actual logs establish **299 of 299 tests passed**: 80 PWA + 43 broker + 176 P3 preview. New P3-S01…S08 tests passed, including a real local SQLite D1 batch, source-only operation state, a persistent nonce ledger, replay across a new service instance, an idempotent retry, invalid owner/origin, missing migration and no import into the deployed Worker sentinel. This is **not** a remote write proof and is **not** permission to deploy or publish.
+
 ## Evidence and next decision
 
 `test/p3-native-acceptance-service.test.mjs` runs the service against actual local in-memory SQLite migrations 0001–0004 and the native `DB.batch()` fixture, covering disabled state, valid signed accepted snapshot, replay across instances, idempotent retry, missing R4 fail-closed, forged signer/action, wrong owner config, and absence of a Worker route. **Source-only CI must pass before proposing live activation.**
