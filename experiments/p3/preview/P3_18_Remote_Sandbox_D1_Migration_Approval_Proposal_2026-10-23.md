@@ -1,9 +1,36 @@
-# FISH118 P3-18 — Remote isolated D1 migration: R1 completed; R2 approved for guarded execution
+# FISH118 P3-18 — Remote isolated D1 migrations: R1 and R2 COMPLETE; R3 requires separate approval
 
-**October 24, 2026. Current status: R1 COMPLETED AND VERIFIED (remote sandbox only). R2 is now OWNER-AUTHORIZED for guarded isolated-remote execution, but has NOT BEEN APPLIED OR VERIFIED; R3 remains NOT APPROVED.** The owner's immediate `proceed` responded to an explicit invitation to approve **R1 only** after reviewing this proposal. Approval covers only verified application of **unchanged `0001_initial.sql`** to the isolated `fishing-p3-sandbox` D1, by Wrangler's native migration mechanism, **after fresh preflight/target/bookmark verification and a one-file interactive preview**. It does not authorize R2, R3, remote restores, deploys, merges, GitHub write operations, or publishing activation.
+**October 24, 2026 — CURRENT DISPOSITION: isolated remote R1 and R2 COMPLETED; remote R3 NOT APPROVED.** Owner-run Wrangler 4.152.0 R2 was restricted to exactly `0002_durable_snapshot_and_audit.sql`, applied successfully, and passed comprehensive scripted postflight (canonical ten-object schema, ordered 0001+0002 ledger, empty application tables, no FK violations, hosted preview anonymous and disabled). Experimental PRs remain draft; no Worker deploy, GitHub writes, publishing enablement, R3 migration or production cutover. Historical R1/R2 conditional plans below document earlier stages and must not be interpreted as current instructions to reapply them.
 
 
-\n## R2 authorization record — October 24, 2026 (no remote execution yet)\n\nAfter the completed R1 closeout and new-chat project reconciliation, the owner explicitly said **“Thank you. Let's proceed with R2.”** This is the separate R2-stage authorization required by the P3-18 plan, **not** an additional R3 or publisher permission. The GitHub draft [PR #263 discussion](https://github.com/ginosega/fishing/pull/263#issuecomment-6386366100) records the exact scope.\n\nFor R2 only, use verified unchanged canonical 0001+0002 from this branch, a **fresh** isolated D1 UUID/backend and Wrangler ledger/complete six-object schema check, three zero row counts, no foreign-key violations, disabled sandbox Worker binding/flag and anonymous hosted health/session, **new private pre-R2 Time Travel bookmark**, and a restricted migration directory listing **0002 alone as pending**. Preserve Wrangler's native interactive prompt; approve only a target showing `fishing-p3-sandbox` and **0002 alone**. Read-only postflight must show ledger 0001+0002, four P3 tables/three indexes/three triggers with canonical definitions, zero unexpected application rows, clean FK and still-disabled Worker. **Stop without retries, manual ledger edits or restore** on any ambiguity. No external credential/bookmark values belong in GitHub/chat.\n\n**Execution status:** authorization documented, but live Cloudflare migration not executed by this conversation. The owner must run Wrangler using their authenticated Cloudflare environment and supply sanitized preflight/migration/postflight evidence before this R2 stage can be marked COMPLETE. R3, deployment, GitHub write permissions/merge, `P3_WRITE_ENABLED` activation and v3 production cutover remain blocked.\n\n## R1 remote migration final disposition — COMPLETE (owner-executed and verified)
+
+## R2 authorization record — October 24, 2026 (no remote execution yet)
+
+After the completed R1 closeout and new-chat project reconciliation, the owner explicitly said **“Thank you. Let's proceed with R2.”** This is the separate R2-stage authorization required by the P3-18 plan, **not** an additional R3 or publisher permission. The GitHub draft [PR #263 discussion](https://github.com/ginosega/fishing/pull/263#issuecomment-6386366100) records the exact scope.
+
+For R2 only, use verified unchanged canonical 0001+0002 from this branch, a **fresh** isolated D1 UUID/backend and Wrangler ledger/complete six-object schema check, three zero row counts, no foreign-key violations, disabled sandbox Worker binding/flag and anonymous hosted health/session, **new private pre-R2 Time Travel bookmark**, and a restricted migration directory listing **0002 alone as pending**. Preserve Wrangler's native interactive prompt; approve only a target showing `fishing-p3-sandbox` and **0002 alone**. Read-only postflight must show ledger 0001+0002, four P3 tables/three indexes/three triggers with canonical definitions, zero unexpected application rows, clean FK and still-disabled Worker. **Stop without retries, manual ledger edits or restore** on any ambiguity. No external credential/bookmark values belong in GitHub/chat.
+
+**Execution follow-up:** The owner subsequently applied R2 and supplied a successful Wrangler CLI and postflight transcript. This paragraph records the previous authorization checkpoint; the closeout below is current. R3, deployment, GitHub write permissions/merge, `P3_WRITE_ENABLED` activation and v3 production cutover remain blocked.
+
+## R2 remote sandbox migration — FINAL CLOSEOUT (owner-run, October 24, 2026)
+
+**R2 COMPLETE / VERIFIED from owner-supplied execution and postflight transcript.** An earlier R2 PowerShell preflight initially stopped on a `.Count` parsing error, *before any migration*, after passing the live isolated-D1 name/dashboard/inventory identity, immutable 0001+0002 source SHA-256 and two-file staging, explicit remote config and six-object canonical schema checks. The script was corrected without bypassing the guardrails.
+
+The owner subsequently ran the corrected R2 operator script and supplied this sanitized final evidence:
+
+- Wrangler **4.152.0** displayed `Resource location: remote` and **exactly one pending migration**, `0002_durable_snapshot_and_audit.sql`; the owner explicitly accepted Wrangler's interactive prompt to apply one migration to the previously verified isolated `DB` binding.
+- Wrangler reported **5 SQL commands executed** (2.03 ms shown) and successful application of `0002_durable_snapshot_and_audit.sql`.
+- The scripted read-only postflight printed `PASS: Exact canonical P3 schema definitions (10 objects).` These comprise **four P3 tables, three indexes, three triggers** (the original six objects plus the four additions from 0002).
+- `PASS: Remote Wrangler migration ledger exactly 0001_initial.sql + 0002_durable_snapshot_and_audit.sql`.
+- `PASS: Expected P3 application tables all empty.` and `PASS: No foreign-key violations.`
+- `PASS: Hosted preview health/session still disabled and anonymous.`
+- Final script disposition: `R2 REMOTE SANDBOX MIGRATION: PASS (schema, ledger, empty data, FK and disabled Worker verified).`
+
+**Evidence boundary:** Cloudflare migration and checks were performed on the owner's authenticated Windows/Wrangler environment; ChatGPT reviewed the supplied output and canonical code in draft PR #263 but did **not independently query Cloudflare**. No recovery-bookmark values or private database identifiers are stored in GitHub. Preserve the private recovery bookmark if created; do not initiate a restore after this successful stage.
+
+**Next gate: R3 NOT AUTHORIZED.** `0003_ci_observation_recovery.sql` adds two CI observation/audit tables plus two triggers. It requires a **separate owner approval**; fresh isolated-target/config and unchanged-source checks; prior 0001+0002 ledger, ten schema definitions, empty application rows, FK-clean and disabled hosted Worker proof; a fresh private Time Travel bookmark; and a restricted migration directory containing exactly 0001+0002+0003, with **only 0003 pending**. If separately authorized and executed, verify six tables/three indexes/five triggers and ordered ledger 0001+0002+0003. **Do not apply R3, deploy a Worker, enable publishing, write to or merge GitHub repositories, or cut over v3 without their respective additional approvals.**
+
+## R1 remote migration final disposition — COMPLETE (owner-executed and verified)
 
 The owner supplied the missing remote Wrangler 4.152.0 execution transcript and recovery confirmation after the passing read-only postflight. This **closes R1**; there is no outstanding R1 operational check.
 
@@ -15,7 +42,7 @@ The owner supplied the missing remote Wrangler 4.152.0 execution transcript and 
 
 **Conclusion:** the first isolated **remote** migration stage **R1 is COMPLETED**. The existing source-matched 0001 schema was reconciled under Wrangler's migration history, with no application data loss and no publisher activation. No restore was performed; the recovery bookmark must remain private. This result does **not** approve R2 or R3, deployment, enablement of publishing, or PR merge.
 
-## R2 review gate — OWNER APPROVED; EXECUTION PENDING
+## R2 review gate — COMPLETE (historical preflight requirements)
 
 Before requesting authorization to apply `0002_durable_snapshot_and_audit.sql` remotely, review the additive changes: one new `p3_requests` table and exactly three triggers (`p3_operation_accepted_audit`, `p3_operation_transition_guard`, `p3_operation_transition_audit`), with no app deployment or writes to GitHub. R2 must **not** introduce `0003` into the restricted migration folder until after separately approved R2 is verified.
 
@@ -93,7 +120,7 @@ Owner ran the fully guarded R1 **remote read-only** checks using the newly verif
 | Stage | Exact changes Wrangler may make | Expected after stage | Approval |
 |---|---|---|---|
 | **R1: ledger reconciliation** | Apply only unchanged idempotent `0001_initial.sql` to already-existing 0001 remote schema; Wrangler establishes/records its own `d1_migrations` entry | Original six P3 objects unchanged; ledger only 0001; three P3 row counts still zero | **COMPLETE — owner-executed, bookmark retained privately, postflight passed** |
-| **R2: durable request/audit** | Apply only `0002_durable_snapshot_and_audit.sql` | Four P3 tables, three indexes, three triggers; ledger exactly 0001–0002 | **OWNER APPROVED October 24; remote execution / postflight NOT YET VERIFIED** |
+| **R2: durable request/audit** | Apply only `0002_durable_snapshot_and_audit.sql` | Four P3 tables, three indexes, three triggers; ledger exactly 0001–0002 | **COMPLETE October 24 — owner-executed, postflight PASS** |
 | **R3: CI observation recovery** | Apply only `0003_ci_observation_recovery.sql` | Six P3 tables, three indexes, five triggers; ledger exactly 0001–0003 | **Separate explicit approval after verifying R2 — NOT GIVEN** |
 
 **Never execute a normal remote apply with all three migrations initially discoverable.** Because `d1 migrations apply` processes pending files in order, the *temporary private* migration folder is staged as **0001 only → 0001+0002 → 0001+0002+0003**, and every stage stops for verification before adding the next. Do not run remote apply using the synthetic `LOCAL_P3` configuration.
