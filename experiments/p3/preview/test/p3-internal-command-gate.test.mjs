@@ -101,7 +101,11 @@ test('P3-G06 nonce failure stops before business operation and secrets are hidde
 test('P3-G07 shape, path and size checks cannot trigger write callbacks',async()=>{
  const f=fixture();f.enable();
  const oversized=JSON.stringify({...payload, padding:'x'.repeat(9000)});
- const r=await f.gate.handle(await f.request({body:oversized}));
+ const signed=await signP3InternalCommand({secret,nonce,timestamp:time,
+  body:JSON.stringify(payload)});
+ const oversizedRequest=new Request(origin+path,{method:'POST',
+  headers:{'Content-Type':'application/json',...signed},body:oversized});
+ const r=await f.gate.handle(oversizedRequest);
  assert.equal(r.status,403);
  const incorrect=await f.gate.handle(await f.request({url:origin+'/operations'}));
  assert.equal(incorrect.status,403);
