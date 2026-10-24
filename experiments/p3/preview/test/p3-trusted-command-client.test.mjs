@@ -11,7 +11,7 @@ const nonce='some-secure-random-nonce-0123456789abc';
 const op='p3_00000001-1111-4111-8111-123456789abc';
 const key='owner-operation-key-0123456789';
 function context(){
- const env={P3_OWNER_GITHUB_ID:String(owner),P3_WRITE_ENABLED:'false',
+ const env={DB:f.DB,P3_OWNER_GITHUB_ID:String(owner),P3_WRITE_ENABLED:'false',
   P3_COMMAND_CLIENT_ENABLED:'false',P3_COMMAND_BRIDGE_ENABLED:'false',
   APP_ORIGIN:'https://fishing-p3-sandbox-preview.ginosega.workers.dev',
   P3_BRIDGE_HMAC_SECRET:secret};
