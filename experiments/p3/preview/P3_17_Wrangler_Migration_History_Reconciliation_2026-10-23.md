@@ -56,9 +56,22 @@ The owner created a disposable **local-only** Wrangler D1 with a synthetic datab
 
 - `npx.cmd --yes wrangler@4.152.0 d1 execute LOCAL_P3 --local --persist-to $state --config $cfg --file $sql` returned `Resource location: local`, confirmed the synthetic `LOCAL_P3` database and reported **6 commands executed successfully** (the three tables and three indexes of 0001).
 - `npx.cmd --yes wrangler@4.152.0 d1 migrations list LOCAL_P3 --local --persist-to $state --config $cfg` returned `Resource location: local` and exactly **one pending migration: `0001_initial.sql`**, despite its schema already existing in the local database.
-- This independently validates Wrangler's pending-file *discovery* behavior on a ledgerless, pre-initialized local schema. **The migration has NOT been applied through Wrangler yet**; no local ledger result is established. It does **not** prove a remote replay, remote backup, preservation, or later stage success.
+- This independently validates Wrangler's pending-file *discovery* behavior on a ledgerless, pre-initialized local schema.
 
-**Next owner-only action:** review the same local config/UUID and one-file migration directory, then execute `d1 migrations apply LOCAL_P3 --local --persist-to ... --config ...` only if Wrangler's prompt again shows *only* `0001_initial.sql`. Verify the local `d1_migrations` filename and unchanged six-object P3 schema afterward. Do not invoke `--remote`, `d1 time-travel restore` or remote apply.
+### Local-only Wrangler 4.152.0 migration 0001 apply and ledger reconciliation — PASSED
+
+The owner subsequently executed **`d1 migrations apply LOCAL_P3 --local --persist-to $state --config $cfg`** in the same synthetic isolated local database, with the same single unchanged 0001 file. Wrangler reported **`Resource location: local`**, displayed **only `0001_initial.sql`**, received explicit human confirmation, executed **7 commands successfully**, and displayed a successful status for that migration.
+
+After the local-only apply:
+
+- `SELECT name FROM d1_migrations ORDER BY id` returned **exactly one entry: `0001_initial.sql`**.
+- `SELECT type,name FROM sqlite_master WHERE name LIKE 'p3_%' ORDER BY type,name` returned the **same three named tables and three named indexes**. This verifies object identity/number but was not a separate post-apply comparison of full `sqlite_master.sql` definitions.
+- `d1 migrations list LOCAL_P3 --local --persist-to $state --config $cfg` reported **`No migrations to apply!`**.
+- Every command explicitly used **`--local`**, a **synthetic local D1 UUID** and a **temporary persistence directory**. Neither the production D1 nor the private P3 sandbox D1 was modified; the **remote `d1_migrations` table remains absent** as established in P3-16.
+
+**Conclusion:** Real Wrangler 4.152.0 locally reconciled an identical manually initialized schema by safely replaying the unchanged, idempotent 0001 while establishing its normal local migration ledger. This is an important proof of method, **not permission or proof that a future remote execution will succeed**. Recheck schema, live row counts, Worker isolation, available recovery bookmark and exact migration directory immediately before any separately approved remote stage.
+
+**Next rehearsal option (LOCAL ONLY):** stage the unchanged canonical 0002 file alongside the existing 0001 in the same local migration directory, independently confirm only 0002 is pending, apply with explicit `--local` after reviewing the prompt, and verify only expected 0002 table/triggers, ledger prefix, and FK integrity. Repeat separately for 0003. Never include both new files in the same pending set before inspecting the 0002 results. No remote migration authorization.
 ## 5. Operator-stage outline — **NOT FOR EXECUTION YET**
 
 1. **Private target/config review.** Confirm selected Cloudflare account, exact target `fishing-p3-sandbox` and the matching UUID in the deployed Worker's `DB` binding. Keep local `wrangler.jsonc` untracked with `APP_ORIGIN` and `P3_WRITE_ENABLED=false`; do not paste config secrets/UUIDs into Chat or source control. Use only a private temporary migration directory **in the same Wrangler config context** whose contents initially are an *unchanged copy* of canonical `0001_initial.sql`, never 0002 or 0003. Verify file equality with hashes and `d1 migrations list --local` during a disposable *local* Wrangler rehearsal.
@@ -81,4 +94,4 @@ Stop on unexpected Wrangler migration table creation during an *inspection* comm
 
 **P3-17 authorization:** source-only rehearsal, pure plan module, tests and this document on PR #263. **No authorization** to run remote Wrangler migrations or even establish a remote ledger. No new Cloudflare services, permissions, secrets, DB clones, Worker deployment or GitHub sandbox write.
 
-**Next recommended check:** zero row counts are confirmed; proceed with an actual **local-only Wrangler** restricted-directory rehearsal (never `--remote`) before drafting any separately approved remote migration command. Chat mode is sufficient.
+**Next recommended check:** the owner has successfully replayed 0001 with **real local Wrangler** and verified its local ledger. Continue the restricted-directory **local-only Wrangler 0002 and 0003 rehearsal one at a time**, then review all operator preflight evidence before drafting and requesting separate approval for any remote operation. Chat mode is sufficient.
