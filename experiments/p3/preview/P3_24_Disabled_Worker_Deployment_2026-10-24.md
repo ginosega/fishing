@@ -1,6 +1,6 @@
 # FISH118 P3-24 — Disabled isolated Worker deployment and signer provisioning
 
-**October 24, 2026 — owner approved a disabled isolated Worker deployment and secret setup; live command acceptance and publishing remain unapproved.** R1–R4 are complete and verified in `fishing-p3-sandbox`. The existing `fishing-p3-sandbox-preview` sentinel, P1 AUTH-P0 Worker, production app and source branches must not be touched.
+**October 24, 2026 — DISABLED WORKER DEPLOYED; POSTFLIGHT VERIFIED; COMMAND ACCEPTANCE AND PUBLISHING REMAIN OFF.** The owner approved an isolated disabled Worker deployment and secret provisioning only. The first Wrangler deploy succeeded but initial postflight failed; independent corrected read-only postflight now verifies the intended isolated D1 binding, encryption-secret presence, both disabled flags and non-public URLs. R1–R4 are complete and verified in `fishing-p3-sandbox`. The existing `fishing-p3-sandbox-preview` sentinel, P1 AUTH-P0 Worker, production app and source branches must not be touched.
 
 ## First deployment — immutable disabled Worker
 
@@ -37,6 +37,22 @@ The owner-dispatched [sandbox GitHub Actions run #40132650257](https://github.co
 Provider documentation makes `database_id` the canonical D1 binding metadata field and marks `id` deprecated. The prior verifier used `id` first. This creates a plausible postflight false negative, but the specific cause has **not yet been proven** from current remote metadata. [Private sandbox PR #10](https://github.com/ginosega/fishing-p3-sandbox/pull/10) added redacted per-field presence/equality diagnostics and changed validation to prefer canonical `database_id` with deprecated `id` fallback only if the canonical field is absent; a mismatched canonical database remains a hard stop. Six original tests plus new canonical/legacy tests passed sandbox infrastructure CI. PR #10 was squash-merged to private sandbox main `f52bcde9140a21188d7a0ab8ecfe1859fa9fc763` **without touching Cloudflare**.
 
 For incident containment, that same PR removed `deploy-disabled` from the workflow and deleted its deploy step and executable deploy CLI handler: `Fishing P3 disabled command bridge (read-only reconciliation)` now supports **manual `postflight` or `preflight` only**, no push trigger, deployment, database write or secret upload. Next owner action is one manual `postflight` dispatch on sandbox `main`. Review sanitized job logs; if it passes, close the incident after verifying D1/secret/false flags/no URLs. If it fails, stop and analyze reported booleans/metadata shape before considering any fresh deployment authorization. No retries or assumptions of failure.
+
+## Final incident resolution — postflight verified October 24, 2026
+
+**DISABLED SANDBOX WORKER DEPLOYMENT COMPLETE / VERIFIED CONFIGURATION.** Following the first deployment [run #40132650257](https://github.com/ginosega/fishing-p3-sandbox/actions/runs/40132650257) (Wrangler exit success, initial binding postflight failed), private sandbox [PR #10](https://github.com/ginosega/fishing-p3-sandbox/pull/10) corrected the read-only metadata verifier and **removed all deployment/mutation options** from its workflow. PR #10 passed CI and merged to isolated sandbox main `f52bcde9140a21188d7a0ab8ecfe1859fa9fc763`.
+
+The owner manually dispatched [read-only postflight run #40133925321](https://github.com/ginosega/fishing-p3-sandbox/actions/runs/40133925321), which **completed/success** on that exact main SHA. The actual job log independently confirms:
+
+- All **seven** revised bridge guard tests passed, including canonical/deprecated database ID conflict rejection and no deployment CLI availability.
+- `PASS: Dedicated sandbox Worker exists; workers.dev and version URLs disabled`.
+- `DIAGNOSTIC: D1 binding candidates=1; canonical database_id present=True; canonical database_id matches=True; deprecated id present=True; deprecated id matches=True` — only presence/equality booleans were emitted; private identifiers are never printed.
+- `PASS: Worker settings verify exact D1 binding, encrypted secret presence, both disable flags, no public workers.dev/version URL`.
+- `PASS: Read-only disabled bridge postflight after incident; no deployment performed.`
+
+The first failure was in the previous binding-field verifier, which prioritized the deprecated `id` key. The later live read proves the canonical `database_id` and deprecated `id` both match now; the precise transient provider metadata cause of the first mismatch cannot be proven from these logs. No second deploy was needed. This **closes the configuration-verification incident**.
+
+**Scope of evidence:** The Workflow attests to successful prior Wrangler deployment and exact immutable source checkout, followed by an independent current **settings/binding** verification. It does not independently hash the remote deployed Worker script body or execute an authenticated command endpoint. Since this Worker has no public domain, no request smoke test is needed for this disabled-only stage. All public command acceptance, GitHub write/publish, merge, service route binding, and production cutover remain out of scope; existing preview and production services were not intentionally changed. Do not re-enable a deployment workflow until a separately reviewed next release.
 
 ## Postdeploy verification / blockers
 
