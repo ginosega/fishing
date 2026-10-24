@@ -1,9 +1,26 @@
-# FISH118 P3-18 — Remote isolated D1 migration approval and gated execution plan (R1 ONLY)
+# FISH118 P3-18 — Remote isolated D1 migration: R1 COMPLETED; R2 requires separate approval
 
-**October 24, 2026. Status: R1 remote database postflight PASSED; actual migration command transcript and pre-change bookmark confirmation not yet supplied.** The owner's immediate `proceed` responded to an explicit invitation to approve **R1 only** after reviewing this proposal. Approval covers only verified application of **unchanged `0001_initial.sql`** to the isolated `fishing-p3-sandbox` D1, by Wrangler's native migration mechanism, **after fresh preflight/target/bookmark verification and a one-file interactive preview**. It does not authorize R2, R3, remote restores, deploys, merges, GitHub write operations, or publishing activation.
+**October 24, 2026. Current status: R1 COMPLETED AND VERIFIED (remote sandbox only). R2 and R3 NOT APPROVED.** The owner's immediate `proceed` responded to an explicit invitation to approve **R1 only** after reviewing this proposal. Approval covers only verified application of **unchanged `0001_initial.sql`** to the isolated `fishing-p3-sandbox` D1, by Wrangler's native migration mechanism, **after fresh preflight/target/bookmark verification and a one-file interactive preview**. It does not authorize R2, R3, remote restores, deploys, merges, GitHub write operations, or publishing activation.
 
 
-## R1 remote postflight — verified, operational evidence still outstanding (October 24, 2026)
+## R1 remote migration final disposition — COMPLETE (owner-executed and verified)
+
+The owner supplied the missing remote Wrangler 4.152.0 execution transcript and recovery confirmation after the passing read-only postflight. This **closes R1**; there is no outstanding R1 operational check.
+
+- Prior to the mutation, the guarded R1 script returned `PASS: Final R1 state and migration source verified.` and `PASS: Fresh recovery bookmark saved privately.` The owner confirmed that bookmark exists **without sharing its value**.
+- Wrangler reported **`Resource location: remote`**, targeting only the previously validated isolated `DB` binding for `fishing-p3-sandbox`; its interactive migration preview contained **exactly `0001_initial.sql`**, and the owner approved the prompt.
+- Wrangler reported **`Executed 7 commands in 0.98ms`**, displayed `0001_initial.sql` with **success**, and the calling script printed `R1 command completed. Post-migration verification required.`
+- Subsequent remote read-only queries verified the ledger now contains **exactly one applied migration, `0001_initial.sql`**, the original **three P3 tables and three indexes** retain expected definitions, all **three P3 tables remain empty**, and `PRAGMA foreign_key_check` returned no rows. D1 query metadata reported `changed_db:false`, `rows_written:0` for all the verification queries.
+- The owner also confirmed anonymous hosted `GET /health` returned **`ok:true`, `ready:false`, `mode:preview-no-publishing`**, and `GET /session` returned **`authenticated:false`, `authorized:false`**.
+
+**Conclusion:** the first isolated **remote** migration stage **R1 is COMPLETED**. The existing source-matched 0001 schema was reconciled under Wrangler's migration history, with no application data loss and no publisher activation. No restore was performed; the recovery bookmark must remain private. This result does **not** approve R2 or R3, deployment, enablement of publishing, or PR merge.
+
+## R2 review gate — NOT APPROVED
+
+Before requesting authorization to apply `0002_durable_snapshot_and_audit.sql` remotely, review the additive changes: one new `p3_requests` table and exactly three triggers (`p3_operation_accepted_audit`, `p3_operation_transition_guard`, `p3_operation_transition_audit`), with no app deployment or writes to GitHub. R2 must **not** introduce `0003` into the restricted migration folder until after separately approved R2 is verified.
+
+If R2 is later explicitly approved, conduct a **new** isolated-target/config and SHA-256 check against immutable canonical 0002, confirm current Wrangler history exactly 0001, compare all six existing P3 schema definitions, verify all three tables still empty and FK clean, check the Worker remains bound to the sandbox with `P3_WRITE_ENABLED=false` plus anonymous health/session, and record a new private pre-R2 Time Travel bookmark. Restricted migration directory must contain **exactly 0001 and 0002**. Before any remote write, Wrangler's pending preview must list **only 0002**. Stop on any drift or unexpected prompt. Postflight must show ledger `0001, 0002`, **4 P3 tables, 3 indexes, 3 triggers**, zero unexpected rows and FK violations, and still-disabled publishing. R3 will require a new, independent approval after R2 passes.
+## R1 remote postflight — initial query checkpoint (prior to final CLI confirmation)
 
 The owner ran **four read-only remote queries** using Wrangler v4.152.0 against the approved `DB` binding in the isolated Cloudflare D1 **after** the R1-only apply instructions had been provided. The queries returned:
 
@@ -13,9 +30,9 @@ The owner ran **four read-only remote queries** using Wrangler v4.152.0 against 
 - `PRAGMA foreign_key_check`: **no violations**, `success:true`.
 - Remote D1 reported `size_after:61440`, up from 53248 in the prior preflight, consistent with a new Wrangler ledger. The postflight SELECTs themselves wrote **zero rows**.
 
-**R1 database-state result: PASS.** The remote database now has Wrangler's 0001 ledger history while retaining the exact expected original named P3 schema objects and zero application data. This is strong evidence that the remote ledger reconciliation occurred; **the transcript of `d1 migrations apply DB --remote` was not supplied**, so the exact CLI preview, selected file, confirmation, command exit status and whether the pre-change Time Travel bookmark was privately captured **remain unverified**. Do **not** claim the migration command itself or the bookmark was observed in the supplied record.
+**R1 database-state result at this checkpoint: PASS.** The missing CLI output and bookmark confirmation were subsequently supplied by the owner and verified as recorded in the **R1 final disposition** above.
 
-**Safety / remaining gate:** Owner must confirm whether the original R1 apply displayed *only* 0001, completed successfully, and saved the fresh pre-change bookmark privately (without sharing its value). Check hosted anonymous `/health` and `/session` still report disabled/not authorized, and verify Worker `P3_WRITE_ENABLED=false` and binding remain unchanged. Do not retry 0001 or attempt recovery. **R2 and R3 are not approved** and must not be run; request separate R2 authorization only after R1 evidence is complete.
+**Checkpoint resolved:** the user subsequently supplied successful Wrangler output, bookmark confirmation, and disabled hosted `/health` and `/session` results. **R2 and R3 remain unapproved.** Do not rerun 0001 or perform a restore.
 ## R1 conditional approval checkpoint — October 23, 2026
 
 - Owner responded **`proceed`** immediately after the assistant explicitly requested approval for **R1 only**. Interpret narrowly as R1 approval, with all conditions in this document still binding.
@@ -75,7 +92,7 @@ Owner ran the fully guarded R1 **remote read-only** checks using the newly verif
 
 | Stage | Exact changes Wrangler may make | Expected after stage | Approval |
 |---|---|---|---|
-| **R1: ledger reconciliation** | Apply only unchanged idempotent `0001_initial.sql` to already-existing 0001 remote schema; Wrangler establishes/records its own `d1_migrations` entry | Original six P3 objects unchanged; ledger only 0001; three P3 row counts still zero | **R1 database postflight passed; CLI apply transcript and bookmark confirmation still pending** |
+| **R1: ledger reconciliation** | Apply only unchanged idempotent `0001_initial.sql` to already-existing 0001 remote schema; Wrangler establishes/records its own `d1_migrations` entry | Original six P3 objects unchanged; ledger only 0001; three P3 row counts still zero | **COMPLETE — owner-executed, bookmark retained privately, postflight passed** |
 | **R2: durable request/audit** | Apply only `0002_durable_snapshot_and_audit.sql` | Four P3 tables, three indexes, three triggers; ledger exactly 0001–0002 | **Separate explicit approval after verifying R1 — NOT GIVEN** |
 | **R3: CI observation recovery** | Apply only `0003_ci_observation_recovery.sql` | Six P3 tables, three indexes, five triggers; ledger exactly 0001–0003 | **Separate explicit approval after verifying R2 — NOT GIVEN** |
 
@@ -122,7 +139,7 @@ Failures or ambiguous results are immediate STOP conditions. Do not rerun partia
 
 ## What this proposal does not approve
 
-**R1 only has received conditional owner approval** in direct response to the R1 approval request. Execution **must not start** until the fresh owner-run preflight has been checked, the sole correct D1 target and pending-file preview are established, and a new pre-change Time Travel bookmark is privately retained. This approval does **not** authorize R2, R3, changing `P3_WRITE_ENABLED`, binding production, creating/deploying Worker code, using GitHub App write scopes, creating or merging a sandbox PR, enabling schedulers, or merging [draft PR #263](https://github.com/ginosega/fishing/pull/263). R2 and R3 require their own later explicit approvals after the prior-stage postflight is verified. No `Proceed` from a prior source-only stage constitutes approval for these later stages.
+**R1 is completed**, with the approved isolated remote migration, confirmed private pre-change bookmark, matching schema and empty data, clean foreign-key checks, and deny-by-default hosted responses. **No authorization exists for R2 or R3**, changing `P3_WRITE_ENABLED`, binding production, creating/deploying Worker code, using GitHub App write scopes, creating or merging a sandbox PR, enabling schedulers, or merging [draft PR #263](https://github.com/ginosega/fishing/pull/263). R2 and R3 each require a separate explicit approval after prior-stage verification. No earlier `Proceed` constitutes approval for these later stages.
 
 ## References
 
