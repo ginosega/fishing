@@ -65,9 +65,16 @@ export function createP3AccessIngress({
    // Access JWT/service-token credentials and arbitrary user headers MUST NOT
    // cross the private service boundary. HMAC signed payload is unchanged.
    const headers=new Headers({'Content-Type':'application/json'});
-   for(const name of ['X-P3-Timestamp','X-P3-Nonce','X-P3-Signature']){
+   const allowed={
+    'X-P3-Timestamp':/^\d{13}$/,
+    'X-P3-Nonce':/^[A-Za-z0-9_-]{22,64}$/,
+    'X-P3-Signature':/^[A-Za-z0-9_-]{43}$/,
+   };
+   for(const [name,pattern] of Object.entries(allowed)){
     const value=request.headers.get(name);
-    assert(typeof value==='string'&&value.length<=256,'COMMAND_AUTH_MISSING');
+    // Deny absent/empty/duplicated/badly shaped proof before service binding.
+    // The downstream gate still independently verifies the real HMAC.
+    assert(typeof value==='string'&&pattern.test(value),'COMMAND_AUTH_MISSING');
     headers.set(name,value);
    }
    const internal=new Request(LEGACY_LOGICAL,{
