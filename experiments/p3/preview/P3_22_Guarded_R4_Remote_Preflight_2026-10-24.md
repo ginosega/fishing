@@ -16,6 +16,10 @@
 
 The earlier preflight-only checkpoint and human execution instructions below are **historical**, superseded by this final closeout.
 
+## Post-closeout R4 workflow safety lock — October 24, 2026
+
+Private sandbox [PR #8](https://github.com/ginosega/fishing-p3-sandbox/pull/8) removed the historical `apply-r4` and recovery commands **from the executable workflow and CLI dispatch** after the successful migration. It passed CI and was squash-merged into private sandbox `main` at `e88dff6f4caecbb64cbdc2e27b62fb9f8c561cc2`. The remaining workflow can run a **manually initiated read-only R4 postflight** only; it has no push-triggered schema check, no recovery artifact upload and no migration or Worker deployment step. The original pre-R4 recovery artifact is preserved untouched in owner-only run #40126508797 and must remain private. This safeguard is a source-only GitHub infrastructure merge, not a Cloudflare deployment, database write or restoration.
+
 ## Automated source and identity safeguards
 
 Private sandbox [PR #7](https://github.com/ginosega/fishing-p3-sandbox/pull/7) passed sandbox-only infrastructure CI and was squash-merged to private sandbox main at `150d4f6814a2458f754e45f2b28b0d87b9e234b1`. New `.github/workflows/fishing-p3-r4-d1.yml` triggers an **automatic read-only preflight only** when its reviewed workflow/guard/tests are pushed to sandbox main; write-mode can be invoked **only** by a separate manual `workflow_dispatch` with `apply-r4` and exact owner-entered phrase `APPLY-R4-ONLY-TO-FISHING-P3-SANDBOX`.
