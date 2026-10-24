@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {sandbox,sample} from './d1-fixture.mjs';
+import {createD1OperationStore} from '../src/d1-operation-store.mjs';
 import {createP3D1CommandNonceStore,P3NonceError} from '../src/p3-command-nonce-store.mjs';
 import {createP3InternalCommandGate,signP3InternalCommand} from '../src/p3-internal-command-gate.mjs';
 const owner=265665562,repo=1430581407,now=1800000000000;
@@ -54,7 +55,10 @@ test('P3-N04 signed command uses native DB.batch for Accepted+snapshot audit and
  const acceptSnapshot=async({idempotencyKey,snapshot,
   ownerGitHubId,repositoryId})=>{
   assert.equal(ownerGitHubId,owner);assert.equal(repositoryId,repo);
-  return f.store().accept({idempotencyKey,snapshot});
+  const owned=createD1OperationStore({DB:f.DB,ownerGitHubId:owner,
+   now:()=>Math.floor(now/1000),
+   makeId:()=> 'p3_00000001-1111-4111-8111-123456789abc'});
+  return owned.accept({idempotencyKey,snapshot});
  };
  const gate=createP3InternalCommandGate({env,ownerGitHubId:owner,
   consumeNonce:store.consumeNonce,acceptSnapshot,operatorApproved:()=>true,
@@ -70,6 +74,7 @@ test('P3-N04 signed command uses native DB.batch for Accepted+snapshot audit and
  for(const table of ['p3_command_nonces','p3_operations','p3_requests','p3_events']){
   assert.equal(f.sql.prepare('SELECT COUNT(*) AS n FROM '+table).get().n,1,table);
  }
+ assert.equal(f.sql.prepare('SELECT github_id FROM p3_operations').get().github_id,owner);
  f.sql.close();
 });
 test('P3-N05 missing migration fails closed without accepting operations',async()=>{
