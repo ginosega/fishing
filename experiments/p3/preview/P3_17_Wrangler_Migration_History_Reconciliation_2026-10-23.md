@@ -77,7 +77,20 @@ The owner subsequently added the unchanged canonical `0002_durable_snapshot_and_
 
 The owner ran `npx.cmd --yes wrangler@4.152.0 d1 migrations list LOCAL_P3 --local --persist-to $state --config $cfg`. Wrangler printed **`Resource location: local`** and exactly **one pending migration: `0002_durable_snapshot_and_audit.sql`**. This confirms local ordered pending-file discovery and that 0001 remains recorded.
 
-**No 0002 apply has been performed yet.** Next authorized activity is exclusively the interactive local apply with `--local --persist-to` using the already verified synthetic config and directory. On success, inspect the local `d1_migrations` filenames (expected exactly 0001, 0002), `sqlite_master` P3 objects (expected unchanged six 0001 objects + `p3_requests` and three 0002 triggers), and `PRAGMA foreign_key_check` (expected zero rows); rerun local migrations list (expected none). If the prompt lists anything other than 0002, cancel and investigate. No remote migration or production/sandbox mutation is authorized.
+### Local-only Wrangler 4.152.0 migration 0002 apply and verification — PASSED
+
+The owner next executed `npx.cmd --yes wrangler@4.152.0 d1 migrations apply LOCAL_P3 --local --persist-to $state --config $cfg` using the same isolated synthetic local database. Wrangler displayed **only `0002_durable_snapshot_and_audit.sql`**, received interactive confirmation and reported **5 commands executed successfully** with migration status success. All operator commands explicitly used `--local` and the verified temporary persistence directory.
+
+Post-apply owner-executed **local-only** read results:
+
+- `SELECT name FROM d1_migrations ORDER BY id`: exactly `0001_initial.sql`, then `0002_durable_snapshot_and_audit.sql`.
+- `SELECT type,name FROM sqlite_master WHERE name LIKE 'p3_%' ORDER BY type,name`: exactly **4 P3 tables**, **3 P3 indexes**, and **3 P3 triggers**, with expected names: new `p3_requests`, `p3_operation_accepted_audit`, `p3_operation_transition_audit`, and `p3_operation_transition_guard`, alongside the original six objects.
+- `PRAGMA foreign_key_check` returned **zero rows**, `success:true`.
+- `d1 migrations list --local --persist-to` returned **`No migrations to apply!`**.
+
+The reconciliation and additive 0002 sequence therefore passed a **real local Wrangler migration tool rehearsal**. This does not prove cloud/remote migration success, migration-backup durability, trigger semantics in hosted Cloudflare D1, or permission to mutate the remote database. Full `sqlite_master.sql` definition comparisons were not separately rerun locally after applying 0002; the source-based SQLite tests cover structural/trigger expectations independently.
+
+**Next owner-only activity:** add *only* immutable canonical `0003_ci_observation_recovery.sql` to the same synthetic local migration directory and run `d1 migrations list ... --local --persist-to` to check **only 0003** pending. Do not apply 0003 until that output is reviewed. No `--remote`, real migration ledger creation, Cloudflare D1 schema changes, publishing enablement or production deployment is authorized.
 
 ## 5. Operator-stage outline — **NOT FOR EXECUTION YET**
 
@@ -101,4 +114,4 @@ Stop on unexpected Wrangler migration table creation during an *inspection* comm
 
 **P3-17 authorization:** source-only rehearsal, pure plan module, tests and this document on PR #263. **No authorization** to run remote Wrangler migrations or even establish a remote ledger. No new Cloudflare services, permissions, secrets, DB clones, Worker deployment or GitHub sandbox write.
 
-**Next recommended check:** the owner has successfully replayed 0001 with **real local Wrangler** and verified its local ledger. Continue the restricted-directory **local-only Wrangler 0002 and 0003 rehearsal one at a time**, then review all operator preflight evidence before drafting and requesting separate approval for any remote operation. Chat mode is sufficient.
+**Next recommended check:** real local Wrangler replay of 0001 and subsequent separate 0002 apply **both passed**. Add only unchanged canonical 0003 to the isolated local migration directory, verify pending migration discovery, then review before another **local-only** apply. A future remote-operation plan and user approval remain separate gates. Chat mode is sufficient.
