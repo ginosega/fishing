@@ -4,7 +4,7 @@
 
 ## 1. Verified starting evidence
 
-The owner completed [P3-16 read-only inventory](P3_16_Read_Only_Cloudflare_Inventory_2026-10-23.md): the isolated Cloudflare D1 `fishing-p3-sandbox` currently contains exactly the `0001_initial.sql` three tables and three indexes with matching definitions; no `0002` or `0003` objects; `PRAGMA foreign_key_check` empty; Time Travel info returned a recovery bookmark; the deployed `fishing-p3-sandbox-preview` Worker uses the matching `DB` binding and `P3_WRITE_ENABLED=false`; anonymous `/health` remains `ready:false` and `/session` remains unauthorized. **`d1_migrations` does not exist.** This is owner-executed Cloudflare evidence, not direct Cloudflare inspection by the GitHub connector. The live P3 operation/session/event **row counts are not yet established**. Do not infer empty tables from the size or table count.
+The owner completed [P3-16 read-only inventory](P3_16_Read_Only_Cloudflare_Inventory_2026-10-23.md): the isolated Cloudflare D1 `fishing-p3-sandbox` currently contains exactly the `0001_initial.sql` three tables and three indexes with matching definitions; no `0002` or `0003` objects; `PRAGMA foreign_key_check` empty; Time Travel info returned a recovery bookmark; the deployed `fishing-p3-sandbox-preview` Worker uses the matching `DB` binding and `P3_WRITE_ENABLED=false`; anonymous `/health` remains `ready:false` and `/session` remains unauthorized. **`d1_migrations` does not exist.** This is owner-executed Cloudflare evidence, not direct Cloudflare inspection by the GitHub connector. P3 operation/session/event counts were later verified as exactly zero via an explicitly bound, remote **SELECT-only** query (see the owner-run preflight section). Do not infer future emptiness from that snapshot.
 
 Production public `ginosega/fishing` main remains `4a1a8c44317b56a4d47e818db9cd2b5587a966d8`; private synthetic sandbox main remains `e37db3b18bd9948bf4453d7f885f868e830a9a9a`; production GitHub Free ruleset #25742040 was active at checkpoint. Keep PR #263 draft and unmerged.
 
@@ -35,6 +35,21 @@ npx.cmd --yes wrangler@4 d1 execute fishing-p3-sandbox --remote --command "SELEC
 
 Report only the three counts. If *any* count is not zero, stop: the source-only replay proves `0001` is idempotent, but applying `0002` introduces audit triggers that would not retroactively log earlier operations. A separate data-preservation and historical audit policy is then required.
 
+### Owner-run data-count preflight — passed October 23, 2026
+
+The owner used Wrangler 4.152.0 from PowerShell with a **temporary local `--config` that binds `DB` to the exact isolated D1 UUID**. This was necessary because an unconfigured `d1 execute fishing-p3-sandbox --remote` attempted to call the Cloudflare API using the literal database name and returned code 10000 even though `wrangler whoami` confirmed OAuth and D1 permissions. `d1 list --json` independently confirmed the exact sandbox UUID; its deprecated `num_tables:0` field is not a reliable schema inventory.
+
+The corrected, explicitly bound command queried **only counts** in the remote sandbox and returned:
+
+| Table | Records |
+|---|---:|
+| `p3_sessions` | 0 |
+| `p3_operations` | 0 |
+| `p3_events` | 0 |
+
+Result metadata: `success:true`, `changed_db:false`, `changes:0`, `rows_written:0`. This satisfies the zero-existing-rows prerequisite for this snapshot; recheck immediately before any future write. The actual UUID, Cloudflare account ID, private config, token and bookmark are **excluded** from GitHub. **No live Wrangler migration or schema mutation was performed.**
+
+**Next authorized activity: local-only actual Wrangler rehearsal.** Use a totally separate, synthetic local D1 config/UUID and explicit `--local --persist-to` on every execute/list/apply. Create the pre-existing 0001 schema locally without Wrangler ledger, then let Wrangler locally discover/apply only unchanged `0001` and check ledger contents; never include remote `0002` or `0003` in that rehearsal directory. The real Wrangler migration system's actual ledger behavior has **not** yet been verified. No remote migrate permission follows from the counts.
 ## 5. Operator-stage outline — **NOT FOR EXECUTION YET**
 
 1. **Private target/config review.** Confirm selected Cloudflare account, exact target `fishing-p3-sandbox` and the matching UUID in the deployed Worker's `DB` binding. Keep local `wrangler.jsonc` untracked with `APP_ORIGIN` and `P3_WRITE_ENABLED=false`; do not paste config secrets/UUIDs into Chat or source control. Use only a private temporary migration directory **in the same Wrangler config context** whose contents initially are an *unchanged copy* of canonical `0001_initial.sql`, never 0002 or 0003. Verify file equality with hashes and `d1 migrations list --local` during a disposable *local* Wrangler rehearsal.
@@ -57,4 +72,4 @@ Stop on unexpected Wrangler migration table creation during an *inspection* comm
 
 **P3-17 authorization:** source-only rehearsal, pure plan module, tests and this document on PR #263. **No authorization** to run remote Wrangler migrations or even establish a remote ledger. No new Cloudflare services, permissions, secrets, DB clones, Worker deployment or GitHub sandbox write.
 
-**Next recommended check:** owner-supplied read-only row counts, then a local **actual-Wrangler-only** staged-directory rehearsal (no `--remote`) before submitting exact remote action commands for approval. Chat mode is sufficient.
+**Next recommended check:** zero row counts are confirmed; proceed with an actual **local-only Wrangler** restricted-directory rehearsal (never `--remote`) before drafting any separately approved remote migration command. Chat mode is sufficient.
