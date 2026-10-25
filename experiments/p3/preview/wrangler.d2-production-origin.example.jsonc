@@ -8,6 +8,9 @@
   "main": "src/d2-live-publisher-worker.mjs",
   "compatibility_date": "2026-10-25",
   "workers_dev": true,
+  // Existing dashboard-managed variables remain intact across a Wrangler
+  // deployment. Encrypted secrets are independently retained by Cloudflare.
+  "keep_vars": true,
   "vars": {
     "APP_ORIGIN": "https://fishing-auth-p0-test.ginosega.workers.dev",
     // OWNER_GITHUB_ID is already an encrypted secret on this Worker.
