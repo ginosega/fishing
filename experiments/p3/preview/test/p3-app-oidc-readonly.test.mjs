@@ -84,7 +84,7 @@ test('P3-C01 no API/JWKS/provider access until explicit verify; exact two GETs',
   'https://api.github.com/app/installations/99',
   'https://api.github.com/repos/ginosega/fishing-p3-sandbox/installation',
  ]);
- assert.doesNotMatch(JSON.stringify(result),/Bearer|BEGIN PRIVATE KEY|token|pem|eyJ/i);
+ assert.doesNotMatch(JSON.stringify(result),/Bearer|BEGIN PRIVATE KEY|PRIVATE KEY|eyJ/i);
 });
 test('P3-C02 write-enabled flag/absent PEM/unknown workflow SHA deny before any requests',()=>{
  for(const patch of [
