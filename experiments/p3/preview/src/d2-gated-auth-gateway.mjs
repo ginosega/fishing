@@ -11,6 +11,7 @@ import {createD2UnifiedOwnerSession} from './d2-unified-owner-session.mjs';
 import {createD2GuardedOperationsApi} from './d2-guarded-operations-api.mjs';
 import {createD1OperationStore} from './d1-operation-store.mjs';
 import {createD2WorkerGearCandidate} from './d2-worker-source-candidate.mjs';
+import {createD2ProductionTestAsset} from './d2-production-test-asset.mjs';
 
 const ID=1430581407;
 const deny=(status=404)=>new Response(JSON.stringify({
@@ -21,6 +22,7 @@ const deny=(status=404)=>new Response(JSON.stringify({
 }});
 const authPaths=new Set(['/auth/start','/auth/callback',
  '/session/signout','/session/revoke-all']);
+const testPath=path=>/^\/__d2_test__\/operations\/p3_[a-f0-9-]{36}\/Gear\/gear\.json$/.test(path);
 const routes=path=>path==='/session'||path==='/api/v3/operations'||
  /^\/api\/v3\/operations\/[^/]+$/.test(path);
 export function createD2GatedAuthGateway({
@@ -43,7 +45,8 @@ export function createD2GatedAuthGateway({
    // Only existing P1 auth/session lifecycle, no test HTML or test clients.
    return authWorker.fetch(request,env,context);
   }
-  if(!routes(u.pathname))return deny(404);
+  if(!routes(u.pathname)&&!testPath(u.pathname))return deny(404);
+  if(testPath(u.pathname)&&env.D2_TEST_HOST_ENABLED!=='true')return deny(404);
   if(!env.DB||!env.OPERATIONS_DB||
    typeof env.D2_CSRF_KEY!=='string'||env.D2_CSRF_KEY.length<32||
    !/^[1-9]\d*$/.test(String(env.OWNER_GITHUB_ID)))return deny(503);
@@ -64,6 +67,21 @@ export function createD2GatedAuthGateway({
     // Even a GET validator is not called when the operation writer is OFF.
     sourceEnabled:()=>env.D2_SANDBOX_REPO_ID===String(ID),
    });
+   if(testPath(u.pathname)){
+    const testAsset=createD2ProductionTestAsset({
+     origin:env.APP_ORIGIN,ownerSession:session,
+     readReceipt:async({operationId,repositoryId})=>{
+      if(repositoryId!==ID)return null;
+      const row=await store.get(operationId);
+      return row?{...row,repositoryId:ID}:null;
+     },
+     request:requestGitHub??(async()=>{throw Error('No GitHub transport');}),
+     issueReadToken:issueReadToken??(async()=>{throw Error('No read token');}),
+     enabled:()=>env.D2_TEST_HOST_ENABLED==='true'&&
+      env.D2_SANDBOX_REPO_ID===String(ID),
+    });
+    try{return await testAsset.serve(request);}catch{return deny(503);}
+   }
    api=createD2GuardedOperationsApi({
     session,store,
     validateGearChange:async({snapshot,repositoryId})=>
