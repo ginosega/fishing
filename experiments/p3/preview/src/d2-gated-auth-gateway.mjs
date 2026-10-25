@@ -13,6 +13,7 @@ import {createD1OperationStore} from './d1-operation-store.mjs';
 import {createD2WorkerGearCandidate} from './d2-worker-source-candidate.mjs';
 import {createD2ProductionTestAsset} from './d2-production-test-asset.mjs';
 import {createD2SandboxReadTokenIssuer} from './d2-sandbox-read-token.mjs';
+import {createD2SandboxHostProof} from './d2-sandbox-host-proof.mjs';
 
 const ID=1430581407;
 const deny=(status=404)=>new Response(JSON.stringify({
@@ -75,6 +76,13 @@ export function createD2GatedAuthGateway({
     sourceEnabled:()=>env.D2_SANDBOX_REPO_ID===String(ID),
    });
    if(testPath(u.pathname)){
+    // An encrypted server key gates the narrowly scoped internal proof
+    // header. It cannot authenticate normal /api/v3 publishing requests.
+    const proof=createD2SandboxHostProof({
+     origin:env.APP_ORIGIN,key:env.D2_HOST_PROBE_KEY,
+     store,issueReadToken:readTokens,requestGitHub:ghRead,
+     requestHosted:fetch,
+    });
     const testAsset=createD2ProductionTestAsset({
      origin:env.APP_ORIGIN,ownerSession:session,
      readReceipt:async({operationId,repositoryId})=>{
@@ -84,6 +92,7 @@ export function createD2GatedAuthGateway({
      },
      request:ghRead,
      issueReadToken:readTokens,
+     authorizeProbe:(req,operationId)=>proof.authorizeProbe(req,operationId),
      enabled:()=>env.D2_TEST_HOST_ENABLED==='true'&&
       env.D2_SANDBOX_REPO_ID===String(ID),
     });
