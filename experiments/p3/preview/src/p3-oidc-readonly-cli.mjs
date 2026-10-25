@@ -23,6 +23,16 @@ const digits=x=>typeof x==='string'&&/^[1-9][0-9]{0,15}$/.test(x)&&
  Number.isSafeInteger(Number(x));
 const AUD=P3_OIDC_PREFLIGHT_AUDIENCE;
 const JWKS='https://token.actions.githubusercontent.com/.well-known/jwks';
+// GitHub's runner may route its OIDC service through regional pipelines
+// subdomains (for example pipelinesghubeus6.actions.githubusercontent.com).
+// Trust only this exact DNS suffix and a constrained pipelines host prefix.
+const trustedOidcHost=hostname=>typeof hostname==='string'&&
+ /^pipelines[a-z0-9]{0,24}\.actions\.githubusercontent\.com$/.test(hostname);
+const diagnosticCodes=new Set([
+ 'INVALID_PROBE_CONFIG','WRONG_RUN_CONTEXT','OIDC_ENDPOINT_UNAVAILABLE',
+ 'OIDC_ENDPOINT_DENIED','OIDC_REQUEST_UNAVAILABLE','JWKS_UNAVAILABLE',
+ 'INVALID_PREFLIGHT_CONFIG','OIDC_INVALID','OIDC_SCOPE_DENIED',
+]);
 
 export async function runP3OidcReadOnlyProbe({
  env,fetchImpl,now=()=>Math.floor(Date.now()/1000),emit=()=>{},
@@ -46,7 +56,7 @@ export async function runP3OidcReadOnlyProbe({
  try{
   request=new URL(env.ACTIONS_ID_TOKEN_REQUEST_URL);
   check(request.protocol==='https:'&&
-   request.hostname==='pipelines.actions.githubusercontent.com'&&
+   trustedOidcHost(request.hostname)&&
    !request.username&&!request.password&&!request.hash&&
    request.pathname.length>1,'OIDC_ENDPOINT_DENIED');
   request.searchParams.set('audience',AUD);
@@ -100,9 +110,13 @@ export async function runP3OidcReadOnlyProbe({
 if(process.argv[1]&&pathToFileURL(process.argv[1]).href===import.meta.url){
  runP3OidcReadOnlyProbe({env:process.env,fetchImpl:fetch,
   emit:message=>process.stdout.write(message+'\n')})
-  .catch(()=>{
-   // Do not print underlying exceptions; they may hold request/response data.
-   process.stderr.write('DENY: OIDC-only preflight not verified.\n');
+  .catch(e=>{
+   // Only emit fixed, reviewed machine codes, NEVER provider response data,
+   // JWT claims, bearer headers, URLs, tokens, stack traces or error messages.
+   const type=e?.name;
+   const safe=(type==='P3OidcRunnerError'||type==='P3OidcPreflightError')&&
+    diagnosticCodes.has(e.code)?e.code:'UNCLASSIFIED_FAILURE';
+   process.stderr.write('DENY: OIDC-only preflight '+safe+'.\n');
    process.exitCode=1;
   });
 }
