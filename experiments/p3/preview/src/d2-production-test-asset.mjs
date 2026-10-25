@@ -22,12 +22,13 @@ const payload=async resp=>{
 };
 export function createD2ProductionTestAsset({
  origin,ownerSession,readReceipt,issueReadToken,request,
- enabled=()=>false,
+ authorizeProbe=async()=>false,enabled=()=>false,
 }={}){
  ensure(typeof origin==='string'&&/^https:\/\/[^/]+$/.test(origin)&&
   ownerSession&&typeof ownerSession.authorizeStatus==='function'&&
   typeof readReceipt==='function'&&typeof issueReadToken==='function'&&
-  typeof request==='function'&&typeof enabled==='function','INVALID_CONFIG');
+  typeof request==='function'&&typeof authorizeProbe==='function'&&
+  typeof enabled==='function','INVALID_CONFIG');
  async function read(token,url){
   ensure(url===API||url.startsWith(API+'/'),'URL_DENIED');
   let response;
@@ -49,7 +50,17 @@ export function createD2ProductionTestAsset({
    u.pathname.endsWith('/Gear/gear.json'),'INVALID_REQUEST');
   const op=u.pathname.slice(PREFIX.length,-'/Gear/gear.json'.length);
   ensure(OP.test(op),'INVALID_REQUEST');
-  await ownerSession.authorizeStatus(req);
+  // A normal owner cookie is always valid. A private scheduled verifier may
+  // alternatively supply a short-lived, path-bound HMAC on THIS read-only
+  // sandbox test route; it cannot authenticate any publishing API.
+  let ownerAuthorized=false;
+  try{await ownerSession.authorizeStatus(req);ownerAuthorized=true;}
+  catch{}
+  if(!ownerAuthorized){
+   let proof=false;
+   try{proof=await authorizeProbe(req,op);}catch{}
+   ensure(proof===true,'HOST_AUTH_DENIED');
+  }
   const receipt=await readReceipt({operationId:op,repositoryId:ID});
   ensure(receipt?.operationId===op&&receipt.repositoryId===ID&&
    SHA.test(receipt.mergeSha)&&
