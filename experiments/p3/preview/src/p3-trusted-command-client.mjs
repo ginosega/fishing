@@ -7,6 +7,7 @@
  * service binding and cannot send to a Worker with all public URLs disabled.
  */
 import {signP3InternalCommand} from './p3-internal-command-gate.mjs';
+import {readP3BoundedResponseText} from './p3-bounded-response.mjs';
 
 export class P3TrustedClientError extends Error {
  constructor(code){super('P3 trusted command client refused operation');this.name='P3TrustedClientError';this.code=code;}
@@ -85,8 +86,7 @@ export function createP3TrustedCommandClient({
   need(len===null||(/^\d+$/.test(len)&&Number(len)<=4096),'INVALID_ACCEPT_RECEIPT');
   let body;
   try{
-   const content=await response.text();
-   need(encoder.encode(content).length<=4096,'INVALID_ACCEPT_RECEIPT');
+   const content=await readP3BoundedResponseText(response,4096);
    body=JSON.parse(content);
   }catch{deny('INVALID_ACCEPT_RECEIPT');}
   need(body&&Object.getPrototypeOf(body)===Object.prototype&&
