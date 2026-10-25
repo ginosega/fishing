@@ -73,26 +73,37 @@ export function createP3ReadOnlyOidcPreflight({
    !('jwk'in header)&&!('jku'in header)&&!('x5u'in header),
    'OIDC_INVALID');
   const clock=now();
+  // Every category is a fixed, nonsecret denial code. Do not print any
+  // unsigned JWT claim value, token, JWK, URL, header, or provider message.
+  // These shape checks do NOT authenticate the payload: a PASS still requires
+  // exact-kid RSA signature verification against GitHub's issuer JWKS below.
   need(Number.isSafeInteger(clock)&&clock>0&&
    Number.isSafeInteger(claim.iat)&&Number.isSafeInteger(claim.exp)&&
    claim.iat<=clock+30&&claim.iat>=clock-600&&
    claim.exp>clock&&claim.exp>claim.iat&&claim.exp-claim.iat<=600&&
    (claim.nbf===undefined||(Number.isSafeInteger(claim.nbf)&&
-    claim.nbf<=clock+30))&&
-   claim.iss===ISS&&claim.aud===AUD&&
-   claim.sub==='repo:ginosega@'+OWNER+'/fishing-p3-sandbox@'+ID+
-    ':ref:refs/heads/main'&&claim.repository===REPO&&
-   claim.repository_id===String(ID)&&claim.repository_owner==='ginosega'&&
+    claim.nbf<=clock+30)),'OIDC_TIME_DENIED');
+  need(claim.iss===ISS&&claim.aud===AUD,
+   'OIDC_ISSUER_AUDIENCE_DENIED');
+  need(claim.sub==='repo:ginosega@'+OWNER+'/fishing-p3-sandbox@'+ID+
+    ':ref:refs/heads/main','OIDC_SUBJECT_DENIED');
+  need(claim.repository===REPO&&
+   claim.repository_id===String(ID)&&
+   claim.repository_owner==='ginosega'&&
    claim.repository_owner_id===String(OWNER)&&
-   claim.repository_visibility==='private'&&
-   claim.actor_id===String(OWNER)&&claim.actor_id===context.actorId&&
-   claim.ref_type==='branch'&&claim.ref===context.ref&&
-   claim.event_name===context.event&&
-   claim.runner_environment==='github-hosted'&&
-   claim.workflow_ref===WF&&claim.workflow_sha===context.sha&&
-   claim.run_id===context.runId&&claim.run_attempt===context.runAttempt&&
-   claim.job_workflow_ref===undefined&&claim.job_workflow_sha===undefined,
-   'OIDC_SCOPE_DENIED');
+   claim.repository_visibility==='private','OIDC_REPOSITORY_DENIED');
+  need(claim.actor_id===String(OWNER)&&
+   claim.actor_id===context.actorId,'OIDC_ACTOR_DENIED');
+  need(claim.ref_type==='branch'&&claim.ref===context.ref,
+   'OIDC_REF_DENIED');
+  need(claim.event_name===context.event&&
+   claim.runner_environment==='github-hosted','OIDC_EXECUTION_DENIED');
+  need(claim.workflow_ref===WF&&claim.workflow_sha===context.sha,
+   'OIDC_WORKFLOW_DENIED');
+  need(claim.run_id===context.runId&&
+   claim.run_attempt===context.runAttempt,'OIDC_RUN_DENIED');
+  need(claim.job_workflow_ref===undefined&&
+   claim.job_workflow_sha===undefined,'OIDC_REUSABLE_DENIED');
   let jwks;
   try{
    const r=await requestKeys(JWKS);
