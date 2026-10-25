@@ -55,6 +55,21 @@ No `services`, `d1_databases`, `routes`, `kv_namespaces`, secrets, custom domain
 
 Cloudflare documentation warns that redeploying a Worker may re-enable `workers.dev` if `workers_dev:false` is absent. Preview URLs must also be explicitly disabled. Source must remain hard-disabled if a provider configuration silently changes. Ref: https://developers.cloudflare.com/workers/configuration/routing/workers-dev/ and https://developers.cloudflare.com/workers/wrangler/configuration/.
 
+## Approved disabled-only deployment workflow — October 24, 2026 (PDT)
+
+**Owner explicitly approved only the P3-29 hard-disabled ingress deployment** after successful read-only preflight #40165050989. Private sandbox [PR #14](https://github.com/ginosega/fishing-p3-sandbox/pull/14) added an explicit one-shot `deploy-disabled` mode, passed [exact-head Actions CI](https://github.com/ginosega/fishing-p3-sandbox/actions/runs/40165265294) with **57/57 Python guard tests**, and was squash-merged into isolated sandbox main `1494e0b0bf66061cd75c6472bda0b128cff58863`. This source-only merge did **not** deploy anything.
+
+The updated manual [P3-29 disabled ingress workflow](https://github.com/ginosega/fishing-p3-sandbox/actions/workflows/fishing-p3-disabled-ingress.yml) has only three choices:
+- `preflight` (read-only, empty confirmation);
+- `postflight` (read-only, empty confirmation);
+- `deploy-disabled` (**requires exact manual confirmation `DEPLOY-DISABLED-P3-INGRESS-ONLY`**; only approved mutating operation).
+
+On `deploy-disabled` it checks out immutable public commit `5df060076ca3cd010727fc9162b33bf03c157790`, checks blob `8f28f4e1d610fe549388308223bf3e6aa58af1a7`, re-verifies the exact existing ingress Worker has **zero bindings**, both Production and Preview URLs OFF, and the restricted Access application/service policy. It stages only the 503 ingress source and a strictly validated `wrangler.json`: fixed target `fishing-p3-access-ingress-sandbox`; `workers_dev:false`; `preview_urls:false`; only `P3_WRITE_ENABLED:false`, `P3_INGRESS_ENABLED:false`, `P3_COMMAND_BRIDGE_ENABLED:false` **as literal strings `"false"`**. No D1, service bindings, signing secrets, routes, assets, cron, queues or GitHub publishing.
+
+Only after these checks does the runner invoke pinned **Wrangler 4.152.0** exactly once with `wrangler deploy --config wrangler.json --no-bundle`. Wrangler's raw logs are withheld to avoid leaking provider output. A zero exit code triggers immediate **read-only** live postflight: exact three plain-text `false` bindings, no extras, both URLs OFF and correct Access app/policy. A nonzero exit, timeout, or failed postflight is **not** a guarantee that code was unchanged; treat it as possible partial success, do not redeploy, and run an independent read-only state reconciliation. Independently rerun manual `postflight` on success to verify remote state. Successful postflight attests deployed settings and reported deploy outcome; it does **not** cryptographically hash the remote script's bytes.
+
+**The owner must dispatch the actual workflow.** The available connected GitHub API actions cannot initiate `workflow_dispatch`. Safe handoff: GitHub Actions → workflow linked above → `Run workflow` → branch `main` → mode `deploy-disabled` → confirmation `DEPLOY-DISABLED-P3-INGRESS-ONLY` → Run exactly once. Both ingress URL toggles stay OFF. After completion, independently inspect logs and postflight before advancing. Original disabled command bridge and production application remain untouched.
+
 ## Gate order and rollback
 
 1. **Source review + CI**: full canonical Fishing tests pass; collect immutable source commit/blob. GitHub production `main` remains unchanged; draft PR #263 stays unmerged.
