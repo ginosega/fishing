@@ -21,10 +21,19 @@ function fixture({enabled=true,holdLease=false,invalidPR=false,
   },
   get:async()=>structuredClone(row),
   readSnapshot:async()=>invalidSnapshot?{}:snapshot,
+  markMergeAttempt:async({operationId,leaseOwner})=>{
+   trace.push('mark-merge:'+operationId);
+   assert.equal(operationId,OP);
+   assert.equal(leaseOwner,'lease-owner-012345');
+   if(row.state!=='Merging'||row.reasonCode!=null)return false;
+   row.reasonCode='merge_attempted';
+   return true;
+  },
   advance:async({from,to,details})=>{
    trace.push('advance:'+from+'>'+to);
    assert.equal(row.state,from);
    row={...row,state:to,
+    ...(from==='Merging'&&to==='Deploying'?{reasonCode:null}:{}),
     ...(details.prNumber?{prNumber:details.prNumber}:{}),
     ...(details.prHeadSha?{prHeadSha:details.prHeadSha}:{}),
     ...(details.mainBaseSha?{mainBaseSha:details.mainBaseSha}:{}),
@@ -125,6 +134,11 @@ test('D2-R08 unknown merge outcome leaves state Merging, never retries implicitl
  await assert.rejects(x.run(),/UNKNOWN GITHUB WRITE OUTCOME/);
  assert.equal(x.state,'Merging');
  assert.equal(x.trace.filter(v=>v==='merge').length,1);
+ assert.equal(x.trace.filter(v=>v.startsWith('mark-merge:')).length,1);
+ // Simulate expiry of original lease and invocation in new process;
+ // a second merge must never run while outcome is unknown.
+ await assert.rejects(x.run(),reason('MERGE_RECONCILIATION_REQUIRED'));
+ assert.equal(x.trace.filter(v=>v==='merge').length,1);
 });
 test('D2-R09 unverified hosted test path cannot be called sandbox Live',async()=>{
  const x=fixture({invalidHost:true});
@@ -141,4 +155,13 @@ test('D2-R10 incorrect operation ID or lease owner cannot claim',async()=>{
   await assert.rejects(x.runner.run(pair),reason('INVALID_REQUEST'));
  }
  assert.equal(x.trace.length,0);
+});
+
+test('D2-R11 a normal merge writes ahead before any remote action and clears marker after receipt',async()=>{
+ const x=fixture();
+ await x.run();await x.run();await x.run();await x.run();
+ const events=x.trace;
+ assert(events.indexOf('mark-merge:'+OP)!==-1);
+ assert(events.indexOf('mark-merge:'+OP)<events.indexOf('merge'));
+ assert.equal(x.state,'Deploying');
 });
