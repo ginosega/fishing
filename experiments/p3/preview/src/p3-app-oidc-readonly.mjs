@@ -116,7 +116,7 @@ export function createP3AppOidcReadOnlyPreflight({
    workflowSha:result.workflowSha,
    runId:result.runId,runAttempt:result.runAttempt,
    appId:result.appId,installationId:result.installationId,
-   canMintInstallationToken:false,canPublish:false,
+   installationTokenRequested:false,repositoryMutationAttempted:false,
   });
  }
  return Object.freeze({verify});
