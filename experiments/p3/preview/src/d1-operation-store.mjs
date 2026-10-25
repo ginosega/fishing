@@ -167,6 +167,7 @@ export function createD1OperationStore({DB,ownerGitHubId,repositoryId=SANDBOX_ID
    'UPDATE p3_operations SET merge_sha=?,updated_at=? '+
    'WHERE operation_id=? AND github_id=? AND repo_id=? '+
    'AND state=? AND pr_number=? AND lease_owner=? AND lease_expires_at>? '+
+   "AND reason_code='merge_attempted' "+
    'AND (merge_sha IS NULL OR merge_sha=?) RETURNING merge_sha,pr_number',
    mergeSha,at,operationId,ownerGitHubId,SANDBOX_ID,
    'Merging',prNumber,leaseOwner,at,mergeSha).first();
