@@ -44,6 +44,17 @@ function fromBase64(value){
  requireTrue(bytes.length<=MAX_BYTES,'CONTENT_TOO_LARGE');
  return bytes;
 }
+export async function decodeD2GitBlob(entry,value){
+ requireTrue(entry?.type==='blob'&&entry?.mode==='100644'&&
+  SHA.test(entry.sha)&&Number.isSafeInteger(entry.size)&&
+  entry.size>0&&entry.size<=MAX_BYTES,'MISSING_MANIFEST');
+ requireTrue(value?.sha===entry.sha&&value.encoding==='base64'&&
+  value.size===entry.size,'INVALID_BLOB');
+ const bytes=fromBase64(value.content);
+ requireTrue(bytes.length===entry.size&&await blobSha1(bytes)===entry.sha,
+  'BLOB_DIGEST_DENIED');
+ return bytes;
+}
 const headers=token=>({
  Authorization:'Bearer '+token,
  Accept:'application/vnd.github+json',
@@ -72,11 +83,7 @@ export function createD2WorkerGearCandidate({
    SHA.test(entry.sha)&&Number.isSafeInteger(entry.size)&&
    entry.size>0&&entry.size<=MAX_BYTES,'MISSING_MANIFEST');
   const value=await read(token,API+'/git/blobs/'+entry.sha);
-  requireTrue(value?.sha===entry.sha&&value.encoding==='base64'&&
-   value.size===entry.size,'INVALID_BLOB');
-  const bytes=fromBase64(value.content);
-  requireTrue(bytes.length===entry.size&&await blobSha1(bytes)===entry.sha,
-   'BLOB_DIGEST_DENIED');
+  const bytes=await decodeD2GitBlob(entry,value);
   let parsed;
   try{parsed=JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes));}
   catch{reject('INVALID_MANIFEST');}
