@@ -57,7 +57,7 @@ Cloudflare documentation warns that redeploying a Worker may re-enable `workers.
 
 ## Approved disabled-only deployment workflow — October 24, 2026 (PDT)
 
-**Owner explicitly approved only the P3-29 hard-disabled ingress deployment** after successful read-only preflight #40165050989. Private sandbox [PR #14](https://github.com/ginosega/fishing-p3-sandbox/pull/14) added an explicit one-shot `deploy-disabled` mode, passed [exact-head Actions CI](https://github.com/ginosega/fishing-p3-sandbox/actions/runs/40165265294) with **57/57 Python guard tests**, and was squash-merged into isolated sandbox main `1494e0b0bf66061cd75c6472bda0b128cff58863`. This source-only merge did **not** deploy anything.
+**Owner explicitly approved only the P3-29 hard-disabled ingress deployment** after successful read-only preflight #40165050989. Private sandbox [PR #14](https://github.com/ginosega/fishing-p3-sandbox/pull/14) added an explicit one-shot `deploy-disabled` mode, passed [exact-head Actions CI](https://github.com/ginosega/fishing-p3-sandbox/actions/runs/40165456177) with **57/57 Python guard tests**, and was squash-merged into isolated sandbox main `1494e0b0bf66061cd75c6472bda0b128cff58863`. This source-only merge did **not** deploy anything.
 
 The updated manual [P3-29 disabled ingress workflow](https://github.com/ginosega/fishing-p3-sandbox/actions/workflows/fishing-p3-disabled-ingress.yml) has only three choices:
 - `preflight` (read-only, empty confirmation);
