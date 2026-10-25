@@ -9,6 +9,7 @@
  * constitute live canonical validation or authorize any GitHub write.
  */
 import {D2SessionError} from './d2-unified-owner-session.mjs';
+import {DurableStoreError} from './d1-operation-store.mjs';
 const ORIGIN_ID=1430581407,MAX=16*1024;
 const utf8=new TextEncoder();
 const token=/^[A-Za-z0-9_-]{12,96}$/;
@@ -75,11 +76,18 @@ const ruleCode=e=>{
   UNVERIFIED_SOURCE:409,STATUS_NOT_FOUND:404,
   DISABLED:503,
  }[e.code]??400;
+ if(e instanceof DurableStoreError)return {
+  IDEMPOTENCY_CONFLICT:409,INVALID_SNAPSHOT:400,
+  INVALID_IDEMPOTENCY_KEY:400,SNAPSHOT_TOO_LARGE:413,
+ }[e.code]??503;
  return 503;
 };
 const publicError=e=>{
- if(e instanceof D2SessionError||e instanceof D2ApiError)
-  return error(ruleCode(e),e.code);
+ if(e instanceof D2SessionError||e instanceof D2ApiError||
+  e instanceof DurableStoreError){
+  const status=ruleCode(e);
+  return error(status,status===503?'TEMPORARILY_UNAVAILABLE':e.code);
+ }
  return error(503,'TEMPORARILY_UNAVAILABLE');
 };
 export function createD2GuardedOperationsApi({
