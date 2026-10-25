@@ -59,9 +59,9 @@ The owner must have an independent way to know that the entire canonical content
 
 ## 5. Source-only adversarial test evidence and explicit limitations
 
-`test/p3-independent-owner-review.test.mjs` adds nine local cases `P3-I01` to `P3-I09`: independently generated ECDSA signing key and pinned public JWK; exact content and full review output; forged and tampered attestations; separately signed but different content; signed mismatched run/approval/branch SHA; tampered P3-40 candidate; expiry, foreign purpose, additional unsigned fields; private-key rejection and no network/signing capability. These checks do **not** create a live attestor or an owner signer. The attestor key is **disposable fixture material** from a local Node crypto test, not a real private key to keep, deploy, or share.
+`test/p3-independent-owner-review.test.mjs` adds eleven local cases `P3-I01` to `P3-I11`: independently generated ECDSA signing key and pinned public JWK; exact content and full review output; forged and tampered attestations; separately signed but different content; signed mismatched run/approval/branch SHA; tampered P3-40 candidate; expiry, foreign purpose, additional unsigned fields; private-key rejection and no network/signing capability. Added independently signed malformed-domain/operation and nested prototype/constructor-field attacks are also rejected by the review gate itself, rather than relying solely on the P3-40 upstream source preflight. These checks do **not** create a live attestor or an owner signer. The attestor key is **disposable fixture material** from a local Node crypto test, not a real private key to keep, deploy, or share.
 
-The previous P3-40 exact-head source validation was **429/429 tests** (80 PWA, 43 broker, 306 P3). With nine new independent-review tests, the expected total is **438/438**, contingent on exact source and final documentation CI. No current provider call is implied by a CI PASS.
+The previous P3-40 exact-head source validation was **429/429 tests** (80 PWA, 43 broker, 306 P3). With eleven new independent-review tests, the expected total is **440/440**, contingent on exact source and final documentation CI. No current provider call is implied by a CI PASS.
 
 ## 6. Remaining significant gating decisions
 
