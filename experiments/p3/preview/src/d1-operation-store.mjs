@@ -116,6 +116,18 @@ export function createD1OperationStore({DB,ownerGitHubId,repositoryId=SANDBOX_ID
   check(stored?.request_json===payload && stored?.payload_sha256===payloadHash,'CORRUPT_SNAPSHOT');
   return {...publicRecord(row),inserted:row.operation_id===candidate};
  }
+ async function nextEligible(){
+  const at=ts();
+  // Single bounded lease candidate for the future private scheduled runner.
+  // NEVER retry a remote merge with a durable write-ahead marker.
+  const row=await sql(
+   "SELECT operation_id FROM p3_operations WHERE github_id=? AND repo_id=? "+
+   "AND state IN ('Accepted','Validating','Checking','Merging','Deploying','Verifying') "+
+   "AND reason_code IS NULL AND (lease_expires_at IS NULL OR lease_expires_at<=?) "+
+   "ORDER BY created_at,operation_id LIMIT 1",
+   ownerGitHubId,SANDBOX_ID,at).first();
+  return row?.operation_id??null;
+ }
  async function branchReceipt(operationId){
   check(opId(operationId),'INVALID_OPERATION_ID');
   const row=await sql('SELECT main_base_sha,pr_head_sha FROM p3_operations WHERE operation_id=? AND github_id=? AND repo_id=? AND state IN (?,?)',
@@ -213,5 +225,5 @@ export function createD1OperationStore({DB,ownerGitHubId,repositoryId=SANDBOX_ID
   const rows=await sql('SELECT e.event_id,e.event_type,e.from_state,e.to_state,e.event_at,e.error_code FROM p3_events e JOIN p3_operations o ON o.operation_id=e.operation_id WHERE e.operation_id=? AND o.github_id=? AND o.repo_id=? ORDER BY e.event_id',operationId,ownerGitHubId,SANDBOX_ID).all();
   return (rows?.results||[]).map(row=>({eventType:row.event_type,from:row.from_state,to:row.to_state,at:row.event_at,error:row.error_code}));
  }
- return Object.freeze({accept,get,readSnapshot,branchReceipt,saveBranchReceipt,markMergeAttempt,saveMergeReceipt,claim,advance,events});
+ return Object.freeze({accept,get,readSnapshot,nextEligible,branchReceipt,saveBranchReceipt,markMergeAttempt,saveMergeReceipt,claim,advance,events});
 }
