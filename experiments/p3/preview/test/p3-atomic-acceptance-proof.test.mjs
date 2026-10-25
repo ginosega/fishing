@@ -73,20 +73,8 @@ test('P3-X03 duplicate signed approval rolls back every new row including audit'
  f.f.sql.close();
 });
 test('P3-X04 duplicate signed nonce with independently unique approval fails atomically',async()=>{
- let i=0;
- const f=fixture({verifyAuthorization:async()=>{
-  i++;
-  return {...proof,approvalId:i===1?approvalId:'7b5234c8-3212-4123-8123-bcdef1234567',
-   approvalSha256:i===1?'a'.repeat(64):'c'.repeat(64),
-   idempotencyKey:i===1?idem:'second-key-01234567890'};
- }});
- f.enable();
- await f.service.accept(args);
  const second=JSON.stringify({action:'accept',idempotencyKey:'second-key-01234567890',snapshot:sample});
- // Override body hash separately while keeping the same previously used nonce.
- // The authenticated fixture grants the new body only, never a real credential.
- f.f.sql.close();
- // Test nonce collision separately using SQL below to avoid an invalid fixture signature.
+ // Fresh approval and idempotency must not reuse an already consumed HMAC nonce.
  const g=fixture();g.enable();
  await g.service.accept(args);
  const oldProof={...proof,approvalId:'7b5234c8-3212-4123-8123-bcdef1234567',
