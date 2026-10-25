@@ -89,6 +89,33 @@ export async function signP3InternalCommand({secret,nonce,timestamp,body}={}){
  return Object.freeze({'X-P3-Timestamp':String(timestamp),'X-P3-Nonce':nonce,
   'X-P3-Signature':base64Url(mac)});
 }
+/**
+ * P3-34 verify-only HMAC authority. Uses EXACT P3-20 signing domain, path,
+ * body bytes, timestamp and nonce. It has NO database, replay-store, network
+ * or publishing effects. The atomic D1 batch must independently consume nonce.
+ * Caller must validate the HTTP route/Access and only use this server-side.
+ */
+export async function verifyP3InternalCommandSignature({
+ secret,nonce,timestamp,signature,body,now=()=>Date.now(),
+}={}){
+ demand(typeof now==='function'&&noncePattern.test(nonce)&&
+  validTime(timestamp)&&Number.isSafeInteger(timestamp)&&
+  /^\\d{13}$/.test(String(timestamp))&&
+  typeof body==='string'&&enc.encode(body).byteLength>0&&
+  enc.encode(body).byteLength<=MAX_BYTES,'INVALID_AUTH_HEADERS');
+ const clock=now();
+ demand(validTime(clock)&&Math.abs(clock-timestamp)<=WINDOW_MS,'EXPIRED_COMMAND');
+ const bytes=enc.encode(body);
+ const key=await hmacKey(secret);
+ const valid=await crypto.subtle.verify('HMAC',key,fromB64Url(signature),
+  signedMessage({method:'POST',path:PATH,at:timestamp,nonce,
+   bodyHash:await contentsHash(bytes)}));
+ demand(valid===true,'INVALID_SIGNATURE');
+ return Object.freeze({
+  verified:true,nonceValue:nonce,timestampMs:timestamp,
+  bodySha256:await contentsHash(bytes),
+ });
+}
 export function createP3InternalCommandGate({
  env,ownerGitHubId,consumeNonce,acceptSnapshot,operatorApproved=()=>false,
  now=()=>Date.now(),
