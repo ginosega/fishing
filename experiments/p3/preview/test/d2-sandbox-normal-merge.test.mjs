@@ -34,7 +34,7 @@ function fixture({enabled=false,badCheck=false,badRepo=false,shiftBase=false,
   }
   if(url===API+'/pulls/'+PR+'/merge'){
    assert.equal(options.method,'PUT');
-   assert.deepEqual(options.body,{
+   assert.deepEqual(JSON.parse(options.body),{
     sha:HEAD,merge_method:'squash',
     commit_title:'FISH118 D2 isolated sandbox Gear verification',
     commit_message:'Single owned sandbox test operation; no public fishing content',
