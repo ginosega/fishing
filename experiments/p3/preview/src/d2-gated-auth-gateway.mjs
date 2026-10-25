@@ -22,8 +22,10 @@ const deny=(status=404)=>new Response(JSON.stringify({
  'Content-Type':'application/json; charset=utf-8',
  'Cache-Control':'no-store','X-Content-Type-Options':'nosniff',
 }});
-const authPaths=new Set(['/auth/start','/auth/callback',
- '/session/signout','/session/revoke-all']);
+// Keep the existing AUTH-P0 landing/test assets and sign-in routes intact.
+// Do not expose arbitrary legacy handler paths or change anonymous Pages bytes.
+const authPaths=new Set(['/', '/test-client.js', '/test.css',
+ '/auth/start','/auth/callback','/session/signout','/session/revoke-all']);
 const testPath=path=>/^\/__d2_test__\/operations\/p3_[a-f0-9-]{36}\/Gear\/gear\.json$/.test(path);
 const routes=path=>path==='/session'||path==='/api/v3/operations'||
  /^\/api\/v3\/operations\/[^/]+$/.test(path);
@@ -48,6 +50,14 @@ export function createD2GatedAuthGateway({
    return authWorker.fetch(request,env,context);
   }
   if(!routes(u.pathname)&&!testPath(u.pathname))return deny(404);
+  // Rolling out D2 source must not interrupt the existing signed-in
+  // AUTH-P0 test page before the isolated operations D1/CSRF bindings exist.
+  // Only the read-only legacy GET /session can fall back; any enabled
+  // publishing transition with missing bindings still fails closed.
+  if(u.pathname==='/session'&&u.search===''&&request.method==='GET'&&
+   env.D2_WRITE_ENABLED!=='true'&&env.D2_RUNNER_ENABLED!=='true'&&
+   (!env.OPERATIONS_DB||typeof env.D2_CSRF_KEY!=='string'))
+   return authWorker.fetch(request,env,context);
   if(testPath(u.pathname)&&env.D2_TEST_HOST_ENABLED!=='true')return deny(404);
   if(!env.DB||!env.OPERATIONS_DB||
    typeof env.D2_CSRF_KEY!=='string'||env.D2_CSRF_KEY.length<32||
