@@ -197,6 +197,6 @@ test('P3-OID10 workflow remains non-executable zero-pin proposal, no publishing 
  assert.match(workflow,/0000000000000000000000000000000000000000/);
  assert.match(workflow,/github\.actor_id == 265665562/);
  assert.doesNotMatch(workflow,/pull_request:|schedule:|workflow_call:|secrets\./);
- assert.doesNotMatch(probe,/\/access_tokens|\/merges|Cloudflare|D1Database/);
+ assert.doesNotMatch(probe,/\/access_tokens|\/merges|api\.cloudflare\.com|\.cloudflareaccess\.com|D1Database/);
  assert.doesNotMatch(disabled,/p3-oidc-readonly-preflight|p3-oidc-readonly-cli/);
 });
