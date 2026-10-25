@@ -87,6 +87,33 @@ test('P3-R02 wrong signed owner/repo ID, event, branch or workflow denied before
   assert.equal(x.github,0);
  }
 });
+test('P3-R08 optional real signed GitHub job-workflow ref/SHA must match pinned command workflow',async()=>{
+ for(const claims of [
+  {job_workflow_ref:WF},
+  {job_workflow_sha:SHA},
+  {job_workflow_ref:WF,job_workflow_sha:SHA},
+ ]){
+  const x=fixture({claims});
+  const result=await x.instance.verify(x.token);
+  assert.equal(result.verified,true);
+  assert.equal(result.workflowSha,SHA);
+  assert.equal(x.jwks,1);
+  assert.equal(x.github,2);
+ }
+});
+test('P3-R09 nonmatching signed job-workflow identity cannot authorize command or App metadata',async()=>{
+ for(const claims of [
+  {job_workflow_ref:REPO+'/.github/workflows/evil.yml@refs/heads/main'},
+  {job_workflow_sha:'b'.repeat(40)},
+  {job_workflow_ref:WF,job_workflow_sha:'c'.repeat(40)},
+  {job_workflow_ref:WF.replace('refs/heads/main','refs/heads/feature')},
+ ]){
+  const x=fixture({claims});
+  await assert.rejects(x.instance.verify(x.token),
+   e=>e instanceof P3ProvenanceError&&e.code==='OIDC_SCOPE_DENIED');
+  assert.equal(x.github,0);
+ }
+});
 test('P3-R03 alg none, injected JWKS URL header, tampering and bad RSA are denied',async()=>{
  const alternate=generateKeyPairSync('rsa',{modulusLength:2048});
  for(const opts of [
