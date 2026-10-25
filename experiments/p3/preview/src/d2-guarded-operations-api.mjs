@@ -10,6 +10,7 @@
  */
 import {D2SessionError} from './d2-unified-owner-session.mjs';
 import {DurableStoreError} from './d1-operation-store.mjs';
+import {validatePackage} from '../../../pwa/src/handoff.mjs';
 const ORIGIN_ID=1430581407,MAX=16*1024;
 const utf8=new TextEncoder();
 const token=/^[A-Za-z0-9_-]{12,96}$/;
@@ -51,6 +52,15 @@ function parseSubmission(raw){
   !Object.hasOwn(body,'repositoryId')&&
   JSON.stringify(body)===raw,'INVALID_COMMAND');
  walk(body);
+ // Keep the already-approved V3 canonical content contract, not an ad-hoc
+ // Gear envelope that would allow editing an ID or bypassing base hashes.
+ // Full fresh-source semantics are still rechecked by trusted server adapter.
+ try{validatePackage(p);}catch{no('INVALID_COMMAND');}
+ need(p.changes&&object(p.changes.set)&&
+  Array.isArray(p.changes.unset)&&object(p.changes.baseFields)&&
+  p.picture.action==='keep'&&
+  (p.pictureSequence?.action??'keep')==='keep'&&
+  p.notes.action==='keep','INVALID_COMMAND');
  return body;
 }
 const HEADERS={
