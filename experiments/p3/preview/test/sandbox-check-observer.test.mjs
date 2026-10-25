@@ -20,7 +20,8 @@ function setup({
   merged_at:null,head:{sha:HEAD,ref:BRANCH,repo:{id:ID}},
   base:{sha:BASE,ref:'main',repo:{id:ID}}});
  const ci=()=>({id:101,name:'validate-sandbox-head',head_sha:HEAD,
-  app:{id:15368},status:'completed',conclusion:'success'});
+  app:{id:15368},status:'completed',conclusion:'success',
+  details_url:'https://github.com/ginosega/fishing-p3-sandbox/actions/runs/10001/job/101'});
  const json=(data,status=200)=>({ok:status>=200&&status<300,status,json:async()=>data});
  const request=async(url,init)=>{
   calls.push({url,method:init.method,headers:init.headers});
@@ -68,7 +69,7 @@ test('P3-C02 success requires exact PR head/base, current main, Actions check an
  const proof=await s.observer.observe(receipt());
  assert.deepEqual(proof,{
   repositoryId:ID,prNumber:PR,headSha:HEAD,baseSha:BASE,
-  checkRunId:101,checkName:'validate-sandbox-head',actionsAppId:15368,
+  checkRunId:101,workflowRunId:10001,checkName:'validate-sandbox-head',actionsAppId:15368,
   checkObserved:'success',readyForManualReview:true,canMerge:false,canDeploy:false,
  });
  assert.equal(s.calls.length,6);
@@ -136,6 +137,7 @@ test('P3-C08 failed, skipped, pending or forged Actions check never passes',asyn
   [{status:'completed',conclusion:'neutral'},'CHECK_NOT_SUCCESSFUL'],
   [{app:{id:999}},'CHECK_IDENTITY_DENIED'],
   [{head_sha:'d'.repeat(40)},'CHECK_IDENTITY_DENIED'],
+  [{details_url:'https://evil.example/actions/runs/10001'},'WORKFLOW_PROVENANCE_DENIED'],
   [{id:'not-a-number'},'CHECK_IDENTITY_DENIED'],
  ]){
   const s=setup({checkOverride:patch});
