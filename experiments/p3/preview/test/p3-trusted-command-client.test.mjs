@@ -103,6 +103,19 @@ test('P3-T07 local secret mismatches are rejected at receiver with zero D1 mutat
  assert.equal(x.count('p3_operations'),0);assert.equal(x.count('p3_command_nonces'),0);
  x.f.sql.close();
 });
+test('P3-T09 202 receipt streaming above 4 KiB fails closed despite forged size',async()=>{
+ const x=context();x.enable();let sends=0;
+ const client=createP3TrustedCommandClient({env:x.env,ownerGitHubId:owner,
+  operatorApproved:()=>true,now:()=>time,makeNonce:()=>nonce,
+  transport:async()=>{sends++;return new Response(new Uint8Array(5000).fill(65),{
+   status:202,headers:{'Content-Type':'application/json','Content-Length':'1'},
+  });}});
+ await assert.rejects(client.accept({idempotencyKey:key,snapshot:sample}),
+  e=>e.code==='INVALID_ACCEPT_RECEIPT'&&e instanceof P3TrustedClientError);
+ assert.equal(sends,1);
+ assert.equal(x.count('p3_operations'),0);
+ x.f.sql.close();
+});
 test('P3-T08 no global fetch or public delivery route from source-only client',()=>{
  const text=readFileSync(new URL('../src/p3-trusted-command-client.mjs',import.meta.url),'utf8');
  assert.doesNotMatch(text,/\bfetch\s*\(/);
