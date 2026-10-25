@@ -29,6 +29,18 @@ The private sandbox [PR #11](https://github.com/ginosega/fishing-p3-sandbox/pull
 
 The workflow validates **policy metadata**, not Edge routing behavior. A later, separately reviewed test must confirm unauthenticated traffic is actually denied and that correct service-token authentication works before any ingress route is exposed for use. This is not a proof of the actual Access JWT end-to-end yet. If the metadata preflight fails, diagnose and rectify policy configuration *without creating any new ingress Worker endpoint*.
 
+## Live Cloudflare Access metadata preflight — PASS, October 24, 2026 (PDT)
+
+The owner created the Cloudflare Access application and service token, stored the restricted Account API token in the private GitHub Actions repository, and manually dispatched the read-only workflow. Independently checked [private GitHub Actions run #40162761115](https://github.com/ginosega/fishing-p3-sandbox/actions/runs/40162761115), job #121077580265, on sandbox main `6edd0739fec7edb929ed3498b5086d9c0891923c` — `workflow_dispatch`, `metadata` mode, **completed/success**.
+
+The actual logs show all **9** new fail-closed policy tests passed, followed by:
+- `PASS: Access application exact sandbox ingress hostname, no overrides or other origins`
+- `PASS: One unexpired, enabled dedicated service token and one exclusive Service Auth policy`
+- `PASS: Source-bound Access AUD present; no broad allow/bypass/other service tokens`
+- `PASS: Read-only metadata inspection. No route, Worker, policy, token or D1 modified.`
+
+These outputs verify **Cloudflare Access control-plane metadata** only. They do not verify enforcement of unauthenticated requests to a live hostname; no ingress Worker was created or made public by this run. Do not enable the real command service, D1 write flags, or publish flow. Next controlled step is to create a separate, inert **Hello World** ingress Worker named `fishing-p3-access-ingress-sandbox` under the already protected exact hostname, then disable its `workers.dev` and Preview/Version URLs, with **no D1, service binding, secret, route or custom domain**, and verify those settings before any edge-route testing. For the eventual edge proof, use a static 503 response and require demonstration of Access enforcement before attaching any privileged binding. A Worker with all public URLs disabled cannot prove live Access edge enforcement; that requires a separately gated temporary protected route only after inert code and Access metadata are verified.
+
 ## Next boundary after metadata proof
 
 After successful read-only policy verification, establish an isolated **Hello World** ingress Worker with all public/preview URLs initially disabled, and only later permit its single `workers.dev` hostname under verified Cloudflare Access protection. Do not deploy `p3-access-ingress.mjs` until a separate guarded deployment/edge protection review; it remains source-only in production repo draft PR #263. Owner must approve the exact ingress route and traffic test before making the hostname live. The original disabled command Worker remains isolated and never receives messages through this provisional route.
