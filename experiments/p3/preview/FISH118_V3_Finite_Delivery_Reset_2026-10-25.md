@@ -79,7 +79,7 @@ From now on, report **D1–D6** only. A status update should show *current D#, e
 
 **First action:** complete D1 architecture consolidation by choosing the minimum viable secure path from AUTH-P0's already owner-accepted same-origin gateway, P3's validated schema/CI machinery, and the existing production Pages/release model. Inspect the current GitHub App write permissions and branch protections before making an operational decision. Present **one** architecture/permissions review for owner sign-off if it materially differs from already granted authority; continue otherwise. No new attestor implementation.
 
-**Stop only at a true milestone blocker**: unapproved *material* credential/hosting change, unresolvable protected branch conflict, failed preview production-safety evidence, required real-device validation, or separate production cutover approval. Do not stop merely to seek another approval for routine source-only tests or read-only workflow runs.
+**Stop only at a true milestone blocker**: unapproved *material* credential/hosting change, unresolvable protected branch conflict, failed production-hosted test isolation or data-safety evidence, required real-device validation, or separate production cutover approval. Do not stop merely to seek another approval for routine source-only tests or read-only workflow runs.
 
 ## 5. Project handoff and document governance
 
