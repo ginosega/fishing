@@ -59,7 +59,7 @@ function fixture({enabled=true,holdLease=false,invalidPR=false,
    trace.push('checks');assert.equal(info.repositoryId,ID);
    return {repositoryId:ID,prNumber:4,headSha:invalidCheck?'f'.repeat(40):HEAD,
     baseSha:BASE,actionsAppId:15368,checkName:'validate-sandbox-head',
-    checkObserved:'success',checkRunId:556};
+    checkObserved:'success',checkRunId:556,workflowRunId:8877};
   },
   merge:async info=>{
    trace.push('merge');
