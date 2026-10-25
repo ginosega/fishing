@@ -1,12 +1,14 @@
 # Fishing Companion V3 — P3-29 New Chat Handoff
 
-**Checkpoint:** October 24, 2026 PDT (GitHub Action log timestamps October 25 UTC). P3-29 disabled ingress deployed successfully. Immediate postflight passed, and the ability to redeploy has been retired. **One new manual READ-ONLY postflight remains before full P3-29 closure.**
+**Checkpoint:** October 24, 2026 PDT (GitHub Action log timestamps October 25 UTC). **P3-29 is CLOSED.** The hard-disabled ingress was deployed, immediate and separately dispatched read-only postflights passed, and its deployment workflow was locked back to GET-only verification. This is now only a supplemental P3 evidence note; the official next-chat input is the ENTIRE five-file canonical bootstrap.
 
-## Immediate next action, then transfer
+## Official full new-chat transfer — completed
 
-1. Owner opens [P3 ingress read-only reconciliation workflow](https://github.com/ginosega/fishing-p3-sandbox/actions/workflows/fishing-p3-disabled-ingress.yml), chooses **branch `main`, mode `postflight`**, and leaves confirmation blank. This is a GET-only Cloudflare metadata check with no deploy option. Do not select `preflight`, which intentionally expects zero bindings and will fail after deployment.
-2. Assistant reviews the run's actual GitHub Actions logs: exact isolated ingress Worker has **three and only three plain-text flags equal to `false`** (`P3_WRITE_ENABLED`, `P3_INGRESS_ENABLED`, `P3_COMMAND_BRIDGE_ENABLED`); both Production and Preview URLs disabled; exclusive Cloudflare Access Service Auth app/token still correct. Never rerun a deployment or enable URLs.
-3. Document independent postflight success/failure in this handoff and draft PR #263; **then switch to a new Fishing project chat**, asking to continue from this document. Next phase is security architecture review, not activation.
+The owner reaffirmed the standard process: update all five root Markdown records and then copy the **complete** Bootstrap Prompt into the new chat. [Public docs-only PR #269](https://github.com/ginosega/fishing/pull/269) successfully merged to production-source main commit `587b978118df64cc9ec584375c458fa2b10fecfa`, **without triggering a PWA deployment**, updating `README.md`, `Fishing_Context.md`, `Fishing_TODO.md`, `Fishing_Decision_Log.md`, and the full `Fishing_New_Chat_Bootstrap_Prompt.md`.
+
+**Official file to copy in its entirety:** https://github.com/ginosega/fishing/blob/main/Fishing_New_Chat_Bootstrap_Prompt.md . This supporting P3 note is **NOT** a substitute for the full bootstrap prompt.
+
+Fresh, independently inspected [manual postflight #40166553523](https://github.com/ginosega/fishing-p3-sandbox/actions/runs/40166553523), job #121088686729, **PASS**: exactly three plain-text false flags, both ingress URLs OFF, no extra bindings, exact dedicated Access Service Auth policy intact and no Cloudflare mutation. The `deploy-disabled` mode remains removed via private PR #15. Do not rerun the predeploy `preflight` mode (it expects zero bindings). Begin only P3-30 **source/design security review** after restoring current `main` in the new Chat, with separate authorization required for any activation/deployment/write.
 
 ## Canonical repositories
 
@@ -41,4 +43,4 @@ All are private GitHub Actions repository secrets in `ginosega/fishing-p3-sandbo
 
 P3-25 HMAC trusted runner signer, P3-26 Access RS256 JWT verifier and proposed authenticated service-binding ingress, and native D1 operation acceptance are **source-only** in draft PR #263. Real authenticated ingress has not been deployed; **NO live service binding** connects ingress to the separate disabled command Worker. GitHub Actions runner cannot call Cloudflare Worker service bindings directly; identity-protected ingress was selected as possible bridge. Future review must evaluate actual Access JWT issuer/AUD/`common_name` claims, secure fixed-domain JWKS retrieval/cache and rotation, authenticated GitHub owner/App identity, HMAC logical request host/path, separate activation flags and rollback. Any live D1 `Accepted` write, sandbox PR creation, or production merge/deploy requires its own explicit owner approval. Preserve single-owner/anonymous-default V3 boundaries, no catch photos, existing preview and production unchanged.
 
-**Safe transition rule:** first independent read-only `postflight` PASS. Then new chat picks up at a **P3-30 security design review**, not another deployment or an operational write.
+**Safe transition rule — satisfied:** independent read-only postflight PASS; all five canonical files merged on main, including the ENTIRE bootstrap. New chat picks up at **P3-30 security design review only**.
