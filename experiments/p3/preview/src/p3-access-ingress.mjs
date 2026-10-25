@@ -1,4 +1,5 @@
 import {P3AccessError} from './p3-access-jwt-verifier.mjs';
+import {readP3BoundedResponseText} from './p3-bounded-response.mjs';
 /**
  * FISH118 P3-26 — SOURCE ONLY, no live route. Proposed Access ingress Worker.
  * Requires a separately reviewed Access policy+JWT config and private Worker
@@ -12,7 +13,6 @@ const assert=(v,code)=>{if(!v)nope(code);};
 const LEGACY_LOGICAL='https://fishing-p3-sandbox-preview.ginosega.workers.dev/_p3/internal/command';
 const INGRESS_PATH='/p3/internal/accept';
 const MAX=8192;
-const enc=new TextEncoder();
 const json=(status,obj)=>new Response(JSON.stringify(obj),{status,headers:{
  'Content-Type':'application/json','Cache-Control':'no-store',
  'X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer',
@@ -83,8 +83,8 @@ export function createP3AccessIngress({
    const upstream=await env.P3_COMMAND_SERVICE.fetch(internal);
    assert(upstream instanceof Response,'UPSTREAM_UNAVAILABLE');
    if(upstream.status===202){
-    const response=await upstream.text();
-    assert(enc.encode(response).length<=1024,'UPSTREAM_UNAVAILABLE');
+    // Read a maximum of 1 KiB before allocating/parsing a 202 receipt.
+    const response=await readP3BoundedResponseText(upstream,1024);
     let r;
     try{r=JSON.parse(response);}catch{nope('UPSTREAM_UNAVAILABLE');}
     assert(r&&Object.keys(r).sort().join(',')==='ok,operationId,state'&&
