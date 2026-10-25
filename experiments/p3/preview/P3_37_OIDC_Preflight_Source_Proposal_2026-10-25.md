@@ -1,5 +1,8 @@
 # FISH118 P3-37 — Source-only OIDC preflight proposal and P3-36 compatibility review
 
+**P3-37 FINAL CLOSEOUT — LIVE OIDC PASS (October 25, 2026).** Owner manual [GitHub Actions run #40207347824](https://github.com/ginosega/fishing-p3-sandbox/actions/runs/40207347824) completed SUCCESS on private workflow commit `69b236c8af663cdce687dc855bb117a01874060a`, verified trusted source `8487230fcc7e930b602d8b0b4feaab4826351eee`, and printed a redacted **PASS** for genuine GitHub RSA/JWKS OIDC signature, exact immutable sandbox/owner/main/manual workflow/audience/run identity and optional job-workflow binding. Prior *provisional* proposal status, pending approval gates and controlled DENY notes below are historical and **superseded** by this live evidence. **Do not dispatch further P3-37 OIDC-only runs.** The downstream source-only provenance alignment and separate next milestone are documented in [P3-38](P3_38_Live_OIDC_Provenance_Alignment_2026-10-25.md). Production and Cloudflare remain unchanged; this is not publishing permission.
+
+
 **Review date:** October 25, 2026 PDT. **Disposition: source-only review and proposed preflight; NO live private workflow installed, no token requested in the private sandbox, no Cloudflare provider change, no D1 migration/write, no GitHub publication or production deployment.**
 
 ## 1. Restored authority and boundaries
