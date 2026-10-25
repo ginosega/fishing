@@ -154,10 +154,13 @@ test('P3-OID07 no GitHub Actions environment permission means ZERO HTTP',async()
   assert.equal(requested,0);
  }
 });
-test('P3-OID08 only exact trusted pipelines.actions host permitted for token request',async()=>{
+test('P3-OID08 only trusted regional GitHub pipelines hosts permitted for token request',async()=>{
  for(const input of [
   'http://pipelines.actions.githubusercontent.com/fixture',
   'https://pipelines.actions.githubusercontent.com.evil.test/fixture',
+  'https://pipelines.attacker.example/fixture',
+  'https://pipelines-evil.actions.githubusercontent.com/fixture',
+  'https://pipelines1.actions.githubusercontent.com.evil/fixture',
   'https://evil.example/fixture',
   'https://user:pass@pipelines.actions.githubusercontent.com/fixture',
  ]){
@@ -168,6 +171,30 @@ test('P3-OID08 only exact trusted pipelines.actions host permitted for token req
   }),e=>e.code==='OIDC_ENDPOINT_DENIED');
   assert.equal(requested,0);
  }
+});
+test('P3-OID11 trusted regional GitHub pipeline host works with signed RSA token',async()=>{
+ const regional='https://pipelinesghubeus6.actions.githubusercontent.com/fixture/request?api-version=2.0';
+ const calls=[],output=[];
+ const result=await runP3OidcReadOnlyProbe({
+  env:{...env,ACTIONS_ID_TOKEN_REQUEST_URL:regional},now:()=>CLOCK,
+  emit:s=>output.push(s),
+  fetchImpl:async(url,opts)=>{
+   calls.push({url,method:opts.method,hasAuthorization:!!opts.headers.Authorization});
+   if(url.startsWith(regional))
+    return new Response(JSON.stringify({value:jwt()}),{
+     headers:{'Content-Type':'application/json'}});
+   assert.equal(url,JWKS);
+   return new Response(JSON.stringify({keys:[jwk]}),{
+    headers:{'Content-Type':'application/json'}});
+  },
+ });
+ assert.equal(result.verified,true);
+ assert.equal(calls.length,2);
+ assert(calls.every(x=>x.method==='GET'));
+ assert.equal(calls[0].hasAuthorization,true);
+ assert.equal(calls[1].hasAuthorization,false);
+ assert.equal(output.length,1);
+ assert.match(output[0],/^PASS: GitHub RSA-signed OIDC/);
 });
 test('P3-OID09 token provider rejects redirection, non-200, overlong or invalid body',async()=>{
  for(const bad of [
