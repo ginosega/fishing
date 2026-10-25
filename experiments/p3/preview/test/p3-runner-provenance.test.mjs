@@ -18,6 +18,7 @@ const enc=x=>Buffer.from(JSON.stringify(x)).toString('base64url');
 const claimsBase={iss:ISS,aud:AUD,sub:'repo:ginosega@'+OWNER_ID+'/fishing-p3-sandbox@'+
  REPO_ID+':ref:refs/heads/main',repository:REPO,repository_id:String(REPO_ID),
  repository_owner:'ginosega',repository_owner_id:String(OWNER_ID),
+ repository_visibility:'private',actor_id:String(OWNER_ID),ref_type:'branch',
  workflow_ref:WF,workflow_sha:SHA,ref:'refs/heads/main',
  event_name:'workflow_dispatch',runner_environment:'github-hosted',
  run_id:'441155',run_attempt:'1',iat:now-20,exp:now+100};
@@ -70,6 +71,8 @@ test('P3-R02 wrong signed owner/repo ID, event, branch or workflow denied before
  const changes=[
   {repository:'ginosega/fishing'},
   {repository_id:'1'}, {repository_owner_id:'1'},
+  {actor_id:'123'},{repository_visibility:'public'},{ref_type:'tag'},
+  {job_workflow_ref:'ginosega/evil/.github/workflows/malicious.yml@refs/heads/main'},
   {repository_owner:'other-owner'}, {ref:'refs/heads/feature-untrusted'},
   {event_name:'pull_request'}, {runner_environment:'self-hosted'},
   {workflow_ref:REPO+'/.github/workflows/evil.yml@refs/heads/main'},
