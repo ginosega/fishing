@@ -84,6 +84,10 @@ export function createP3OperatorApproval({
    bytes,enc.encode('p3-operator-approval-v1\n'+canon));}
   catch{fail('APPROVAL_SIGNATURE_INVALID');}
   need(valid===true,'APPROVAL_SIGNATURE_INVALID');
+  // Ledger binds the exact approval envelope, not merely the request body.
+  const approvalHash=new Uint8Array(await crypto.subtle.digest('SHA-256',
+   enc.encode('p3-operator-approval-v1\n'+canon)));
+  const approvalHex=[...approvalHash].map(x=>x.toString(16).padStart(2,'0')).join('');
   // One-time consumption MUST be persistent and atomic across runners.
   // A missing/failed ledger check denies; this module never uses memory fallback.
   let consumed=false;
@@ -91,7 +95,7 @@ export function createP3OperatorApproval({
    approvalId:approval.approvalId,repositoryId:REPO_ID,
    operatorGithubId:OWNER_ID,runId:run.runId,
    runAttempt:run.runAttempt,expiresAt:approval.expiresAt,
-   approvalSha256:digestHex,
+   approvalSha256:approvalHex,
   });}catch{fail('APPROVAL_LEDGER_UNAVAILABLE');}
   need(consumed===true,'APPROVAL_REPLAY_OR_LEDGER_DENIED');
   return Object.freeze({approved:true,action:'accept',repositoryId:REPO_ID,
