@@ -72,15 +72,22 @@ export function createP3AccessJwtVerifier({
    (claims.aud===audience||(Array.isArray(claims.aud)&&claims.aud.includes(audience)))&&
    claims.sub===''&&claims.common_name===serviceClientId,
    'ACCESS_IDENTITY_DENIED');
-  let keys;
-  try{keys=await jsonBounded(await requestJwks(keysUrl));}
-  catch(e){if(e instanceof P3AccessError)throw e;stop('ACCESS_KEYS_UNAVAILABLE');}
-  need(obj(keys)&&Array.isArray(keys.keys)&&keys.keys.length<=20,
-   'ACCESS_KEYS_UNAVAILABLE');
-  const matching=keys.keys.filter(j=>obj(j)&&j.kid===header.kid&&j.kty==='RSA'&&
+  async function loadKeys(forceRefresh=false){
+   let keys;
+   try{keys=await jsonBounded(await requestJwks(keysUrl,{forceRefresh}));}
+   catch(e){if(e instanceof P3AccessError)throw e;stop('ACCESS_KEYS_UNAVAILABLE');}
+   need(obj(keys)&&Array.isArray(keys.keys)&&keys.keys.length>0&&
+    keys.keys.length<=20,'ACCESS_KEYS_UNAVAILABLE');
+   return keys.keys;
+  }
+  const matches=keys=>keys.filter(j=>obj(j)&&j.kid===header.kid&&j.kty==='RSA'&&
    (j.use===undefined||j.use==='sig')&&
    (j.alg===undefined||j.alg==='RS256')&&
    typeof j.n==='string'&&typeof j.e==='string');
+  let matching=matches(await loadKeys());
+  // Rotation: refresh pinned JWKS at most once for an unknown kid.
+  // The requester can enforce a short cooldown against attacker-driven misses.
+  if(matching.length===0)matching=matches(await loadKeys(true));
   need(matching.length===1,'ACCESS_KEYS_UNAVAILABLE');
   let verified=false;
   try{
