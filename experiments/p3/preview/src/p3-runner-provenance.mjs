@@ -88,8 +88,12 @@ export function createP3RunnerProvenance({
    claims.repository_owner===OWNER&&
    claims.repository_owner_id===String(OWNER_ID)&&
    claims.sub==='repo:ginosega@'+OWNER_ID+'/fishing-p3-sandbox@'+REPO_ID+':ref:refs/heads/main'&&
-   claims.ref==='refs/heads/main'&&claims.event_name==='workflow_dispatch'&&
+   claims.ref==='refs/heads/main'&&claims.ref_type==='branch'&&
+   claims.repository_visibility==='private'&&
+   claims.actor_id===String(OWNER_ID)&&
+   claims.event_name==='workflow_dispatch'&&
    claims.runner_environment==='github-hosted'&&
+   claims.job_workflow_ref===undefined&&claims.job_workflow_sha===undefined&&
    claims.workflow_ref===expectedWorkflowRef&&
    claims.workflow_sha===expectedWorkflowSha&&
    validId(claims.run_id)&&validId(claims.run_attempt)&&
