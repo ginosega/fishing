@@ -85,9 +85,9 @@ export function createD2WorkerGearCandidate({
  }
  async function plan({package:pkg,expectedMainSha,operationId}={}){
   requireTrue(sourceEnabled()===true,'SOURCE_DISABLED');
-  requireTrue(SHA.test(expectedMainSha)&&
-   typeof operationId==='string'&&/^p3_[0-9a-f-]{36}$/.test(operationId),
-   'INVALID_REQUEST');
+  requireTrue((expectedMainSha===undefined||SHA.test(expectedMainSha))&&
+   (operationId===undefined||typeof operationId==='string'&&
+    /^p3_[0-9a-f-]{36}$/.test(operationId)),'INVALID_REQUEST');
   try{validatePackage(pkg);}catch{reject('INVALID_PACKAGE');}
   requireTrue(pkg.domain==='gear'&&pkg.operation==='edit'&&
    pkg.id==='p3-test-rod'&&pkg.picture.action==='keep'&&
@@ -111,7 +111,8 @@ export function createD2WorkerGearCandidate({
    'REPOSITORY_DENIED');
   const ref=await read(token,API+'/git/ref/heads/main');
   const base=ref?.object?.sha;
-  requireTrue(base===expectedMainSha,'MAIN_MOVED');
+  requireTrue(SHA.test(base)&&
+   (expectedMainSha===undefined||base===expectedMainSha),'MAIN_MOVED');
   const commit=await read(token,API+'/git/commits/'+base);
   requireTrue(commit?.sha===base&&SHA.test(commit.tree?.sha),'COMMIT_DENIED');
   const tree=await read(token,API+'/git/trees/'+commit.tree.sha+'?recursive=1');
@@ -163,8 +164,15 @@ export function createD2WorkerGearCandidate({
   requireTrue(last?.object?.sha===base,'MAIN_MOVED');
   return Object.freeze({
    validated:true,repositoryId:ID,sourceRevision:base,
-   operationId,changes:Object.freeze([changed]),
+   operationId:operationId??null,changes:Object.freeze([changed]),
   });
  }
- return Object.freeze({plan});
+ async function validate({snapshot,repositoryId}={}){
+  requireTrue(repositoryId===ID&&snapshot?.media?.length===0,
+   'INVALID_REQUEST');
+  const result=await plan({package:snapshot.package});
+  return Object.freeze({valid:true,repositoryId:ID,
+   sourceRevision:result.sourceRevision});
+ }
+ return Object.freeze({plan,validate});
 }
