@@ -77,7 +77,7 @@ test('P3-C01 no API/JWKS/provider access until explicit verify; exact two GETs',
  assert.deepEqual(result,{
   verified:true,readOnlyProof:true,repositoryId:ID,ownerGitHubId:OWNER,
   workflowSha:SHA,runId:441155,runAttempt:1,appId:42,installationId:99,
-  canMintInstallationToken:false,canPublish:false,
+  installationTokenRequested:false,repositoryMutationAttempted:false,
  });
  assert.deepEqual(f.counts,{oidc:1,jwks:1,api:2});
  assert.deepEqual(f.requests.map(x=>x.url),[
