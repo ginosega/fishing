@@ -54,7 +54,7 @@ export function createD2SandboxOperationRunner({
     snapshot.package.id==='p3-test-rod'&&
     Array.isArray(snapshot.media)&&snapshot.media.length===0,
     'SNAPSHOT_DENIED');
-   const sha=await currentMain({repositoryId:ID});
+   const sha=await currentMain({repositoryId:ID,operationId,package:snapshot.package});
    need(SHA.test(sha),'MAIN_UNVERIFIED');
    // This callback MUST re-fetch source, revalidate & durably save branch
    // receipt under lease BEFORE PR creation; never trust the snapshot alone.
