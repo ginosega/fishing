@@ -41,4 +41,8 @@ Approval rows must not be automatically purged while replay risk exists. Scope a
 4. Make the owner-signature check independently enforceable at the isolated trusted receiver and solve the atomic consumption/acceptance/recovery gap; source tests alone cannot authorize wiring to a live command route.
 5. Only under later separate provider/service/enablement gates: inert live GitHub OIDC/JWKS proof, App read-only identity proof, Cloudflare Access-only test, Worker service binding, bounded internal command path, then isolated test `Accepted`, then test PR and eventual production v3 cutover. Preserve the existing disabled sentinels until expressly approved.
 
+## CI evidence
+
+**Exact implementation and design commit:** `0415c81d3e01a8f69a5399dbd5123c91d63b8ece`. [P3 isolated source validation run #40168875176](https://github.com/ginosega/fishing/actions/runs/40168875176) **completed/success**: 80 PWA + 43 broker + 240 isolated P3 = **363/363 tests passed, zero failed**. All validation steps passed, including browser-paste Worker source checks and the new seven approval-ledger tests. This validates local SQLite and simulated provider fixtures only; it is not live provider, remote D1, or enabled Worker evidence. The docs-only checkpoint commit following this evidence will be independently checked.
+
 **Disposition:** design and source fixtures only; no live trusted runner, live replay ledger, D1 Accepted event, GitHub publishing or production change.
