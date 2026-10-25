@@ -56,7 +56,7 @@ function fixture({changeBytes=false,changeSha=false,changeStatus=false}={}){
   origin:ORIGIN,key:'x'.repeat(40),store,
   issueReadToken:async()=>({repositoryId:ID,
    permissions:{contents:'read'},token:'server-only-token'}),
-  requestGitHub,requestHosted,now:()=>100000,
+  requestGitHub,requestHosted,now:()=>1800000000,
  });
  return {proof,calls};
 }
