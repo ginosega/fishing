@@ -62,6 +62,25 @@ function sigBytes(value){
    .replace(/\//g,'_').replace(/=+$/,'')===value,'INVALID_ATTESTOR_SIGNATURE');
  return raw;
 }
+function safeTree(value,depth=0){
+ need(depth<=18,'INVALID_UNSIGNED_PROPOSAL');
+ if(value===null||typeof value==='string'||typeof value==='boolean')return;
+ if(typeof value==='number'){
+  need(Number.isFinite(value),'INVALID_UNSIGNED_PROPOSAL');return;
+ }
+ need(typeof value==='object','INVALID_UNSIGNED_PROPOSAL');
+ if(Array.isArray(value)){
+  need(value.length<=1024,'INVALID_UNSIGNED_PROPOSAL');
+  for(const item of value)safeTree(item,depth+1);
+  return;
+ }
+ need(object(value),'INVALID_UNSIGNED_PROPOSAL');
+ const fields=Object.keys(value);
+ need(fields.length<=200&&!fields.some(k=>
+  ['__proto__','constructor','prototype'].includes(k)),
+  'INVALID_UNSIGNED_PROPOSAL');
+ for(const key of fields)safeTree(value[key],depth+1);
+}
 function validProposal(value){
  need(object(value)&&value.unsigned===true&&
   value.requiresExternalOwnerSignature===true&&
@@ -92,6 +111,10 @@ function validProposal(value){
   object(command.snapshot.package)&&
   Array.isArray(command.snapshot.media)&&command.snapshot.media.length===0&&
   command.snapshot.package.format==='fishing-companion-change-v2'&&
+  ['gear','kb'].includes(command.snapshot.package.domain)&&
+  ['add','edit'].includes(command.snapshot.package.operation)&&
+  typeof command.snapshot.package.id==='string'&&
+  command.snapshot.package.id.length>0&&
   command.snapshot.package.domain===value.packageDomain&&
   command.snapshot.package.operation===value.packageOperation&&
   command.snapshot.package.id===value.packageId&&
@@ -104,6 +127,7 @@ function validProposal(value){
   approval.expiresAt===value.expiresAt&&
   value.signingMessage==='p3-operator-approval-v1\n'+value.canonicalApproval,
   'INVALID_UNSIGNED_PROPOSAL');
+ safeTree(command);
  return approval;
 }
 
