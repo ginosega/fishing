@@ -9,6 +9,7 @@
  */
 const ID=1430581407,REPO='ginosega/fishing-p3-sandbox';
 const API='https://api.github.com/repos/'+REPO;
+const GRAPHQL='https://api.github.com/graphql';
 const SHA=/^[a-f0-9]{40}$/;
 const BRANCH=/^p3-test-[a-f0-9-]{36}$/;
 const required={contents:'write',pull_requests:'write'};
@@ -30,7 +31,7 @@ export function createD2SandboxNormalMerge({
   typeof observeCheck==='function'&&typeof recordMerge==='function'&&
   typeof enabled==='function','INVALID_CONFIG');
  async function api(token,method,path,body){
-  need(path===API||path.startsWith(API+'/'),'URL_DENIED');
+  need(path===GRAPHQL||path===API||path.startsWith(API+'/'),'URL_DENIED');
   let result;
   try{
    result=await request(path,{method,redirect:'manual',
@@ -82,9 +83,21 @@ export function createD2SandboxNormalMerge({
   need(main?.object?.sha===info.expectedBaseSha,'MAIN_MOVED');
   const pr=await api(token,'GET',API+'/pulls/'+info.prNumber);
   verifyPR(pr,info,true);
-  // Transition draft PR to ready. GitHub itself enforces any branch rules.
-  const ready=await api(token,'POST',
-   API+'/pulls/'+info.prNumber+'/ready_for_review');
+  // GitHub exposes draft -> ready-for-review via its GraphQL mutation,
+  // NOT a REST /pulls/{number}/ready_for_review endpoint.
+  need(typeof pr.node_id==='string'&&
+   /^[A-Za-z0-9_-]{8,128}$/.test(pr.node_id),'PR_NODE_ID_DENIED');
+  const readyResult=await api(token,'POST',GRAPHQL,{
+   query:'mutation($pullRequestId:ID!){markPullRequestReadyForReview(input:{pullRequestId:$pullRequestId}){pullRequest{id number isDraft headRefOid baseRefOid}}}',
+   variables:{pullRequestId:pr.node_id},
+  });
+  const readyProof=readyResult?.data?.markPullRequestReadyForReview?.pullRequest;
+  need(!readyResult?.errors&&readyProof?.id===pr.node_id&&
+   readyProof?.number===info.prNumber&&readyProof.isDraft===false&&
+   readyProof.headRefOid===info.expectedHeadSha&&
+   readyProof.baseRefOid===info.expectedBaseSha,'READY_FOR_REVIEW_DENIED');
+  // Confirm the REST record from GitHub, not only the GraphQL mutation output.
+  const ready=await api(token,'GET',API+'/pulls/'+info.prNumber);
   verifyPR(ready,info,false);
   const afterMain=await api(token,'GET',API+'/git/ref/heads/main');
   need(afterMain?.object?.sha===info.expectedBaseSha,'MAIN_MOVED');
