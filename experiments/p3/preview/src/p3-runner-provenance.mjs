@@ -78,6 +78,30 @@ export function createP3RunnerProvenance({
    !('jku'in header)&&!('x5u'in header)&&!('jwk'in header)&&
    object(claims),'OIDC_INVALID');
   const clock=now();
+  // Authenticate the issuer-pinned GitHub RSA signature BEFORE evaluating
+  // claim scope or consulting the GitHub App. Unverified JWT claim bytes
+  // must never become a diagnostic or App trust signal.
+  let jwks;
+  try{
+   const response=await requestOidcKeys(KEYS);
+   must(response instanceof Response&&response.status===200&&!response.redirected&&
+    (!response.url||response.url===KEYS),'OIDC_KEYS_UNAVAILABLE');
+   jwks=JSON.parse(await readP3BoundedResponseText(response,32768));
+  }catch{deny('OIDC_KEYS_UNAVAILABLE');}
+  must(object(jwks)&&Array.isArray(jwks.keys)&&jwks.keys.length>0&&jwks.keys.length<=20,
+   'OIDC_KEYS_UNAVAILABLE');
+  const match=jwks.keys.filter(j=>object(j)&&j.kid===header.kid&&j.kty==='RSA'&&
+   (j.alg===undefined||j.alg==='RS256')&&(j.use===undefined||j.use==='sig')&&
+   typeof j.n==='string'&&typeof j.e==='string');
+  must(match.length===1,'OIDC_KEYS_UNAVAILABLE');
+  let valid=false;
+  try{
+   const key=await crypto.subtle.importKey('jwk',match[0],
+    {name:'RSASSA-PKCS1-v1_5',hash:'SHA-256'},false,['verify']);
+   valid=await crypto.subtle.verify('RSASSA-PKCS1-v1_5',key,sig,
+    text.encode(seg[0]+'.'+seg[1]));
+  }catch{deny('OIDC_INVALID');}
+  must(valid===true,'OIDC_INVALID');
   must(Number.isSafeInteger(clock)&&clock>0&&
    Number.isSafeInteger(claims.iat)&&Number.isSafeInteger(claims.exp)&&
    claims.iat<=clock+30&&claims.iat>=clock-600&&
@@ -105,27 +129,7 @@ export function createP3RunnerProvenance({
    validId(claims.run_id)&&validId(claims.run_attempt)&&
    Number(claims.run_attempt)<=100,
    'OIDC_SCOPE_DENIED');
-  let jwks;
-  try{
-   const response=await requestOidcKeys(KEYS);
-   must(response instanceof Response&&response.status===200&&!response.redirected&&
-    (!response.url||response.url===KEYS),'OIDC_KEYS_UNAVAILABLE');
-   jwks=JSON.parse(await readP3BoundedResponseText(response,32768));
-  }catch{deny('OIDC_KEYS_UNAVAILABLE');}
-  must(object(jwks)&&Array.isArray(jwks.keys)&&jwks.keys.length>0&&jwks.keys.length<=20,
-   'OIDC_KEYS_UNAVAILABLE');
-  const match=jwks.keys.filter(j=>object(j)&&j.kid===header.kid&&j.kty==='RSA'&&
-   (j.alg===undefined||j.alg==='RS256')&&(j.use===undefined||j.use==='sig')&&
-   typeof j.n==='string'&&typeof j.e==='string');
-  must(match.length===1,'OIDC_KEYS_UNAVAILABLE');
-  let valid=false;
-  try{
-   const key=await crypto.subtle.importKey('jwk',match[0],
-    {name:'RSASSA-PKCS1-v1_5',hash:'SHA-256'},false,['verify']);
-   valid=await crypto.subtle.verify('RSASSA-PKCS1-v1_5',key,sig,
-    text.encode(seg[0]+'.'+seg[1]));
-  }catch{deny('OIDC_INVALID');}
-  must(valid===true,'OIDC_INVALID');
+
   // GitHub App JWT and authenticated GET metadata are independent evidence.
   // Merely copying Action event JSON or a claimed numeric owner ID is not proof.
   let appToken;
