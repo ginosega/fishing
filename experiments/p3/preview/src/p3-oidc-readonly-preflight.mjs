@@ -125,8 +125,15 @@ export function createP3ReadOnlyOidcPreflight({
    'OIDC_WORKFLOW_DENIED');
   need(claim.run_id===context.runId&&
    claim.run_attempt===context.runAttempt,'OIDC_RUN_DENIED');
-  need(claim.job_workflow_ref===undefined&&
-   claim.job_workflow_sha===undefined,'OIDC_REUSABLE_DENIED');
+  // GitHub documents these as reusable-workflow claims, but the real
+  // RSA-verified owner-only hosted-run token included at least one. Never
+  // infer non-authenticity solely from presence. If GitHub supplies either,
+  // require EXACT identity with this already-pinned direct workflow; a
+  // different reusable file/ref or SHA remains forbidden.
+  need((claim.job_workflow_ref===undefined||
+    claim.job_workflow_ref===WF)&&
+   (claim.job_workflow_sha===undefined||
+    claim.job_workflow_sha===context.sha),'OIDC_REUSABLE_DENIED');
 
   // Fixed safe shape. No token, JWK, arbitrary claim, header or secret returned.
   return Object.freeze({
