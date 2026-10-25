@@ -114,6 +114,19 @@ test('P3-R09 nonmatching signed job-workflow identity cannot authorize command o
   assert.equal(x.github,0);
  }
 });
+test('P3-R10 untrusted wrong-scope JWT fails RSA before scope and App GET',async()=>{
+ const attacker=generateKeyPairSync('rsa',{modulusLength:2048}).privateKey;
+ const invalid=fixture({claims:{repository_id:'1'},key:attacker});
+ await assert.rejects(invalid.instance.verify(invalid.token),
+  e=>e instanceof P3ProvenanceError&&e.code==='OIDC_INVALID');
+ assert.equal(invalid.jwks,1);
+ assert.equal(invalid.github,0);
+ const valid=fixture({claims:{repository_id:'1'}});
+ await assert.rejects(valid.instance.verify(valid.token),
+  e=>e.code==='OIDC_SCOPE_DENIED');
+ assert.equal(valid.jwks,1);
+ assert.equal(valid.github,0);
+});
 test('P3-R03 alg none, injected JWKS URL header, tampering and bad RSA are denied',async()=>{
  const alternate=generateKeyPairSync('rsa',{modulusLength:2048});
  for(const opts of [
