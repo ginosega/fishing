@@ -7,6 +7,10 @@ import {createP3OwnerReviewPreparation,P3OwnerReviewError}
  from '../src/p3-owner-review-preparation.mjs';
 import {canonicalP3Approval,createP3OperatorApprovalVerifier}
  from '../src/p3-operator-approval.mjs';
+import {encodeP3ProofEnvelope,decodeP3ProofEnvelope}
+ from '../src/p3-proof-envelope.mjs';
+import {signP3InternalCommand} from '../src/p3-internal-command-gate.mjs';
+import {createP3AtomicSignatureVerifier} from '../src/p3-atomic-signature-verifier.mjs';
 
 const CLOCK=1800000000,OWNER=265665562,REPO=1430581407;
 const RUN={verified:true,repositoryId:REPO,ownerGitHubId:OWNER,
@@ -173,4 +177,48 @@ test('P3-H10 explicit approval signing message matches existing canonical P3-34 
  assert.equal(parsed.operatorGithubId,OWNER);
  assert.equal(parsed.idempotencyKey,KEY);
  assert.equal(parsed.bodySha256,hash(BODY));
+});
+
+test('P3-H11 unsigned review + external ECDSA + HMAC survives canonical v1 envelope into verify-only P3-34',async()=>{
+ const mockOidc=[
+  'a'.repeat(180),'b'.repeat(180),'c'.repeat(180),
+ ].join('.');
+ const review=await createP3OwnerReviewPreparation({
+  now:()=>CLOCK,
+  verifyProvenance:async jwt=>{assert.equal(jwt,mockOidc);return RUN;},
+ }).prepare({...args,oidcJwt:mockOidc});
+ const {privateKey,publicKey}=generateKeyPairSync('ec',{namedCurve:'prime256v1'});
+ const externalSigner=await crypto.subtle.importKey('jwk',privateKey.export({format:'jwk'}),
+  {name:'ECDSA',namedCurve:'P-256'},false,['sign']);
+ const ownerSignature=Buffer.from(await crypto.subtle.sign(
+  {name:'ECDSA',hash:'SHA-256'},externalSigner,
+  new TextEncoder().encode(review.signingMessage))).toString('base64url');
+ const secret='P3-40-source-only-fixture-secret-01234567890123456789';
+ const nonce='P340nonce-012345678901234567890';
+ const timestampMs=CLOCK*1000;
+ const signedHmac=await signP3InternalCommand({
+  secret,nonce,timestamp:timestampMs,body:BODY,
+ });
+ const wire=encodeP3ProofEnvelope({
+  body:BODY,oidcJwt:mockOidc,approval:JSON.parse(review.canonicalApproval),
+  operatorSignature:ownerSignature,
+  hmacSignature:signedHmac['X-P3-Signature'],
+  nonceValue:nonce,timestampMs,
+ });
+ const proof=decodeP3ProofEnvelope(wire);
+ assert.equal(proof.body,BODY);
+ assert.equal(proof.authorization.operatorSignature,ownerSignature);
+ assert.equal(proof.authorization.oidcJwt,mockOidc);
+ const verifier=createP3AtomicSignatureVerifier({
+  verifyProvenance:async jwt=>{assert.equal(jwt,mockOidc);return RUN;},
+  operatorPublicJwk:publicKey.export({format:'jwk'}),secret,
+  nowMs:()=>timestampMs,
+ });
+ const verified=await verifier.verifyAuthorization(proof);
+ assert.equal(verified.verified,true);
+ assert.equal(verified.action,'accept');
+ assert.equal(verified.bodySha256,hash(BODY));
+ assert.equal(verified.approvalId,approvalId);
+ assert.equal(verified.workflowSha,RUN.workflowSha);
+ // No D1 connection and no GitHub/Cloudflare/installation credentials exist.
 });
