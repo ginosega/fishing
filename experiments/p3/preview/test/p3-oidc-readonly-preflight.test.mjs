@@ -64,20 +64,32 @@ test('P3-OID01 GitHub-style RSA-signed immutable OIDC proof returns only safe fi
  assert.equal(x.keyCalls,1);
  assert.doesNotMatch(JSON.stringify(out),/Bearer|value|kid|claims|sig|eyJ/);
 });
-test('P3-OID02 wrong subject, audience, actor, repo, workflow and runner fail before JWKS',async()=>{
+test('P3-OID02 signed-claim mismatch categories fail closed before JWKS without values',async()=>{
  const attacks=[
-  {sub:'repo:ginosega/fishing-p3-sandbox:ref:refs/heads/main'},
-  {aud:'attacker-audience'},{repository_id:'1'},{repository_owner_id:'2'},
-  {actor_id:'99'},{repository_visibility:'public'},
-  {workflow_sha:'b'.repeat(40)},{workflow_ref:REF.replace('readonly','publish')},
-  {event_name:'pull_request'},{ref:'refs/heads/pr'},
-  {runner_environment:'self-hosted'},{job_workflow_ref:'fake/reusable.yml'},
-  {run_id:'999'},{run_attempt:'2'},{exp:CLOCK-1},{iat:CLOCK-900},
+  [{sub:'repo:ginosega/fishing-p3-sandbox:ref:refs/heads/main'},'OIDC_SUBJECT_DENIED'],
+  [{aud:'attacker-audience'},'OIDC_ISSUER_AUDIENCE_DENIED'],
+  [{iss:'https://attacker.invalid'},'OIDC_ISSUER_AUDIENCE_DENIED'],
+  [{repository_id:'1'},'OIDC_REPOSITORY_DENIED'],
+  [{repository_owner_id:'2'},'OIDC_REPOSITORY_DENIED'],
+  [{actor_id:'99'},'OIDC_ACTOR_DENIED'],
+  [{repository_visibility:'public'},'OIDC_REPOSITORY_DENIED'],
+  [{workflow_sha:'b'.repeat(40)},'OIDC_WORKFLOW_DENIED'],
+  [{workflow_ref:REF.replace('readonly','publish')},'OIDC_WORKFLOW_DENIED'],
+  [{event_name:'pull_request'},'OIDC_EXECUTION_DENIED'],
+  [{ref:'refs/heads/pr'},'OIDC_REF_DENIED'],
+  [{runner_environment:'self-hosted'},'OIDC_EXECUTION_DENIED'],
+  [{job_workflow_ref:'fake/reusable.yml'},'OIDC_REUSABLE_DENIED'],
+  [{run_id:'999'},'OIDC_RUN_DENIED'],
+  [{run_attempt:'2'},'OIDC_RUN_DENIED'],
+  [{exp:CLOCK-1},'OIDC_TIME_DENIED'],
+  [{iat:CLOCK-900},'OIDC_TIME_DENIED'],
  ];
  const x=fixture();
- for(const change of attacks)
+ for(const [change,code] of attacks)
   await assert.rejects(x.verifier.verify(jwt(change),context),
-   e=>e.code==='OIDC_SCOPE_DENIED');
+   e=>e.code===code&&e.message==='P3 read-only OIDC preflight denied'&&
+    !JSON.stringify(e).includes('attacker-audience')&&
+    !JSON.stringify(e).includes('refs/heads/pr'));
  assert.equal(x.keyCalls,0);
 });
 test('P3-OID03 untrusted runtime context fails before JWKS and any cryptography',async()=>{
