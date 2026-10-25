@@ -154,12 +154,14 @@ test('P3-OID07 no GitHub Actions environment permission means ZERO HTTP',async()
   assert.equal(requested,0);
  }
 });
-test('P3-OID08 only trusted regional GitHub pipelines hosts permitted for token request',async()=>{
+test('P3-OID08 only HTTPS GitHub-owned actions subdomains permitted for token request',async()=>{
  for(const input of [
   'http://pipelines.actions.githubusercontent.com/fixture',
   'https://pipelines.actions.githubusercontent.com.evil.test/fixture',
   'https://pipelines.attacker.example/fixture',
-  'https://pipelines-evil.actions.githubusercontent.com/fixture',
+  'https://pipelines.attacker.actions.githubusercontent.com.evil.test/fixture',
+  'https://actions.githubusercontent.com/fixture',
+  'https://fakeactions.githubusercontent.com/fixture',
   'https://pipelines1.actions.githubusercontent.com.evil/fixture',
   'https://evil.example/fixture',
   'https://user:pass@pipelines.actions.githubusercontent.com/fixture',
@@ -168,11 +170,11 @@ test('P3-OID08 only trusted regional GitHub pipelines hosts permitted for token 
   await assert.rejects(runP3OidcReadOnlyProbe({
    env:{...env,ACTIONS_ID_TOKEN_REQUEST_URL:input},
    now:()=>CLOCK,fetchImpl:async()=>{requested++;throw Error('leak')},
-  }),e=>e.code==='OIDC_ENDPOINT_DENIED');
+  }),e=>/^OIDC_ENDPOINT_(HOST_DENIED|INSECURE|COMPONENT_DENIED|PATH_DENIED)$/.test(e.code));
   assert.equal(requested,0);
  }
 });
-test('P3-OID11 trusted regional GitHub pipeline host works with signed RSA token',async()=>{
+test('P3-OID11 trusted regional GitHub actions subdomain works with signed RSA token',async()=>{
  const regional='https://pipelinesghubeus6.actions.githubusercontent.com/fixture/request?api-version=2.0';
  const calls=[],output=[];
  const result=await runP3OidcReadOnlyProbe({
@@ -195,6 +197,39 @@ test('P3-OID11 trusted regional GitHub pipeline host works with signed RSA token
  assert.equal(calls[1].hasAuthorization,false);
  assert.equal(output.length,1);
  assert.match(output[0],/^PASS: GitHub RSA-signed OIDC/);
+});
+test('P3-OID12 GitHub-owned non-pipelines service hostname is permitted without weakening JWT checks',async()=>{
+ const endpoint='https://vstoken.actions.githubusercontent.com/_apis/oidc/token?api-version=2.0';
+ const calls=[];
+ const result=await runP3OidcReadOnlyProbe({
+  env:{...env,ACTIONS_ID_TOKEN_REQUEST_URL:endpoint},now:()=>CLOCK,
+  fetchImpl:async(url,opts)=>{
+   calls.push(url);
+   if(url.startsWith(endpoint))return new Response(JSON.stringify({value:jwt()}),{
+    headers:{'Content-Type':'application/json'}});
+   assert.equal(url,JWKS);
+   return new Response(JSON.stringify({keys:[jwk]}),{
+    headers:{'Content-Type':'application/json'}});
+  },
+ });
+ assert.equal(result.verified,true);assert.equal(calls.length,2);
+});
+test('P3-OID13 URL denial codes are fixed and reveal no endpoint or credentials',async()=>{
+ for(const [url,expected] of [
+  ['notaurl','OIDC_ENDPOINT_MALFORMED'],
+  ['http://pipelines.actions.githubusercontent.com/token','OIDC_ENDPOINT_INSECURE'],
+  ['https://evil.example/token','OIDC_ENDPOINT_HOST_DENIED'],
+  ['https://user:password@pipelines.actions.githubusercontent.com/token','OIDC_ENDPOINT_COMPONENT_DENIED'],
+  ['https://pipelines.actions.githubusercontent.com/#fragment','OIDC_ENDPOINT_COMPONENT_DENIED'],
+  ['https://pipelines.actions.githubusercontent.com/','OIDC_ENDPOINT_PATH_DENIED'],
+ ]){
+  let fetchCalls=0;
+  await assert.rejects(runP3OidcReadOnlyProbe({
+   env:{...env,ACTIONS_ID_TOKEN_REQUEST_URL:url},now:()=>CLOCK,
+   fetchImpl:async()=>{fetchCalls++;throw Error('NO_NETWORK')},
+  }),e=>e.code===expected&&!e.message.includes(url));
+  assert.equal(fetchCalls,0);
+ }
 });
 test('P3-OID09 token provider rejects redirection, non-200, overlong or invalid body',async()=>{
  for(const bad of [
