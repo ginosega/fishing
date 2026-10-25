@@ -1,0 +1,65 @@
+# FISH118 P3-37 — PROPOSAL FOR OWNER REVIEW. NOT AN INSTALLED WORKFLOW.
+# This file is in the PUBLIC repository's experiments/design directory.
+# DO NOT install in private .github/workflows without a separate explicit owner
+# approval. DO NOT dispatch or touch App, Cloudflare, D1 or publishing state.
+# 
+# Before any separately approved installation, replace the 40-zero source SHA
+# with a specific reviewed, immutable ginosega/fishing commit. The deliberate
+# zero pin makes the unmodified proposal fail before requesting ANY OIDC JWT.
+#
+# Private target path if separately approved:
+# .github/workflows/fishing-p3-oidc-readonly.yml
+name: Fishing P3 read-only GitHub OIDC preflight (PROPOSED)
+on:
+  workflow_dispatch:
+permissions: {}
+concurrency:
+  group: fishing-p3-oidc-readonly-manual
+  cancel-in-progress: false
+jobs:
+  oidc-only:
+    if: >-
+      ${{ github.event_name == 'workflow_dispatch'
+          && github.repository == 'ginosega/fishing-p3-sandbox'
+          && github.repository_id == 1430581407
+          && github.actor_id == 265665562
+          && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      P3_OIDC_PREFLIGHT_ENABLED: 'true'
+      P3_PROBE_SOURCE_COMMIT: '0000000000000000000000000000000000000000'
+    steps:
+      - name: Checkout exact reviewed public source (credentials not persisted)
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: ginosega/fishing
+          ref: '0000000000000000000000000000000000000000'
+          path: reviewed
+          persist-credentials: false
+      - name: Deny unreviewed source and unexpected runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$P3_PROBE_SOURCE_COMMIT" != '0000000000000000000000000000000000000000' ]] || exit 1
+          [[ "$(git -C reviewed rev-parse HEAD)" == "$P3_PROBE_SOURCE_COMMIT" ]] || exit 1
+          [[ "$GITHUB_EVENT_NAME" == 'workflow_dispatch' && "$GITHUB_REF" == 'refs/heads/main' ]] || exit 1
+          [[ "$GITHUB_REPOSITORY" == 'ginosega/fishing-p3-sandbox' ]] || exit 1
+          [[ "$GITHUB_REPOSITORY_ID" == '1430581407' && "$GITHUB_ACTOR_ID" == '265665562' ]] || exit 1
+          node --version
+      - name: Verify live GitHub-signed OIDC locally without disclosing JWT
+        shell: bash
+        run: |
+          set -euo pipefail
+          node reviewed/experiments/p3/preview/src/p3-oidc-readonly-cli.mjs
+# DENIAL RULES:
+# - Manual dispatch only, private main, exact actor/repository numeric IDs.
+# - No checkout of untrusted PR head, unpinned action, mutable public branch,
+#   shared reusable workflow, publishing credential or self-hosted runner.
+# - No environment or secret values copied to output or GITHUB_OUTPUT.
+# - Never run github/actions-oidc-debugger, print OIDC token or raw claims.
+# - No App JWT/installation token, Cloudflare credential, D1 binding, publishing.
+# - Separate permission for install and later manual dispatch is required.
