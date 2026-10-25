@@ -85,9 +85,10 @@ export function createD2SandboxOperationRunner({
     check.baseSha===info.expectedBaseSha&&
     check.actionsAppId===15368&&
     check.checkName==='validate-sandbox-head'&&
-    check.checkObserved==='success'&&okNumber(check.checkRunId),
+    check.checkObserved==='success'&&okNumber(check.checkRunId)&&
+    okNumber(check.workflowRunId),
     'CHECK_UNVERIFIED');
-   return advance('Merging');
+   return advance('Merging',{workflowRunId:check.workflowRunId});
   }
   if(state==='Merging'){
    // First persist a D1 write-ahead merge marker. Even if the process
