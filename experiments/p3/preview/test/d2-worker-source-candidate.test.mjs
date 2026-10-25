@@ -72,7 +72,7 @@ test('D2-S01 real PWA promoter yields one validated Gear/gear.json write with ex
  assert.equal(plan.repositoryId,ID);
  assert.equal(plan.sourceRevision,MAIN);
  assert.equal(plan.changes.length,1);
- assert.equal(plan.changes[0].path,'Gear/gear.json');
+ assert.equal(plan.changes[0].path,'pwa/Gear/gear.json');
  const next=JSON.parse(plan.changes[0].body);
  assert.equal(next.items.length,1);
  assert.equal(next.items[0].name,'P3 Test Rod Updated');
