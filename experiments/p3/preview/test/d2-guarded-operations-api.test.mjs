@@ -92,7 +92,7 @@ test('D2-G03 default-off write returns 503 and creates no D1 operation or source
   csrf:await x.token(),
  }));
  assert.equal(r.status,503);
- assert.deepEqual(await r.json(),{ok:false,error:'DISABLED'});
+ assert.deepEqual(await r.json(),{ok:false,error:'TEMPORARILY_UNAVAILABLE'});
  assert.equal(x.count(),0);
  assert.equal(x.validatorCalls,0);
 });
