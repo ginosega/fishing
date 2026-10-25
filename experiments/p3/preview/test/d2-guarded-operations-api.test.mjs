@@ -11,7 +11,7 @@ const RAW='a'.repeat(43),OTHER='b'.repeat(43);
 const KEY='future-server-only-csrf-key-do-not-use-in-production-12345678';
 const IDEM='d2-source-only-gear-edit-123456';
 const sample={package:{
- format:'fishing-companion-change-v2',domain:'gear',operation:'edit',id:'sample',
+ format:'fishing-companion-change-v2',domain:'gear',operation:'edit',id:'p3-test-rod',
  base:{schemaVersion:2,sourceRevision:'f'.repeat(40),recordHash:'e'.repeat(64)},
  changes:{set:{name:'Updated rod'},unset:[],baseFields:{name:'Original rod'}},
  notes:{action:'keep'},picture:{action:'keep'},pictureSequence:{action:'keep'},
@@ -243,7 +243,8 @@ test('D2-G13 same idempotency key with changed canonical content conflicts witho
  const initial=await x.api.handle(x.request('POST','/api/v3/operations',{csrf}));
  assert.equal(initial.status,202);
  const changed=JSON.stringify({idempotencyKey:IDEM,snapshot:{
-  package:{...sample.package,id:'different-gear'},media:[],
+  package:{...sample.package,changes:{...sample.package.changes,
+   set:{name:'A different rod title'}}},media:[],
  }});
  const r=await x.api.handle(x.request('POST','/api/v3/operations',{csrf,body:changed}));
  assert.equal(r.status,409);
