@@ -64,7 +64,7 @@ test('P3-OID01 GitHub-style RSA-signed immutable OIDC proof returns only safe fi
  assert.equal(x.keyCalls,1);
  assert.doesNotMatch(JSON.stringify(out),/Bearer|value|kid|claims|sig|eyJ/);
 });
-test('P3-OID02 signed-claim mismatch categories fail closed before JWKS without values',async()=>{
+test('P3-OID02 signed-claim mismatch categories follow verified GitHub RSA without leaking values',async()=>{
  const attacks=[
   [{sub:'repo:ginosega/fishing-p3-sandbox:ref:refs/heads/main'},'OIDC_SUBJECT_DENIED'],
   [{aud:'attacker-audience'},'OIDC_ISSUER_AUDIENCE_DENIED'],
@@ -90,7 +90,7 @@ test('P3-OID02 signed-claim mismatch categories fail closed before JWKS without 
    e=>e.code===code&&e.message==='P3 read-only OIDC preflight denied'&&
     !JSON.stringify(e).includes('attacker-audience')&&
     !JSON.stringify(e).includes('refs/heads/pr'));
- assert.equal(x.keyCalls,0);
+ assert.equal(x.keyCalls,attacks.length);
 });
 test('P3-OID03 untrusted runtime context fails before JWKS and any cryptography',async()=>{
  const x=fixture();
