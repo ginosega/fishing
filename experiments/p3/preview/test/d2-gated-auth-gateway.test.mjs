@@ -81,12 +81,35 @@ test('D2-W04 fake write switch without fixed repo or credentials cannot accept o
  }
  assert.equal(count(),0);
 });
-test('D2-W05 old P1 test harness/unknown runtime paths never become public routes',async()=>{
- for(const path of ['/','/sw.js','/test-client.js','/test.css',
-  '/_internal/verify-sandbox','/api/v3/merge','/api/v3/dispatch']){
+test('D2-W05 the existing AUTH-P0 landing/test pages survive a guarded D2 rollout',async()=>{
+ const before=calls.length;
+ for(const path of ['/','/test-client.js','/test.css']){
+  const r=await worker.fetch(req(path),env);
+  assert.equal(r.status,209);
+ }
+ assert.deepEqual(calls.slice(before),[
+  'auth:/','auth:/test-client.js','auth:/test.css',
+ ]);
+ for(const path of ['/sw.js','/_internal/verify-sandbox',
+  '/api/v3/merge','/api/v3/dispatch']){
   const r=await worker.fetch(req(path),env);
   assert.equal(r.status,404);
  }
+});
+test('D2-W09 read-only AUTH-P0 session remains usable before D2 bindings; write remains blocked',async()=>{
+ const reduced={...env,OPERATIONS_DB:undefined,D2_CSRF_KEY:undefined};
+ const before=calls.length;
+ const r=await worker.fetch(req('/session'),reduced);
+ assert.equal(r.status,209);
+ assert.deepEqual(calls.slice(before),['auth:/session']);
+ const denied=await worker.fetch(req('/api/v3/operations',{
+  method:'POST',body:'{}',
+ }),reduced);
+ assert.equal(denied.status,503);
+ const enabled=await worker.fetch(req('/session'),{
+  ...reduced,D2_WRITE_ENABLED:'true',
+ });
+ assert.equal(enabled.status,503);
 });
 test('D2-W06 public Pages path is forwarded only to P1 byte-preserving proxy',async()=>{
  const before=calls.length;
