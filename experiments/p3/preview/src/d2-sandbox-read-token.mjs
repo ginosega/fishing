@@ -8,6 +8,9 @@ import {appJwt} from './github-app-readonly.mjs';
 const ID=1430581407,REPO='ginosega/fishing-p3-sandbox';
 const API='https://api.github.com';
 const grant={checks:'read',contents:'write',metadata:'read',pull_requests:'write'};
+const CONTENT_READ={contents:'read'};
+const CHECK_READ={checks:'read',contents:'read',pull_requests:'read'};
+const safeScope=p=>same(p,CONTENT_READ)?CONTENT_READ:same(p,CHECK_READ)?CHECK_READ:null;
 export class D2TokenError extends Error{
  constructor(code){super('D2 sandbox read token denied');this.name='D2TokenError';this.code=code;}
 }
@@ -43,7 +46,8 @@ export function createD2SandboxReadTokenIssuer({
  }
  async function issueReadToken({repositoryId,permissions}={}){
   ok(enabled()===true,'READ_TOKENS_DISABLED');
-  ok(repositoryId===ID&&same(permissions,{contents:'read'}),'READ_SCOPE_DENIED');
+  const subset=safeScope(permissions);
+  ok(repositoryId===ID&&subset,'READ_SCOPE_DENIED');
   ok(numId(env?.D2_GITHUB_APP_ID)&&numId(env?.D2_GITHUB_INSTALLATION_ID)&&
    typeof env?.D2_GITHUB_APP_PRIVATE_KEY==='string'&&
    env.D2_GITHUB_APP_PRIVATE_KEY.length>32,'MISSING_SERVER_KEY');
@@ -61,13 +65,13 @@ export function createD2SandboxReadTokenIssuer({
   ok(target?.id===inst.id&&target.app_id===inst.app_id&&
    target.account?.login==='ginosega','TARGET_DENIED');
   const issued=await api(jwt,API+'/app/installations/'+inst.id+'/access_tokens',
-   'POST',{repository_ids:[ID],permissions:{contents:'read'}});
+   'POST',{repository_ids:[ID],permissions:subset});
   ok(typeof issued?.token==='string'&&issued.token.length>=12&&
-   same(issued.permissions,{contents:'read'})&&
+   same(issued.permissions,subset)&&
    Array.isArray(issued.repositories)&&issued.repositories.length===1&&
    issued.repositories[0]?.id===ID&&
    issued.repositories[0]?.full_name===REPO,'TOKEN_DENIED');
-  return {repositoryId:ID,permissions:{contents:'read'},token:issued.token};
+  return {repositoryId:ID,permissions:{...subset},token:issued.token};
  }
  return Object.freeze({issueReadToken});
 }
