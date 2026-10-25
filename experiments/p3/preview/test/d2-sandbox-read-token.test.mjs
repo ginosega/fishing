@@ -29,12 +29,15 @@ function setup({enabled=false,permissions=grants,wrongRepo=false,
    });
    if(url===API+'/app/installations/99/access_tokens'){
     assert.equal(opt.method,'POST');
-    assert.deepEqual(JSON.parse(opt.body),{
-     repository_ids:[ID],permissions:{contents:'read'},
-    });
+    const requested=JSON.parse(opt.body);
+    assert.deepEqual(requested.repository_ids,[ID]);
+    const allowed=[{contents:'read'},{contents:'read',pull_requests:'read',checks:'read'}];
+    assert(allowed.some(v=>JSON.stringify(Object.keys(v).sort())===
+     JSON.stringify(Object.keys(requested.permissions).sort())&&
+     Object.keys(v).every(k=>v[k]===requested.permissions[k])));
     return response({
      token:'restricted-read-token-example',
-     permissions:wrongIssued?{contents:'write'}:{contents:'read'},
+     permissions:wrongIssued?{contents:'write'}:requested.permissions,
      repositories:[{id:ID,full_name:REPO}],
     });
    }
@@ -84,4 +87,15 @@ test('D2-T04 public repo or write token scopes fail before any App signing',asyn
   await assert.rejects(x.subject.issueReadToken(request),error('READ_SCOPE_DENIED'));
   assert.equal(x.trace.length,0);
  }
+});
+
+test('D2-T05 exact checks, contents and PR-read grant for trusted CI observer is permitted',async()=>{
+ const x=setup({enabled:true});
+ const scope={checks:'read',contents:'read',pull_requests:'read'};
+ const result=await x.subject.issueReadToken({
+  repositoryId:ID,permissions:scope,
+ });
+ assert.deepEqual(result.permissions,scope);
+ assert.equal(result.repositoryId,ID);
+ assert.equal(x.trace.filter(z=>z.method==='POST').length,1);
 });
