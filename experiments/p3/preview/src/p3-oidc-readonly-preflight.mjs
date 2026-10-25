@@ -73,10 +73,33 @@ export function createP3ReadOnlyOidcPreflight({
    !('jwk'in header)&&!('jku'in header)&&!('x5u'in header),
    'OIDC_INVALID');
   const clock=now();
-  // Every category is a fixed, nonsecret denial code. Do not print any
-  // unsigned JWT claim value, token, JWK, URL, header, or provider message.
-  // These shape checks do NOT authenticate the payload: a PASS still requires
-  // exact-kid RSA signature verification against GitHub's issuer JWKS below.
+  // Authenticate JWT with GitHub issuer-pinned JWKS BEFORE emitting any
+  // claim-group diagnostic. Nothing short of a valid RSA signature permits
+  // the claim-mismatch code to be treated as genuine provider evidence.
+  let jwks;
+  try{
+   const r=await requestKeys(JWKS);
+   need(r instanceof Response&&r.status===200&&!r.redirected&&
+    (!r.url||r.url===JWKS),'JWKS_UNAVAILABLE');
+   jwks=JSON.parse(await readP3BoundedResponseText(r,32768));
+  }catch{reject('JWKS_UNAVAILABLE');}
+  need(record(jwks)&&Array.isArray(jwks.keys)&&
+   jwks.keys.length>0&&jwks.keys.length<=20,'JWKS_UNAVAILABLE');
+  const selected=jwks.keys.filter(j=>record(j)&&j.kty==='RSA'&&
+   j.kid===header.kid&&(j.alg===undefined||j.alg==='RS256')&&
+   (j.use===undefined||j.use==='sig')&&
+   typeof j.n==='string'&&typeof j.e==='string');
+  need(selected.length===1,'JWKS_UNAVAILABLE');
+  let valid=false;
+  try{
+   const key=await crypto.subtle.importKey('jwk',selected[0],
+    {name:'RSASSA-PKCS1-v1_5',hash:'SHA-256'},false,['verify']);
+   valid=await crypto.subtle.verify('RSASSA-PKCS1-v1_5',key,
+    signature,enc.encode(parts[0]+'.'+parts[1]));
+  }catch{reject('OIDC_INVALID');}
+  need(valid===true,'OIDC_INVALID');
+  // Category denials now derive ONLY from an RSA-verified GitHub token.
+  // Still emit fixed codes alone; never return claim values or keys.
   need(Number.isSafeInteger(clock)&&clock>0&&
    Number.isSafeInteger(claim.iat)&&Number.isSafeInteger(claim.exp)&&
    claim.iat<=clock+30&&claim.iat>=clock-600&&
@@ -104,28 +127,7 @@ export function createP3ReadOnlyOidcPreflight({
    claim.run_attempt===context.runAttempt,'OIDC_RUN_DENIED');
   need(claim.job_workflow_ref===undefined&&
    claim.job_workflow_sha===undefined,'OIDC_REUSABLE_DENIED');
-  let jwks;
-  try{
-   const r=await requestKeys(JWKS);
-   need(r instanceof Response&&r.status===200&&!r.redirected&&
-    (!r.url||r.url===JWKS),'JWKS_UNAVAILABLE');
-   jwks=JSON.parse(await readP3BoundedResponseText(r,32768));
-  }catch{reject('JWKS_UNAVAILABLE');}
-  need(record(jwks)&&Array.isArray(jwks.keys)&&
-   jwks.keys.length>0&&jwks.keys.length<=20,'JWKS_UNAVAILABLE');
-  const selected=jwks.keys.filter(j=>record(j)&&j.kty==='RSA'&&
-   j.kid===header.kid&&(j.alg===undefined||j.alg==='RS256')&&
-   (j.use===undefined||j.use==='sig')&&
-   typeof j.n==='string'&&typeof j.e==='string');
-  need(selected.length===1,'JWKS_UNAVAILABLE');
-  let valid=false;
-  try{
-   const key=await crypto.subtle.importKey('jwk',selected[0],
-    {name:'RSASSA-PKCS1-v1_5',hash:'SHA-256'},false,['verify']);
-   valid=await crypto.subtle.verify('RSASSA-PKCS1-v1_5',key,
-    signature,enc.encode(parts[0]+'.'+parts[1]));
-  }catch{reject('OIDC_INVALID');}
-  need(valid===true,'OIDC_INVALID');
+
   // Fixed safe shape. No token, JWK, arbitrary claim, header or secret returned.
   return Object.freeze({
    verified:true,repositoryId:ID,ownerGitHubId:OWNER,
