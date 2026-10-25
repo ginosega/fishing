@@ -1,4 +1,11 @@
 # FISH118 — Finite Fishing Companion V3 Delivery Reset
+
+## D1 architecture reconciliation — October 25, 2026
+
+**D1 design and source-port contract prepared** after the owner's approval to proceed. See [D1 V3 architecture consolidation](D1_V3_Architecture_Consolidation_2026-10-25.md). The selected minimum architecture is **one owner-facing same-origin Cloudflare gateway**, the already accepted OAuth session model, a strict session+CSRF write boundary, **server-side-only Cloudflare App-PEM custody if later authorized**, ID-scoped GitHub App tokens, immutable repo/policy checks, canonical source-aware validation and durable D1 status, without per-item owner ECDSA/attestor signatures. GitHub Apps/Workers/D1 writes remain disabled in real provider environments; no publication was attempted. The current public-main ruleset requires one PR, strict `fishing-merge-ready` status from GitHub Actions integration 15368, **zero ordinary approvals**, and no bypass; private-sandbox rule/protection and currently effective dedicated App grants require authorized D2 verification. The P1 and P3 session formats are different and **must be unified before the first owner-authorized write**.
+
+**Next:** D2 first source-only API/session/CSRF/operation implementation and adversarial tests; **separate consequential owner approval before installing App PEM, enabling sandbox write routes, or executing the first true nonproduction publish**. The six D1–D6 delivery names and approved V3 UX remain fixed. This checkpoint is not V3 release acceptance.
+
 **Assessment date:** October 25, 2026 PDT · **Status:** Proposed delivery rebaseline for owner review; planning-only change · **Workstream:** existing FISH-TODO-118
 
 ## Executive decision
