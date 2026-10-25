@@ -22,7 +22,7 @@ export function createD2SandboxOperationRunner({
  store,currentMain,createDraft,observeCheck,merge,verifyHosted,
  enabled=()=>false,
 }={}){
- need(['claim','get','advance','readSnapshot'].every(x=>typeof store?.[x]==='function')&&
+ need(['claim','get','advance','readSnapshot','markMergeAttempt'].every(x=>typeof store?.[x]==='function')&&
   [currentMain,createDraft,observeCheck,merge,verifyHosted,enabled]
    .every(x=>typeof x==='function'),'INVALID_CONFIG');
  async function run({operationId,leaseOwner}={}){
@@ -90,8 +90,13 @@ export function createD2SandboxOperationRunner({
    return advance('Merging');
   }
   if(state==='Merging'){
-   // A failure or timeout of merge is UNKNOWN until read-only reconciliation,
-   // not permission to retry PUT or mark the operation Live.
+   // First persist a D1 write-ahead merge marker. Even if the process
+   // crashes before or during a GitHub call, the next worker must NOT
+   // issue another remote mutation. Only read-only reconciliation may
+   // determine whether that first attempt was already applied.
+   need(record.reasonCode==null,'MERGE_RECONCILIATION_REQUIRED');
+   const marked=await store.markMergeAttempt({operationId,leaseOwner});
+   need(marked===true,'MERGE_RECONCILIATION_REQUIRED');
    const result=await merge({...info,operationId,leaseOwner});
    need(result?.sandboxMerged===true&&
     result.repositoryId===ID&&
