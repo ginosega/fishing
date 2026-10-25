@@ -125,8 +125,14 @@ test('D2-W06 public Pages path is forwarded only to P1 byte-preserving proxy',as
 test('D2-W07 unknown host and missing CSRF runtime secret deny without proxy leaks',async()=>{
  const r=await worker.fetch(req('/session',{origin:'https://attacker.example'}),env);
  assert.equal(r.status,404);
+ // During the hard-off rollout, the existing AUTH-P0 status remains live.
  const missing=await worker.fetch(req('/session'),{...env,D2_CSRF_KEY:null});
- assert.equal(missing.status,503);
+ assert.equal(missing.status,209);
+ // Once publishing is armed, missing CSRF is a hard denial (never fallback).
+ const armed=await worker.fetch(req('/session'),{
+  ...env,D2_CSRF_KEY:null,D2_WRITE_ENABLED:'true',
+ });
+ assert.equal(armed.status,503);
  assert.equal(count(),0);
 });
 test('D2-W08 source code has no dispatch handler, installation key or active write default',()=>{
