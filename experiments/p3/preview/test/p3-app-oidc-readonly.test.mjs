@@ -172,6 +172,18 @@ test('P3-C08 code offers no default fetch, installation-token minting or write t
  assert.match(src,/options\?\.method==='GET'/);
  assert.match(src,/P3_WRITE_ENABLED==='false'/);
 });
+test('P3-C09 proposed combined workflow is inert, has no secrets, and cannot dispatch publisher',()=>{
+ const p=readFileSync(new URL(
+  '../design/fishing-p3-oidc-app-readonly.workflow.PROPOSED.yml',import.meta.url),'utf8');
+ assert.match(p,/workflow_dispatch:/);
+ assert.match(p,/permissions: \{\}/);
+ assert.match(p,/contents: read/);
+ assert.match(p,/id-token: write/);
+ assert.match(p,/exit 1/);
+ assert.match(p,/github.actor_id == 265665562/);
+ assert.doesNotMatch(p,/\$\{\{\s*secrets\.|on:\s*pull_request|\n\s*push:|\n\s*schedule:/);
+ assert.doesNotMatch(p,/\/access_tokens|wrangler deploy|gh pr merge|git push/);
+});
 function readFile(){
  return readFileSync(new URL('../src/p3-app-oidc-readonly.mjs',import.meta.url),'utf8');
 }
