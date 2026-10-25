@@ -16,6 +16,22 @@
 
 No Cloudflare deployment occurred in P3-29 preparation; both ingress URL switches remain OFF per last owner confirmation. The static Hello World code remains installed in the ingress Worker until an explicitly authorized deployment. Its current code and binding status have not been remotely reverified through the new per-ingress Worker token yet; this is what the preflight will establish, together with the current routing metadata. Do not claim independent remote code byte verification from Worker settings.
 
+## Real preflight reconciliation — October 24, 2026 (PDT)
+
+Owner created a **separate**, ingress-Worker-scoped Cloudflare Account API token (`Individual Workers Editor` only for `fishing-p3-access-ingress-sandbox`), stored it exclusively in the private sandbox Actions secret `P3_INGRESS_WORKER_CLOUDFLARE_TOKEN`, and manually dispatched the read-only `preflight` workflow.
+
+Independently inspected [private GitHub Actions run #40165050989](https://github.com/ginosega/fishing-p3-sandbox/actions/runs/40165050989) on sandbox main `2c766e3e376d13311766e854bd4bf30662212caf`, job #121084287196, **completed/success**. The actual logs show:
+
+- All **9 fail-closed P3 ingress guard tests passed**. The deliberately refused deployment mode and simulated postflight text printed *during tests* are not real mutation or proof of a deployed disabled ingress.
+- `PASS: Exact immutable source blob; only static 503 ingress handler`: pinned canonical source commit `5df060076ca3cd010727fc9162b33bf03c157790` and Git blob `8f28f4e1d610fe549388308223bf3e6aa58af1a7`.
+- `PASS: Exact ingress Worker metadata, expected preflight bindings; Production and Preview URLs disabled`: live metadata confirmed the exact pre-existing Worker has **zero** bindings; neither Production nor Preview URL is enabled.
+- `PASS: Exact Access app, hostname, service token and exclusive Service Auth policy`: fresh independent API metadata proof of the exact restricted Access application.
+- `PASS: Read-only P3-29 preflight: no Worker deployments, config changes, D1 or GitHub publishing`.
+
+**P3-29 read-only preflight PASSED.** The remote Worker still runs its pre-existing Hello World code until a distinct, *separately approved* hard-disabled deployment. Neither the Worker script's remote bytes nor token's actual deployment permission were proven by this metadata preflight, and no live endpoint test occurred. Do not infer deployment from successful preflight. Both URLs remain OFF as verified by Cloudflare metadata during this run.
+
+**Next distinct gate:** independently review and authorize a one-time, manually confirmed deployment of the precise static 503 ingress source to **only** `fishing-p3-access-ingress-sandbox`, with `workers_dev:false`, `preview_urls:false`, only three plain-text `false` vars, no D1, service binding, or secret, and an immediate independent read-only postflight. Do not reuse previous command Worker incident's deprecated-ID workaround or automatically retry after a partial-success deploy. No active JWT/command ingress code or production application change is in scope.
+
 ## Deployment safety contract
 
 Pre-existing Worker: `fishing-p3-access-ingress-sandbox`, no other Worker. It already exists as an isolated Cloudflare Hello World starter per owner screenshots, both Production/Preview URLs OFF, with no custom domain, route, cron, D1, service or other binding. Guarded Wrangler JSON config for this *disabled-only stage* must contain:
