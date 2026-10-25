@@ -10,7 +10,7 @@
  */
 import {D2SessionError} from './d2-unified-owner-session.mjs';
 import {DurableStoreError} from './d1-operation-store.mjs';
-import {validatePackage} from '../../../pwa/src/handoff.mjs';
+import {validatePackage} from '../../../../pwa/src/handoff.mjs';
 const ORIGIN_ID=1430581407,MAX=16*1024;
 const utf8=new TextEncoder();
 const token=/^[A-Za-z0-9_-]{12,96}$/;
