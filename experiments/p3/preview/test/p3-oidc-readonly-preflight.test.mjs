@@ -92,6 +92,33 @@ test('P3-OID02 signed-claim mismatch categories follow verified GitHub RSA witho
     !JSON.stringify(e).includes('refs/heads/pr'));
  assert.equal(x.keyCalls,attacks.length);
 });
+test('P3-OID14 signed job-workflow identity claims may appear only when exact approved file and SHA match',async()=>{
+ const cases=[
+  {job_workflow_ref:REF},
+  {job_workflow_sha:SHA},
+  {job_workflow_ref:REF,job_workflow_sha:SHA},
+ ];
+ const x=fixture();
+ for(const attrs of cases){
+  const result=await x.verifier.verify(jwt(attrs),context);
+  assert.equal(result.verified,true);
+  assert.equal(result.workflowSha,SHA);
+ }
+ assert.equal(x.keyCalls,cases.length);
+});
+test('P3-OID15 wrong signed job-workflow ref or commit always denies after RSA validation',async()=>{
+ const cases=[
+  {job_workflow_ref:REF.replace('oidc-readonly','publisher')},
+  {job_workflow_sha:'b'.repeat(40)},
+  {job_workflow_ref:REF,job_workflow_sha:'b'.repeat(40)},
+  {job_workflow_ref:REF.replace('refs/heads/main','refs/heads/feature'),job_workflow_sha:SHA},
+ ];
+ const x=fixture();
+ for(const attrs of cases)
+  await assert.rejects(x.verifier.verify(jwt(attrs),context),
+   e=>e.code==='OIDC_REUSABLE_DENIED'&&e.message==='P3 read-only OIDC preflight denied');
+ assert.equal(x.keyCalls,cases.length);
+});
 test('P3-OID03 untrusted runtime context fails before JWKS and any cryptography',async()=>{
  const x=fixture();
  for(const altered of [
