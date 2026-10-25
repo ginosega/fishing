@@ -108,6 +108,18 @@ test('P3-I07 ingress never propagates unexpected downstream response bodies',asy
  assert.doesNotMatch(await result.text(),/PRIVATE PROVIDER SECRET/);
  x.f.sql.close();
 });
+test('P3-I09 forged small Content-Length cannot bypass 1 KiB upstream stream bound',async()=>{
+ const x=fixture({enable:true});
+ x.env.P3_COMMAND_SERVICE={fetch:async()=>new Response(
+  new Uint8Array(2048).fill(65),{status:202,headers:{
+   'Content-Type':'application/json','Content-Length':'1',
+  }})};
+ const result=await x.ingress.fetch(await x.request());
+ assert.equal(result.status,503);
+ assert.doesNotMatch(await result.text(),/PRIVATE PROVIDER SECRET/);
+ assert.equal(x.count('p3_command_nonces'),0);
+ x.f.sql.close();
+});
 test('P3-I08 ingress has no global fetch or Worker deployment path, deployed sentinel unchanged',()=>{
  const ingress=readFileSync(new URL('../src/p3-access-ingress.mjs',import.meta.url),'utf8');
  const sentinel=readFileSync(new URL('../src/p3-disabled-bridge-worker.mjs',import.meta.url),'utf8');
