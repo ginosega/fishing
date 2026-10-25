@@ -62,3 +62,14 @@ test('D2-B03 wrong state and missing repo receipts cannot mark a remote write',a
   operationId:record.operationId,leaseOwner:ID}),false);
  assert.equal((await store.get(record.operationId)).reasonCode,null);
 });
+
+test('D2-B04 scheduler selects only eligible unleased work and skips unknown remote merge',async()=>{
+ const {x,store,operationId}=await atMerge();
+ assert.equal(await store.nextEligible(),null); // Merging lease is active
+ assert.equal(await store.markMergeAttempt({operationId,leaseOwner:ID}),true);
+ x.clock(31);
+ assert.equal(await store.nextEligible(),null); // Explicit unknown write gate
+ const resumed=await store.claim({operationId,leaseOwner:'second-worker-012345'});
+ assert.equal(resumed.state,'Merging');
+ assert.equal(await store.nextEligible(),null);
+});
