@@ -94,8 +94,9 @@ export function createP3OperatorApproval({
   try{consumed=await consumeApproval({
    approvalId:approval.approvalId,repositoryId:REPO_ID,
    operatorGithubId:OWNER_ID,runId:run.runId,
-   runAttempt:run.runAttempt,expiresAt:approval.expiresAt,
-   approvalSha256:approvalHex,
+   runAttempt:run.runAttempt,workflowSha:run.workflowSha,
+   idempotencyKey,bodySha256:digestHex,issuedAt:approval.issuedAt,
+   expiresAt:approval.expiresAt,approvalSha256:approvalHex,
   });}catch{fail('APPROVAL_LEDGER_UNAVAILABLE');}
   need(consumed===true,'APPROVAL_REPLAY_OR_LEDGER_DENIED');
   return Object.freeze({approved:true,action:'accept',repositoryId:REPO_ID,
