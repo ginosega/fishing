@@ -4,6 +4,8 @@ import {createD2SandboxNormalMerge,D2MergeError} from '../src/d2-sandbox-normal-
 const ID=1430581407,BASE='a'.repeat(40),HEAD='b'.repeat(40),MERGE='c'.repeat(40);
 const PR=3,BRANCH='p3-test-01234567-1234-4234-8234-123456789abc';
 const API='https://api.github.com/repos/ginosega/fishing-p3-sandbox';
+const GRAPHQL='https://api.github.com/graphql';
+const NODE='PR_kwDOVUTwn88D2TEST';
 const receipt={repositoryId:ID,prNumber:PR,expectedHeadSha:HEAD,
  expectedBaseSha:BASE,expectedBranch:BRANCH};
 const reason=code=>e=>e instanceof D2MergeError&&e.code===code;
@@ -13,7 +15,7 @@ function fixture({enabled=false,badCheck=false,badRepo=false,shiftBase=false,
  networkUnknown=false}={}){
  const trace=[];let ready=false,merged=false,recorded=false,main=BASE;
  const pr=()=>({
-  number:PR,state:merged?'closed':'open',draft:!ready,
+  node_id:NODE,number:PR,state:merged?'closed':'open',draft:!ready,
   head:{repo:{id:ID},sha:wrongPR?'f'.repeat(40):HEAD,ref:BRANCH},
   base:{repo:{id:ID},sha:BASE,ref:'main'},
   merged_at:merged?'2026-10-25T00:00:00Z':null,
@@ -22,15 +24,23 @@ function fixture({enabled=false,badCheck=false,badRepo=false,shiftBase=false,
  const request=async(url,options)=>{
   trace.push({url,method:options.method,body:options.body?JSON.parse(options.body):null});
   assert.equal(options.redirect,'manual');
-  assert(url===API||url.startsWith(API+'/'));
+  assert(url===GRAPHQL||url===API||url.startsWith(API+'/'));
+  assert.equal(options.headers['X-GitHub-Api-Version'],'2026-03-10');
   assert.match(options.headers.Authorization,/^Bearer /);
   if(url===API)return res({id:badRepo?123:ID,full_name:'ginosega/fishing-p3-sandbox',private:true});
   if(url===API+'/git/ref/heads/main'){
    return res({object:{sha:shiftBase?'e'.repeat(40):main}});
   }
   if(url===API+'/pulls/'+PR)return res(pr());
-  if(url===API+'/pulls/'+PR+'/ready_for_review'){
-   assert.equal(options.method,'POST');ready=true;return res(pr());
+  if(url===GRAPHQL){
+   assert.equal(options.method,'POST');
+   const data=JSON.parse(options.body);
+   assert.match(data.query,/markPullRequestReadyForReview/);
+   assert.deepEqual(data.variables,{pullRequestId:NODE});
+   ready=true;
+   return res({data:{markPullRequestReadyForReview:{pullRequest:{
+    id:NODE,number:PR,isDraft:false,headRefOid:HEAD,baseRefOid:BASE,
+   }}}});
   }
   if(url===API+'/pulls/'+PR+'/merge'){
    assert.equal(options.method,'PUT');
@@ -85,6 +95,8 @@ test('D2-M02 verified Actions check, exact PR SHA, GitHub normal squash and dura
  });
  assert.equal(x.ready,true);assert.equal(x.merged,true);assert.equal(x.recorded,true);
  assert.deepEqual(x.trace.filter(e=>e.method!=='GET'&&e.method).map(e=>e.method),['POST','PUT']);
+ assert.equal(x.trace.some(e=>e.url?.includes('/ready_for_review')),false);
+ assert.equal(x.trace.some(e=>e.url===GRAPHQL),true);
  assert.equal(x.trace.some(e=>/force|branch-protection|bypass/i.test(e.url??'')),false);
 });
 test('D2-M03 forged check/wrong scoped permission/other repository never reaches any write',async()=>{
