@@ -48,7 +48,7 @@ function parseSubmission(raw){
   Array.isArray(s.media)&&s.media.length===0&&
   object(p)&&p.format==='fishing-companion-change-v2'&&
   p.domain==='gear'&&p.operation==='edit'&&
-  typeof p.id==='string'&&p.id.length>0&&p.id.length<=96&&
+  p.id==='p3-test-rod'&&
   !Object.hasOwn(body,'repositoryId')&&
   JSON.stringify(body)===raw,'INVALID_COMMAND');
  walk(body);
