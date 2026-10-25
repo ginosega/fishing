@@ -100,7 +100,7 @@ export async function verifyP3InternalCommandSignature({
 }={}){
  demand(typeof now==='function'&&noncePattern.test(nonce)&&
   validTime(timestamp)&&Number.isSafeInteger(timestamp)&&
-  /^\\d{13}$/.test(String(timestamp))&&
+  /^\d{13}$/.test(String(timestamp))&&
   typeof body==='string'&&enc.encode(body).byteLength>0&&
   enc.encode(body).byteLength<=MAX_BYTES,'INVALID_AUTH_HEADERS');
  const clock=now();
