@@ -12,6 +12,7 @@ import {createD2GuardedOperationsApi} from './d2-guarded-operations-api.mjs';
 import {createD1OperationStore} from './d1-operation-store.mjs';
 import {createD2WorkerGearCandidate} from './d2-worker-source-candidate.mjs';
 import {createD2ProductionTestAsset} from './d2-production-test-asset.mjs';
+import {createD2SandboxReadTokenIssuer} from './d2-sandbox-read-token.mjs';
 
 const ID=1430581407;
 const deny=(status=404)=>new Response(JSON.stringify({
@@ -61,9 +62,15 @@ export function createD2GatedAuthGateway({
    const store=createD1OperationStore({
     DB:env.OPERATIONS_DB,ownerGitHubId:owner,repositoryId:ID,
    });
+   const ghRead=requestGitHub??fetch;
+   const readTokens=issueReadToken??createD2SandboxReadTokenIssuer({
+    env,request:ghRead,
+    enabled:()=>env.D2_READ_TOKENS_ENABLED==='true'&&
+     env.D2_SANDBOX_REPO_ID===String(ID),
+   }).issueReadToken;
    const validator=createD2WorkerGearCandidate({
-    request:requestGitHub??(async()=>{throw Error('No GitHub transport');}),
-    issueReadToken:issueReadToken??(async()=>{throw Error('No source token');}),
+    request:ghRead,
+    issueReadToken:readTokens,
     // Even a GET validator is not called when the operation writer is OFF.
     sourceEnabled:()=>env.D2_SANDBOX_REPO_ID===String(ID),
    });
@@ -75,8 +82,8 @@ export function createD2GatedAuthGateway({
       const row=await store.get(operationId);
       return row?{...row,repositoryId:ID}:null;
      },
-     request:requestGitHub??(async()=>{throw Error('No GitHub transport');}),
-     issueReadToken:issueReadToken??(async()=>{throw Error('No read token');}),
+     request:ghRead,
+     issueReadToken:readTokens,
      enabled:()=>env.D2_TEST_HOST_ENABLED==='true'&&
       env.D2_SANDBOX_REPO_ID===String(ID),
     });
