@@ -97,8 +97,12 @@ export function createSandboxCheckObserver({
   const detail=typeof check.details_url==='string'?
    /^https:\/\/github\.com\/ginosega\/fishing-p3-sandbox\/actions\/runs\/([1-9]\d{0,15})(?:\/job\/\d+)?\/?$/.exec(check.details_url):null;
   const workflowRunId=detail?Number(detail[1]):null;
-  ensure(Number.isSafeInteger(workflowRunId)&&workflowRunId>0,
-   'WORKFLOW_PROVENANCE_DENIED');
+  // Legacy read-only P3 review accepts a GitHub check without a workflow
+  // URL; D2's write-capable runner separately requires a valid workflowRunId.
+  // If GitHub supplies a URL, malformed provenance is a hard denial.
+  if(check.details_url!=null)
+   ensure(Number.isSafeInteger(workflowRunId)&&workflowRunId>0,
+    'WORKFLOW_PROVENANCE_DENIED');
   // Recheck both mutable objects after reading CI so an intervening push or
   // PR head/base movement never becomes an accepted snapshot.
   const lastMain=await read(token,mainUrl);
@@ -108,7 +112,9 @@ export function createSandboxCheckObserver({
    base:expectedBaseSha,branch:expectedBranch});
   return Object.freeze({
    repositoryId:ID,prNumber,headSha:expectedHeadSha,baseSha:expectedBaseSha,
-   checkRunId:check.id,workflowRunId,checkName:CHECK,actionsAppId:ACTIONS_APP_ID,
+   checkRunId:check.id,
+   ...(workflowRunId?{workflowRunId}:{}),
+   checkName:CHECK,actionsAppId:ACTIONS_APP_ID,
    checkObserved:'success',readyForManualReview:true,
    canMerge:false,canDeploy:false,
   });
