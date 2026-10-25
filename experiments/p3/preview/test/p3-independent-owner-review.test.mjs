@@ -172,3 +172,50 @@ test('P3-I09 no owner signer, key issuance, implicit authority, network default,
  assert.match(src,/ownerSignaturePresent:false,mayExecute:false/);
  assert.match(src,/independentAttestationVerified:true/);
 });
+
+async function signedMalformedReviewBody(forgedBody){
+ const input=await fixture();
+ const value=JSON.parse(forgedBody),approval=JSON.parse(input.proposed.canonicalApproval);
+ approval.bodySha256=digest(forgedBody);
+ const canonicalApproval=canonicalP3Approval(approval);
+ const signingMessage='p3-operator-approval-v1\n'+canonicalApproval;
+ const proposed={...input.proposed,
+  exactCommandForPrivateOwnerReview:forgedBody,
+  bodySha256:digest(forgedBody),
+  canonicalApproval,signingMessage,
+  signingMessageSha256:digest(signingMessage),
+  packageDomain:value.snapshot.package.domain,
+  packageOperation:value.snapshot.package.operation,
+  packageId:value.snapshot.package.id,
+ };
+ const attestation={...input.attestation,bodySha256:digest(forgedBody)};
+ return {proposed,independentBody:forgedBody,attestation,
+  signature:await sign(attestation)};
+}
+test('P3-I10 independently signed prohibited domain/operation cannot bypass owner review schema',async()=>{
+ for(const patch of [
+  {domain:'production-secret'},
+  {operation:'delete'},
+  {id:''},
+ ]){
+  const proposedBody=JSON.stringify({action:'accept',idempotencyKey:key,
+   snapshot:{package:{...sample.package,...patch},media:[]}});
+  const pkt=await signedMalformedReviewBody(proposedBody);
+  await assert.rejects(gate().inspect(pkt),denied('INVALID_UNSIGNED_PROPOSAL'));
+ }
+});
+test('P3-I11 independently signed nested constructor, prototype or __proto__ key is refused',async()=>{
+ for(const evil of ['constructor','prototype','__proto__']){
+  const nested=JSON.parse(JSON.stringify(sample));
+  nested.package[evil]='untrusted';
+  // JS __proto__ assignment alters a prototype rather than adding an own
+  // property; create an actual JSON key to test the wire-level attack.
+  const payload=JSON.stringify({action:'accept',idempotencyKey:key,
+   snapshot:nested});
+  const bodyWithKey=evil==='__proto__'
+   ?payload.replace('"id":"sample"','"id":"sample","__proto__":"untrusted"')
+   :payload;
+  const pkt=await signedMalformedReviewBody(bodyWithKey);
+  await assert.rejects(gate().inspect(pkt),denied('INVALID_UNSIGNED_PROPOSAL'));
+ }
+});
