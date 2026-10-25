@@ -1,0 +1,45 @@
+# FISH118 P3-38 — Live GitHub OIDC acceptance and downstream provenance alignment
+
+**Checkpoint: October 25, 2026 PDT. Disposition: P3-37 live OIDC SUCCESS; P3-38 SOURCE-ONLY downstream alignment and local tests. No publisher, production activation, Worker deployment, D1 mutation, key grant or workflow dispatch during P3-38.**
+
+## 1. Significant milestone: independent live GitHub RSA identity proof
+
+On private repository `ginosega/fishing-p3-sandbox`, immutable ID **1430581407**, owner numeric ID **265665562**, the owner's manual [OIDC preflight run #40207347824](https://github.com/ginosega/fishing-p3-sandbox/actions/runs/40207347824) completed **SUCCESS** on private main `69b236c8af663cdce687dc855bb117a01874060a`. The exact successful job `121211014531` was independently inspected using GitHub Actions job metadata and logs. It checked out immutable public approved source `8487230fcc7e930b602d8b0b4feaab4826351eee` and passed the strict source/branch/owner/repo guard. The actual final redacted log statement was:
+
+`PASS: GitHub RSA-signed OIDC; immutable sandbox repo/owner, main, manual workflow, hosted runner, audience, workflow SHA and run identity.`
+
+Unlike earlier local fixture passes, this was a **real short-lived GitHub-issued OIDC JWT** requested in a GitHub-hosted owner-dispatched workflow. The verified client pinned issuer `https://token.actions.githubusercontent.com`, custom audience `fishing-p3:trusted-runner:owner-accept`, exact immutable subject, private `main`, owner and repository numeric IDs, manual event, hosted runner, exact `workflow_ref` and commit SHA, run ID/attempt, bounded time window, and public GitHub issuer JWKS with RS256 RSA signature. Any present signed `job_workflow_ref` or `job_workflow_sha` had to equal that **same** exact approved manual workflow and commit. The run printed no JWT, raw claim, key, authorization header or secret. This is **OIDC provenance proof only**: it did not create an App installation token or test a publisher or D1 write.
+
+Earlier four attempts were controlled DENY responses `#40203729458`, `#40204433967`, `#40205324050` and `#40206511496`; these led to HTTPS endpoint compatibility and signed optional job-workflow checks that preserved exact identity binding. Do not automatically rerun or weaken the now-passing OIDC-only workflow. Owner standing preapproval covers routine read-only work, not broad publishing authority.
+
+## 2. Align independent command runner verifier with live proven token structure
+
+The *source-only* `src/p3-runner-provenance.mjs` (P3-30) checks the GitHub-signed OIDC assertion **and separately** signs a GitHub App JWT to perform authenticated **GET-only** installation metadata calls. It previously rejected all `job_workflow_*` presence categorically. Because the actual live GitHub-signed, owner-scoped sandbox assertion can carry these fields, that rule would have blocked legitimate future command-authority verification even after P3-37 passed.
+
+The P3-38 change is **narrow**: any present signed `claims.job_workflow_ref` must equal the independently configured `expectedWorkflowRef`, and any present `claims.job_workflow_sha` must equal `expectedWorkflowSha`. Absent optional claims remain accepted. All other checks are unchanged: immutable OIDC subject, issuer, RSA JWKS, exact private repo/owner/actor/ref, hosted runner, `workflow_dispatch`, audience, run attempt, workflow SHA, and the GitHub App installation ID, selected repository, account owner and **exact** allowed permission set. No other workflow, SHA, branch or reusable workflow is permitted.
+
+**Do not conflate distinct workflows.** The successful `fishing-p3-oidc-readonly.yml` identity belongs only to its own workflow. The future privileged `p3-trusted-command.yml` must have its **own** exact verified workflow identity and SHA, its own distinct live provider evidence and independent owner approval for signing/accepting any operation. P3-38 does not authorize using the read-only preflight's valid OIDC JWT as a command-acceptance credential.
+
+P3-38 new adversarial tests:
+- `P3-R08`: locally signed RS256 proof with optional exact `job_workflow_ref` and `job_workflow_sha` authenticates and proceeds to exactly two mocked GitHub App authenticated GETs.
+- `P3-R09`: a different workflow name/ref, branch, publisher workflow or SHA produces `OIDC_SCOPE_DENIED` **before any App metadata GET**. Existing invalid issuer/JWKS/signature/App installation/permission tests remain unchanged.
+
+**Validation:** initial exact code-and-test commit `11d94ca6b419d66f624405fa2a62254e0d66f4e6`, [isolated P3 source CI #40207525750](https://github.com/ginosega/fishing/actions/runs/40207525750) completed **SUCCESS**: 80 PWA + 43 standalone broker + 285 P3 = **408/408 tests passed**; unpublished Worker deny-by-default check and bundle parity both passed. These are local test fixtures for the future command verifier, **not** evidence of a live combined OIDC/App proof.
+
+## 3. Reuse prior genuine Access and isolation evidence without claiming fresh provider checks
+
+The private [Access metadata-only run #40162761115](https://github.com/ginosega/fishing-p3-sandbox/actions/runs/40162761115) earlier on October 25 completed SUCCESS and logged exact isolated ingress hostname, one enabled/unexpired dedicated service token, one exclusive Service Auth policy, matched AUD, and no broad bypass/allow. The private [Access edge-only run #40163736773](https://github.com/ginosega/fishing-p3-sandbox/actions/runs/40163736773) tested no/invalid service token denial and correct service token reaching the **inert Hello World** Worker over HTTPS GET only, then required disabling the ingress Production URL. These tests did **not** verify the future privilege-bearing command receiver.
+
+The private [disabled-ingress postflight #40166553523](https://github.com/ginosega/fishing-p3-sandbox/actions/runs/40166553523) later on October 25 completed SUCCESS; checked exact inert ingress Worker metadata, **both Production and Preview URLs disabled**, expected flags and bindings, and exact Access application/service-token policy. The read-only logs explicitly state no Cloudflare changes, D1 writes, or GitHub publishing. This remains the **last observed live Cloudflare postflight**, not a new Cloudflare inspection performed by P3-38. We must not infer that a Worker has been activated or is reachable just because its earlier Access edge test succeeded.
+
+The source-only P3-36 `p3-proof-transport` carries GitHub OIDC, independent ECDSA owner approval and HMAC in a canonical bounded envelope, but only in local mocked tests. It must not be connected to the old HMAC-only P3-26 ingress or legacy bridge. The actual future private receiver needs source-pinned live service-binding-only isolation, app identity, nonce/time proof, ECDSA approval, and atomic D1 deny-by-default confirmation.
+
+## 4. Next significant milestone, not an automatic deployment
+
+**P3-39 candidate: combined private read-only GitHub OIDC + GitHub App installation GET metadata proof**, with reviewed exact trusted workflow and GitHub App permissions. Its security goal: prove one real owner-only GitHub Actions runner identity and the actual installation's App identity/selected-repository/permissions **in one live context** while printing only a fixed redacted PASS/DENY. It must not create installation access tokens, request Cloudflare service tokens, dispatch publisher commands, expose app private signing keys, mutate GitHub state or touch D1/Workers. Live integration may require existing private GitHub App signing credentials in the GitHub Actions secret store. **That is a separate consequential credential-handling boundary**; before installing a new secret-bearing workflow, review its exact design, injection surface and GitHub App grant policy as a meaningful owner milestone. This is distinct from routine source-only tests and the already completed no-secret OIDC preflight.
+
+**Other later gates**: real Cloudflare Access assertion verification and service-binding isolation in a disabled-only Worker configuration, then signed owner-approval custody, real atomic D1/nonce checks and intentional publish-enable. No user approval for these consequential steps is implied by a read-only OIDC PASS. Preserve draft public PR #263 and unrelated PRs, public production `main`, and the hard-disabled Cloudflare ingress/bridge sentinels.
+
+## 5. Project records and new-chat SOP
+
+This source-only review belongs on public draft [PR #263](https://github.com/ginosega/fishing/pull/263), not merged production. P3-37 remains the detailed chronology for the successive controlled DENY runs and approved private read-only pinned workflow installations. This document marks the **successful live-provider OIDC checkpoint** and downstream source-only compatibility fix. Do not overwrite the five canonical public `main` handoff documents until the user requests a new-chat transition; at that point update the full README/Context/TODO/Decision Log/Bootstrap prompt and let the user copy the complete Bootstrap text.
