@@ -23,14 +23,19 @@ const digits=x=>typeof x==='string'&&/^[1-9][0-9]{0,15}$/.test(x)&&
  Number.isSafeInteger(Number(x));
 const AUD=P3_OIDC_PREFLIGHT_AUDIENCE;
 const JWKS='https://token.actions.githubusercontent.com/.well-known/jwks';
-// GitHub's runner may route its OIDC service through regional pipelines
-// subdomains (for example pipelinesghubeus6.actions.githubusercontent.com).
-// Trust only this exact DNS suffix and a constrained pipelines host prefix.
+// GitHub supplies ACTIONS_ID_TOKEN_REQUEST_URL to this exact, owner-only
+// GitHub-hosted job. The endpoint hostname is NOT a workflow input and may
+// use different service subdomains across runner regions/rollouts. Permit
+// only GitHub-owned *.actions.githubusercontent.com, HTTPS, and no redirects.
+// This is transport policy, NEVER a relaxation of signed JWT issuer, audience,
+// immutable repo/owner/actor, workflow SHA or RSA verification.
 const trustedOidcHost=hostname=>typeof hostname==='string'&&
- /^pipelines[a-z0-9]{0,24}\.actions\.githubusercontent\.com$/.test(hostname);
+ /^[a-z0-9-]{1,63}\.actions\.githubusercontent\.com$/.test(hostname);
 const diagnosticCodes=new Set([
  'INVALID_PROBE_CONFIG','WRONG_RUN_CONTEXT','OIDC_ENDPOINT_UNAVAILABLE',
- 'OIDC_ENDPOINT_DENIED','OIDC_REQUEST_UNAVAILABLE','JWKS_UNAVAILABLE',
+ 'OIDC_ENDPOINT_MALFORMED','OIDC_ENDPOINT_INSECURE',
+ 'OIDC_ENDPOINT_HOST_DENIED','OIDC_ENDPOINT_COMPONENT_DENIED',
+ 'OIDC_ENDPOINT_PATH_DENIED','OIDC_REQUEST_UNAVAILABLE','JWKS_UNAVAILABLE',
  'INVALID_PREFLIGHT_CONFIG','OIDC_INVALID','OIDC_SCOPE_DENIED',
 ]);
 
@@ -53,14 +58,14 @@ export async function runP3OidcReadOnlyProbe({
   env.ACTIONS_ID_TOKEN_REQUEST_TOKEN.length<=8192,
   'OIDC_ENDPOINT_UNAVAILABLE');
  let request;
- try{
-  request=new URL(env.ACTIONS_ID_TOKEN_REQUEST_URL);
-  check(request.protocol==='https:'&&
-   trustedOidcHost(request.hostname)&&
-   !request.username&&!request.password&&!request.hash&&
-   request.pathname.length>1,'OIDC_ENDPOINT_DENIED');
-  request.searchParams.set('audience',AUD);
- }catch{stop('OIDC_ENDPOINT_DENIED');}
+ try{request=new URL(env.ACTIONS_ID_TOKEN_REQUEST_URL);}
+ catch{stop('OIDC_ENDPOINT_MALFORMED');}
+ check(request.protocol==='https:','OIDC_ENDPOINT_INSECURE');
+ check(trustedOidcHost(request.hostname),'OIDC_ENDPOINT_HOST_DENIED');
+ check(!request.username&&!request.password&&!request.hash,
+  'OIDC_ENDPOINT_COMPONENT_DENIED');
+ check(request.pathname.length>1,'OIDC_ENDPOINT_PATH_DENIED');
+ request.searchParams.set('audience',AUD);
  const requestUrl=request.href;
  const tokenFetch=async()=>{
   let r;
