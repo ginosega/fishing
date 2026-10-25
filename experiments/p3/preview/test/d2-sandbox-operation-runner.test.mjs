@@ -43,7 +43,8 @@ function fixture({enabled=true,holdLease=false,invalidPR=false,
    assert.equal(repositoryId,ID);assert.equal(expectedMainSha,BASE);
    assert.equal(pkg.domain,'gear');
    return {number:4,branch:BRANCH,baseSha:BASE,
-    headSha:invalidPR?'f'.repeat(40):HEAD,state:'open',merged:false};
+    headSha:HEAD,state:'open',merged:false,
+    ...(invalidPR?{branch:'p3-test-attacker-substituted'}:{})};
   },
   observeCheck:async info=>{
    trace.push('checks');assert.equal(info.repositoryId,ID);
