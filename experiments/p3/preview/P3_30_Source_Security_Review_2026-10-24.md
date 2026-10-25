@@ -2,6 +2,21 @@
 
 **Review date:** October 24, 2026 PDT / October 25 UTC. **Disposition: DESIGN REVIEW ONLY — no authorization to deploy, enable, write D1, create publishing PRs, or merge.** This is a review of current unmerged P3 source, not an execution/verification record for any future runtime.
 
+## Follow-on P3-30 source hardening — completed October 24 PDT / October 25 UTC
+
+**SOURCE ONLY; NO WORKER DEPLOYMENT OR CONFIGURATION CHANGE.** Following the owner's express authorization to proceed with this review's next source-only step, draft PR #263 received:
+- `src/p3-bounded-response.mjs`: reusable strict-UTF-8, maximum-byte streaming receipt reader; rejects missing/lying/oversized Content-Length, chunk overrun and invalid UTF-8 without loading an unbounded provider body.
+- `src/p3-access-jwks-requester.mjs`: explicitly injected and non-networked-by-default requester enforcing exact issuer-owned `/cdn-cgi/access/certs` URL; manual redirects/no-store; status, MIME, size and JSON checks; 2-second abort signal; 5-minute max positive cache; five-second forced-refresh cooldown; concurrent-request singleflight; expired/outage failure closed. `fetchImpl` must remain trusted and injected from a separately approved Worker runtime adapter; source does not expose a route.
+- `src/p3-access-jwt-verifier.mjs`: on an unknown `kid`, retries its configured pinned JWKS requester at most once with `forceRefresh`. Existing issuer, audience, signed service `common_name`, time, RS256 and crypto-signature checks remain unchanged.
+- `src/p3-access-ingress.mjs` and `src/p3-trusted-command-client.mjs`: use the bounded reader before parsing an upstream 202 receipt (1 KiB and 4 KiB respectively). An overrun fails closed; no accepted outcome is falsely reported.
+- New `test/p3-access-jwks-requester.test.mjs` (P3-J01–J08), `test/p3-bounded-response.test.mjs` (P3-B01–B05); augmented ingress (P3-I09) and trusted-client (P3-T09) tests cover real locally signed RS256 rotation, unknown-kid refresh, cache expiry, redirect/host policy, forged Content-Length, chunk overflow, concurrent fetch singleflight and confidential denial.
+
+**Exact tested source commit:** `9574014dad2a2c5f62b399766722b4434be689ac`. [P3 isolated source CI run #40167785899](https://github.com/ginosega/fishing/actions/runs/40167785899) **completed/success**: 80 PWA + 43 broker + 219 isolated P3 = **342/342 tests passed**, including new cases, with all five workflow validation steps successful. This is Node source/fixture CI only; no real Cloudflare Access JWT, JWKS network call, live service binding or remote D1 write was performed. The subsequent documentation-only closeout commit will have its own exact-head CI evidence.
+
+**Still unresolved, requiring a separate later review:** live trusted GitHub runner/App/owner provenance, operator approval design, runtime ingress bootstrap and Cloudflare Free 10 ms CPU budget, live Access issuer/AUD/service Client ID verification, private service-binding compatibility, real network outage behavior, authenticated D1 status reconciliation and all deployment/enable/write/publish gates. Rotation tests and mocked fetch injection do NOT satisfy these real-provider proof gates.
+
+Cloudflare's published Access docs show rolling JWT signing keys under the configured team `/cdn-cgi/access/certs` endpoint and a previous-key overlap window; the implementation uses key ID selection plus bounded refresh. Reference: https://developers.cloudflare.com/cloudflare-one/access-controls/applications/http-apps/authorization-cookie/validating-json/ . The Workers runtime supports outbound request abort signals during a handler: https://developers.cloudflare.com/workers/runtime-apis/request/ . No secret values are recorded.
+
 ## Restored authority and fixed scope
 
 - Public ginosega/fishing main at review: 587b978118df64cc9ec584375c458fa2b10fecfa (five-file docs-only P3-29 transfer, no PWA deployment); review input is draft PR #263 head dfea112022d82d3d21328d900383e7c85f518c53. P1 draft PR #262 and unrelated #268 remain outside scope.
