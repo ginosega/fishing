@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
-import {sandbox,sample} from './d1-fixture.mjs';
+import {sandbox} from './d1-fixture.mjs';
 import {createD2UnifiedOwnerSession,D2SessionError} from '../src/d2-unified-owner-session.mjs';
 import {createD2GuardedOperationsApi} from '../src/d2-guarded-operations-api.mjs';
 
@@ -10,6 +10,12 @@ const OWNER=778899,ID=1430581407,CLOCK=1800000000;
 const RAW='a'.repeat(43),OTHER='b'.repeat(43);
 const KEY='future-server-only-csrf-key-do-not-use-in-production-12345678';
 const IDEM='d2-source-only-gear-edit-123456';
+const sample={package:{
+ format:'fishing-companion-change-v2',domain:'gear',operation:'edit',id:'sample',
+ base:{schemaVersion:2,sourceRevision:'f'.repeat(40),recordHash:'e'.repeat(64)},
+ changes:{set:{name:'Updated rod'},unset:[],baseFields:{name:'Original rod'}},
+ notes:{action:'keep'},picture:{action:'keep'},pictureSequence:{action:'keep'},
+},media:[]};
 const BODY=JSON.stringify({idempotencyKey:IDEM,snapshot:sample});
 const hash=s=>createHash('sha256').update(s).digest('base64url');
 function fixture({write=false,validation=true}={}){
