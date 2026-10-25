@@ -240,6 +240,7 @@ test('D2-G13 same idempotency key with changed canonical content conflicts witho
   package:{...sample.package,id:'different-gear'},media:[],
  }});
  const r=await x.api.handle(x.request('POST','/api/v3/operations',{csrf,body:changed}));
- assert.equal(r.status,503); // adapter currently redacts store's distinct idempotency conflict
+ assert.equal(r.status,409);
+ assert.deepEqual(await r.json(),{ok:false,error:'IDEMPOTENCY_CONFLICT'});
  assert.equal(x.count(),1);
 });
