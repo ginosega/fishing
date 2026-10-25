@@ -156,7 +156,7 @@ export function createD2WorkerGearCandidate({
   next.gear.items[position]=promoted.record;
   try{validateRecords(next);}catch{reject('INVALID_RESULT');}
   const changed=Object.freeze({
-   action:'write',path:'Gear/gear.json',
+   action:'write',path:'pwa/Gear/gear.json',
    body:JSON.stringify(next.gear,null,2)+'\n',
   });
   requireTrue(utf8.encode(changed.body).length<=MAX_BYTES,'CONTENT_TOO_LARGE');
