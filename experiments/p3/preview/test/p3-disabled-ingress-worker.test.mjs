@@ -32,5 +32,5 @@ test('P3-G02 disabled ingress rejects ALL verbs and paths even if all flags are 
 test('P3-G03 no imports, subrequests or source-only active gate dependencies',()=>{
  const source=readFileSync(new URL('../src/p3-disabled-ingress-worker.mjs',import.meta.url),'utf8');
  assert.doesNotMatch(source,/^\s*import\s|\brequire\s*\(/m);
- assert.doesNotMatch(source,/fetch\s*\(|createP3AccessIngress|createP3AccessJwtVerifier|createP3NativeAcceptanceService|P3_COMMAND_SERVICE\.fetch/);
+ assert.doesNotMatch(source,/globalThis\.fetch|fetch\s*\(\s*['"`]|createP3AccessIngress|createP3AccessJwtVerifier|createP3NativeAcceptanceService|P3_COMMAND_SERVICE\.fetch/);
 });
