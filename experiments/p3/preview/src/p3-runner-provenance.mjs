@@ -93,7 +93,13 @@ export function createP3RunnerProvenance({
    claims.actor_id===String(OWNER_ID)&&
    claims.event_name==='workflow_dispatch'&&
    claims.runner_environment==='github-hosted'&&
-   claims.job_workflow_ref===undefined&&claims.job_workflow_sha===undefined&&
+   // The real sandbox OIDC proof may include signed job_workflow_* claims
+   // even for our manual job. Bind any present values to the EXACT trusted
+   // workflow and SHA; never allow a different reusable workflow identity.
+   (claims.job_workflow_ref===undefined||
+    claims.job_workflow_ref===expectedWorkflowRef)&&
+   (claims.job_workflow_sha===undefined||
+    claims.job_workflow_sha===expectedWorkflowSha)&&
    claims.workflow_ref===expectedWorkflowRef&&
    claims.workflow_sha===expectedWorkflowSha&&
    validId(claims.run_id)&&validId(claims.run_attempt)&&
