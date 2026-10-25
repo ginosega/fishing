@@ -92,6 +92,13 @@ export function createSandboxCheckObserver({
    check?.head_sha===expectedHeadSha,'CHECK_IDENTITY_DENIED');
   ensure(check?.status==='completed','CHECK_PENDING');
   ensure(check?.conclusion==='success','CHECK_NOT_SUCCESSFUL');
+  // Bind a real GitHub Actions workflow run identifier to this trusted,
+  // exact-head GitHub Actions check. No synthetic workflow run IDs.
+  const detail=typeof check.details_url==='string'?
+   /^https:\/\/github\.com\/ginosega\/fishing-p3-sandbox\/actions\/runs\/([1-9]\d{0,15})(?:\/job\/\d+)?\/?$/.exec(check.details_url):null;
+  const workflowRunId=detail?Number(detail[1]):null;
+  ensure(Number.isSafeInteger(workflowRunId)&&workflowRunId>0,
+   'WORKFLOW_PROVENANCE_DENIED');
   // Recheck both mutable objects after reading CI so an intervening push or
   // PR head/base movement never becomes an accepted snapshot.
   const lastMain=await read(token,mainUrl);
@@ -101,7 +108,7 @@ export function createSandboxCheckObserver({
    base:expectedBaseSha,branch:expectedBranch});
   return Object.freeze({
    repositoryId:ID,prNumber,headSha:expectedHeadSha,baseSha:expectedBaseSha,
-   checkRunId:check.id,checkName:CHECK,actionsAppId:ACTIONS_APP_ID,
+   checkRunId:check.id,workflowRunId,checkName:CHECK,actionsAppId:ACTIONS_APP_ID,
    checkObserved:'success',readyForManualReview:true,
    canMerge:false,canDeploy:false,
   });
