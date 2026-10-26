@@ -18,7 +18,7 @@
   "keep_vars": true,
   // Wrangler imports ./src/generated/d3-pilot.bundle.txt as a Text module.
   // Generate with the local locked esbuild script BEFORE an authorized dry-run.
-  "rules": [{ "type": "Text", "globs": ["**/*.txt"] }],
+  "rules": [{ "type": "Text", "globs": ["**/*.txt"], "fallthrough": true }],
   // Reuse existing encrypted D2 App/probe secrets on this same Worker.
   // D3 HMAC messages have an independent D3-test-only domain prefix.
   // Never export, duplicate, rotate or redeclare a PEM to add D3.
