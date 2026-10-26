@@ -44,11 +44,12 @@ try {
  if ($LASTEXITCODE -ne 0) { throw 'Remote read-only D1 preflight failed.' }
  $parsed = ConvertFrom-Json -InputObject ($raw -join [Environment]::NewLine)
 } finally { Pop-Location }
-if (-not ($parsed -is [array]) -or $parsed.Count -ne 1 -or
- $parsed[0].success -ne $true -or $parsed[0].results.Count -ne 1) {
+$entries = @($parsed)
+if ($entries.Count -ne 1 -or
+ $entries[0].success -ne $true -or @($entries[0].results).Count -ne 1) {
  throw 'Expected exactly one successful D1 result row.'
 }
-$r = $parsed[0].results[0]
+$r = @($entries[0].results)[0]
 if ($r.operation_id -ne $op -or
  $r.state -ne 'Merging' -or $r.pr_number -ne 16 -or
  $r.main_base_sha -ne '69b236c8af663cdce687dc855bb117a01874060a' -or
