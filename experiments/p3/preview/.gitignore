@@ -7,3 +7,4 @@ node_modules/
 wrangler.d2-phase0.local.jsonc
 wrangler.d2-sandbox.local.jsonc
 wrangler.d2-submit.local.jsonc
+wrangler.d2-runner.local.jsonc
