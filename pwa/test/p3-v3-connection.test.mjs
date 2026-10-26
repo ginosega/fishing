@@ -119,10 +119,10 @@ test('D3-C06 GitHub sign-in link occurs only inside Connection Status dialog',as
  assert.equal(tools.children.length,1);
  const link=tools.children[0];
  assert.equal(link.tagName,'a');
- assert.equal(link.href,'/auth/start');
+ assert.equal(link.href,'/auth/start?return=%2Ffishing%2F');
  assert.equal(link.textContent,'Sign in with GitHub');
  await x.controller.restore();panel.paint();
- assert.equal(tools.children[0].href,'/auth/start');
+ assert.equal(tools.children[0].href,'/auth/start?return=%2Ffishing%2F');
  panel.remove();assert.equal(section.removed,true);
 });
 
