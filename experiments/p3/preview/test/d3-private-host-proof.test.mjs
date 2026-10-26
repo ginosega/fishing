@@ -159,7 +159,8 @@ test('D3-H07 moving sandbox main refuses release identity after bytes',async()=>
 test('D3-H08 disabled hosted route blocks internal verification without false Live',async()=>{
  const x=setup({enabled:false});
  await assert.rejects(x.proof.verifyHosted(x.info),
-  assetError('HOST_DISABLED'));
+  proofError('PRODUCTION_ORIGIN_UNAVAILABLE'));
+ assert.equal(x.calls.hosted,1);
 });
 test('D3-H09 unowned path cannot masquerade as a valid KB hosted edit',async()=>{
  const x=setup(),bad={...x.info,expectedPaths:[JSON_PATH,'pwa/KB/content/forged.md']};
