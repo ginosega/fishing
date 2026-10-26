@@ -23,7 +23,7 @@ const ajv=new Ajv2020({allErrors:true,strict:true,
  code:{source:true,esm:true}});
 const definitions={
  gear:'gearBundle',kb:'kbBundle',catches:'catchBundle',
- gearItem:'gearItem',kbEntity:'kbEntity',catch:'catch',
+ gearItem:'gearItem',kbEntity:'kbEntity',catchItem:'catch',
 };
 const validators={};
 for(const [key,definition]of Object.entries(definitions)){
@@ -48,14 +48,14 @@ const from=[
  "import Ajv2020 from 'ajv/dist/2020.js';",
  "import schema from '../contracts/schema.json' with {type:'json'};"
 ].join('\n');
-const to="import {gear,kb,catches,gearItem,kbEntity,catch as catchValidator} from './generated/d3-validators.mjs';";
+const to="import {gear,kb,catches,gearItem,kbEntity,catchItem} from './generated/d3-validators.mjs';";
 const oldInit=[
  'const ajv=new Ajv2020({allErrors:true,strict:true});',
  "const validators=Object.fromEntries(Object.entries(DOMAIN).map(([key,d])=>[key,ajv.compile({$ref:'#/$defs/'+d.definition,$defs:schema.$defs})]));",
 ].join('\n');
 const newInit=[
  'const validators={gear,kb,catches};',
- 'const itemValidators={gear:gearItem,kb:kbEntity,catches:catchValidator};',
+ 'const itemValidators={gear:gearItem,kb:kbEntity,catches:catchItem};',
  "const schemaErrors=errors=>(errors??[]).map(e=>(e.instancePath||'/')+' '+(e.message??'schema violation')).join('; ');",
 ].join('\n');
 const oldRecord=[
