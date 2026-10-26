@@ -9,9 +9,19 @@ if (-not (Test-Path -LiteralPath $template)) { throw 'Missing phase-0 template.'
 if (Test-Path -LiteralPath $target) {
     throw 'Local config already exists. Review or rename it before regeneration.'
 }
-$raw = & npx wrangler d1 list --json
-if ($LASTEXITCODE -ne 0 -or -not $raw) { throw 'Wrangler D1 list failed; check local Cloudflare login.' }
-try { $parsed = $raw | ConvertFrom-Json } catch { throw 'Wrangler D1 list JSON invalid.' }
+$raw = @(& npx wrangler d1 list --json)
+if ($LASTEXITCODE -ne 0 -or $raw.Count -eq 0) {
+    throw 'Wrangler D1 list failed; check local Cloudflare login.'
+}
+# Windows PowerShell receives native executable stdout as separate lines.
+# ConvertFrom-Json needs ONE complete JSON document, not one pipeline record
+# per line. Joining also works when Wrangler emitted a single JSON line.
+$rawJson = $raw -join [Environment]::NewLine
+try {
+    $parsed = ConvertFrom-Json -InputObject $rawJson
+} catch {
+    throw 'Wrangler D1 list output is not valid JSON. Run npx wrangler d1 list --json directly to inspect Wrangler output; do not deploy.'
+}
 $databases = @($parsed)
 if ($null -ne $parsed.result) { $databases = @($parsed.result) }
 if ($null -ne $parsed.databases) { $databases = @($parsed.databases) }
