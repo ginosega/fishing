@@ -9,13 +9,16 @@
   // authorization, a pinned safe rollback version, and explicit operator
   // preflight are complete. The original private D2 operation must not rerun.
   "name": "fishing-auth-p0-test",
-  "main": "src/d3-live-owner-worker.mjs",
+  "main": "src/d3-owner-runtime.mjs",
   "compatibility_date": "2026-10-25",
   "compatibility_flags": ["global_fetch_strictly_public"],
   "workers_dev": true,
   "preview_urls": false,
   "observability": { "enabled": true, "logs": { "enabled": true } },
   "keep_vars": true,
+  // Wrangler imports ./src/generated/d3-pilot.bundle.txt as a Text module.
+  // Generate with the local locked esbuild script BEFORE an authorized dry-run.
+  "rules": [{ "type": "Text", "globs": ["**/*.txt"] }],
   "secrets": {
     "required": [
       "GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET",
@@ -35,6 +38,10 @@
     "D3_READ_TOKENS_ENABLED": "false",
     "D3_TEST_HOST_ENABLED": "false",
     "D3_PILOT_ENABLED": "false",
+    // Set to the independently generated private local pilot bundle SHA-256
+    // only in the operator-reviewed LOCAL config, never copy a placeholder
+    // to Cloudflare and never enable the page with a missing/mismatched SHA.
+    "D3_PILOT_SHA256": "REPLACE_WITH_LOCAL_PILOT_SHA256",
     // Preserve D2 disabled even when the source entrypoint changes.
     "D2_WRITE_ENABLED": "false",
     "D2_RUNNER_ENABLED": "false",
