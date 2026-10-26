@@ -76,7 +76,13 @@ export function createD2LivePublisherWorker({
   // Cron receives a synchronous waitUntil and cannot enqueue arbitrary work.
   // Failure keeps D1 in a recoverable/unknown state, never claims Live.
   const task=run().catch(e=>{
-   onScheduledFailure(typeof e?.code==='string'?e.code:'INTERNAL_FAILURE');
+   // Cron must surface a FAILED outcome, not a false "success" event.
+   // Never log request bodies, GitHub credentials, PEM, or operation data.
+   const code=typeof e?.code==='string'&&/^[A-Z0-9_]{3,64}$/.test(e.code)
+    ?e.code:'INTERNAL_FAILURE';
+   try{onScheduledFailure(code);}catch{}
+   console.error('FISH118_D2_SCHEDULED_FAILURE',code);
+   throw Error('D2_SCHEDULED_FAILURE');
   });
   if(typeof ctx?.waitUntil==='function')ctx.waitUntil(task);
   else await task;
