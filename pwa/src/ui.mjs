@@ -73,7 +73,23 @@ export function createApp(ctx){
  function missing(message,parent='#/'){const page=frame('Not found',parent);page.append(empty(message),anchor('Return to the parent page',parent));return page;}
  function appendPicture(page,record,domain){const pic=record.picture;if(!pic)return;const src=ctx.asset(pic.src),caption=pic.caption||'';const activate=record.pictureSequence?.length?()=>openSequenceViewer(record.pictureSequence.map(ctx.asset),record.name,caption):()=>openViewer(src,record.name,caption);page.append(picture(src,pic.caption||record.name,caption,activate));}
  async function markdownContent(owner,textValue){const parsed=parseMarkdown(textValue,{owner,maps:ctx.maps,assetBase:ctx.base,exists,pathRoutes:routes});const article=el('article',{class:'markdown-body'});article.innerHTML=sanitizeHtml(parsed.html,window);article.addEventListener('click',event=>{const a=event.target.closest('a[href^="#/"]');if(a){event.preventDefault();navigate(a.getAttribute('href'));}});return article;}
- async function appendMarkdown(page,pathValue,heading){if(!pathValue)return;const response=await fetch(ctx.asset(pathValue));if(!response.ok)throw new Error(`Cannot load ${pathValue}: HTTP ${response.status}`);const content=await response.text();page.append(section(heading,await markdownContent(pathValue,content)));}
+ async function appendMarkdown(page,pathValue,heading){
+  if(!pathValue)return;
+  let content;
+  if(ctx.v3?.source?.markdown instanceof Map){
+   // The test-only editor must never mix public V2 Markdown with the
+   // private sandbox's immutable record/sourceRevision.
+   if(!ctx.v3.source.markdown.has(pathValue))
+    throw new Error('Sandbox Markdown is unavailable: '+pathValue);
+   content=ctx.v3.source.markdown.get(pathValue);
+  }else{
+   const response=await fetch(ctx.asset(pathValue));
+   if(!response.ok)
+    throw new Error(`Cannot load ${pathValue}: HTTP ${response.status}`);
+   content=await response.text();
+  }
+  page.append(section(heading,await markdownContent(pathValue,content)));
+ }
  function historySection(domain,record){const catches=catchHistory(ctx.data,domain,record.id);if(!catches.length)return null;return section('Catch History',el('div',{class:'record-grid'},...catches.map(c=>recordCard('catches',c))));}
  async function renderDetail(domain,id){const record=ctx.maps[domain].get(id);if(!record)return missing('This item does not exist or its ID has been retired.',rootRoute(domain));
   const parent=domain==='catches'?'#/catches':categoryRoute(domain,domain==='gear'?record.category:record.type),page=frame(recordTitle(ctx,domain,record),parent,[],domain==='gear'?categoryLabel(domain,record.category)+' – '+record.type:domain==='kb'?record.description||'':'');
