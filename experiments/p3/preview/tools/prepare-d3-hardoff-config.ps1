@@ -97,10 +97,9 @@ $extra = @'
 '@
 $extra = $extra.Replace('PILOT_SHA_TO_SUBSTITUTE',$meta.sha256)
 $next = [regex]::Replace($next,'"vars"\s*:\s*\{',
- [System.Text.RegularExpressions.MatchEvaluator]{param($match) $extra},1)
-$next = [regex]::Replace($next,
- '"required"\s*:\s*\[',
- '"required": ["D3_GITHUB_APP_PRIVATE_KEY", "D3_HOST_PROBE_KEY",',1)
+ [System.Text.RegularExpressions.MatchEvaluator]{param($match) $extra})
+# Reuse the six existing encrypted D2/OAuth Worker secret bindings.
+# There is NO new D3 App PEM, probe value, plaintext secret or export step.
 if($next -eq $source -or $next -notmatch '"main": "src/d3-owner-runtime\.mjs"' -or
    $next -notmatch [regex]::Escape($meta.sha256)){
   throw 'D3 local config preparation did not match source invariants.'
