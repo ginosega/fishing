@@ -64,6 +64,20 @@ jobs:
           node tools/build-d3-wrangler-ci-config.mjs
           npx --yes wrangler@4.153.0 deploy --dry-run --config ./wrangler.d3-ci-generated.jsonc --outdir /tmp/fishing-d3-dryrun
           test -d /tmp/fishing-d3-dryrun
+      - name: Syntax-check inert Windows D3 operator preflight (do not run it)
+        shell: pwsh
+        run: |
+          $scriptFile = Join-Path $PWD 'experiments/p3/preview/tools/prepare-d3-hardoff-config.ps1'
+          $tokens = $null
+          $parseErrors = $null
+          [void][System.Management.Automation.Language.Parser]::ParseFile(
+            $scriptFile, [ref]$tokens, [ref]$parseErrors
+          )
+          if ($parseErrors.Count -ne 0) {
+            $parseErrors | ForEach-Object { Write-Error $_.Message }
+            throw 'Windows local preflight syntax invalid'
+          }
+          Write-Output 'PASS: D3 PowerShell script parsed; not executed'
       - name: Verify browser-paste Worker bundle matches source exactly
         run: node experiments/p3/preview/tools/build-dashboard.mjs
       - name: Exercise unpublished Cloudflare sandbox deny-by-default worker
