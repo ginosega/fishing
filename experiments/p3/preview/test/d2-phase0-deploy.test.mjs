@@ -6,6 +6,7 @@ const script=readFileSync(new URL('../tools/prepare-d2-phase0.ps1',import.meta.u
 const reconcile=readFileSync(new URL('../tools/reconcile-d2-phase0.ps1',import.meta.url),'utf8');
 const activation=readFileSync(new URL('../wrangler.d2-production-origin.example.jsonc',import.meta.url),'utf8');
 const stage=readFileSync(new URL('../tools/prepare-d2-sandbox-activation.ps1',import.meta.url),'utf8');
+const submit=readFileSync(new URL('../tools/prepare-d2-submission-only.ps1',import.meta.url),'utf8');
 const gitignore=readFileSync(new URL('../.gitignore',import.meta.url),'utf8');
 test('D2-P0 production-origin first deployment is hard-off, without cron or App credentials',()=>{
  assert.match(template,/"name":\s*"fishing-auth-p0-test"/);
@@ -100,4 +101,16 @@ test('D2-P4 local private-sandbox activation preparation does not activate publi
  assert(gitignore.includes('wrangler.d2-sandbox.local.jsonc'));
  assert(!/npx\.cmd|wrangler\s+deploy|Invoke-RestMethod|Invoke-WebRequest|node\.exe\s+.+\.mjs/im.test(
   stage.split(/\r?\n/).filter(line=>!line.trim().startsWith('#')).join('\n')));
+});
+
+test('D2-P5 submission-only release cannot trigger a GitHub write or expose hosted test bytes',()=>{
+ assert.match(submit,/wrangler\.d2-sandbox\.local\.jsonc/);
+ assert.match(submit,/wrangler\.d2-submit\.local\.jsonc/);
+ assert.match(submit,/\$c=\[regex\]::Replace\(\$c,'"D2_WRITE_ENABLED"/);
+ assert.match(submit,/\$c=\[regex\]::Replace\(\$c,'"D2_READ_TOKENS_ENABLED"/);
+ assert(!/\$c=\[regex\]::Replace\(\$c,'"D2_RUNNER_ENABLED"/.test(submit));
+ assert(!/\$c=\[regex\]::Replace\(\$c,'"D2_TEST_HOST_ENABLED"/.test(submit));
+ assert.match(submit,/Runner OFF, hosted proof OFF, Cron EMPTY/);
+ assert.match(submit,/No secret read, network call, D1 mutation, or Worker deployment/);
+ assert(gitignore.includes('wrangler.d2-submit.local.jsonc'));
 });
