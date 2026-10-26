@@ -78,7 +78,7 @@ if($meta.format -ne 'fishing-d3-pilot-local-build-v1' -or
 }
 # Only local configuration edits follow. Exact replacements (count=1).
 $next = $source
-$rules = '"keep_vars": true, "rules": [{"type":"Text","globs":["**/*.txt"]}],'
+$rules = '"keep_vars": true, "rules": [{"type":"Text","globs":["**/*.txt"],"fallthrough":true}],'
 $next = [regex]::Replace($next,'"keep_vars"\s*:\s*true\s*,',$rules)
 $next = [regex]::Replace($next,
  '"main"\s*:\s*"src/d2-live-publisher-worker\.mjs"',
