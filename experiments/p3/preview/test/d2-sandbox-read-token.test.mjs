@@ -11,7 +11,7 @@ const env={D2_GITHUB_APP_ID:'42',D2_GITHUB_INSTALLATION_ID:'99',
 const error=code=>e=>e instanceof D2TokenError&&e.code===code;
 const response=body=>({ok:true,status:200,redirected:false,json:async()=>body});
 function setup({enabled=false,permissions=grants,wrongRepo=false,
- wrongIssued=false,missingSecret=false}={}){
+ wrongIssued=false,issuedMetadata=false,issuedExtra=null,missingSecret=false}={}){
  const trace=[];
  const subject=createD2SandboxReadTokenIssuer({
   env:missingSecret?{...env,D2_GITHUB_APP_PRIVATE_KEY:null}:env,
@@ -37,7 +37,11 @@ function setup({enabled=false,permissions=grants,wrongRepo=false,
      Object.keys(v).every(k=>v[k]===requested.permissions[k])));
     return response({
      token:'restricted-read-token-example',
-     permissions:wrongIssued?{contents:'write'}:requested.permissions,
+     permissions:wrongIssued?{contents:'write'}:{
+      ...requested.permissions,
+      ...(issuedMetadata?{metadata:'read'}:{}),
+      ...(issuedExtra||{}),
+     },
      repositories:[{id:ID,full_name:REPO}],
     });
    }
@@ -98,4 +102,27 @@ test('D2-T05 exact checks, contents and PR-read grant for trusted CI observer is
  assert.deepEqual(result.permissions,scope);
  assert.equal(result.repositoryId,ID);
  assert.equal(x.trace.filter(z=>z.method==='POST').length,1);
+});
+
+test('D2-T06 implicit GitHub metadata:read on exact one-repo read token is allowed',async()=>{
+ const x=setup({enabled:true,issuedMetadata:true});
+ const r=await x.subject.issueReadToken({repositoryId:ID,
+  permissions:{contents:'read'}});
+ assert.deepEqual(r.permissions,{contents:'read'});
+ assert.equal(x.trace.length,3);
+ const y=setup({enabled:true,issuedMetadata:true});
+ const p={contents:'read',pull_requests:'read',checks:'read'};
+ const checked=await y.subject.issueReadToken({repositoryId:ID,permissions:p});
+ assert.deepEqual(checked.permissions,p);
+});
+test('D2-T07 only implicit metadata:read extra is allowed, never write or other extra',async()=>{
+ for(const issuedExtra of [
+  {metadata:'write'},{actions:'read'},{administration:'read'},
+  {contents:'write'},{pull_requests:'write'}, {checks:'write'},
+ ]){
+  const x=setup({enabled:true,issuedExtra});
+  await assert.rejects(x.subject.issueReadToken({
+   repositoryId:ID,permissions:{contents:'read'},
+  }),error('TOKEN_DENIED'));
+ }
 });
