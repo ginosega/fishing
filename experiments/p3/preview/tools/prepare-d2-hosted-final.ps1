@@ -37,11 +37,27 @@ foreach ($name in @('OWNER_GITHUB_ID','D2_GITHUB_APP_PRIVATE_KEY','D2_CSRF_KEY',
 # Preflight against the SAME isolated remote D1 binding that accepted the
 # exact operation. This SELECT has no writes and no changes to GitHub.
 $op = 'p3_343ef7ba-1c87-4d5d-a2ad-92e91eab420f'
-$sql = "SELECT operation_id,state,pr_number,main_base_sha,pr_head_sha,workflow_run_id,merge_sha,reason_code FROM p3_operations WHERE operation_id = '$op';"
+# Wrangler's --command argument may lose SQL quoting when PowerShell 5.1
+# invokes npx.cmd. Use a fixed, committed SELECT-only .sql file instead.
+$sqlFile = Join-Path $root 'tools/d2-final-preflight-readonly.sql'
+if (-not (Test-Path -LiteralPath $sqlFile)) { throw 'Missing fixed read-only SQL file.' }
+$sqlText = [System.IO.File]::ReadAllText($sqlFile)
+$statement = [regex]::Replace($sqlText,'(?m)^--[^\r\n]*(?:\r?\n|$)','')
+$statement = [regex]::Replace($statement,'\s+',' ').Trim()
+$expected = "SELECT operation_id,state,pr_number,main_base_sha,pr_head_sha,workflow_run_id,merge_sha,reason_code FROM p3_operations WHERE operation_id = '$op';"
+if ($statement -cne $expected) {
+ throw 'D1 preflight SQL changed; refusing to execute a non-reviewed statement.'
+}
 Push-Location $root
 try {
- $raw = & npx.cmd wrangler d1 execute fishing-p3-sandbox --remote --json --config .\wrangler.d2-runner.local.jsonc --command $sql
- if ($LASTEXITCODE -ne 0) { throw 'Remote read-only D1 preflight failed.' }
+ # JSON output contains operation metadata only: no secrets or snapshots.
+ $raw = @(& npx.cmd wrangler d1 execute fishing-p3-sandbox --remote --json --yes --config .\wrangler.d2-runner.local.jsonc --file .\tools\d2-final-preflight-readonly.sql)
+ $exitCode = $LASTEXITCODE
+ if ($exitCode -ne 0) {
+  Write-Output "Wrangler D1 read-only preflight exit code: $exitCode"
+  foreach ($line in $raw) { Write-Output $line }
+  throw 'Remote read-only D1 preflight failed; see Wrangler diagnostic above.'
+ }
  $parsed = ConvertFrom-Json -InputObject ($raw -join [Environment]::NewLine)
 } finally { Pop-Location }
 $entries = @($parsed)
