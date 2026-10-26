@@ -92,6 +92,8 @@ export function createD3SandboxScheduledCoordinator({
   observeCheck:info=>observer.observe(info),
   recordMerge:info=>store.saveMergeReceipt(info),
   enabled:()=>hosted(),
+  commitTitle:'FISH118 D3 isolated sandbox Gear/KB publication',
+  commitMessage:'Owner-authorized sandbox-only text; no public canonical content',
  });
  const runner=createD3SandboxOperationRunner({
   store,enabled:()=>active(),
