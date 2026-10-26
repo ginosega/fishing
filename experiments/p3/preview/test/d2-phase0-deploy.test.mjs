@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 const template=readFileSync(new URL('../wrangler.d2-phase0.example.jsonc',import.meta.url),'utf8');
 const script=readFileSync(new URL('../tools/prepare-d2-phase0.ps1',import.meta.url),'utf8');
+const reconcile=readFileSync(new URL('../tools/reconcile-d2-phase0.ps1',import.meta.url),'utf8');
 test('D2-P0 production-origin first deployment is hard-off, without cron or App credentials',()=>{
  assert.match(template,/"name":\s*"fishing-auth-p0-test"/);
  assert.match(template,/"main":\s*"src\/d2-live-publisher-worker\.mjs"/);
@@ -44,4 +45,19 @@ test('D2-P1 local preparer reads existing database IDs; cannot deploy or migrate
  assert.match(script,/Replace\('REPLACE_EXISTING_AUTH_P0_D1_UUID'/);
  assert.match(script,/Replace\('REPLACE_EXISTING_MIGRATED_P3_D1_UUID'/);
  assert(!/\& npx wrangler (?:deploy|d1 migrations|d1 create|d1 execute)/.test(script));
+});
+
+test('D2-P2 local reconciliation retains exact database UUIDs and leaves secrets untouched',()=>{
+ assert.match(reconcile,/Get-ExistingDatabaseId \$old 'DB' 'fishing-auth-p0'/);
+ assert.match(reconcile,/Get-ExistingDatabaseId \$old 'OPERATIONS_DB' 'fishing-p3-sandbox'/);
+ assert.match(reconcile,/\$bindingMatches = \[regex\]::Matches/);
+ assert.match(reconcile,/\$new = \$template\.Replace\('REPLACE_EXISTING_AUTH_P0_D1_UUID'/);
+ assert.match(reconcile,/\$new = \$new\.Replace\('REPLACE_EXISTING_MIGRATED_P3_D1_UUID'/);
+ for(const flag of ['D2_WRITE_ENABLED','D2_RUNNER_ENABLED',
+  'D2_READ_TOKENS_ENABLED','D2_TEST_HOST_ENABLED']){
+  assert(reconcile.includes(flag));
+ }
+ assert.match(reconcile,/Secret \$name is configured as plaintext/);
+ assert.match(reconcile,/No network calls, migrations, secrets, or Cloudflare deployment/);
+ assert(!/\b(?:wrangler|curl|Invoke-WebRequest|Invoke-RestMethod|git)\s+(?:deploy|put|post|secret|d1\s+execute)/i.test(reconcile));
 });
