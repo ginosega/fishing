@@ -5,3 +5,4 @@ wrangler.jsonc
 .wrangler/
 node_modules/
 wrangler.d2-phase0.local.jsonc
+wrangler.d2-sandbox.local.jsonc
