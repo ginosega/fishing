@@ -7,6 +7,8 @@ test('D2-P0 production-origin first deployment is hard-off, without cron or App 
  assert.match(template,/"name":\s*"fishing-auth-p0-test"/);
  assert.match(template,/"main":\s*"src\/d2-live-publisher-worker\.mjs"/);
  assert.match(template,/"keep_vars":\s*true/);
+ assert.match(template,/"preview_urls":\s*false/);
+ assert.match(template,/"observability":\s*\{\s*"enabled":\s*true,\s*"logs":\s*\{\s*"enabled":\s*true/);
  assert.match(template,/"APP_ORIGIN":\s*"https:\/\/fishing-auth-p0-test\.ginosega\.workers\.dev"/);
  for(const flag of ['D2_WRITE_ENABLED','D2_RUNNER_ENABLED',
   'D2_READ_TOKENS_ENABLED','D2_TEST_HOST_ENABLED']){
@@ -18,6 +20,12 @@ test('D2-P0 production-origin first deployment is hard-off, without cron or App 
  assert.match(template,/"database_name":\s*"fishing-auth-p0"/);
  assert.match(template,/"database_name":\s*"fishing-p3-sandbox"/);
  assert(!template.includes('"triggers"'));
+ for(const name of ['GITHUB_CLIENT_ID','GITHUB_CLIENT_SECRET','OWNER_GITHUB_ID',
+  'D2_CSRF_KEY','D2_HOST_PROBE_KEY']){
+  assert(template.includes('"'+name+'"'),
+   'Phase-0 must fail deploy without its required encrypted secret');
+ }
+ assert.match(template,/"secrets":\s*\{\s*"required":\s*\[/);
  for(const name of ['D2_GITHUB_APP_ID','D2_GITHUB_INSTALLATION_ID',
   'D2_GITHUB_APP_PRIVATE_KEY','GITHUB_CLIENT_SECRET','OWNER_GITHUB_ID']){
   assert(!new RegExp('"'+name+'"\\s*:').test(template),
