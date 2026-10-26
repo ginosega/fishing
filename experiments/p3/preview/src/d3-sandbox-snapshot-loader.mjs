@@ -153,7 +153,7 @@ export function createD3SandboxSnapshotLoader({
     for(const path of Object.values(SOURCE))
       hashes.set(path,entries.get(path).sha);
     const narratives=new Set(referenced.filter(p=>p.toLowerCase().endsWith('.md')));
-    need(narratives.length<=MAX_MD_FILES,'TOO_MANY_NARRATIVES');
+    need(narratives.size<=MAX_MD_FILES,'TOO_MANY_NARRATIVES');
     for(const relative of referenced){
       const path=ROOT+relative,entry=entries.get(path);
       need(validEntry(entry),'MISSING_REFERENCED_FILE');
