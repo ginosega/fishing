@@ -116,7 +116,7 @@ export function createD3GuardedOperationsApi({
 }={}){
   requireTrue(['describe','authorizeWrite','authorizeStatus'].every(x=>
     typeof session?.[x]==='function')&&
-    ['accept','get'].every(x=>typeof store?.[x]==='function')&&
+    ['accept','get','lookupReceipt'].every(x=>typeof store?.[x]==='function')&&
     typeof validateCandidate==='function'&&typeof enabled==='function',
     'INVALID_CONFIG');
   async function handle(request){
@@ -137,6 +137,22 @@ export function createD3GuardedOperationsApi({
           /^\d+$/.test(length)&&Number(length)<=MAX_BODY,
           'PAYLOAD_TOO_LARGE');
         const body=submission(await request.text());
+        // Recover the ORIGINAL durable receipt first. If its 202 response
+        // was lost and the sandbox main has since moved, fresh validation
+        // could misleadingly reject an operation that is already Accepted.
+        // The D1 lookup is owner/repo scoped and proves same key + payload
+        // against the original hashed, immutable stored request. Never
+        // create another operation or silently retry an uncertain POST.
+        const previous=await store.lookupReceipt(body);
+        if(previous){
+          requireTrue(operationPattern.test(previous.operationId??'')&&
+            typeof previous.state==='string'&&previous.inserted===false,
+            'UNVERIFIED_SOURCE');
+          return respond({ok:true,operationId:previous.operationId,
+            state:previous.state,accepted:true,duplicate:true,
+            statusPath:'/api/v3/operations/'+previous.operationId,
+            canonicalLive:false},200);
+        }
         let candidate;
         try{
           candidate=await validateCandidate({
