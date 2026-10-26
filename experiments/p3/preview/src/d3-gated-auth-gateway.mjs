@@ -17,6 +17,7 @@ import {createD3SandboxSnapshotLoader} from './d3-sandbox-snapshot-loader.mjs';
 import {createD3TrustedGearKBCandidate} from './d3-trusted-gear-kb-candidate.mjs';
 import {createD3GuardedOperationsApi} from './d3-guarded-operations-api.mjs';
 import {createD3OwnerSandboxSource} from './d3-owner-sandbox-source.mjs';
+import {createD3OwnerPilotHost} from './d3-owner-pilot-host.mjs';
 
 const ID=1430581407,OWNER=265665562;
 const authPaths=new Set([
@@ -32,17 +33,18 @@ const no=(status=404)=>new Response(JSON.stringify({
   'X-Content-Type-Options':'nosniff'}});
 export function createD3GatedAuthGateway({
   auth=authWorker,proxy=gatewayResponse,
-  requestGitHub,requestHosted,issueReadToken,
+  requestGitHub,requestHosted,issueReadToken,readPilotBundle,
   sessionFactory=createD2UnifiedOwnerSession,
   storeFactory=createD1OperationStore,
   apiFactory=createD3GuardedOperationsApi,
   sourceReadFactory=createD3OwnerSandboxSource,
+  pilotHostFactory=createD3OwnerPilotHost,
   hostAssetFactory=createD3PrivateHostedAsset,
   hostProofFactory=createD3PrivateHostProof,
 }={}){
   if(typeof auth?.fetch!=='function'||typeof proxy!=='function'||
     [sessionFactory,storeFactory,apiFactory,sourceReadFactory,
-     hostAssetFactory,hostProofFactory].some(x=>typeof x!=='function'))
+     hostAssetFactory,hostProofFactory,pilotHostFactory].some(x=>typeof x!=='function'))
     throw Error('D3 gateway requires trusted AUTH-P0 dependencies');
   async function fetchRequest(request,env,context){
     let url;
@@ -57,7 +59,10 @@ export function createD3GatedAuthGateway({
     if(authPaths.has(url.pathname)&&!url.searchParams.has('unknown'))
       return auth.fetch(request,env,context);
     const privateTest=url.pathname.startsWith('/__d3_test__/operations/');
-    if(!privateTest&&url.pathname!=='/session'&&
+    const pilot=url.pathname==='/__d3_pilot__/'||
+      url.pathname==='/__d3_pilot__/pilot.js';
+    if(pilot&&env.D3_PILOT_ENABLED!=='true')return no();
+    if(!privateTest&&!pilot&&url.pathname!=='/session'&&
       !operations(url.pathname))return no();
     if(privateTest&&env.D3_TEST_HOST_ENABLED!=='true')
       return no(404);
@@ -102,6 +107,15 @@ export function createD3GatedAuthGateway({
         enabled:()=>env.D3_READ_TOKENS_ENABLED==='true'&&
           env.D3_SANDBOX_REPO_ID===String(ID),
       });
+      if(pilot){
+        const route=pilotHostFactory({
+          origin:env.APP_ORIGIN,ownerSession:session,
+          readBundle:readPilotBundle??(async()=>null),
+          expectedSha256:env.D3_PILOT_SHA256??null,
+          enabled:()=>env.D3_PILOT_ENABLED==='true',
+        });
+        return await route.serve(request);
+      }
       if(privateTest){
         const proof=hostProofFactory({
           origin:env.APP_ORIGIN,key:env.D3_HOST_PROBE_KEY,
