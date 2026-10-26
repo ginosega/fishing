@@ -58,6 +58,12 @@ jobs:
           node --check /tmp/fishing-d3-owner-worker.bundle.mjs
           ./node_modules/.bin/esbuild ../experiments/p3/preview/src/d3-owner-runtime.mjs --bundle --platform=browser --format=esm --target=es2022 --loader:.txt=text --outfile=/tmp/fishing-d3-owner-runtime.bundle.mjs
           node --check /tmp/fishing-d3-owner-runtime.bundle.mjs
+      - name: Wrangler 4.153.0 dry-run private D3 Worker packaging (never deploy)
+        working-directory: experiments/p3/preview
+        run: |
+          node tools/build-d3-wrangler-ci-config.mjs
+          npx --yes wrangler@4.153.0 deploy --dry-run --config ./wrangler.d3-ci-generated.jsonc --outdir /tmp/fishing-d3-dryrun
+          test -d /tmp/fishing-d3-dryrun
       - name: Verify browser-paste Worker bundle matches source exactly
         run: node experiments/p3/preview/tools/build-dashboard.mjs
       - name: Exercise unpublished Cloudflare sandbox deny-by-default worker
