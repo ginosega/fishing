@@ -102,6 +102,10 @@ assert(!/<[^>]+\sstyle\s*=/.test(page),
 // Initialization is deliberately stopped at missing DOM dependencies.
 const messages=[];
 const sandbox={
+ // Provide harmless browser standard constructors, but disallow dynamic
+ // JS compilation at the VM context boundary. No network or real DOM.
+ TextEncoder,TextDecoder,URL,
+ crypto:globalThis.crypto,
  document:{getElementById:()=>null},
  location:{origin:'https://fishing.example',pathname:'/__d3_pilot__/'},
  navigator:{onLine:true},
