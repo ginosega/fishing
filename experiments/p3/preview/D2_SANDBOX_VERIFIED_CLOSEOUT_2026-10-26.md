@@ -25,3 +25,7 @@
 ## Outstanding
 
 D2 isolated end-to-end publishing proof is **complete**. Remaining work is a separately controlled v3 implementation/production release path, operations-hardening decisions (including automatic non-mutating reconciliation of unknown remote merge outcomes, if approved), disposition of active test Cron and secrets, and eventual canonical project-document handoff. Do not conflate those with a completed public site launch.
+
+## Post-test Worker disposition — completed October 26, 2026
+
+The owner executed the guarded `tools/prepare-d2-parked-worker.ps1` against the exact terminal D1 `Live` receipt. The local ignored parked configuration was dry-run validated, then deployed successfully by Wrangler 4.153.0. **Confirmed deployed Worker version: `82b678b2-b024-4428-922c-d2363f2bcbc2`.** All four D2 flags (`D2_WRITE_ENABLED`, `D2_RUNNER_ENABLED`, `D2_READ_TOKENS_ENABLED`, `D2_TEST_HOST_ENABLED`) reported **false**. Deployed triggers output listed the production Worker URL **without a Cron schedule**, confirming the five-minute test scheduler was removed. Existing `DB` and `OPERATIONS_DB` bindings were retained; no D1 mutation, GitHub merge, new operation submission, or PWA publication was part of this deployment. The earlier description of an active Cron above is historical at the first closeout checkpoint, superseded by this disposition.
