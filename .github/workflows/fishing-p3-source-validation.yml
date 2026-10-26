@@ -46,6 +46,8 @@ jobs:
           node --check /tmp/fishing-d3-gateway.bundle.mjs
           ./node_modules/.bin/esbuild ../experiments/p3/preview/src/d3-owner-test-shell.mjs --bundle --platform=browser --format=esm --target=es2022 --outfile=/tmp/fishing-d3-shell.bundle.mjs
           node --check /tmp/fishing-d3-shell.bundle.mjs
+          ./node_modules/.bin/esbuild ../experiments/p3/preview/src/d3-owner-pilot-main.mjs --bundle --platform=browser --format=iife --target=es2022 --minify --outfile=/tmp/fishing-d3-pilot.bundle.js
+          node --check /tmp/fishing-d3-pilot.bundle.js
           ./node_modules/.bin/esbuild ../experiments/p3/preview/src/d3-sandbox-scheduled-coordinator.mjs --bundle --platform=browser --format=esm --target=es2022 --outfile=/tmp/fishing-d3-coordinator.bundle.mjs
           node --check /tmp/fishing-d3-coordinator.bundle.mjs
           ./node_modules/.bin/esbuild ../experiments/p3/preview/src/d3-live-owner-worker.mjs --bundle --platform=browser --format=esm --target=es2022 --outfile=/tmp/fishing-d3-owner-worker.bundle.mjs
