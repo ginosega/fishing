@@ -118,3 +118,45 @@ test('D3-C07 owner session expires or revokes; no cached CSRF can authorize futu
   refuse('OWNER_SESSION_REQUIRED'));
  assert.equal(hits,2);
 });
+
+test('D3-C08 signed-in owner signs out through existing first-party P0 endpoint',async()=>{
+ const requests=[];
+ const client=createD3AuthoringClient({origin,enabled:()=>true,
+  request:async(url,init)=>{
+   requests.push({url,init});
+   if(url===origin+'/session')return ok({
+    authenticated:true,authorized:true,csrfToken:csrf});
+   if(url===origin+'/session/signout')return ok({signedOut:true});
+   throw Error('Unexpected request');
+  },
+ });
+ await client.session();
+ assert.equal(await client.signOut(),true);
+ assert.equal(requests[1].url,origin+'/session/signout');
+ assert.equal(requests[1].init.method,'POST');
+ assert.equal(requests[1].init.headers['X-Fish-P0-Intent'],'signout');
+ assert.equal(requests[1].init.credentials,'same-origin');
+ assert.equal(requests[1].init.redirect,'manual');
+ await assert.rejects(client.publish({
+  package:sample,idempotencyKey:'idempotent-test-001',
+ }),refuse('OWNER_SESSION_REQUIRED'));
+ assert.equal(requests.length,2);
+});
+test('D3-C09 ambiguous signout cannot preserve cached CSRF or retry implicitly',async()=>{
+ let count=0;
+ const client=createD3AuthoringClient({origin,enabled:()=>true,
+  request:async url=>{
+   count++;
+   if(url===origin+'/session')return ok({
+    authenticated:true,authorized:true,csrfToken:csrf});
+   return ok({signedOut:false},503);
+  },
+ });
+ await client.session();
+ await assert.rejects(client.signOut(),refuse('SIGNOUT_UNCONFIRMED'));
+ await assert.rejects(client.signOut(),refuse('OWNER_SESSION_REQUIRED'));
+ await assert.rejects(client.publish({
+  package:sample,idempotencyKey:'idempotent-test-001',
+ }),refuse('OWNER_SESSION_REQUIRED'));
+ assert.equal(count,2);
+});
