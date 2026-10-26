@@ -1,5 +1,22 @@
 // Explicit complete-offline-library management. Editing remains exclusively in memory.
-export function createOffline({root,releaseId,onStatus,isDirty,notify}){
+export function createOffline({root,releaseId,onStatus,isDirty,notify,
+ onlineOnly=false}){
+ // Isolated private owner pilot lives outside /fishing/ SW scope. Its
+ // content is fetched from an authenticated immutable sandbox snapshot,
+ // NEVER cached as part of the verified public V2 offline release.
+ if(onlineOnly===true){
+  const status={state:'OnlineOnly',releaseId:null,files:0,bytes:0,failed:[],
+   message:'Private sandbox pilot · online-only'};
+  return {
+   start:async()=>onStatus({...status,updating:false}),
+   checkCurrent:async()=>true,
+   getStatus:()=>({...status}),
+   update:async()=>notify('The private sandbox pilot does not have an offline library.'),
+   reload:()=>{if(isDirty()&&!confirm('Discard the unfinished private sandbox edit?'))return;location.reload();},
+   dispose:()=>{},
+   getSessionReleaseId:()=>releaseId,
+  };
+ }
  let registration=null,updating=false,checking=null,switching=false,warned=false;
  let status={state:'Incomplete',releaseId:null,files:0,bytes:0,failed:[]};
  const publish=next=>{status={...status,...next};onStatus({...status,updating});};
