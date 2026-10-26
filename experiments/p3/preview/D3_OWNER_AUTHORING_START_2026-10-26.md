@@ -161,3 +161,18 @@ Source-only deployment guard `tools/deploy-d3-hardoff-approved.ps1` now requires
 **Status distinction:** D3 code is now deployed to the intended Worker **but all privileged features are disabled**. This does NOT constitute D3 end-to-end acceptance, sandbox Gear/KB publishing, Android installed PWA validation, public V3 cutover or any D1 operation/migration. The draft PR is still the reviewed source, not public canonical main. Keep the exact new version pinned and retain the old D2 version for rollback. The approved hard-OFF deployment is FINISHED. Do not redeploy it, reactivate D2, or replay the D2 completed sandbox receipt.
 
 **Next:** continue read-only pilot/session source-level integration review, then request a **new narrow scoped approval** before modifying enabled feature flags or sending selected-app tokens. The prior approval covered hard-OFF deployment only, not enabling read, pilot, writes or runner.
+
+
+## D3 read-only owner pilot readiness corrections
+
+**Hard-OFF Worker deployment remains complete:** `56f775f6-ca91-464e-be9b-40ec2bed40e6`. No D3 feature flag was changed after the owner's deployment; subsequent commits are source-only PR #263. Do not conflate a later draft PR SHA with the deployed bundle.
+
+Before allowing real private repository reads, reviewed and hardened three owner-pilot boundaries:
+
+1. **OAuth return:** an owner pilot login may request `return=/__d3_pilot__/` only when `D3_PILOT_ENABLED=true`; AUTH-P0 emits a distinct signed-flow state suffix `.p`, validates it on callback, and refuses an in-progress pilot callback if the pilot flag was disabled. Ordinary V2 `/fishing/` return remains unchanged. A separate test verifies that external/unsupported callback destinations fail BEFORE any auth-flow write. The pilot's Connection Status uses the gated return URL only on the exact `/__d3_pilot__/` path.
+2. **No V2 offline mixing:** private sandbox pilot pages outside `/fishing/` do not register, request status from or mutate public V2 service workers/offline caches. Pilot offline controls remain disabled; public V2 unchanged. The private editor remains online-only pending future D5 scope.
+3. **Read-only pilot UX:** a fetched owner sandbox snapshot does NOT expose Gear/KB editing or a Save and Publish control by default. `createD3OwnerTestShell` now requires a separate explicitly enabled `publishingEnabled()` gate in client composition as well as the independent server D3 write gate; source-only tests exercise both states. The actual bundled owner pilot uses the default false and is therefore genuinely read-only in the first activation.
+
+New `tools/prepare-d3-readonly-pilot.ps1` is a **preparation-only** operator helper, guarded by an exact current Git SHA and the already verified live hard-off Worker version. It builds the new pilot bytes and generates a second ignored local Wrangler config from the previously reviewed hard-off file with ONLY `D3_PILOT_ENABLED` and `D3_READ_TOKENS_ENABLED` true. All writer/runner/test-host/D2 flags remain off, both original D1 bindings and encrypted secrets are retained, zero Cron. Its execution does not deploy, mint a token, rotate a secret, run SQL or write GitHub.
+
+**Next consequential step, NOT YET AUTHORIZED:** owner approval for narrowly scoped **read-only owner pilot + private sandbox Contents read tokens**; then independently verified local preflight, one version-locked Cloudflare replacement, owner login/GET source acceptance and disabled-writer negative checks. No sandbox GitHub writes or final V3 cutover.
