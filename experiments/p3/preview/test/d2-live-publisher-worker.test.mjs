@@ -142,6 +142,5 @@ test('D2-L06 active scheduler failure must reject waitUntil and expose only a sa
   await assert.rejects(task,/D2_SCHEDULED_FAILURE/);
   assert.deepEqual(failures,['INTERNAL_FAILURE']);
   assert.deepEqual(logs,[['FISH118_D2_SCHEDULED_FAILURE','INTERNAL_FAILURE']]);
- });
- finally{console.error=original;}
+ } finally { console.error=original; }
 });
