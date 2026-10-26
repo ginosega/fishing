@@ -146,8 +146,11 @@ export function mountD3ConnectionPanel({
     void controller.refreshPublication().then(paint,paint);
    });
   }else{
-   desc.textContent=state.phase==='Unavailable'?
-    'Owner session status unavailable.':'Anonymous browsing.';
+   desc.textContent=state.phase==='Offline'?
+    'Offline. Owner sign-in requires a connection.':
+    state.phase==='Unavailable'?'Owner session status unavailable.':
+    'Anonymous browsing.';
+   if(state.phase==='Offline')return;
    // Link is intentionally only in the Connection Status dialog.
    const a=documentObject.createElement('a');
    a.href='/auth/start';a.textContent='Sign in with GitHub';
