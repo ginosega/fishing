@@ -10,7 +10,13 @@ import {validateBrowserImage} from './image-validation.mjs';
 const clone=value=>structuredClone(value);
 function serialize(record){return JSON.stringify(record);}
 function optional(record,key,value){if(value.trim())record[key]=value.trim();else delete record[key];}
-function knownFiles(ctx){const prefix=`releases/${ctx.release.id}/content/`;return new Map(ctx.manifest.files.filter(x=>x.path.startsWith(prefix)).map(x=>[x.path.slice(prefix.length),x]));}
+function knownFiles(ctx){
+ if(ctx.v3?.source?.files instanceof Set)
+  return new Map([...ctx.v3.source.files].map(path=>[path,{path}]));
+ const prefix=`releases/${ctx.release.id}/content/`;
+ return new Map(ctx.manifest.files.filter(x=>x.path.startsWith(prefix))
+  .map(x=>[x.path.slice(prefix.length),x]));
+}
 function knownPaths(ctx){return new Set(knownFiles(ctx).keys());}
 function editorMaps(ctx,domain,record){const data=clone(ctx.data),key=DOMAIN[domain].array;data[domain][key]=data[domain][key].filter(x=>x.id!==record.id).concat(record);return {data,maps:validateRecords(data),routes:markdownRouteMap(data)};}
 function linkToUpload(path){const dir=path.split('/').slice(0,-1).map(encodeURIComponent).join('/');return `https://github.com/ginosega/fishing/tree/main/pwa/${dir}`;}
@@ -23,7 +29,21 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
  const editing=Boolean(baseRecord),key=domain==='gear'?'notes':'content',record=baseRecord?clone(baseRecord):{id:'',name:'',...(domain==='gear'?{category:category||'lures',type:'',specifications:[],links:[]}:{type:type||'technique',content:''})};
  if(!editing&&domain==='gear')record.type=(record.category==='rods-reels'?ROD_TYPES:record.category==='accessories'?EQUIPMENT_TYPES:TAXONOMY[record.category])[0];
  let baseText='',body='',baseHash=null,idTouched=false,mediaAction='keep',fileInfo=null,previewUrl=null,sequenceInfos=[],sequenceUrls=[],prepared=null,savePending=false,saveAccepted=false;
- if(baseRecord?.[key]){const response=await fetch(ctx.asset(baseRecord[key]));if(!response.ok)throw new Error(`Cannot read original Markdown: ${response.status}`);const bytes=new Uint8Array(await response.arrayBuffer());baseText=new TextDecoder('utf-8',{fatal:true}).decode(bytes);body=baseText;baseHash=await sha256(bytes);}
+ if(baseRecord?.[key]){
+  let bytes;
+  if(ctx.v3?.source?.markdown instanceof Map){
+   const text=ctx.v3.source.markdown.get(baseRecord[key]);
+   if(typeof text!=='string')
+    throw new Error('The immutable sandbox Markdown is missing.');
+   bytes=new TextEncoder().encode(text);
+  }else{
+   const response=await fetch(ctx.asset(baseRecord[key]));
+   if(!response.ok)throw new Error(`Cannot read original Markdown: ${response.status}`);
+   bytes=new Uint8Array(await response.arrayBuffer());
+  }
+  baseText=new TextDecoder('utf-8',{fatal:true}).decode(bytes);
+  body=baseText;baseHash=await sha256(bytes);
+ }
  if(!editing&&domain==='kb')body='';
  const host=el('div',{class:'editor'}),notice=el('div',{class:'editor-notice','aria-live':'polite'}),form=el('form',{class:'editor-form'}),output=el('div',{class:'handoff-output'});
  const original=serialize(record),initialBody=body;
