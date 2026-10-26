@@ -10,7 +10,9 @@ import authWorker from './d2-auth-owner-worker.mjs';
 import {gatewayResponse} from './d2-auth-static-gateway.mjs';
 import {createD2UnifiedOwnerSession} from './d2-unified-owner-session.mjs';
 import {createD1OperationStore} from './d1-operation-store.mjs';
-import {createD2SandboxReadTokenIssuer} from './d2-sandbox-read-token.mjs';
+import {createD3SandboxTokenIssuers} from './d3-sandbox-token-issuers.mjs';
+import {createD3PrivateHostedAsset} from './d3-private-hosted-asset.mjs';
+import {createD3PrivateHostProof} from './d3-private-host-proof.mjs';
 import {createD3SandboxSnapshotLoader} from './d3-sandbox-snapshot-loader.mjs';
 import {createD3TrustedGearKBCandidate} from './d3-trusted-gear-kb-candidate.mjs';
 import {createD3GuardedOperationsApi} from './d3-guarded-operations-api.mjs';
@@ -29,14 +31,17 @@ const no=(status=404)=>new Response(JSON.stringify({
   'X-Content-Type-Options':'nosniff'}});
 export function createD3GatedAuthGateway({
   auth=authWorker,proxy=gatewayResponse,
-  requestGitHub,issueReadToken,
+  requestGitHub,requestHosted,issueReadToken,
   sessionFactory=createD2UnifiedOwnerSession,
   storeFactory=createD1OperationStore,
   apiFactory=createD3GuardedOperationsApi,
   sourceReadFactory=createD3OwnerSandboxSource,
+  hostAssetFactory=createD3PrivateHostedAsset,
+  hostProofFactory=createD3PrivateHostProof,
 }={}){
   if(typeof auth?.fetch!=='function'||typeof proxy!=='function'||
-    [sessionFactory,storeFactory,apiFactory,sourceReadFactory].some(x=>typeof x!=='function'))
+    [sessionFactory,storeFactory,apiFactory,sourceReadFactory,
+     hostAssetFactory,hostProofFactory].some(x=>typeof x!=='function'))
     throw Error('D3 gateway requires trusted AUTH-P0 dependencies');
   async function fetchRequest(request,env,context){
     let url;
@@ -50,7 +55,14 @@ export function createD3GatedAuthGateway({
     }
     if(authPaths.has(url.pathname)&&!url.searchParams.has('unknown'))
       return auth.fetch(request,env,context);
-    if(url.pathname!=='/session'&&!operations(url.pathname))return no();
+    const privateTest=url.pathname.startsWith('/__d3_test__/operations/');
+    if(!privateTest&&url.pathname!=='/session'&&
+      !operations(url.pathname))return no();
+    if(privateTest&&env.D3_TEST_HOST_ENABLED!=='true')
+      return no(404);
+    if(privateTest&&(
+      typeof env.D3_HOST_PROBE_KEY!=='string'||
+      env.D3_HOST_PROBE_KEY.length<32))return no(503);
     // A disabled D3 writer does not create a second secret/token ingress.
     // Owner status GET remains available when real D1 bindings are present.
     if(request.method==='POST'&&url.pathname==='/api/v3/operations'&&
@@ -74,7 +86,7 @@ export function createD3GatedAuthGateway({
         DB:env.OPERATIONS_DB,ownerGitHubId:OWNER,repositoryId:ID,
       });
       const transport=requestGitHub??fetch;
-      const grant=issueReadToken??createD2SandboxReadTokenIssuer({
+      const grant=issueReadToken??createD3SandboxTokenIssuers({
         env,request:transport,
         enabled:()=>env.D3_READ_TOKENS_ENABLED==='true'&&
           env.D3_SANDBOX_REPO_ID===String(ID),
@@ -89,6 +101,22 @@ export function createD3GatedAuthGateway({
         enabled:()=>env.D3_READ_TOKENS_ENABLED==='true'&&
           env.D3_SANDBOX_REPO_ID===String(ID),
       });
+      if(privateTest){
+        const proof=hostProofFactory({
+          origin:env.APP_ORIGIN,key:env.D3_HOST_PROBE_KEY,
+          store,issueReadToken:grant,requestGitHub:transport,
+          requestHosted:requestHosted??fetch,
+        });
+        const asset=hostAssetFactory({
+          origin:env.APP_ORIGIN,ownerSession:session,store,
+          issueReadToken:grant,requestGitHub:transport,
+          authorizeProbe:proof.authorizeProbe,
+          enabled:()=>env.D3_TEST_HOST_ENABLED==='true'&&
+            env.D3_READ_TOKENS_ENABLED==='true'&&
+            env.D3_SANDBOX_REPO_ID===String(ID),
+        });
+        return await asset.serve(request);
+      }
       if(url.pathname==='/api/v3/authoring-source'){
         const reader=sourceReadFactory({
           origin:env.APP_ORIGIN,ownerSession:session,
