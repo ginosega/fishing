@@ -122,7 +122,7 @@ test('D2-P6 final hosted test activation is scoped to exact already-checked PR #
  assert.match(final,/--remote --json --yes --config/);
  assert.match(final,/--file \.\\tools\\d2-final-preflight-readonly\.sql/);
  const readonly=readFileSync(new URL('../tools/d2-final-preflight-readonly.sql',import.meta.url),'utf8');
- const cleaned=readonly.replace(/^--[^\\r\\n]*(?:\\r?\\n|$)/gm,'').replace(/\\s+/g,' ').trim();
+ const cleaned=readonly.replace(/^--[^\r\n]*(?:\r?\n|$)/gm,'').replace(/\s+/g,' ').trim();
  assert.equal(cleaned, "SELECT operation_id,state,pr_number,main_base_sha,pr_head_sha,workflow_run_id,merge_sha,reason_code FROM p3_operations WHERE operation_id = 'p3_343ef7ba-1c87-4d5d-a2ad-92e91eab420f';");
  assert.match(final,/D1 preflight SQL changed; refusing to execute/);
  assert.match(final,/Wrangler D1 read-only preflight exit code/);
