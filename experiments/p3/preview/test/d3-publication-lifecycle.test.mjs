@@ -152,3 +152,18 @@ test('D3-L07 storage unavailable still preserves an in-memory accepted receipt',
  assert.equal(s.trackingStored,false);
  assert.equal(s.operationId,op);
 });
+
+test('D3-L08 every durable intermediate state stays navigable and never claims Live',async()=>{
+ for(const stage of ['Accepted','Validating','Checking','Merging','Deploying','Verifying']){
+  const client={publish:async()=>success,status:async()=>({
+   operationId:op,state:stage,terminal:false,publicLive:false,
+   sandboxVerified:false,needsAttention:false,
+  })};
+  const flow=createD3PublicationLifecycle({enabled:()=>true,makeKey:()=>key,client});
+  await flow.submit(pkg);
+  const result=await flow.refresh();
+  assert.equal(result.phase,stage);
+  assert.equal(result.canLeaveEditor,true);
+  assert.equal(result.publicLive,false);
+ }
+});
