@@ -105,3 +105,19 @@ Read-only GitHub API checks: the sandbox is private, repository ID 1430581407, w
 - Regression assertions were added for the owner sign-in URL and legacy test-route denial. Isolated source CI #525 completed **success**; no Cloudflare deployment or actual D3 GitHub write resulted from these changes.
 
 **Next stage:** review redacted Bindings evidence, finish gated pilot entrypoint and Cloudflare deploy configuration in source, then obtain a distinctly scoped runtime-activation approval. Do not silently enable D3, recreate the D2 Cron, run D1 migrations, merge PR #263, or modify public canonical main.
+
+
+## D3 owner pilot entrypoint source checkpoint — October 26, 2026
+
+**Owner's verified Cloudflare Bindings screenshot:** the live `fishing-auth-p0-test` production Worker has exactly the two expected D1 bindings `DB → fishing-auth-p0` and `OPERATIONS_DB → fishing-p3-sandbox`. No binding names or databases need modification. Earlier live inventory shows production Workers.dev on, preview off, no custom domains/routes, zero Cron, zero queue consumers and still parked D2 version `82b678b2-b024-4428-922c-d2363f2bcbc2`. The screenshot does not display plaintext environment variables or flags; those are not independently reverified by this evidence.
+
+**Additional source-only work:**
+
+- `pwa/src/ui.mjs` now uses the immutable private sandbox file inventory when validating Markdown references in opted-in owner mode. Public V2 inventory remains unchanged in ordinary mode.
+- The new `d3-owner-pilot-entry.mjs` verifies the public V2 `release.json` manifest SHA-256, base, schema and CSS file before loading the separate owner-only test shell. Its Gear/KB source stays the private authenticated sandbox, not the public V2 release.
+- `d3-owner-pilot-page.mjs` is a distinct test-only HTML document (not an injected rewrite of canonical `/fishing/`); `d3-owner-pilot-main.mjs` supplies a separately compiled browser entry. The test page is visibly marked as a private sandbox.
+- `d3-owner-pilot-host.mjs` can serve the private pilot HTML/JS only after a freshly verified AUTH-P0 owner cookie, exact HTTPS origin, no query/bearer, source feature gate and exact pinned JS bundle SHA-256. The route uses no-store, noindex and restrictive CSP. Its future pilot bundle provider must supply exact bytes; missing or altered bytes fail closed.
+- `d3-gated-auth-gateway.mjs` now recognizes `/__d3_pilot__/` and `/__d3_pilot__/pilot.js` only when `D3_PILOT_ENABLED=true`. The source-only main Worker does **not** supply `readPilotBundle` and has no live pilot asset binding; therefore there is still **no available test UI or new deployed endpoint**.
+- `wrangler.d3-production-origin.example.jsonc` is a hard-OFF, no-Cron, placeholder-ID source template tied to the existing Worker and two existing D1 database names. It is intentionally NOT an executable deployment configuration. Do not install it, enable any D3 key/flags, or run remote D1 migrations based only on source tests.
+
+**Remaining before one operator-approved live D3 pilot:** choose a secure same-origin, Worker-first distribution path for the compiled private pilot bundle (no Cloudflare static-asset bypass), pin SHA-256 and verify permission gates; review the future Wrangler local config's exact existing D1 UUIDs in private and encrypted secret names/types; confirm the selected GitHub App still has required effective read/write permissions; preserve the parked D2 rollback version. Only then authorize a controlled hard-OFF deployment, followed by separately authorized D3 owner read and sandbox writes/CI/hosted proof. The public V2 entrypoint and canonical repository remain unmodified.
