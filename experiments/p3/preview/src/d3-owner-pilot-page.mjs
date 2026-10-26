@@ -32,8 +32,7 @@ export const D3_OWNER_PILOT_HTML=String.raw`<!doctype html>
 <main id="app" class="site-main" tabindex="-1">
   <p>Loading the private Fishing sandbox…</p>
 </main>
-<aside id="app-notice" class="site-main" aria-live="polite"
-  style="min-height:0;padding-top:0;padding-bottom:0"></aside>
+<aside id="app-notice" class="site-main" aria-live="polite"></aside>
 <dialog id="connection-dialog" class="small-dialog"
   aria-labelledby="connection-title">
   <h2 id="connection-title">Connection status</h2>
