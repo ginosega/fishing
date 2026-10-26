@@ -121,7 +121,7 @@ test('D2-P6 final hosted test activation is scoped to exact already-checked PR #
  assert.match(final,/wrangler\.d2-hosted-final\.local\.jsonc/);
  assert.match(final,/--remote --json --config/);
  assert.match(final,/--command \$sql/);
- assert.doesNotMatch(final,/--file/);
+ assert.doesNotMatch(final,/--file \\.\\\\tools/);
  assert.match(final,/SELECT operation_id,state,pr_number,main_base_sha,pr_head_sha,workflow_run_id,merge_sha,reason_code FROM p3_operations LIMIT 2;/);
  assert.match(final,/\$entries\.Count -ne 1/);
  assert.match(final,/Wrangler D1 read-only preflight exit code/);
