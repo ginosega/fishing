@@ -29,11 +29,6 @@ const check=(v,code)=>{if(!v)deny(code);};
 const object=x=>x&&Object.getPrototypeOf(x)===Object.prototype;
 const own=(record,domain)=>record?.[domain==='gear'?'notes':'content']??null;
 const textPath=(path)=>{try{return safePath(path);}catch{deny('UNSAFE_NARRATIVE_PATH');}};
-const canonicalNames=data=>new Set([
- ...data.gear.items.map(x=>x.id),
- ...data.kb.entities.map(x=>x.id),
- ...data.catches.catches.map(x=>x.id),
-]);
 
 export function createD3TrustedGearKBCandidate({loadSnapshot,enabled=()=>false}={}){
  check(typeof loadSnapshot==='function'&&typeof enabled==='function','INVALID_CONFIGURATION');
@@ -71,9 +66,8 @@ export function createD3TrustedGearKBCandidate({loadSnapshot,enabled=()=>false}=
   const current=pos>=0?data[pkg.domain][array][pos]:null;
   if(pkg.operation==='add'){
    check(current===null&&pkg.base.recordHash===null,'DUPLICATE_OR_INVALID_ADD');
-   // Prevent IDs shared between Gear and KB domains from being silently
-   // reused in new authored items; internal reference ownership is stable.
-   check(!canonicalNames(data).has(pkg.id),'ID_COLLISION');
+   check(object(pkg.record)&&!['notes','content','picture','pictureSequence']
+    .some(key=>Object.hasOwn(pkg.record,key)),'UNTRUSTED_ADD_FIELDS');
   }else{
    check(current!==null&&HASH.test(pkg.base.recordHash??''),'MISSING_BASE_RECORD');
    if(pkg.base.sourceRevision===snapshot.sourceRevision)
