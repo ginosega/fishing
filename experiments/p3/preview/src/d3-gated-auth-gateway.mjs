@@ -19,8 +19,9 @@ import {createD3GuardedOperationsApi} from './d3-guarded-operations-api.mjs';
 import {createD3OwnerSandboxSource} from './d3-owner-sandbox-source.mjs';
 
 const ID=1430581407,OWNER=265665562;
-const authPaths=new Set(['/','/test-client.js','/test.css',
-  '/auth/start','/auth/callback','/session/signout','/session/revoke-all']);
+const authPaths=new Set([
+  '/auth/start','/auth/callback','/session/signout','/session/revoke-all',
+]);
 const operations=path=>path==='/api/v3/authoring-source'||
   path==='/api/v3/operations'||
   /^\/api\/v3\/operations\/[^/]+$/.test(path);
