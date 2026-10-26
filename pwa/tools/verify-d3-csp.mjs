@@ -115,7 +115,12 @@ const sandbox={
 const context=vm.createContext(sandbox,{
  codeGeneration:{strings:false,wasm:false},
 });
-new vm.Script(bundle,{filename:'pilot.js'}).runInContext(context,{timeout:5000});
+try{
+ new vm.Script(bundle,{filename:'pilot.js'}).runInContext(context,{timeout:5000});
+}catch(e){
+ console.error('D3_CSP_VM_INIT_FAILED',e?.name,e?.message);
+ process.exit(1);
+}
 assert(messages.some(x=>x.startsWith('D3_PILOT_BOOTSTRAP_FAILED')),
  'Pilot should reach top-level controlled DOM bootstrap without eval failure');
 process.stdout.write(JSON.stringify({
