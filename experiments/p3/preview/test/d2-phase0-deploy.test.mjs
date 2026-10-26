@@ -5,6 +5,8 @@ const template=readFileSync(new URL('../wrangler.d2-phase0.example.jsonc',import
 const script=readFileSync(new URL('../tools/prepare-d2-phase0.ps1',import.meta.url),'utf8');
 const reconcile=readFileSync(new URL('../tools/reconcile-d2-phase0.ps1',import.meta.url),'utf8');
 const activation=readFileSync(new URL('../wrangler.d2-production-origin.example.jsonc',import.meta.url),'utf8');
+const stage=readFileSync(new URL('../tools/prepare-d2-sandbox-activation.ps1',import.meta.url),'utf8');
+const gitignore=readFileSync(new URL('../.gitignore',import.meta.url),'utf8');
 test('D2-P0 production-origin first deployment is hard-off, without cron or App credentials',()=>{
  assert.match(template,/"name":\s*"fishing-auth-p0-test"/);
  assert.match(template,/"main":\s*"src\/d2-live-publisher-worker\.mjs"/);
@@ -80,4 +82,22 @@ test('D2-P3 activation template is still hard-off, secret-required, and ready fo
  }
  assert(activation.includes('1430581407'));
  assert(!activation.includes('P3_GITHUB_PRIVATE_KEY":'));
+});
+
+test('D2-P4 local private-sandbox activation preparation does not activate publisher or Cron',()=>{
+ assert.match(stage,/\$prior=\[System\.IO\.File\]::ReadAllText\(\$oldPath\)/);
+ assert.match(stage,/Read-DbId \$prior 'DB' 'fishing-auth-p0'/);
+ assert.match(stage,/Read-DbId \$prior 'OPERATIONS_DB' 'fishing-p3-sandbox'/);
+ assert.match(stage,/Replace\('REPLACE_WITH_DEDICATED_SANDBOX_APP_ID',\$AppId\)/);
+ assert.match(stage,/Replace\('REPLACE_WITH_DEDICATED_SELECTED_INSTALLATION_ID',\$InstallationId\)/);
+ assert.match(stage,/\$config=\$config\.Replace\(\$sourceCron,'"triggers": \{ "crons": \[\] \}'\)/);
+ for(const flag of ['D2_WRITE_ENABLED','D2_RUNNER_ENABLED',
+  'D2_READ_TOKENS_ENABLED','D2_TEST_HOST_ENABLED']){
+   assert(stage.includes("'"+flag+"'"),'missing hard-off gate: '+flag);
+ }
+ assert(stage.includes("'D2_GITHUB_APP_PRIVATE_KEY'"));
+ assert.match(stage,/No PEM read, GitHub write, D1 mutation, or Worker deployment/);
+ assert(gitignore.includes('wrangler.d2-sandbox.local.jsonc'));
+ assert(!/npx\.cmd|wrangler\s+deploy|Invoke-RestMethod|Invoke-WebRequest|node\.exe\s+.+\.mjs/im.test(
+  stage.split(/\r?\n/).filter(line=>!line.trim().startsWith('#')).join('\n')));
 });
