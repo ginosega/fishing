@@ -5,6 +5,7 @@ import {parseMarkdown,sanitizeHtml,markdownRouteMap} from './markdown.mjs';
 import {createEditor} from './editor.mjs';
 import {openViewer,openSequenceViewer} from './viewer.mjs';
 import {createOffline} from './offline.mjs';
+import {createD3ConnectionController,mountD3ConnectionPanel} from './v3-connection.mjs';
 
 const KAYAK_ICON=`<svg viewBox="0 0 64 64" role="img" aria-label="Kayak">
   <defs><linearGradient id="kayakHull" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a2def7"/><stop offset="1" stop-color="#76c8ef"/></linearGradient></defs>
@@ -35,6 +36,7 @@ export function createApp(ctx){
  // authenticated, same-origin integration; server authorization is still
  // mandatory for every actual write, regardless of client-side visibility.
  const v3Mode=ctx.v3?.enabled===true;
+ if(v3Mode)ctx.v3.authorized=false; // do not trust stale browser state
  const canAuthor=()=>!v3Mode||(ctx.v3?.authorized===true&&typeof ctx.v3?.publish==='function');
  function notify(message,kind='info'){status(alertHost,message,kind);}
  function dirty(){return Boolean(editor?.isDirty());}
@@ -110,11 +112,40 @@ export function createApp(ctx){
  globalThis.__FISHING_SHELL_CLEANUP__?.();
  const connection=document.getElementById('connection-status'),connectionDialog=document.getElementById('connection-dialog');
  const updateConnection=()=>{connection.dataset.online=String(navigator.onLine);document.getElementById('connection-network').textContent=navigator.onLine?'Online':'Offline';const current=offline.getStatus();document.getElementById('offline-update').disabled=Boolean(current?.state==='Downloading')||!navigator.onLine;};
- connection.addEventListener('click',()=>connectionDialog.showModal());document.getElementById('connection-close').addEventListener('click',()=>connectionDialog.close());window.addEventListener('online',updateConnection);window.addEventListener('offline',updateConnection);updateConnection();
+ let ownerPanel=null;
+ const ownerController=v3Mode&&ctx.v3?.auth&&ctx.v3?.lifecycle?
+  createD3ConnectionController({
+   auth:ctx.v3.auth,lifecycle:ctx.v3.lifecycle,
+   enabled:()=>v3Mode,online:()=>navigator.onLine,
+   onChange:state=>{
+    const prior=ctx.v3.authorized;
+    ctx.v3.authorized=state.authorized;
+    ownerPanel?.paint();
+    if(prior!==state.authorized){
+     if(!dirty())void render();
+     else notify('Owner session changed. Your unfinished edit is preserved.','warning');
+    }
+   },
+  }):null;
+ if(ownerController)ownerPanel=mountD3ConnectionPanel({
+  dialog:connectionDialog,controller:ownerController,documentObject:document,
+ });
+ const refreshOwner=async()=>{
+  if(!ownerController)return;
+  await ownerController.restore();
+  if(ownerController.current().authorized)
+   await ownerController.refreshPublication();
+  ownerPanel?.paint();
+ };
+ connection.addEventListener('click',()=>{
+  connectionDialog.showModal();
+  if(ownerController)void refreshOwner();
+ });document.getElementById('connection-close').addEventListener('click',()=>connectionDialog.close());window.addEventListener('online',updateConnection);window.addEventListener('offline',updateConnection);updateConnection();
  document.getElementById('offline-update').disabled=!navigator.onLine;
  document.getElementById('offline-update').addEventListener('click',()=>offline.update());document.getElementById('offline-reload').addEventListener('click',()=>offline.reload());
  const releaseDetails=document.getElementById('release-details');if(releaseDetails)releaseDetails.textContent=`Release ${ctx.release.id.slice(0,12)} · Source ${ctx.release.sourceRevision.slice(0,12)}${ctx.release.pendingMedia?' · Pending media preview':''}`;
  if(ctx.release.pendingMedia)notify('Preview only: some approved image replacements remain unresolved. This is not a production-cutover candidate.','warning');
  render();offline.start();
+ if(ownerController)void refreshOwner();
  return {navigate,isDirty:dirty,render};
 }
