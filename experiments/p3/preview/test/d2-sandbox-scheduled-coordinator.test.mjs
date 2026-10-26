@@ -28,7 +28,7 @@ const fixture=(patch={})=>{
 };
 const denied=code=>e=>e instanceof D2CoordinatorError&&e.code===code;
 test('D2-Q01 every independent environment gate defaults fail-closed before D1/token/GitHub',async()=>{
- for(const field of Object.keys(full)){
+ for(const field of Object.keys(full).filter(k=>k!=='D2_TEST_HOST_ENABLED')){
   for(const value of [undefined,'false','',field==='D2_SANDBOX_REPO_ID'?'1350909744':'true']){
    if(value===full[field])continue;
    const x=fixture({[field]:value});
@@ -74,4 +74,67 @@ test('D2-Q04 required trusted capabilities cannot be silently omitted',()=>{
    verifyHosted:async()=>{},
   }),denied('INVALID_CONFIGURATION'));
  }
+});
+
+test('D2-Q05 hosted proof OFF still permits no-op Cron and PR-only preflight',async()=>{
+ const x=fixture({D2_TEST_HOST_ENABLED:'false'});
+ const result=await x.obj.tick();
+ assert.deepEqual(result,{progressed:false,reason:'NO_ELIGIBLE_OPERATION',canonicalLive:false});
+ assert.deepEqual(x.hits,['d1:nextEligible']);
+});
+test('D2-Q06 Merging/Deploying/Verifying must never claim lease, mint token, write GitHub or mark merge with host OFF',async()=>{
+ const OP='p3_343ef7ba-1c87-4d5d-a2ad-92e91eab420f';
+ for(const state of ['Merging','Deploying','Verifying']){
+  const hits=[];
+  const store=Object.fromEntries(keys.map(k=>[k,async(...args)=>{
+   hits.push(k);
+   if(k==='nextEligible')return OP;
+   if(k==='get')return {operationId:OP,state};
+   throw Error('must not reach '+k);
+  }]));
+  const obj=createD2SandboxScheduledCoordinator({
+   env:{...full,D2_TEST_HOST_ENABLED:'false'},store,
+   requestGitHub:async()=>{throw Error('GH must not be called');},
+   issueReadToken:async()=>{throw Error('read must not be called');},
+   issueWriteToken:async()=>{throw Error('write must not be called');},
+   verifyHosted:async()=>{throw Error('host must not be called');},
+  });
+  assert.deepEqual(await obj.tick(),{
+   progressed:false,reason:'AWAITING_HOST_PROOF_ENABLEMENT',
+   operationId:OP,canonicalLive:false,
+  });
+  assert.deepEqual(hits,['nextEligible','get']);
+ }
+});
+test('D2-Q07 accepted operation advances to Validating with hosted proof OFF and no GitHub mutation',async()=>{
+ const OP='p3_343ef7ba-1c87-4d5d-a2ad-92e91eab420f';
+ const hits=[];
+ const store=Object.fromEntries(keys.map(k=>[k,async(...args)=>{
+  hits.push(k);
+  if(k==='nextEligible')return OP;
+  if(k==='get')return {operationId:OP,state:'Accepted'};
+  if(k==='claim')return {operationId:OP,state:'Accepted',expiresAt:999999};
+  if(k==='advance'){
+   assert.deepEqual(args[0].from,'Accepted');
+   assert.deepEqual(args[0].to,'Validating');
+   return {operationId:OP,state:'Validating'};
+  }
+  throw Error('unexpected '+k);
+ }]));
+ const obj=createD2SandboxScheduledCoordinator({
+  env:{...full,D2_TEST_HOST_ENABLED:'false'},store,
+  requestGitHub:async()=>{throw Error('GH must not be called');},
+  issueReadToken:async()=>{throw Error('read must not be called');},
+  issueWriteToken:async()=>{throw Error('write must not be called');},
+  verifyHosted:async()=>{throw Error('host must not be called');},
+ });
+ const result=await obj.tick();
+ assert.deepEqual(result,{progressed:true,operationId:OP,
+  state:'Validating',canonicalLive:false});
+ assert.deepEqual(hits,['nextEligible','get','claim','get','advance']);
+});
+test('D2-Q08 hosted flag OFF never grants merger authority before operation state check',async()=>{
+ const x=fixture({D2_TEST_HOST_ENABLED:'false'});
+ assert.equal(Object.keys(x.obj).length,1);
+ assert.equal(typeof x.obj.tick,'function');
 });
