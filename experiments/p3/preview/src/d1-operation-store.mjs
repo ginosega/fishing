@@ -116,6 +116,30 @@ export function createD1OperationStore({DB,ownerGitHubId,repositoryId=SANDBOX_ID
   check(stored?.request_json===payload && stored?.payload_sha256===payloadHash,'CORRUPT_SNAPSHOT');
   return {...publicRecord(row),inserted:row.operation_id===candidate};
  }
+ async function lookupReceipt({idempotencyKey,snapshot}={}){
+  // An owner-authorized caller can safely recover a LOST 202 receipt using
+  // only the original key and exact canonical payload. Read-only: no new
+  // operation, audit event, GitHub call or source revalidation is performed.
+  check(token(idempotencyKey),'INVALID_IDEMPOTENCY_KEY');
+  verifySubmission(snapshot);
+  let payload;
+  try{payload=canonical(snapshot);}
+  catch(e){if(e instanceof DurableStoreError)throw e;deny('INVALID_SNAPSHOT');}
+  check(new TextEncoder().encode(payload).byteLength<=MAX_SNAPSHOT_BYTES,
+   'SNAPSHOT_TOO_LARGE');
+  const payloadHash=await sha256(payload);
+  const keyHash=await sha256(ownerGitHubId+':'+SANDBOX_ID+':'+idempotencyKey);
+  const row=await sql(opSelect+' WHERE github_id=? AND repo_id=? AND idempotency_key_hash=?',
+   ownerGitHubId,SANDBOX_ID,keyHash).first();
+  if(!row)return null;
+  check(row.payload_sha256===payloadHash,'IDEMPOTENCY_CONFLICT');
+  const stored=await sql(
+   'SELECT request_json,payload_sha256 FROM p3_requests WHERE operation_id=?',
+   row.operation_id).first();
+  check(stored?.request_json===payload&&stored?.payload_sha256===payloadHash,
+   'CORRUPT_SNAPSHOT');
+  return {...publicRecord(row),inserted:false};
+ }
  async function nextEligible(){
   const at=ts();
   // Single bounded lease candidate for the future private scheduled runner.
@@ -225,5 +249,5 @@ export function createD1OperationStore({DB,ownerGitHubId,repositoryId=SANDBOX_ID
   const rows=await sql('SELECT e.event_id,e.event_type,e.from_state,e.to_state,e.event_at,e.error_code FROM p3_events e JOIN p3_operations o ON o.operation_id=e.operation_id WHERE e.operation_id=? AND o.github_id=? AND o.repo_id=? ORDER BY e.event_id',operationId,ownerGitHubId,SANDBOX_ID).all();
   return (rows?.results||[]).map(row=>({eventType:row.event_type,from:row.from_state,to:row.to_state,at:row.event_at,error:row.error_code}));
  }
- return Object.freeze({accept,get,readSnapshot,nextEligible,branchReceipt,saveBranchReceipt,markMergeAttempt,saveMergeReceipt,claim,advance,events});
+ return Object.freeze({accept,get,lookupReceipt,readSnapshot,nextEligible,branchReceipt,saveBranchReceipt,markMergeAttempt,saveMergeReceipt,claim,advance,events});
 }
