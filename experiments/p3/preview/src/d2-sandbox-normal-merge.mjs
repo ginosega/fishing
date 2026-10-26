@@ -26,10 +26,16 @@ const hdr=t=>({
 export function createD2SandboxNormalMerge({
  request,issueWriteToken,observeCheck,recordMerge,
  enabled=()=>false,
+ commitTitle='FISH118 D2 isolated sandbox Gear verification',
+ commitMessage='Single owned sandbox test operation; no public fishing content',
 }={}){
  need(typeof request==='function'&&typeof issueWriteToken==='function'&&
   typeof observeCheck==='function'&&typeof recordMerge==='function'&&
-  typeof enabled==='function','INVALID_CONFIG');
+  typeof enabled==='function'&&
+  typeof commitTitle==='string'&&commitTitle.length>=12&&
+  commitTitle.length<=120&&
+  typeof commitMessage==='string'&&commitMessage.length>=12&&
+  commitMessage.length<=250,'INVALID_CONFIG');
  async function api(token,method,path,body){
   need(path===GRAPHQL||path===API||path.startsWith(API+'/'),'URL_DENIED');
   let result;
@@ -106,8 +112,8 @@ export function createD2SandboxNormalMerge({
   // The SHA precondition rejects a changed head; no force or bypass API.
   const result=await api(token,'PUT',API+'/pulls/'+info.prNumber+'/merge',{
    sha:info.expectedHeadSha,merge_method:'squash',
-   commit_title:'FISH118 D2 isolated sandbox Gear verification',
-   commit_message:'Single owned sandbox test operation; no public fishing content',
+   commit_title:commitTitle,
+   commit_message:commitMessage,
   });
   need(result?.merged===true&&SHA.test(result.sha),'WRITE_RESULT_UNKNOWN');
   const merged=await api(token,'GET',API+'/pulls/'+info.prNumber);
