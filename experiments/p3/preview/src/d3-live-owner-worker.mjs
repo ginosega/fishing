@@ -23,7 +23,7 @@ const runEnabled=env=>env?.D3_SANDBOX_REPO_ID===String(ID)&&
  env.OPERATIONS_DB?.batch&&
  typeof env.APP_ORIGIN==='string'&&env.APP_ORIGIN.startsWith('https://')&&
  typeof env.D2_CSRF_KEY==='string'&&env.D2_CSRF_KEY.length>=32&&
- typeof env.D3_HOST_PROBE_KEY==='string'&&env.D3_HOST_PROBE_KEY.length>=32&&
+ typeof env.D2_HOST_PROBE_KEY==='string'&&env.D2_HOST_PROBE_KEY.length>=32&&
  Number(env.OWNER_GITHUB_ID)===OWNER;
 export function createD3LiveOwnerWorker({
  route=gateway,requestGitHub=fetch,requestHosted=fetch,
@@ -45,7 +45,7 @@ export function createD3LiveOwnerWorker({
     enabled:()=>runEnabled(env),
    });
    const proof=createD3PrivateHostProof({
-    origin:env.APP_ORIGIN,key:env.D3_HOST_PROBE_KEY,
+    origin:env.APP_ORIGIN,key:env.D2_HOST_PROBE_KEY,
     store,issueReadToken,requestGitHub,requestHosted,
    });
    return createD3SandboxScheduledCoordinator({
