@@ -1,6 +1,31 @@
 # Fishing TODO
 
-## CURRENT FISH-TODO-118 — D2 real sandbox publisher IN PROGRESS (October 25, 2026 PDT)
+## CURRENT FISH-TODO-118 — D3 Owner Sign-in + Gear/KB Save and Publish IN PROGRESS (October 26, 2026 PDT)
+
+**Status: OPEN for full V3 implementation; D1 design and D2 real isolated publishing are COMPLETE.** User requested an official full new-chat handoff after verified D2 shutdown and D3 source progress. Do NOT return to the October 25 D2 activation gate or historical October 24 "next P3-N" steps.
+
+**Current GitHub checkpoint before docs-only handoff:** public `ginosega/fishing` `main` `64503470a2db7364a437b5e1eb0f4c120da61644`; private `ginosega/fishing-p3-sandbox` `main` `89be79a9c933dd36bd909edd585091232831c835`; development [draft PR #263](https://github.com/ginosega/fishing/pull/263) at `4fdc75bb77dd5452b61866d1401c573569e130f2`, [isolated CI #467](https://github.com/ginosega/fishing/actions/runs/40349790051) SUCCESS. AUTH-P0 feasibility [draft PR #262](https://github.com/ginosega/fishing/pull/262) remains open; unrelated weight-edit [PR #268](https://github.com/ginosega/fishing/pull/268) must not be changed. Verify fresh exact SHAs after handoff merge.
+
+**Public production V2 stays live:** last successful `main` hosted-verified [workflow #672](https://github.com/ginosega/fishing/actions/runs/39990546320), source `4a1a8c44317b56a4d47e818db9cd2b5587a966d8`, release `504d615b2bef361da06d655ee621d43a`, 577 files, 100 Gear / 60 KB / 12 Catches. Docs-only GitHub commits are not V3 releases.
+
+**D2 closure recorded, no further D2 work:** owner-authorized single private-sandbox Gear edit `p3_343ef7ba-1c87-4d5d-a2ad-92e91eab420f` reached D1 `Live` with verified receipt `73362eb77bd59219aa6f78fb93e9d47b`, successful exact-head CI `40288266980`, merged private PR #16, merge commit `89be79a9c933dd36bd909edd585091232831c835`. A merge receipt was manually reconciled **once** after write-ahead `merge_attempted`; **never repeat** the merge/reconciliation or resubmit operation. Owner safely deployed parked Worker version `82b678b2-b024-4428-922c-d2363f2bcbc2`: all four D2 gates **false**, **no five-minute Cron**, DB bindings and verified receipts retained. [D2 closeout evidence](https://github.com/ginosega/fishing/blob/feature/fish118-p3-mock-publisher/experiments/p3/preview/D2_SANDBOX_VERIFIED_CLOSEOUT_2026-10-26.md).
+
+**D3 implemented in draft source, NOT ACTIVE:** same-origin GitHub owner session/CSRF client contract, durable accepted/status lifecycle, same-key uncertain-submit protection, persistent nonsecret operation-ID only, isolated canonical Gear/KB text candidate, opted-in editor `Save and Publish` and anonymous Add/Edit link/deep-link restrictions; original V2 copy/paste editor remains default. [D3 checkpoint and remaining gates](https://github.com/ginosega/fishing/blob/feature/fish118-p3-mock-publisher/experiments/p3/preview/D3_OWNER_AUTHORING_START_2026-10-26.md). Exact draft #263 source CI #467 PASSED. No integrated enabled V3 site, no general GitHub source writer, no actual D3 Gear/KB publication yet.
+
+**NEXT D3 implementation in order:**
+1. Create trusted immutable **sandbox-only GitHub main/tree/blob loader** for real canonical Gear/KB/Catches/Markdown/files and recheck main/source immediately before commit/merge. Preserve existing source-aware conflict semantics.
+2. Expand guarded GitHub PR/CI/merge/hosted-proof broker beyond the D2 fixed `gear/p3-test-rod` source fixture to eligible **Gear and KB Add/Edit**, while limiting writes to private repo ID `1430581407`, authorizing numeric owner via existing OAuth session + anti-CSRF, maintaining durable idempotency/lease receipts, fail-closed unknown outcomes, and preserving current v2/protected public main. Do not simply weaken D2 adapter gates or merge draft #263 wholesale.
+3. Wire **Connection Status-only** unobtrusive sign-in/sign-out, auto-restored owner session, anonymous read-only UX and gated editor route to **one Save and Publish**; track durable Accepted → processing → sandbox hosted-verified result across navigation. Do not leave dirty form on unknown/failed save; do not claim sandbox Live is canonical production.
+4. Run fail-closed negative and conflict tests, exact-head CI, real sandbox Gear + KB publication, Windows/browser and installed Android PWA sign-in/callback/status acceptance. No new preview website. Routine source/CI steps are pre-approved; user-operated Cloudflare deployment or real device tests only when required by capabilities and actual security gates.
+
+**Remaining fixed V3 deliverables:** **D4** integrated original-image/Gear/KB/Knot uploads + Catch Add/Edit (no Catch photos/GPS); **D5** Work Offline persisted reading / Connection Status / viewer / stale-release reliability; **D6** full cross-device acceptance, release/rollback and **separate explicit final public v3 cutover approval**. Keep October 19 requirements/design/UX and October 22 G1 risk acceptance; do not impose an ECDSA signature/confirmation per save. User accepted single intended production Cloudflare infrastructure and downtime but not unprotected canonical writes or unverified Live. Do not invent P3-42 etc.
+
+**Other unresolved project tracks remain OPEN:** preserve the detailed kayak Garmin Force Current installation/storage, foam, motor wiring/battery/charger, tackle-tray availability, and active fishing/content/purchases backlog recorded below. Do not mark purchased or complete without proof, and do not reopen finished FISH115–117. New-chat SOP is five refreshed main Markdown files and the owner's **entire Bootstrap prompt**, not a short snippet.
+
+---
+
+
+## HISTORICAL FISH-TODO-118 — D2 sandbox publisher IN PROGRESS (October 25, 2026 PDT)
 
 **Status: OPEN, DO NOT MARK COMPLETE.** The owner requested progression to the **END of D2**, then explicitly requested a **full new-chat transition**. The previous October 24 “NEXT P3-30” or R2 approvals below are historical and SUPERSEDED.
 
