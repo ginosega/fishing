@@ -145,8 +145,12 @@ export default {
       }
       if (req.method === 'GET' && path === '/auth/start') {
         const destination = url.searchParams.get('return');
-        if (destination !== null && destination !== '/fishing/') return error(400, 'Invalid return target');
-        const state = nonce() + (destination === '/fishing/' ? '.f' : '');
+        if (destination !== null && destination !== '/fishing/' &&
+            !(destination === '/__d3_pilot__/' && env.D3_PILOT_ENABLED === 'true'))
+          return error(400, 'Invalid return target');
+        const state = nonce() +
+          (destination === '/fishing/' ? '.f' :
+           destination === '/__d3_pilot__/' ? '.p' : '');
         const verifier = nonce();
         await env.DB.prepare('INSERT INTO auth_flows (state_hash, code_verifier, expires_at) VALUES (?, ?, ?)')
           .bind(await hash(state), verifier, nowSeconds() + FLOW_SECONDS).run();
@@ -176,7 +180,9 @@ export default {
         const sid = nonce();
         await env.DB.prepare('INSERT INTO sessions (token_hash, github_id, expires_at) VALUES (?, ?, ?)')
           .bind(await hash(sid), identity.id, nowSeconds() + SESSION_SECONDS).run();
-        return redirect(state.endsWith('.f') ? '/fishing/' : '/', [clearFlow, setCookie(SESSION_COOKIE, sid, SESSION_SECONDS)]);
+        return redirect(state.endsWith('.p') && env.D3_PILOT_ENABLED === 'true'
+          ? '/__d3_pilot__/' : state.endsWith('.f') ? '/fishing/' : '/',
+          [clearFlow, setCookie(SESSION_COOKIE, sid, SESSION_SECONDS)]);
       }
       if (req.method === 'POST' && (path === '/session/signout' || path === '/session/revoke-all')) {
         if (!originAllowed(req, env.APP_ORIGIN)) return error(403, 'Cross-origin or invalid request');
