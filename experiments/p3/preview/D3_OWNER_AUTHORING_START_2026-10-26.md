@@ -52,3 +52,19 @@ After restoring public `main` `0c7d70e280d44f3ec484d427b6888397ffcd621b`, existi
 - Isolated unit/security tests were added for immutable source loading, trusted source-planning, draft PR validation, owner Connection Status, sign-out uncertainty, guarded operation acceptance and state transitions. The exact-head isolated GitHub [run #485](https://github.com/ginosega/fishing/actions/runs/40356889229) **PASSED** at commit `ef6a20dfea48f128c8f658fe3ec1c0757d1a9480`. This is a **source-only CI success**, not real D3 end-to-end acceptance or deployment.
 
 **Remaining D3 work:** wire the trusted D3 source, guarded API, real sandbox PR/check/merge runner, multi-file hosted-byte verifier and owner auth/Connection Status into one gated production-origin Cloudflare service with secure secrets, D1 leases, default-off rollout and audited rollback. Verify real Gear and KB Add/Edit on the private sandbox, recover accepted/uncertain operations, and perform Windows + Android installed-PWA authentication/editor tests. The D2 parked Worker must remain off and the completed D2 operation untouched. No public-main write, experimental wholesale merge, unverified `Live` claim or final V3 cutover is authorized.
+
+
+## D3 integrated default-off source checkpoint — October 26, 2026
+
+**Status: source-composed and isolated CI validated; NOT deployed or D3 accepted.** All current work remains in draft FISH118 PR #263, not canonical production main.
+
+- **Owner editor coherence:** the D3 owner sandbox source service/client loads authenticated, bounded private Gear/KB/Catches/Markdown and exact immutable sandbox source revision. An isolated opt-in owner shell and gated PWA editor use that source. Public V2 entrypoint is unchanged; no browser URL, fragment or local-storage setting activates this feature.
+- **Lost-202 recovery:** D1 now provides read-only, owner/repository-bound receipt recovery, proving the original idempotency key, canonical payload and stored hash before any new source validation. No second operation or blind retry.
+- **Sandbox PR and runner:** default-off trusted snapshot, Gear/KB candidate, scoped draft PR, exact-head CI, ordinary protected merge and durable D1 lifecycle are composed in the D3 coordinator and Worker. The prior D2 merge-attempt barrier remains in place.
+- **Multi-file hosted verification:** default-off isolated test route checks HMAC or owner authentication and returns merged sandbox Git blobs; the verifier compares actual hosted JSON and Markdown bytes with the exact private merge commit. Its synthetic sandbox digest is NOT a public Pages release identity.
+- **Secret boundary:** D3 has separately named encrypted GitHub App bindings and immutable private sandbox repo ID 1430581407. No token or private key is exposed to browser source/assets. The parked D2 Worker, Cron, data and completed receipt are untouched.
+- **Regression and bundling:** negative auth/replay/conflict, source integrity, PR receipt, CI/merge, HMAC, hosted-byte and disabled Worker tests run in isolated CI; D3 gateway, owner shell, coordinator and Worker are separately bundled. Source-only success is not end-to-end D3 acceptance.
+
+**Remaining D3 acceptance:** deploy the *gated* D3 service only after live provider/security review and a separately scoped consequential authorization; verify first real sandbox Gear and KB Add/Edit with D1 Accepted, GitHub PR/check/normal merge and actual hosted multi-file bytes; retest anonymous/foreign owner, expiry, conflict, lost acknowledgement, offline, reload, Windows and installed Android PWA OAuth. Preserve public canonical data, no second preview website, no unapproved final production cutover, and no extra per-save human signature.
+
+**Next review:** inspect Cloudflare host/routing, App installation grants, service-worker cache and secret bindings before any D3 runtime activation. This does NOT reopen D2 or authorize public-main writes. Continue finite D1–D6 delivery.
