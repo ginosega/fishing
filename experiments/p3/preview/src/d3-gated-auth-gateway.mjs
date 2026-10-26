@@ -67,8 +67,8 @@ export function createD3GatedAuthGateway({
     if(privateTest&&env.D3_TEST_HOST_ENABLED!=='true')
       return no(404);
     if(privateTest&&(
-      typeof env.D3_HOST_PROBE_KEY!=='string'||
-      env.D3_HOST_PROBE_KEY.length<32))return no(503);
+      typeof env.D2_HOST_PROBE_KEY!=='string'||
+      env.D2_HOST_PROBE_KEY.length<32))return no(503);
     // A disabled D3 writer does not create a second secret/token ingress.
     // Owner status GET remains available when real D1 bindings are present.
     if(request.method==='POST'&&url.pathname==='/api/v3/operations'&&
@@ -118,7 +118,7 @@ export function createD3GatedAuthGateway({
       }
       if(privateTest){
         const proof=hostProofFactory({
-          origin:env.APP_ORIGIN,key:env.D3_HOST_PROBE_KEY,
+          origin:env.APP_ORIGIN,key:env.D2_HOST_PROBE_KEY,
           store,issueReadToken:grant,requestGitHub:transport,
           requestHosted:requestHosted??fetch,
         });
