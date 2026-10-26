@@ -19,7 +19,7 @@ const env=(extra={})=>({
   ...extra,
 });
 function fixture(){
-  const calls={auth:0,proxy:0,api:0,transport:0,created:0,gate:null,source:0,sourceGate:null};
+  const calls={auth:0,proxy:0,api:0,transport:0,created:0,gate:null,source:0,sourceGate:null,pilot:0,pilotGate:null};
   const service=createD3GatedAuthGateway({
     auth:{fetch:async()=>{
       calls.auth++;return new Response('AUTH', {status:200});}},
@@ -37,6 +37,13 @@ function fixture(){
     storeFactory:args=>{
       assert.equal(args.repositoryId,ID);calls.created++;
       return {accept:async()=>{},get:async()=>{}};
+    },
+    pilotHostFactory:args=>{
+      calls.pilot++;calls.pilotGate=args.enabled();
+      assert.equal(args.origin,ORIGIN);
+      assert.equal(typeof args.readBundle,'function');
+      return {serve:async()=>new Response('OWNER_PILOT',
+        {status:args.enabled()?200:503})};
     },
     sourceReadFactory:args=>{
       assert.equal(args.origin,ORIGIN);
@@ -165,4 +172,35 @@ test('D3-G09 read-only sandbox source uses separate disabled owner gate, never a
   assert.equal(on.calls.sourceGate,true);
   assert.equal(on.calls.api,0);
   assert.equal(on.calls.transport,0);
+});
+
+test('D3-G10 pilot HTML/script remain entirely hidden while feature gate is OFF',async()=>{
+ const x=fixture();
+ for(const path of ['/__d3_pilot__/','/__d3_pilot__/pilot.js']){
+  const res=await x.service.fetch(request(path),env(),{});
+  assert.equal(res.status,404);
+ }
+ assert.equal(x.calls.pilot,0);
+ assert.equal(x.calls.api,0);
+ assert.equal(x.calls.created,0);
+ assert.equal(x.calls.transport,0);
+});
+test('D3-G11 separate pilot route composes only when explicitly armed',async()=>{
+ const x=fixture();
+ const e=env({D3_PILOT_ENABLED:'true',
+  D3_PILOT_SHA256:'a'.repeat(64)});
+ const res=await x.service.fetch(request('/__d3_pilot__/'),e,{});
+ assert.equal(await res.text(),'OWNER_PILOT');
+ assert.equal(x.calls.pilot,1);
+ assert.equal(x.calls.pilotGate,true);
+ assert.equal(x.calls.api,0);
+ assert.equal(x.calls.transport,0);
+});
+test('D3-G12 unknown pilot filenames never reach authorizing pilot handler',async()=>{
+ const x=fixture();
+ const res=await x.service.fetch(request('/__d3_pilot__/unlisted.js'),
+  env({D3_PILOT_ENABLED:'true'}),{});
+ assert.equal(res.status,404);
+ assert.equal(x.calls.pilot,0);
+ assert.equal(x.calls.api,0);
 });
