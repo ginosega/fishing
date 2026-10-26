@@ -139,3 +139,21 @@ test('D3-C07 authenticated panel exposes Sign out and status but no public Live 
  assert(toolbar.children.some(x=>x.textContent==='Sign out'));
  assert(!toolbar.children.some(x=>x.tagName==='a'));
 });
+
+test('D3-C08 private owner pilot returns OAuth to pilot only on its exact path',()=>{
+ const prior=Object.getOwnPropertyDescriptor(globalThis,'location');
+ Object.defineProperty(globalThis,'location',{configurable:true,
+  value:{pathname:'/__d3_pilot__/'}});
+ try{
+  const x=build({authenticated:false,authorized:false}),dialog=new Element('dialog');
+  const panel=mountD3ConnectionPanel({
+   dialog,controller:x.controller,documentObject,
+  });
+  const link=dialog.children[0].children[2].children[0];
+  assert.equal(link.href,'/auth/start?return=%2F__d3_pilot__%2F');
+  panel.remove();
+ }finally{
+  if(prior)Object.defineProperty(globalThis,'location',prior);
+  else delete globalThis.location;
+ }
+});
