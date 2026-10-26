@@ -10,13 +10,31 @@ import vm from 'node:vm';
 import path from 'node:path';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import Ajv2020 from 'ajv/dist/2020.js';
+import * as esbuild from 'esbuild';
 const pwa=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const repo=path.resolve(pwa,'..');
 const bundle=await fs.readFile(path.join(repo,
  'experiments/p3/preview/src/generated/d3-pilot.bundle.txt'),'utf8');
 const schema=JSON.parse(await fs.readFile(path.join(pwa,'contracts/schema.json'),'utf8'));
-const generated=await import(pathToFileURL(path.join(pwa,
- 'src/generated/d3-validators.mjs')).href);
+// AJV standalone uses static runtime helpers that esbuild bundles for
+// browser distribution. Import the EXACT browser-bundled static module,
+// not the unbundled source's Node-only helper import format.
+const built=await esbuild.build({
+ entryPoints:[path.join(pwa,'src/generated/d3-validators.mjs')],
+ bundle:true,platform:'browser',format:'esm',write:false,
+ outfile:path.join(pwa,'src/generated/d3-validators-test.mjs'),
+ target:'es2022',logLevel:'silent',
+});
+assert.equal(built.outputFiles.length,1);
+const staticValidatorsFile=path.join(pwa,'src/generated/d3-validators-test.mjs');
+await fs.writeFile(staticValidatorsFile,built.outputFiles[0].contents);
+let generated;
+try{
+ generated=await import(pathToFileURL(staticValidatorsFile).href);
+}catch(e){
+ console.error('D3_CSP_STATIC_IMPORT_FAILED',e?.name,e?.message);
+ process.exit(1);
+}
 const expected=new Ajv2020({allErrors:true,strict:true});
 const definitions={gear:'gearBundle',kb:'kbBundle',catches:'catchBundle',
  gearItem:'gearItem',kbEntity:'kbEntity',catchItem:'catch'};
