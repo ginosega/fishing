@@ -30,7 +30,9 @@ const rootRoute=domain=>domain==='gear'?'#/inventory':domain==='kb'?'#/kb':'#/ca
 const recordTitle=(ctx,domain,record)=>domain==='catches'?`${ctx.maps.kb.get(record.speciesId)?.name||'Catch'} · ${record.date}`:record.name;
 export function createApp(ctx){
  const root=document.getElementById('app'),alertHost=document.getElementById('app-notice'),offlineHost=document.getElementById('offline-status');
- const routes=markdownRouteMap(ctx.data),exists=new Set(ctx.manifest.files.filter(x=>x.path.startsWith(`releases/${ctx.release.id}/content/`)).map(x=>x.path.slice(`releases/${ctx.release.id}/content/`.length)));
+ const routes=markdownRouteMap(ctx.data),exists=ctx.v3?.source?.files instanceof Set?
+  new Set(ctx.v3.source.files):
+  new Set(ctx.manifest.files.filter(x=>x.path.startsWith(`releases/${ctx.release.id}/content/`)).map(x=>x.path.slice(`releases/${ctx.release.id}/content/`.length)));
  let currentHash=location.hash||'#/',route=parseRoute(currentHash),editor=null,serial=0,offline=null,approvedNavigation=null,previousHash=null;
  // V2 stays unchanged. V3 owner controls are strictly opt-in via an
  // authenticated, same-origin integration; server authorization is still
