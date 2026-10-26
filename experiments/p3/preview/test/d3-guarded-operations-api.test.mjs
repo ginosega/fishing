@@ -29,7 +29,7 @@ const envelope=pkg=>({
   snapshot:{package:pkg,media:[]},
 });
 function fixture({enabled=true,owner=OWNER,goodSource=true,
-  conflict=false,inserted=true}={}){
+  conflict=false,inserted=true,existing=false}={}){
   const calls={writes:0,validations:0,status:0,authorizations:0,source:null};
   const session={
     describe:async()=>({authenticated:true,authorized:true,csrfToken:'redacted'}),
@@ -37,6 +37,9 @@ function fixture({enabled=true,owner=OWNER,goodSource=true,
     authorizeStatus:async()=>({ownerGitHubId:owner,authorized:true}),
   };
   const store={
+    lookupReceipt:async command=>existing?{
+      operationId:OP,state:'Checking',inserted:false,
+    }:null,
     accept:async command=>{
       calls.writes++;
       assert.equal(command.snapshot.media.length,0);
@@ -147,4 +150,19 @@ test('D3-A08 public anonymous session read is allowed while writer is hard off',
   assert.equal(res.status,200);
   assert.equal((await read(res)).authorized,true);
   assert.equal(f.calls.writes,0);
+});
+
+test('D3-A09 lost 202 replays the original receipt WITHOUT revalidating moved source',async()=>{
+  const f=fixture({existing:true,conflict:true,goodSource:false});
+  const res=await f.api.handle(newPost(envelope(await edit())));
+  assert.equal(res.status,200);
+  const body=await res.json();
+  assert.equal(body.operationId,OP);
+  assert.equal(body.state,'Checking');
+  assert.equal(body.accepted,true);
+  assert.equal(body.duplicate,true);
+  assert.equal(body.canonicalLive,false);
+  assert.equal(f.calls.validations,0);
+  assert.equal(f.calls.writes,0);
+  assert.equal(f.calls.authorizations,1);
 });
