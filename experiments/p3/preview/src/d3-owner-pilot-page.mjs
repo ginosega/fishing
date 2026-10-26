@@ -8,7 +8,7 @@
  */
 export const D3_OWNER_PILOT_PATH='/__d3_pilot__/';
 export const D3_OWNER_PILOT_SCRIPT='/__d3_pilot__/pilot.js';
-export const D3_OWNER_PILOT_HTML=String.raw\`<!doctype html>
+export const D3_OWNER_PILOT_HTML=String.raw`<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -53,4 +53,4 @@ export const D3_OWNER_PILOT_HTML=String.raw\`<!doctype html>
     type="button">Close</button>
 </dialog>
 </body>
-</html>\`;
+</html>`;
