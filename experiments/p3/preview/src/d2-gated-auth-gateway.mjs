@@ -110,8 +110,19 @@ export function createD2GatedAuthGateway({
    }
    api=createD2GuardedOperationsApi({
     session,store,
-    validateGearChange:async({snapshot,repositoryId})=>
-     validator.validate({snapshot,repositoryId}),
+    validateGearChange:async({snapshot,repositoryId})=>{
+     try{return await validator.validate({snapshot,repositoryId});}
+     catch(e){
+      // Owner-only server logs contain a stable refusal code, NEVER a
+      // GitHub token, PEM, source content, cookie, request body, or stack.
+      const known=['D2TokenError','D2SourceError'];
+      const code=known.includes(e?.name)&&
+       typeof e?.code==='string'&&/^[A-Z0-9_]{3,64}$/.test(e.code)
+        ?e.code:'UNEXPECTED_FAILURE';
+      console.warn('FISH118_D2_SOURCE_VALIDATION_REFUSED',code);
+      throw e;
+     }
+    },
     writeEnabled:()=>
      env.D2_WRITE_ENABLED==='true'&&
      env.D2_SANDBOX_REPO_ID===String(ID),
