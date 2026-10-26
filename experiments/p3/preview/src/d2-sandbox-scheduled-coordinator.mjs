@@ -34,8 +34,8 @@ export function createD2SandboxScheduledCoordinator({
  const active=()=>env.D2_RUNNER_ENABLED==='true'&&
   env.D2_WRITE_ENABLED==='true'&&
   env.D2_READ_TOKENS_ENABLED==='true'&&
-  env.D2_TEST_HOST_ENABLED==='true'&&
   env.D2_SANDBOX_REPO_ID===String(ID);
+ const hostedEnabled=()=>env.D2_TEST_HOST_ENABLED==='true'&&active();
  const candidate=createD2WorkerGearCandidate({
   request:requestGitHub,issueReadToken,
   sourceEnabled:()=>active(),
@@ -77,7 +77,7 @@ export function createD2SandboxScheduledCoordinator({
   issueWriteToken,
   observeCheck:info=>observer.observe(info),
   recordMerge:receipt=>store.saveMergeReceipt(receipt),
-  enabled:()=>active(),
+  enabled:()=>hostedEnabled(),
  });
  const runner=createD2SandboxOperationRunner({
   store,enabled:()=>active(),
@@ -90,7 +90,7 @@ export function createD2SandboxScheduledCoordinator({
   observeCheck:info=>observer.observe(info),
   merge:info=>merger.merge(info),
   verifyHosted:async info=>{
-   check(active()&&info.repositoryId===ID&&
+   check(hostedEnabled()&&info.repositoryId===ID&&
     info.expectedPath==='pwa/Gear/gear.json'&&
     info.canonicalLive===false,'HOST_PROOF_DISABLED');
    // CRITICAL: future callback must GET the ACTUAL production-origin test
@@ -108,6 +108,20 @@ export function createD2SandboxScheduledCoordinator({
   if(operationId===null)return Object.freeze({
    progressed:false,reason:'NO_ELIGIBLE_OPERATION',canonicalLive:false});
   check(/^p3_[a-f0-9-]{36}$/.test(operationId),'INVALID_DURABLE_ID');
+  // Sandbox PR creation and exact-head CI checks are safe without hosting,
+  // but never transition into a merge attempt unless the host-test route is
+  // enabled. Check durable state BEFORE claiming a lease or writing a merge
+  // marker: this makes the PR-only checkpoint genuinely non-mutating.
+  if(!hostedEnabled()){
+   const record=await store.get(operationId);
+   check(record?.operationId===operationId,'RECEIPT_DRIFT');
+   if(['Merging','Deploying','Verifying'].includes(record.state))
+    return Object.freeze({progressed:false,
+     reason:'AWAITING_HOST_PROOF_ENABLEMENT',operationId,
+     canonicalLive:false});
+   check(['Accepted','Validating','Checking'].includes(record.state),
+    'INVALID_OPERATION_STATE');
+  }
   const leaseOwner=makeLease();
   check(typeof leaseOwner==='string'&&
    /^[A-Za-z0-9_-]{12,96}$/.test(leaseOwner),'INVALID_LEASE');
