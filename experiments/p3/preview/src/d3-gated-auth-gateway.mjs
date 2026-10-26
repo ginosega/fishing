@@ -14,11 +14,13 @@ import {createD2SandboxReadTokenIssuer} from './d2-sandbox-read-token.mjs';
 import {createD3SandboxSnapshotLoader} from './d3-sandbox-snapshot-loader.mjs';
 import {createD3TrustedGearKBCandidate} from './d3-trusted-gear-kb-candidate.mjs';
 import {createD3GuardedOperationsApi} from './d3-guarded-operations-api.mjs';
+import {createD3OwnerSandboxSource} from './d3-owner-sandbox-source.mjs';
 
 const ID=1430581407,OWNER=265665562;
 const authPaths=new Set(['/','/test-client.js','/test.css',
   '/auth/start','/auth/callback','/session/signout','/session/revoke-all']);
-const operations=path=>path==='/api/v3/operations'||
+const operations=path=>path==='/api/v3/authoring-source'||
+  path==='/api/v3/operations'||
   /^\/api\/v3\/operations\/[^/]+$/.test(path);
 const no=(status=404)=>new Response(JSON.stringify({
   ok:false,error:status===503?'TEMPORARILY_UNAVAILABLE':'NOT_FOUND',
@@ -31,9 +33,10 @@ export function createD3GatedAuthGateway({
   sessionFactory=createD2UnifiedOwnerSession,
   storeFactory=createD1OperationStore,
   apiFactory=createD3GuardedOperationsApi,
+  sourceReadFactory=createD3OwnerSandboxSource,
 }={}){
   if(typeof auth?.fetch!=='function'||typeof proxy!=='function'||
-    [sessionFactory,storeFactory,apiFactory].some(x=>typeof x!=='function'))
+    [sessionFactory,storeFactory,apiFactory,sourceReadFactory].some(x=>typeof x!=='function'))
     throw Error('D3 gateway requires trusted AUTH-P0 dependencies');
   async function fetchRequest(request,env,context){
     let url;
@@ -86,6 +89,15 @@ export function createD3GatedAuthGateway({
         enabled:()=>env.D3_READ_TOKENS_ENABLED==='true'&&
           env.D3_SANDBOX_REPO_ID===String(ID),
       });
+      if(url.pathname==='/api/v3/authoring-source'){
+        const reader=sourceReadFactory({
+          origin:env.APP_ORIGIN,ownerSession:session,
+          loadSnapshot:source.loadSnapshot,
+          enabled:()=>env.D3_READ_TOKENS_ENABLED==='true'&&
+            env.D3_SANDBOX_REPO_ID===String(ID),
+        });
+        return await reader.serve(request);
+      }
       const api=apiFactory({
         session,store,
         validateCandidate:async({package:pkg,repositoryId,ownerGitHubId})=>
