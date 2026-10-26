@@ -62,6 +62,21 @@ export function createD3AuthoringClient({
   owner=authorized;csrf=authorized?body.csrfToken:null;
   return Object.freeze({authenticated:body.authenticated===true,authorized});
  }
+ async function signOut(){
+  active();
+  need(owner,'OWNER_SESSION_REQUIRED');
+  // Immediately invalidate in-memory authority even if the network's
+  // outcome is unknown; the server session is the only source of truth.
+  owner=false;csrf=null;
+  const res=await request(exact('/session/signout'),{
+   ...reqOpts,method:'POST',
+   headers:{'X-Fish-P0-Intent':'signout'},
+  });
+  need(res?.status===200,'SIGNOUT_UNCONFIRMED');
+  const body=await parseJson(res);
+  need(body.signedOut===true,'SIGNOUT_UNCONFIRMED');
+  return true;
+ }
  async function publish({package:pkg,idempotencyKey}={}){
   active();
   need(owner&&CSRF.test(csrf??''),'OWNER_SESSION_REQUIRED');
@@ -107,5 +122,5 @@ export function createD3AuthoringClient({
    body.operation?.operationId===operationId,'UNTRUSTED_RECEIPT');
   return describeD3Operation(body.operation,{canonicalLive:body.canonicalLive});
  }
- return Object.freeze({session,publish,status});
+ return Object.freeze({session,signOut,publish,status});
 }
