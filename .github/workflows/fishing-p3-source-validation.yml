@@ -39,6 +39,13 @@ jobs:
           node --check /tmp/fishing-d2-gateway.bundle.mjs
           ./node_modules/.bin/esbuild ../experiments/p3/preview/src/d2-live-publisher-worker.mjs --bundle --platform=browser --format=esm --target=es2022 --outfile=/tmp/fishing-d2-live-worker.bundle.mjs
           node --check /tmp/fishing-d2-live-worker.bundle.mjs
+      - name: Bundle gated D3 owner source gateway and pilot shell (no deploy)
+        working-directory: pwa
+        run: |
+          ./node_modules/.bin/esbuild ../experiments/p3/preview/src/d3-gated-auth-gateway.mjs --bundle --platform=browser --format=esm --target=es2022 --outfile=/tmp/fishing-d3-gateway.bundle.mjs
+          node --check /tmp/fishing-d3-gateway.bundle.mjs
+          ./node_modules/.bin/esbuild ../experiments/p3/preview/src/d3-owner-test-shell.mjs --bundle --platform=browser --format=esm --target=es2022 --outfile=/tmp/fishing-d3-shell.bundle.mjs
+          node --check /tmp/fishing-d3-shell.bundle.mjs
       - name: Verify browser-paste Worker bundle matches source exactly
         run: node experiments/p3/preview/tools/build-dashboard.mjs
       - name: Exercise unpublished Cloudflare sandbox deny-by-default worker
