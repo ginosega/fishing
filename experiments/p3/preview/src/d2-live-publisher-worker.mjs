@@ -18,7 +18,10 @@ const ID=1430581407;
 const truth=v=>v==='true';
 const active=env=>env?.D2_SANDBOX_REPO_ID===String(ID)&&
  truth(env.D2_RUNNER_ENABLED)&&truth(env.D2_WRITE_ENABLED)&&
- truth(env.D2_READ_TOKENS_ENABLED)&&truth(env.D2_TEST_HOST_ENABLED)&&
+ truth(env.D2_READ_TOKENS_ENABLED)&&
+ // A scheduled tick may create/check a sandbox draft PR while hosted proof
+ // remains OFF. The coordinator separately blocks Merging and later states
+ // until the exact hosted-test route has been explicitly activated.
  env.DB?.prepare&&env.OPERATIONS_DB?.prepare&&env.OPERATIONS_DB?.batch&&
  typeof env.APP_ORIGIN==='string'&&
  typeof env.D2_CSRF_KEY==='string'&&env.D2_CSRF_KEY.length>=32&&
