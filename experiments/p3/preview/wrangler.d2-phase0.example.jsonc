@@ -3,11 +3,25 @@
   // Private local copy may contain database UUIDs but NEVER secret values.
   // Preserve Cloudflare's existing GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET,
   // OWNER_GITHUB_ID, D2_CSRF_KEY, D2_HOST_PROBE_KEY encrypted secrets.
+  // IMPORTANT: A dashboard variable whose value appears in a Wrangler
+  // configuration diff is NOT an encrypted Secret. Rotate its value
+  // locally and replace with Type: Secret before enabling D2.
   "name": "fishing-auth-p0-test",
   "main": "src/d2-live-publisher-worker.mjs",
   "compatibility_date": "2026-10-22",
   "workers_dev": true,
+  // Preserve preexisting AUTH-P0 preview-url policy and diagnostics.
+  "preview_urls": false,
+  "observability": { "enabled": true, "logs": { "enabled": true } },
   "keep_vars": true,
+  // Fail a future deploy rather than silently accepting plaintext/missing keys.
+  // Secret values must never be checked into source or shown in Wrangler diffs.
+  "secrets": {
+    "required": [
+      "GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET", "OWNER_GITHUB_ID",
+      "D2_CSRF_KEY", "D2_HOST_PROBE_KEY"
+    ]
+  },
   "vars": {
     "APP_ORIGIN": "https://fishing-auth-p0-test.ginosega.workers.dev",
     "D2_SANDBOX_REPO_ID": "1430581407",
