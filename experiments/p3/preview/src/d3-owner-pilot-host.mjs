@@ -39,6 +39,7 @@ export function createD3OwnerPilotHost({
  if(typeof origin!=='string'||!origin.startsWith('https://')||
   new URL(origin).origin!==origin||
   typeof ownerSession?.authorizeStatus!=='function'||
+  typeof ownerSession?.authorizePilotPage!=='function'||
   typeof readBundle!=='function'||typeof enabled!=='function')
   throw Error('D3 pilot route requires trusted owner dependencies');
  async function serve(req){
@@ -52,7 +53,9 @@ export function createD3OwnerPilotHost({
    ![D3_OWNER_PILOT_PATH,D3_OWNER_PILOT_SCRIPT].includes(url.pathname))
    return denied();
   let owner;
-  try{owner=await ownerSession.authorizeStatus(req);}
+  try{owner=await (url.pathname===D3_OWNER_PILOT_PATH?
+    ownerSession.authorizePilotPage(req):
+    ownerSession.authorizeStatus(req));}
   catch{return denied(401);}
   if(owner?.authorized!==true||owner.ownerGitHubId!==OWNER)
    return denied(401);
