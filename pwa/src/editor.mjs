@@ -19,16 +19,16 @@ const SEQUENCE_ACTIONS=new Set(['add-sequence','replace-with-sequence','replace-
 const STATIC_FILE_ACTIONS=new Set(['add-static','replace-static','replace-with-static']);
 const acceptedImages='.jpg,.jpeg,.png,.webp,.gif,image/jpeg,image/png,image/webp,image/gif';
 
-export async function createEditor(ctx,{domain,baseRecord=null,category=null,type=null,onBack,onExit,onPrepared,onDirty}){
+export async function createEditor(ctx,{domain,baseRecord=null,category=null,type=null,onBack,onExit,onPrepared,onDirty,publishChange=null}){
  const editing=Boolean(baseRecord),key=domain==='gear'?'notes':'content',record=baseRecord?clone(baseRecord):{id:'',name:'',...(domain==='gear'?{category:category||'lures',type:'',specifications:[],links:[]}:{type:type||'technique',content:''})};
  if(!editing&&domain==='gear')record.type=(record.category==='rods-reels'?ROD_TYPES:record.category==='accessories'?EQUIPMENT_TYPES:TAXONOMY[record.category])[0];
- let baseText='',body='',baseHash=null,idTouched=false,mediaAction='keep',fileInfo=null,previewUrl=null,sequenceInfos=[],sequenceUrls=[],prepared=null;
+ let baseText='',body='',baseHash=null,idTouched=false,mediaAction='keep',fileInfo=null,previewUrl=null,sequenceInfos=[],sequenceUrls=[],prepared=null,savePending=false,saveAccepted=false;
  if(baseRecord?.[key]){const response=await fetch(ctx.asset(baseRecord[key]));if(!response.ok)throw new Error(`Cannot read original Markdown: ${response.status}`);const bytes=new Uint8Array(await response.arrayBuffer());baseText=new TextDecoder('utf-8',{fatal:true}).decode(bytes);body=baseText;baseHash=await sha256(bytes);}
  if(!editing&&domain==='kb')body='';
  const host=el('div',{class:'editor'}),notice=el('div',{class:'editor-notice','aria-live':'polite'}),form=el('form',{class:'editor-form'}),output=el('div',{class:'handoff-output'});
  const original=serialize(record),initialBody=body;
- const dirty=()=>serialize(record)!==original||body!==initialBody||mediaAction!=='keep';
- function changed(){prepared=null;output.replaceChildren();onDirty?.(dirty());}
+ const dirty=()=>!saveAccepted&&(serialize(record)!==original||body!==initialBody||mediaAction!=='keep');
+ function changed(){if(saveAccepted)return;prepared=null;output.replaceChildren();onDirty?.(dirty());}
  function update(fieldName,value){optional(record,fieldName,value);changed();}
  function revokeLocal(clearInput=true){if(previewUrl){URL.revokeObjectURL(previewUrl);previewUrl=null;}for(const url of sequenceUrls)URL.revokeObjectURL(url);sequenceUrls=[];fileInfo=null;sequenceInfos=[];if(clearInput)fileInput.value='';}
  function recalcSequencePaths(){if(!sequenceInfos.length||!ID_PATTERN.test(record.id))return;for(const info of sequenceInfos)info.path=sequencePicturePath(record,info.name);record.pictureSequence=sequenceInfos.map(x=>x.path);picturePathInput.value=record.pictureSequence.at(-1);record.picture={src:picturePathInput.value,...(captionInput.value?{caption:captionInput.value}:{})};}
@@ -120,9 +120,11 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
   try{const owner=record[key]||narrativePath(domain,record),previewRecord=clone(record);if(!previewRecord[key])previewRecord[key]=owner;const {maps,routes}=editorMaps(ctx,domain,previewRecord);const parsed=parseMarkdown(body,{owner,maps,assetBase:ctx.base,exists:knownPaths(ctx),pathRoutes:routes,allowMissing:true});const unresolved=parsed.references.filter(r=>r.local&&!knownPaths(ctx).has(r.local));if(unresolved.length)throw new Error('Upload referenced local files first: '+unresolved.map(r=>r.local).join(', '));preview.innerHTML=sanitizeHtml(parsed.html,window);showPreview=!showPreview;preview.hidden=!showPreview;textArea.hidden=showPreview;previewButton.textContent=showPreview?'Edit Markdown':'Preview Markdown';status(notice,'Markdown preview is local and has not been saved.','info');}catch(error){status(notice,error.message,'error');}
  });
  form.append(section('Notes',field('Markdown',textArea),previewButton,preview));
- const prepareButton=button('Prepare Changes',()=>form.requestSubmit(),{variant:'primary'});
+ const prepareButton=button(publishChange?'Save and Publish':'Prepare Changes',()=>form.requestSubmit(),{variant:'primary'});
  form.addEventListener('submit',async event=>{
-  event.preventDefault();try{
+  event.preventDefault();if(savePending||saveAccepted)return;
+  savePending=true;prepareButton.disabled=true;
+  try{
    if(!ID_PATTERN.test(record.id))throw new Error('The ID must use lowercase letters, numbers and hyphens.');
    const existing=ctx.data[domain][DOMAIN[domain].array];if(!editing&&existing.some(x=>x.id===record.id))throw new Error('This ID already exists.');
    const candidate=clone(record),sequenceSet=SEQUENCE_ACTIONS.has(mediaAction);
@@ -147,11 +149,35 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
    let pictureAction='keep';if(mediaAction==='remove-picture')pictureAction=baseRecord?.picture?'remove':'keep';else if(sequenceSet||STATIC_FILE_ACTIONS.has(mediaAction))pictureAction=editing&&baseRecord?.picture?'replace':'add';else if(editing&&!equal(baseRecord.picture,candidate.picture))pictureAction=candidate.picture?'replace':'remove';
    let pictureSequenceAction='keep';if(sequenceSet)pictureSequenceAction='set';else if(editing&&baseRecord?.pictureSequence&&!candidate.pictureSequence)pictureSequenceAction='remove';
    prepared=await prepareChange({domain,operation:editing?'edit':'add',id:candidate.id,baseRecord,record:candidate,baseText,text:body,sourceRevision:ctx.release.sourceRevision,notesPath:candidate[key]||narrativePath(domain,candidate),baseFileHash:baseHash,pictureAction,picturePath:candidate.picture?.src,pictureFile:sequenceSet?null:fileInfo,pictureSequenceAction,pictureSequencePaths:candidate.pictureSequence,pictureSequenceFiles:sequenceSet?sequenceInfos.map(x=>({path:x.path,bytes:x.bytes,sha256:x.sha256})):undefined});
+   if(publishChange){
+    // Isolated V3 owner-only interface. The server independently verifies
+    // authentication, CSRF, canonical source and repository target.
+    if(pictureAction!=='keep'||pictureSequenceAction!=='keep')
+     throw new Error('Direct picture publishing requires the D4 media service. Your edit is preserved.');
+    const receipt=await publishChange(prepared);
+    if(receipt?.accepted!==true||!/^p3_[a-f0-9-]{36}$/.test(receipt.operationId??''))
+     throw new Error('A durable publication receipt was not confirmed. Keep your edit.');
+    saveAccepted=true;
+    // Accepted content may have an outdated base; never re-enable editing
+    // until the next independently loaded canonical release.
+    for(const control of form.querySelectorAll('input,select,textarea,button'))
+     control.disabled=true;
+    output.replaceChildren(text('h3','Publication accepted'),
+     text('p','The server accepted this change. Publication and hosted verification are still in progress.','hint'),
+     text('p','Operation ID'),el('code',{},receipt.operationId),
+     text('p','You may leave the editor and check publication status later.'),
+     toolbar(button('Done',onExit,{variant:'primary'})));
+    status(notice,'Accepted. This is not yet verified as Live.','success');
+    onDirty?.(false);
+    try{onPrepared?.(receipt);}catch{ /* Callback cannot undo server acceptance. */ }
+    return;
+   }
    const copyNotice=el('div',{'aria-live':'polite',class:'copy-notice'}),clipboardText=changePackageClipboardText(prepared),area=el('textarea',{rows:12,readonly:true,class:'package-text',value:clipboardText}),exit=button('Exit',onExit);exit.hidden=true;
    const upload=sequenceSet?[text('p','Upload the selected originals to:','hint'),el('code',{},sequenceFolder(candidate)+'/'),el('p',{},el('a',{href:linkToSequenceUpload(sequenceFolder(candidate)),target:'_blank',rel:'noopener noreferrer'},'Open the repository upload folder'))]:fileInfo?[text('p','Upload the selected original to the repository path before promotion:','hint'),el('code',{},candidate.picture.src),el('p',{},el('a',{href:linkToUpload(candidate.picture.src),target:'_blank',rel:'noopener noreferrer'},'Open the repository upload folder'))]:[];
    output.replaceChildren(text('h3','Prepared change package'),text('p','Copy this instruction and change package into the Fishing project chat. Preparing is not saving.','hint'),area,copyNotice,toolbar(button('Copy Changes',async()=>{try{const copying=prepared;await navigator.clipboard.writeText(clipboardText);if(prepared!==copying||!output.contains(area))return;exit.hidden=false;status(copyNotice,'Changes copied to clipboard. Paste them into the Fishing project chat for implementation and deployment.','success');}catch{area.focus();area.select();status(copyNotice,'Clipboard unavailable. Select and copy the package manually, then paste it into the Fishing project chat for implementation and deployment.','warning');}},{variant:'primary'}),button('Select text',()=>{area.focus();area.select();}),exit),...upload);
    status(notice,'Package prepared. Nothing has been saved.','success');onPrepared?.(prepared);output.scrollIntoView({block:'nearest'});
-  }catch(error){status(notice,error.message,'error');}
+  }catch(error){status(notice,error.message||'Save was not confirmed. Your edit is retained.','error');}
+  finally{savePending=false;if(!saveAccepted)prepareButton.disabled=false;}
  });
  const actions=toolbar(prepareButton,button('Cancel',onBack));form.append(actions);host.append(notice,form,output);
  return {element:host,isDirty:dirty,dispose:()=>{revokeLocal();},record};
