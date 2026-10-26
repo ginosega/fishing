@@ -1,0 +1,150 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {prepareChange,narrativePath} from '../../../../pwa/src/handoff.mjs';
+import {createD3GuardedOperationsApi} from '../src/d3-guarded-operations-api.mjs';
+
+const ID=1430581407,OWNER=265665562,SHA='a'.repeat(40);
+const OP='p3_01234567-1234-4234-8234-123456789abc';
+const origin='https://fishing.example';
+const original={id:'p3-test-rod',name:'P3 Test Rod D2 Verification',
+  manufacturer:'Fixture Only',category:'rods-reels',type:'Spinning rod'};
+const header={'Content-Type':'application/json'};
+const newPost=body=>new Request(origin+'/api/v3/operations',{
+  method:'POST',headers:header,body:JSON.stringify(body),
+});
+const read=json=>json.json();
+const edit=()=>prepareChange({
+  domain:'gear',operation:'edit',id:original.id,
+  baseRecord:original,record:{...original,name:'P3 Test Rod D3 Verified'},
+  sourceRevision:SHA,
+});
+const kbAdd=()=>{
+  const record={id:'location-p3-d3-lake',name:'D3 Test Lake',type:'location'};
+  return prepareChange({domain:'kb',operation:'add',id:record.id,record,
+    sourceRevision:SHA,notesPath:narrativePath('kb',record),
+    text:'# D3 Test Lake\n\nSynthetic fixture only.\n'});
+};
+const envelope=pkg=>({
+  idempotencyKey:'idempotency-1234567890',
+  snapshot:{package:pkg,media:[]},
+});
+function fixture({enabled=true,owner=OWNER,goodSource=true,
+  conflict=false,inserted=true}={}){
+  const calls={writes:0,validations:0,status:0,authorizations:0,source:null};
+  const session={
+    describe:async()=>({authenticated:true,authorized:true,csrfToken:'redacted'}),
+    authorizeWrite:async()=>{calls.authorizations++;return {ownerGitHubId:owner,authorized:true};},
+    authorizeStatus:async()=>({ownerGitHubId:owner,authorized:true}),
+  };
+  const store={
+    accept:async command=>{
+      calls.writes++;
+      assert.equal(command.snapshot.media.length,0);
+      return {operationId:OP,state:'Accepted',inserted};
+    },
+    get:async id=>{calls.status++;return id===OP?{operationId:OP,state:'Checking'}:null;},
+  };
+  const validateCandidate=async input=>{
+    calls.validations++;calls.source=input;
+    if(conflict)throw Object.assign(Error('drift'),{code:'SOURCE_CONFLICT'});
+    return {
+      validated:goodSource,repositoryId:ID,
+      domain:input.package.domain,operation:input.package.operation,
+      sourceRevision:SHA,changes:[{action:'write',path:'pwa/Gear/gear.json',body:'{}'}],
+    };
+  };
+  const api=createD3GuardedOperationsApi({
+    enabled:()=>enabled,session,store,validateCandidate,
+  });
+  return {api,calls};
+}
+
+test('D3-A01 disabled writer rejects before checking auth, package or D1',async()=>{
+  const f=fixture({enabled:false});
+  const res=await f.api.handle(newPost(envelope(await edit())));
+  assert.equal(res.status,503);
+  assert.deepEqual(f.calls,{writes:0,validations:0,status:0,authorizations:0,source:null});
+});
+
+test('D3-A02 owner Gear edit returns durable Accepted, never public Live',async()=>{
+  const f=fixture(),res=await f.api.handle(newPost(envelope(await edit())));
+  assert.equal(res.status,202);
+  const receipt=await read(res);
+  assert.equal(receipt.ok,true);
+  assert.equal(receipt.accepted,true);
+  assert.equal(receipt.duplicate,false);
+  assert.equal(receipt.canonicalLive,false);
+  assert.equal(receipt.operationId,OP);
+  assert.equal(f.calls.validations,1);
+  assert.equal(f.calls.writes,1);
+  assert.equal(f.calls.source.repositoryId,ID);
+  assert.equal(f.calls.source.ownerGitHubId,OWNER);
+});
+
+test('D3-A03 KB add accepts text-only canonical package, no new data domain',async()=>{
+  const f=fixture();
+  const res=await f.api.handle(newPost(envelope(await kbAdd())));
+  assert.equal(res.status,202);
+  assert.equal(f.calls.source.package.domain,'kb');
+  assert.equal(f.calls.source.package.operation,'add');
+  assert.equal(f.calls.writes,1);
+});
+
+test('D3-A04 previously Accepted idempotency key produces no false fresh 202',async()=>{
+  const f=fixture({inserted:false});
+  const res=await f.api.handle(newPost(envelope(await edit())));
+  assert.equal(res.status,200);
+  assert.equal((await read(res)).duplicate,true);
+});
+
+test('D3-A05 unverified source, conflict or wrong owner never reach durable accept',async()=>{
+  for(const [props,status] of [
+    [{goodSource:false},409],[{conflict:true},409],[{owner:22},409],
+  ]){
+    const f=fixture(props);
+    const res=await f.api.handle(newPost(envelope(await edit())));
+    assert.equal(res.status,status);
+    assert.equal(f.calls.writes,0);
+  }
+});
+
+test('D3-A06 malformed body, media, extra repository, catch edit fail before D1',async()=>{
+  const pkg=await edit();
+  const attempts=[
+    {...envelope(pkg),repositoryId:1350909744},
+    {...envelope(pkg),snapshot:{package:pkg,media:[{bytes:12}]}},
+    {...envelope(pkg),snapshot:{package:{...pkg,domain:'catches'},media:[]}},
+    {...envelope(pkg),snapshot:{package:{...pkg,picture:{action:'remove'}},media:[]}},
+  ];
+  for(const body of attempts){
+    const f=fixture(),res=await f.api.handle(newPost(body));
+    assert.equal(res.status,400);
+    assert.equal(f.calls.validations,0);
+    assert.equal(f.calls.writes,0);
+  }
+  const f=fixture(),malformed=new Request(origin+'/api/v3/operations',{
+    method:'POST',headers:header,body:'not JSON',
+  });
+  const res=await f.api.handle(malformed);
+  assert.equal(res.status,400);
+});
+
+test('D3-A07 authenticated status survives navigation; unknown IDs stay hidden',async()=>{
+  const f=fixture();
+  const res=await f.api.handle(new Request(origin+'/api/v3/operations/'+OP));
+  assert.equal(res.status,200);
+  const value=await read(res);
+  assert.equal(value.operation.state,'Checking');
+  assert.equal(value.canonicalLive,false);
+  const missing=await f.api.handle(
+    new Request(origin+'/api/v3/operations/p3_unknown'));
+  assert.equal(missing.status,404);
+});
+
+test('D3-A08 public anonymous session read is allowed while writer is hard off',async()=>{
+  const f=fixture({enabled:false});
+  const res=await f.api.handle(new Request(origin+'/session'));
+  assert.equal(res.status,200);
+  assert.equal((await read(res)).authorized,true);
+  assert.equal(f.calls.writes,0);
+});
