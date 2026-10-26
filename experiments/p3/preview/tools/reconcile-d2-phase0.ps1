@@ -22,9 +22,9 @@ function Get-ExistingDatabaseId([string]$text, [string]$binding, [string]$databa
     $pattern = '"binding"\s*:\s*"' + [regex]::Escape($binding) +
         '"\s*,\s*"database_name"\s*:\s*"' + [regex]::Escape($database) +
         '"\s*,\s*"database_id"\s*:\s*"([a-f0-9-]+)"'
-    $matches = [regex]::Matches($text, $pattern)
-    if ($matches.Count -ne 1) { throw "Expected exactly one $binding D1 binding." }
-    $id = $matches[0].Groups[1].Value
+    $bindingMatches = [regex]::Matches($text, $pattern)
+    if ($bindingMatches.Count -ne 1) { throw "Expected exactly one $binding D1 binding." }
+    $id = $bindingMatches[0].Groups[1].Value
     if ($id -notmatch '^[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$') {
         throw "Invalid existing D1 ID for $binding."
     }
