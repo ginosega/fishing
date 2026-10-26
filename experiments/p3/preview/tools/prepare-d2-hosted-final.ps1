@@ -37,21 +37,16 @@ foreach ($name in @('OWNER_GITHUB_ID','D2_GITHUB_APP_PRIVATE_KEY','D2_CSRF_KEY',
 # Preflight against the SAME isolated remote D1 binding that accepted the
 # exact operation. This SELECT has no writes and no changes to GitHub.
 $op = 'p3_343ef7ba-1c87-4d5d-a2ad-92e91eab420f'
-# Wrangler's --command argument may lose SQL quoting when PowerShell 5.1
-# invokes npx.cmd. Use a fixed, committed SELECT-only .sql file instead.
-$sqlFile = Join-Path $root 'tools/d2-final-preflight-readonly.sql'
-if (-not (Test-Path -LiteralPath $sqlFile)) { throw 'Missing fixed read-only SQL file.' }
-$sqlText = [System.IO.File]::ReadAllText($sqlFile)
-$statement = [regex]::Replace($sqlText,'(?m)^--[^\r\n]*(?:\r?\n|$)','')
-$statement = [regex]::Replace($statement,'\s+',' ').Trim()
-$expected = "SELECT operation_id,state,pr_number,main_base_sha,pr_head_sha,workflow_run_id,merge_sha,reason_code FROM p3_operations WHERE operation_id = '$op';"
-if ($statement -cne $expected) {
- throw 'D1 preflight SQL changed; refusing to execute a non-reviewed statement.'
-}
+# Windows PowerShell 5.1 reliably passes a single-line --command with
+# no quoted SQL literals. Read at most 2 rows and REQUIRE exactly one,
+# with the expected operation ID and all immutable evidence checked below.
+# Never use --file here: Wrangler 4.152.0 mixes decorative progress output
+# with --json, which cannot be passed to ConvertFrom-Json directly.
+$sql = 'SELECT operation_id,state,pr_number,main_base_sha,pr_head_sha,workflow_run_id,merge_sha,reason_code FROM p3_operations LIMIT 2;'
 Push-Location $root
 try {
  # JSON output contains operation metadata only: no secrets or snapshots.
- $raw = @(& npx.cmd wrangler d1 execute fishing-p3-sandbox --remote --json --yes --config .\wrangler.d2-runner.local.jsonc --file .\tools\d2-final-preflight-readonly.sql)
+ $raw = @(& npx.cmd wrangler d1 execute fishing-p3-sandbox --remote --json --config .\wrangler.d2-runner.local.jsonc --command $sql)
  $exitCode = $LASTEXITCODE
  if ($exitCode -ne 0) {
   Write-Output "Wrangler D1 read-only preflight exit code: $exitCode"
