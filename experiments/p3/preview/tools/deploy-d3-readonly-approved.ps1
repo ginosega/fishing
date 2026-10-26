@@ -105,6 +105,21 @@ for($i=0;$i -lt 2;$i++){
   throw 'D1 binding identity drifted.'
  }
 }
+# Verify the prospective configuration is IDENTICAL to the previously
+# deployed hard-OFF configuration apart from exactly the two consented
+# read gates and the newly rebuilt owner JS checksum.
+$priorSha=[regex]::Match($previousConfig,
+ '"D3_PILOT_SHA256"\s*:\s*"(?<sha>[a-f0-9]{64})"')
+if(-not $priorSha.Success){throw 'Missing prior pinned owner bundle SHA.'}
+$expectedConfig=$previousConfig.Replace(
+ $priorSha.Groups['sha'].Value,[string]$sha)
+$expectedConfig=$expectedConfig.Replace(
+ '"D3_PILOT_ENABLED": "false"','"D3_PILOT_ENABLED": "true"')
+$expectedConfig=$expectedConfig.Replace(
+ '"D3_READ_TOKENS_ENABLED": "false"','"D3_READ_TOKENS_ENABLED": "true"')
+if($c -cne $expectedConfig){
+ throw 'Unexpected configuration delta beyond approved pilot/reader gates and JS hash.'
+}
 foreach($secret in @('GITHUB_CLIENT_ID','GITHUB_CLIENT_SECRET',
  'OWNER_GITHUB_ID','D2_CSRF_KEY','D2_HOST_PROBE_KEY','D2_GITHUB_APP_PRIVATE_KEY')){
  if($c -match ('"'+$secret+'"\s*:\s*"')){
