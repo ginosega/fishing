@@ -26,6 +26,9 @@ test('D2-P0 production-origin first deployment is hard-off, without cron or App 
 });
 test('D2-P1 local preparer reads existing database IDs; cannot deploy or migrate',()=>{
  assert.match(script,/wrangler d1 list --json/);
+ assert.match(script,/\$rawJson = \$raw -join \[Environment\]::NewLine/);
+ assert.match(script,/ConvertFrom-Json -InputObject \$rawJson/);
+ assert(!/\$raw\s*\|\s*ConvertFrom-Json/.test(script));
  assert.match(script,/fishing-auth-p0/);
  assert.match(script,/fishing-p3-sandbox/);
  assert.match(script,/Replace\('REPLACE_EXISTING_AUTH_P0_D1_UUID'/);
