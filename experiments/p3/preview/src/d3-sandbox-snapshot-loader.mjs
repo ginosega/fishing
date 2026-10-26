@@ -47,7 +47,7 @@ const headers=token=>({
 });
 const validEntry=e=>obj(e)&&normalPath(e.path)&&e.type==='blob'&&
   e.mode==='100644'&&SHA.test(e.sha)&&Number.isSafeInteger(e.size)&&
-  e.size>0&&e.size<=MAX_SOURCE_BYTES;
+  e.size>0&&e.size<=20*1024*1024;
 
 /**
  * Public interface: const {loadSnapshot}=createD3SandboxSnapshotLoader(...);
@@ -106,7 +106,7 @@ export function createD3SandboxSnapshotLoader({
     for(const item of tree.tree){
       need(obj(item)&&typeof item.path==='string'&&
         item.path.length<=512,'INVALID_TREE_ENTRY');
-      if(item.type==='tree')continue;
+      // Ignore unrelated repository files, which have no bearing on PWA data.\n      if(item.type==='tree'||!item.path.startsWith(ROOT))continue;
       need(validEntry(item),'UNSAFE_TREE_ENTRY');
       const key=item.path.normalize('NFC').toLowerCase();
       need(!entries.has(item.path)&&!caseKeys.has(key),
@@ -151,13 +151,13 @@ export function createD3SandboxSnapshotLoader({
     const hashes=new Map();
     for(const path of Object.values(SOURCE))
       hashes.set(path,entries.get(path).sha);
-    const narratives=referenced.filter(p=>p.toLowerCase().endsWith('.md'));
+    const narratives=new Set(referenced.filter(p=>p.toLowerCase().endsWith('.md')));
     need(narratives.length<=MAX_MD_FILES,'TOO_MANY_NARRATIVES');
     for(const relative of referenced){
       const path=ROOT+relative,entry=entries.get(path);
       need(validEntry(entry),'MISSING_REFERENCED_FILE');
       hashes.set(path,entry.sha);
-      if(narratives.includes(relative)){
+      if(narratives.has(relative)){
         markdown.set(relative,await readFile(path,MAX_MD_BYTES));
       }
     }
