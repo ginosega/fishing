@@ -11,6 +11,17 @@ const grant={checks:'read',contents:'write',metadata:'read',pull_requests:'write
 const CONTENT_READ={contents:'read'};
 const CHECK_READ={checks:'read',contents:'read',pull_requests:'read'};
 const safeScope=p=>same(p,CONTENT_READ)?CONTENT_READ:same(p,CHECK_READ)?CHECK_READ:null;
+const grantedReadOnly=(actual,requested)=>{
+ // GitHub can include its mandatory metadata:read in a minted token even
+ // when it was omitted from the downscoped request. This is the ONLY
+ // optional extra permission; any other permission (especially write) fails.
+ if(!actual||typeof actual!=='object'||Array.isArray(actual))return false;
+ const keys=Object.keys(actual);
+ if(keys.some(k=>!Object.hasOwn(requested,k)&&k!=='metadata'))return false;
+ if(keys.includes('metadata')&&actual.metadata!=='read')return false;
+ return Object.keys(requested).every(k=>actual[k]===requested[k])&&
+  keys.filter(k=>k!=='metadata').length===Object.keys(requested).length;
+};
 export class D2TokenError extends Error{
  constructor(code){super('D2 sandbox read token denied');this.name='D2TokenError';this.code=code;}
 }
@@ -67,7 +78,7 @@ export function createD2SandboxReadTokenIssuer({
   const issued=await api(jwt,API+'/app/installations/'+inst.id+'/access_tokens',
    'POST',{repository_ids:[ID],permissions:subset});
   ok(typeof issued?.token==='string'&&issued.token.length>=12&&
-   same(issued.permissions,subset)&&
+   grantedReadOnly(issued.permissions,subset)&&
    Array.isArray(issued.repositories)&&issued.repositories.length===1&&
    issued.repositories[0]?.id===ID&&
    issued.repositories[0]?.full_name===REPO,'TOKEN_DENIED');
