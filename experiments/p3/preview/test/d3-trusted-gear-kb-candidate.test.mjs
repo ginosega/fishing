@@ -120,7 +120,7 @@ test('D3-S08 remote Markdown images, invalid binary edits and record insertions 
  const x=fixture();
  await assert.rejects(x.candidate.plan(opts(await editKB('![remote](https://example.com/image.jpg)'))),
   fail('INVALID_MARKDOWN_LINKS'));
- const invalid={...(await editGear()),picture:{action:'add',path:'Gear/abc.jpg'}};
+ const invalid={...(await editGear()),picture:{action:'add',path:'Gear/abc.jpg',base:{$absent:true}}};
  await assert.rejects(x.candidate.plan(opts(invalid)),fail('TEXT_ONLY_D3'));
  const insert=await addKB();
  insert.record.picture={src:'KB/Locations/assets/unsupported.jpg'};
