@@ -48,6 +48,8 @@ jobs:
           node --check /tmp/fishing-d3-shell.bundle.mjs
           ./node_modules/.bin/esbuild ../experiments/p3/preview/src/d3-sandbox-scheduled-coordinator.mjs --bundle --platform=browser --format=esm --target=es2022 --outfile=/tmp/fishing-d3-coordinator.bundle.mjs
           node --check /tmp/fishing-d3-coordinator.bundle.mjs
+          ./node_modules/.bin/esbuild ../experiments/p3/preview/src/d3-live-owner-worker.mjs --bundle --platform=browser --format=esm --target=es2022 --outfile=/tmp/fishing-d3-owner-worker.bundle.mjs
+          node --check /tmp/fishing-d3-owner-worker.bundle.mjs
       - name: Verify browser-paste Worker bundle matches source exactly
         run: node experiments/p3/preview/tools/build-dashboard.mjs
       - name: Exercise unpublished Cloudflare sandbox deny-by-default worker
