@@ -5,3 +5,4 @@ pwa/.preview-test-output/
 pwa/hosted-evidence/
 experiments/p3/preview/src/generated/
 experiments/p3/preview/*.local.jsonc
+experiments/p3/preview/wrangler.d3-ci-generated.jsonc
