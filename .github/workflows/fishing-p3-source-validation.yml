@@ -67,7 +67,11 @@ jobs:
       - name: Syntax-check inert Windows D3 operator preflight (do not run it)
         shell: pwsh
         run: |
-          $scriptFile = Join-Path $PWD 'experiments/p3/preview/tools/prepare-d3-hardoff-config.ps1'
+          $operatorScripts = @(
+            'experiments/p3/preview/tools/prepare-d3-hardoff-config.ps1',
+            'experiments/p3/preview/tools/deploy-d3-hardoff-approved.ps1'
+          )
+          foreach ($scriptFile in $operatorScripts) {
           $tokens = $null
           $parseErrors = $null
           [void][System.Management.Automation.Language.Parser]::ParseFile(
@@ -77,7 +81,8 @@ jobs:
             $parseErrors | ForEach-Object { Write-Error $_.Message }
             throw 'Windows local preflight syntax invalid'
           }
-          Write-Output 'PASS: D3 PowerShell script parsed; not executed'
+            Write-Output "PASS: D3 PowerShell parsed (never executed): $scriptFile"
+          }
       - name: Verify browser-paste Worker bundle matches source exactly
         run: node experiments/p3/preview/tools/build-dashboard.mjs
       - name: Exercise unpublished Cloudflare sandbox deny-by-default worker
