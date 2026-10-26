@@ -110,6 +110,13 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
   if(domain==='kb'&&record.type!=='knot'&&record.pictureSequence)pictureInfo.append(text('p','This entry still has a step-by-step sequence. Replace it with a single picture, keep only its representative picture, or remove the picture before preparing changes.','notice warning'));
   const fileLabel=sequenceMode?'Choose local pictures':'Choose a local picture';
   pictureHost.replaceChildren(field('Picture action',pictureSelect),pictureInfo,field(fileLabel,fileInput,sequenceMode?'Select the complete sequence; files must be named step-01, step-02, ... and manually uploaded to the repository.':'File must be manually uploaded to repository'),field('Repository picture path',picturePathInput),field('Caption (optional)',captionInput));
+  if(publishChange){
+   // D3 is text-only; D4 introduces atomic browser media upload.
+   // Hide the obsolete v2 manual-upload suggestion in the gated UI.
+   for(const control of [pictureSelect,fileInput,picturePathInput,captionInput])
+    control.disabled=true;
+   pictureHost.replaceChildren(pictureInfo,text('p','Image changes and Knot sequences will become available with integrated uploads. Existing images are preserved.','hint'));
+  }
  }
  renderActionOptions(false);renderPicture();
  form.insertBefore(section('Picture',pictureHost),nameField.nextElementSibling.nextElementSibling);
