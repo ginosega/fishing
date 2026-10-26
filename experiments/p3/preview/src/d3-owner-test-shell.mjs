@@ -22,9 +22,10 @@ const need=(v,code)=>{if(!v)deny(code);};
 export function createD3OwnerTestShell({
  origin,request,bootstrap,enabled=()=>false,online=()=>true,
  storage=null,makeKey=()=>crypto.randomUUID(),
+ publishingEnabled=()=>false,
 }={}){
  need(typeof request==='function'&&typeof bootstrap==='function'&&
-  [enabled,online,makeKey].every(x=>typeof x==='function'),
+  [enabled,online,makeKey,publishingEnabled].every(x=>typeof x==='function'),
   'INVALID_CONFIGURATION');
  const owner=createD3AuthoringClient({
   origin,request,enabled,online,
@@ -65,7 +66,7 @@ export function createD3OwnerTestShell({
    enabled:true,authorized:false,
    auth:owner,lifecycle,
    // Only a verified owner-loaded sandbox base permits presenting Save.
-   ...(snapshot?{publish:async pkg=>{
+   ...(snapshot&&publishingEnabled()===true?{publish:async pkg=>{
     const receipt=await lifecycle.submit(pkg);
     need(receipt.phase==='Accepted'&&
      /^p3_[a-f0-9-]{36}$/.test(receipt.operationId??''),
