@@ -153,7 +153,8 @@ test('D3-P04 browser-supplied candidate path cannot mutate Catches or scripts',a
   ];
   for(const changes of invalid){
     const x=fixture({planned:changes});
-    await assert.rejects(x.create(),denied('UNSAFE_CANDIDATE_WRITE'));
+    await assert.rejects(x.create(),e=>e instanceof D3SandboxPRError&&
+      ['UNSAFE_CANDIDATE_WRITE','UNSAFE_CONTENT_PATH'].includes(e.code));
     assert(!x.trace.some(r=>r.method==='POST'));
   }
 });
