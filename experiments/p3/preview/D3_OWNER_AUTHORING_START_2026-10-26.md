@@ -86,3 +86,22 @@ Read-only GitHub API checks: the sandbox is private, repository ID 1430581407, w
 **Safe inventory (owner local terminal only, no mutation):** `npx.cmd wrangler deployments status --name fishing-auth-p0-test`; `npx.cmd wrangler secret list --name fishing-auth-p0-test` (show names and types, never secret values); inspect Cloudflare Workers dashboard Domains & Routes, Triggers, and Settings > Variables and Secrets for flags/types. Confirm the final parked D2 version and no Cron. No `deploy`, `secret put`, D1 `execute`, GitHub writes or production cutover are part of this audit.
 
 **Gate:** resolve the product entrypoint/OAuth route mismatches and record live provider inventory, then obtain one specifically scoped authorization for new D3 privileged binding/activation and first isolated Gear/KB sandbox writes. No new P3 checkpoints; stay within D3.
+
+
+## D3 parked-Worker live inventory and OAuth source correction
+
+**Owner-supplied live Cloudflare evidence (October 26):**
+
+- Wrangler 4.153.0 `deployments status --name fishing-auth-p0-test`: the live Worker is **version 82b678b2-b024-4428-922c-d2363f2bcbc2**, created 2026-10-26 15:08:32 UTC. This matches the deliberate final D2 parked disposition; it is not the source-only D3 Worker.
+- Domains screenshot: the exact intended HTTPS Worker URL `fishing-auth-p0-test.ginosega.workers.dev` is enabled; preview URLs are OFF; no custom domains or routes. Anonymous access to the Worker URL is intended for publicly readable V2 pages but must never enable D3 owner write APIs without a session.
+- Trigger-events screenshot: no Cron triggers, queue consumers, or email routing events. D2 is not scheduled.
+- Wrangler `secret list` confirms encrypted secret names `D2_CSRF_KEY`, `D2_GITHUB_APP_PRIVATE_KEY`, `D2_HOST_PROBE_KEY`, `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`, `OWNER_GITHUB_ID`. These outputs do not verify underlying values. Separately named D3 signing/HMAC secrets are not currently listed, and must not be assumed provisioned.
+- **Outstanding redacted/provider inventory**: Cloudflare **Settings → Bindings** (D1 DB bindings, OFF feature flags, variable vs encrypted secret types) and current GitHub App selected installation/effective repo permissions. Do not expose secret contents or D1 UUIDs.
+
+**Source fixes on draft PR #263, still not deployed:**
+
+- The GitHub sign-in anchor inside Connection Status now uses `/auth/start?return=%2Ffishing%2F`. AUTH-P0 already accepts that exact return destination and completes OAuth with a `/fishing/` redirect instead of the retired test homepage.
+- D3 gateway only forwards approved `/auth/start`, `/auth/callback`, `/session/signout`, `/session/revoke-all` routes. Old P0 test homepage `/` and test assets `/test-client.js` and `/test.css` now return 404 in the source candidate. Actual V2 pages remain proxied by `/fishing/`.
+- Regression assertions were added for the owner sign-in URL and legacy test-route denial. Isolated source CI #525 completed **success**; no Cloudflare deployment or actual D3 GitHub write resulted from these changes.
+
+**Next stage:** review redacted Bindings evidence, finish gated pilot entrypoint and Cloudflare deploy configuration in source, then obtain a distinctly scoped runtime-activation approval. Do not silently enable D3, recreate the D2 Cron, run D1 migrations, merge PR #263, or modify public canonical main.
