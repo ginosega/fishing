@@ -29,7 +29,14 @@ const validators={};
 for(const [key,definition]of Object.entries(definitions)){
  if(!Object.hasOwn(schema.$defs,definition))
   throw Error('Missing canonical schema definition: '+definition);
- validators[key]=ajv.compile({$ref:'#/$defs/'+definition,$defs:schema.$defs});
+ // Standalone multi-export API accepts registry schema IDs, not compiled
+ // function objects. Register exact canonical definitions, then retrieve
+ // and emit their compiled functions at build time.
+ const id='fishing-d3-standalone-'+key;
+ ajv.addSchema({$ref:'#/$defs/'+definition,$defs:schema.$defs},id);
+ if(typeof ajv.getSchema(id)!=='function')
+  throw Error('Cannot compile canonical schema: '+key);
+ validators[key]=id;
 }
 const code=standaloneCode(ajv,validators);
 if(!code.includes('export')||code.includes('new Function('))
