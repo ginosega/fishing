@@ -11,11 +11,18 @@ function fixture({enabled=true,authenticated=true,owner=OWNER,
  const host=createD3OwnerPilotHost({
   origin:ORIGIN,expectedSha256:missing?null:DIGEST,
   enabled:()=>enabled,
-  ownerSession:{authorizeStatus:async()=>{
-   calls.auth++;
-   if(!authenticated)throw Error('No owner cookie');
-   return {authorized:true,ownerGitHubId:owner};
-  }},
+  ownerSession:{
+   authorizeStatus:async()=>{
+    calls.auth++;
+    if(!authenticated)throw Error('No owner cookie');
+    return {authorized:true,ownerGitHubId:owner};
+   },
+   authorizePilotPage:async()=>{
+    calls.auth++;
+    if(!authenticated)throw Error('No owner cookie');
+    return {authorized:true,ownerGitHubId:owner};
+   },
+  },
   readBundle:async()=>{calls.bundle++;
    return tamper?new TextEncoder().encode('other JS'):JS;
   },
