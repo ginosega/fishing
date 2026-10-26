@@ -26,3 +26,22 @@ test('D2-R01 one-time receipt reconciliation is an exact single-row CAS only',()
  assert(!/\b(?:DROP|DELETE|ALTER|CREATE|ATTACH|INSERT|REPLACE|VACUUM|PRAGMA)\b/i.test(strip));
  assert(!/\bUPDATE\s+(?!p3_operations)/i.test(strip));
 });
+
+test('D2-R02 PowerShell recovery avoids forbidden Wrangler import API and preserves CAS SQL',()=>{
+ const ps=readFileSync(new URL('../tools/execute-d2-verified-merge-reconciliation.ps1',import.meta.url),'utf8');
+ assert.match(ps,/git hash-object -- \$sqlPath/);
+ assert(ps.includes('f479be01c118ef9a1d87d46c95e5adc15c7ee258'));
+ assert.match(ps,/--remote --json --config .*--command \$command/);
+ assert.doesNotMatch(ps,/--file\s+\.\\/);
+ assert.match(ps,/\$quoted\.Count -ne 12/);
+ assert.match(ps,/\$command\.Contains\("'"\)/);
+ assert.match(ps,/NO GitHub/i);
+ const literals=Array.from(strip.matchAll(/'([^']*)'/g),m=>m[1]);
+ assert.equal(literals.length,12,'fixed and reviewed literal inventory');
+ const encoded=strip.replace(/'([^']*)'/g,(_,v)=>
+  'char('+Array.from(v).map(c=>c.charCodeAt(0)).join(',')+')');
+ assert(!encoded.includes("'"),'query passed to cmd has no vulnerable quote characters');
+ assert(encoded.includes('WHERE operation_id = char('));
+ assert(encoded.includes('RETURNING operation_id, state, pr_number, workflow_run_id, merge_sha, reason_code;'));
+ assert(encoded.length<7900,'Windows native-command safety length bound');
+});
