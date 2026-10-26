@@ -119,14 +119,12 @@ test('D2-P6 final hosted test activation is scoped to exact already-checked PR #
  const final=readFileSync(new URL('../tools/prepare-d2-hosted-final.ps1',import.meta.url),'utf8');
  assert.match(final,/wrangler\.d2-runner\.local\.jsonc/);
  assert.match(final,/wrangler\.d2-hosted-final\.local\.jsonc/);
- assert.match(final,/--remote --json --yes --config/);
- assert.match(final,/--file \.\\tools\\d2-final-preflight-readonly\.sql/);
- const readonly=readFileSync(new URL('../tools/d2-final-preflight-readonly.sql',import.meta.url),'utf8');
- const cleaned=readonly.replace(/^--[^\r\n]*(?:\r?\n|$)/gm,'').replace(/\s+/g,' ').trim();
- assert.equal(cleaned, "SELECT operation_id,state,pr_number,main_base_sha,pr_head_sha,workflow_run_id,merge_sha,reason_code FROM p3_operations WHERE operation_id = 'p3_343ef7ba-1c87-4d5d-a2ad-92e91eab420f';");
- assert.match(final,/D1 preflight SQL changed; refusing to execute/);
+ assert.match(final,/--remote --json --config/);
+ assert.match(final,/--command \$sql/);
+ assert.doesNotMatch(final,/--file/);
+ assert.match(final,/SELECT operation_id,state,pr_number,main_base_sha,pr_head_sha,workflow_run_id,merge_sha,reason_code FROM p3_operations LIMIT 2;/);
+ assert.match(final,/\$entries\.Count -ne 1/);
  assert.match(final,/Wrangler D1 read-only preflight exit code/);
- assert.match(final,/SELECT operation_id,state,pr_number,main_base_sha,pr_head_sha,workflow_run_id,merge_sha,reason_code/);
  for(const exact of ['p3_343ef7ba-1c87-4d5d-a2ad-92e91eab420f',
   '69b236c8af663cdce687dc855bb117a01874060a',
   'fc7879d67217e0f0a36676e40dadbce7060f66a6',
