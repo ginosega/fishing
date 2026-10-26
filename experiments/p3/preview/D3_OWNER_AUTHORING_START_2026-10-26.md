@@ -1,0 +1,28 @@
+# FISH118 D3 — owner authoring implementation start (2026-10-26)
+
+**Status:** IN PROGRESS, source-only UI/service contract implemented and tested; **no V3 UI enabled and no canonical public publisher enabled**. This checkpoint follows the proven [D2 sandbox Live outcome](D2_SANDBOX_VERIFIED_CLOSEOUT_2026-10-26.md). It does not authorize public `ginosega/fishing` writes or an unreviewed production v3 cutover.
+
+## Controlling approval and fixed outcome
+
+D3 is the **third of six finite V3 deliverables** in the [approved delivery reset](FISH118_V3_Finite_Delivery_Reset_2026-10-25.md), guided by [signed requirements](../../pwa/docs/Fishing_Companion_v3_Requirements.md), [technical design](../../pwa/docs/Fishing_Companion_v3_Technical_Design.md), [approved UX](../../pwa/docs/Fishing_Companion_v3_UX_Review.md), and [original staged plan](../../pwa/docs/Fishing_Companion_v3_Implementation_Plan.md). Preserve exactly one `Save and Publish`, no per-edit signature or confirmation ceremony; discrete `Sign in with GitHub` only in Connection Status, existing owner session automatically recognized, anonymous read-only by default.
+
+**D3 acceptance requires:** owner sign-in and session restoration; real Gear and KB Add/Edit on intended production origin targeting **test-only sandbox repo**, one Save and Publish per edit; durable `Accepted` receipt; Leave/return status tracking; genuine CI/merged SHA/hosted identity; unauthorized and offline denial; conflict, expired session and ambiguous-save safety; Android installed-PWA authentication return. No public-main content changes until a separate consequential authorization.
+
+## Immediate follow-on to completed D2
+
+1. **Park the one-use sandbox D2 scheduler** once the final D1 `Live` record is confirmed by `tools/prepare-d2-parked-worker.ps1`. Operator deploys the resulting ignored `wrangler.d2-parked.local.jsonc` and verifies D2 flags all false, no Cron. Preserve first-party auth/Pages proxy; do not delete verified D1/audit records or remove encrypted secrets as a side effect.
+2. **D3 source-only client contract** introduced in `src/d3-authoring-client.mjs`: opt-in only, same-HTTPS-origin owner `/session` call, session-bound CSRF, no GitHub tokens in browser, stable caller-provided idempotency key, server-supplied durable accepted operation ID, GET status, distinct sandbox `Live` vs public canonical `Live`, fail-closed offline, media deferred to D4, CSRF/session invalidation on 401/403. Tests `test/d3-authoring-client.test.mjs` cover these boundaries.
+3. **Service expansion required before live D3 UI:** D2 accepts only the fixed `gear/p3-test-rod` text edit in private sandbox. A real D3 editor needs a validated, allowlisted set of **Gear and KB add/edit** operations and representative sandbox fixtures, not a general write to `ginosega/fishing`. Extend server-side canonical source validation, source conflict handling, status API, D1 snapshot and operation orchestration without introducing an unsafe fixture bypass. D4 will separately handle media binary staging.
+4. **Owner UI integration required:** source-port `pwa/src/editor.mjs` Gear/KB editor and `pwa/src/ui.mjs` Connection Status to the authenticated V3 release shell, keeping v2 deployed and unchanged until a reviewed V3 runtime Full Application Release. Anonymous Add/Edit controls must be hidden; owner controls appear only after confirmed `/session`. Replace the user-facing Copy Changes flow only **in the gated V3 experience**; do not strand v2 users while V3 is incomplete.
+5. **Lifecycle/status:** only navigate away on durable `Accepted`; recover operation/status after navigation and reload, resist double submit with stable key, preserve dirty form on network uncertainty, show Conflict/Failed/Unknown truthfully and never label test-only sandbox `Live` as public release.
+6. **Real acceptance and cutover:** test on Windows and installed Android in the agreed same-origin environment; test unauthorized visitors, session revoke/expiry, offline status, reentered PWA. Preserve source/byte integrity and existing public v2 rollback. Production `main` writes and full V3 launch remain separately gated.
+
+## Current architecture constraints
+
+- Server is the existing Cloudflare gateway `fishing-auth-p0-test`, not a second preview site. Its two D1 bindings keep AUTH and operation data separate. `ginosega.github.io/fishing/` remains the original public PWA until final approved cutover.
+- GitHub App PEM and OAuth secret stay in encrypted Worker bindings; never copy secrets to source, tests, browser, release files or chat.
+- PR #263 is **experimental, draft and unmerged**. Do not merge it as a unit; reviewed source-aware port only. AUTH-P0 draft PR #262 and unrelated PR #268 must be respected.
+- D2 first sandbox proof had one guarded human reconciliation after a successful remote merge and lost D1 receipt; future production reliability should include safe read-only unknown-result reconciliation, not a blind GitHub retry.
+- If UI code requires adjusting an approved security or product behavior, record the precise variance before enabling it; no extra per-edit approval is necessary for normal Save.
+
+**Next deliverable after D3:** D4 media and Catch authoring. This note reports technical work and remaining acceptance requirements, not a D3 release.
