@@ -8,9 +8,21 @@
   "main": "src/d2-live-publisher-worker.mjs",
   "compatibility_date": "2026-10-25",
   "workers_dev": true,
+  "preview_urls": false,
+  "observability": { "enabled": true, "logs": { "enabled": true } },
+  // The scheduled host-proof fetch MUST return through the public origin,
+  // rather than being routed to a nonexistent zone origin (Cloudflare 1042).
+  // Its one exact HMAC-authenticated GET is read-only and bounded.
+  "compatibility_flags": ["global_fetch_strictly_public"],
   // Existing dashboard-managed variables remain intact across a Wrangler
   // deployment. Encrypted secrets are independently retained by Cloudflare.
   "keep_vars": true,
+  "secrets": {
+    "required": [
+      "GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET", "OWNER_GITHUB_ID",
+      "D2_CSRF_KEY", "D2_HOST_PROBE_KEY", "D2_GITHUB_APP_PRIVATE_KEY"
+    ]
+  },
   "vars": {
     "APP_ORIGIN": "https://fishing-auth-p0-test.ginosega.workers.dev",
     // OWNER_GITHUB_ID is already an encrypted secret on this Worker.
@@ -47,5 +59,8 @@
   // Do NOT declare encrypted values in vars or copy values into chat.
   // A scheduled event invokes at most one D1 transition and has NO
   // public HTTP trigger. The hard-OFF flags above block all operations.
+  // Cloudflare Workers Free permits 10ms CPU for Cron; check telemetry
+  // during one real sandbox operation. Never assume it can complete under
+  // Free limits or switch to a paid plan without owner authorization.
   "triggers": { "crons": ["*/5 * * * *"] }
 }
