@@ -9,33 +9,48 @@ if (-not (Test-Path -LiteralPath $template)) { throw 'Missing phase-0 template.'
 if (Test-Path -LiteralPath $target) {
     throw 'Local config already exists. Review or rename it before regeneration.'
 }
-$raw = @(& npx wrangler d1 list --json)
+# Use the Windows command shim explicitly: npx.ps1 is blocked on
+# standard systems where PowerShell script execution policy is restricted.
+$raw = @(& npx.cmd wrangler d1 list --json)
 if ($LASTEXITCODE -ne 0 -or $raw.Count -eq 0) {
     throw 'Wrangler D1 list failed; check local Cloudflare login.'
 }
-# Windows PowerShell receives native executable stdout as separate lines.
-# ConvertFrom-Json needs ONE complete JSON document, not one pipeline record
-# per line. Joining also works when Wrangler emitted a single JSON line.
+# Windows PowerShell receives native stdout as multiple pipeline records.
 $rawJson = $raw -join [Environment]::NewLine
 try {
     $parsed = ConvertFrom-Json -InputObject $rawJson
 } catch {
-    throw 'Wrangler D1 list output is not valid JSON. Run npx wrangler d1 list --json directly to inspect Wrangler output; do not deploy.'
+    throw 'Wrangler D1 list output is not valid JSON; do not deploy.'
 }
-$databases = @($parsed)
-if ($null -ne $parsed.result) { $databases = @($parsed.result) }
-if ($null -ne $parsed.databases) { $databases = @($parsed.databases) }
-function Get-UniqueDatabaseUuid([object[]]$items, [string]$name) {
-    $found = @($items | Where-Object { $_.name -ceq $name })
-    if ($found.Count -ne 1) { throw "Expected exactly one D1 database named $name in this Cloudflare account." }
+# Explicit pipeline flattening avoids nested System.Object[] values returned
+# by ConvertFrom-Json from being treated as a single database record.
+if ($parsed -is [System.Array]) {
+    $databaseEntries = @($parsed | ForEach-Object { $_ })
+} elseif ($null -ne $parsed.result) {
+    $databaseEntries = @($parsed.result | ForEach-Object { $_ })
+} elseif ($null -ne $parsed.databases) {
+    $databaseEntries = @($parsed.databases | ForEach-Object { $_ })
+} else {
+    throw 'Unrecognized Wrangler D1 list JSON structure; do not deploy.'
+}
+$databaseNames = @($databaseEntries | ForEach-Object { [string]$_.name })
+if ($databaseNames -notcontains 'fishing-auth-p0' -or
+    $databaseNames -notcontains 'fishing-p3-sandbox') {
+    throw 'Expected D1 database names missing from Wrangler account; do not deploy.'
+}
+function Get-UniqueDatabaseUuid([object[]]$items, [string]$databaseName) {
+    $found = @($items | Where-Object { [string]$_.name -ceq $databaseName })
+    if ($found.Count -ne 1) {
+        throw "Expected exactly one D1 database named $databaseName in this Cloudflare account."
+    }
     $uuid = [string]$found[0].uuid
     if ($uuid -notmatch '^[a-f0-9]{8}(-[a-f0-9]{4}){3}-[a-f0-9]{12}$') {
-        throw "Wrangler did not return a valid D1 ID for $name."
+        throw "Wrangler did not return a valid D1 ID for $databaseName."
     }
     return $uuid
 }
-$auth = Get-UniqueDatabaseUuid $databases 'fishing-auth-p0'
-$sandbox = Get-UniqueDatabaseUuid $databases 'fishing-p3-sandbox'
+$auth = Get-UniqueDatabaseUuid -items $databaseEntries -databaseName 'fishing-auth-p0'
+$sandbox = Get-UniqueDatabaseUuid -items $databaseEntries -databaseName 'fishing-p3-sandbox'
 if ($auth -eq $sandbox) { throw 'AUTH and P3 databases must be distinct.' }
 $config = [System.IO.File]::ReadAllText($template)
 $config = $config.Replace('REPLACE_EXISTING_AUTH_P0_D1_UUID', $auth)
