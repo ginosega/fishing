@@ -59,5 +59,7 @@ test('D2-P2 local reconciliation retains exact database UUIDs and leaves secrets
  }
  assert.match(reconcile,/Secret \$name is configured as plaintext/);
  assert.match(reconcile,/No network calls, migrations, secrets, or Cloudflare deployment/);
- assert(!/\b(?:wrangler|curl|Invoke-WebRequest|Invoke-RestMethod|git)\s+(?:deploy|put|post|secret|d1\s+execute)/i.test(reconcile));
+ // Printed NEXT instructions are harmless; actual executable commands are not.
+ assert(!/^\s*(?:&\s*)?(?:npx(?:\.cmd)?\s+)?wrangler\s+(?:deploy|secret|d1\s+execute)/im.test(reconcile));
+ assert(!/^\s*(?:&\s*)?(?:Invoke-WebRequest|Invoke-RestMethod|curl|git)\s/im.test(reconcile));
 });
