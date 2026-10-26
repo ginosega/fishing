@@ -13,6 +13,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
 import * as esbuild from 'esbuild';
+import {ownerPilotCspValidationPlugin} from './build-d3-csp-validators.mjs';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..');
 const src=path.join(root,'experiments/p3/preview/src');
@@ -33,6 +34,7 @@ async function main(){
   bundle:true,write:false,format:'iife',platform:'browser',target:'es2022',
   minify:true,legalComments:'none',sourcemap:false,
   define:{'process.env.NODE_ENV':'"production"'},
+  plugins:[ownerPilotCspValidationPlugin()],
   logLevel:'silent',
  });
  if(result.errors.length||result.outputFiles.length!==1)
@@ -41,6 +43,10 @@ async function main(){
  if(bytes.length<1024||bytes.length>3*1024*1024)
   throw Error('Pilot bundle length outside strict owner-host limits');
  const text=safeUtf8(bytes);
+ // Fail the deployable browser bundle if it tries to compile AJV via
+ // Function()/eval(). Canonical AJV source remains a build-time dependency.
+ if(/\bnew Function\s*\(|\beval\s*\(/.test(text))
+  throw Error('Owner pilot bundle requests unsafe dynamic JavaScript execution');
  if(/sourceMappingURL\s*=/.test(text))
   throw Error('A browser sourcemap must not be deployed with pilot code');
  const digest=sha256(bytes);
