@@ -114,3 +114,28 @@ test('D2-P5 submission-only release cannot trigger a GitHub write or expose host
  assert.match(submit,/No secret read, network call, D1 mutation, or Worker deployment/);
  assert(gitignore.includes('wrangler.d2-submit.local.jsonc'));
 });
+
+test('D2-P6 final hosted test activation is scoped to exact already-checked PR #16 and cannot deploy',()=>{
+ const final=readFileSync(new URL('../tools/prepare-d2-hosted-final.ps1',import.meta.url),'utf8');
+ assert.match(final,/wrangler\.d2-runner\.local\.jsonc/);
+ assert.match(final,/wrangler\.d2-hosted-final\.local\.jsonc/);
+ assert.match(final,/--remote --json --config/);
+ assert.match(final,/SELECT operation_id,state,pr_number,main_base_sha,pr_head_sha,workflow_run_id,merge_sha,reason_code/);
+ for(const exact of ['p3_343ef7ba-1c87-4d5d-a2ad-92e91eab420f',
+  '69b236c8af663cdce687dc855bb117a01874060a',
+  'fc7879d67217e0f0a36676e40dadbce7060f66a6',
+  '40288266980']){
+  assert(final.includes(exact),'Missing immutable expected receipt '+exact);
+ }
+ assert.match(final,/\$r\.state -ne 'Merging'/);
+ assert.match(final,/\$r\.pr_number -ne 16/);
+ assert.match(final,/\$null -ne \$r\.merge_sha/);
+ assert.match(final,/\$null -ne \$r\.reason_code/);
+ assert.match(final,/\$from = '"D2_TEST_HOST_ENABLED": "false"'/);
+ assert.match(final,/\$to = '"D2_TEST_HOST_ENABLED": "true"'/);
+ for(const flag of ['D2_WRITE_ENABLED','D2_RUNNER_ENABLED','D2_READ_TOKENS_ENABLED'])
+  assert(final.includes(flag),'Missing prerequisite true gate '+flag);
+ assert.match(final,/No Worker deployment, D1 mutation, GitHub write or secret exposure/);
+ assert(gitignore.includes('wrangler.d2-hosted-final.local.jsonc'));
+ assert(!/^\s*(?:&\s*)?(?:npx(?:\.cmd)?\s+)?wrangler\s+(?:deploy|secret|d1\s+migrations)/im.test(final));
+});
