@@ -26,3 +26,15 @@ D3 is the **third of six finite V3 deliverables** in the [approved delivery rese
 - If UI code requires adjusting an approved security or product behavior, record the precise variance before enabling it; no extra per-edit approval is necessary for normal Save.
 
 **Next deliverable after D3:** D4 media and Catch authoring. This note reports technical work and remaining acceptance requirements, not a D3 release.
+
+## D3 source implementation checkpoint — after D2 Worker shutdown
+
+**Verified foundation now implemented on the existing draft PR #263:**
+
+- `src/d3-publication-lifecycle.mjs` + unit tests hold the immutable submitted package and original idempotency key on uncertain network outcomes, prevent double POSTs, and require a **deliberate same-key, same-payload** retry rather than silent background retries. Store only the nonsecret operation ID for post-navigation authenticated status restoration; no package, owner cookie, CSRF, GitHub credential or idempotency key goes into storage. Source statuses are represented without false public Live claims.
+- Existing `pwa/src/editor.mjs` now accepts an **optional injected `publishChange` callback**. Only that opted-in V3 path uses Save and Publish, disables controls after server Accepted, protects dirty drafts on uncertain save, and surfaces a durable operation ID. In plain V2 mode the original Prepare Changes / Copy Changes experience remains unchanged. D3 direct media changes are visibly unavailable until D4.
+- Existing `pwa/src/ui.mjs` treats V3-mode owner authorization as an **opt-in presentation gate**: it hides anonymous Add/Edit links and denies direct editor URLs, while preserving the V2 UI for the public app. The backend remains the true authorization boundary; browser flags never authorize a write.
+- `src/d3-authoring-client.mjs` maintains exact same-origin owner session+CSRF operations/status contract. Tests cover fake/malformed receipts, offline/unauthorized access, and honest sandbox `Live` labeling.
+- Regression tests `pwa/test/p3-v3-editor-ui-gates.test.mjs`, `test/d3-publication-lifecycle.test.mjs`, and `test/d3-authoring-client.test.mjs` run in the isolated CI lane.
+
+**Not complete:** No runtime `ctx.v3` activation in `pwa/src/app.mjs`; no real Connection Status-only sign-in controls or session restoration in a compiled V3 Pages release; no server-side Gear/KB generalization beyond D2's one test fixture; no D3 hosted integration/Android acceptance. Source-only feature gates do **not** constitute delivered D3. Next implement restricted Gear/KB fixture-backed source-aware server validation, then same-origin owner/session and status UI against actual sandbox bytes, without changing public canonical content or introducing a duplicate preview host.
