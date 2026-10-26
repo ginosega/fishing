@@ -35,7 +35,7 @@ const json=(value,status=200)=>new Response(JSON.stringify(value),{
  status,headers:{'Content-Type':'application/json'},
 });
 const denial=code=>e=>e instanceof D3OwnerShellError&&e.code===code;
-function fixture({enabled=true,online=true,owner=true,sourceFailure=false}={}){
+function fixture({enabled=true,online=true,owner=true,sourceFailure=false,publishing=true}={}){
  const network=[],renders=[];
  const request=async (url,opts)=>{
   network.push({url,method:opts.method});
@@ -59,6 +59,7 @@ function fixture({enabled=true,online=true,owner=true,sourceFailure=false}={}){
  const shell=createD3OwnerTestShell({
   origin:ORIGIN,request,enabled:()=>enabled,online:()=>online,
   makeKey:()=> 'sandbox-idempotency-key-12345',
+  publishingEnabled:()=>publishing,
   bootstrap:async(settings,extras)=>{
    renders.push({settings,extras});return {settings,extras};
   },
@@ -118,4 +119,12 @@ test('D3-B07 the test-only shell cannot be started twice',async()=>{
  const x=fixture();
  await x.shell.start(boot);
  await assert.rejects(x.shell.start(boot),denial('ALREADY_STARTED'));
+});
+
+test('D3-B08 authenticated read-only pilot has sandbox source but no publishing UI',async()=>{
+ const x=fixture({publishing:false});
+ const {extras}=await x.shell.start(boot);
+ assert.equal(extras.sandboxSource.sourceRevision,main);
+ assert.equal(extras.v3.publish,undefined);
+ assert.deepEqual(x.network.map(n=>n.method),['GET','GET']);
 });
