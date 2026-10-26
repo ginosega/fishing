@@ -19,11 +19,14 @@
   // Wrangler imports ./src/generated/d3-pilot.bundle.txt as a Text module.
   // Generate with the local locked esbuild script BEFORE an authorized dry-run.
   "rules": [{ "type": "Text", "globs": ["**/*.txt"] }],
+  // Reuse existing encrypted D2 App/probe secrets on this same Worker.
+  // D3 HMAC messages have an independent D3-test-only domain prefix.
+  // Never export, duplicate, rotate or redeclare a PEM to add D3.
   "secrets": {
     "required": [
       "GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET",
       "OWNER_GITHUB_ID", "D2_CSRF_KEY",
-      "D3_GITHUB_APP_PRIVATE_KEY", "D3_HOST_PROBE_KEY"
+      "D2_GITHUB_APP_PRIVATE_KEY", "D2_HOST_PROBE_KEY"
     ]
   },
   "vars": {
