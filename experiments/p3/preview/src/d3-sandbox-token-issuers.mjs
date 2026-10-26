@@ -19,8 +19,8 @@ export function createD3SandboxTokenIssuers({env,request,
   throw Error('D3 token issuer requires trusted runtime');
  const sameInstallation=()=>env?.D3_GITHUB_APP_ID===env?.D2_GITHUB_APP_ID&&
   env?.D3_GITHUB_INSTALLATION_ID===env?.D2_GITHUB_INSTALLATION_ID&&
-  /^[1-9]\\d*$/.test(String(env?.D2_GITHUB_APP_ID??''))&&
-  /^[1-9]\\d*$/.test(String(env?.D2_GITHUB_INSTALLATION_ID??''))&&
+  /^[1-9]\d*$/.test(String(env?.D2_GITHUB_APP_ID??''))&&
+  /^[1-9]\d*$/.test(String(env?.D2_GITHUB_INSTALLATION_ID??''))&&
   typeof env?.D2_GITHUB_APP_PRIVATE_KEY==='string'&&
   env.D2_GITHUB_APP_PRIVATE_KEY.length>32;
  const read=createD2SandboxReadTokenIssuer({
