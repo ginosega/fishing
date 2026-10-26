@@ -19,7 +19,7 @@ const env=(extra={})=>({
   ...extra,
 });
 function fixture(){
-  const calls={auth:0,proxy:0,api:0,transport:0,created:0,gate:null};
+  const calls={auth:0,proxy:0,api:0,transport:0,created:0,gate:null,source:0,sourceGate:null};
   const service=createD3GatedAuthGateway({
     auth:{fetch:async()=>{
       calls.auth++;return new Response('AUTH', {status:200});}},
@@ -37,6 +37,14 @@ function fixture(){
     storeFactory:args=>{
       assert.equal(args.repositoryId,ID);calls.created++;
       return {accept:async()=>{},get:async()=>{}};
+    },
+    sourceReadFactory:args=>{
+      assert.equal(args.origin,ORIGIN);
+      assert.equal(typeof args.loadSnapshot,'function');
+      calls.source++;
+      calls.sourceGate=args.enabled();
+      return {serve:async()=>new Response('SANDBOX_READ',
+        {status:args.enabled()?200:503})};
     },
     apiFactory:args=>{
       calls.api++;
@@ -135,4 +143,22 @@ test('D3-G08 correct source-only composition preserves exact sandbox gate',async
   assert.equal(x.calls.gate,true);
   assert.equal(x.calls.created,2);
   assert.equal(x.calls.transport,0);
+});
+
+test('D3-G09 read-only sandbox source uses separate disabled owner gate, never a publishing route',async()=>{
+  const off=fixture();
+  const url='/api/v3/authoring-source';
+  const denied=await off.service.fetch(request(url),env(),{});
+  assert.equal(denied.status,503);
+  assert.equal(off.calls.source,1);
+  assert.equal(off.calls.sourceGate,false);
+  assert.equal(off.calls.api,0);
+  assert.equal(off.calls.transport,0);
+  const on=fixture();
+  const source=await on.service.fetch(request(url),
+    env({D3_READ_TOKENS_ENABLED:'true'}),{});
+  assert.equal(await source.text(),'SANDBOX_READ');
+  assert.equal(on.calls.sourceGate,true);
+  assert.equal(on.calls.api,0);
+  assert.equal(on.calls.transport,0);
 });
