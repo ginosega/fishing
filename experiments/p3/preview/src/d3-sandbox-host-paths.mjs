@@ -1,0 +1,71 @@
+/**
+ * FISH118 D3: exact test-only sandbox hosted resource paths.
+ * The route is NOT part of public /fishing/ and cannot request unrelated
+ * repository files. Filenames (including spaces) use canonical per-segment
+ * percent encoding; aliases, traversal and extra URL parameters are denied.
+ */
+import {safePath} from '../../../../pwa/src/shared.mjs';
+const OP=/^p3_[a-f0-9-]{36}$/;
+const ROOT='/__d3_test__/operations/';
+const JSON_FILES=new Set(['pwa/Gear/gear.json','pwa/KB/kb.json']);
+export class D3HostPathError extends Error{
+ constructor(code){
+  super('D3 isolated hosted resource path refused');
+  this.name='D3HostPathError';this.code=code;
+ }
+}
+const deny=code=>{throw new D3HostPathError(code);};
+const need=(ok,code)=>{if(!ok)deny(code);};
+export function expectedD3HostedPaths(pkg){
+ need(pkg?.format==='fishing-companion-change-v2'&&
+  ['gear','kb'].includes(pkg.domain)&&
+  ['edit','add'].includes(pkg.operation)&&
+  pkg.picture?.action==='keep'&&
+  (pkg.pictureSequence?.action??'keep')==='keep'&&
+  ['keep','create','replace'].includes(pkg.notes?.action),
+  'INVALID_PACKAGE');
+ const base=pkg.domain==='gear'?'pwa/Gear/gear.json':'pwa/KB/kb.json';
+ const result=[base];
+ if(pkg.notes.action!=='keep'){
+  let path;
+  try{path=safePath(pkg.notes.path);}catch{deny('UNSAFE_MARKDOWN');}
+  const prefix=pkg.domain==='gear'?'Gear/':'KB/';
+  need(path.startsWith(prefix)&&path.includes('/content/')&&
+   path.endsWith('.md')&&path.split('/').length>=4,
+   'UNSAFE_MARKDOWN');
+  result.push('pwa/'+path);
+ }
+ return Object.freeze(result);
+}
+export function d3HostedTestPath(operationId,file){
+ need(OP.test(operationId),'INVALID_OPERATION');
+ need(typeof file==='string'&&file.startsWith('pwa/')&&
+  (JSON_FILES.has(file)||isMarkdown(file)),'INVALID_FILE');
+ const parts=file.split('/');
+ need(parts.every(p=>p!==''&&p!=='.'&&p!=='..'),'INVALID_FILE');
+ return ROOT+operationId+'/'+parts.map(encodeURIComponent).join('/');
+}
+function isMarkdown(file){
+ try{
+  const path=safePath(file.slice(4));
+  return file==='pwa/'+path&&
+   (path.startsWith('Gear/')||path.startsWith('KB/'))&&
+   path.includes('/content/')&&path.endsWith('.md');
+ }catch{return false;}
+}
+export function parseD3HostedTestPath(pathname){
+ if(typeof pathname!=='string'||!pathname.startsWith(ROOT))
+  return null;
+ const suffix=pathname.slice(ROOT.length);
+ const n=suffix.indexOf('/');
+ if(n<0)return null;
+ const operationId=suffix.slice(0,n);
+ if(!OP.test(operationId))return null;
+ const encoded=suffix.slice(n+1);
+ let file;
+ try{
+  file=encoded.split('/').map(decodeURIComponent).join('/');
+  if(d3HostedTestPath(operationId,file)!==pathname)return null;
+ }catch{return null;}
+ return Object.freeze({operationId,file});
+}
