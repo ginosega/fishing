@@ -141,3 +141,44 @@ test('D2-W08 source code has no dispatch handler, installation key or active wri
  const off=createD2GatedAuthGateway();
  assert.equal(typeof off.fetch,'function');
 });
+
+test('D2-W10 source rejection logs stable code only, never message or secret',async()=>{
+ const messages=[],originalWarn=console.warn;
+ const testError=Object.assign(new Error('PEM contents, JWT and private credential'),{
+  name:'D2TokenError',code:'TOKEN_DENIED',
+ });
+ const target=createD2GatedAuthGateway({
+  issueReadToken:async()=>{throw testError;},
+ });
+ try{
+  const csrf=(await(await target.fetch(req('/session'),env)).json()).csrfToken;
+  console.warn=(...args)=>messages.push(args);
+  const input={
+   idempotencyKey:'d2-w10-source-failure-check',
+   snapshot:{package:{
+    format:'fishing-companion-change-v2',domain:'gear',
+    operation:'edit',id:'p3-test-rod',
+    base:{schemaVersion:2,sourceRevision:'a'.repeat(40),
+     recordHash:'b'.repeat(64)},
+    changes:{set:{name:'Synthetic Test'},unset:[],
+     baseFields:{name:'P3 Test Rod'}},
+    notes:{action:'keep'},picture:{action:'keep'},pictureSequence:{action:'keep'},
+   },media:[]},
+  };
+  const r=new Request(ORIGIN+'/api/v3/operations',{
+   method:'POST',
+   headers:{Cookie:'__Host-fish_p0_session='+cookie,
+    Origin:ORIGIN,'Sec-Fetch-Site':'same-origin',
+    'X-Fish-V3-Intent':'publish','X-Fish-V3-CSRF':csrf,
+    'Content-Type':'application/json'},
+   body:JSON.stringify(input),
+  });
+  const before=count();
+  const reply=await target.fetch(r,{...env,D2_WRITE_ENABLED:'true'});
+  assert.equal(reply.status,409);
+  assert.deepEqual(await reply.json(),{ok:false,error:'UNVERIFIED_SOURCE'});
+  assert.equal(count(),before);
+  assert.deepEqual(messages,[['FISH118_D2_SOURCE_VALIDATION_REFUSED','TOKEN_DENIED']]);
+  assert(!JSON.stringify(messages).includes('PEM contents'));
+ }finally{console.warn=originalWarn;}
+});
