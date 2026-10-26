@@ -144,3 +144,33 @@ test('D2-L06 active scheduler failure must reject waitUntil and expose only a sa
   assert.deepEqual(logs,[['FISH118_D2_SCHEDULED_FAILURE','INTERNAL_FAILURE']]);
  } finally { console.error=original; }
 });
+
+test('D2-L07 hosted route OFF no longer silently disables PR-only scheduled ticks',async()=>{
+ const original=console.error;
+ const failures=[],logs=[];
+ console.error=(...args)=>logs.push(args);
+ try{
+  const worker=createD2LivePublisherWorker({
+   onScheduledFailure:code=>failures.push(code),
+  });
+  const env={
+   APP_ORIGIN:ORIGIN,OWNER_GITHUB_ID:'265665562',
+   D2_SANDBOX_REPO_ID:String(ID),
+   D2_RUNNER_ENABLED:'true',D2_WRITE_ENABLED:'true',
+   D2_READ_TOKENS_ENABLED:'true',D2_TEST_HOST_ENABLED:'false',
+   D2_CSRF_KEY:'c'.repeat(48),D2_HOST_PROBE_KEY:'h'.repeat(48),
+   DB:{prepare(){}},OPERATIONS_DB:{
+    prepare(){throw Error('INTERNAL_SECRET_DO_NOT_EXPOSE');},
+    batch(){},
+   },
+  };
+  let task;
+  await worker.scheduled({cron:'*/5 * * * *'},env,{
+   waitUntil(p){task=p;},
+  });
+  assert.equal(typeof task?.then,'function');
+  await assert.rejects(task,/D2_SCHEDULED_FAILURE/);
+  assert.deepEqual(failures,['INTERNAL_FAILURE']);
+  assert.deepEqual(logs,[['FISH118_D2_SCHEDULED_FAILURE','INTERNAL_FAILURE']]);
+ }finally{console.error=original;}
+});
