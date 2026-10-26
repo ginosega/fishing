@@ -96,6 +96,10 @@ test('D3-G05 only exact HTTPS origin and allowlisted routes are accepted',async(
   const x=fixture();
   const wrong=new Request('https://other.example/api/v3/operations');
   assert.equal((await x.service.fetch(wrong,env(),{})).status,404);
+  for(const legacy of ['/','/test-client.js','/test.css']){
+    const res=await x.service.fetch(request(legacy),env(),{});
+    assert.equal(res.status,404,'P0 test UI must not be a D3 owner entrypoint: '+legacy);
+  }
   assert.equal((await x.service.fetch(request('/_internal/write'),env(),{})).status,404);
   assert.equal((await x.service.fetch(request('/__d2_test__/operations/test/Gear/gear.json'),env(),{})).status,404);
   assert.equal(x.calls.auth,0);
