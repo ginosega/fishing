@@ -106,7 +106,8 @@ export function createD3SandboxSnapshotLoader({
     for(const item of tree.tree){
       need(obj(item)&&typeof item.path==='string'&&
         item.path.length<=512,'INVALID_TREE_ENTRY');
-      // Ignore unrelated repository files, which have no bearing on PWA data.\n      if(item.type==='tree'||!item.path.startsWith(ROOT))continue;
+      // Ignore unrelated repository files, which have no bearing on PWA data.
+      if(item.type==='tree'||!item.path.startsWith(ROOT))continue;
       need(validEntry(item),'UNSAFE_TREE_ENTRY');
       const key=item.path.normalize('NFC').toLowerCase();
       need(!entries.has(item.path)&&!caseKeys.has(key),
