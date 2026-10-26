@@ -168,7 +168,8 @@ export default {
         const state = url.searchParams.get('state');
         const code = url.searchParams.get('code');
         const flow = cookies(req)[FLOW_COOKIE];
-        if (!state || !code || !flow || state !== flow || !/^[A-Za-z0-9_-]{43}(?:\.f)?$/.test(state))
+        if (!state || !code || !flow || state !== flow || !/^[A-Za-z0-9_-]{43}(?:\.[fp])?$/.test(state) ||
+            (state.endsWith('.p') && env.D3_PILOT_ENABLED !== 'true'))
           return withCookies(error(400, 'Invalid OAuth callback'), [clearFlow]);
         // Atomic, single-use state. Parallel callbacks cannot both consume the row.
         const pending = await env.DB.prepare('DELETE FROM auth_flows WHERE state_hash = ? AND expires_at > ? RETURNING code_verifier')
