@@ -43,6 +43,7 @@ jobs:
         working-directory: pwa
         run: |
           node tools/build-d3-pilot.mjs --check
+          node tools/verify-d3-windows-eol.mjs
           node tools/verify-d3-csp.mjs
           node tools/verify-d3-runtime.mjs
       - name: Bundle gated D3 owner source gateway and pilot shell (no deploy)
