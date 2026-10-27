@@ -29,6 +29,8 @@ test('FISH118 D3 inactive owner UI hides Add/Edit and rejects deep-link editor w
  assert.match(ui,/page\.append\(list\.element,\.\.\.\(canAuthor\(\)\?/);
  assert.match(ui,/if\(canAuthor\(\)\)page\.append\(anchor\('Edit item'/);
  assert.match(ui,/publishChange:v3Mode\?ctx\.v3\.publish:null/);
+ assert.match(ui,/ctx\.v3\.onPublicationReceipt=receipt=>/);
+ assert.match(ui,/ownerController\.refreshPublication\(\)/);
  assert(!app.includes('ctx.v3='));
  assert(!entry.includes('v3:{enabled:true'));
 });
