@@ -132,6 +132,26 @@ test('D3-A06 malformed body, media, extra repository, catch edit fail before D1'
   assert.equal(res.status,400);
 });
 
+test('D3-A11 source validation 409 returns enum only, never exception text',async()=>{
+ const thrown=Object.assign(new Error('SECRET_PRIVATE_TEXT_NEVER_SHOWN'),
+  {code:'INVALID_PROMOTION'});
+ const session={describe:async()=>({authenticated:true,authorized:true}),
+  authorizeWrite:async()=>({authorized:true,ownerGitHubId:OWNER}),
+  authorizeStatus:async()=>({authorized:true,ownerGitHubId:OWNER})};
+ const store={lookupReceipt:async()=>null,
+  accept:async()=>{throw Error('Unexpected accept');},get:async()=>null};
+ const api=createD3GuardedOperationsApi({session,store,enabled:()=>true,
+  validateCandidate:async()=>{throw thrown;}});
+ const response=await api.handle(newPost(envelope(await edit())));
+ assert.equal(response.status,409);
+ const parsed=await response.json();
+ assert.deepEqual(parsed,{ok:false,error:'UNVERIFIED_SOURCE',
+  diagnostic:'INVALID_PROMOTION'});
+ assert.equal(JSON.stringify(parsed).includes('SECRET_PRIVATE_TEXT'),false);
+ thrown.code='secretMessage123';
+ const repeat=await api.handle(newPost(envelope(await edit())));
+ assert.equal((await repeat.json()).diagnostic,'INTERNAL_VALIDATION_ERROR');
+});
 test('D3-A07 authenticated status survives navigation; unknown IDs stay hidden',async()=>{
   const f=fixture();
   const res=await f.api.handle(new Request(origin+'/api/v3/operations/'+OP));
