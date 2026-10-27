@@ -37,13 +37,14 @@ export function createD3OwnerPilotEntry({
  origin,request,documentObject,windowObject,bootstrapApp=bootstrap,
  shellFactory=createD3OwnerTestShell,enabled=()=>false,
  online=()=>true,storage=null,makeKey=()=>crypto.randomUUID(),
+ publishingEnabled=()=>false,
 }={}){
  need(validOrigin(origin)&&typeof request==='function'&&
   typeof documentObject?.createElement==='function'&&
   typeof documentObject?.head?.append==='function'&&
   windowObject&&typeof windowObject==='object'&&
   typeof bootstrapApp==='function'&&typeof shellFactory==='function'&&
-  [enabled,online,makeKey].every(x=>typeof x==='function'),
+  [enabled,online,makeKey,publishingEnabled].every(x=>typeof x==='function'),
   'INVALID_CONFIGURATION');
  const root=origin+'/fishing/';
  let started=false;
@@ -101,7 +102,7 @@ export function createD3OwnerPilotEntry({
   documentObject.head.append(style);
   const shell=shellFactory({
    origin,request,enabled,online,storage,makeKey,
-   bootstrap:bootstrapApp,
+   publishingEnabled,bootstrap:bootstrapApp,
   });
   need(typeof shell?.start==='function','INVALID_SHELL');
   await shell.start({root,release,manifest});
