@@ -149,6 +149,17 @@ export function createApp(ctx){
  if(ownerController)ownerPanel=mountD3ConnectionPanel({
   dialog:connectionDialog,controller:ownerController,documentObject:document,
  });
+ if(ownerController&&v3Mode){
+  // A durable Accepted receipt should update Connection Status immediately,
+  // even if the editor is subsequently closed or navigated away from.
+  // The lifecycle retains only the operation ID, never package/credentials.
+  ctx.v3.onPublicationReceipt=receipt=>{
+   if(!/^p3_[0-9a-f-]{36}$/.test(receipt?.operationId??'')||
+    receipt?.canonicalLive!==false)return;
+   void ownerController.refreshPublication().then(
+    ()=>ownerPanel?.paint(),()=>ownerPanel?.paint());
+  };
+ }
  const refreshOwner=async()=>{
   if(!ownerController)return;
   await ownerController.restore();
