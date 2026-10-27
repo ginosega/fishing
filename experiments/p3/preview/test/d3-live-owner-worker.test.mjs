@@ -78,7 +78,9 @@ test('D3-W03 fully armed source contract with no eligible operations remains non
   D3_TEST_HOST_ENABLED:'true'};
  await f.tick(env);
  assert.equal(f.calls.cron,1);
- assert.equal(f.calls.db,1);
+ // First query checks for an expired ambiguous-merge marker; second checks
+ // for an ordinary eligible operation. Both are SELECT-only.
+ assert.equal(f.calls.db,2);
  assert.equal(f.calls.github,0);
  assert.equal(f.calls.hosted,0);
 });
