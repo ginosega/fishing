@@ -75,7 +75,7 @@ export function createD3PublicationLifecycle({
  function initialize(pkg){
   active();
   need(!operationId,'ALREADY_ACCEPTED');
-  need(!inflight,'SUBMISSION_IN_PROGRESS');
+  // submit() serializes both the previous-operation check and new request.
   need(textOnlyPackage(pkg),'MEDIA_REQUIRES_D4');
   const frozen=portableJson(pkg);
   const bytes=JSON.stringify(frozen);
@@ -88,12 +88,30 @@ export function createD3PublicationLifecycle({
   }
   return attempt;
  }
+ // A new owner edit may be submitted only once the *server*, not local
+ // storage or a stale screen, verifies the preceding sandbox operation Live.
+ // Guard this status check with the same in-flight mutex as the POST.
+ async function prepareNextPublication(){
+  if(!operationId)return;
+  const prior=operationId;
+  let latest;
+  try{latest=await client.status(prior);}
+  catch(error){phase='NeedsStatusCheck';report=null;throw error;}
+  need(validReport(latest,prior),'UNTRUSTED_STATUS');
+  report=latest;phase=latest.state;
+  need(latest.state==='Live'&&latest.terminal===true&&
+   latest.sandboxVerified===true&&latest.publicLive===false&&
+   latest.needsAttention===false,'PREVIOUS_PUBLICATION_NOT_LIVE');
+  need(attempt===null,'UNRESOLVED_SUBMISSION');
+  clearCompletedReceipt();
+ }
  async function submit(pkg){
   active();
   if(inflight)return inflight;
-  const current=initialize(pkg);
-  phase='Saving';
   inflight=(async()=>{
+   await prepareNextPublication();
+   const current=initialize(pkg);
+   phase='Saving';
    try{
     const receipt=await client.publish({
      package:current.pkg,idempotencyKey:current.key,
@@ -107,15 +125,15 @@ export function createD3PublicationLifecycle({
     attempt=null;report=null;
     return tracking();
    }catch(error){
-    // Cannot know if a request got to D1 after a timeout or malformed
-    // HTTP response; preserve original package and idempotency key.
+    // Unknown acknowledgements retain the exact in-memory key and
+    // package. Never create another request with changed bytes.
     phase=['MEDIA_REQUIRES_D4','INVALID_CHANGE','INVALID_IDEMPOTENCY_KEY',
      'OWNER_SESSION_REQUIRED','OFFLINE_DENIED','SESSION_EXPIRED',
      'NOT_ENABLED'].includes(error?.code)?'Blocked':'Unknown';
     throw error;
-   }finally{inflight=null;}
+   }
   })();
-  return inflight;
+  try{return await inflight;}finally{inflight=null;}
  }
  async function refresh(){
   active();
@@ -134,16 +152,19 @@ export function createD3PublicationLifecycle({
    throw error;
   }
  }
- function forgetCompleted(){
-  active();
-  need(!inflight&&!attempt,'UNRESOLVED_SUBMISSION');
-  need(report?.terminal===true,'UNVERIFIED_TERMINAL_STATUS');
+ function clearCompletedReceipt(){
   const old=operationId;
   if(storage){try{if(restore(storage)===old)storage.removeItem(STORAGE);}catch{
    deny('STORAGE_UNAVAILABLE');
   }}
   operationId=null;trackingStored=false;report=null;phase='Idle';
   return tracking();
+ }
+ function forgetCompleted(){
+  active();
+  need(!inflight&&!attempt,'UNRESOLVED_SUBMISSION');
+  need(report?.terminal===true,'UNVERIFIED_TERMINAL_STATUS');
+  return clearCompletedReceipt();
  }
  return Object.freeze({tracking,submit,refresh,forgetCompleted});
 }
