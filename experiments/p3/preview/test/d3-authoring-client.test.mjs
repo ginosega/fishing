@@ -27,7 +27,8 @@ test('D3-C02 anonymous session has no CSRF or ability to publish',async()=>{
  const client=createD3AuthoringClient({origin,enabled:()=>true,
   request:async (url,init)=>{calls.push({url,init});return ok({authenticated:false,authorized:false});},
  });
- assert.deepEqual(await client.session(),{authenticated:false,authorized:false});
+ assert.deepEqual(await client.session(),{authenticated:false,authorized:false,
+  sandboxPublishingReady:false});
  await assert.rejects(client.publish({package:sample,idempotencyKey:'idempotent-test-001'}),
   refuse('OWNER_SESSION_REQUIRED'));
  assert.equal(calls.length,1);
@@ -52,7 +53,8 @@ test('D3-C03 accepted text-only edit is not public live; durable receipt require
     duplicate:false,statusPath:'/api/v3/operations/'+op,canonicalLive:false},202);
   },
  });
- assert.deepEqual(await client.session(),{authenticated:true,authorized:true});
+ assert.deepEqual(await client.session(),{authenticated:true,authorized:true,
+  sandboxPublishingReady:false});
  assert.deepEqual(await client.publish({package:sample,idempotencyKey:'idempotent-test-001'}),
   {operationId:op,state:'Accepted',accepted:true,duplicate:false,canonicalLive:false});
  assert.equal(calls,2);
@@ -141,6 +143,14 @@ test('D3-C08 signed-in owner signs out through existing first-party P0 endpoint'
   package:sample,idempotencyKey:'idempotent-test-001',
  }),refuse('OWNER_SESSION_REQUIRED'));
  assert.equal(requests.length,2);
+});
+test('D3-C10 authenticated server readiness is distinct from session permission',async()=>{
+ const client=createD3AuthoringClient({origin,enabled:()=>true,
+  request:async()=>ok({authenticated:true,authorized:true,
+   csrfToken:csrf,sandboxPublishingReady:true}),
+ });
+ assert.deepEqual(await client.session(),{authenticated:true,authorized:true,
+  sandboxPublishingReady:true});
 });
 test('D3-C09 ambiguous signout cannot preserve cached CSRF or retry implicitly',async()=>{
  let count=0;
