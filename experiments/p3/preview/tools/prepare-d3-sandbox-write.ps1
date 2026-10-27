@@ -52,6 +52,34 @@ function PublicHash {
   return ([BitConverter]::ToString($h.ComputeHash($b)).Replace('-','').ToLowerInvariant())
  }finally{$h.Dispose()}
 }
+function D1Safe {
+ # Read-only numeric D1 summary. A stale nonterminal operation could
+ # be resumed by a newly attached Cron; refuse all such states.
+ $sql="SELECT COUNT(*) AS total, "+
+  "SUM(CASE WHEN state NOT IN ('Live','Conflict','Failed') THEN 1 ELSE 0 END) AS active, "+
+  "SUM(CASE WHEN operation_id='p3_343ef7ba-1c87-4d5d-a2ad-92e91eab420f' "+
+  "AND state='Live' AND reason_code IS NULL "+
+  "AND merge_sha='89be79a9c933dd36bd909edd585091232831c835' "+
+  "AND verified_release_id='73362eb77bd59219aa6f78fb93e9d47b' "+
+  "THEN 1 ELSE 0 END) AS completed_d2 "+
+  "FROM p3_operations WHERE github_id=265665562 AND repo_id=1430581407;"
+ $raw=@(& npx.cmd wrangler d1 execute fishing-p3-sandbox `
+  --remote --json --config $baseline --command $sql 2>&1)
+ if($LASTEXITCODE -ne 0) {throw 'Read-only D1 safety query failed.'}
+ try {
+  $result=ConvertFrom-Json -InputObject ($raw -join [Environment]::NewLine)
+ }catch{throw 'Could not parse trusted D1 safety response.'}
+ $rows=@($result)
+ if($rows.Count -ne 1 -or $rows[0].success -ne $true -or
+  @($rows[0].results).Count -ne 1) {
+  throw 'D1 safety response cardinality or success differs from expected.'
+ }
+ $s=$rows[0].results[0]
+ if([int]$s.total -lt 1 -or [int]$s.active -ne 0 -or
+  [int]$s.completed_d2 -ne 1) {
+  throw 'Incomplete D1 operation or missing verified D2 Live receipt: do not enable Cron.'
+ }
+}
 if($ExpectedHead -notmatch '^[0-9a-f]{40}$') {
  throw 'A reviewed exact source SHA is required.'
 }
@@ -167,6 +195,7 @@ try{
   throw 'Worker differs from owner-verified read-only CSP version.'
  }
  $before=PublicHash
+ D1Safe
  foreach($item in @(
   @('/__d3_pilot__/',401),
   @('/__d3_pilot__/pilot.js',401),
@@ -189,6 +218,7 @@ try{
  }finally{
   if(Test-Path -LiteralPath $folder) {Remove-Item -LiteralPath $folder -Recurse -Force}
  }
+ D1Safe
  if((LiveVersion) -ne $knownVersion -or (PublicHash) -ne $before) {
   throw 'Unexpected Worker/public homepage drift during local preparation.'
  }
