@@ -17,7 +17,13 @@ const schemaFile=path.join(root,'contracts/schema.json');
 const validationFile=path.join(root,'src/validation.mjs');
 const generatedDir=path.join(root,'src/generated');
 const validatorsFile=path.join(generatedDir,'d3-validators.mjs');
-const originalFile=await fs.readFile(validationFile,'utf8');
+// Git for Windows may check out tracked source as CRLF even though GitHub
+// and Linux CI use LF. Exact canonical transformation seams are LF-based.
+const originalRaw=await fs.readFile(validationFile,'utf8');
+const simulatedWindowsEol=process.argv.includes('--simulate-windows-eol');
+const input=simulatedWindowsEol?
+ originalRaw.replace(/\r\n?|\n/g,'\r\n'):originalRaw;
+const originalFile=input.replace(/\r\n?/g,'\n');
 const schema=JSON.parse(await fs.readFile(schemaFile,'utf8'));
 const ajv=new Ajv2020({allErrors:true,strict:true,
  code:{source:true,esm:true}});
@@ -81,6 +87,7 @@ const digest=s=>createHash('sha256').update(s).digest('hex');
 process.stdout.write(JSON.stringify({
  generated:true,canonicalSchemaSha256:digest(JSON.stringify(schema)),
  originalValidationSha256:digest(originalFile),
+ simulatedWindowsEol,
  staticCodeBytes:Buffer.byteLength(code),
  cspSafeValidationBytes:Buffer.byteLength(safe),
  noDeployment:true,
