@@ -18,6 +18,7 @@ import {createD3TrustedGearKBCandidate} from './d3-trusted-gear-kb-candidate.mjs
 import {createD3GuardedOperationsApi} from './d3-guarded-operations-api.mjs';
 import {createD3OwnerSandboxSource} from './d3-owner-sandbox-source.mjs';
 import {createD3OwnerPilotHost} from './d3-owner-pilot-host.mjs';
+import {d3PublishingReady} from './d3-publishing-readiness.mjs';
 
 const ID=1430581407,OWNER=265665562;
 const authPaths=new Set([
@@ -145,13 +146,9 @@ export function createD3GatedAuthGateway({
         session,store,
         validateCandidate:async({package:pkg,repositoryId,ownerGitHubId})=>
           planner.plan({package:pkg,repositoryId,ownerGitHubId}),
-        // Do not durably accept new publications until the coordinator and
-        // exact hosted-byte verifier are both explicitly enabled.
-        enabled:()=>env.D3_WRITE_ENABLED==='true'&&
-          env.D3_RUNNER_ENABLED==='true'&&
-          env.D3_TEST_HOST_ENABLED==='true'&&
-          env.D3_READ_TOKENS_ENABLED==='true'&&
-          env.D3_SANDBOX_REPO_ID===String(ID),
+        // API and scheduler share the same strict readiness policy.
+        // A flag-only or partially provisioned runtime never accepts a write.
+        enabled:()=>d3PublishingReady(env),
       });
       return await api.handle(request);
     }catch{return no(503);}
