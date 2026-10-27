@@ -44,7 +44,7 @@ Ask only for the minimum evidence/screenshots required; do not request credentia
 
 ### Transfer/continuation convention
 
-The owner requested this **complete GitHub documentation handoff**. Canonical five root files must be refreshed and merged as a **documentation-only PR** without deploying V3 or changing app code; this bootstrap must stay the complete document (do not shorten/remove historical blocks). At the beginning of the next chat, fetch latest `main` and these full docs, reread the D3 checkpoint on latest draft #263, then resume at owner browser read-only content acceptance. No more approval questioning for routine tests; ask for specific consequential scopes only. Do not claim a future handoff is done before verifying the documentation merge. 
+The owner requested this **complete GitHub documentation handoff**. Canonical five root files must be refreshed and merged as a **documentation-only PR** without deploying V3 or changing app code; this bootstrap must stay the complete document (do not shorten/remove historical blocks). At the beginning of the next chat, fetch latest `main` and these full docs, reread the D3 checkpoint on latest draft #263, then resume at owner browser read-only content acceptance. No more approval questioning for routine tests; ask for specific consequential scopes only. Do not claim a future handoff is done before verifying the documentation merge.
 
 ---
 
