@@ -14,17 +14,9 @@ import {createD3SandboxTokenIssuers} from './d3-sandbox-token-issuers.mjs';
 import {createD3SandboxScheduledCoordinator}
  from './d3-sandbox-scheduled-coordinator.mjs';
 import {createD3PrivateHostProof} from './d3-private-host-proof.mjs';
+import {d3PublishingReady} from './d3-publishing-readiness.mjs';
 const ID=1430581407,OWNER=265665562;
-const on=v=>v==='true';
-const runEnabled=env=>env?.D3_SANDBOX_REPO_ID===String(ID)&&
- on(env.D3_WRITE_ENABLED)&&on(env.D3_RUNNER_ENABLED)&&
- on(env.D3_TEST_HOST_ENABLED)&&on(env.D3_READ_TOKENS_ENABLED)&&
- env.DB?.prepare&&env.OPERATIONS_DB?.prepare&&
- env.OPERATIONS_DB?.batch&&
- typeof env.APP_ORIGIN==='string'&&env.APP_ORIGIN.startsWith('https://')&&
- typeof env.D2_CSRF_KEY==='string'&&env.D2_CSRF_KEY.length>=32&&
- typeof env.D2_HOST_PROBE_KEY==='string'&&env.D2_HOST_PROBE_KEY.length>=32&&
- Number(env.OWNER_GITHUB_ID)===OWNER;
+const runEnabled=d3PublishingReady;
 export function createD3LiveOwnerWorker({
  route=gateway,requestGitHub=fetch,requestHosted=fetch,
  onScheduledFailure=()=>{},
