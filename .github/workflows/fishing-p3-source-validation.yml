@@ -81,7 +81,8 @@ jobs:
             'experiments/p3/preview/tools/deploy-d3-source-diagnostic-refresh.ps1',
             'experiments/p3/preview/tools/deploy-d3-ajv-runtime-fix.ps1',
             'experiments/p3/preview/tools/reconcile-d3-pr17-once.ps1',
-            'experiments/p3/preview/tools/deploy-d3-merge-recovery-approved.ps1'
+            'experiments/p3/preview/tools/deploy-d3-merge-recovery-approved.ps1',
+            'experiments/p3/preview/tools/deploy-d3-sequential-kb-fix.ps1'
           )
           foreach ($scriptFile in $operatorScripts) {
           $tokens = $null
