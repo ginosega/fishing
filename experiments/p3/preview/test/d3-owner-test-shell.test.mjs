@@ -72,13 +72,10 @@ test('D3-B01 shell must be explicitly armed; default public entry unchanged',asy
  assert.equal(x.network.length,0);
  assert.equal(x.renders.length,0);
 });
-test('D3-B02 anonymous V3 shows no private snapshot and no Save capability',async()=>{
+test('D3-B02 anonymous owner pilot fails closed without showing public V2 records',async()=>{
  const x=fixture({owner:false});
- const result=await x.shell.start(boot);
- assert.equal(result.extras.v3.enabled,true);
- assert.equal(result.extras.v3.authorized,false);
- assert.equal(result.extras.v3.publish,undefined);
- assert.equal(result.extras.sandboxSource,null);
+ await assert.rejects(x.shell.start(boot),denial('OWNER_SESSION_REQUIRED'));
+ assert.equal(x.renders.length,0);
  assert.deepEqual(x.network.map(n=>n.method),['GET']);
 });
 test('D3-B03 verified owner uses immutable sandbox main for Gear/KB, not public V2',async()=>{
@@ -95,18 +92,16 @@ test('D3-B03 verified owner uses immutable sandbox main for Gear/KB, not public 
  assert.equal(x.network.length,3);
  assert.equal(x.network[2].method,'POST');
 });
-test('D3-B04 source unavailable cannot expose owner Save callback',async()=>{
+test('D3-B04 missing private source must fail closed, never substitute public V2',async()=>{
  const x=fixture({sourceFailure:true});
- const {extras}=await x.shell.start(boot);
- assert.equal(extras.sandboxSource,null);
- assert.equal(extras.v3.publish,undefined);
+ await assert.rejects(x.shell.start(boot),denial('SANDBOX_SOURCE_UNAVAILABLE'));
+ assert.equal(x.renders.length,0);
  assert.equal(x.network.length,2);
 });
-test('D3-B05 offline starts anonymous without any owner source or publishing',async()=>{
+test('D3-B05 offline pilot fails closed before owner/source network requests',async()=>{
  const x=fixture({online:false});
- const {extras}=await x.shell.start(boot);
- assert.equal(extras.sandboxSource,null);
- assert.equal(extras.v3.publish,undefined);
+ await assert.rejects(x.shell.start(boot),denial('OFFLINE_DENIED'));
+ assert.equal(x.renders.length,0);
  assert.equal(x.network.length,0);
 });
 test('D3-B06 mismatched origin cannot assemble an owner shell',async()=>{
