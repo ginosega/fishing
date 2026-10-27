@@ -124,7 +124,12 @@ export function createD3GuardedOperationsApi({
       requireTrue(request instanceof Request,'INVALID_CONFIG');
       const url=new URL(request.url);
       if(request.method==='GET'&&url.pathname==='/session'&&url.search===''){
-        return respond(await session.describe(request));
+        const owner=await session.describe(request);
+        // Browser UI capability is advisory; every POST is separately
+        // authorized and the coordinator still requires its own hard gates.
+        return respond({...owner,sandboxPublishingReady:
+          owner?.authenticated===true&&owner?.authorized===true&&
+          enabled()===true});
       }
       if(request.method==='POST'&&
         url.pathname==='/api/v3/operations'&&url.search===''){
