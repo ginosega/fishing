@@ -10,6 +10,9 @@ const base={
  D3_WRITE_ENABLED:'false',D3_RUNNER_ENABLED:'false',
  D3_READ_TOKENS_ENABLED:'false',D3_TEST_HOST_ENABLED:'false',
  D2_CSRF_KEY:'a'.repeat(40),D2_HOST_PROBE_KEY:'b'.repeat(40),
+ D2_GITHUB_APP_ID:'1',D3_GITHUB_APP_ID:'1',
+ D2_GITHUB_INSTALLATION_ID:'2',D3_GITHUB_INSTALLATION_ID:'2',
+ D2_GITHUB_APP_PRIVATE_KEY:'fake-test-key-'.repeat(6),
 };
 function fixture(){
  const calls={routes:0,github:0,hosted:0,db:0,cron:0};
@@ -57,6 +60,8 @@ test('D3-W02 wrong immutable repo, owner or partial flags all hard-deny',async()
   {D3_READ_TOKENS_ENABLED:'false'},
   {D3_TEST_HOST_ENABLED:'false'},
   {D2_HOST_PROBE_KEY:'too-short'},
+  {D3_GITHUB_APP_ID:'9'},
+  {D2_GITHUB_APP_PRIVATE_KEY:null},
  ]){
   const f=fixture(),env={...f.env,D3_WRITE_ENABLED:'true',
    D3_RUNNER_ENABLED:'true',D3_READ_TOKENS_ENABLED:'true',
