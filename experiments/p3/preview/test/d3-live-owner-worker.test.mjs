@@ -55,10 +55,12 @@ test('D3-W02 wrong immutable repo, owner or partial flags all hard-deny',async()
   {D3_WRITE_ENABLED:'false'},
   {D3_RUNNER_ENABLED:'false'},
   {D3_READ_TOKENS_ENABLED:'false'},
+  {D3_TEST_HOST_ENABLED:'false'},
   {D2_HOST_PROBE_KEY:'too-short'},
  ]){
   const f=fixture(),env={...f.env,D3_WRITE_ENABLED:'true',
-   D3_RUNNER_ENABLED:'true',D3_READ_TOKENS_ENABLED:'true',...delta};
+   D3_RUNNER_ENABLED:'true',D3_READ_TOKENS_ENABLED:'true',
+   D3_TEST_HOST_ENABLED:'true',...delta};
   await f.tick(env);
   assert.equal(f.calls.cron,0);
   assert.equal(f.calls.db,0);
@@ -67,7 +69,8 @@ test('D3-W02 wrong immutable repo, owner or partial flags all hard-deny',async()
 });
 test('D3-W03 fully armed source contract with no eligible operations remains nonmutating',async()=>{
  const f=fixture(),env={...f.env,D3_WRITE_ENABLED:'true',
-  D3_RUNNER_ENABLED:'true',D3_READ_TOKENS_ENABLED:'true'};
+  D3_RUNNER_ENABLED:'true',D3_READ_TOKENS_ENABLED:'true',
+  D3_TEST_HOST_ENABLED:'true'};
  await f.tick(env);
  assert.equal(f.calls.cron,1);
  assert.equal(f.calls.db,1);
