@@ -70,6 +70,24 @@ test('D3-C04 malformed receipt or timeout is not treated as Accepted',async()=>{
  await assert.rejects(client.publish({package:sample,idempotencyKey:'idempotent-test-001'}),
   refuse('UNTRUSTED_RECEIPT'));
 });
+test('D3-C11 HTTP 409 exposes only server-safe rejection code; never treats it as Accepted',async()=>{
+ for(const code of ['SOURCE_CONFLICT','UNVERIFIED_SOURCE','untrusted_detail']){
+  let submitted=0;
+  const client=createD3AuthoringClient({origin,enabled:()=>true,
+   request:async url=>{
+    if(url.endsWith('/session'))return ok({authenticated:true,
+     authorized:true,csrfToken:csrf});
+    submitted++;
+    return ok({ok:false,error:code},409);
+   },
+  });
+  await client.session();
+  const expected=code==='untrusted_detail'?'SUBMISSION_CONFLICT':code;
+  await assert.rejects(client.publish({package:sample,
+   idempotencyKey:'idempotent-test-001'}),refuse(expected));
+  assert.equal(submitted,1);
+ }
+});
 test('D3-C05 unsafe cross-origin, offline, media, and missing owner are refused before write',async()=>{
  assert.throws(()=>createD3AuthoringClient({origin:'http://insecure.example',request:async()=>{}}),
   refuse('INVALID_CONFIGURATION'));
