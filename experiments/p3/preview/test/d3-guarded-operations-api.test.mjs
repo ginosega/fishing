@@ -152,6 +152,15 @@ test('D3-A08 public anonymous session read is allowed while writer is hard off',
   assert.equal(f.calls.writes,0);
 });
 
+test('D3-A10 session advertises writer readiness only when server is armed',async()=>{
+ const disabled=fixture({enabled:false});
+ const blocked=await disabled.api.handle(new Request(origin+'/session'));
+ assert.equal((await blocked.json()).sandboxPublishingReady,false);
+ const enabled=fixture();
+ const allowed=await enabled.api.handle(new Request(origin+'/session'));
+ assert.equal((await allowed.json()).sandboxPublishingReady,true);
+ assert.equal(enabled.calls.writes,0);
+});
 test('D3-A09 lost 202 replays the original receipt WITHOUT revalidating moved source',async()=>{
   const f=fixture({existing:true,conflict:true,goodSource:false});
   const res=await f.api.handle(newPost(envelope(await edit())));
