@@ -50,23 +50,26 @@ export function createD3OwnerTestShell({
    !root.search&&!root.hash,
    'ORIGIN_DENIED');
   started=true;
-  let snapshot=null;
-  // Anonymous is the default. Owner-session failure never loads private
-  // source and never exposes a publishing callback.
-  if(online()===true){
-   try{
-    const session=await owner.session();
-    if(session.authorized===true)
-     snapshot=await sourceClient.load();
-   }catch{
-    snapshot=null;
-   }
-  }
+  // The private owner pilot must NEVER display public V2 records as an
+  // apparent sandbox on authorization, network or source-integrity failure.
+  // The hosting Worker independently denies anonymous page/script access.
+  need(online()===true,'OFFLINE_DENIED');
+  let session;
+  try{session=await owner.session();}
+  catch{deny('OWNER_SESSION_UNAVAILABLE');}
+  need(session.authorized===true,'OWNER_SESSION_REQUIRED');
+  let snapshot;
+  try{snapshot=await sourceClient.load();}
+  catch{deny('SANDBOX_SOURCE_UNAVAILABLE');}
+  need(snapshot?.sandboxOnly===true&&
+   snapshot.repositoryId===1430581407&&
+   /^[a-f0-9]{40}$/.test(snapshot.sourceRevision??''),
+   'UNTRUSTED_SANDBOX_SOURCE');
   const v3={
    enabled:true,authorized:false,
    auth:owner,lifecycle,
    // Only a verified owner-loaded sandbox base permits presenting Save.
-   ...(snapshot&&publishingEnabled()===true?{publish:async pkg=>{
+   ...(publishingEnabled()===true?{publish:async pkg=>{
     const receipt=await lifecycle.submit(pkg);
     need(receipt.phase==='Accepted'&&
      /^p3_[a-f0-9-]{36}$/.test(receipt.operationId??''),
