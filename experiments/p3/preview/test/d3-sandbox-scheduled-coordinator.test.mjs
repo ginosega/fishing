@@ -17,6 +17,8 @@ function fixture({active=true,hosted=false,state='Accepted',owner=OWNER,
  };
  let status=state;
  const store={
+  nextRecoverableMerge:async()=>null,
+  reconcileVerifiedMerge:async()=>{throw Error('Unexpected recovery');},
   nextEligible:async()=>{calls.eligible++;return operationId;},
   get:async id=>{
    calls.get++;return {operationId:id,state:status};
