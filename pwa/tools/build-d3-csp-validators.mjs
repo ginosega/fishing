@@ -61,14 +61,16 @@ const oldInit=[
 ].join('\n');
 const newInit=[
  'const validators={gear,kb,catches};',
- 'const itemValidators={gear:gearItem,kb:kbEntity,catches:catchItem};',
  "const schemaErrors=errors=>(errors??[]).map(e=>(e.instancePath||'/')+' '+(e.message??'schema violation')).join('; ');",
 ].join('\n');
 const oldRecord=[
- "const definition={gear:'gearItem',kb:'kbEntity',catches:'catch'}[domain];",
- " const validate=ajv.compile({$ref:'#/$defs/'+definition,$defs:schema.$defs});",
+ 'const recordValidators=Object.freeze(Object.fromEntries(',
+ " Object.entries({gear:'gearItem',kb:'kbEntity',catches:'catch'})",
+ '  .map(([domain,definition])=>[domain,',
+ "   ajv.compile({$ref:'#/$defs/'+definition,$defs:schema.$defs})])",
+ '));',
 ].join('\n');
-const newRecord='const validate=itemValidators[domain];';
+const newRecord='const recordValidators=Object.freeze({gear:gearItem,kb:kbEntity,catches:catchItem});';
 let safe=originalFile;
 for(const [needle,replacement]of [
  [from,to],
