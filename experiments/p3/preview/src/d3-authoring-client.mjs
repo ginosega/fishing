@@ -60,7 +60,8 @@ export function createD3AuthoringClient({
   const authorized=body.authenticated===true&&body.authorized===true&&
    CSRF.test(body.csrfToken??'');
   owner=authorized;csrf=authorized?body.csrfToken:null;
-  return Object.freeze({authenticated:body.authenticated===true,authorized});
+  return Object.freeze({authenticated:body.authenticated===true,authorized,
+   sandboxPublishingReady:authorized&&body.sandboxPublishingReady===true});
  }
  async function signOut(){
   active();
