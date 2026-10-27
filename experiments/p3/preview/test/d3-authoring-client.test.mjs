@@ -88,6 +88,18 @@ test('D3-C11 HTTP 409 exposes only server-safe rejection code; never treats it a
   assert.equal(submitted,1);
  }
 });
+test('D3-C12 only bounded diagnostic enum reaches owner message',async()=>{
+ const client=createD3AuthoringClient({origin,enabled:()=>true,
+  request:async url=>url.endsWith('/session')?
+   ok({authenticated:true,authorized:true,csrfToken:csrf}):
+   ok({ok:false,error:'UNVERIFIED_SOURCE',
+    diagnostic:'INVALID_RESULT',rawText:'SECRET_NEVER_DISPLAY'},409)});
+ await client.session();
+ await assert.rejects(client.publish({package:sample,
+  idempotencyKey:'idempotent-test-001'}),e=>
+   e instanceof D3ClientError&&e.code==='UNVERIFIED_SOURCE'&&
+   e.message.includes('INVALID_RESULT')&&!e.message.includes('SECRET'));
+});
 test('D3-C05 unsafe cross-origin, offline, media, and missing owner are refused before write',async()=>{
  assert.throws(()=>createD3AuthoringClient({origin:'http://insecure.example',request:async()=>{}}),
   refuse('INVALID_CONFIGURATION'));
