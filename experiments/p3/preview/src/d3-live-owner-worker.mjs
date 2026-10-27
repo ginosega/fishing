@@ -18,7 +18,7 @@ const ID=1430581407,OWNER=265665562;
 const on=v=>v==='true';
 const runEnabled=env=>env?.D3_SANDBOX_REPO_ID===String(ID)&&
  on(env.D3_WRITE_ENABLED)&&on(env.D3_RUNNER_ENABLED)&&
- on(env.D3_READ_TOKENS_ENABLED)&&
+ on(env.D3_TEST_HOST_ENABLED)&&on(env.D3_READ_TOKENS_ENABLED)&&
  env.DB?.prepare&&env.OPERATIONS_DB?.prepare&&
  env.OPERATIONS_DB?.batch&&
  typeof env.APP_ORIGIN==='string'&&env.APP_ORIGIN.startsWith('https://')&&
