@@ -14,7 +14,7 @@ const ajv=new Ajv2020({allErrors:true,strict:true});
 const validators=Object.fromEntries(Object.entries(DOMAIN).map(([key,d])=>[key,ajv.compile({$ref:'#/$defs/'+d.definition,$defs:schema.$defs})]));
 // Cloudflare Workers disallow dynamic JavaScript generation during request
 // handling. Compile the per-record validators once at module initialization,
-// just like the bundle validators above. Never call ajv.compile in an editor
+// just like the bundle validators above. Never compile schemas in an editor
 // event handler or server-side publication request.
 const recordValidators=Object.freeze(Object.fromEntries(
  Object.entries({gear:'gearItem',kb:'kbEntity',catches:'catch'})
