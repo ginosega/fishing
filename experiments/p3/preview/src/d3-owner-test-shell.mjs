@@ -69,7 +69,8 @@ export function createD3OwnerTestShell({
    enabled:true,authorized:false,
    auth:owner,lifecycle,
    // Only a verified owner-loaded sandbox base permits presenting Save.
-   ...(publishingEnabled()===true?{publish:async pkg=>{
+   ...(publishingEnabled()===true&&session.sandboxPublishingReady===true?
+    {publish:async pkg=>{
     const receipt=await lifecycle.submit(pkg);
     need(receipt.phase==='Accepted'&&
      /^p3_[a-f0-9-]{36}$/.test(receipt.operationId??''),
