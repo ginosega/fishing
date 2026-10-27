@@ -152,6 +152,50 @@ export function createD1OperationStore({DB,ownerGitHubId,repositoryId=SANDBOX_ID
    ownerGitHubId,SANDBOX_ID,at).first();
   return row?.operation_id??null;
  }
+ // Only expired, completed-attempt markers are eligible for read-only
+ // independent reconciliation. This query cannot replay a GitHub merge.
+ async function nextRecoverableMerge(){
+  const at=ts();
+  const row=await sql("SELECT operation_id FROM p3_operations "+
+   "WHERE github_id=? AND repo_id=? AND state='Merging' "+
+   "AND reason_code='merge_attempted' AND merge_sha IS NULL "+
+   "AND pr_number>0 AND length(pr_head_sha)=40 "+
+   "AND length(main_base_sha)=40 AND workflow_run_id>0 "+
+   "AND lease_expires_at IS NOT NULL AND lease_expires_at<=? "+
+   "ORDER BY created_at,operation_id LIMIT 1",
+   ownerGitHubId,SANDBOX_ID,at).first();
+  return row?.operation_id??null;
+ }
+ // Called only after independently obtaining immutable PR, current main,
+ // exact squash parent and changed-file evidence. One operation, one CAS.
+ // Never calls GitHub; never permits skipping hosted-byte verification.
+ async function reconcileVerifiedMerge(evidence={}){
+  check(evidence?.verified===true&&evidence?.repositoryId===SANDBOX_ID&&
+   opId(evidence.operationId)&&numberId(evidence.prNumber)&&
+   /^[a-f0-9]{40}$/.test(evidence.prHeadSha??'')&&
+   /^[a-f0-9]{40}$/.test(evidence.mainBaseSha??'')&&
+   /^[a-f0-9]{40}$/.test(evidence.mergeSha??'')&&
+   numberId(evidence.workflowRunId)&&
+   evidence.canonicalLive===false,'INVALID_RECONCILIATION_EVIDENCE');
+  const at=ts();
+  const row=await sql(
+   "UPDATE p3_operations SET state='Deploying',merge_sha=?,"+
+   "reason_code=NULL,lease_owner=NULL,lease_expires_at=NULL,updated_at=? "+
+   "WHERE operation_id=? AND github_id=? AND repo_id=? "+
+   "AND state='Merging' AND reason_code='merge_attempted' "+
+   "AND merge_sha IS NULL AND verified_release_id IS NULL "+
+   "AND lease_expires_at IS NOT NULL AND lease_expires_at<=? "+
+   "AND pr_number=? AND pr_head_sha=? AND main_base_sha=? "+
+   "AND workflow_run_id=? "+
+   "RETURNING operation_id,state,merge_sha,reason_code",
+   evidence.mergeSha,at,evidence.operationId,ownerGitHubId,SANDBOX_ID,at,
+   evidence.prNumber,evidence.prHeadSha,evidence.mainBaseSha,
+   evidence.workflowRunId).first();
+  check(row?.operation_id===evidence.operationId&&
+   row.state==='Deploying'&&row.merge_sha===evidence.mergeSha&&
+   row.reason_code===null,'RECONCILIATION_CAS_DENIED');
+  return publicRecord(row);
+ }
  async function branchReceipt(operationId){
   check(opId(operationId),'INVALID_OPERATION_ID');
   const row=await sql('SELECT main_base_sha,pr_head_sha FROM p3_operations WHERE operation_id=? AND github_id=? AND repo_id=? AND state IN (?,?)',
@@ -249,5 +293,7 @@ export function createD1OperationStore({DB,ownerGitHubId,repositoryId=SANDBOX_ID
   const rows=await sql('SELECT e.event_id,e.event_type,e.from_state,e.to_state,e.event_at,e.error_code FROM p3_events e JOIN p3_operations o ON o.operation_id=e.operation_id WHERE e.operation_id=? AND o.github_id=? AND o.repo_id=? ORDER BY e.event_id',operationId,ownerGitHubId,SANDBOX_ID).all();
   return (rows?.results||[]).map(row=>({eventType:row.event_type,from:row.from_state,to:row.to_state,at:row.event_at,error:row.error_code}));
  }
- return Object.freeze({accept,get,lookupReceipt,readSnapshot,nextEligible,branchReceipt,saveBranchReceipt,markMergeAttempt,saveMergeReceipt,claim,advance,events});
+ return Object.freeze({accept,get,lookupReceipt,readSnapshot,nextEligible,
+  nextRecoverableMerge,reconcileVerifiedMerge,branchReceipt,saveBranchReceipt,
+  markMergeAttempt,saveMergeReceipt,claim,advance,events});
 }
