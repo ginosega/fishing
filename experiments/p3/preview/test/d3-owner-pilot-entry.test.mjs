@@ -18,7 +18,8 @@ const reply=v=>new Response(JSON.stringify(v),{status:200,
  headers:{'Content-Type':'application/json'}});
 const hash=v=>createHash('sha256').update(JSON.stringify(v)).digest('hex');
 function fixture({enabled=true,online=true,wrongDigest=false,
- wrongBase=false,missingCss=false,invalidOwnerShell=false}={}){
+ wrongBase=false,missingCss=false,invalidOwnerShell=false,
+ publishing=false}={}){
  const pointer=release();
  let manifest=sourceManifest();
  if(wrongBase)manifest.base='/fishing/v2-preview/';
@@ -32,6 +33,7 @@ function fixture({enabled=true,online=true,wrongDigest=false,
  };
  const pilot=createD3OwnerPilotEntry({
   origin,enabled:()=>enabled,online:()=>online,
+  publishingEnabled:()=>publishing,
   request:async(url,options)=>{
    network.push({url,options});
    if(url===origin+'/fishing/release.json')return reply(pointer);
@@ -77,6 +79,7 @@ test('D3-P02 exact release manifest hash and same-origin CSS precede pilot shell
  assert.equal(x.css[0].href,origin+'/fishing/releases/'+ID+'/styles.css');
  assert.equal(x.global.__FISHING_BOOT__.manifest.sourceRevision,'b'.repeat(40));
  assert.equal(x.calls.length,2);
+ assert.equal(x.calls[0].publishingEnabled(),false);
 });
 test('D3-P03 public manifest tampering prevents any owner shell',async()=>{
  const x=fixture({wrongDigest:true});
@@ -106,6 +109,14 @@ test('D3-P06 invalid dependency and origin never construct pilot',()=>{
   documentObject:{createElement(){},head:{append(){}}},
   windowObject:{},
  }),denies('INVALID_CONFIGURATION'));
+});
+test('D3-P08 publishing UI capability is injectable only through a trusted opt-in; defaults OFF',async()=>{
+ const on=fixture({publishing:true});
+ await on.pilot.start();
+ assert.equal(on.calls[0].publishingEnabled(),true);
+ const off=fixture();
+ await off.pilot.start();
+ assert.equal(off.calls[0].publishingEnabled(),false);
 });
 test('D3-P07 stand-alone HTML only loads protected pilot script; keeps familiar connection UI',()=>{
  assert.equal(D3_OWNER_PILOT_PATH,'/__d3_pilot__/');
