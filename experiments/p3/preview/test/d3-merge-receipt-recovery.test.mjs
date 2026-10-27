@@ -37,10 +37,10 @@ function verifier({bad={},token=false,enabled=true}={}){
   issueReadToken:async arg=>{
    trace.push('read-token');
    assert.equal(arg.repositoryId,ID);
-   assert.deepEqual(arg.permissions,{contents:'read',pull_requests:'read'});
+   assert.deepEqual(arg.permissions,{checks:'read',contents:'read',pull_requests:'read'});
    if(token)throw Error('No token');
    return {repositoryId:ID,token:'read-only-test-token',
-    permissions:{contents:'read',pull_requests:'read'}};
+    permissions:{checks:'read',contents:'read',pull_requests:'read'}};
   },
   request:async (url,options)=>{
    trace.push(options.method+' '+url);
