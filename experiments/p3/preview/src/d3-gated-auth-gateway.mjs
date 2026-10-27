@@ -145,7 +145,11 @@ export function createD3GatedAuthGateway({
         session,store,
         validateCandidate:async({package:pkg,repositoryId,ownerGitHubId})=>
           planner.plan({package:pkg,repositoryId,ownerGitHubId}),
+        // Do not durably accept new publications until the coordinator and
+        // exact hosted-byte verifier are both explicitly enabled.
         enabled:()=>env.D3_WRITE_ENABLED==='true'&&
+          env.D3_RUNNER_ENABLED==='true'&&
+          env.D3_TEST_HOST_ENABLED==='true'&&
           env.D3_READ_TOKENS_ENABLED==='true'&&
           env.D3_SANDBOX_REPO_ID===String(ID),
       });
