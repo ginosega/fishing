@@ -26,6 +26,10 @@ try{
     // Pilot bundling alone does not authorize a server session or GitHub
     // write. The dedicated Worker test-only route must check those itself.
     enabled:()=>true,
+    // This is only a UI opt-in. The owner session must independently report
+    // ALL write/runner/host-proof gates armed; the server still validates
+    // every submission. Currently deployed Cloudflare gates remain OFF.
+    publishingEnabled:()=>true,
     online:()=>navigator.onLine,
     storage:window.localStorage,
   });
