@@ -64,7 +64,7 @@ function D1Safe {
   "THEN 1 ELSE 0 END) AS completed_d2 "+
   "FROM p3_operations WHERE github_id=265665562 AND repo_id=1430581407;"
  $raw=@(& npx.cmd wrangler d1 execute fishing-p3-sandbox `
-  --remote --json --config $baseline --command $sql 2>&1)
+  --remote --json --config $baseline --command $sql)
  if($LASTEXITCODE -ne 0) {throw 'Read-only D1 safety query failed.'}
  try {
   $result=ConvertFrom-Json -InputObject ($raw -join [Environment]::NewLine)
