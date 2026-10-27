@@ -10,7 +10,9 @@ const ID=1430581407,REPO='ginosega/fishing-p3-sandbox';
 const API='https://api.github.com/repos/'+REPO;
 const SHA=/^[0-9a-f]{40}$/;
 const OP=/^p3_[0-9a-f-]{36}$/;
-const READ=Object.freeze({contents:'read',pull_requests:'read'});
+// Reuse the already approved exact checks/contents/PR read scope; the
+// existing installation-token issuer intentionally denies arbitrary subsets.
+const READ=Object.freeze({checks:'read',contents:'read',pull_requests:'read'});
 const success=x=>Number.isSafeInteger(x)&&x>0;
 export class D3MergeVerificationError extends Error{
  constructor(code){
@@ -57,7 +59,8 @@ export function createD3MergedReceiptVerifier({request,issueReadToken,
   need(granted?.repositoryId===ID&&
    granted?.permissions?.contents==='read'&&
    granted.permissions.pull_requests==='read'&&
-   Object.keys(granted.permissions).length===2&&
+   granted.permissions.checks==='read'&&
+   Object.keys(granted.permissions).length===3&&
    typeof granted.token==='string'&&granted.token.length>=12,
    'READ_SCOPE_DENIED');
   const token=granted.token;
