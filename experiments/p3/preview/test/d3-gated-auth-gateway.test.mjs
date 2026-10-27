@@ -118,9 +118,12 @@ test('D3-G06 D3 writer cannot pass gate with wrong repo ID or read-only setting'
     {D3_SANDBOX_REPO_ID:'1350909744'},
     {D3_READ_TOKENS_ENABLED:'false'},
     {D3_WRITE_ENABLED:'false'},
+    {D3_RUNNER_ENABLED:'false'},
+    {D3_TEST_HOST_ENABLED:'false'},
   ]){
     const x=fixture();
     const e=env({D3_WRITE_ENABLED:'true',
+      D3_RUNNER_ENABLED:'true',D3_TEST_HOST_ENABLED:'true',
       D3_READ_TOKENS_ENABLED:'true',...props});
     const res=await x.service.fetch(request('/session'),e,{});
     assert.equal(res.status,200);
@@ -146,7 +149,8 @@ test('D3-G07 missing D1, owner identity or CSRF fails closed on enabled route',a
 
 test('D3-G08 correct source-only composition preserves exact sandbox gate',async()=>{
   const x=fixture(),e=env({
-    D3_WRITE_ENABLED:'true',D3_READ_TOKENS_ENABLED:'true',
+    D3_WRITE_ENABLED:'true',D3_RUNNER_ENABLED:'true',
+    D3_TEST_HOST_ENABLED:'true',D3_READ_TOKENS_ENABLED:'true',
   });
   const res=await x.service.fetch(request(path,'POST'),e,{});
   assert.equal(await res.text(),'API');
@@ -156,6 +160,17 @@ test('D3-G08 correct source-only composition preserves exact sandbox gate',async
   assert.equal(x.calls.transport,0);
 });
 
+test('D3-G13 partial writer configuration cannot arm accepted-operation gate',async()=>{
+ for(const key of ['D3_RUNNER_ENABLED','D3_TEST_HOST_ENABLED']){
+  const x=fixture(),e=env({D3_WRITE_ENABLED:'true',
+   D3_RUNNER_ENABLED:'true',D3_TEST_HOST_ENABLED:'true',
+   D3_READ_TOKENS_ENABLED:'true',[key]:'false'});
+  const res=await x.service.fetch(request(path,'POST'),e,{});
+  assert.equal(res.status,200); // Stub API captures the server gate without writing.
+  assert.equal(x.calls.gate,false);
+  assert.equal(x.calls.transport,0);
+ }
+});
 test('D3-G09 read-only sandbox source uses separate disabled owner gate, never a publishing route',async()=>{
   const off=fixture();
   const url='/api/v3/authoring-source';
