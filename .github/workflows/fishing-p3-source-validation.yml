@@ -75,7 +75,8 @@ jobs:
             'experiments/p3/preview/tools/prepare-d3-readonly-pilot.ps1',
             'experiments/p3/preview/tools/deploy-d3-readonly-approved.ps1',
             'experiments/p3/preview/tools/deploy-d3-pilot-navigation-repair.ps1',
-            'experiments/p3/preview/tools/deploy-d3-csp-repair.ps1'
+            'experiments/p3/preview/tools/deploy-d3-csp-repair.ps1',
+            'experiments/p3/preview/tools/prepare-d3-sandbox-write.ps1'
           )
           foreach ($scriptFile in $operatorScripts) {
           $tokens = $null
