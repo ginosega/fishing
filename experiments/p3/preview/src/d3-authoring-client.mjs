@@ -10,8 +10,13 @@ const KEY=/^[A-Za-z0-9_-]{12,96}$/;
 const CSRF=/^[A-Za-z0-9_-]{43}$/;
 const STATES=new Set(['Accepted','Validating','Checking','Merging','Deploying',
  'Verifying','Live','Conflict','Failed']);
+const messages=Object.freeze({
+ SOURCE_CONFLICT:'The sandbox source changed or the edit conflicts. No publication was accepted.',
+ UNVERIFIED_SOURCE:'The server could not verify the sandbox source. No publication was accepted.',
+ SUBMISSION_CONFLICT:'The server rejected this publication as a conflict. No acceptance receipt was returned.',
+});
 export class D3ClientError extends Error{
- constructor(code){super('Fishing owner publication unavailable');this.name='D3ClientError';this.code=code;}
+ constructor(code){super(messages[code]??'Fishing owner publication unavailable');this.name='D3ClientError';this.code=code;}
 }
 const deny=code=>{throw new D3ClientError(code);};
 const need=(v,code)=>{if(!v)deny(code);};
@@ -98,6 +103,14 @@ export function createD3AuthoringClient({
    body:JSON.stringify({idempotencyKey,snapshot:{package:pkg,media:[]}}),
   });
   if(res?.status===401||res?.status===403){owner=false;csrf=null;deny('SESSION_EXPIRED');}
+  if(res?.status===409){
+   // 409 is a rejected, non-accepted submission; carry only a bounded,
+   // server-enumerated reason. Never resubmit automatically or persist key.
+   const response=await parseJson(res);
+   deny(response.error==='SOURCE_CONFLICT'?'SOURCE_CONFLICT':
+    response.error==='UNVERIFIED_SOURCE'?'UNVERIFIED_SOURCE':
+    'SUBMISSION_CONFLICT');
+  }
   need(res?.status===202||res?.status===200,'SUBMISSION_NOT_ACCEPTED');
   const body=await parseJson(res);
   need(body.ok===true&&OP.test(body.operationId??'')&&
