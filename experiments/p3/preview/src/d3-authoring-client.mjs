@@ -16,7 +16,13 @@ const messages=Object.freeze({
  SUBMISSION_CONFLICT:'The server rejected this publication as a conflict. No acceptance receipt was returned.',
 });
 export class D3ClientError extends Error{
- constructor(code){super(messages[code]??'Fishing owner publication unavailable');this.name='D3ClientError';this.code=code;}
+ constructor(code,diagnostic=null){
+  super((messages[code]??'Fishing owner publication unavailable')+
+   (code==='UNVERIFIED_SOURCE'&&typeof diagnostic==='string'&&
+    /^[A-Z][A-Z0-9_]{2,63}$/.test(diagnostic)?
+    ' ('+diagnostic+')':''));
+  this.name='D3ClientError';this.code=code;
+ }
 }
 const deny=code=>{throw new D3ClientError(code);};
 const need=(v,code)=>{if(!v)deny(code);};
@@ -107,9 +113,10 @@ export function createD3AuthoringClient({
    // 409 is a rejected, non-accepted submission; carry only a bounded,
    // server-enumerated reason. Never resubmit automatically or persist key.
    const response=await parseJson(res);
-   deny(response.error==='SOURCE_CONFLICT'?'SOURCE_CONFLICT':
+   const code=response.error==='SOURCE_CONFLICT'?'SOURCE_CONFLICT':
     response.error==='UNVERIFIED_SOURCE'?'UNVERIFIED_SOURCE':
-    'SUBMISSION_CONFLICT');
+    'SUBMISSION_CONFLICT';
+   throw new D3ClientError(code,response.diagnostic);
   }
   need(res?.status===202||res?.status===200,'SUBMISSION_NOT_ACCEPTED');
   const body=await parseJson(res);
