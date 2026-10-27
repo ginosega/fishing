@@ -20,12 +20,15 @@ const plain=x=>x!==null&&typeof x==='object'&&
   Object.getPrototypeOf(x)===Object.prototype;
 
 export class D3ApiError extends Error{
-  constructor(code){
+  constructor(code,diagnostic=null){
     super('D3 sandbox owner operation refused');
-    this.name='D3ApiError';this.code=code;
+    this.name='D3ApiError';this.code=code;this.diagnostic=diagnostic;
   }
 }
-const deny=code=>{throw new D3ApiError(code);};
+const deny=(code,diagnostic=null)=>{throw new D3ApiError(code,diagnostic);};
+// Bounded reason codes only; do not serialize raw exceptions or credentials.
+const safeDiagnostic=e=>typeof e?.code==='string'&&
+ /^[A-Z][A-Z0-9_]{2,63}$/.test(e.code)?e.code:'INTERNAL_VALIDATION_ERROR';
 const requireTrue=(v,c)=>{if(!v)deny(c);};
 function scan(value,depth=0){
   requireTrue(depth<=18,'UNSAFE_SUBMISSION');
@@ -95,6 +98,9 @@ function translate(e){
       UNSAFE_SUBMISSION:400,UNVERIFIED_SOURCE:409,
       SOURCE_CONFLICT:409,STATUS_NOT_FOUND:404,
     }[e.code]??503;
+    if(status===409&&e.code==='UNVERIFIED_SOURCE')
+      return respond({ok:false,error:e.code,
+       diagnostic:e.diagnostic??'INTERNAL_VALIDATION_ERROR'},status);
     return error(status,status===503?'TEMPORARILY_UNAVAILABLE':e.code);
   }
   if(e instanceof DurableStoreError){
@@ -169,7 +175,7 @@ export function createD3GuardedOperationsApi({
           if(['SOURCE_CONFLICT','SOURCE_CHANGED',
             'DUPLICATE_OR_INVALID_ADD','MAIN_MOVED','MARKDOWN_COLLISION'
           ].includes(e?.code))deny('SOURCE_CONFLICT');
-          deny('UNVERIFIED_SOURCE');
+          deny('UNVERIFIED_SOURCE',safeDiagnostic(e));
         }
         requireTrue(candidate?.validated===true&&
           candidate.repositoryId===ID&&
