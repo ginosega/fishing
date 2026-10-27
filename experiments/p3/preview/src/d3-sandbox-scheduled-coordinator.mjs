@@ -15,6 +15,8 @@ import {createD3SandboxGearKBPRAdapter} from './d3-sandbox-gear-kb-pr.mjs';
 import {createSandboxCheckObserver} from './sandbox-check-observer.mjs';
 import {createD2SandboxNormalMerge} from './d2-sandbox-normal-merge.mjs';
 import {createD3SandboxOperationRunner} from './d3-sandbox-operation-runner.mjs';
+import {createD3MergedReceiptVerifier} from './d3-merged-receipt-verifier.mjs';
+import {expectedD3HostedPaths} from './d3-sandbox-host-paths.mjs';
 const ID=1430581407,OWNER=265665562,OP=/^p3_[0-9a-f-]{36}$/;
 const branch=id=>'p3-test-'+id.slice(3);
 export class D3CoordinatorError extends Error{
@@ -26,7 +28,8 @@ export class D3CoordinatorError extends Error{
 const fail=code=>{throw new D3CoordinatorError(code);};
 const need=(v,code)=>{if(!v)fail(code);};
 const methods=['nextEligible','claim','get','readSnapshot','advance',
- 'branchReceipt','saveBranchReceipt','markMergeAttempt','saveMergeReceipt'];
+ 'branchReceipt','saveBranchReceipt','markMergeAttempt','saveMergeReceipt',
+ 'nextRecoverableMerge','reconcileVerifiedMerge'];
 export function createD3SandboxScheduledCoordinator({
  env,store,requestGitHub,issueReadToken,issueWriteToken,verifyHosted,
  makeLease=()=> 'd3-'+crypto.randomUUID(),
@@ -95,6 +98,9 @@ export function createD3SandboxScheduledCoordinator({
   commitTitle:'FISH118 D3 isolated sandbox Gear/KB publication',
   commitMessage:'Owner-authorized sandbox-only text; no public canonical content',
  });
+ const mergeVerifier=createD3MergedReceiptVerifier({
+  request:requestGitHub,issueReadToken,enabled:()=>hosted(),
+ });
  const runner=createD3SandboxOperationRunner({
   store,enabled:()=>active(),
   currentMain:async({repositoryId})=>{
@@ -116,6 +122,34 @@ export function createD3SandboxScheduledCoordinator({
  });
  async function tick(){
   need(active(),'RUNNER_DISABLED');
+  // A prior GitHub merge may have succeeded after the durable write-ahead
+  // marker but before the D1 acknowledgement. Never retry PUT /merge.
+  // Only when the independent hosted proof is enabled, reconstruct its exact
+  // private PR + main + squash parent + file evidence using GETs, then CAS D1.
+  const blocked=hosted()?await store.nextRecoverableMerge():null;
+  if(blocked!==null){
+   need(OP.test(blocked),'INVALID_RECOVERY_ID');
+   const record=await store.get(blocked);
+   need(record?.operationId===blocked&&record.state==='Merging'&&
+    record.reasonCode==='merge_attempted'&&
+    record.mergeSha===null&&Number.isSafeInteger(record.workflowRunId)&&
+    record.workflowRunId>0,'RECOVERY_RECEIPT_CHANGED');
+   const saved=await store.readSnapshot(blocked);
+   need(Array.isArray(saved?.media)&&saved.media.length===0,
+    'RECOVERY_SNAPSHOT_DENIED');
+   const paths=expectedD3HostedPaths(saved.package);
+   const proof=await mergeVerifier.verify({operationId:blocked,
+    repositoryId:ID,prNumber:record.prNumber,
+    prHeadSha:record.prHeadSha,mainBaseSha:record.mainBaseSha,
+    workflowRunId:record.workflowRunId,expectedPaths:paths});
+   need(proof.verified===true&&proof.operationId===blocked&&
+    proof.canonicalLive===false,'RECOVERY_EVIDENCE_DENIED');
+   const restored=await store.reconcileVerifiedMerge(proof);
+   need(restored?.operationId===blocked&&restored.state==='Deploying'&&
+    restored.mergeSha===proof.mergeSha,'RECOVERY_CAS_DENIED');
+   return Object.freeze({progressed:true,operationId:blocked,
+    state:'Deploying',reconciled:true,canonicalLive:false});
+  }
   const operationId=await store.nextEligible();
   if(operationId===null)return Object.freeze({
    progressed:false,reason:'NO_ELIGIBLE_OPERATION',canonicalLive:false,
