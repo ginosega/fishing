@@ -147,10 +147,12 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
   try{const owner=record[key]||narrativePath(domain,record),previewRecord=clone(record);if(!previewRecord[key])previewRecord[key]=owner;const {maps,routes}=editorMaps(ctx,domain,previewRecord);const parsed=parseMarkdown(body,{owner,maps,assetBase:ctx.base,exists:knownPaths(ctx),pathRoutes:routes,allowMissing:true});const unresolved=parsed.references.filter(r=>r.local&&!knownPaths(ctx).has(r.local));if(unresolved.length)throw new Error('Upload referenced local files first: '+unresolved.map(r=>r.local).join(', '));preview.innerHTML=sanitizeHtml(parsed.html,window);showPreview=!showPreview;preview.hidden=!showPreview;textArea.hidden=showPreview;previewButton.textContent=showPreview?'Edit Markdown':'Preview Markdown';status(notice,'Markdown preview is local and has not been saved.','info');}catch(error){status(notice,error.message,'error');}
  });
  form.append(section('Notes',field('Markdown',textArea),previewButton,preview));
+ const actionNotice=el('div',{class:'editor-notice','aria-live':'assertive'});
  const prepareButton=button(publishChange?'Save and Publish':'Prepare Changes',()=>form.requestSubmit(),{variant:'primary'});
  form.addEventListener('submit',async event=>{
   event.preventDefault();if(savePending||saveAccepted)return;
   savePending=true;prepareButton.disabled=true;
+  notice.replaceChildren();actionNotice.replaceChildren();
   try{
    if(!ID_PATTERN.test(record.id))throw new Error('The ID must use lowercase letters, numbers and hyphens.');
    const existing=ctx.data[domain][DOMAIN[domain].array];if(!editing&&existing.some(x=>x.id===record.id))throw new Error('This ID already exists.');
@@ -195,6 +197,7 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
      text('p','You may leave the editor and check publication status later.'),
      toolbar(button('Done',onExit,{variant:'primary'})));
     status(notice,'Accepted. This is not yet verified as Live.','success');
+    status(actionNotice,'Accepted. Publication verification is in progress.','success');
     onDirty?.(false);
     try{onPrepared?.(receipt);}catch{ /* Callback cannot undo server acceptance. */ }
     return;
@@ -203,9 +206,17 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
    const upload=sequenceSet?[text('p','Upload the selected originals to:','hint'),el('code',{},sequenceFolder(candidate)+'/'),el('p',{},el('a',{href:linkToSequenceUpload(sequenceFolder(candidate)),target:'_blank',rel:'noopener noreferrer'},'Open the repository upload folder'))]:fileInfo?[text('p','Upload the selected original to the repository path before promotion:','hint'),el('code',{},candidate.picture.src),el('p',{},el('a',{href:linkToUpload(candidate.picture.src),target:'_blank',rel:'noopener noreferrer'},'Open the repository upload folder'))]:[];
    output.replaceChildren(text('h3','Prepared change package'),text('p','Copy this instruction and change package into the Fishing project chat. Preparing is not saving.','hint'),area,copyNotice,toolbar(button('Copy Changes',async()=>{try{const copying=prepared;await navigator.clipboard.writeText(clipboardText);if(prepared!==copying||!output.contains(area))return;exit.hidden=false;status(copyNotice,'Changes copied to clipboard. Paste them into the Fishing project chat for implementation and deployment.','success');}catch{area.focus();area.select();status(copyNotice,'Clipboard unavailable. Select and copy the package manually, then paste it into the Fishing project chat for implementation and deployment.','warning');}},{variant:'primary'}),button('Select text',()=>{area.focus();area.select();}),exit),...upload);
    status(notice,'Package prepared. Nothing has been saved.','success');onPrepared?.(prepared);output.scrollIntoView({block:'nearest'});
-  }catch(error){status(notice,error.message||'Save was not confirmed. Your edit is retained.','error');}
+  }catch(error){
+   const message=error?.code==='PREVIOUS_PUBLICATION_NOT_LIVE'?
+    'The previous publication is not yet verified Live. Check Connection Status before starting another publication. No new publication was submitted.':
+    error?.code==='UNTRUSTED_STATUS'?
+    'Could not verify the previous publication. Your edit is preserved; check Connection Status before trying again.':
+    error?.message||'Save was not confirmed. Your edit is retained.';
+   status(notice,message,'error');
+   status(actionNotice,message,'error');
+  }
   finally{savePending=false;if(!saveAccepted)prepareButton.disabled=false;}
  });
- const actions=toolbar(prepareButton,button('Cancel',onBack));form.append(actions);host.append(notice,form,output);
+ const actions=toolbar(prepareButton,button('Cancel',onBack));form.append(actions,actionNotice);host.append(notice,form,output);
  return {element:host,isDirty:dirty,dispose:()=>{revokeLocal();},record};
 }
