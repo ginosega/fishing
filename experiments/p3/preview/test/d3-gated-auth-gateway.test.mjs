@@ -12,7 +12,10 @@ const request=(route,method='GET')=>new Request(ORIGIN+route,{
 const env=(extra={})=>({
   APP_ORIGIN:ORIGIN,OWNER_GITHUB_ID:String(OWNER),
   DB:{prepare(){}},OPERATIONS_DB:{prepare(){},batch(){}},
-  D2_CSRF_KEY:'s'.repeat(40),
+  D2_CSRF_KEY:'s'.repeat(40),D2_HOST_PROBE_KEY:'h'.repeat(40),
+  D2_GITHUB_APP_ID:'1',D3_GITHUB_APP_ID:'1',
+  D2_GITHUB_INSTALLATION_ID:'2',D3_GITHUB_INSTALLATION_ID:'2',
+  D2_GITHUB_APP_PRIVATE_KEY:'fake-test-key-'.repeat(6),
   D3_WRITE_ENABLED:'false',
   D3_READ_TOKENS_ENABLED:'false',
   D3_SANDBOX_REPO_ID:String(ID),
