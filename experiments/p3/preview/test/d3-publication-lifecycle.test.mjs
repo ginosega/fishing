@@ -103,10 +103,14 @@ test('D3-L04 only public operation ID persists; restore never trusts local Live 
  const last=await b.refresh();
  assert.equal(last.sandboxVerified,true);
  assert.equal(last.publicLive,false);
- await assert.rejects(a.submit(pkg),isCode('ALREADY_ACCEPTED'));
  const forgotten=b.forgetCompleted();
  assert.equal(forgotten.phase,'Idle');
  assert.equal(store.entries().length,0);
+ // A separate tab that retained the old receipt can independently prove
+ // Live and start another edit instead of being blocked indefinitely.
+ const nextReceipt=await a.submit(pkg);
+ assert.equal(nextReceipt.phase,'Accepted');
+ assert.equal(nextReceipt.operationId,op);
 });
 
 test('D3-L05 status cannot be forgotten before authenticated terminal proof',async()=>{
@@ -166,4 +170,110 @@ test('D3-L08 every durable intermediate state stays navigable and never claims L
   assert.equal(result.canLeaveEditor,true);
   assert.equal(result.publicLive,false);
  }
+});
+
+test('D3-L09 consecutive Gear and KB submissions auto-retire only a freshly verified Live receipt',async()=>{
+ const first='p3_01234567-1111-4111-8111-123456789abc';
+ const second='p3_01234567-2222-4222-8222-123456789abc';
+ const keys=['new-test-gear-key-12345','new-test-kb-key-123456'];
+ const stored=storage(),sent=[],statusReads=[];
+ let prior={operationId:first,state:'Verifying',terminal:false,
+  publicLive:false,sandboxVerified:false,needsAttention:false};
+ const lifecycle=createD3PublicationLifecycle({
+  enabled:()=>true,storage:stored,makeKey:()=>keys.shift(),
+  client:{
+   publish:async params=>{
+    sent.push(params);
+    return {accepted:true,canonicalLive:false,
+     operationId:sent.length===1?first:second};
+   },
+   status:async id=>{statusReads.push(id);return prior;},
+  },
+ });
+ await lifecycle.submit(pkg);
+ assert.equal(sent.length,1);
+ const kb={...pkg,domain:'kb',id:'location-p3-test-lake',
+  notes:{action:'replace',path:'KB/Locations/content/P3 Test Lake.md',
+   baseHash:'a'.repeat(64),text:'# P3 Test Lake D3 Verification'}};
+ await assert.rejects(lifecycle.submit(kb),isCode('PREVIOUS_PUBLICATION_NOT_LIVE'));
+ assert.equal(sent.length,1);
+ assert.equal(lifecycle.tracking().operationId,first);
+ assert.equal(stored.entries().length,1);
+ prior={...prior,state:'Live',terminal:true,sandboxVerified:true};
+ const accepted=await lifecycle.submit(kb);
+ assert.equal(accepted.phase,'Accepted');
+ assert.equal(accepted.operationId,second);
+ assert.equal(sent.length,2);
+ assert.equal(sent[1].package.domain,'kb');
+ assert.notEqual(sent[0].idempotencyKey,sent[1].idempotencyKey);
+ assert.deepEqual(statusReads,[first,first]);
+ assert.equal(stored.entries().length,1);
+ assert(JSON.stringify(stored.entries()).includes(second));
+ assert(!JSON.stringify(stored.entries()).includes(first));
+});
+
+test('D3-L10 double-submit while verifying old Live receipt triggers only one new POST',async()=>{
+ const first='p3_01234567-1111-4111-8111-123456789abc';
+ const next='p3_01234567-2222-4222-8222-123456789abc';
+ const stored=storage();
+ let reads=0,posts=0,resolve;
+ const gate=new Promise(r=>{resolve=r;});
+ const lifecycle=createD3PublicationLifecycle({
+  enabled:()=>true,storage:stored,
+  makeKey:()=> 'fresh-owner-key-123456789abc',
+  client:{
+   publish:async()=>{posts++;return {accepted:true,canonicalLive:false,
+    operationId:posts===1?first:next};},
+   status:async id=>{reads++;assert.equal(id,first);await gate;
+    return {operationId:first,state:'Live',terminal:true,
+     publicLive:false,sandboxVerified:true,needsAttention:false};},
+  },
+ });
+ await lifecycle.submit(pkg);
+ const a=lifecycle.submit({...pkg,domain:'kb',id:'location-p3-test-lake'});
+ const b=lifecycle.submit({...pkg,domain:'kb',id:'location-p3-test-lake'});
+ resolve();
+ const results=await Promise.all([a,b]);
+ assert.equal(reads,1);
+ assert.equal(posts,2);
+ assert.deepEqual(results[0],results[1]);
+ assert.equal(results[0].operationId,next);
+});
+
+test('D3-L11 previous failed/unknown/foreign status never discards receipt or posts a second edit',async()=>{
+ for(const invalid of [
+  {state:'Conflict',terminal:true,sandboxVerified:false,publicLive:false,needsAttention:true},
+  {state:'Failed',terminal:true,sandboxVerified:false,publicLive:false,needsAttention:true},
+  {state:'Live',terminal:true,sandboxVerified:false,publicLive:false,needsAttention:false},
+  {state:'Live',terminal:true,sandboxVerified:true,publicLive:true,needsAttention:false},
+  {state:'Merging',terminal:false,sandboxVerified:false,publicLive:false,needsAttention:false},
+ ]){
+  let posts=0;
+  const db=storage(),lifecycle=createD3PublicationLifecycle({
+   enabled:()=>true,storage:db,makeKey:()=>key,
+   client:{publish:async()=>{posts++;return success;},
+    status:async()=>({operationId:op,...invalid})},
+  });
+  await lifecycle.submit(pkg);
+  await assert.rejects(lifecycle.submit({...pkg,domain:'kb'}),isCode('PREVIOUS_PUBLICATION_NOT_LIVE'));
+  assert.equal(posts,1);
+  assert.equal(db.entries().length,1);
+  assert.equal(lifecycle.tracking().operationId,op);
+ }
+});
+
+test('D3-L12 previous-status outage leaves old receipt and avoids a new POST',async()=>{
+ let reads=0,posts=0;
+ const db=storage();
+ const flow=createD3PublicationLifecycle({
+  enabled:()=>true,storage:db,makeKey:()=>key,
+  client:{publish:async()=>{posts++;return success;},
+   status:async()=>{reads++;throw Error('network unavailable');}},
+ });
+ await flow.submit(pkg);
+ await assert.rejects(flow.submit({...pkg,domain:'kb'}),/network unavailable/);
+ assert.equal(reads,1);
+ assert.equal(posts,1);
+ assert.equal(flow.tracking().operationId,op);
+ assert.equal(db.entries().length,1);
 });
