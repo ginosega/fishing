@@ -127,3 +127,24 @@ test('D3-S08 remote Markdown images, invalid binary edits and record insertions 
  insert.record.picture={src:'KB/Locations/assets/unsupported.jpg'};
  await assert.rejects(x.candidate.plan(opts(insert)),fail('UNTRUSTED_ADD_FIELDS'));
 });
+
+test('D3-S09 reproduces owner editor normalization on exact D2 Gear source',async()=>{
+ const original=structuredClone(data.gear.items[0]);
+ // createEditor adds optional empty arrays even if the original Gear
+ // record lacks the corresponding keys. This is the exact requested edit.
+ const changed={...original,name:'P3 Test Rod D3 Verification',
+  specifications:[],links:[]};
+ const pkg=await prepareChange({domain:'gear',operation:'edit',id:original.id,
+  baseRecord:original,record:changed,sourceRevision:SHA,
+  baseText:'',text:''});
+ assert.deepEqual(pkg.changes.set,{
+  name:'P3 Test Rod D3 Verification',specifications:[],links:[]});
+ const x=fixture();
+ const result=await x.candidate.plan(opts(pkg));
+ assert.equal(result.validated,true);
+ const item=JSON.parse(result.changes[0].body).items[0];
+ assert.equal(item.name,'P3 Test Rod D3 Verification');
+ assert.deepEqual(item.specifications,[]);
+ assert.deepEqual(item.links,[]);
+ assert.equal(x.reads,1);
+});
