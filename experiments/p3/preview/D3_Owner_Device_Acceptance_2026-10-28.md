@@ -1,6 +1,6 @@
 # FISH118 D3 — Owner device acceptance (private pilot only)
 
-**Prepared:** 2026-10-28. **Execution status:** NOT YET RUN on these devices. This is a focused owner-observed test protocol for the already deployed private sandbox. Do not infer a pass from previous D2 / V2 tests.
+**Prepared:** 2026-10-28. **Execution status:** Initial real Android Chrome owner pass recorded; cross-device publication status defect confirmed, fix source-only and pending deployment. This is a focused owner-observed test protocol for the already deployed private sandbox. Do not infer a pass from previous D2 / V2 tests.
 
 ## Scope and guardrails
 
@@ -15,17 +15,17 @@
 
 | Case | Action | Expected observation | Status |
 | --- | --- | --- | --- |
-| A1 | Open `https://fishing-auth-p0-test.ginosega.workers.dev/__d3_pilot__/` while signed out | Private page is denied (401 or not-found equivalent); no public Gear/KB substitute and no pilot JS disclosed | NOT TESTED |
-| A2 | In Chrome's top-level address bar open `https://fishing-auth-p0-test.ginosega.workers.dev/auth/start?return=%2F__d3_pilot__%2F`; complete GitHub owner OAuth | Navigation returns to `/__d3_pilot__/` with the genuine authenticated sandbox, not the public V2 UI | NOT TESTED |
-| A3 | View Knowledge Base and open `P3 Test Lake` | Test-only KB content and Notes display; no accidental canonical/public-data attribution | NOT TESTED |
-| A4 | Open Connection Status / publication tracking, if exposed in current pilot UI, and inspect PR #18 final result | Displays Live as **sandbox verified**, never public canonical Live; if pilot lacks a status link, record UI GAP rather than count PASS | NOT TESTED |
-| A5 | Switch to another page, reload and reopen the Chrome tab with the still-valid owner session | Private pilot still loads; existing KB content remains accessible and any retained durable status is recoverable | NOT TESTED |
-| A6 | Use the supported Sign out action, then revisit the pilot route | Signout confirmed; owner-only pilot denies access, no edit controls. If pilot UI has no sign-out control, record UI GAP; do not clear cookies as a pretend signout test | NOT TESTED |
+| A1 | Open `https://fishing-auth-p0-test.ginosega.workers.dev/__d3_pilot__/` while signed out | Private page is denied (401 or not-found equivalent); no public Gear/KB substitute and no pilot JS disclosed | **PASS — Android Chrome reported Not Found** |
+| A2 | In Chrome's top-level address bar open `https://fishing-auth-p0-test.ginosega.workers.dev/auth/start?return=%2F__d3_pilot__%2F`; complete GitHub owner OAuth | Navigation returns to `/__d3_pilot__/` with the genuine authenticated sandbox, not the public V2 UI | **PASS — existing GitHub authorization completed automatically; private pilot opened signed in** |
+| A3 | View Knowledge Base and open `P3 Test Lake` | Test-only KB content and Notes display; no accidental canonical/public-data attribution | **PASS — changes verified on Android** |
+| A4 | Open Connection Status / publication tracking, if exposed in current pilot UI, and inspect PR #18 final result | Displays Live as **sandbox verified**, never public canonical Live; if pilot lacks a status link, record UI GAP rather than count PASS | **FAIL — no publication message; Check publication status button inert on Android Chrome**. PC/Edge has message and working button. Source identified browser-local receipt-only lookup; owner-only server-latest retrieval added on draft branch but not yet deployed/retested. |
+| A5 | Switch to another page, reload and reopen the Chrome tab with the still-valid owner session | Private pilot still loads; existing KB content remains accessible and any retained durable status is recoverable | **PARTIAL PASS — KB changes verified again after reload; cross-device status still missing (A4)** |
+| A6 | Use the supported Sign out action, then revisit the pilot route | Signout confirmed; owner-only pilot denies access, no edit controls. If pilot UI has no sign-out control, record UI GAP; do not clear cookies as a pretend signout test | **PARTIAL PASS — owner reports Sign Out works; post-signout direct private-route denial not separately reported** |
 | A7 | Reauthenticate with owner account, reopen pilot, then close/reopen Chrome | Correct session restored while valid; no unintended new publication or OAuth loop | NOT TESTED |
 
 ## B. Windows Chrome or Edge — independent browser pass
 
-Repeat A2–A6 in Windows desktop Chrome/Edge with a separate cookie store or carefully recorded authentication state. Inspect the same KB content and owner status. Confirm the public `/fishing/` page remains readable anonymously. **Status: NOT TESTED**.
+Repeat A2–A6 in Windows desktop Chrome/Edge with a separate cookie store or carefully recorded authentication state. Inspect the same KB content and owner status. Confirm the public `/fishing/` page remains readable anonymously. **Owner comparison: PC/Edge displays the publication message and the Check publication status button works; other B cases not freshly documented.**
 
 ## C. Installed Android PWA — explicitly separate pending gate
 
@@ -41,8 +41,8 @@ Current D3 owner test page resides at `/__d3_pilot__/`, while the existing insta
 
 | Case | PASS / FAIL / GAP / NOT TESTED | Device and short factual observation |
 | --- | --- | --- |
-| A1–A7 | NOT TESTED | — |
-| B | NOT TESTED | — |
+| A1–A7 | MIXED | A1/A2/A3 PASS; A5/A6 partial; A4 FAIL cross-device status; A7 NOT TESTED |
+| B | PARTIAL | PC/Edge publication message and status button work; full pass outstanding |
 | C | BLOCKED | Current /__d3_pilot__/ route is not installed PWA's /fishing/ scope |
 | D | OPEN | Use existing audited PR18 evidence; no destructive resubmission |
 
