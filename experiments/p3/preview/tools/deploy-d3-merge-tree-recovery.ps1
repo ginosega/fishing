@@ -44,8 +44,21 @@ function Status([string]$path,[string]$method='GET'){
  }
 }
 function PublicHash {
- $response=Invoke-WebRequest -Uri ($origin+'/fishing/') -UseBasicParsing -TimeoutSec 30 -MaximumRedirection 0 -Headers @{'Cache-Control'='no-store'}
- if($response.StatusCode -ne 200){throw 'Public V2 homepage not available.'}
+ # Availability is part of the gate, not a reason to bypass it.
+ # Bound transient network retries to three attempts; any persistent
+ # failure refuses the code deployment (or fails postflight visibly).
+ $response=$null
+ for($attempt=1;$attempt -le 3;$attempt++){
+  try{
+   $response=Invoke-WebRequest -Uri ($origin+'/fishing/') -UseBasicParsing -TimeoutSec 20 -MaximumRedirection 0 -Headers @{'Cache-Control'='no-store'} -ErrorAction Stop
+   if([int]$response.StatusCode -ne 200){throw 'Public V2 homepage returned non-200.'}
+   break
+  }catch{
+   if($attempt -eq 3){throw 'Public V2 unavailable after three bounded probes; verify Worker before any retry.'}
+   Start-Sleep -Seconds 2
+  }
+ }
+ if($null -eq $response -or [int]$response.StatusCode -ne 200){throw 'Public V2 homepage unavailable.'}
  $sha=[Security.Cryptography.SHA256]::Create()
  try {
   return [BitConverter]::ToString($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes([string]$response.Content))).Replace('-','').ToLowerInvariant()
@@ -81,7 +94,6 @@ try {
  }
 }finally{Pop-Location}
 if(-not (Test-Path -LiteralPath $oldConfig)){throw 'Original published D3 config not available.'}
-if(Test-Path -LiteralPath $newConfig){throw 'Diagnostic candidate already exists; do not retry blindly.'}
 $original=[IO.File]::ReadAllText($oldConfig)
 foreach($rule in @(
  '"name"\s*:\s*"fishing-auth-p0-test"',
@@ -135,7 +147,16 @@ if($proposed.Contains('REPLACE_WITH_') -or
  [regex]::Matches($proposed,'"D3_PILOT_SHA256"\s*:\s*"'+$newSha+'"').Count -ne 1){
  throw 'Refuse config change beyond the exact reviewed private pilot hash.'
 }
-[IO.File]::WriteAllText($newConfig,$proposed,(New-Object Text.UTF8Encoding($false)))
+if(Test-Path -LiteralPath $newConfig){
+ # A failed preflight can leave a local candidate. Reuse it ONLY when it is
+ # byte-for-byte the same vetted config. Never adopt unreviewed edits.
+ if([IO.File]::ReadAllText($newConfig) -cne $proposed){
+  throw 'Existing candidate config differs from the reviewed original; refuse.'
+ }
+ Write-Output 'PASS: Reusing exact existing candidate after pre-deployment timeout.'
+}else{
+ [IO.File]::WriteAllText($newConfig,$proposed,(New-Object Text.UTF8Encoding($false)))
+}
 Push-Location $preview
 try {
  if((LiveVersion) -ne $oldVersion){throw 'Unexpected deployed Worker version; refuse replacement.'}
