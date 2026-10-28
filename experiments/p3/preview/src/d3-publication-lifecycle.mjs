@@ -135,6 +135,29 @@ export function createD3PublicationLifecycle({
   })();
   try{return await inflight;}finally{inflight=null;}
  }
+ // A fresh Android/browser profile has no local receipt. Read the owner's
+ // latest durable server receipt, but never replace an ambiguous submission
+ // or an already tracked operation. GET only; no queue/retry/publish.
+ async function discover(){
+  active();
+  need(!inflight,'SUBMISSION_IN_PROGRESS');
+  need(!attempt,'UNRESOLVED_SUBMISSION');
+  if(operationId)return refresh();
+  need(typeof client.latest==='function','STATUS_LOOKUP_UNAVAILABLE');
+  let recent;
+  try{recent=await client.latest();}
+  catch(error){phase='NeedsStatusCheck';report=null;throw error;}
+  if(recent===null){
+   phase='Idle';report=null;
+   return tracking();
+  }
+  need(OP.test(recent?.operationId??'')&&validReport(recent,recent.operationId)&&
+   recent.publicLive===false,'UNTRUSTED_STATUS');
+  operationId=recent.operationId;
+  trackingStored=storeReceipt(operationId);
+  report=recent;phase=recent.state;
+  return tracking();
+ }
  async function refresh(){
   active();
   need(!inflight,'SUBMISSION_IN_PROGRESS');
@@ -166,5 +189,5 @@ export function createD3PublicationLifecycle({
   need(report?.terminal===true,'UNVERIFIED_TERMINAL_STATUS');
   return clearCompletedReceipt();
  }
- return Object.freeze({tracking,submit,refresh,forgetCompleted});
+ return Object.freeze({tracking,submit,discover,refresh,forgetCompleted});
 }
