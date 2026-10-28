@@ -277,3 +277,57 @@ test('D3-L12 previous-status outage leaves old receipt and avoids a new POST',as
  assert.equal(flow.tracking().operationId,op);
  assert.equal(db.entries().length,1);
 });
+
+
+test('D3-L13 mobile Chrome with no original browser receipt discovers server Live',async()=>{
+ const store=storage();
+ let latestReads=0,statusReads=0,publishes=0;
+ const flow=createD3PublicationLifecycle({
+  enabled:()=>true,storage:store,makeKey:()=>key,
+  client:{
+   latest:async()=>{latestReads++;return live;},
+   status:async()=>{statusReads++;return live;},
+   publish:async()=>{publishes++;return success;},
+  },
+ });
+ assert.equal(flow.tracking().operationId,null);
+ const found=await flow.discover();
+ assert.equal(found.operationId,op);
+ assert.equal(found.phase,'Live');
+ assert.equal(found.sandboxVerified,true);
+ assert.equal(found.publicLive,false);
+ assert.equal(found.trackingStored,true);
+ assert.equal(latestReads,1);
+ assert.equal(statusReads,0);
+ assert.equal(publishes,0);
+ assert(!JSON.stringify(store.entries()).includes('csrf'));
+ const next=createD3PublicationLifecycle({
+  enabled:()=>true,storage:store,
+  client:{latest:async()=>{throw Error('Should not discover');},
+   status:async()=>live,publish:async()=>success},
+ });
+ assert.equal((await next.discover()).sandboxVerified,true);
+ assert.equal(latestReads,1);
+});
+test('D3-L14 server lookup never overwrites ambiguous unsent edit',async()=>{
+ const flow=createD3PublicationLifecycle({
+  enabled:()=>true,makeKey:()=>key,
+  client:{latest:async()=>{throw Error('Should not be read');},
+   publish:async()=>{throw Error('Lost 202');},status:async()=>live},
+ });
+ await assert.rejects(flow.submit(pkg),/Lost 202/);
+ await assert.rejects(flow.discover(),isCode('UNRESOLVED_SUBMISSION'));
+ assert.equal(flow.tracking().phase,'Unknown');
+ assert.equal(flow.tracking().operationId,null);
+});
+test('D3-L15 server discovery of no receipt remains empty without a write',async()=>{
+ const flow=createD3PublicationLifecycle({
+  enabled:()=>true,makeKey:()=>key,
+  client:{latest:async()=>null,
+   publish:async()=>{throw Error('No write');},status:async()=>{throw Error('No status');}},
+ });
+ const empty=await flow.discover();
+ assert.equal(empty.operationId,null);
+ assert.equal(empty.phase,'Idle');
+ assert.equal(empty.sandboxVerified,false);
+});
