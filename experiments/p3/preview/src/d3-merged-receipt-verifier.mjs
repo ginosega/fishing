@@ -92,7 +92,11 @@ export function createD3MergedReceiptVerifier({request,issueReadToken,
   await confirmMerged(token,prNumber);
   need(pr?.number===prNumber,'PR_NUMBER_MISMATCH');
   need(pr?.state==='closed','PR_NOT_CLOSED');
-  need(SHA.test(pr.merge_commit_sha??''),'PR_MERGE_SHA_MISSING');
+  // Some read-scoped PR responses omit merge_commit_sha even though the
+  // authoritative GET /pulls/{n}/merge returns 204. When present, it MUST
+  // match the verified sandbox main; a conflicting value is never ignored.
+  need(pr.merge_commit_sha==null||
+   SHA.test(pr.merge_commit_sha),'PR_MERGE_SHA_INVALID');
   need(pr.head?.repo?.id===ID,'PR_HEAD_REPOSITORY_MISMATCH');
   need(pr.base?.repo?.id===ID,'PR_BASE_REPOSITORY_MISMATCH');
   need(pr.base.ref==='main','PR_BASE_REF_MISMATCH');
@@ -100,11 +104,22 @@ export function createD3MergedReceiptVerifier({request,issueReadToken,
    'PR_HEAD_BRANCH_MISMATCH');
   need(pr.head.sha===prHeadSha,'PR_HEAD_SHA_MISMATCH');
   need(pr.base.sha===mainBaseSha,'PR_BASE_SHA_MISMATCH');
-  const mergeSha=pr.merge_commit_sha;
   const main=await read(token,mainUrl);
-  need(main?.object?.sha===mergeSha,'MERGE_NOT_CURRENT_MAIN');
+  const mergeSha=main?.object?.sha;
+  need(SHA.test(mergeSha??''),'MERGE_NOT_CURRENT_MAIN');
+  need(pr.merge_commit_sha==null||
+   pr.merge_commit_sha===mergeSha,'PR_MERGE_SHA_CONFLICT');
+  // Pin the exact tree that the durable PR head intended. An unrelated
+  // squash whose files merely look similar cannot be substituted.
+  const headCommit=await read(token,API+'/git/commits/'+prHeadSha);
+  need(headCommit?.sha===prHeadSha&&
+   SHA.test(headCommit.tree?.sha??'')&&
+   Array.isArray(headCommit.parents)&&headCommit.parents.length===1&&
+   headCommit.parents[0]?.sha===mainBaseSha,
+   'PR_HEAD_COMMIT_NOT_EXACT');
   const commit=await read(token,API+'/commits/'+mergeSha+'?per_page=100');
   need(commit?.sha===mergeSha&&
+   commit.commit?.tree?.sha===headCommit.tree.sha&&
    Array.isArray(commit.parents)&&commit.parents.length===1&&
    commit.parents[0]?.sha===mainBaseSha&&
    Array.isArray(commit.files)&&commit.files.length===expectedPaths.length&&
@@ -115,9 +130,14 @@ export function createD3MergedReceiptVerifier({request,issueReadToken,
     'FISH118 D3 isolated sandbox Gear/KB publication'),
    'MERGE_COMMIT_NOT_EXACT');
   const finalPr=await read(token,prUrl);
+  await confirmMerged(token,prNumber);
   const last=await read(token,mainUrl);
   need(finalPr?.number===prNumber&&finalPr.state==='closed'&&
-   finalPr.merge_commit_sha===mergeSha&&
+   (finalPr.merge_commit_sha==null||
+    finalPr.merge_commit_sha===mergeSha)&&
+   finalPr.head?.repo?.id===ID&&finalPr.base?.repo?.id===ID&&
+   finalPr.head?.ref==='p3-test-'+operationId.slice(3)&&
+   finalPr.base?.ref==='main'&&
    finalPr.head?.sha===prHeadSha&&finalPr.base?.sha===mainBaseSha&&
    last?.object?.sha===mergeSha,'MERGE_EVIDENCE_MOVED');
   return Object.freeze({verified:true,repositoryId:ID,operationId,
