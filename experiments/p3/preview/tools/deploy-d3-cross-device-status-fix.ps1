@@ -66,8 +66,8 @@ function PublicHash {
   return [BitConverter]::ToString($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes([string]$response.Content))).Replace('-','').ToLowerInvariant()
  }finally{$sha.Dispose()}
 }
-function VerifyD1([switch]$AllowRecovery){
- $sql="SELECT COUNT(*) AS total, SUM(CASE WHEN operation_id='p3_343ef7ba-1c87-4d5d-a2ad-92e91eab420f' AND state='Live' AND reason_code IS NULL AND merge_sha='89be79a9c933dd36bd909edd585091232831c835' THEN 1 ELSE 0 END) AS d2, SUM(CASE WHEN operation_id='p3_10a266d9-87c9-4dae-8293-abc942e99007' AND state='Live' AND reason_code IS NULL AND pr_number=17 AND merge_sha='7418cc15e5e392b6e52a48eb533804a5055ca8d7' THEN 1 ELSE 0 END) AS gear, SUM(CASE WHEN operation_id='p3_5527208d-a67c-4a2c-876d-9edaee353bc8' AND github_id=265665562 AND repo_id=1430581407 AND state='Merging' AND reason_code='merge_attempted' AND pr_number=18 AND pr_head_sha='9276f35348e43a23c72208f3b2134e28554382fd' AND main_base_sha='7418cc15e5e392b6e52a48eb533804a5055ca8d7' AND merge_sha IS NULL AND workflow_run_id=40600896518 AND lease_expires_at<=unixepoch('now') THEN 1 ELSE 0 END) AS kb_blocked, SUM(CASE WHEN operation_id='p3_5527208d-a67c-4a2c-876d-9edaee353bc8' AND github_id=265665562 AND repo_id=1430581407 AND pr_number=18 AND pr_head_sha='9276f35348e43a23c72208f3b2134e28554382fd' AND main_base_sha='7418cc15e5e392b6e52a48eb533804a5055ca8d7' AND workflow_run_id=40600896518 AND merge_sha='97f68efc932084f2e607480c12cee37a94f81758' AND state IN ('Deploying','Verifying','Live') THEN 1 ELSE 0 END) AS kb_recovered FROM p3_operations;"
+function VerifyD1 {
+ $sql="SELECT COUNT(*) AS total, SUM(CASE WHEN operation_id='p3_343ef7ba-1c87-4d5d-a2ad-92e91eab420f' AND state='Live' AND reason_code IS NULL AND merge_sha='89be79a9c933dd36bd909edd585091232831c835' THEN 1 ELSE 0 END) AS d2, SUM(CASE WHEN operation_id='p3_10a266d9-87c9-4dae-8293-abc942e99007' AND state='Live' AND reason_code IS NULL AND pr_number=17 AND merge_sha='7418cc15e5e392b6e52a48eb533804a5055ca8d7' THEN 1 ELSE 0 END) AS gear, SUM(CASE WHEN operation_id='p3_5527208d-a67c-4a2c-876d-9edaee353bc8' AND github_id=265665562 AND repo_id=1430581407 AND state='Merging' AND reason_code='merge_attempted' AND pr_number=18 AND pr_head_sha='9276f35348e43a23c72208f3b2134e28554382fd' AND main_base_sha='7418cc15e5e392b6e52a48eb533804a5055ca8d7' AND merge_sha IS NULL AND workflow_run_id=40600896518 AND lease_expires_at<=unixepoch('now') THEN 1 ELSE 0 END) AS kb_blocked, SUM(CASE WHEN operation_id='p3_5527208d-a67c-4a2c-876d-9edaee353bc8' AND github_id=265665562 AND repo_id=1430581407 AND pr_number=18 AND pr_head_sha='9276f35348e43a23c72208f3b2134e28554382fd' AND main_base_sha='7418cc15e5e392b6e52a48eb533804a5055ca8d7' AND workflow_run_id=40600896518 AND merge_sha='97f68efc932084f2e607480c12cee37a94f81758' AND state='Live' AND reason_code IS NULL AND verified_release_id='1dcb68bab0f88638b009d3ce13d69426' THEN 1 ELSE 0 END) AS kb_recovered FROM p3_operations;"
  $raw=@(& npx.cmd --yes wrangler@4.153.0 d1 execute fishing-p3-sandbox --remote --json --config $oldConfig --command $sql)
  if($LASTEXITCODE -ne 0){throw 'D1 read-only preflight failed.'}
  try{$p=ConvertFrom-Json -InputObject ($raw -join [Environment]::NewLine)}catch{throw 'Invalid D1 JSON.'}
@@ -75,11 +75,10 @@ function VerifyD1([switch]$AllowRecovery){
  if($a.Count -ne 1 -or $a[0].success -ne $true -or @($a[0].results).Count -ne 1){throw 'Unexpected D1 query result.'}
  $r=$a[0].results[0]
  if([int]$r.total -ne 3 -or [int]$r.d2 -ne 1 -or [int]$r.gear -ne 1){throw 'D1 baseline changed; no deployment.'}
- if($AllowRecovery){
-  if(([int]$r.kb_blocked+[int]$r.kb_recovered) -ne 1){throw 'Unexpected KB D1 state after deployment.'}
- }elseif([int]$r.kb_blocked -ne 1 -or [int]$r.kb_recovered -ne 0){
-  throw 'Expired KB merge marker no longer matches; no deployment.'
+ if([int]$r.kb_recovered -ne 1 -or [int]$r.kb_blocked -ne 0){
+  throw 'Completed KB private Live receipt changed; no deployment.'
  }
+
 }
 
 if(-not $ApproveCrossDeviceStatusFix){throw 'Explicit one-time private Worker cross-device status update approval required.'}
@@ -185,7 +184,7 @@ try {
  if((LiveVersion) -ne $oldVersion -or (PublicHash) -ne $public){
   throw 'Live Worker or public V2 changed during preflight.'
  }
- Write-Output 'PASS: Current exact Worker/config, two completed receipts, blocked KB and guarded dry-run.'
+ Write-Output 'PASS: Current exact Worker/config, two completed receipts, verified-Live KB and guarded dry-run.'
  # Single approved code-refresh deployment, no automatic retry on ambiguity.
  & npx.cmd --yes wrangler@4.153.0 deploy --config $newConfig
  if($LASTEXITCODE -ne 0){throw 'Deployment outcome uncertain; do not retry.'}
@@ -197,9 +196,9 @@ try {
  $post=Status '/api/v3/operations' 'POST'
  if(@(401,403,415) -notcontains $post){throw 'Anonymous POST denied invariant failed.'}
  if((PublicHash) -ne $public){throw 'Public V2 homepage changed.'}
- VerifyD1 -AllowRecovery
+ VerifyD1
  Write-Output ('SAFE_D3_CROSS_DEVICE_STATUS_VERSION: '+$nextVersion)
  Write-Output ('D3_PILOT_SHA256: '+$now)
  Write-Output 'PASS: Owner-only cross-device latest status added without GitHub writes or changing merge/hosted proof guards.'
- Write-Output 'PASS: Public V2 unchanged; completed Gear/D2 plus blocked-or-recovered KB preserved; no replay.'
+ Write-Output 'PASS: Public V2 unchanged; completed Gear/D2/KB preserved in sandbox Live; no replay.'
 }finally{Pop-Location}
