@@ -46,6 +46,8 @@ function fixture({enabled=true,owner=OWNER,goodSource=true,
       return {operationId:OP,state:'Accepted',inserted};
     },
     get:async id=>{calls.status++;return id===OP?{operationId:OP,state:'Checking'}:null;},
+    latest:async()=>{calls.status++;return {operationId:OP,state:'Live',
+     verifiedReleaseId:'a'.repeat(32)};},
   };
   const validateCandidate=async input=>{
     calls.validations++;calls.source=input;
@@ -139,7 +141,8 @@ test('D3-A11 source validation 409 returns enum only, never exception text',asyn
   authorizeWrite:async()=>({authorized:true,ownerGitHubId:OWNER}),
   authorizeStatus:async()=>({authorized:true,ownerGitHubId:OWNER})};
  const store={lookupReceipt:async()=>null,
-  accept:async()=>{throw Error('Unexpected accept');},get:async()=>null};
+  accept:async()=>{throw Error('Unexpected accept');},
+  get:async()=>null,latest:async()=>null};
  const api=createD3GuardedOperationsApi({session,store,enabled:()=>true,
   validateCandidate:async()=>{throw thrown;}});
  const response=await api.handle(newPost(envelope(await edit())));
@@ -162,6 +165,26 @@ test('D3-A07 authenticated status survives navigation; unknown IDs stay hidden',
   const missing=await f.api.handle(
     new Request(origin+'/api/v3/operations/p3_unknown'));
   assert.equal(missing.status,404);
+});
+
+test('D3-A12 authorized latest read recovers cross-device Live without a write',async()=>{
+ const f=fixture();
+ const res=await f.api.handle(new Request(origin+'/api/v3/operations/latest'));
+ assert.equal(res.status,200);
+ const body=await res.json();
+ assert.equal(body.ok,true);
+ assert.equal(body.canonicalLive,false);
+ assert.equal(body.operation.operationId,OP);
+ assert.equal(body.operation.state,'Live');
+ assert.equal(f.calls.status,1);
+ assert.equal(f.calls.writes,0);
+ assert.equal(f.calls.validations,0);
+ const foreign=fixture({owner:42});
+ const denied=await foreign.api.handle(
+  new Request(origin+'/api/v3/operations/latest'));
+ assert.equal(denied.status,404);
+ assert.equal(foreign.calls.status,0);
+ assert.equal(foreign.calls.writes,0);
 });
 
 test('D3-A08 public anonymous session read is allowed while writer is hard off',async()=>{
