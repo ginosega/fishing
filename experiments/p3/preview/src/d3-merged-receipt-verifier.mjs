@@ -70,14 +70,20 @@ export function createD3MergedReceiptVerifier({request,issueReadToken,
   const prUrl=API+'/pulls/'+prNumber;
   const mainUrl=API+'/git/ref/heads/main';
   const pr=await read(token,prUrl);
+  // Independently pinpoint a live-provider metadata discrepancy without
+  // logging owner credentials, PR response data, or weakening ANY merge guard.
+  // Real D3 PR #18 satisfied every one of these predicates when read through
+  // the connected GitHub REST API. An App-scoped Worker response differs.
   need(pr?.number===prNumber&&pr?.state==='closed'&&
    pr.merged===true&&typeof pr.merged_at==='string'&&
-   SHA.test(pr.merge_commit_sha??'')&&
-   pr.head?.repo?.id===ID&&pr.base?.repo?.id===ID&&
-   pr.base.ref==='main'&&
-   pr.head.ref==='p3-test-'+operationId.slice(3)&&
-   pr.head.sha===prHeadSha&&
-   pr.base.sha===mainBaseSha,'PR_NOT_EXACT_MERGED');
+   SHA.test(pr.merge_commit_sha??''),'PR_MERGE_STATE_MISMATCH');
+  need(pr.head?.repo?.id===ID,'PR_HEAD_REPOSITORY_MISMATCH');
+  need(pr.base?.repo?.id===ID,'PR_BASE_REPOSITORY_MISMATCH');
+  need(pr.base.ref==='main','PR_BASE_REF_MISMATCH');
+  need(pr.head.ref==='p3-test-'+operationId.slice(3),
+   'PR_HEAD_BRANCH_MISMATCH');
+  need(pr.head.sha===prHeadSha,'PR_HEAD_SHA_MISMATCH');
+  need(pr.base.sha===mainBaseSha,'PR_BASE_SHA_MISMATCH');
   const mergeSha=pr.merge_commit_sha;
   const main=await read(token,mainUrl);
   need(main?.object?.sha===mergeSha,'MERGE_NOT_CURRENT_MAIN');
