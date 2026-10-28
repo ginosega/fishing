@@ -20,10 +20,10 @@ Date: 2026-10-28. Scope: owner-only PRIVATE sandbox D3 + historical PUBLIC conte
 | Independently verified hosted bytes | Mandatory implementation guard for sandbox Live, with its final `verified_release_id` and D1 terminal transition independently audited; no separate public V3 proof. |
 | Anonymous and wrong-owner denial | Source integration tests and private anonymous-route postflight checks; complete hosted negative-user test matrix still to be consolidated. |
 | Conflict, duplicate, stale base, lost acknowledgment | Source tests; broader real-device D3 acceptance not yet evidenced as complete. |
-| Installed Android Chrome PWA, OAuth return, sign-out, reload / navigation | Must be retested specifically in integrated D3 pilot; prior AUTH-P0/D2 tests do not automatically close this. |
+| Android Chrome private browser pilot and installed PWA | **Private pilot browser PASS:** signed-out route denied; owner OAuth automatic; KB content and reload verified; signout action worked; cross-device publication message/button defect fixed and owner retest PASSED. **Not yet proven:** complete close/reopen Chrome, post-signout direct-route denial, and integrated installed V3 PWA OAuth/return/session status. |
 | Production public V3 Live and <60 seconds | **Not yet implemented or proven**; private sandbox test status is not canonical public Live. |
 
-**D3 remains open** until missing integrated-owner/mobile and negative-flow evidence is recorded, despite both sample Gear/KB publications reaching private sandbox Live.
+**D3 remains open** for the remaining session/negative-flow checks and integrated installed-PWA evidence. The Android Chrome *private browser pilot* status defect is closed after an owner-observed successful retest. Both sample Gear/KB publications remain private sandbox Live.
 
 ## 2. Historical actual production fast-content delivery samples
 
@@ -58,7 +58,7 @@ Approved requirement: `V3-SAVE-09`, ordinary Gear/KB/Catch JSON+Markdown text-on
 ### Next evidence, rather than a new milestone chain
 
 - **Done:** record exact read-only D1 receipt and event audit for PR #18. **Still needed:** confirm Gear/KB owner can navigate away/return, restore a valid session, and inspect status without losing unsent changes.
-- Execute the [prepared owner-device acceptance checklist](D3_Owner_Device_Acceptance_2026-10-28.md). Start with Android Chrome's real private pilot route and OAuth return; record each PASS/FAIL/GAP. **A browser tab does not prove installed Android PWA integration**, because the current pilot route is outside `/fishing/` scope. Integrated installed-PWA D3 remains pending. Avoid unnecessary re-publication.
+- **Android browser pilot tested:** The [owner-device acceptance checklist](D3_Owner_Device_Acceptance_2026-10-28.md) now records access denial, OAuth, KB reading/reload, and post-fix cross-device publication status/button PASS; signout action and reload are observed, while a separate post-signout access check and close/reopen remain to verify. **A browser tab does not prove installed Android PWA integration**, because the current pilot route is outside `/fishing/` scope. Integrated installed-PWA D3 remains pending. Avoid unnecessary re-publication.
 - Begin separately isolated source-only timing instrumentation and delivery-path feasibility; **do not activate a public writer, change origin/routing, merge public main, or release V3** without its distinct consequential approval.
 
 This report is an evidence checkpoint, **not** a sign-off on D3, D4, D5, D6, or `V3-SAVE-09`.
