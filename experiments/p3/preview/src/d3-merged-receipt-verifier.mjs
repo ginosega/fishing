@@ -40,6 +40,21 @@ export function createD3MergedReceiptVerifier({request,issueReadToken,
   try{return await response.json();}
   catch{fail('INVALID_GITHUB_RESPONSE');}
  }
+ // GitHub's purpose-built GET /pulls/{number}/merge endpoint is the
+ // authoritative read-only confirmation: 204 means merged; 404 means not.
+ // Unlike a PUT /merge, this NEVER initiates a merge or alters the PR.
+ async function confirmMerged(token,prNumber){
+  const path=API+'/pulls/'+prNumber+'/merge';
+  let response;
+  try{response=await request(path,{method:'GET',redirect:'manual',
+   headers:{Authorization:'Bearer '+token,
+    Accept:'application/vnd.github+json',
+    'X-GitHub-Api-Version':'2026-03-10',
+    'User-Agent':'fishing-d3-merged-receipt-observer'}});}
+  catch{fail('GITHUB_UNAVAILABLE');}
+  need(response?.status===204&&response.ok===true&&
+   response.redirected!==true,'PR_MERGE_STATUS_UNVERIFIED');
+ }
  async function verify({operationId,repositoryId,prNumber,prHeadSha,
    mainBaseSha,workflowRunId,expectedPaths}={}){
   need(enabled()===true,'RECOVERY_DISABLED');
@@ -70,13 +85,14 @@ export function createD3MergedReceiptVerifier({request,issueReadToken,
   const prUrl=API+'/pulls/'+prNumber;
   const mainUrl=API+'/git/ref/heads/main';
   const pr=await read(token,prUrl);
-  // Independently pinpoint a live-provider metadata discrepancy without
-  // logging owner credentials, PR response data, or weakening ANY merge guard.
-  // Real D3 PR #18 satisfied every one of these predicates when read through
-  // the connected GitHub REST API. An App-scoped Worker response differs.
-  need(pr?.number===prNumber&&pr?.state==='closed'&&
-   pr.merged===true&&typeof pr.merged_at==='string'&&
-   SHA.test(pr.merge_commit_sha??''),'PR_MERGE_STATE_MISMATCH');
+  // Some provider projections may omit or disagree on the PR summary's
+  // merged/merged_at fields. Require the dedicated read-only GitHub 204
+  // merged-status proof AND immutable commit ancestry/files/main evidence.
+  // No such summary-field discrepancy can cause a new PUT /merge.
+  await confirmMerged(token,prNumber);
+  need(pr?.number===prNumber,'PR_NUMBER_MISMATCH');
+  need(pr?.state==='closed','PR_NOT_CLOSED');
+  need(SHA.test(pr.merge_commit_sha??''),'PR_MERGE_SHA_MISSING');
   need(pr.head?.repo?.id===ID,'PR_HEAD_REPOSITORY_MISMATCH');
   need(pr.base?.repo?.id===ID,'PR_BASE_REPOSITORY_MISMATCH');
   need(pr.base.ref==='main','PR_BASE_REF_MISMATCH');
@@ -100,7 +116,7 @@ export function createD3MergedReceiptVerifier({request,issueReadToken,
    'MERGE_COMMIT_NOT_EXACT');
   const finalPr=await read(token,prUrl);
   const last=await read(token,mainUrl);
-  need(finalPr?.number===prNumber&&finalPr.merged===true&&
+  need(finalPr?.number===prNumber&&finalPr.state==='closed'&&
    finalPr.merge_commit_sha===mergeSha&&
    finalPr.head?.sha===prHeadSha&&finalPr.base?.sha===mainBaseSha&&
    last?.object?.sha===mergeSha,'MERGE_EVIDENCE_MOVED');
