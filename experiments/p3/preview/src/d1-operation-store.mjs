@@ -91,6 +91,14 @@ export function createD1OperationStore({DB,ownerGitHubId,repositoryId=SANDBOX_ID
   const row=await sql(opSelect+' WHERE operation_id=? AND github_id=? AND repo_id=?',operationId,ownerGitHubId,SANDBOX_ID).first();
   return publicRecord(row);
  }
+ // Owner-scoped, read-only latest receipt. Cross-device publication status
+ // must not depend on the original submitting browser's local storage.
+ async function latest(){
+  const row=await sql(opSelect+
+   ' WHERE github_id=? AND repo_id=? ORDER BY created_at DESC,operation_id DESC LIMIT 1',
+   ownerGitHubId,SANDBOX_ID).first();
+  return publicRecord(row);
+ }
  async function accept({idempotencyKey,snapshot}={}){
   check(token(idempotencyKey),'INVALID_IDEMPOTENCY_KEY');
   verifySubmission(snapshot);
@@ -293,7 +301,7 @@ export function createD1OperationStore({DB,ownerGitHubId,repositoryId=SANDBOX_ID
   const rows=await sql('SELECT e.event_id,e.event_type,e.from_state,e.to_state,e.event_at,e.error_code FROM p3_events e JOIN p3_operations o ON o.operation_id=e.operation_id WHERE e.operation_id=? AND o.github_id=? AND o.repo_id=? ORDER BY e.event_id',operationId,ownerGitHubId,SANDBOX_ID).all();
   return (rows?.results||[]).map(row=>({eventType:row.event_type,from:row.from_state,to:row.to_state,at:row.event_at,error:row.error_code}));
  }
- return Object.freeze({accept,get,lookupReceipt,readSnapshot,nextEligible,
+ return Object.freeze({accept,get,latest,lookupReceipt,readSnapshot,nextEligible,
   nextRecoverableMerge,reconcileVerifiedMerge,branchReceipt,saveBranchReceipt,
   markMergeAttempt,saveMergeReceipt,claim,advance,events});
 }
