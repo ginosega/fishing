@@ -7,7 +7,8 @@ import {
 const OP='p3_01234567-1234-4234-8234-123456789abc';
 const fails=code=>e=>e instanceof D3ConnectionError&&e.code===code;
 function build({enabled=true,online=true,authenticated=true,authorized=true,
- throwSession=false,throwSignout=false,operationId=OP,publicLive=false}={}){
+ throwSession=false,throwSignout=false,operationId=OP,publicLive=false,
+ discoveredId=OP}={}){
  const updates=[];
  let activeOnline=online,active=enabled,signouts=0,lookups=0;
  const service={
@@ -22,6 +23,9 @@ function build({enabled=true,online=true,authenticated=true,authorized=true,
    tracking:()=>({operationId}),
    refresh:async()=>{lookups++;return {operationId,
     phase:'Live',sandboxVerified:true,publicLive};},
+   discover:async()=>{lookups++;return {
+    operationId:discoveredId,phase:discoveredId?'Live':'Idle',
+    sandboxVerified:Boolean(discoveredId),publicLive:false};},
   },
  };
  const controller=createD3ConnectionController({
@@ -156,4 +160,33 @@ test('D3-C08 private owner pilot returns OAuth to pilot only on its exact path',
   if(prior)Object.defineProperty(globalThis,'location',prior);
   else delete globalThis.location;
  }
+});
+
+
+test('D3-C09 Android has no local receipt, button obtains latest owner D1 status',async()=>{
+ const x=build({operationId:null,discoveredId:OP});
+ await x.controller.restore();
+ assert.equal(x.controller.current().operationId,null);
+ await x.controller.refreshPublication();
+ const result=x.controller.current();
+ assert.equal(result.operationId,OP);
+ assert.equal(result.publication,'Live');
+ assert.equal(result.sandboxVerified,true);
+ assert.equal(result.publicLive,false);
+ assert.equal(x.lookups,1);
+ const dialog=new Element('dialog');
+ const panel=mountD3ConnectionPanel({dialog,controller:x.controller,documentObject});
+ const desc=dialog.children[0].children[1];
+ assert(desc.children[0].textContent.includes('sandbox verified'));
+ const toolbar=dialog.children[0].children[2];
+ assert(toolbar.children.some(c=>c.textContent==='Check publication status'));
+ panel.remove();
+});
+test('D3-C10 no owner operation returns None, never a fabricated Live',async()=>{
+ const x=build({operationId:null,discoveredId:null});
+ await x.controller.restore();
+ await x.controller.refreshPublication();
+ assert.equal(x.controller.current().publication,'None');
+ assert.equal(x.controller.current().operationId,null);
+ assert.equal(x.controller.current().sandboxVerified,false);
 });
