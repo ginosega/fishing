@@ -71,20 +71,20 @@ export function createD3ConnectionController({
  async function refreshPublication(){
   gate();offline();need(state.authorized,'OWNER_REQUIRED');
   const pending=lifecycle.tracking();
-  if(!OP.test(pending?.operationId??'')){
-   state={...state,operationId:null,publication:'None',
-    sandboxVerified:false,publicLive:false};emit();
-   return current();
-  }
-  const id=pending.operationId,seq=generation;
-  state={...state,operationId:id,publication:'Checking'};emit();
+  const id=OP.test(pending?.operationId??'')?pending.operationId:null;
+  const seq=generation;
+  state={...state,operationId:id,publication:'Checking',
+   sandboxVerified:false,publicLive:false};emit();
   try{
-   const result=await lifecycle.refresh();
+   // A new device must ask the owner-authenticated server for its latest
+   // durable operation, not assume that localStorage exists on this device.
+   const result=id?await lifecycle.refresh():await lifecycle.discover();
    if(seq!==generation||!state.authorized)return current();
-   need(result?.operationId===id&&
-    typeof result.phase==='string'&&
-    result.publicLive!==true,'STATUS_UNTRUSTED');
-   state={...state,operationId:id,publication:result.phase,
+   need(typeof result?.phase==='string'&&result.publicLive!==true&&
+    (result.operationId===null||
+     OP.test(result.operationId)),'STATUS_UNTRUSTED');
+   state={...state,operationId:result.operationId,
+    publication:result.operationId?result.phase:'None',
     sandboxVerified:result.sandboxVerified===true,
     publicLive:false};
    emit();return current();
