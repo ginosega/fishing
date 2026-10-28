@@ -200,3 +200,42 @@ test('D3-C09 ambiguous signout cannot preserve cached CSRF or retry implicitly',
  }),refuse('OWNER_SESSION_REQUIRED'));
  assert.equal(count,2);
 });
+
+
+test('D3-C13 mobile owner without browser receipt discovers latest D1 status read-only',async()=>{
+ const hits=[];
+ const client=createD3AuthoringClient({origin,enabled:()=>true,request:async(url,opts)=>{
+  hits.push([url,opts.method,opts.credentials]);
+  if(url.endsWith('/session'))return ok({authenticated:true,authorized:true,csrfToken:csrf});
+  if(url.endsWith('/api/v3/operations/latest'))return ok({ok:true,canonicalLive:false,
+   operation:{operationId:op,state:'Live',verifiedReleaseId:'1'.repeat(32)}});
+  throw Error('Unexpected request');
+ }});
+ await assert.rejects(client.latest(),refuse('OWNER_SESSION_REQUIRED'));
+ await client.session();
+ const result=await client.latest();
+ assert.equal(result.sandboxVerified,true);
+ assert.equal(result.publicLive,false);
+ assert.equal(result.operationId,op);
+ assert.deepEqual(hits.map(r=>r[1]),['GET','GET']);
+ assert.equal(hits[1][2],'same-origin');
+});
+test('D3-C14 latest owner status rejects public canonical claim and expired session',async()=>{
+ for(const body of [
+  {ok:true,canonicalLive:true,operation:{operationId:op,state:'Live'}},
+  {ok:true,canonicalLive:false,operation:{operationId:'foreign',state:'Live'}},
+ ]){
+  const client=createD3AuthoringClient({origin,enabled:()=>true,
+   request:async url=>url.endsWith('/session')?
+    ok({authenticated:true,authorized:true,csrfToken:csrf}):ok(body)});
+  await client.session();
+  await assert.rejects(client.latest(),refuse('UNTRUSTED_RECEIPT'));
+ }
+ const expired=createD3AuthoringClient({origin,enabled:()=>true,
+  request:async url=>url.endsWith('/session')?
+   ok({authenticated:true,authorized:true,csrfToken:csrf}):
+   ok({ok:false,error:'SESSION_DENIED'},401)});
+ await expired.session();
+ await assert.rejects(expired.latest(),refuse('SESSION_EXPIRED'));
+ await assert.rejects(expired.latest(),refuse('OWNER_SESSION_REQUIRED'));
+});
