@@ -130,6 +130,23 @@ export function createD3AuthoringClient({
   return Object.freeze({operationId:body.operationId,state:body.state,
    accepted:true,duplicate:body.duplicate,canonicalLive:false});
  }
+ async function latest(){
+  active();
+  need(owner,'OWNER_SESSION_REQUIRED');
+  const res=await request(exact('/api/v3/operations/latest'),
+   {...reqOpts,method:'GET'});
+  if(res?.status===401||res?.status===403){
+   owner=false;csrf=null;deny('SESSION_EXPIRED');
+  }
+  need(res?.status===200,'STATUS_UNAVAILABLE');
+  const body=await parseJson(res);
+  need(body.ok===true&&body.canonicalLive===false&&
+   Object.prototype.hasOwnProperty.call(body,'operation'),
+   'UNTRUSTED_RECEIPT');
+  if(body.operation===null)return null;
+  need(OP.test(body.operation?.operationId??''),'UNTRUSTED_RECEIPT');
+  return describeD3Operation(body.operation,{canonicalLive:false});
+ }
  async function status(operationId){
   active();
   need(owner,'OWNER_SESSION_REQUIRED');
@@ -143,5 +160,5 @@ export function createD3AuthoringClient({
    body.operation?.operationId===operationId,'UNTRUSTED_RECEIPT');
   return describeD3Operation(body.operation,{canonicalLive:body.canonicalLive});
  }
- return Object.freeze({session,signOut,publish,status});
+ return Object.freeze({session,signOut,publish,status,latest});
 }
