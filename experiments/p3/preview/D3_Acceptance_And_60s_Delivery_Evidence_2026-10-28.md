@@ -3,21 +3,21 @@ Date: 2026-10-28. Scope: owner-only PRIVATE sandbox D3 + historical PUBLIC conte
 
 ## 1. D3 owner-pilot publication evidence
 
-- The owner reported the **Knowledge Base** operation `p3_5527208d-a67c-4a2c-876d-9edaee353bc8` as **Live** after deploying the independently verified, no-repeat merge-tree recovery Worker `4266c366-c41b-412a-9158-6552950be9e8`. This is owner-observed status, not a separately retrieved D1 audit in this document.
+- The owner reported the **Knowledge Base** operation `p3_5527208d-a67c-4a2c-876d-9edaee353bc8` as **Live** after deploying the independently verified, no-repeat merge-tree recovery Worker `4266c366-c41b-412a-9158-6552950be9e8`. On October 28, the owner also ran the independently prepared, **read-only remote D1 audit** `tools/audit-d3-kb-pr18-readonly.ps1`, which returned **PASS** with the exact operation, source merge, terminal state, cleared lease and sandbox verified release identity.
 - GitHub private sandbox PR [#18](https://github.com/ginosega/fishing-p3-sandbox/pull/18) is closed and merged, `2026-10-27T23:25:43Z`. Recorded head `9276f35348e43a23c72208f3b2134e28554382fd`; parent/base `7418cc15e5e392b6e52a48eb533804a5055ca8d7`; merge/main `97f68efc932084f2e607480c12cee37a94f81758`. Its head and merge Git commits have the same tree `dc90f7c4fdad86b79baa791af7e6f2b54c66711c`.
 - The merge modifies exactly `pwa/KB/kb.json` and `pwa/KB/Locations/content/P3 Test Lake.md`; the name/heading are `P3 Test Lake D3 Verification`. Nothing in public `ginosega/fishing` main was merged by this pilot.
-- The D3 private verifier's *implementation* requires same current private main, exact PR evidence, independent read-only GitHub GET merge-status 204, exact single-parent/commit tree/file proof, and subsequently exact two-file hosted bytes + metadata and 32-hex sandbox verified release identity before `Verifying -> Live`. This supports the owner's reported Live result but does **not** replace a fresh read-only D1 audit.
+- The D3 private verifier requires current private `main`, exact PR evidence, independent read-only GitHub GET merge-status 204, exact single-parent/commit tree/file proof and both hosted file bytes + metadata before `Verifying -> Live`. The independent D1 audit now also confirms **`state=Live`, `reason_code=NULL`, `verified_release_id=1dcb68bab0f88638b009d3ce13d69426`**, matching merge SHA `97f68efc932084f2e607480c12cee37a94f81758` and the original head/PR/CI references. This proves the sandbox receipt, **not** public canonical V3 release.
 - The observed interrupted-merge path originally left D1 in `Merging`, `reason_code=merge_attempted`, with expired lease and no merge receipt. It was **not** resubmitted or merged again. After independent recovery the owner reported Live. The root technical incompatibility was the GitHub App PR summary omitting merged/SHA metadata; the recovery no longer depends on missing summary fields, but still denies conflicting non-null SHAs and mismatched immutable trees.
-- To complete a local, exact D1/transition receipt cross-check without any write or secret output, run `experiments/p3/preview/tools/audit-d3-kb-pr18-readonly.ps1` on the owner's configured workstation and record its PASS summary. This does not itself prove a public production release.
+- **Read-only D1 audit completed (owner PowerShell output, October 28):** `PASS: KB PR18 durable operation is Live with exact sandbox merge receipt and verified release identity`; `OPERATION_ID=p3_5527208d-a67c-4a2c-876d-9edaee353bc8`; `MERGE_SHA=97f68efc932084f2e607480c12cee37a94f81758`; `SANDBOX_VERIFIED_RELEASE_ID=1dcb68bab0f88638b009d3ce13d69426`; `AUDIT_EVENT_COUNT=7`; `AUDIT_TRANSITIONS=Accepted -> Validating -> Checking -> Merging -> Deploying -> Verifying -> Live`. No failed or conflict terminal event. This still does not prove a publicly deployed production release or a 60-second delivery.
 
 ### D3 acceptance matrix (do not mark untested items completed)
 
 | Criterion | Evidence/status |
 | --- | --- |
 | Authorized Gear edit, one-click publication | Owner pilot prior Gear PR #17 reached sandbox Live; source-level owner + idempotency cases exist. |
-| Authorized KB edit and return to status | Owner confirmed KB PR #18 **Live**; exact private GitHub merged source checked. |
+| Authorized KB edit and return to status | Owner confirmed KB PR #18 **Live**, and read-only D1 audit confirmed terminal state, exact source merge, seven transitions and release identity. |
 | Interrupted merge / restart recovery | Real PR #18 recovered through read-only merge evidence with no replay; stage-recovery tests included in source CI. |
-| Independently verified hosted bytes | Mandatory implementation guard for sandbox Live; fresh D1 release receipt still to be recorded. |
+| Independently verified hosted bytes | Mandatory implementation guard for sandbox Live, with its final `verified_release_id` and D1 terminal transition independently audited; no separate public V3 proof. |
 | Anonymous and wrong-owner denial | Source integration tests and private anonymous-route postflight checks; complete hosted negative-user test matrix still to be consolidated. |
 | Conflict, duplicate, stale base, lost acknowledgment | Source tests; broader real-device D3 acceptance not yet evidenced as complete. |
 | Installed Android Chrome PWA, OAuth return, sign-out, reload / navigation | Must be retested specifically in integrated D3 pilot; prior AUTH-P0/D2 tests do not automatically close this. |
@@ -57,7 +57,7 @@ Approved requirement: `V3-SAVE-09`, ordinary Gear/KB/Catch JSON+Markdown text-on
 
 ### Next evidence, rather than a new milestone chain
 
-- Record the exact read-only D1 receipt and event audit for PR #18; ensure the Gear/KB owner remains able to view the source and navigate away/return without lost status.
+- **Done:** record exact read-only D1 receipt and event audit for PR #18. **Still needed:** confirm Gear/KB owner can navigate away/return, restore a valid session, and inspect status without losing unsent changes.
 - Complete installed Android Chrome PWA auth/session/navigation and live owner negative-flow acceptance for D3; document pass/fail, not just unit tests.
 - Begin separately isolated source-only timing instrumentation and delivery-path feasibility; **do not activate a public writer, change origin/routing, merge public main, or release V3** without its distinct consequential approval.
 
