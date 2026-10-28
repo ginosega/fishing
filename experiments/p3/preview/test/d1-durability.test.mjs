@@ -73,3 +73,23 @@ test('P3-D07 receipt recovery rejects changed payload and owner/key mismatch',as
 function createStoreForOtherOwner(DB){
  return createD1OperationStore({DB,ownerGitHubId:987654321});
 }
+
+
+test('P3-D latest receipt is read-only, owner scoped and most recently accepted',async()=>{
+ const x=sandbox(),store=x.store();
+ assert.equal(await store.latest(),null);
+ const one=await store.accept({idempotencyKey:'first-owner-key-12345',
+  snapshot:sample});
+ x.clock(1);
+ const other=structuredClone(sample);other.package.id='second';
+ const two=await store.accept({idempotencyKey:'second-owner-key-12345',
+  snapshot:other});
+ const latest=await store.latest();
+ assert.equal(latest.operationId,two.operationId);
+ assert.equal(latest.state,'Accepted');
+ assert.equal((await store.events(one.operationId)).length,1);
+ assert.equal((await store.events(two.operationId)).length,1);
+ const foreign=createD1OperationStore({DB:x.DB,ownerGitHubId:778800});
+ assert.equal(await foreign.latest(),null);
+ assert.equal(x.sql.prepare('SELECT count(*) AS n FROM p3_events').get().n,2);
+});
