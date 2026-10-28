@@ -122,7 +122,7 @@ export function createD3GuardedOperationsApi({
 }={}){
   requireTrue(['describe','authorizeWrite','authorizeStatus'].every(x=>
     typeof session?.[x]==='function')&&
-    ['accept','get','lookupReceipt'].every(x=>typeof store?.[x]==='function')&&
+    ['accept','get','latest','lookupReceipt'].every(x=>typeof store?.[x]==='function')&&
     typeof validateCandidate==='function'&&typeof enabled==='function',
     'INVALID_CONFIG');
   async function handle(request){
@@ -196,6 +196,20 @@ export function createD3GuardedOperationsApi({
           duplicate:!row.inserted,
           statusPath:'/api/v3/operations/'+row.operationId,
           canonicalLive:false},row.inserted?202:200);
+      }
+      // The authenticated latest receipt is discoverable from any device.
+      // Unlike a browser-local operation ID, it survives a new Chrome
+      // profile or Android install without ever disclosing another owner's.
+      if(request.method==='GET'&&
+        url.pathname==='/api/v3/operations/latest'&&url.search===''){
+        const owner=await session.authorizeStatus(request);
+        requireTrue(owner?.authorized===true&&owner.ownerGitHubId===OWNER,
+          'STATUS_NOT_FOUND');
+        const found=await store.latest();
+        requireTrue(found===null||
+          (operationPattern.test(found?.operationId??'')&&
+           typeof found.state==='string'),'UNVERIFIED_SOURCE');
+        return respond({ok:true,operation:found,canonicalLive:false});
       }
       if(request.method==='GET'&&
         /^\/api\/v3\/operations\/[^/]+$/.test(url.pathname)&&
