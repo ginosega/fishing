@@ -65,7 +65,7 @@ function VerifyD1([switch]$AllowRecovery){
 }
 
 if(-not $ApproveMergeDiagnostics){throw 'Explicit one-time private Worker diagnostic approval required.'}
-if($ExpectedWorkerVersion -notmatch '^[0-9a-f-]{36}
+if($ExpectedWorkerVersion -notmatch '^[0-9a-f-]{36}$'){throw 'Exact current Worker version required.'}
 if($ExpectedHead -notmatch '^[0-9a-f]{40}$'){throw 'Exact 40-char reviewed SHA required.'}
 Push-Location $root
 try {
@@ -173,113 +173,4 @@ try {
  Write-Output ('D3_PILOT_SHA256: '+$now)
  Write-Output 'PASS: Field-level no-secret merge-verifier error codes deployed; no security guard relaxed.'
  Write-Output 'PASS: Public V2 unchanged; completed Gear/D2 plus blocked-or-recovered KB preserved; no replay.'
-}finally{Pop-Location}
-){throw 'Exact current Worker version required.'}
-if($ExpectedHead -notmatch '^[0-9a-f]{40}$'){throw 'Exact 40-char reviewed SHA required.'}
-Push-Location $root
-try {
- $head=(& git rev-parse HEAD).Trim()
- $branch=(& git branch --show-current).Trim()
- $dirty=@(& git status --porcelain --untracked-files=no)
- if($LASTEXITCODE -ne 0 -or $head -ne $ExpectedHead -or
-  $branch -ne 'feature/fish118-p3-mock-publisher' -or $dirty.Count -ne 0){
-  throw 'Wrong source branch, commit or tracked working tree changed.'
- }
-}finally{Pop-Location}
-if(-not (Test-Path -LiteralPath $oldConfig)){throw 'Original published D3 config not available.'}
-if(Test-Path -LiteralPath $newConfig){throw 'Diagnostic candidate already exists; do not retry blindly.'}
-$original=[IO.File]::ReadAllText($oldConfig)
-foreach($rule in @(
- '"name"\s*:\s*"fishing-auth-p0-test"',
- '"main"\s*:\s*"src/d3-owner-runtime\.mjs"',
- '"APP_ORIGIN"\s*:\s*"https://fishing-auth-p0-test\.ginosega\.workers\.dev"',
- '"D3_SANDBOX_REPO_ID"\s*:\s*"1430581407"',
- '"D2_GITHUB_APP_ID"\s*:\s*"5436811"',
- '"D3_GITHUB_APP_ID"\s*:\s*"5436811"',
- '"D2_GITHUB_INSTALLATION_ID"\s*:\s*"174361658"',
- '"D3_GITHUB_INSTALLATION_ID"\s*:\s*"174361658"',
- '"keep_vars"\s*:\s*true',
- '"workers_dev"\s*:\s*true',
- '"preview_urls"\s*:\s*false',
- '"binding"\s*:\s*"DB"',
- '"binding"\s*:\s*"OPERATIONS_DB"',
- '"crons"\s*:\s*\[\s*"\*/5 \* \* \* \*"\s*\]'
-)){One $original $rule $rule}
-One $original ('"D3_PILOT_SHA256"\s*:\s*"'+$oldSha+'"') 'Original pilot identity'
-foreach($name in @('D3_WRITE_ENABLED','D3_RUNNER_ENABLED','D3_TEST_HOST_ENABLED','D3_READ_TOKENS_ENABLED','D3_PILOT_ENABLED')){
- One $original ('"'+$name+'"\s*:\s*"true"') "$name must remain ON"
-}
-foreach($name in @('D2_WRITE_ENABLED','D2_RUNNER_ENABLED','D2_READ_TOKENS_ENABLED','D2_TEST_HOST_ENABLED')){
- One $original ('"'+$name+'"\s*:\s*"false"') "$name must remain OFF"
-}
-if([regex]::Matches($original,'"database_id"\s*:\s*"[a-f0-9-]{36}"').Count -ne 2 -or $original.Contains('REPLACE_WITH_')){
- throw 'Expected pinned D1 bindings missing.'
-}
-foreach($secret in @('D2_CSRF_KEY','D2_GITHUB_APP_PRIVATE_KEY','D2_HOST_PROBE_KEY','GITHUB_CLIENT_SECRET')){
- if($original -match ('"'+$secret+'"\s*:\s*"')){throw 'Plaintext secret in local config.'}
-}
-Push-Location (Join-Path $root 'pwa')
-try {
- & node tools/build-d3-pilot.mjs --check
- if($LASTEXITCODE -ne 0){throw 'Owner pilot bundle failed.'}
- & node tools/verify-d3-windows-eol.mjs
- if($LASTEXITCODE -ne 0){throw 'Windows parity failed.'}
- & node tools/verify-d3-csp.mjs
- if($LASTEXITCODE -ne 0){throw 'Strict CSP check failed.'}
- & node tools/verify-d3-runtime.mjs
- if($LASTEXITCODE -ne 0){throw 'Private Worker bundle validation failed.'}
-}finally{Pop-Location}
-$metadata=Get-Content -LiteralPath $meta -Raw | ConvertFrom-Json
-$now=(Get-FileHash -LiteralPath $bundle -Algorithm SHA256).Hash.ToLowerInvariant()
-if($metadata.format -ne 'fishing-d3-pilot-local-build-v1' -or
- $now -ne $newSha -or $metadata.sha256 -ne $newSha -or
- $metadata.bytes -ne (Get-Item -LiteralPath $bundle).Length){
- throw 'New diagnostic client bundle cannot be verified.'
-}
-$proposed=$original.Replace($oldSha,$newSha)
-if($proposed -ceq $original -or $proposed.Contains('REPLACE_WITH_') -or
- [regex]::Matches($proposed,'"D3_PILOT_SHA256"\s*:\s*"'+$newSha+'"').Count -ne 1){
- throw 'Refuse config change beyond the exact reviewed private pilot hash.'
-}
-[IO.File]::WriteAllText($newConfig,$proposed,(New-Object Text.UTF8Encoding($false)))
-Push-Location $preview
-try {
- if((LiveVersion) -ne $oldVersion){throw 'Unexpected deployed Worker version; refuse replacement.'}
- $public=PublicHash
- VerifyD1
- foreach($route in @('/__d3_pilot__/','/__d3_pilot__/pilot.js','/api/v3/authoring-source')){
-  if((Status $route) -ne 401){throw "Unexpected anonymous private route: $route"}
- }
- $oldPost=Status '/api/v3/operations' 'POST'
- if(@(401,403,415) -notcontains $oldPost){
-  throw 'Existing D3 POST unexpectedly permits anonymous write.'
- }
- $tmp=Join-Path $env:TEMP ('fishing-d3-sequential-kb-fix-'+[guid]::NewGuid().ToString('N'))
- try {
-  $output=@(& npx.cmd --yes wrangler@4.153.0 deploy --dry-run --config $newConfig --outdir $tmp)
-  if($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $tmp)){
-   throw 'Wrangler dry-run failed. No deployment.'
-  }
- }finally{if(Test-Path -LiteralPath $tmp){Remove-Item -LiteralPath $tmp -Force -Recurse}}
- VerifyD1
- if((LiveVersion) -ne $oldVersion -or (PublicHash) -ne $public){
-  throw 'Live Worker or public V2 changed during preflight.'
- }
- Write-Output 'PASS: Exact source, only pilot digest changed, two Live D1 receipts, Worker and dry-run.'
- # Single approved code-refresh deployment, no automatic retry on ambiguity.
- & npx.cmd --yes wrangler@4.153.0 deploy --config $newConfig
- if($LASTEXITCODE -ne 0){throw 'Deployment outcome uncertain; do not retry.'}
- $nextVersion=LiveVersion
- if($nextVersion -eq $oldVersion){throw 'Expected new Worker version not observed.'}
- foreach($route in @('/__d3_pilot__/','/__d3_pilot__/pilot.js','/api/v3/authoring-source')){
-  if((Status $route) -ne 401){throw "Anonymous private route no longer denied: $route"}
- }
- $post=Status '/api/v3/operations' 'POST'
- if(@(401,403,415) -notcontains $post){throw 'Anonymous POST denied invariant failed.'}
- if((PublicHash) -ne $public){throw 'Public V2 homepage changed.'}
- VerifyD1
- Write-Output ('SAFE_D3_SEQUENTIAL_KB_FIX_VERSION: '+$nextVersion)
- Write-Output ('D3_PILOT_SHA256: '+$now)
- Write-Output 'PASS: Sequential publication and near-button feedback deployed; permissions and Cron unchanged.'
- Write-Output 'PASS: Public V2 unchanged; both D2 and D3 remain Live; no operations replayed.'
 }finally{Pop-Location}
