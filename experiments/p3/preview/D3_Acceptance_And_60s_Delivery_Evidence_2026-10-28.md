@@ -58,7 +58,7 @@ Approved requirement: `V3-SAVE-09`, ordinary Gear/KB/Catch JSON+Markdown text-on
 ### Next evidence, rather than a new milestone chain
 
 - **Done:** record exact read-only D1 receipt and event audit for PR #18. **Still needed:** confirm Gear/KB owner can navigate away/return, restore a valid session, and inspect status without losing unsent changes.
-- Complete installed Android Chrome PWA auth/session/navigation and live owner negative-flow acceptance for D3; document pass/fail, not just unit tests.
+- Execute the [prepared owner-device acceptance checklist](D3_Owner_Device_Acceptance_2026-10-28.md). Start with Android Chrome's real private pilot route and OAuth return; record each PASS/FAIL/GAP. **A browser tab does not prove installed Android PWA integration**, because the current pilot route is outside `/fishing/` scope. Integrated installed-PWA D3 remains pending. Avoid unnecessary re-publication.
 - Begin separately isolated source-only timing instrumentation and delivery-path feasibility; **do not activate a public writer, change origin/routing, merge public main, or release V3** without its distinct consequential approval.
 
 This report is an evidence checkpoint, **not** a sign-off on D3, D4, D5, D6, or `V3-SAVE-09`.
