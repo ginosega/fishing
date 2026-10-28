@@ -47,6 +47,8 @@ function verifier({bad={},token=false,enabled=true}={}){
    assert.equal(options.method,'GET');
    assert.equal(options.redirect,'manual');
    assert.equal(options.headers.Authorization,'Bearer read-only-test-token');
+   if(url===API+'/pulls/'+PR+'/merge')return {ok:bad.mergeStatus===undefined||bad.mergeStatus===204,
+    status:bad.mergeStatus??204,redirected:false};
    if(!(url in responses))throw Error('Unexpected remote URL');
    return rj(responses[url]);
   },
@@ -62,12 +64,12 @@ test('D3-RC01 read-only observer independently proves exact merged PR, parent, f
  assert.deepEqual(r,{verified:true,repositoryId:ID,operationId:OP,
   prNumber:PR,prHeadSha:HEAD,mainBaseSha:BASE,mergeSha:MERGE,
   workflowRunId:RUN,canonicalLive:false});
- assert.equal(x.trace.filter(s=>s.startsWith('GET ')).length,6);
+ assert.equal(x.trace.filter(s=>s.startsWith('GET ')).length,7);
  assert.equal(x.trace.filter(s=>s!=='read-token'&&!s.startsWith('GET ')).length,0);
 });
 test('D3-RC02 open PR or moving main, wrong base/branch, wrong files or multi-parent fails closed',async()=>{
  for(const bad of [
-  {pr:{state:'open'}},{pr:{merged:false}},
+  {pr:{state:'open'}},{mergeStatus:404},{mergeStatus:403},{mergeStatus:200},
   {pr:{merge_commit_sha:'f'.repeat(40)}},
   {pr:{head:{repo:{id:ID},ref:'malicious',sha:HEAD}}},
   {main:{object:{sha:'f'.repeat(40)}}},
@@ -155,6 +157,7 @@ test('D3-RC04 scheduled coordinator verifies completed merge via GET only, no fr
  const coordinator=createD3SandboxScheduledCoordinator({
   env,store,requestGitHub:async(url,opts)=>{
    trace.push(opts.method);assert.equal(opts.method,'GET');
+   if(url===API+'/pulls/'+PR+'/merge')return {ok:true,status:204,redirected:false};
    return rj(repo[url]);
   },
   issueReadToken:async arg=>({repositoryId:ID,
@@ -165,7 +168,7 @@ test('D3-RC04 scheduled coordinator verifies completed merge via GET only, no fr
  const result=await coordinator.tick();
  assert.equal(result.state,'Deploying');
  assert.equal(result.reconciled,true);
- assert.equal(trace.filter(x=>x==='GET').length,6);
+ assert.equal(trace.filter(x=>x==='GET').length,7);
  assert.equal(trace.at(-1),'d1-CAS');
 });
 
@@ -193,7 +196,7 @@ test('D3-RC05 live PR #18 exact squash and both KB files pass read-only evidence
  const receipt={repositoryId:ID,operationId:op,prNumber:18,
   prHeadSha:head,mainBaseSha:base,workflowRunId:40600896518,
   expectedPaths:paths};
- let reads=0;
+ let reads=0,mergeStatus=204;
  const instance=createD3MergedReceiptVerifier({
   enabled:()=>true,
   issueReadToken:async()=>({repositoryId:ID,
@@ -201,6 +204,10 @@ test('D3-RC05 live PR #18 exact squash and both KB files pass read-only evidence
    permissions:{checks:'read',contents:'read',pull_requests:'read'}}),
   request:async (url,options)=>{
    assert.equal(options.method,'GET');
+   if(url===API+'/pulls/18/merge'){
+    reads++;
+    return {ok:mergeStatus===204,status:mergeStatus,redirected:false};
+   }
    assert.ok(url in responses,'unexpected URL '+url);
    reads++;
    return rj(responses[url]);
@@ -209,16 +216,27 @@ test('D3-RC05 live PR #18 exact squash and both KB files pass read-only evidence
  const result=await instance.verify(receipt);
  assert.equal(result.mergeSha,merged);
  assert.equal(result.canonicalLive,false);
- assert.equal(reads,6);
+ assert.equal(reads,7);
  // No weakening of merge guards: discrepancies are specific and fail closed.
  for(const [field,value,errorCode] of [
-   ['number',19,'PR_MERGE_STATE_MISMATCH'],
-   ['state','open','PR_MERGE_STATE_MISMATCH'],
-   ['merged',false,'PR_MERGE_STATE_MISMATCH'],
+   ['number',19,'PR_NUMBER_MISMATCH'],
+   ['state','open','PR_NOT_CLOSED'],
+   ['merge_commit_sha',null,'PR_MERGE_SHA_MISSING'],
  ]){
   responses[API+'/pulls/18']={...pr,[field]:value};
   await assert.rejects(instance.verify(receipt),refused(errorCode));
  }
+ // The 204 merged-status proof is authoritative even when GitHub PR
+ // summary fields are stale/omitted; all immutable evidence is still checked.
+ responses[API+'/pulls/18']={...pr,merged:false,merged_at:null};
+ assert.equal((await instance.verify(receipt)).mergeSha,merged);
+ for(const code of [404,403,200]){
+  mergeStatus=code;
+  await assert.rejects(instance.verify(receipt),
+   refused('PR_MERGE_STATUS_UNVERIFIED'));
+ }
+ mergeStatus=204;
+ responses[API+'/pulls/18']=pr;
  for(const [alter,errorCode] of [
   [{head:{...pr.head,repo:{id:123}}},'PR_HEAD_REPOSITORY_MISMATCH'],
   [{base:{...pr.base,repo:{id:123}}},'PR_BASE_REPOSITORY_MISMATCH'],
