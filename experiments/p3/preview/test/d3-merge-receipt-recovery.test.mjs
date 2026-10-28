@@ -8,7 +8,7 @@ import {createD3SandboxScheduledCoordinator}
 const ID=1430581407,OWNER=265665562;
 const OP='p3_01234567-1234-4234-8234-123456789abc';
 const BASE='a'.repeat(40),HEAD='b'.repeat(40),MERGE='c'.repeat(40);
-const RUN=40565214328,PR=17;
+const RUN=40565214328,PR=17,TREE='d'.repeat(40);
 const API='https://api.github.com/repos/ginosega/fishing-p3-sandbox';
 const branch='p3-test-'+OP.slice(3);
 const expected=['pwa/Gear/gear.json'];
@@ -17,9 +17,11 @@ const good={
    merge_commit_sha:MERGE,head:{repo:{id:ID},ref:branch,sha:HEAD},
    base:{repo:{id:ID},ref:'main',sha:BASE}},
   main:{object:{sha:MERGE}},
+  headCommit:{sha:HEAD,tree:{sha:TREE},parents:[{sha:BASE}]},
   commit:{sha:MERGE,parents:[{sha:BASE}],
    files:[{filename:expected[0],status:'modified'}],
-   commit:{message:'FISH118 D3 isolated sandbox Gear/KB publication'}},
+   commit:{tree:{sha:TREE},
+    message:'FISH118 D3 isolated sandbox Gear/KB publication'}},
 };
 const rj=obj=>({ok:true,status:200,redirected:false,
  json:async()=>structuredClone(obj)});
@@ -30,6 +32,7 @@ function verifier({bad={},token=false,enabled=true}={}){
   [API+'/pulls/'+PR]:{...good.pr,...bad.pr},
   [API+'/git/ref/heads/main']:{...good.main,...bad.main},
   [API+'/commits/'+MERGE+'?per_page=100']:{...good.commit,...bad.commit},
+  [API+'/git/commits/'+HEAD]:{...good.headCommit,...bad.headCommit},
   ...bad.responses,
  };
  const instance=createD3MergedReceiptVerifier({
@@ -64,13 +67,16 @@ test('D3-RC01 read-only observer independently proves exact merged PR, parent, f
  assert.deepEqual(r,{verified:true,repositoryId:ID,operationId:OP,
   prNumber:PR,prHeadSha:HEAD,mainBaseSha:BASE,mergeSha:MERGE,
   workflowRunId:RUN,canonicalLive:false});
- assert.equal(x.trace.filter(s=>s.startsWith('GET ')).length,7);
+ assert.equal(x.trace.filter(s=>s.startsWith('GET ')).length,9);
  assert.equal(x.trace.filter(s=>s!=='read-token'&&!s.startsWith('GET ')).length,0);
 });
 test('D3-RC02 open PR or moving main, wrong base/branch, wrong files or multi-parent fails closed',async()=>{
  for(const bad of [
   {pr:{state:'open'}},{mergeStatus:404},{mergeStatus:403},{mergeStatus:200},
   {pr:{merge_commit_sha:'f'.repeat(40)}},
+  {headCommit:{tree:{sha:'e'.repeat(40)}}},
+  {headCommit:{parents:[{sha:'e'.repeat(40)}]}},
+  {commit:{commit:{tree:{sha:'e'.repeat(40)},message:'FISH118 D3 isolated sandbox Gear/KB publication'}}},
   {pr:{head:{repo:{id:ID},ref:'malicious',sha:HEAD}}},
   {main:{object:{sha:'f'.repeat(40)}}},
   {commit:{parents:[{sha:'f'.repeat(40)}]}},
@@ -133,6 +139,7 @@ test('D3-RC04 scheduled coordinator verifies completed merge via GET only, no fr
   [API]:{id:ID,full_name:'ginosega/fishing-p3-sandbox',private:true},
   [API+'/pulls/'+PR]:good.pr,[API+'/git/ref/heads/main']:good.main,
   [API+'/commits/'+MERGE+'?per_page=100']:good.commit,
+  [API+'/git/commits/'+HEAD]:good.headCommit,
  };
  const store={
   nextRecoverableMerge:async()=>OP,
@@ -168,7 +175,7 @@ test('D3-RC04 scheduled coordinator verifies completed merge via GET only, no fr
  const result=await coordinator.tick();
  assert.equal(result.state,'Deploying');
  assert.equal(result.reconciled,true);
- assert.equal(trace.filter(x=>x==='GET').length,7);
+ assert.equal(trace.filter(x=>x==='GET').length,9);
  assert.equal(trace.at(-1),'d1-CAS');
 });
 
@@ -178,6 +185,7 @@ test('D3-RC05 live PR #18 exact squash and both KB files pass read-only evidence
  const head='9276f35348e43a23c72208f3b2134e28554382fd';
  const merged='97f68efc932084f2e607480c12cee37a94f81758';
  const paths=['pwa/KB/kb.json','pwa/KB/Locations/content/P3 Test Lake.md'];
+ const tree='dc90f7c4fdad86b79baa791af7e6f2b54c66711c';
  const pr={number:18,state:'closed',merged:true,
    merged_at:'2026-10-27T23:25:43Z',merge_commit_sha:merged,
    head:{repo:{id:ID},ref:'p3-test-'+op.slice(3),sha:head},
@@ -186,11 +194,13 @@ test('D3-RC05 live PR #18 exact squash and both KB files pass read-only evidence
   [API]:{id:ID,full_name:'ginosega/fishing-p3-sandbox',private:true},
   [API+'/pulls/18']:pr,
   [API+'/git/ref/heads/main']:{object:{sha:merged}},
+  [API+'/git/commits/'+head]:{
+    sha:head,tree:{sha:tree},parents:[{sha:base}]},
   [API+'/commits/'+merged+'?per_page=100']:{
     sha:merged,parents:[{sha:base}],
     files:[{filename:paths[1],status:'modified'},
      {filename:paths[0],status:'modified'}],
-    commit:{message:'FISH118 D3 isolated sandbox Gear/KB publication\\n\\nOwner-authorized sandbox-only text; no public canonical content'},
+    commit:{tree:{sha:tree},message:'FISH118 D3 isolated sandbox Gear/KB publication\\n\\nOwner-authorized sandbox-only text; no public canonical content'},
   },
  };
  const receipt={repositoryId:ID,operationId:op,prNumber:18,
@@ -216,20 +226,36 @@ test('D3-RC05 live PR #18 exact squash and both KB files pass read-only evidence
  const result=await instance.verify(receipt);
  assert.equal(result.mergeSha,merged);
  assert.equal(result.canonicalLive,false);
- assert.equal(reads,7);
+ assert.equal(reads,9);
  // No weakening of merge guards: discrepancies are specific and fail closed.
  for(const [field,value,errorCode] of [
    ['number',19,'PR_NUMBER_MISMATCH'],
    ['state','open','PR_NOT_CLOSED'],
-   ['merge_commit_sha',null,'PR_MERGE_SHA_MISSING'],
+   ['merge_commit_sha','f'.repeat(40),'PR_MERGE_SHA_CONFLICT'],
  ]){
   responses[API+'/pulls/18']={...pr,[field]:value};
   await assert.rejects(instance.verify(receipt),refused(errorCode));
  }
  // The 204 merged-status proof is authoritative even when GitHub PR
  // summary fields are stale/omitted; all immutable evidence is still checked.
- responses[API+'/pulls/18']={...pr,merged:false,merged_at:null};
+ responses[API+'/pulls/18']={...pr,merged:false,merged_at:null,merge_commit_sha:null};
  assert.equal((await instance.verify(receipt)).mergeSha,merged);
+ // The hosted App can omit the merged SHA entirely. Tree equality ties
+ // the immutable PR head to current main, while 204 must remain valid.
+ responses[API+'/pulls/18']={...pr,merge_commit_sha:undefined};
+ assert.equal((await instance.verify(receipt)).mergeSha,merged);
+ responses[API+'/pulls/18']={...pr,merge_commit_sha:null};
+ responses[API+'/commits/'+merged+'?per_page=100']={
+  ...responses[API+'/commits/'+merged+'?per_page=100'],
+  commit:{tree:{sha:'f'.repeat(40)},
+   message:'FISH118 D3 isolated sandbox Gear/KB publication'},
+ };
+ await assert.rejects(instance.verify(receipt),refused('MERGE_COMMIT_NOT_EXACT'));
+ responses[API+'/commits/'+merged+'?per_page=100']={
+  ...responses[API+'/commits/'+merged+'?per_page=100'],
+  commit:{tree:{sha:tree},
+   message:'FISH118 D3 isolated sandbox Gear/KB publication'},
+ };
  for(const code of [404,403,200]){
   mergeStatus=code;
   await assert.rejects(instance.verify(receipt),
