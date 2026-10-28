@@ -85,7 +85,8 @@ jobs:
             'experiments/p3/preview/tools/deploy-d3-sequential-kb-fix.ps1',
             'experiments/p3/preview/tools/deploy-d3-pr-merge-diagnostics.ps1',
             'experiments/p3/preview/tools/deploy-d3-readonly-merge-status-fix.ps1',
-            'experiments/p3/preview/tools/deploy-d3-merge-tree-recovery.ps1'
+            'experiments/p3/preview/tools/deploy-d3-merge-tree-recovery.ps1',
+            'experiments/p3/preview/tools/audit-d3-kb-pr18-readonly.ps1'
           )
           foreach ($scriptFile in $operatorScripts) {
           $tokens = $null
