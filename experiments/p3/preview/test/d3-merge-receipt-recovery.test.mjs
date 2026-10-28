@@ -168,3 +168,66 @@ test('D3-RC04 scheduled coordinator verifies completed merge via GET only, no fr
  assert.equal(trace.filter(x=>x==='GET').length,6);
  assert.equal(trace.at(-1),'d1-CAS');
 });
+
+test('D3-RC05 live PR #18 exact squash and both KB files pass read-only evidence',async()=>{
+ const op='p3_5527208d-a67c-4a2c-876d-9edaee353bc8';
+ const base='7418cc15e5e392b6e52a48eb533804a5055ca8d7';
+ const head='9276f35348e43a23c72208f3b2134e28554382fd';
+ const merged='97f68efc932084f2e607480c12cee37a94f81758';
+ const paths=['pwa/KB/kb.json','pwa/KB/Locations/content/P3 Test Lake.md'];
+ const pr={number:18,state:'closed',merged:true,
+   merged_at:'2026-10-27T23:25:43Z',merge_commit_sha:merged,
+   head:{repo:{id:ID},ref:'p3-test-'+op.slice(3),sha:head},
+   base:{repo:{id:ID},ref:'main',sha:base}};
+ const responses={
+  [API]:{id:ID,full_name:'ginosega/fishing-p3-sandbox',private:true},
+  [API+'/pulls/18']:pr,
+  [API+'/git/ref/heads/main']:{object:{sha:merged}},
+  [API+'/commits/'+merged+'?per_page=100']:{
+    sha:merged,parents:[{sha:base}],
+    files:[{filename:paths[1],status:'modified'},
+     {filename:paths[0],status:'modified'}],
+    commit:{message:'FISH118 D3 isolated sandbox Gear/KB publication\\n\\nOwner-authorized sandbox-only text; no public canonical content'},
+  },
+ };
+ const receipt={repositoryId:ID,operationId:op,prNumber:18,
+  prHeadSha:head,mainBaseSha:base,workflowRunId:40600896518,
+  expectedPaths:paths};
+ let reads=0;
+ const instance=createD3MergedReceiptVerifier({
+  enabled:()=>true,
+  issueReadToken:async()=>({repositoryId:ID,
+   token:'sandbox-read-test-token-18',
+   permissions:{checks:'read',contents:'read',pull_requests:'read'}}),
+  request:async (url,options)=>{
+   assert.equal(options.method,'GET');
+   assert.ok(url in responses,'unexpected URL '+url);
+   reads++;
+   return rj(responses[url]);
+  },
+ });
+ const result=await instance.verify(receipt);
+ assert.equal(result.mergeSha,merged);
+ assert.equal(result.canonicalLive,false);
+ assert.equal(reads,6);
+ // No weakening of merge guards: discrepancies are specific and fail closed.
+ for(const [field,value,errorCode] of [
+   ['number',19,'PR_MERGE_STATE_MISMATCH'],
+   ['state','open','PR_MERGE_STATE_MISMATCH'],
+   ['merged',false,'PR_MERGE_STATE_MISMATCH'],
+ ]){
+  responses[API+'/pulls/18']={...pr,[field]:value};
+  await assert.rejects(instance.verify(receipt),refused(errorCode));
+ }
+ for(const [alter,errorCode] of [
+  [{head:{...pr.head,repo:{id:123}}},'PR_HEAD_REPOSITORY_MISMATCH'],
+  [{base:{...pr.base,repo:{id:123}}},'PR_BASE_REPOSITORY_MISMATCH'],
+  [{base:{...pr.base,ref:'other'}},'PR_BASE_REF_MISMATCH'],
+  [{head:{...pr.head,ref:'other'}},'PR_HEAD_BRANCH_MISMATCH'],
+  [{head:{...pr.head,sha:'f'.repeat(40)}},'PR_HEAD_SHA_MISMATCH'],
+  [{base:{...pr.base,sha:'f'.repeat(40)}},'PR_BASE_SHA_MISMATCH'],
+ ]){
+  responses[API+'/pulls/18']={...pr,...alter};
+  await assert.rejects(instance.verify(receipt),refused(errorCode));
+ }
+});
