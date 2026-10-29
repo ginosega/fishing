@@ -6,8 +6,10 @@ import {applyCatchField,catchFieldValue,speciesCatchChoices,
 import {validateRecords} from '../src/validation.mjs';
 import {suggestedCatchId} from '../src/catch-editor.mjs';
 const entries=[
- {id:'species-test-bass',name:'Test Bass',type:'species'},
- {id:'location-test-lake',name:'Test Lake',type:'location'},
+ {id:'species-test-bass',name:'Test Bass',type:'species',
+  content:'KB/Species/content/Test Bass.md'},
+ {id:'location-test-lake',name:'Test Lake',type:'location',
+  content:'KB/Locations/content/Test Lake.md'},
 ];
 const gear=[{id:'p3-test-spinner',category:'lures',type:'Spoons',
  name:'Test Spinner'}];
