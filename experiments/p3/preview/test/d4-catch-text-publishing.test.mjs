@@ -14,8 +14,10 @@ const source={
  gear:{schemaVersion:2,items:[{id:'test-spoon',category:'lures',
   name:'Synthetic Spoon',type:'Spoons'}]},
  kb:{schemaVersion:2,entities:[
-  {id:'species-test-trout',type:'species',name:'Synthetic Trout'},
-  {id:'location-test-lake',type:'location',name:'Synthetic Lake'},
+  {id:'species-test-trout',type:'species',name:'Synthetic Trout',
+   content:'KB/Species/content/Synthetic Trout.md'},
+  {id:'location-test-lake',type:'location',name:'Synthetic Lake',
+   content:'KB/Locations/content/Synthetic Lake.md'},
  ]},
  catches:{schemaVersion:2,catches:[{id:'catch-test-existing',
   date:'2026-10-01',time:'09:15',size:'12 in',
@@ -24,8 +26,16 @@ const source={
   lureOrBaitId:'test-spoon',
   notes:'Catches/content/catch-test-existing.md'}]},
 };
-const existingFiles=new Set(['Catches/content/catch-test-existing.md']);
-const existingMarkdown=new Map([['Catches/content/catch-test-existing.md',NOTE]]);
+const existingFiles=new Set([
+ 'Catches/content/catch-test-existing.md',
+ 'KB/Species/content/Synthetic Trout.md',
+ 'KB/Locations/content/Synthetic Lake.md',
+]);
+const existingMarkdown=new Map([
+ ['Catches/content/catch-test-existing.md',NOTE],
+ ['KB/Species/content/Synthetic Trout.md','# Synthetic Trout\n'],
+ ['KB/Locations/content/Synthetic Lake.md','# Synthetic Lake\n'],
+]);
 const makeContext=(data=source,files=existingFiles)=>({
  data:structuredClone(data),base:'https://fishing.example/fishing/releases/fixture/content/',
  release:{sourceRevision:SHA},v3:{source:{
