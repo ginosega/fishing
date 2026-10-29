@@ -32,8 +32,9 @@ function V2Hash {
  $r=Invoke-WebRequest ($origin+'/fishing/') -TimeoutSec 25 -UseBasicParsing
  Assert ($r.StatusCode -eq 200) 'Public V2 unavailable'
  $b=[Text.Encoding]::UTF8.GetBytes([string]$r.Content)
- $h=[Security.Cryptography.SHA256]::HashData($b)
- return [Convert]::ToHexString($h)
+ $sha=[Security.Cryptography.SHA256]::Create()
+ try{return [BitConverter]::ToString($sha.ComputeHash($b)).Replace('-','').ToLowerInvariant()}
+ finally{$sha.Dispose()}
 }
 Push-Location $root
 try {
