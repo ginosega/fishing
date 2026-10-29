@@ -94,3 +94,22 @@ Independent GitHub PR #21: https://github.com/ginosega/fishing-p3-sandbox/pull/2
 - Optimized proof run #40924064274 completed **~14 seconds** (17:43:38–17:43:52 UTC). Git filtered sparse clone phase ~17:43:44.67–17:43:45.57 UTC (~0.9s). Both passed full unaltered canonical validation, including Git identity/ancestry/diff, same exact pinned trusted validator SHA and `npm ci` from trusted lockfile. On proof PR, canonical inventory passed (`gear=1`, `kb=1`, `catches=0`, 4 files).
 - **Observed gain:** ~16s on whole CI workflow, ~14.4s on trusted checkout. This is one standalone proof run, not yet replicated over multiple actual user publications; runner/network variance can affect future performance. User's last Save→Live was 72s; subtracting 16s **hypothetically** gives 56s, not evidence of compliant public ≤60s SLA.
 - **Next:** one normal owner-authenticated synthetic P3 Test Lake publication in private pilot; measure user click→Live and read-only D1 state transition audit. Verify hosted bytes, exact PR SHA, Webhook Recent Deliveries `accepted` separately. Do not change public V2 or infer public V3 rollout readiness.
+
+## First measured ≤60-second owner publication — sandbox PR #26 (October 29, 2026)
+
+**Owner-measured result:** Save & Publish → Connection Status **Live in 59 seconds**, the first observed private-sandbox run meeting the owner's normal-operation **≤60-second** target. The owner also reports GitHub webhook Recent Deliveries **HTTP 202** and response `{"ok":true,"accepted":true}`. The signed GitHub check webhook matched an eligible Checking operation and armed its named-operation watchdog (not a claim that this notification itself proved CI or caused the merge).
+
+**Independent GitHub evidence:** Sandbox content PR #26 https://github.com/ginosega/fishing-p3-sandbox/pull/26; operation `p3_23bf8ff9-c95b-40ba-9c1d-b4463b2e6489`; head `3591e7605090b08c8b4b717fe0faca9392320a5d`; base `e93589414fee07ad126b3114e2f97679154964e1`; exact squash merge/main `45f3d5da6aa797d01be61b3078585ea4449bcf91`. Only `pwa/KB/kb.json` and `pwa/KB/Locations/content/P3 Test Lake.md` changed.
+
+| Milestone | 2026-10-29 PDT | Delta |
+| --- | --- | --- |
+| PR #26 created | 10:47:56 | – |
+| Workflow created | 10:48:01 | +5s from PR |
+| Check run started | 10:48:04 | +3s |
+| Exact-head check run completed success | 10:48:13 | 9s check duration; 12s workflow end-to-end |
+| GitHub PR merged | 10:48:27 | 14s after CI workflow completed; 31s PR→merge |
+
+- Initial optimized validation workflow [run #40924758753](https://github.com/ginosega/fishing-p3-sandbox/actions/runs/40924758753) succeeded, created 17:48:01Z, completed 17:48:13Z. Single `validate-sandbox-head` success check-run ID `123627179179`, GitHub Actions App ID `15368`. No duplicate post-merge ready-for-review run appeared for this publication.
+- Compared with the pre-optimization run PR #21: workflow 30s→12s; PR creation→merge 45s→31s. Owner-observed Save→Live 72s→59s (13 seconds faster). The new E2E measurement is one pass with a **1-second margin**; private sandbox evidence cannot establish a reliable production-public-site SLA.
+- D1 transition audit for operation #26 has **not yet been supplied**. Exact stage durations, durable independent hosted-release verification time, and original-lease merge branch usage require primary read-only D1 evidence. GitHub PR merge and UI Live alone cannot substitute for the underlying complete D1/hosted verification audit.
+- Next steps: request one read-only `p3_events` audit for #26 to reconcile 59s, confirm exact D1 Live and post-merge dwell. Add a small statistically meaningful repeat-sample criterion with no unauthorized self-publishing; retain disabled/public-V2 invariants and address upcoming Connection Status auto-poll approved requirement separately. Do not claim V3 cutover complete.
