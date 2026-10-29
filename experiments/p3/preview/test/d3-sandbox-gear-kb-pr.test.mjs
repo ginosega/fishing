@@ -211,7 +211,7 @@ test('D4-P01 source-verified Catch JSON and Markdown use exact scoped Git blobs'
   JSON.parse(r.body).content,'base64').toString()),
   [catchJson.body,catchMd.body]);
  assert(x.trace.every(r=>r.url.startsWith(API)));
- assert(!x.trace.some(r=>/\\/merge$/.test(r.url)));
+ assert(!x.trace.some(r=>/\/merge$/.test(r.url)));
 });
 test('D4-P02 Catch draft PR rejects mislocated or extra-path writes',async()=>{
  const canonical={action:'write',path:'pwa/Catches/catches.json',
