@@ -62,6 +62,16 @@ function submission(raw){
   requireTrue(plain(snapshot)&&
     Object.keys(snapshot).sort().join(',')==='media,package'&&
     Array.isArray(snapshot.media)&&snapshot.media.length<=24&&
+    snapshot.media.every(t=>plain(t)&&
+     Object.keys(t).sort().join(',')===
+     'blobSha,bytes,expiresAt,mime,path,sha256,signature'&&
+     typeof t.path==='string'&&t.path.length<=240&&
+     Number.isSafeInteger(t.bytes)&&t.bytes>0&&
+     t.bytes<=10*1024*1024&&
+     /^[a-f0-9]{40}$/.test(t.blobSha)&&
+     /^[a-f0-9]{64}$/.test(t.sha256)&&
+     /^[A-Za-z0-9_-]{43}$/.test(t.signature)&&
+     Number.isSafeInteger(t.expiresAt)&&typeof t.mime==='string')&&
     plain(pkg)&&pkg.format==='fishing-companion-change-v2'&&
     ['gear','kb','catches'].includes(pkg.domain)&&
     ['add','edit'].includes(pkg.operation)&&
