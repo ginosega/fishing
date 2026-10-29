@@ -3,6 +3,7 @@ import {DOMAIN,GEAR_CATEGORIES,KB_TYPES,ROD_TYPES,sortGear,sortNames,sortCatches
 import {TAXONOMY} from './validation.mjs';
 import {parseMarkdown,sanitizeHtml,markdownRouteMap} from './markdown.mjs';
 import {createEditor} from './editor.mjs';
+import {createCatchEditor} from './catch-editor.mjs';
 import {openViewer,openSequenceViewer} from './viewer.mjs';
 import {createOffline} from './offline.mjs';
 import {createD3ConnectionController,mountD3ConnectionPanel} from './v3-connection.mjs';
@@ -113,15 +114,27 @@ export function createApp(ctx){
   }else{
    await appendMarkdown(page,record.content,'Notes');
   }
-  const history=historySection(domain,record);if(history)page.append(history);if(canAuthor())page.append(anchor('Edit item',domain==='gear'?`#/inventory/edit/${record.id}`:`#/kb/edit/${record.id}`,'page-edit-link'));return page;
+  const history=historySection(domain,record);if(history)page.append(history);if(canAuthor()&&(domain!=='catches'||v3Mode))page.append(anchor('Edit item',domain==='gear'?`#/inventory/edit/${record.id}`:domain==='kb'?`#/kb/edit/${record.id}`:`#/catches/edit/${record.id}`,'page-edit-link'));return page;
  }
- function renderCatches(){const page=frame('Recorded catches','#/');page.append(el('div',{class:'record-grid'},...sortCatches(ctx.data.catches.catches).map(c=>recordCard('catches',c))));return page;}
+ function renderCatches(){const page=frame('Recorded catches','#/');if(v3Mode&&canAuthor())page.querySelector('.page-actions').prepend(anchor('Add Catch','#/catches/add','page-edit-link'));page.append(el('div',{class:'record-grid'},...sortCatches(ctx.data.catches.catches).map(c=>recordCard('catches',c))));return page;}
  async function renderEditor(domain,id,category,type){if(!canAuthor())return missing('Owner sign-in is required to edit. Open Connection Status to sign in.',rootRoute(domain));const record=id?ctx.maps[domain].get(id):null;if(id&&!record)return missing('This item does not exist or its ID has been retired.',rootRoute(domain));const fallback=categoryRoute(domain,domain==='gear'?category:type);const origin=previousHash===rootRoute(domain)||previousHash===fallback?previousHash:fallback;const parent=record?routeFor(domain,record.id):fallback;const exitTarget=record?parent:origin;
   const page=frame(record?'Edit '+record.name:domain==='gear'?'Add Gear':'Add Entry',parent,record?[button('Create Link',()=>copyLink(domain,record.id))]:[]);const created=await createEditor(ctx,{domain,baseRecord:record,category,type,onBack:()=>navigate(parent),onExit:()=>{disposeEditor();navigate(exitTarget);},onDirty:()=>{},publishChange:v3Mode?ctx.v3.publish:null,onPrepared:v3Mode?(receipt)=>ctx.v3.onPublicationReceipt?.(receipt):null});editor=created;page.append(created.element);return page;
  }
+ async function renderCatchEditor(id=null){
+  if(!v3Mode||!canAuthor())return missing('Owner sign-in is required to edit Catches. Open Connection Status to sign in.','#/catches');
+  const record=id?ctx.maps.catches.get(id):null;
+  if(id&&!record)return missing('This Catch does not exist.','#/catches');
+  const parent=record?routeFor('catches',record.id):'#/catches';
+  const page=frame(record?'Edit Catch':'Add Catch',parent);
+  const created=await createCatchEditor(ctx,{baseRecord:record,
+   onBack:()=>navigate(parent),onExit:()=>{disposeEditor();navigate('#/catches');},
+   onDirty:()=>{},publishChange:ctx.v3.publish,
+   onPrepared:receipt=>ctx.v3.onPublicationReceipt?.(receipt),
+  });editor=created;page.append(created.element);return page;
+ }
  async function render(){const ticket=++serial;if(offline&&!(await offline.checkCurrent()))return;if(ticket!==serial)return;disposeEditor();route=parseRoute(currentHash);root.replaceChildren(el('div',{class:'loading'},'Loading…'));
   try{let page;
-   switch(route.page){case 'home':page=renderHome();break;case 'gear-root':page=renderRoot('gear');break;case 'kb-root':page=renderRoot('kb');break;case 'gear-list':page=renderList('gear',route.category);break;case 'kb-list':page=renderList('kb',route.type);break;case 'gear-detail':page=await renderDetail('gear',route.id);break;case 'kb-detail':page=await renderDetail('kb',route.id);break;case 'catch-list':page=renderCatches();break;case 'catch-detail':page=await renderDetail('catches',route.id);break;case 'gear-edit':page=await renderEditor('gear',route.id);break;case 'kb-edit':page=await renderEditor('kb',route.id);break;case 'gear-add':page=await renderEditor('gear',null,route.category);break;case 'kb-add':page=await renderEditor('kb',null,null,route.type);break;default:page=missing('The requested page is not available.');}
+   switch(route.page){case 'home':page=renderHome();break;case 'gear-root':page=renderRoot('gear');break;case 'kb-root':page=renderRoot('kb');break;case 'gear-list':page=renderList('gear',route.category);break;case 'kb-list':page=renderList('kb',route.type);break;case 'gear-detail':page=await renderDetail('gear',route.id);break;case 'kb-detail':page=await renderDetail('kb',route.id);break;case 'catch-list':page=renderCatches();break;case 'catch-detail':page=await renderDetail('catches',route.id);break;case 'catch-add':page=await renderCatchEditor();break;case 'catch-edit':page=await renderCatchEditor(route.id);break;case 'gear-edit':page=await renderEditor('gear',route.id);break;case 'kb-edit':page=await renderEditor('kb',route.id);break;case 'gear-add':page=await renderEditor('gear',null,route.category);break;case 'kb-add':page=await renderEditor('kb',null,null,route.type);break;default:page=missing('The requested page is not available.');}
    if(ticket!==serial){if(editor&&ticket!==serial)disposeEditor();return;}root.replaceChildren(page);document.title=(page.querySelector('h1')?.textContent||'Fishing Companion')+' · Fishing Companion';
    if(route.section){requestAnimationFrame(()=>{const heading=[...page.querySelectorAll('[id]')].find(e=>e.id===route.section);heading?.scrollIntoView({block:'start'});});}
   }catch(error){if(ticket===serial){const page=missing('Unable to display this page: '+error.message);page.append(button('Retry',()=>render(),{variant:'primary'}));root.replaceChildren(page);}console.error(error);}
