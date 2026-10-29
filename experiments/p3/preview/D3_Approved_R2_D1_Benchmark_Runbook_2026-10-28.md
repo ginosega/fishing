@@ -27,6 +27,9 @@ upgrade, GitHub App permission changes, or altering the public /fishing/ site.**
   owner-only synthetic testing under the approval, after verified deployment
   and route denial checks. Do not change `D3_WRITE_ENABLED`,
   `D3_RUNNER_ENABLED`, `D3_TEST_HOST_ENABLED` or GitHub grants.
+- D1 pointer reads explicitly prefer `withSession('first-primary')` so
+  an unbookmarked asynchronous replica cannot report stale active versions.
+  No replica enablement or account setting change is required.
 - `POST /__d3_benchmark__/run` requires the **existing** authenticated
   owner and same-origin CSRF/publish-intent guards; payload contains
   only `runId`, `expectedVersion`, `sizeBytes` (1024–65536).
