@@ -54,6 +54,40 @@ const exactFields=t=>t&&typeof t==='object'&&!Array.isArray(t)&&
  Object.keys(t).sort().join(',')===
  'blobSha,bytes,expiresAt,mime,path,sha256,signature';
 
+/**
+ * D3's canonical JSON/Markdown decoder is intentionally capped at 320 KB.
+ * NEVER loosen that shared cap. Original images require a separate bounded
+ * 10 MiB decoder with independent Git SHA-1, SHA-256 and signature proof.
+ */
+export async function decodeD4OriginalGitBlob(entry,blob){
+ need(entry?.type==='blob'&&entry.mode==='100644'&&
+  SHA.test(entry.sha??'')&&Number.isSafeInteger(entry.size)&&
+  entry.size>0&&entry.size<=MAX,'INVALID_ORIGINAL_BLOB');
+ const path=entry.path?.startsWith('pwa/')?
+  entry.path.slice(4):entry.path;
+ let relative;
+ try{relative=d4MediaPath(path);}catch{deny('INVALID_ORIGINAL_PATH');}
+ need(blob?.sha===entry.sha&&blob.encoding==='base64'&&
+  blob.size===entry.size&&typeof blob.content==='string'&&
+  blob.content.length<=15*1024*1024&&
+  /^[A-Za-z0-9+\/=\r\n]+$/.test(blob.content),
+  'INVALID_ORIGINAL_BLOB');
+ let bytes;
+ try{
+  const binary=atob(blob.content.replace(/[\r\n]/g,''));
+  bytes=Uint8Array.from(binary,c=>c.charCodeAt(0));
+ }catch{deny('INVALID_ORIGINAL_BLOB');}
+ const type=d4ImageMime(bytes);
+ const ext=relative.split('.').at(-1).toLowerCase();
+ need(bytes.length===entry.size&&
+  type!==null&&type===allowed[ext]&&
+  await blobHash(bytes)===entry.sha,
+  'ORIGINAL_BLOB_DIGEST_DENIED');
+ return Object.freeze({
+  bytes,sha256:await sha256(bytes),mime:type,
+ });
+}
+
 export function createD4TicketVerifier({
  origin,secret,now=()=>Math.floor(Date.now()/1000),
 }={}){
