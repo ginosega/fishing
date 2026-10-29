@@ -33,9 +33,9 @@
 | ↳ Download artifact | 5s | 3–6s | Nested |
 | ↳ Upload Pages artifact | 6s | 4–15s | Nested; not the same as prior build artifact |
 | ↳ \`deploy-pages\` actual action | **13s** | 6–93s | Long-tail #512, 93s |
-| ↳ All 577+ hosted-byte/release verification | 10s | 7–22s | Nested, required independent verification |
+| ↳ Entire hosted-release file/byte verification | 10s | 7–22s | Nested, required independent verification |
 
-Medians are **not additive**, except for single-sample, nonoverlapping intervals. The 577-file public proof fetches hosted assets 12 at a time in \`pwa/tools/verify-hosted-fast.mjs\`, followed by release pointer and manifest linkage assertions.
+Medians are **not additive**, except for single-sample, nonoverlapping intervals. The whole-release public proof fetches hosted assets 12 at a time in \`pwa/tools/verify-hosted-fast.mjs\`, followed by release pointer and manifest linkage assertions.
 
 ## Six public PRs: minimum GitHub-side budget
 
@@ -91,7 +91,7 @@ Medians are **not additive**, except for single-sample, nonoverlapping intervals
 - D1 would replace the existing entire post-merge content release lane **only** if we build versioned coherent immutable releases with an atomic D1 pointer and independent user-retrievable exact main-commit bytes. The potential upper opportunity is the **85–183s** existing main-release interval, *not merely the 13s Pages action*. New D1 publication/HTTP propagation latency is **unmeasured**; a proposed 1–10s is an experimental **target**, not evidence.
 - Important feasibility boundary: current public app and SW serve \`https://ginosega.github.io/fishing/\`, while the private owner Worker is on a \`.workers.dev\` origin. Serving content from D1 is **not a drop-in replacement** for GitHub Pages under that origin. It requires deliberate app loading/URL/scope/cache/origin choices, or a separately approved hosting/routing change. Preserve verified full release snapshots and old-version reads for offline rollback; don't conflate an owner-private test path with anonymous canonical Live.
 - Even instantaneous D1 public delivery still leaves the historical **PR→merge median 65s plus unknown click→PR**, so P1/P2 are prerequisites.
-- Risks: new storage authority, D1 database/row/size limits, release coherence across 577 assets, outage/recovery, workers subrequest limits, same-origin authentication and PWA SW scope; requires a separately approved architecture gate.
+- Risks: new storage authority, D1 database/row/size limits, release coherence across hundreds of release assets, outage/recovery, workers subrequest limits, same-origin authentication and PWA SW scope; requires a separately approved architecture gate.
 
 ### P6 — retain R2 as optional later media capability; don't subscribe now
 - R2's value is immutable object storage and large media delivery; current text-only Save target can be investigated with existing D1. Current Cloudflare account R2 is disabled (Wrangler 10042) and subscription activation needs owner approval.
