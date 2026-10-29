@@ -65,3 +65,17 @@ Acceptance and safety criteria:
 **Observed Android retest:** The owner reported, "That fixed it. The status message is showing and the button works on Android." This verifies the private browser pilot's cross-device display and button behavior; it does not by itself verify the exact displayed text, a new backend D1 transition, installed-PWA scope, or the public 60-second requirement.
 
 **Safety:** Do not modify current production routing, GitHub App grants or public main to satisfy the mobile acceptance checklist without separate consequential authorization.
+
+---
+
+## October 29 private Connection Status polling deployment checkpoint
+
+**Status: deployed to existing owner-only private pilot; owner device acceptance NOT YET REPORTED.** This later checkpoint supersedes the earlier "not yet implemented" statement in the October 29 approval section above without altering its requirements.
+
+- Exact reviewed FISH118 source head deployed: `52362795c9c7746b0696c418fa0b43e19fd24249` on **draft/unmerged PR #263**. Isolated source validation [#40929509415](https://github.com/ginosega/fishing/actions/runs/40929509415) completed **success**, covering the Connection Status controller's new five-second polling, serialized GETs, visible/closed/hidden/offline/signout gates, terminal states, error retry, and stale-result tests. This is source evidence, not real-device proof.
+- Owner executed the exact-head guarded local `deploy-d3-connection-poll.ps1` preflight and one `-Deploy` to **existing Cloudflare Worker `fishing-auth-p0-test`**. Both reported PASS. Before: Worker version `7a7a85e2-7bf3-4664-8dbb-04d0f3c13457`; after: **`1416b04e-843b-4fd6-98f5-c095fd33ece0`**.
+- Generated private owner pilot bundle SHA-256 **`6a3db817c67d47773ef0f911ceeea1c94e554163186ced006d8b7ab4893be542`**, size **282866 bytes**. Browser CSP, Windows CRLF parity, Worker bundling and Wrangler 4.153.0 dry-run checks passed in the local output; this is the generated code's identity, not evidence of a new public PWA.
+- Postflight reported **private anonymous pilot and script denied; unsigned webhook POST denied; owner session API available; known sandbox PR #26 D1 Live receipt and merge SHA preserved; public V2 gateway content hash unchanged**. Fast watchdog and signed webhook remain enabled; recovery Cron `*/5 * * * *` retained. D2 flags remain false. No remote migration, new content publication, new resources, public GitHub main deployment or V3 cutover.
+- **Still unverified on real devices:** (1) desktop Edge private owner Connection Status manual button and terminal Live status on new Worker; (2) Android Chrome same; (3) actual auto-transition while a fresh legitimate owner publication is in-progress, including 5-second refresh, terminal stop, hide/close/reopen, connectivity, and sign-out. Do not generate a new publication solely for a status check; capture pending→Live evidence with the next ordinary owner edit. Browser tab testing does **not** satisfy integrated installed Android V3 PWA OAuth/service-worker scope acceptance, still OPEN.
+- **Important distinction:** A completed `Live · sandbox verified` receipt should remain visible with no automatic timer. The five-second polling is conditional on a genuine nonterminal operation, so an existing completed PR #26 can validate terminal display but cannot prove the auto-poll timing.
+
