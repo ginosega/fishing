@@ -112,6 +112,18 @@ export function createD3SandboxScheduledCoordinator({
   createDraft,
   observeCheck:info=>observer.observe(info),
   merge:info=>merger.merge(info),
+  // Only an independent GET-only proof can salvage an ambiguous merge
+  // acknowledgement while the current D1 lease remains unexpired.
+  verifyMerged:async info=>{
+   need(hosted()&&info.repositoryId===ID&&
+    OP.test(info.operationId??'')&&
+    info.canonicalLive===false,'FAST_MERGE_PROOF_DISABLED');
+   const saved=await store.readSnapshot(info.operationId);
+   need(Array.isArray(saved?.media)&&saved.media.length===0,
+    'FAST_MERGE_SNAPSHOT_DENIED');
+   const expectedPaths=expectedD3HostedPaths(saved.package);
+   return mergeVerifier.verify({...info,expectedPaths});
+  },
   verifyHosted:async info=>{
    need(hosted()&&info.repositoryId===ID&&
     info.canonicalLive===false&&
