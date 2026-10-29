@@ -218,8 +218,8 @@ export function createD1OperationStore({DB,ownerGitHubId,repositoryId=SANDBOX_ID
    "AND pr_number=? AND pr_head_sha=? AND main_base_sha=? "+
    "AND workflow_run_id=? "+
    "RETURNING operation_id,state,merge_sha,reason_code",
-   evidence.mergeSha,at,evidence.operationId,ownerGitHubId,SANDBOX_ID,at,
-   evidence.mergeSha,evidence.prNumber,evidence.prHeadSha,evidence.mainBaseSha,
+   evidence.mergeSha,at,evidence.operationId,ownerGitHubId,SANDBOX_ID,
+   evidence.mergeSha,at,evidence.prNumber,evidence.prHeadSha,evidence.mainBaseSha,
    evidence.workflowRunId).first();
   check(row?.operation_id===evidence.operationId&&
    row.state==='Deploying'&&row.merge_sha===evidence.mergeSha&&
