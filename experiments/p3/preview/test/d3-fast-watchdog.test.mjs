@@ -81,3 +81,39 @@ test('WD-08 alarm acknowledgment failure is visible and never reported success',
   arm:async()=>{throw Error('alarm outage')}});
  await assert.rejects(f.notify(id),/alarm outage/);
 });
+
+test('WD-09 repeated pending CI slows to 30s then 60s to bound cost',async()=>{
+ for(const [stalls,expected] of [[0,108500],[5,130000],[20,160000]]){
+  const calls=[];
+  const watch=createD3FastWatchdog({enabled:()=>true,now:()=>100000,
+   getOperation:async()=>({operationId:id,state:'Checking'}),
+   runOneStep:async()=>{throw {code:'CHECK_PENDING'};},
+   readOnlyRecoverMerge:async()=>{},
+   arm:async e=>calls.push(e)});
+  const r=await watch.onAlarm(id,{stallCount:stalls});
+  assert.equal(r.deadlineMs,expected);
+  assert.equal(calls.length,1);
+ }
+});
+test('WD-10 failed security-sensitive check does not retry or merge',async()=>{
+ let alarms=0;
+ const watch=createD3FastWatchdog({enabled:()=>true,now:()=>100000,
+  getOperation:async()=>({operationId:id,state:'Checking'}),
+  runOneStep:async()=>{throw {code:'CHECK_NOT_SUCCESSFUL'};},
+  readOnlyRecoverMerge:async()=>{},
+  arm:async()=>{alarms++;}});
+ await assert.rejects(watch.onAlarm(id),e=>e.code==='CHECK_NOT_SUCCESSFUL');
+ assert.equal(alarms,0);
+});
+test('WD-11 transient hosted unavailable can retry without false Live',async()=>{
+ const calls=[];
+ const watch=createD3FastWatchdog({enabled:()=>true,now:()=>100000,
+  getOperation:async()=>({operationId:id,state:'Verifying'}),
+  runOneStep:async()=>{throw {code:'PRODUCTION_ORIGIN_UNAVAILABLE'};},
+  readOnlyRecoverMerge:async()=>{},
+  arm:async e=>calls.push(e)});
+ const r=await watch.onAlarm(id);
+ assert.equal(r.terminal,false);
+ assert.equal(r.state,'Verifying');
+ assert.equal(calls.length,1);
+});
