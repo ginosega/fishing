@@ -113,3 +113,23 @@ Independent GitHub PR #21: https://github.com/ginosega/fishing-p3-sandbox/pull/2
 - Compared with the pre-optimization run PR #21: workflow 30s→12s; PR creation→merge 45s→31s. Owner-observed Save→Live 72s→59s (13 seconds faster). The new E2E measurement is one pass with a **1-second margin**; private sandbox evidence cannot establish a reliable production-public-site SLA.
 - D1 transition audit for operation #26 has **not yet been supplied**. Exact stage durations, durable independent hosted-release verification time, and original-lease merge branch usage require primary read-only D1 evidence. GitHub PR merge and UI Live alone cannot substitute for the underlying complete D1/hosted verification audit.
 - Next steps: request one read-only `p3_events` audit for #26 to reconcile 59s, confirm exact D1 Live and post-merge dwell. Add a small statistically meaningful repeat-sample criterion with no unauthorized self-publishing; retain disabled/public-V2 invariants and address upcoming Connection Status auto-poll approved requirement separately. Do not claim V3 cutover complete.
+
+## Final primary D1 reconciliation for PR #26 — before chat transfer
+
+Owner supplied successful remote read-only `p3_events` SQL for `p3_23bf8ff9-c95b-40ba-9c1d-b4463b2e6489`. Primary D1 WNAM/SEA, success=true, changes=0, rows_written=0. No `error_code` in any returned state transition. All times 2026-10-29 America/Los_Angeles (PDT).
+
+| D1 event ID | State reached | Unix time | PDT | Dwell |
+|---|---|---:|---|---:|
+|43|Accepted|1793296063|10:47:43|1s|
+|44|Validating|1793296064|10:47:44|13s|
+|45|Checking|1793296077|10:47:57|21s|
+|46|Merging|1793296098|10:48:18|13s|
+|47|Deploying|1793296111|10:48:31|1s|
+|48|Verifying|1793296112|10:48:32|7s|
+|49|Live|1793296119|10:48:39|terminal|
+
+**Accepted→Live 56s; owner clicked Save & Publish→UI Live in 59s** (~3s client/request delay). Prior PR #21 Accepted→Live 69s and user E2E 72s. Checking shortened 36s→21s (15s) and is primary improvement; Validating 11s→13s, Merging 14s→13s, Deploying 1s→1s, Verifying 6s→7s. Compared with PR #20 server 126s and owner E2E 129s: **70s faster** total, including 78s→13s Merging.
+
+Independent GitHub timings: PR #26 created 10:47:56; workflow run #40924758753 created 10:48:01 and completed success 10:48:13 (12s); D1 Checking→Merging 10:48:18 (~5s after CI); provider merge occurred 10:48:27; D1 Merging→Deploying 10:48:31 (~4s post-merge). Only expected synthetic test KB JSON and Markdown changed. Signed `check_run` webhook 202 `accepted:true` as owner reported, meaning eligible exact owner-scoped head was matched and alarm armed; event is only a wake, not CI trust evidence.
+
+**Decision:** User's ≤60-second requirement is **provisionally attained in private pilot in one observed normal publish** (59s, only 1s margin), NOT proven consistently or on eventual public V3 hosting. Retain event-loss/recovery safety and independent hosted verification. Gather a modest series of later normal publications with timings rather than repeated immediate test saves; never self-submit duplicate operations. Connection Status automatic 5s owner-only polling is approved, open, and must be implemented/tested after handoff. No public V3 cutover authorized.
