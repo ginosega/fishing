@@ -36,12 +36,16 @@ test('P3-D07 illegal jumps and evidence gaps cannot bypass trigger',async()=>{
 test('P3-D08 rejects media, malformed envelope, oversized snapshot and wrong repo',async()=>{
  const e=sandbox(),s=e.store();
  await assert.rejects(s.accept({idempotencyKey:e.key,snapshot:{...sample,media:[{path:'Gear/assets/x.png'}]}}),failed('MEDIA_STAGING_REQUIRED'));
- const other=structuredClone(sample);other.package.domain='catches';
+ const other=structuredClone(sample);other.package.domain='unexpected-domain';
  await assert.rejects(s.accept({idempotencyKey:e.key,snapshot:other}),failed('INVALID_SNAPSHOT'));
+ // Existing Catch schema is now an allowed text-only D4 domain.
+ const catchPkg=structuredClone(sample);catchPkg.package.domain='catches';
+ const c=await s.accept({idempotencyKey:e.key+'-catch',snapshot:catchPkg});
+ assert.match(c.operationId,/^p3_/);
  const large=structuredClone(sample);large.package.notes='x'.repeat(140000);
  await assert.rejects(s.accept({idempotencyKey:e.key,snapshot:large}),failed('SNAPSHOT_TOO_LARGE'));
  assert.throws(()=>createD1OperationStore({DB:e.DB,ownerGitHubId:778899,repositoryId:1350909744}),failed('INVALID_CONFIGURATION'));
- assert.equal(e.sql.prepare('SELECT count(*) AS n FROM p3_operations').get().n,0);
+ assert.equal(e.sql.prepare('SELECT count(*) AS n FROM p3_operations').get().n,1);
 });
 test('P3-D09 identity mismatch and corrupted snapshot reject resume',async()=>{
  const e=sandbox(),s=e.store(),{operationId}=await s.accept({idempotencyKey:e.key,snapshot:sample});
