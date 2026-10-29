@@ -12,7 +12,7 @@ const PHASES=new Set([
  'owner_submission','owner_authorization','canonical_source_validation',
  'idempotent_accept','dispatch_wait','lease_claim','snapshot_validation',
  'github_prepare_pr','check_observation','github_protected_merge',
- 'host_delivery','public_byte_release_proof','state_to_live','owner_ui_refresh'
+ 'host_delivery','hosted_byte_release_proof','public_byte_release_proof','state_to_live','owner_ui_refresh'
 ]);
 const ID=/^p3_[0-9a-f-]{36}$/;
 const outcome=s=>['ok','refused','unavailable','unknown'].includes(s);
