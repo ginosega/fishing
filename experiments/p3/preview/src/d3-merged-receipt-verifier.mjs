@@ -65,9 +65,12 @@ export function createD3MergedReceiptVerifier({request,issueReadToken,
    Array.isArray(expectedPaths)&&[1,2].includes(expectedPaths.length)&&
    new Set(expectedPaths).size===expectedPaths.length&&
    expectedPaths.every(p=>p==='pwa/Gear/gear.json'||p==='pwa/KB/kb.json'||
-    /^pwa\/(Gear|KB)\/[A-Za-z0-9 _./-]+\.md$/.test(p))&&
+    p==='pwa/Catches/catches.json'||
+    /^pwa\/(Gear|KB)\/[A-Za-z0-9 _./-]+\.md$/.test(p)||
+    /^pwa\/Catches\/content\/[a-z0-9-]+\.md$/.test(p))&&
    expectedPaths.includes(expectedPaths.some(p=>p==='pwa/Gear/gear.json')?
-    'pwa/Gear/gear.json':'pwa/KB/kb.json'),
+    'pwa/Gear/gear.json':expectedPaths.some(p=>p==='pwa/KB/kb.json')?
+     'pwa/KB/kb.json':'pwa/Catches/catches.json'),
    'INVALID_TRUSTED_RECEIPT');
   const granted=await issueReadToken({repositoryId:ID,
    permissions:{...READ}});
