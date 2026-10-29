@@ -1,0 +1,25 @@
+# FISH118 D4 — Catch and media implementation checkpoint
+
+Date: October 29, 2026. Development-only on isolated draft PR #263. No public V2 mutation, private Worker deployment, owner publication, GitHub App grant change or Cloudflare resource change.
+
+## Completed source implementation — Catch Add/Edit (text-only)
+
+- Added V3-only Catch Add/Edit routes within existing Catch Log and Catch detail; anonymous/public V2 has no new Catch authoring capability. The owner-authenticated editor supports the **existing** schema (date, optional time/size, Species, Location, Lure or Bait, optional Markdown). No Catch photos, custom representative pictures, GPS, sessions or extra fields.
+- Source-aware `prepareChange`, `validatePackage`, `promoteChange` support `catches`; an added Catch uses its generated stable ID and `Catches/content/<id>.md` when notes are present. Editing preserves the existing ID and Notes path, other unchanged records, inferred Species picture and Catch history. New source validation uses the canonical Gear/KB/Catch snapshot and all cross-reference checks.
+- Expanded default-off private owner client, guarded API, trusted source planner, leased operation runner and GitHub PR blob adapter to recognize **only** the existing `pwa/Catches/catches.json` plus approved `pwa/Catches/content/*.md`. Real writes still require authenticated owner, CSRF, D1 idempotent acceptance, freshly verified sandbox `main`, protected PR checks and merge, independent hosted source/bytes proof and a durable `Live` status. No direct GitHub browser tokens.
+- Tests exercise Catch adds/edits, Markdown co-publication, unrelated-source field rebase, same-field conflicts, existing history/relations, invalid species/location/lure, invalid dates, IDs, forbidden photos/GPS, unsafe paths, API schema checks, real Git blob upload adapter simulation and mandatory final hosted proof. Existing private Gear/KB source tests must remain green.
+- **Not yet complete/accepted:** no actual Catch write has been submitted to the private GitHub sandbox; no newly deployed Worker bundles contain this code; no owner device field check or production Catch acceptance/60-second benchmark. Treat D4 Catch as **source-built, not deployed**.
+
+## Completed D4 media prerequisite — immutable original-byte checks
+
+New isolated server-neutral helper `d4-media-integrity.mjs` is a **source-only** guard for candidate media manifests; it does not transfer or persist data. It checks requested paths and byte metadata against the proposed Gear/KB package, maximum individual size (10 MiB), maximum staged aggregate (48 MiB), exact file count, no extras, duplicate/case-collision denial, original SHA-256, and JPEG/PNG/WebP/GIF magic-versus-extension. Ordered Knot sequences must include every contiguous `step-01`, `step-02`, ... frame inside `KB/Knots/assets/<id>/` with the final frame as representative picture. No transcode, image rewrite or Catch photo support. Existing browser-side `validateBrowserImage` independently enforces dimensions/animation/decode constraints; signature checking alone does not prove a complete valid image and cannot replace full canonical/build validation.
+
+## Remaining D4 media integration (no premature enablement)
+
+1. Choose an **authorized, bounded owner-only staging transport** for original bytes. Current owner operation POST/D1 snapshot has a 16 KiB text body limit and cannot carry 10 MiB images. Evaluate an owner-session + CSRF-bound, short-lived per-file staging protocol with quotas, expiring/operation-scoped keys, no cross-owner access, and original-byte integrity. Do not imply R2/KV/paid storage is already selected or approved.
+2. Wire the browser's existing file picker and Knot ordered sequence into one Save and Publish operation only after a guaranteed resumable/fail-closed upload plan exists. Keep the editor and original files recoverable on ambiguous receipt or stage failure. Do not discard media while submitting text.
+3. Bind staged bytes to the immutable trusted candidate; deny missing, changed, unowned, colliding or incomplete media. Commit canonical JSON, Markdown and every required original image to the SAME verified GitHub PR/merge candidate, with exact bytes and source-head checks, no partial reference visible as Live.
+4. Extend deployment/host verification to every media path and canonical manifest/release identity. Verify immutable original bytes, rendered Gear/KB/Knot pictures, derivative thumbnail integrity and rollback. Production app and Worker remain isolated until normal release/cutover authorization.
+5. Add real owner desktop/Android media tests: single image add/replace, multi-frame Knot replace, expired session mid-upload, missing frame, MIME/size/dimension rejection, duplicate filenames, collision and interrupted commit/recovery. Larger media uploads have their own performance measurements; the mandatory 60-second text-only rule is separate.
+
+**Release status:** D4 is **in progress**, not accepted. Public V2 and private deployed pilot remain exactly as before this source checkpoint. Keep PR #263 draft.
