@@ -11,9 +11,11 @@ CREATE TABLE p3_delivery_benchmark_pointer (
  CHECK(
   (active_version IS NULL AND active_sha256 IS NULL AND last_run_id IS NULL)
   OR
-  (active_version=last_run_id AND
+  (active_version IS NOT NULL AND active_sha256 IS NOT NULL AND
+   last_run_id IS NOT NULL AND active_version=last_run_id AND
    length(active_version)=38 AND
-   active_version GLOB 'bench_[0-9a-f]*' AND
+   substr(active_version,1,6)='bench_' AND
+   substr(active_version,7) NOT GLOB '*[^0-9a-f]*' AND
    length(active_sha256)=64 AND
    active_sha256 NOT GLOB '*[^0-9a-f]*')
  ),
