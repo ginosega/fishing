@@ -91,7 +91,8 @@ export function createSandboxCheckObserver({
   ensure(goodNumber(check?.id)&&check?.app?.id===ACTIONS_APP_ID&&
    check?.head_sha===expectedHeadSha,'CHECK_IDENTITY_DENIED');
   ensure(check?.status==='completed','CHECK_PENDING');
-  ensure(check?.conclusion==='success','CHECK_NOT_SUCCESSFUL');
+  // Completed failure is verified against the final PR and main before
+  // any D1 terminal transition; the check does not grant merge authority.
   // Bind a real GitHub Actions workflow run identifier to this trusted,
   // exact-head GitHub Actions check. No synthetic workflow run IDs.
   const detail=typeof check.details_url==='string'?
@@ -110,6 +111,7 @@ export function createSandboxCheckObserver({
   const lastPR=await read(token,prUrl);
   validatePR(lastPR,{number:prNumber,head:expectedHeadSha,
    base:expectedBaseSha,branch:expectedBranch});
+  ensure(check?.conclusion==='success','CHECK_NOT_SUCCESSFUL');
   return Object.freeze({
    repositoryId:ID,prNumber,headSha:expectedHeadSha,baseSha:expectedBaseSha,
    checkRunId:check.id,
