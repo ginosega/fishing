@@ -72,6 +72,11 @@ export class D3FastWakeAlarm {
   });
   // At least once, never blindly retry a marked merge. The existing
   // D1 coordinator reconciles ambiguous merge outcomes read-only.
-  await watch.onAlarm(operationId);
+  const stalled=await this.ctx.storage.get('stallCount');
+  const count=Number.isSafeInteger(stalled)&&stalled>=0?stalled:0;
+  const result=await watch.onAlarm(operationId,{stallCount:count});
+  // Re-arm happens before recording this optional backoff counter.
+  if(result.terminal)await this.ctx.storage.delete('stallCount');
+  else await this.ctx.storage.put('stallCount',result.progressed?0:Math.min(1000,count+1));
  }
 }
