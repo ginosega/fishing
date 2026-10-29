@@ -203,11 +203,17 @@ export function createD3GatedAuthGateway({
           origin:env.APP_ORIGIN,key:env.D2_HOST_PROBE_KEY,
           store,issueReadToken:grant,requestGitHub:transport,
           requestHosted:requestHosted??fetch,
+          verifyMedia:async(pkg,media,options)=>
+            validateD4MediaTickets({package:pkg,media,
+              verifyTicket:mediaStage.verifyTicket,...options}),
         });
         const asset=hostAssetFactory({
           origin:env.APP_ORIGIN,ownerSession:session,store,
           issueReadToken:grant,requestGitHub:transport,
           authorizeProbe:proof.authorizeProbe,
+          verifyMedia:async(pkg,media,options)=>
+            validateD4MediaTickets({package:pkg,media,
+              verifyTicket:mediaStage.verifyTicket,...options}),
           enabled:()=>env.D3_TEST_HOST_ENABLED==='true'&&
             env.D3_READ_TOKENS_ENABLED==='true'&&
             env.D3_SANDBOX_REPO_ID===String(ID),
