@@ -186,7 +186,9 @@ export function createD1OperationStore({DB,ownerGitHubId,repositoryId=SANDBOX_ID
   const at=ts();
   const row=await sql("SELECT operation_id FROM p3_operations "+
    "WHERE github_id=? AND repo_id=? AND state='Merging' "+
-   "AND reason_code='merge_attempted' AND merge_sha IS NULL "+
+   "AND reason_code='merge_attempted' "+
+   "AND (merge_sha IS NULL OR (length(merge_sha)=40 AND "+
+   "merge_sha NOT GLOB '*[^0-9a-f]*')) "+
    "AND pr_number>0 AND length(pr_head_sha)=40 "+
    "AND length(main_base_sha)=40 AND workflow_run_id>0 "+
    "AND lease_expires_at IS NOT NULL AND lease_expires_at<=? "+
@@ -211,13 +213,13 @@ export function createD1OperationStore({DB,ownerGitHubId,repositoryId=SANDBOX_ID
    "reason_code=NULL,lease_owner=NULL,lease_expires_at=NULL,updated_at=? "+
    "WHERE operation_id=? AND github_id=? AND repo_id=? "+
    "AND state='Merging' AND reason_code='merge_attempted' "+
-   "AND merge_sha IS NULL AND verified_release_id IS NULL "+
+   "AND (merge_sha IS NULL OR merge_sha=?) AND verified_release_id IS NULL "+
    "AND lease_expires_at IS NOT NULL AND lease_expires_at<=? "+
    "AND pr_number=? AND pr_head_sha=? AND main_base_sha=? "+
    "AND workflow_run_id=? "+
    "RETURNING operation_id,state,merge_sha,reason_code",
    evidence.mergeSha,at,evidence.operationId,ownerGitHubId,SANDBOX_ID,at,
-   evidence.prNumber,evidence.prHeadSha,evidence.mainBaseSha,
+   evidence.mergeSha,evidence.prNumber,evidence.prHeadSha,evidence.mainBaseSha,
    evidence.workflowRunId).first();
   check(row?.operation_id===evidence.operationId&&
    row.state==='Deploying'&&row.merge_sha===evidence.mergeSha&&
