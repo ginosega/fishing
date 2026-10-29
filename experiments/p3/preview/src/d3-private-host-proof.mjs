@@ -34,12 +34,15 @@ const need=(v,code)=>{if(!v)deny(code);};
 export function createD3PrivateHostProof({
  origin,key,store,issueReadToken,requestGitHub,requestHosted,
  now=()=>Math.floor(Date.now()/1000),
+ verifyMedia=async(_pkg,media)=>{
+  need(media.length===0,'MEDIA_DISABLED');return [];
+ },
 }={}){
  need(typeof origin==='string'&&origin.startsWith('https://')&&
   new URL(origin).origin===origin&&
   typeof key==='string'&&te.encode(key).length>=32&&
   typeof store?.get==='function'&&typeof store?.readSnapshot==='function'&&
-  [issueReadToken,requestGitHub,requestHosted,now]
+  [issueReadToken,requestGitHub,requestHosted,now,verifyMedia]
    .every(x=>typeof x==='function'),'INVALID_CONFIGURATION');
  const sign=async(path,expires)=>{
   const imported=await crypto.subtle.importKey('raw',te.encode(key),
@@ -83,7 +86,7 @@ export function createD3PrivateHostProof({
   need(info.repositoryId===ID&&OP.test(info.operationId??'')&&
    SHA.test(info.mergeSha??'')&&
    Array.isArray(info.expectedPaths)&&
-   [1,2].includes(info.expectedPaths.length)&&
+   info.expectedPaths.length>=1&&info.expectedPaths.length<=26&&
    info.canonicalLive===false,'INVALID_RECEIPT');
   const receipt=await store.get(info.operationId);
   need(receipt?.operationId===info.operationId&&
@@ -91,11 +94,13 @@ export function createD3PrivateHostProof({
    Number.isSafeInteger(receipt.workflowRunId)&&
    receipt.workflowRunId>0,'DURABLE_EVIDENCE_MISSING');
   const stored=await store.readSnapshot(info.operationId);
-  let expected;
-  try{expected=expectedD3HostedPaths(stored?.package);}
-  catch{deny('INVALID_DURABLE_PACKAGE');}
-  need(Array.isArray(stored.media)&&stored.media.length===0&&
-   info.expectedPaths.length===expected.length&&
+  let expected,media;
+  try{
+   need(Array.isArray(stored?.media),'INVALID_DURABLE_PACKAGE');
+   media=await verifyMedia(stored.package,stored.media,{allowExpired:true});
+   expected=expectedD3HostedPaths(stored.package,media);
+  }catch{deny('INVALID_DURABLE_PACKAGE');}
+  need(info.expectedPaths.length===expected.length&&
    expected.every((p,i)=>info.expectedPaths[i]===p),
    'PATHS_MISMATCH');
   const issued=await issueReadToken({repositoryId:ID,
@@ -125,8 +130,16 @@ export function createD3PrivateHostProof({
    let bytes;
    try{bytes=await decodeD2GitBlob(entries[0],blob);}
    catch{deny('BLOB_DIGEST_DENIED');}
-   need(bytes.length<=131072,'FILE_TOO_LARGE');
+   const isImage=/\.(jpe?g|png|webp|gif)$/i.test(file);
+   need(bytes.length<=(isImage?10*1024*1024:131072),
+    'FILE_TOO_LARGE');
    const expectedSha=hex(await crypto.subtle.digest('SHA-256',bytes));
+   if(isImage){
+    const receipt=media.find(m=>'pwa/'+m.path===file);
+    need(receipt?.blobSha===entries[0].sha&&
+     receipt.sha256===expectedSha&&receipt.bytes===bytes.length,
+     'STAGED_ORIGINAL_MISMATCH');
+   }
    const path=d3HostedTestPath(info.operationId,file);
    const expires=now()+30;
    let result;
@@ -135,7 +148,8 @@ export function createD3PrivateHostProof({
     headers:{
      'X-Fish-D3-Host-Probe':String(expires)+'.'+await sign(path,expires),
      'Cache-Control':'no-store',
-     'Accept':file.endsWith('.md')?'text/markdown':'application/json',
+     'Accept':isImage?'image/*':
+      file.endsWith('.md')?'text/markdown':'application/json',
     },
    });}catch{deny('PRODUCTION_ORIGIN_UNAVAILABLE');}
    need(result?.ok===true&&result.status===200&&!result.redirected,
