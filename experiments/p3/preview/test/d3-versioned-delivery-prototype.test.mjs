@@ -19,7 +19,7 @@ async function setup(opts={}){
  const objects=new Map(),trace=[];
  const loadCanonical=async()=>{
   reads++;trace.push('canonical');
-  return {repository:repo,repositoryId:1,commitSha:
+  return {repository:repo,repositoryId:1350909744,commitSha:
    opts.mainMoved&&reads>1?old:gitsha,mergeSha:gitsha,
    prHeadSha:head,exactHeadCheckVerified:true,
    protectedMergeVerified:true,mainMatchesMerge:true,
