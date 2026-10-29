@@ -102,6 +102,16 @@ export function createD3GatedAuthGateway({
       const store=storeFactory({
         DB:env.OPERATIONS_DB,ownerGitHubId:OWNER,repositoryId:ID,
       });
+      const armFast=async operationId=>{
+        if(typeof env.D3_FAST_WAKE_DO?.getByName!=='function')
+          throw Error('D3_FAST_WAKE_UNAVAILABLE');
+        const stub=env.D3_FAST_WAKE_DO.getByName(operationId);
+        const response=await stub.fetch(new Request('https://d3-fast.internal/arm',{
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({operationId,deadlineMs:Date.now()}),
+        }));
+        if(response?.status!==200)throw Error('D3_FAST_ALARM_UNCERTAIN');
+      };
       if(fastCheck){
         // Dedicated GitHub ingress: no browser-cookie authentication.
         // HMAC SHA-256 covers the EXACT raw request bytes. A matching
@@ -113,11 +123,7 @@ export function createD3GatedAuthGateway({
         const receiver=checkWebhookFactory({
           secret:env.D3_FAST_WEBHOOK_SECRET,
           lookupChecking:args=>store.findCheckingByHead(args),
-          armWatchdog:async args=>{
-            const alarm=env.D3_FAST_WAKE_DO.getByName(args.operationId);
-            await alarm.arm({operationId:args.operationId,
-              deadlineMs:Date.now()});
-          },
+          armWatchdog:async args=>armFast(args.operationId),
           enabled:()=>env.D3_FAST_WEBHOOK_ENABLED==='true'&&
             d3PublishingReady(env),
         });
@@ -199,10 +205,7 @@ export function createD3GatedAuthGateway({
         enabled:()=>d3PublishingReady(env),
         notifyAccepted:async operationId=>{
           if(env.D3_FAST_WATCHDOG_ENABLED!=='true')return;
-          if(typeof env.D3_FAST_WAKE_DO?.getByName!=='function')
-            throw Error('D3_FAST_WAKE_UNAVAILABLE');
-          await env.D3_FAST_WAKE_DO.getByName(operationId).arm({
-            operationId,deadlineMs:Date.now()});
+          await armFast(operationId);
         },
       });
       return await api.handle(request);
