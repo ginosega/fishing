@@ -23,3 +23,6 @@ const route=createD3GatedAuthGateway({
  readPilotBundle:async()=>new Uint8Array(bytes),
 });
 export default createD3LiveOwnerWorker({route});
+
+// Source-only class export; NO durable_object binding or migration is active.
+export {D3FastWakeAlarm} from './d3-fast-wake-do.mjs';
