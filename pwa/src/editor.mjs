@@ -113,7 +113,7 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
     const files=orderedSequenceFiles(fileInput.files||[]),infos=[];for(const file of files){const info=await validateBrowserImage(file);infos.push({...info,file,name:file.name,path:sequencePicturePath(record,file.name)});}
     revokeLocal(false);sequenceInfos=infos;sequenceUrls=files.map(file=>URL.createObjectURL(file));record.pictureSequence=sequenceInfos.map(x=>x.path);picturePathInput.value=record.pictureSequence.at(-1);record.picture={src:picturePathInput.value,...(captionInput.value?{caption:captionInput.value}:{})};renderPicture();changed();return;
    }
-   const file=fileInput.files?.[0];if(!file)return;fileInfo=await validateBrowserImage(file);if(previewUrl)URL.revokeObjectURL(previewUrl);previewUrl=URL.createObjectURL(file);picturePathInput.value=picturePath(domain,record,file.name);record.picture={src:picturePathInput.value,...(captionInput.value?{caption:captionInput.value}:{})};if(mediaAction==='replace-with-static')delete record.pictureSequence;renderPicture();changed();
+   const file=fileInput.files?.[0];if(!file)return;fileInfo={...(await validateBrowserImage(file)),file};if(previewUrl)URL.revokeObjectURL(previewUrl);previewUrl=URL.createObjectURL(file);picturePathInput.value=picturePath(domain,record,file.name);record.picture={src:picturePathInput.value,...(captionInput.value?{caption:captionInput.value}:{})};if(mediaAction==='replace-with-static')delete record.pictureSequence;renderPicture();changed();
   }catch(error){fileInput.value='';revokeLocal();status(notice,error.message,'error');renderPicture();}
  }
  fileInput.addEventListener('change',chooseFile);
