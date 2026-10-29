@@ -48,10 +48,12 @@ const restore=storage=>{
 const makeReceipt=id=>JSON.stringify({version:1,operationId:id,canonicalLive:false});
 export function createD3PublicationLifecycle({
  client,storage=null,makeKey=()=>crypto.randomUUID(),enabled=()=>false,
+ mediaEnabled=()=>false,
  measure=async(_stage,work)=>work(),
 }={}){
  need(typeof client?.publish==='function'&&typeof client?.status==='function'&&
   typeof makeKey==='function'&&typeof enabled==='function'&&
+  typeof mediaEnabled==='function'&&
   typeof measure==='function'&&
   (storage===null||(typeof storage?.getItem==='function'&&
     typeof storage?.setItem==='function'&&typeof storage?.removeItem==='function')),
@@ -81,6 +83,9 @@ export function createD3PublicationLifecycle({
   // submit() serializes both the previous-operation check and new request.
   need(acceptedPackage(pkg)&&Array.isArray(media)&&media.length<=24,
    'INVALID_PACKAGE');
+  const changed=pkg.picture.action!=='keep'||
+   (pkg.pictureSequence?.action??'keep')!=='keep'||media.length>0;
+  need(!changed||mediaEnabled()===true,'MEDIA_REQUIRES_D4');
   const frozen=portableJson(pkg),tickets=portableJson(media);
   const bytes=JSON.stringify({package:frozen,media:tickets});
   if(attempt){
