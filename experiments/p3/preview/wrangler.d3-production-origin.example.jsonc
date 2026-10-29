@@ -41,6 +41,9 @@
     "D3_READ_TOKENS_ENABLED": "false",
     "D3_TEST_HOST_ENABLED": "false",
     "D3_PILOT_ENABLED": "false",
+    // D4 private originals via Git blobs: requires separate guarded
+    // application/media release and owner acceptance. NEVER on by default.
+    "D4_MEDIA_ENABLED": "false",
     // Separate owner-only integration gate for /fishing/__d3_pilot__/.
     // NEVER enable on V2 while its existing service worker rewrites navigations.
     // Requires explicit integrated PWA release/source/rollback review.
