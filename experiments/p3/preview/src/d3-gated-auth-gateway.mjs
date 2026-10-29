@@ -19,6 +19,7 @@ import {createD3GuardedOperationsApi} from './d3-guarded-operations-api.mjs';
 import {createD3OwnerSandboxSource} from './d3-owner-sandbox-source.mjs';
 import {createD3OwnerPilotHost} from './d3-owner-pilot-host.mjs';
 import {d3PublishingReady} from './d3-publishing-readiness.mjs';
+import {createD3BenchmarkOwnerRoute} from './d3-benchmark-owner-route.mjs';
 
 const ID=1430581407,OWNER=265665562;
 const authPaths=new Set([
@@ -42,10 +43,12 @@ export function createD3GatedAuthGateway({
   pilotHostFactory=createD3OwnerPilotHost,
   hostAssetFactory=createD3PrivateHostedAsset,
   hostProofFactory=createD3PrivateHostProof,
+  benchmarkRouteFactory=createD3BenchmarkOwnerRoute,
 }={}){
   if(typeof auth?.fetch!=='function'||typeof proxy!=='function'||
     [sessionFactory,storeFactory,apiFactory,sourceReadFactory,
-     hostAssetFactory,hostProofFactory,pilotHostFactory].some(x=>typeof x!=='function'))
+     hostAssetFactory,hostProofFactory,pilotHostFactory,
+     benchmarkRouteFactory].some(x=>typeof x!=='function'))
     throw Error('D3 gateway requires trusted AUTH-P0 dependencies');
   async function fetchRequest(request,env,context){
     let url;
@@ -59,11 +62,13 @@ export function createD3GatedAuthGateway({
     }
     if(authPaths.has(url.pathname)&&!url.searchParams.has('unknown'))
       return auth.fetch(request,env,context);
+    const benchmark=url.pathname.startsWith('/__d3_benchmark__/');
+    if(benchmark&&env.D3_BENCHMARK_ENABLED!=='true')return no();
     const privateTest=url.pathname.startsWith('/__d3_test__/operations/');
     const pilot=url.pathname==='/__d3_pilot__/'||
       url.pathname==='/__d3_pilot__/pilot.js';
     if(pilot&&env.D3_PILOT_ENABLED!=='true')return no();
-    if(!privateTest&&!pilot&&url.pathname!=='/session'&&
+    if(!privateTest&&!pilot&&!benchmark&&url.pathname!=='/session'&&
       !operations(url.pathname))return no();
     if(privateTest&&env.D3_TEST_HOST_ENABLED!=='true')
       return no(404);
@@ -108,6 +113,16 @@ export function createD3GatedAuthGateway({
         enabled:()=>env.D3_READ_TOKENS_ENABLED==='true'&&
           env.D3_SANDBOX_REPO_ID===String(ID),
       });
+      if(benchmark){
+        if(!env.DELIVERY_BENCH_R2?.put||!env.DELIVERY_BENCH_R2?.get)
+          return no(503);
+        const route=benchmarkRouteFactory({
+          origin:env.APP_ORIGIN,ownerSession:session,
+          R2:env.DELIVERY_BENCH_R2,D1:env.OPERATIONS_DB,
+          enabled:()=>env.D3_BENCHMARK_ENABLED==='true',
+        });
+        return await route.handle(request);
+      }
       if(pilot){
         const route=pilotHostFactory({
           origin:env.APP_ORIGIN,ownerSession:session,
