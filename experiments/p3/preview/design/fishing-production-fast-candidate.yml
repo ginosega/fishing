@@ -96,6 +96,7 @@ jobs:
         working-directory: pwa
         run: npm ci --no-audit --no-fund
       - name: Validate canonical content and PR-head release
+        id: content-proof
         if: steps.classify.outputs.mode == 'content'
         working-directory: pwa
         env:
@@ -104,6 +105,7 @@ jobs:
           npm run build -- --base=/fishing/ --source-revision="$SOURCE_REVISION"
           npm run verify
       - name: Verify documentation-only diff
+        id: docs-proof
         if: steps.classify.outputs.mode == 'docs'
         env:
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
@@ -152,6 +154,7 @@ jobs:
           npm run build -- --base=/fishing/ --source-revision="$GITHUB_SHA"
           npm run verify
       - name: Complete production browser and real v1 cutover acceptance
+        id: full-proof
         if: steps.classify.outputs.mode == 'full'
         timeout-minutes: 15
         working-directory: pwa
@@ -175,6 +178,24 @@ jobs:
           include-hidden-files: true
           retention-days: 90
 
+      - name: Require exact source classification and successful validation
+        if: always()
+        env:
+          CLASSIFY_OUTCOME: ${{ steps.classify.outcome }}
+          MODE: ${{ steps.classify.outputs.mode }}
+          CONTENT_OUTCOME: ${{ steps.content-proof.outcome }}
+          FULL_OUTCOME: ${{ steps.full-proof.outcome }}
+          DOCS_OUTCOME: ${{ steps.docs-proof.outcome }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$CLASSIFY_OUTCOME" == success ]] || exit 1
+          case "$MODE" in
+            content) [[ "$CONTENT_OUTCOME" == success ]] ;;
+            full) [[ "$FULL_OUTCOME" == success ]] ;;
+            docs) [[ "$DOCS_OUTCOME" == success ]] ;;
+            *) exit 1 ;;
+          esac
 
   classify:
     if: github.event_name != 'pull_request'
