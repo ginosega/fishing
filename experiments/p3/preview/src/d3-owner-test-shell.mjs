@@ -27,11 +27,13 @@ export function createD3OwnerTestShell({
  need(typeof request==='function'&&typeof bootstrap==='function'&&
   [enabled,online,makeKey,publishingEnabled].every(x=>typeof x==='function'),
   'INVALID_CONFIGURATION');
+ let mediaAllowed=false;
  const owner=createD3AuthoringClient({
   origin,request,enabled,online,
  });
  const lifecycle=createD3PublicationLifecycle({
   client:owner,storage,makeKey,enabled,
+  mediaEnabled:()=>mediaAllowed,
  });
  const sourceClient=createD3SandboxSourceClient({
   origin,request,enabled,online,
@@ -58,6 +60,7 @@ export function createD3OwnerTestShell({
   try{session=await owner.session();}
   catch{deny('OWNER_SESSION_UNAVAILABLE');}
   need(session.authorized===true,'OWNER_SESSION_REQUIRED');
+  mediaAllowed=session.sandboxMediaReady===true;
   let snapshot;
   try{snapshot=await sourceClient.load();}
   catch{deny('SANDBOX_SOURCE_UNAVAILABLE');}
