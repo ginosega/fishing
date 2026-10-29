@@ -6,6 +6,7 @@
  * This does not prove public V3 or public canonical publication.
  */
 import {decodeD2GitBlob} from './d2-worker-source-candidate.mjs';
+import {decodeD4OriginalGitBlob} from './d4-git-blob-stage.mjs';
 import {expectedD3HostedPaths,d3HostedTestPath}
  from './d3-sandbox-host-paths.mjs';
 const ID=1430581407,REPO='ginosega/fishing-p3-sandbox';
@@ -127,10 +128,11 @@ export function createD3PrivateHostProof({
    const entries=tree.tree.filter(x=>x.path===file);
    need(entries.length===1,'FILE_DENIED');
    const blob=await gitRead(token,API+'/git/blobs/'+entries[0].sha);
-   let bytes;
-   try{bytes=await decodeD2GitBlob(entries[0],blob);}
-   catch{deny('BLOB_DIGEST_DENIED');}
    const isImage=/\.(jpe?g|png|webp|gif)$/i.test(file);
+   let bytes;
+   try{bytes=isImage?(await decodeD4OriginalGitBlob(entries[0],blob)).bytes:
+     await decodeD2GitBlob(entries[0],blob);}
+   catch{deny('BLOB_DIGEST_DENIED');}
    need(bytes.length<=(isImage?10*1024*1024:131072),
     'FILE_TOO_LARGE');
    const expectedSha=hex(await crypto.subtle.digest('SHA-256',bytes));
