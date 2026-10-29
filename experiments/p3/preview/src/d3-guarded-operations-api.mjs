@@ -61,12 +61,12 @@ function submission(raw){
   const snapshot=value.snapshot,pkg=snapshot?.package;
   requireTrue(plain(snapshot)&&
     Object.keys(snapshot).sort().join(',')==='media,package'&&
-    Array.isArray(snapshot.media)&&snapshot.media.length===0&&
+    Array.isArray(snapshot.media)&&snapshot.media.length<=24&&
     plain(pkg)&&pkg.format==='fishing-companion-change-v2'&&
     ['gear','kb','catches'].includes(pkg.domain)&&
     ['add','edit'].includes(pkg.operation)&&
-    pkg.picture?.action==='keep'&&
-    (pkg.pictureSequence?.action??'keep')==='keep'&&
+    ['keep','add','replace','remove'].includes(pkg.picture?.action)&&
+    ['keep','set','remove'].includes(pkg.pictureSequence?.action??'keep')&&
     ['keep','create','replace'].includes(pkg.notes?.action)&&
     JSON.stringify(value)===raw,'INVALID_SUBMISSION');
   scan(value);
@@ -95,6 +95,7 @@ function translate(e){
     const status={
       INVALID_CONFIG:503,DISABLED:503,PAYLOAD_TOO_LARGE:413,
       INVALID_JSON:400,INVALID_SUBMISSION:400,
+      INVALID_MEDIA_TICKETS:400,MEDIA_UNAVAILABLE:503,
       UNSAFE_SUBMISSION:400,UNVERIFIED_SOURCE:409,
       SOURCE_CONFLICT:409,STATUS_NOT_FOUND:404,
     }[e.code]??503;
@@ -119,6 +120,10 @@ function translate(e){
  */
 export function createD3GuardedOperationsApi({
   session,store,validateCandidate,enabled=()=>false,
+  mediaEnabled=()=>false,
+  verifyMediaTickets=async(_pkg,media)=>{
+    if(media.length)throw new Error('MEDIA_DISABLED');return [];
+  },
   measure=async(_stage,work)=>work(),
   notifyAccepted=async()=>{},
 }={}){
@@ -126,6 +131,8 @@ export function createD3GuardedOperationsApi({
     typeof session?.[x]==='function')&&
     ['accept','get','latest','lookupReceipt'].every(x=>typeof store?.[x]==='function')&&
     typeof validateCandidate==='function'&&typeof enabled==='function'&&
+    typeof mediaEnabled==='function'&&
+    typeof verifyMediaTickets==='function'&&
     typeof measure==='function'&&typeof notifyAccepted==='function',
     'INVALID_CONFIG');
   async function handle(request){
@@ -138,7 +145,10 @@ export function createD3GuardedOperationsApi({
         // authorized and the coordinator still requires its own hard gates.
         return respond({...owner,sandboxPublishingReady:
           owner?.authenticated===true&&owner?.authorized===true&&
-          enabled()===true});
+          enabled()===true,
+          sandboxMediaReady:owner?.authenticated===true&&
+           owner?.authorized===true&&enabled()===true&&
+           mediaEnabled()===true});
       }
       if(request.method==='POST'&&
         url.pathname==='/api/v3/operations'&&url.search===''){
@@ -169,9 +179,18 @@ export function createD3GuardedOperationsApi({
             canonicalLive:false},200);
         }
         let candidate;
+        const pkg=body.snapshot.package,media=body.snapshot.media;
+        const mediaChanged=pkg.picture.action!=='keep'||
+          (pkg.pictureSequence?.action??'keep')!=='keep'||media.length>0;
+        requireTrue(!mediaChanged||mediaEnabled()===true,
+          'MEDIA_UNAVAILABLE');
+        let verifiedMedia;
+        try{
+          verifiedMedia=await verifyMediaTickets(pkg,media);
+        }catch{deny('INVALID_MEDIA_TICKETS');}
         try{
           candidate=await measure('canonical_source_validation',()=>validateCandidate({
-            package:body.snapshot.package,
+            package:pkg,media,verifiedMedia,
             repositoryId:ID,
             ownerGitHubId:owner.ownerGitHubId,
           }));
@@ -187,7 +206,7 @@ export function createD3GuardedOperationsApi({
           candidate.operation===body.snapshot.package.operation&&
           shaPattern.test(candidate.sourceRevision)&&
           Array.isArray(candidate.changes)&&
-          [1,2].includes(candidate.changes.length),
+          candidate.changes.length>=1&&candidate.changes.length<=26,
           'UNVERIFIED_SOURCE');
         // Store.accept itself enforces owner-scoped idempotency and
         // snapshot/content hash integrity. A 202 is durable, not Live.
