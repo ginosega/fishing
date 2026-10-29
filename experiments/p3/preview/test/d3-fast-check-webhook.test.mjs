@@ -90,3 +90,11 @@ test('E8 duplicate signed messages may wake, but no write occurs from webhook',a
  await f.receiver.handle(await signed());
  assert.equal(f.calls.filter(x=>x[0]==='arm').length,2);
 });
+
+test('E9 signed repository check webhook need not alter App-level subscriptions',async()=>{
+ const f=fixture(),webhook={...payload};
+ delete webhook.installation;
+ const result=await f.receiver.handle(await signed(webhook));
+ assert.equal(result.accepted,true);
+ assert.equal(f.calls.filter(x=>x[0]==='arm').length,1);
+});
