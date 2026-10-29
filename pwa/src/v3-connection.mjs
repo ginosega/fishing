@@ -251,6 +251,8 @@ export function mountD3ConnectionPanel({
     const a=documentObject.createElement('a');
     a.href=globalThis.location?.pathname==='/__d3_pilot__/'?
      '/auth/start?return=%2F__d3_pilot__%2F':
+     globalThis.location?.pathname==='/fishing/__d3_pilot__/'?
+     '/auth/start?return=%2Ffishing%2F__d3_pilot__%2F':
      '/auth/start?return=%2Ffishing%2F';
     a.textContent='Sign in with GitHub';
     a.addEventListener('click',onSignIn);
