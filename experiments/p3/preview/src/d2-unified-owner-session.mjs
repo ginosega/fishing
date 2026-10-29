@@ -104,6 +104,25 @@ export function createD2UnifiedOwnerSession({AUTH_DB,ownerGitHubId,origin,csrfKe
    matches(received,await csrfFor(session)),'CSRF_DENIED');
   return Object.freeze({ownerGitHubId,authorized:true});
  }
+ async function authorizeMedia(request){
+  // Separate POST intent and binary content type; AUTH-P0 session and CSRF
+  // are identical to normal publishing, but a JSON publish request cannot
+  // be confused with a stage-media request.
+  need(request instanceof Request&&request.method==='POST','METHOD_DENIED');
+  need(request.headers.get('Origin')===origin&&
+   request.headers.get('Sec-Fetch-Site')==='same-origin',
+   'CROSS_SITE_DENIED');
+  need(request.headers.get('X-Fish-V3-Intent')==='stage-media',
+   'INTENT_DENIED');
+  need(/^image\/(?:jpeg|png|webp|gif)$/.test(
+   request.headers.get('Content-Type')??''),'CONTENT_TYPE_DENIED');
+  const session=await identity(request);
+  need(session,'SESSION_DENIED');
+  const received=request.headers.get('X-Fish-V3-CSRF');
+  need(typeof received==='string'&&CSRF.test(received)&&
+   matches(received,await csrfFor(session)),'CSRF_DENIED');
+  return Object.freeze({ownerGitHubId,authorized:true});
+ }
  async function authorizeStatus(request){
   need(request instanceof Request&&request.method==='GET','METHOD_DENIED');
   const session=await identity(request);
@@ -123,5 +142,5 @@ export function createD2UnifiedOwnerSession({AUTH_DB,ownerGitHubId,origin,csrfKe
   return Object.freeze({authenticated:true,authorized:true,
    csrfToken:await csrfFor(session),expiresAt:session.expiresAt});
  }
- return Object.freeze({describe,authorizeWrite,authorizeStatus,authorizePilotPage});
+ return Object.freeze({describe,authorizeWrite,authorizeMedia,authorizeStatus,authorizePilotPage});
 }
