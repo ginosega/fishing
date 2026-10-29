@@ -204,16 +204,15 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
     // until the next independently loaded canonical release.
     for(const control of form.querySelectorAll('input,select,textarea,button'))
      control.disabled=true;
-    // A confirmed server receipt replaces Save/Cancel with one Exit action.
-    // Rejected changes still show the editable form and validation errors.
-    form.hidden=true;
-    output.replaceChildren(text('h3','Publication accepted'),
-     text('p','The server accepted this change. Publication and hosted verification are still in progress.','hint'),
-     text('p','Operation ID'),el('code',{},receipt.operationId),
-     text('p','You may leave the editor and check publication status later.'),
-     toolbar(button('Exit',onExit,{variant:'primary'})));
-    status(notice,'Accepted. This is not yet verified as Live.','success');
-    status(actionNotice,'Accepted. Publication verification is in progress.','success');
+    // Keep the accepted form visible and locked for review. Replace only
+    // Save and Publish / Cancel with a single Exit action. A rejected save
+    // does not reach this branch and retains editable actions.
+    actions.replaceChildren(button('Exit',onExit,{variant:'primary'}));
+    output.replaceChildren(text('p',
+     'Publication accepted. Verification and publishing are in progress. You may leave the editor and check publication status in the Connection Status screen.',
+     'hint'));
+    notice.replaceChildren();
+    actionNotice.replaceChildren();
     onDirty?.(false);
     try{onPrepared?.(receipt);}catch{ /* Callback cannot undo server acceptance. */ }
     return;
