@@ -346,7 +346,9 @@ export function createD1OperationStore({DB,ownerGitHubId,repositoryId=SANDBOX_ID
   const query='UPDATE p3_operations SET state=?,updated_at=?,lease_owner=NULL,lease_expires_at=NULL'+
     (from==='Merging'&&to==='Deploying'?',reason_code=NULL':'')+
     (pairs.length?','+pairs.join(','):'')+
-    ' WHERE operation_id=? AND github_id=? AND repo_id=? AND state=? AND lease_owner=? AND lease_expires_at>? RETURNING operation_id,state,pr_number,pr_head_sha,main_base_sha,merge_sha,workflow_run_id,verified_release_id,reason_code';
+    ' WHERE operation_id=? AND github_id=? AND repo_id=? AND state=? AND lease_owner=? AND lease_expires_at>? '+
+    (from==='Merging'&&to==='Deploying'?"AND reason_code='merge_attempted' AND workflow_run_id>0 ":'')+
+    'RETURNING operation_id,state,pr_number,pr_head_sha,main_base_sha,merge_sha,workflow_run_id,verified_release_id,reason_code';
   const row=await sql(query,to,at,...values,operationId,ownerGitHubId,SANDBOX_ID,from,leaseOwner,at).first();
   return row?publicRecord(row):null;
  }
