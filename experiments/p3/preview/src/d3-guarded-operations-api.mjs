@@ -119,11 +119,13 @@ function translate(e){
  */
 export function createD3GuardedOperationsApi({
   session,store,validateCandidate,enabled=()=>false,
+  measure=async(_stage,work)=>work(),
 }={}){
   requireTrue(['describe','authorizeWrite','authorizeStatus'].every(x=>
     typeof session?.[x]==='function')&&
     ['accept','get','latest','lookupReceipt'].every(x=>typeof store?.[x]==='function')&&
-    typeof validateCandidate==='function'&&typeof enabled==='function',
+    typeof validateCandidate==='function'&&typeof enabled==='function'&&
+    typeof measure==='function',
     'INVALID_CONFIG');
   async function handle(request){
     try{
@@ -140,7 +142,7 @@ export function createD3GuardedOperationsApi({
       if(request.method==='POST'&&
         url.pathname==='/api/v3/operations'&&url.search===''){
         requireTrue(enabled()===true,'DISABLED');
-        const owner=await session.authorizeWrite(request);
+        const owner=await measure('owner_authorization',()=>session.authorizeWrite(request));
         requireTrue(owner?.authorized===true&&owner.ownerGitHubId===OWNER,
           'UNVERIFIED_SOURCE');
         const length=request.headers.get('Content-Length');
@@ -166,11 +168,11 @@ export function createD3GuardedOperationsApi({
         }
         let candidate;
         try{
-          candidate=await validateCandidate({
+          candidate=await measure('canonical_source_validation',()=>validateCandidate({
             package:body.snapshot.package,
             repositoryId:ID,
             ownerGitHubId:owner.ownerGitHubId,
-          });
+          }));
         }catch(e){
           if(['SOURCE_CONFLICT','SOURCE_CHANGED',
             'DUPLICATE_OR_INVALID_ADD','MAIN_MOVED','MARKDOWN_COLLISION'
@@ -187,7 +189,7 @@ export function createD3GuardedOperationsApi({
           'UNVERIFIED_SOURCE');
         // Store.accept itself enforces owner-scoped idempotency and
         // snapshot/content hash integrity. A 202 is durable, not Live.
-        const row=await store.accept(body);
+        const row=await measure('idempotent_accept',()=>store.accept(body));
         requireTrue(operationPattern.test(row?.operationId)&&
           typeof row.state==='string'&&typeof row.inserted==='boolean',
           'UNVERIFIED_SOURCE');
