@@ -1,0 +1,201 @@
+{
+  "schema": "fishing-v3-publishing-baseline-v1",
+  "provenance": "GitHub REST actions runs/{id}, runs/{id}/jobs, pull requests/{n}; October 5-15 and October 27 2026 UTC; observed integer-second resolution",
+  "postMerge": [
+    {
+      "id": 37255448422,
+      "run": 491,
+      "pr": null,
+      "total": 164,
+      "queue": 69,
+      "classify": 10,
+      "classificationHandoff": 2,
+      "validateJob": 32,
+      "validationHandoff": 3,
+      "deployToProof": 48,
+      "buildStep": 10,
+      "deployPages": 22,
+      "hostVerify": 7
+    },
+    {
+      "id": 37887329753,
+      "run": 495,
+      "pr": 221,
+      "total": 95,
+      "queue": 2,
+      "classify": 10,
+      "classificationHandoff": 2,
+      "validateJob": 28,
+      "validationHandoff": 4,
+      "deployToProof": 49,
+      "buildStep": 9,
+      "deployPages": 7,
+      "hostVerify": 12
+    },
+    {
+      "id": 37890243751,
+      "run": 500,
+      "pr": 223,
+      "total": 99,
+      "queue": 2,
+      "classify": 7,
+      "classificationHandoff": 3,
+      "validateJob": 39,
+      "validationHandoff": 4,
+      "deployToProof": 44,
+      "buildStep": 13,
+      "deployPages": 6,
+      "hostVerify": 12
+    },
+    {
+      "id": 37890919676,
+      "run": 502,
+      "pr": null,
+      "total": 138,
+      "queue": 19,
+      "classify": 9,
+      "classificationHandoff": 2,
+      "validateJob": 32,
+      "validationHandoff": 4,
+      "deployToProof": 72,
+      "buildStep": 12,
+      "deployPages": 13,
+      "hostVerify": 22
+    },
+    {
+      "id": 37891311432,
+      "run": 503,
+      "pr": null,
+      "total": 117,
+      "queue": 2,
+      "classify": 11,
+      "classificationHandoff": 2,
+      "validateJob": 45,
+      "validationHandoff": 4,
+      "deployToProof": 53,
+      "buildStep": 10,
+      "deployPages": 22,
+      "hostVerify": 8
+    },
+    {
+      "id": 37947602051,
+      "run": 510,
+      "pr": 225,
+      "total": 100,
+      "queue": 3,
+      "classify": 7,
+      "classificationHandoff": 3,
+      "validateJob": 36,
+      "validationHandoff": 4,
+      "deployToProof": 47,
+      "buildStep": 12,
+      "deployPages": 13,
+      "hostVerify": 10
+    },
+    {
+      "id": 37953015607,
+      "run": 512,
+      "pr": 226,
+      "total": 183,
+      "queue": 2,
+      "classify": 7,
+      "classificationHandoff": 3,
+      "validateJob": 29,
+      "validationHandoff": 4,
+      "deployToProof": 138,
+      "buildStep": 9,
+      "deployPages": 93,
+      "hostVerify": 17
+    },
+    {
+      "id": 38207507318,
+      "run": 517,
+      "pr": 228,
+      "total": 85,
+      "queue": 2,
+      "classify": 9,
+      "classificationHandoff": 1,
+      "validateJob": 29,
+      "validationHandoff": 4,
+      "deployToProof": 40,
+      "buildStep": 11,
+      "deployPages": 12,
+      "hostVerify": 7
+    },
+    {
+      "id": 38686171921,
+      "run": 520,
+      "pr": 230,
+      "total": 99,
+      "queue": 2,
+      "classify": 8,
+      "classificationHandoff": 2,
+      "validateJob": 35,
+      "validationHandoff": 4,
+      "deployToProof": 48,
+      "buildStep": 13,
+      "deployPages": 13,
+      "hostVerify": 8
+    }
+  ],
+  "prToHosted": [
+    {
+      "pr": 221,
+      "ciComplete": 80,
+      "ciToMerge": 12,
+      "mergeToHosted": 98,
+      "total": 190
+    },
+    {
+      "pr": 223,
+      "ciComplete": 54,
+      "ciToMerge": 14,
+      "mergeToHosted": 102,
+      "total": 170
+    },
+    {
+      "pr": 225,
+      "ciComplete": 48,
+      "ciToMerge": 50,
+      "mergeToHosted": 102,
+      "total": 200
+    },
+    {
+      "pr": 226,
+      "ciComplete": 42,
+      "ciToMerge": 20,
+      "mergeToHosted": 187,
+      "total": 249
+    },
+    {
+      "pr": 228,
+      "ciComplete": 46,
+      "ciToMerge": 16,
+      "mergeToHosted": 88,
+      "total": 150
+    },
+    {
+      "pr": 230,
+      "ciComplete": 46,
+      "ciToMerge": 12,
+      "mergeToHosted": 102,
+      "total": 160
+    }
+  ],
+  "privateSandbox": [
+    {
+      "pr": 17,
+      "createdToCiComplete": 49,
+      "ciCompleteToMerge": 547,
+      "createdToMerge": 596,
+      "notPublic": true
+    },
+    {
+      "pr": 18,
+      "createdToCiComplete": 25,
+      "ciCompleteToMerge": 577,
+      "createdToMerge": 602,
+      "notPublic": true
+    }
+  ]
+}
