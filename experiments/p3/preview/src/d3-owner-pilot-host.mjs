@@ -8,8 +8,9 @@
  * An approved future binding must supply actual bundled JS bytes and pin
  * their SHA-256. No anonymous/static fallback or arbitrary asset fetch.
  */
-import {D3_OWNER_PILOT_HTML,D3_OWNER_PILOT_PATH,
- D3_OWNER_PILOT_SCRIPT} from './d3-owner-pilot-page.mjs';
+import {D3_OWNER_PILOT_PATH,D3_OWNER_PILOT_SCRIPT,
+ D3_SCOPED_PILOT_PATH,D3_SCOPED_PILOT_SCRIPT,
+ d3PilotHtmlForPath} from './d3-owner-pilot-page.mjs';
 
 const OWNER=265665562,MAX_BUNDLE=3*1024*1024;
 const SHA=/^[0-9a-f]{64}$/;
@@ -35,12 +36,14 @@ const hex=bytes=>[...new Uint8Array(bytes)]
 export function createD3OwnerPilotHost({
  origin,ownerSession,readBundle,
  expectedSha256=null,enabled=()=>false,
+ integratedEnabled=()=>false,
 }={}){
  if(typeof origin!=='string'||!origin.startsWith('https://')||
   new URL(origin).origin!==origin||
   typeof ownerSession?.authorizeStatus!=='function'||
   typeof ownerSession?.authorizePilotPage!=='function'||
-  typeof readBundle!=='function'||typeof enabled!=='function')
+  typeof readBundle!=='function'||typeof enabled!=='function'||
+  typeof integratedEnabled!=='function')
   throw Error('D3 pilot route requires trusted owner dependencies');
  async function serve(req){
   // Hide the pilot entirely until future separately authorized activation.
@@ -49,11 +52,17 @@ export function createD3OwnerPilotHost({
   let url;
   try{url=new URL(req.url);}catch{return denied();}
   if(url.origin!==origin||url.search||url.hash||
-   req.headers.has('Authorization')||
-   ![D3_OWNER_PILOT_PATH,D3_OWNER_PILOT_SCRIPT].includes(url.pathname))
+   req.headers.has('Authorization'))return denied();
+  const integrated=url.pathname===D3_SCOPED_PILOT_PATH||
+   url.pathname===D3_SCOPED_PILOT_SCRIPT;
+  if(integrated&&integratedEnabled()!==true)return denied();
+  if(![D3_OWNER_PILOT_PATH,D3_OWNER_PILOT_SCRIPT,
+   D3_SCOPED_PILOT_PATH,D3_SCOPED_PILOT_SCRIPT].includes(url.pathname))
    return denied();
+  const page=url.pathname===D3_OWNER_PILOT_PATH||
+   url.pathname===D3_SCOPED_PILOT_PATH;
   let owner;
-  try{owner=await (url.pathname===D3_OWNER_PILOT_PATH?
+  try{owner=await (page?
     ownerSession.authorizePilotPage(req):
     ownerSession.authorizeStatus(req));}
   catch{return denied(401);}
@@ -69,9 +78,9 @@ export function createD3OwnerPilotHost({
    bytes.length>MAX_BUNDLE)return denied(503);
   const digest=hex(await crypto.subtle.digest('SHA-256',bytes));
   if(digest!==expectedSha256)return denied(503);
-  return url.pathname===D3_OWNER_PILOT_SCRIPT?
+  return !page?
    response(bytes,'text/javascript; charset=utf-8'):
-   response(textEncoder.encode(D3_OWNER_PILOT_HTML),
+   response(textEncoder.encode(d3PilotHtmlForPath(url.pathname)),
     'text/html; charset=utf-8');
  }
  return Object.freeze({serve});
