@@ -25,7 +25,11 @@ export function createD3StorageBenchmark({R2,D1,enabled=()=>false}={}){
   'INVALID_BINDINGS');
  const gate=()=>need(enabled()===true,'BENCHMARK_DISABLED');
  async function row(){
-  const value=await D1.prepare(
+  // Never allow an unbookmarked stale read replica to supply the active
+  // version. Start the read at the D1 primary when Sessions API exists.
+  const primary=typeof D1.withSession==='function'?
+   D1.withSession('first-primary'):D1;
+  const value=await primary.prepare(
    'SELECT active_version,active_sha256,last_run_id FROM p3_delivery_benchmark_pointer WHERE scope=?'
   ).bind(SCOPE).first();
   need(value!==null&&validVersion(value.active_version)&&
