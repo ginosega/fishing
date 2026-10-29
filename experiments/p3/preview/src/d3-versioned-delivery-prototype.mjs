@@ -11,7 +11,7 @@
  * A successful commit-addressed staging/activation simulation is NOT a
  * real provider benchmark or a substitute for independent public host proof.
  */
-const ID=1430581407, REPO='ginosega/fishing';
+const CANONICAL_ID=1350909744, REPO='ginosega/fishing';
 const SHA=/^[0-9a-f]{40}$/;
 const SIZE_LIMIT=512*1024, FILE_LIMIT=20;
 const enc=new TextEncoder();
@@ -54,7 +54,7 @@ export function createD3VersionedDeliveryPrototype({
   // browser's claimed main, merge SHA, PR or checked head.
   const source=await loadCanonical({operationId,repository:REPO});
   need(source?.repository===REPO&&
-    source.repositoryId!==ID&&
+    source.repositoryId===CANONICAL_ID&&
     SHA.test(source.commitSha??'')&&
     source.commitSha===source.mergeSha&&
     SHA.test(source.prHeadSha??'')&&
