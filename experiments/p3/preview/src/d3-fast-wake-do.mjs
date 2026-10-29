@@ -10,6 +10,7 @@ import {createD1OperationStore} from './d1-operation-store.mjs';
 import {createD3SandboxTokenIssuers} from './d3-sandbox-token-issuers.mjs';
 import {createD3SandboxScheduledCoordinator} from './d3-sandbox-scheduled-coordinator.mjs';
 import {createD3PrivateHostProof} from './d3-private-host-proof.mjs';
+import {createD3HostedMediaVerifier} from './d3-hosted-media-verifier.mjs';
 import {d3PublishingReady} from './d3-publishing-readiness.mjs';
 const OWNER=265665562,ID=1430581407,OP=/^p3_[0-9a-f-]{36}$/;
 export class D3FastWakeAlarm {
@@ -57,9 +58,16 @@ export class D3FastWakeAlarm {
   const requestGitHub=fetch,requestHosted=fetch,env=this.env;
   const {issueReadToken,issueWriteToken}=createD3SandboxTokenIssuers({
    env,request:requestGitHub,enabled:()=>d3PublishingReady(env)});
+  // The DO wake must prove the SAME signed original media receipts as
+  // Cron. Without this injection image operations can merge but remain
+  // indefinitely Verifying due to the host's default MEDIA_DISABLED.
+  const verifyMedia=createD3HostedMediaVerifier({
+   origin:env.APP_ORIGIN,secret:env.D2_CSRF_KEY,
+   enabled:()=>env.D4_MEDIA_ENABLED==='true',
+  });
   const hosted=createD3PrivateHostProof({
    origin:env.APP_ORIGIN,key:env.D2_HOST_PROBE_KEY,
-   store,issueReadToken,requestGitHub,requestHosted});
+   store,issueReadToken,requestGitHub,requestHosted,verifyMedia});
   const trace=createD3PublishingSpanRecorder({
    operationId,enabled:env.D3_FAST_TRACE_ENABLED==='true',
    sink:async entry=>console.info('FISH118_D3_FAST_SPAN',JSON.stringify(entry)),
