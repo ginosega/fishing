@@ -77,12 +77,21 @@ export function createD3ConnectionController({
  async function refreshPublication({silent=false,canApply=()=>true}={}){
   gate();offline();need(state.authorized,'OWNER_REQUIRED');
   need(typeof canApply==='function','INVALID_CONFIG');
-  // The manual button and the automatic timer share this single request.
-  // Never issue overlapping status GETs, and never POST as a retry.
-  if(statusRequest)return statusRequest;
+  // A previous generation's GET must finish before we start a new one,
+  // but must not strand a reopened dialog or a newly accepted operation.
+  // Same-generation, same-operation readers share the existing GET.
+  const seq=generation;
+  if(statusRequest){
+   const previous=statusRequest;
+   await previous.promise;
+   if(seq!==generation||!state.authorized||!online()||!canApply())
+    return current();
+   const now=lifecycle.tracking()?.operationId??null;
+   if(previous.seq===seq&&previous.id===now)return current();
+   return refreshPublication({silent,canApply});
+  }
   const tracked=lifecycle.tracking();
   const id=OP.test(tracked?.operationId??'')?tracked.operationId:null;
-  const seq=generation;
   const work=(async()=>{
    try{
     const result=id?await lifecycle.refresh():await lifecycle.discover();
@@ -119,8 +128,11 @@ export function createD3ConnectionController({
     return current();
    }
   })();
-  statusRequest=work;
-  return work.finally(()=>{if(statusRequest===work)statusRequest=null;});
+  const promise=work.finally(()=>{
+   if(statusRequest?.promise===promise)statusRequest=null;
+  });
+  statusRequest={seq,id,promise};
+  return promise;
  }
  return Object.freeze({current,restore,signOut,refreshPublication});
 }
