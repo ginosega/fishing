@@ -315,6 +315,22 @@ export function createD1OperationStore({DB,ownerGitHubId,repositoryId=SANDBOX_ID
     leaseOwner,at+leaseSeconds,at,operationId,ownerGitHubId,SANDBOX_ID,'Live','Conflict','Failed',at).first();
   return row?{operationId:row.operation_id,state:row.state,expiresAt:row.lease_expires_at}:null;
  }
+ // A known pending read-only CI check does not deserve the entire 60s
+ // lease. Release ONLY the same owner/operation in Checking, allowing the
+ // named-operation watchdog's next 8.5s independent GitHub observation.
+ // No state transition, check result, merge receipt, or Live claim is written.
+ async function releasePendingCheckLease({operationId,leaseOwner}={}){
+  check(opId(operationId)&&token(leaseOwner),'INVALID_PENDING_RELEASE');
+  const at=ts();
+  const row=await sql(
+   "UPDATE p3_operations SET lease_owner=NULL,lease_expires_at=NULL "+
+   "WHERE operation_id=? AND github_id=? AND repo_id=? "+
+   "AND state='Checking' AND reason_code IS NULL "+
+   "AND lease_owner=? AND lease_expires_at>? "+
+   "RETURNING operation_id",
+   operationId,ownerGitHubId,SANDBOX_ID,leaseOwner,at).first();
+  return row?.operation_id===operationId;
+ }
  async function advance({operationId,leaseOwner,from,to,details={}}={}){
   check(opId(operationId)&&token(leaseOwner)&&states.has(from)&&states.has(to),'INVALID_ADVANCE');
   check(nextStates[from]?.includes(to),'INVALID_TRANSITION');
@@ -342,5 +358,5 @@ export function createD1OperationStore({DB,ownerGitHubId,repositoryId=SANDBOX_ID
  return Object.freeze({accept,get,latest,lookupReceipt,readSnapshot,nextEligible,
   findCheckingByHead,
   nextRecoverableMerge,nextRecoverableMergeFor,reconcileVerifiedMerge,branchReceipt,saveBranchReceipt,
-  markMergeAttempt,saveMergeReceipt,claim,advance,events});
+  markMergeAttempt,saveMergeReceipt,claim,releasePendingCheckLease,advance,events});
 }
