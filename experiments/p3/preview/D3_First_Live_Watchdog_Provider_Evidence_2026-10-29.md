@@ -21,3 +21,17 @@ Owner reports pressing **Save and Publish at approximately 9:10 AM America/Los_A
 **Not yet established:** exact owner click timestamp; exact D1 Accepted, Verifying and Live timestamps; whether the observed 60–120s duration can be shortened below 60s; durable alarm behavior under dropped event/restart beyond this ordinary missing-hook case; public V3 host/PWA, public Pages CI/merge/deploy paths. No claim of production public SLA compliance.
 
 **Next:** read-only D1 audit for the new operation `p3_3a45cec8-3838-4964-898e-24575a740588` using exact merge SHA, preserve all 4 prior Live receipts and existing public V2, then activate signed `check_run` receiver on private Worker with GitHub hook still inactive. Confirm unauthorized requests 401, then manually check Active on GitHub repository-only webhook, test fresh text-only publication, compare event-received path with watchdog-only baseline. No production workflow change or public publication authorized.
+
+## Second owner-run private webhook-enabled publication (October 29, 2026)
+
+Owner reports Save and Publish → Connection Status Live **129 seconds (2m09s)**, clicking Check publication status about every two seconds. **Merging** appeared longest, then **Checking**. These are owner-observed UI dwell impressions, not exact D1 transition durations.
+
+- GitHub PR #20: https://github.com/ginosega/fishing-p3-sandbox/pull/20; D1 operation `p3_9be42fb6-9ceb-4b52-b5b8-4f7539a95a74`. Created **09:45:40 PDT**, merged **09:46:18 PDT** (38 seconds PR→merge). Exact head `fa4e00d83f0a19419aba8090ec4fbe7e823d9c3e`.
+- Exact-head private PR run `40914738853` created **09:45:44 PDT**, completed success ~**09:46:03 PDT** (19s); CI end→merge ~15s.
+- Subsequent run `40914825824` created **09:46:17 PDT**, completed ~**09:46:35 PDT**; GitHub identifies it as another `pull_request` validation, NOT a Pages/hosted verification.
+- Private sandbox main merge commit `05d71a936a979610eae82907909d5599bcdee0a0`.
+- Comparison: watchdog-only PR #19 created→merged 40s; webhook-enabled PR #20 created→merged 38s. One webhook-enabled test does **not demonstrate an end-to-end improvement**.
+- The owner-observed end-to-end **129s exceeds 60s**. Need exact read-only D1 `p3_events` state transition times and a GitHub repository webhook Recent Deliveries response (HTTP 202 and `accepted` value) before attributing delays. Do not infer the webhook matched an operation merely because the PR merged.
+- Next: query D1 events by exact operation ID using event_at Unix seconds and per-state `LEAD(event_at)-event_at`, without database mutation. Verify GitHub check_run completed delivery response `accepted:true/false` without copying signatures or secrets. Preserve all prior verified operation receipts.
+
+The owner-approved future Connection Status automatic polling (~5 seconds while the panel is visible and a publication is pending, stopping in terminal states) is documented separately. UI polling is not a fix for backend publication latency.
