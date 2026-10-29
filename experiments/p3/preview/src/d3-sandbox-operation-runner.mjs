@@ -24,7 +24,7 @@ const need=(v,code)=>{if(!v)fail(code);};
 const positive=n=>Number.isSafeInteger(n)&&n>0;
 function textOnly(pkg){
   return pkg?.format==='fishing-companion-change-v2'&&
-    ['gear','kb'].includes(pkg.domain)&&
+    ['gear','kb','catches'].includes(pkg.domain)&&
     ['add','edit'].includes(pkg.operation)&&
     pkg.picture?.action==='keep'&&
     (pkg.pictureSequence?.action??'keep')==='keep'&&
@@ -33,15 +33,18 @@ function textOnly(pkg){
 function expectedPaths(pkg){
   need(textOnly(pkg),'INVALID_SNAPSHOT');
   const canonical=pkg.domain==='gear'?'pwa/Gear/gear.json':
-    'pwa/KB/kb.json';
+    pkg.domain==='kb'?'pwa/KB/kb.json':'pwa/Catches/catches.json';
   const paths=[canonical];
   if(pkg.notes.action!=='keep'){
     let relative;
     try{relative=safePath(pkg.notes.path);}
     catch{fail('UNSAFE_MARKDOWN_PATH');}
-    const prefix=pkg.domain==='gear'?'Gear/':'KB/';
+    const prefix=pkg.domain==='gear'?'Gear/':
+      pkg.domain==='kb'?'KB/':'Catches/content/';
     need(relative.startsWith(prefix)&&relative.includes('/content/')&&
-      relative.endsWith('.md'),'UNSAFE_MARKDOWN_PATH');
+      relative.endsWith('.md')&&
+      (pkg.domain!=='catches'||relative.split('/').length===3),
+      'UNSAFE_MARKDOWN_PATH');
     paths.push('pwa/'+relative);
   }
   return paths;
