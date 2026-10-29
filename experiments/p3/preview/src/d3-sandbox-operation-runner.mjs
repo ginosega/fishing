@@ -26,11 +26,11 @@ function textOnly(pkg){
   return pkg?.format==='fishing-companion-change-v2'&&
     ['gear','kb','catches'].includes(pkg.domain)&&
     ['add','edit'].includes(pkg.operation)&&
-    pkg.picture?.action==='keep'&&
-    (pkg.pictureSequence?.action??'keep')==='keep'&&
+    ['keep','add','replace','remove'].includes(pkg.picture?.action)&&
+    ['keep','set','remove'].includes(pkg.pictureSequence?.action??'keep')&&
     ['keep','create','replace'].includes(pkg.notes?.action);
 }
-function expectedPaths(pkg){
+function expectedPaths(pkg,media=[]){
   need(textOnly(pkg),'INVALID_SNAPSHOT');
   const canonical=pkg.domain==='gear'?'pwa/Gear/gear.json':
     pkg.domain==='kb'?'pwa/KB/kb.json':'pwa/Catches/catches.json';
@@ -47,6 +47,18 @@ function expectedPaths(pkg){
       'UNSAFE_MARKDOWN_PATH');
     paths.push('pwa/'+relative);
   }
+  for(const m of media){
+    let relative;
+    try{relative=safePath(m.path);}catch{fail('UNSAFE_MEDIA_PATH');}
+    need(['gear','kb'].includes(pkg.domain)&&
+      relative.startsWith(pkg.domain==='gear'?'Gear/':'KB/')&&
+      relative.includes('/assets/')&&
+      /\.(jpe?g|png|webp|gif)$/i.test(relative),
+      'UNSAFE_MEDIA_PATH');
+    paths.push('pwa/'+relative);
+  }
+  need(paths.length<=26&&new Set(paths).size===paths.length,
+   'INVALID_EXPECTED_PATHS');
   return paths;
 }
 function exactPaths(expected,observed){
@@ -58,11 +70,14 @@ function exactPaths(expected,observed){
 export function createD3SandboxOperationRunner({
   store,currentMain,createDraft,observeCheck,merge,verifyHosted,
   verifyMerged=async()=>null,enabled=()=>false,
+  verifyMedia=async(_pkg,media)=>{
+    need(media.length===0,'MEDIA_DISABLED');return [];
+  },
   measure=async(_phase,work)=>work(),
 }={}){
   need(['claim','get','advance','readSnapshot','markMergeAttempt'].every(x=>
     typeof store?.[x]==='function')&&
-    [currentMain,createDraft,observeCheck,merge,verifyMerged,verifyHosted,enabled,measure]
+    [currentMain,createDraft,observeCheck,merge,verifyMerged,verifyHosted,enabled,verifyMedia,measure]
       .every(x=>typeof x==='function'),'INVALID_CONFIGURATION');
   async function run({operationId,leaseOwner}={}){
     need(enabled()===true,'RUNNER_DISABLED');
@@ -87,15 +102,17 @@ export function createD3SandboxOperationRunner({
     if(state==='Accepted')return advance('Validating');
     if(state==='Validating'){
       const saved=await measure('snapshot_validation',()=>store.readSnapshot(operationId));
-      need(textOnly(saved?.package)&&Array.isArray(saved.media)&&
-        saved.media.length===0,'INVALID_SNAPSHOT');
+      need(textOnly(saved?.package)&&Array.isArray(saved.media),
+        'INVALID_SNAPSHOT');
       const pkg=saved.package;
-      expectedPaths(pkg);
+      const media=await verifyMedia(pkg,saved.media,{allowExpired:true});
+      expectedPaths(pkg,media);
       const base=await currentMain({repositoryId:ID,operationId,
         package:pkg});
       need(SHA.test(base),'MAIN_UNVERIFIED');
       const pr=await measure('github_prepare_pr',()=>createDraft({operationId,repositoryId:ID,
-        expectedMainSha:base,domain:pkg.domain,package:pkg,leaseOwner}));
+        expectedMainSha:base,domain:pkg.domain,package:pkg,
+        media:saved.media,leaseOwner}));
       need(pr?.baseSha===base&&SHA.test(pr.headSha)&&
         positive(pr.number)&&pr.state==='open'&&pr.merged===false&&
         pr.branch===BRANCH(operationId),'PR_UNVERIFIED');
@@ -181,9 +198,10 @@ export function createD3SandboxOperationRunner({
     if(state==='Verifying'){
       need(SHA.test(record.mergeSha??''),'MERGE_RECEIPT_MISSING');
       const saved=await store.readSnapshot(operationId);
-      need(textOnly(saved?.package)&&Array.isArray(saved.media)&&
-        saved.media.length===0,'INVALID_SNAPSHOT');
-      const paths=expectedPaths(saved.package);
+      need(textOnly(saved?.package)&&Array.isArray(saved.media),
+        'INVALID_SNAPSHOT');
+      const media=await verifyMedia(saved.package,saved.media,{allowExpired:true});
+      const paths=expectedPaths(saved.package,media);
       const verified=await measure('hosted_byte_release_proof',()=>verifyHosted({
         operationId,repositoryId:ID,mergeSha:record.mergeSha,
         expectedPaths:paths,canonicalLive:false,
