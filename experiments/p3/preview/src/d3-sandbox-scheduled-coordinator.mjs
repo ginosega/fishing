@@ -33,10 +33,11 @@ const methods=['nextEligible','claim','get','readSnapshot','advance',
 export function createD3SandboxScheduledCoordinator({
  env,store,requestGitHub,issueReadToken,issueWriteToken,verifyHosted,
  makeLease=()=> 'd3-'+crypto.randomUUID(),
+ measure=async(_phase,work)=>work(),
 }={}){
  need(env&&typeof env==='object'&&methods.every(k=>
   typeof store?.[k]==='function')&&
-  [requestGitHub,issueReadToken,issueWriteToken,verifyHosted,makeLease]
+  [requestGitHub,issueReadToken,issueWriteToken,verifyHosted,makeLease,measure]
    .every(x=>typeof x==='function'),'INVALID_CONFIGURATION');
  const active=()=>env.D3_RUNNER_ENABLED==='true'&&
   env.D3_WRITE_ENABLED==='true'&&
@@ -102,7 +103,7 @@ export function createD3SandboxScheduledCoordinator({
   request:requestGitHub,issueReadToken,enabled:()=>hosted(),
  });
  const runner=createD3SandboxOperationRunner({
-  store,enabled:()=>active(),
+  store,enabled:()=>active(),measure,
   currentMain:async({repositoryId})=>{
    need(repositoryId===ID,'REPOSITORY_DENIED');
    const source=await reader.loadSnapshot({repositoryId:ID});
