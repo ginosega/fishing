@@ -166,7 +166,7 @@ jobs:
           path: pwa/dist/
           retention-days: 30
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        if: ${{ steps.classify.outputs.mode == 'full' && always() }} # always()
+        if: ${{ always() && steps.classify.outputs.mode == 'full' }}
         with:
           name: production-acceptance-evidence
           path: |
@@ -373,9 +373,8 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
     timeout-minutes: 15
-    concurrency:
-      group: fishing-pages
-      cancel-in-progress: false
+    # The top-level workflow already serializes main. Reusing the same
+    # concurrency key inside this job can deadlock against its own run.
     environment:
       name: github-pages
       url: https://ginosega.github.io/fishing/
