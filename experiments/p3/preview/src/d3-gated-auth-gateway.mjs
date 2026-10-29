@@ -159,11 +159,16 @@ export function createD3GatedAuthGateway({
       const grant=issueReadToken??issuers.issueReadToken;
       const mediaEnabled=()=>env.D4_MEDIA_ENABLED==='true'&&
         d3PublishingReady(env);
-      const mediaStage=mediaStageFactory({
-        origin:env.APP_ORIGIN,session,
-        requestGitHub:transport,issueWriteToken:issuers.issueWriteToken,
-        secret:env.D2_CSRF_KEY,enabled:mediaEnabled,
-      });
+      // Never even instantiate binary staging unless explicitly enabled.
+      // D3's text-only worker must not gain a new token or HMAC ingress.
+      const mediaStage=env.D4_MEDIA_ENABLED==='true'?
+        mediaStageFactory({
+         origin:env.APP_ORIGIN,session,
+         requestGitHub:transport,issueWriteToken:issuers.issueWriteToken,
+         secret:env.D2_CSRF_KEY,enabled:mediaEnabled,
+        }):Object.freeze({
+         handle:async()=>no(),verifyTicket:async()=>{throw Error('D4_OFF');},
+        });
       if(mediaRoute)return await mediaStage.handle(request);
       const source=createD3SandboxSnapshotLoader({
         request:transport,issueReadToken:grant,
