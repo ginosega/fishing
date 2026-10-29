@@ -459,3 +459,24 @@ test('D3-C20 a server-accepted receipt remains pending after first GET fails',as
  assert.equal(state.sandboxVerified,false);
  assert.equal(state.publicLive,false);
 });
+
+
+test('D3-C21 in-scope owner PWA sign-in returns only to exact private app page',()=>{
+ const prior=Object.getOwnPropertyDescriptor(globalThis,'location');
+ Object.defineProperty(globalThis,'location',{configurable:true,
+  value:{pathname:'/fishing/__d3_pilot__/'}});
+ try{
+  const x=build({authenticated:false,authorized:false});
+  const dialog=new Element('dialog');
+  const panel=mountD3ConnectionPanel({
+   dialog,controller:x.controller,documentObject,
+  });
+  const link=dialog.children[0].children[2].children[0];
+  assert.equal(link.href,
+   '/auth/start?return=%2Ffishing%2F__d3_pilot__%2F');
+  panel.remove();
+ }finally{
+  if(prior)Object.defineProperty(globalThis,'location',prior);
+  else delete globalThis.location;
+ }
+});
