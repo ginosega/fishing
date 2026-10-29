@@ -10,7 +10,8 @@ test('FISH118 D3 beta editor Save/Publish is strictly opt-in; v2 manual authorin
  assert.match(editor,/publishChange=null/);
  assert.match(editor,/publishChange\?'Save and Publish':'Prepare Changes'/);
  assert.match(editor,/if\(publishChange\)/);
- assert.match(editor,/const receipt=await publishChange\(prepared\)/);
+ assert.match(editor,/const receipt=await publishChange\(prepared,files\)/);
+ assert.match(editor,/if\(publishChange&&!ctx\.v3\?\.stageMedia\)/);
  assert.match(editor,/receipt\?\.accepted!==true/);
  assert.match(editor,/saveAccepted=true/);
  assert.match(editor,/const dirty=\(\)=>!saveAccepted/);
