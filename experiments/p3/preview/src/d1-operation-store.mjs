@@ -347,7 +347,7 @@ export function createD1OperationStore({DB,ownerGitHubId,repositoryId=SANDBOX_ID
     (from==='Merging'&&to==='Deploying'?',reason_code=NULL':'')+
     (pairs.length?','+pairs.join(','):'')+
     ' WHERE operation_id=? AND github_id=? AND repo_id=? AND state=? AND lease_owner=? AND lease_expires_at>? '+
-    (from==='Merging'&&to==='Deploying'?"AND reason_code='merge_attempted' AND workflow_run_id>0 AND (merge_sha IS NULL OR merge_sha=?) ":'')+
+    (from==='Merging'&&to==='Deploying'?"AND reason_code='merge_attempted' AND (merge_sha IS NULL OR merge_sha=?) ":'')+
     'RETURNING operation_id,state,pr_number,pr_head_sha,main_base_sha,merge_sha,workflow_run_id,verified_release_id,reason_code';
   const row=await sql(query,to,at,...values,operationId,ownerGitHubId,SANDBOX_ID,from,leaseOwner,at,
     ...(from==='Merging'&&to==='Deploying'?[details.mergeSha]:[])).first();
