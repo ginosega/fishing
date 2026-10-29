@@ -51,7 +51,7 @@ export function createD3CheckWebhookWake({
   const check=payload?.check_run,repo=payload?.repository;
   if(payload?.action!=='completed'||repo?.id!==REPO_ID||
      repo.full_name!==REPO||repo.private!==true||
-     payload?.installation?.id!==INSTALLATION_ID||
+     (payload?.installation!=null&&payload.installation.id!==INSTALLATION_ID)||
      check?.app?.id!==ACTIONS_APP_ID||check?.name!==CHECK||
      check?.status!=='completed'||check?.conclusion!=='success'||
      !SHA.test(check.head_sha??'')||
