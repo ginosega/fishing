@@ -196,6 +196,22 @@ export function createD1OperationStore({DB,ownerGitHubId,repositoryId=SANDBOX_ID
    ownerGitHubId,SANDBOX_ID,at).first();
   return row?.operation_id??null;
  }
+ // The alarm for ONE durable operation may only reconcile THAT operation.
+ // The periodic Cron retains the older global ordered recovery query.
+ async function nextRecoverableMergeFor(operationId){
+  check(opId(operationId),'INVALID_OPERATION_ID');
+  const at=ts();
+  const row=await sql("SELECT operation_id FROM p3_operations "+
+   "WHERE operation_id=? AND github_id=? AND repo_id=? "+
+   "AND state='Merging' AND reason_code='merge_attempted' "+
+   "AND (merge_sha IS NULL OR (length(merge_sha)=40 AND "+
+   "merge_sha NOT GLOB '*[^0-9a-f]*')) "+
+   "AND pr_number>0 AND length(pr_head_sha)=40 "+
+   "AND length(main_base_sha)=40 AND workflow_run_id>0 "+
+   "AND lease_expires_at IS NOT NULL AND lease_expires_at<=?",
+   operationId,ownerGitHubId,SANDBOX_ID,at).first();
+  return row?.operation_id??null;
+ }
  // Called only after independently obtaining immutable PR, current main,
  // exact squash parent and changed-file evidence. One operation, one CAS.
  // Never calls GitHub; never permits skipping hosted-byte verification.
@@ -325,6 +341,6 @@ export function createD1OperationStore({DB,ownerGitHubId,repositoryId=SANDBOX_ID
  }
  return Object.freeze({accept,get,latest,lookupReceipt,readSnapshot,nextEligible,
   findCheckingByHead,
-  nextRecoverableMerge,reconcileVerifiedMerge,branchReceipt,saveBranchReceipt,
+  nextRecoverableMerge,nextRecoverableMergeFor,reconcileVerifiedMerge,branchReceipt,saveBranchReceipt,
   markMergeAttempt,saveMergeReceipt,claim,advance,events});
 }
