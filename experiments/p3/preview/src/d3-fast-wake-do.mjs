@@ -5,6 +5,7 @@
  * Alarms are wake-ups; all canonical state and merge evidence remains in D1.
  */
 import {createD3FastWatchdog} from './d3-fast-watchdog.mjs';
+import {createD3PublishingSpanRecorder} from './d3-publishing-span-recorder.mjs';
 import {createD1OperationStore} from './d1-operation-store.mjs';
 import {createD3SandboxTokenIssuers} from './d3-sandbox-token-issuers.mjs';
 import {createD3SandboxScheduledCoordinator} from './d3-sandbox-scheduled-coordinator.mjs';
@@ -59,9 +60,13 @@ export class D3FastWakeAlarm {
   const hosted=createD3PrivateHostProof({
    origin:env.APP_ORIGIN,key:env.D2_HOST_PROBE_KEY,
    store,issueReadToken,requestGitHub,requestHosted});
+  const trace=createD3PublishingSpanRecorder({
+   operationId,enabled:env.D3_FAST_TRACE_ENABLED==='true',
+   sink:async entry=>console.info('FISH118_D3_FAST_SPAN',JSON.stringify(entry)),
+  });
   const coordinator=createD3SandboxScheduledCoordinator({
    env,store,requestGitHub,issueReadToken,issueWriteToken,
-   verifyHosted:info=>hosted.verifyHosted(info)});
+   verifyHosted:info=>hosted.verifyHosted(info),measure:trace.measure});
   const watch=createD3FastWatchdog({
    enabled:()=>this._enabled(),
    getOperation:id=>store.get(id),
