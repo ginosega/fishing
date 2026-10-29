@@ -87,3 +87,11 @@ test('P2-06 required check fails closed on missing/failed/misclassified lanes',(
  for(const id of ['content-proof','full-proof','docs-proof'])
   assert.match(pr,new RegExp('id: '+id+'\\b'));
 });
+
+test('P3-04 Pages environment is not created on full main pushes',()=>{
+ assert.match(main,/needs: classify/);
+ assert.match(main,/needs\.classify\.outputs\.mode == 'content'/);
+ assert.doesNotMatch(main,/\n      - id: classify/);
+ assert.ok(!candidate.includes('\n  deploy-content:\n'),
+  'old content deploy must not race new content deploy');
+});
