@@ -25,7 +25,7 @@ const validReport=(r,id)=>r&&r.operationId===id&&
  typeof r.publicLive==='boolean'&&typeof r.sandboxVerified==='boolean'&&
  typeof r.needsAttention==='boolean';
 const textOnlyPackage=p=>p?.format==='fishing-companion-change-v2'&&
- ['gear','kb'].includes(p.domain)&&['add','edit'].includes(p.operation)&&
+ ['gear','kb','catches'].includes(p.domain)&&['add','edit'].includes(p.operation)&&
  p.picture?.action==='keep'&&p.pictureSequence?.action==='keep';
 const portableJson=value=>{
  let string;
