@@ -74,24 +74,23 @@ re-verified on the **exact replacement workflow** before any merge.
 
 ### P3 — one main-only content release job candidate
 
-The same candidate workflow includes `main-fast-content`, which runs
-the original source classification, **rebuilds on the actual merged main
+The same candidate workflow includes `main-fast-content`, which reuses
+the existing main-push classification job and **rebuilds on the actual merged main
 SHA**, validates canonical/release integrity, uploads directly to Pages,
 guards current main, deploys, and independently verifies hosted files
 and release identity **inside one main-only job**.
 
-It removes the separate main fast-lane classification dependency,
-validation job, cross-job generic artifact handoff and second checkout.
+It preserves the main classifier to avoid an unnecessary `github-pages`
+environment activation on full-application pushes, but removes the
+separate main content validation job, cross-job generic artifact handoff
+and second checkout.
 The original full application validation and deployment path is carried
 forward. No PR job receives Pages write or id-token write.
 
-**Important unresolved rollout nuance:** `main-fast-content` carries a
-`github-pages` environment declaration even on main pushes that will
-classify as *full* and skip its content deployment. Before activating the
-replacement, verify that this does not create unnecessary deployment
-records, review gates or concurrency conflicts with `deploy-full`.
-The original top-level main concurrency key is retained; the extra
-same-key job concurrency was removed to prevent self-deadlock.
+`main-fast-content` is guarded by `needs.classify.outputs.mode == 'content'`,
+so full-application pushes do not enter its Pages environment. The original
+top-level main concurrency key is retained; no nested same-key job
+concurrency is permitted.
 
 ### Source acceptance evidence
 
@@ -101,6 +100,32 @@ notifications, persisted alarm re-arm, CI watchdog backoff, main/PR
 workflow guardrails, local YAML parse where Ruby is available, browser
 pilot bundle parity, and Wrangler worker dry-run packaging. Record the
 *latest exact-head* successful CI run before any approval.
+
+## Owner approval and engineering guardrail update (October 29, 2026)
+
+The owner **approved** sandbox-only new SQLite Durable Object provisioning,
+a repository-level signed `check_run` webhook, and a guarded refresh of the
+existing private test Worker. This does **not** approve public route changes,
+R2 activation, GitHub production writer permissions, or production publishing
+workflow cutover.
+
+Actual Cloudflare/GitHub account changes remain **unperformed** from this
+session: no Cloudflare management connector and no GitHub repository webhook
+create action are connected. Owner local Wrangler/GitHub UI execution is
+required to apply approved changes. The guarded owner-run script
+`tools/prepare-d3-fast-watchdog.ps1` defaults to **PREPARE+DRY-RUN**,
+derives from the actual ignored known-good
+`wrangler.d3-cross-device-status-fix.local.jsonc`, preserves D1,
+existing flags/Cron/Pages, verifies current Worker version, and requires
+a separate `-Deploy` switch plus the exact predecessor Worker version.
+Both modes reject changed baseline D1/public V2 and configuration drift.
+
+One further P1 safety correction: named-operation DO alarms now call
+`coordinator.tick({targetOperationId})` and use the exact matching
+`store.nextRecoverableMergeFor(operationId)`; they can no longer
+advance another owner's older queued operation. The existing periodic
+Cron continues global ordered recovery. A marked merge remains
+ineligible for a second merge call.
 
 ## Before any live sandbox activation — explicit scope-gated owner decision
 
