@@ -14,8 +14,11 @@ const enc=new TextEncoder();
 const allowed=Object.freeze({jpg:'image/jpeg',jpeg:'image/jpeg',
  png:'image/png',webp:'image/webp',gif:'image/gif'});
 const b64=bytes=>{
- let result='';for(const b of bytes)result+=String.fromCharCode(b);
- return btoa(result);
+ // Chunk conversion to limit Worker CPU for multi-megabyte originals.
+ const chunks=[];
+ for(let i=0;i<bytes.length;i+=32768)
+  chunks.push(String.fromCharCode(...bytes.subarray(i,i+32768)));
+ return btoa(chunks.join(''));
 };
 const web64=bytes=>b64(bytes).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
 const matches=(a,b)=>{
