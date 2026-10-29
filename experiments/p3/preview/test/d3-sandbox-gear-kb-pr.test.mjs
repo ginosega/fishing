@@ -22,7 +22,7 @@ const gitHash=bytes=>createHash('sha1')
   .update(bytes).digest('hex');
 
 function fixture({enabled=true,wrongRepo=false,badToken=false,
-  changedMain=false,planned=[json,md],candidateDomain='kb',
+  changedMain=false,planned=[json,md],domain='kb',candidateDomain=domain,
   existingBranch=false,receipt=true,badBlob=false,
   wrongPR=false,oldReceipt=false}={}){
   const trace=[];
@@ -96,7 +96,7 @@ function fixture({enabled=true,wrongRepo=false,badToken=false,
     onBranchCreated:async data=>data,
   });
   const create=()=>adapter.createDraft({
-    operationId:OP,domain:'kb',expectedMainSha:BASE,package:pkg,
+    operationId:OP,domain,expectedMainSha:BASE,package:{...pkg,domain},
   });
   return {adapter,create,trace,
     get branchCommitted(){return branchCommitted;},
@@ -194,4 +194,37 @@ test('D3-P08 forged PR head does not pass verification',async()=>{
   const x=fixture({wrongPR:true});
   await assert.rejects(x.create(),denied('PR_IDENTITY_DENIED'));
   assert(x.branchCommitted);
+});
+
+test('D4-P01 source-verified Catch JSON and Markdown use exact scoped Git blobs',async()=>{
+ const catchJson={action:'write',path:'pwa/Catches/catches.json',
+  body:'{"schemaVersion":2,"catches":[]}\n'};
+ const catchMd={action:'write',path:'pwa/Catches/content/catch-test-existing.md',
+  body:'# Synthetic Catch\n'};
+ const x=fixture({domain:'catches',planned:[catchJson,catchMd]});
+ const receipt=await x.create();
+ assert.equal(receipt.state,'open');
+ assert.equal(receipt.merged,false);
+ const blobs=x.trace.filter(r=>r.url===API+'/git/blobs');
+ assert.equal(blobs.length,2);
+ assert.deepEqual(blobs.map(r=>Buffer.from(
+  JSON.parse(r.body).content,'base64').toString()),
+  [catchJson.body,catchMd.body]);
+ assert(x.trace.every(r=>r.url.startsWith(API)));
+ assert(!x.trace.some(r=>/\\/merge$/.test(r.url)));
+});
+test('D4-P02 Catch draft PR rejects mislocated or extra-path writes',async()=>{
+ const canonical={action:'write',path:'pwa/Catches/catches.json',
+  body:'{"schemaVersion":2,"catches":[]}\n'};
+ for(const bad of [
+  {action:'write',path:'pwa/Catches/assets/photo.jpg',body:'not-image'},
+  {action:'write',path:'pwa/KB/Locations/content/Other.md',body:'wrong'},
+  {action:'write',path:'pwa/Catches/content/../private.md',body:'unsafe'},
+  {action:'write',path:'pwa/Catches/content/nested/file.md',body:'too-deep'},
+ ]){
+  const x=fixture({domain:'catches',planned:[canonical,bad]});
+  await assert.rejects(x.create(),e=>e instanceof D3SandboxPRError&&
+   ['UNSAFE_CANDIDATE_WRITE','UNSAFE_CONTENT_PATH'].includes(e.code));
+  assert(!x.trace.some(r=>r.method==='POST'));
+ }
 });
