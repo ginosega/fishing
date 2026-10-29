@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
+import {spawnSync} from 'node:child_process';
 const candidate=await fs.readFile(new URL('../design/fishing-production-fast-candidate.yml',import.meta.url),'utf8');
 const baseline=await fs.readFile(new URL('../../../../.github/workflows/fishing-production.yml',import.meta.url),'utf8');
 const section=(all,a,b)=>{
@@ -64,4 +65,13 @@ test('P2P3-04 no production workflow changed on active public branch',()=>{
  assert.match(baseline,/  deploy-content:/);
  assert.doesNotMatch(baseline,/  main-fast-content:/);
  assert.match(candidate,/SOURCE-ONLY candidate/);
+});
+
+test('P2P3-05 parse candidate YAML with Ruby/Psych when available',t=>{
+ const file=new URL('../design/fishing-production-fast-candidate.yml',import.meta.url).pathname;
+ const result=spawnSync('ruby',['-e',
+  "require 'yaml'; YAML.parse_file(ARGV[0]); puts 'valid YAML'",file],
+  {encoding:'utf8',timeout:10000});
+ if(result.error?.code==='ENOENT'){t.skip('Ruby YAML parser not installed locally');return;}
+ assert.equal(result.status,0,(result.stderr||result.error?.message||'YAML parsing failed').slice(0,2000));
 });
