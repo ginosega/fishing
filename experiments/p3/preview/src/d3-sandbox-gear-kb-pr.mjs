@@ -41,7 +41,8 @@ const exactGrant=permissions=>obj(permissions)&&
   (!Object.hasOwn(permissions,'metadata')||
    permissions.metadata==='read');
 const fileLocation=domain=>domain==='gear'?'pwa/Gear/gear.json':
-  domain==='kb'?'pwa/KB/kb.json':null;
+  domain==='kb'?'pwa/KB/kb.json':
+  domain==='catches'?'pwa/Catches/catches.json':null;
 function markdownLocation(path,domain){
   need(typeof path==='string'&&path.startsWith('pwa/'),
     'UNSAFE_CONTENT_PATH');
@@ -49,9 +50,11 @@ function markdownLocation(path,domain){
   try{relative=safePath(path.slice(4));}
   catch{fail('UNSAFE_CONTENT_PATH');}
   need(path==='pwa/'+relative&&
-    relative.startsWith(domain==='gear'?'Gear/':'KB/')&&
+    relative.startsWith(domain==='gear'?'Gear/':
+      domain==='kb'?'KB/':'Catches/content/')&&
     relative.includes('/content/')&&relative.endsWith('.md')&&
-    relative.split('/').length>=4,'UNSAFE_CONTENT_PATH');
+    (domain==='catches'?relative.split('/').length===3:
+      relative.split('/').length>=4),'UNSAFE_CONTENT_PATH');
   return path;
 }
 function base64(bytes){
@@ -147,7 +150,7 @@ export function createD3SandboxGearKBPRAdapter({
     operationId,domain,expectedMainSha,package:pkg,
   }={}){
     need(enabled()===true,'WRITES_DISABLED');
-    need(OP.test(operationId)&&['gear','kb'].includes(domain)&&
+    need(OP.test(operationId)&&['gear','kb','catches'].includes(domain)&&
       SHA.test(expectedMainSha)&&obj(pkg)&&pkg.domain===domain&&
       ['add','edit'].includes(pkg.operation),
       'INVALID_REQUEST');
