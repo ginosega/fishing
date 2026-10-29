@@ -81,16 +81,30 @@ test('D4-UX07 absent Gear picture sequence never leaks to strict record schema',
  assert(editor.includes("if(baseRecord.pictureSequence===undefined)delete record.pictureSequence;"));
 });
 
-test('D4-UX08 server-accepted Gear/KB and Catch hide Save/Cancel form and offer Exit',()=>{
+test('D4-UX08 accepted Gear/KB and Catch retain visible form and replace only actions',()=>{
  const gear=readFileSync(new URL('../src/editor.mjs',import.meta.url),'utf8');
  const catchSource=readFileSync(new URL('../src/catch-editor.mjs',import.meta.url),'utf8');
- assert(gear.includes('form.hidden=true;'));
- assert(catchSource.includes('form.hidden=true;'));
- for(const source of [gear,catchSource]){
-  assert(source.includes("toolbar(button('Exit',onExit,{variant:'primary'}))"));
-  assert(source.indexOf('form.hidden=true;') > source.indexOf("accepted=true") ||
-    source.includes('saveAccepted=true'));
+ for(const src of [gear,catchSource]){
+  assert(!src.includes('form.hidden=true;'));
+  assert(src.includes("actions.replaceChildren(button('Exit',onExit,{variant:'primary'}))"));
+  assert(src.includes('Publication accepted. Verification and publishing are in progress. You may leave the editor and check publication status in the Connection Status screen.'));
+  assert(!src.includes("'Operation ID'"));
+  assert(src.includes("control.disabled=true"));
  }
  assert(gear.includes("if(!saveAccepted)prepareButton.disabled=false"));
  assert(catchSource.includes("if(!accepted)submit.disabled=false"));
+});
+test('D4-UX09 pilot creates prefixed Knot ID and rejects manual unsafe test ID',()=>{
+ const gear=readFileSync(new URL('../src/editor.mjs',import.meta.url),'utf8');
+ assert(gear.includes("ctx.v3?.source?.sandboxOnly===true?'p3-'+c.value:c.value"));
+ assert(gear.includes("!record.id.startsWith('p3-')"));
+ assert(gear.indexOf("!record.id.startsWith('p3-')") < gear.indexOf('const files=sequenceSet?'));
+});
+test('D4-UX10 Live owner source revision refresh is pilot-only and editor-safe',()=>{
+ const shell=readFileSync(new URL('../src/ui.mjs',import.meta.url),'utf8');
+ assert(shell.includes('sourceRefreshChecked'));
+ assert(shell.includes("state.publication==='Live'&&state.sandboxVerified===true"));
+ assert(shell.includes('latest!==ctx.release.sourceRevision'));
+ assert(shell.includes("window.location.reload()"));
+ assert(shell.includes("'kb-edit','kb-add'"));
 });
