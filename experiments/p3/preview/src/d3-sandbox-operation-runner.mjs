@@ -54,12 +54,12 @@ function exactPaths(expected,observed){
 }
 export function createD3SandboxOperationRunner({
   store,currentMain,createDraft,observeCheck,merge,verifyHosted,
-  enabled=()=>false,
+  verifyMerged=async()=>null,enabled=()=>false,
   measure=async(_phase,work)=>work(),
 }={}){
   need(['claim','get','advance','readSnapshot','markMergeAttempt'].every(x=>
     typeof store?.[x]==='function')&&
-    [currentMain,createDraft,observeCheck,merge,verifyHosted,enabled,measure]
+    [currentMain,createDraft,observeCheck,merge,verifyMerged,verifyHosted,enabled,measure]
       .every(x=>typeof x==='function'),'INVALID_CONFIGURATION');
   async function run({operationId,leaseOwner}={}){
     need(enabled()===true,'RUNNER_DISABLED');
@@ -135,15 +135,40 @@ export function createD3SandboxOperationRunner({
       return advance('Merging',{workflowRunId:check.workflowRunId});
     }
     if(state==='Merging'){
-      // If remote merge outcome is ambiguous, leave the D1 marker intact
-      // for an independently proved read-only reconciliation. Never retry.
+      // The durable marker blocks any second GitHub merge request.
       need(record.reasonCode==null,'MERGE_RECONCILIATION_REQUIRED');
       const marked=await store.markMergeAttempt({operationId,leaseOwner});
       need(marked===true,'MERGE_RECONCILIATION_REQUIRED');
-      const result=await measure('github_protected_merge',()=>merge({...receipt,operationId,leaseOwner}));
-      need(result?.sandboxMerged===true&&
-        result.repositoryId===ID&&result.canonicalLive===false&&
-        SHA.test(result.mergeSha),'MERGE_UNVERIFIED');
+      let result;
+      try{
+        result=await measure('github_protected_merge',()=>merge({...receipt,operationId,leaseOwner}));
+        need(result?.sandboxMerged===true&&result.repositoryId===ID&&
+          result.canonicalLive===false&&SHA.test(result.mergeSha),
+          'MERGE_UNVERIFIED');
+      }catch(error){
+        // A lost/ambiguous merge acknowledgement may follow a SUCCESSFUL
+        // provider PUT. Prove the exact merged PR using READ-ONLY GETs
+        // while the original D1 lease is still held; never repeat PUT.
+        let proof;
+        try{
+          proof=await measure('merge_fast_independent_proof',()=>verifyMerged({
+            operationId,repositoryId:ID,prNumber:receipt.prNumber,
+            prHeadSha:receipt.expectedHeadSha,mainBaseSha:receipt.expectedBaseSha,
+            workflowRunId:record.workflowRunId,canonicalLive:false,
+          }));
+        }catch{throw error;}
+        if(!(proof?.verified===true&&proof.repositoryId===ID&&
+          proof.operationId===operationId&&proof.prNumber===receipt.prNumber&&
+          proof.prHeadSha===receipt.expectedHeadSha&&
+          proof.mainBaseSha===receipt.expectedBaseSha&&
+          proof.workflowRunId===record.workflowRunId&&
+          proof.canonicalLive===false&&SHA.test(proof.mergeSha??'')))
+          throw error;
+        // The existing D1 advance is an atomic CAS on THIS unexpired lease,
+        // the exact operation and Merging state. Failed CAS falls back to
+        // the original no-retry, expired-lease read-only recovery.
+        return advance('Deploying',{mergeSha:proof.mergeSha});
+      }
       return advance('Deploying',{mergeSha:result.mergeSha});
     }
     if(state==='Deploying'){
