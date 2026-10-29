@@ -64,3 +64,11 @@ test('DO-06 invalid method and path cannot arm',async()=>{
   method:'POST',headers:{'Content-Type':'text/plain'},body:'{}'}))).status,404);
  assert.deepEqual(f.changes,[]);
 });
+
+test('DO-07 finishing alarm always schedules next even while old alarm is visible',async()=>{
+ const f=fixture(),now=Date.now();
+ await f.send(id,now+1000);
+ await f.obj._schedule(id,now+2500,true);
+ assert.equal(f.changes.length,2);
+ assert.ok(f.changes[1]>f.changes[0]);
+});
