@@ -181,13 +181,14 @@ export async function createCatchEditor(ctx,{
   }catch(error){status(notice,error.message,'error');}
  });
   const submit=el('button',{type:'submit',class:'btn primary'},'Save and Publish');
+ const actions=toolbar(submit,button('Cancel',onBack));
  form.append(
   field('Catch ID (fixed after publication)',idInput),
   field('Date',dateInput),field('Time (optional)',timeInput),
   field('Size (optional)',sizeInput),
   speciesField,locationField,lureField,
   field('Notes (Markdown, optional)',noteInput),previewButton,preview,
-  toolbar(submit,button('Cancel',onBack)),actionNotice,
+  actions,actionNotice,
  );
  form.addEventListener('submit',async event=>{
   event.preventDefault();
@@ -205,15 +206,14 @@ export async function createCatchEditor(ctx,{
    accepted=true;
    for(const control of form.querySelectorAll('input,select,textarea,button'))
     control.disabled=true;
-   // Once the durable receipt exists, remove editing and Cancel actions.
-   // On any rejected submission the form stays visible for correction.
-   form.hidden=true;
-   output.replaceChildren(text('h3','Publication accepted'),
-    text('p','The Catch was accepted by the server. Source and hosted verification are in progress.','hint'),
-    text('p','Operation ID'),el('code',{},receipt.operationId),
-    text('p','Use Connection Status to check the final verified result.'),
-    toolbar(button('Exit',onExit,{variant:'primary'})));
-   status(notice,'Accepted. This is not yet verified as Live.','success');
+   // Keep the submitted Catch form visible and locked for review.
+   // Rejected submissions keep Save and Publish / Cancel for correction.
+   actions.replaceChildren(button('Exit',onExit,{variant:'primary'}));
+   output.replaceChildren(text('p',
+    'Publication accepted. Verification and publishing are in progress. You may leave the editor and check publication status in the Connection Status screen.',
+    'hint'));
+   notice.replaceChildren();
+   actionNotice.replaceChildren();
    onDirty(false);
    try{onPrepared(receipt);}catch{ /* Cannot undo a durable receipt. */ }
   }catch(error){
