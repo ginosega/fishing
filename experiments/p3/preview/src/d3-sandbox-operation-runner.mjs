@@ -110,7 +110,19 @@ export function createD3SandboxOperationRunner({
         'PR_RECEIPT_MISSING');
     }
     if(state==='Checking'){
-      const check=await measure('check_observation',()=>observeCheck(receipt));
+      let check;
+      try{check=await measure('check_observation',()=>observeCheck(receipt));}
+      catch(error){
+        // A pending (read-only) GitHub check must release this exact D1
+        // lease so the next DO alarm can retry before the 60s TTL.
+        // Unknown check, identity, merge and network outcomes are NEVER
+        // silently treated as a successful check or published release.
+        if(['CHECK_PENDING','CHECK_MISSING_OR_AMBIGUOUS'].includes(error?.code)){
+          const released=await store.releasePendingCheckLease({operationId,leaseOwner});
+          need(released===true,'CHECK_LEASE_RELEASE_DENIED');
+        }
+        throw error;
+      }
       need(check?.repositoryId===ID&&
         check.prNumber===receipt.prNumber&&
         check.headSha===receipt.expectedHeadSha&&
