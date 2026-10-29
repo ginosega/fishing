@@ -436,3 +436,26 @@ test('D3-C19 Failed and Conflict are terminal and never self-republish',async()=
   panel.remove();
  }
 });
+
+
+test('D3-C20 a server-accepted receipt remains pending after first GET fails',async()=>{
+ let reads=0;
+ const controller=createD3ConnectionController({
+  enabled:()=>true,online:()=>true,
+  auth:{session:async()=>({authenticated:true,authorized:true}),
+   signOut:async()=>true},
+  lifecycle:{
+   tracking:()=>({operationId:OP,phase:'Accepted'}),
+   refresh:async()=>{reads++;throw Error('temporary status timeout');},
+  },
+ });
+ await controller.restore();
+ await controller.refreshPublication();
+ const state=controller.current();
+ assert.equal(reads,1);
+ assert.equal(state.operationId,OP);
+ assert.equal(state.publication,'Accepted');
+ assert.equal(state.statusReadError,true);
+ assert.equal(state.sandboxVerified,false);
+ assert.equal(state.publicLive,false);
+});
