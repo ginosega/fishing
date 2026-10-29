@@ -138,6 +138,10 @@ export function createD3SandboxOperationRunner({
         // Do NOT bypass CI, resubmit the operation or merge its PR.
         if(error?.code==='CHECK_NOT_SUCCESSFUL')
           return advance('Failed',{reasonCode:'sandbox_ci_failed'});
+        // A trusted PR may outlive a separately merged sandbox workflow
+        // update. Old main/head receipts cannot be merged or rebased.
+        if(['MAIN_MOVED','PR_HEAD_OR_BASE_MOVED'].includes(error?.code))
+          return advance('Conflict',{reasonCode:'sandbox_source_moved'});
         // A pending (read-only) GitHub check must release this exact D1
         // lease so the next DO alarm can retry before the 60s TTL.
         // Unknown check, identity, merge and network outcomes are NEVER
