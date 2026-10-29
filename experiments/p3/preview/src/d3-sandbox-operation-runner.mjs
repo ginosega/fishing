@@ -133,6 +133,11 @@ export function createD3SandboxOperationRunner({
       let check;
       try{check=await measure('check_observation',()=>observeCheck(receipt));}
       catch(error){
+        // This exact PR/head/base's completed CI check failed. The owner
+        // receives a durable terminal Failed instead of endless Checking.
+        // Do NOT bypass CI, resubmit the operation or merge its PR.
+        if(error?.code==='CHECK_NOT_SUCCESSFUL')
+          return advance('Failed',{reasonCode:'sandbox_ci_failed'});
         // A pending (read-only) GitHub check must release this exact D1
         // lease so the next DO alarm can retry before the 60s TTL.
         // Unknown check, identity, merge and network outcomes are NEVER
