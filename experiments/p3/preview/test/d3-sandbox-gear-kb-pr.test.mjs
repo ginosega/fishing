@@ -24,7 +24,7 @@ const gitHash=bytes=>createHash('sha1')
 function fixture({enabled=true,wrongRepo=false,badToken=false,
   changedMain=false,planned=[json,md],domain='kb',candidateDomain=domain,
   existingBranch=false,receipt=true,badBlob=false,
-  wrongPR=false,oldReceipt=false}={}){
+  wrongPR=false,oldReceipt=false,stagedBlob=null}={}){
   const trace=[];
   let mainReads=0,branchCommitted=false,branchHead=NEXT,prExists=false;
   const request=async(url,options)=>{
@@ -45,6 +45,12 @@ function fixture({enabled=true,wrongRepo=false,badToken=false,
       return reply({sha:BASE,tree:{sha:TREE}});
     if(url===API+'/git/commits/'+NEXT)
       return reply({sha:NEXT,parents:[{sha:BASE}]});
+    if(stagedBlob&&url===API+'/git/blobs/'+stagedBlob.sha&&
+       options.method==='GET'){
+      return reply({sha:stagedBlob.sha,encoding:'base64',
+       content:Buffer.from(stagedBlob.bytes).toString('base64'),
+       size:stagedBlob.bytes.length});
+    }
     if(url===API+'/git/blobs'&&options.method==='POST'){
       const b=JSON.parse(options.body);
       const bytes=Buffer.from(b.content,'base64');
@@ -227,4 +233,42 @@ test('D4-P02 Catch draft PR rejects mislocated or extra-path writes',async()=>{
    ['UNSAFE_CANDIDATE_WRITE','UNSAFE_CONTENT_PATH'].includes(e.code));
   assert(!x.trace.some(r=>r.method==='POST'));
  }
+});
+
+test('D4-P03 signed staged original is re-read and joins SAME verified Git tree',async()=>{
+ const bytes=new Uint8Array([255,216,255,1,2,3,4,5]);
+ const sha=createHash('sha1')
+  .update(Buffer.from('blob '+bytes.length+'\0'))
+  .update(bytes).digest('hex');
+ const digest=createHash('sha256').update(bytes).digest('hex');
+ const staged={action:'staged',
+  path:'pwa/KB/Locations/assets/Original.jpg',
+  blobSha:sha,sha256:digest,bytes:bytes.length};
+ const x=fixture({planned:[json,md,staged],
+  stagedBlob:{sha,bytes}});
+ const result=await x.create();
+ assert.equal(result.state,'open');
+ const stagedRead=x.trace.find(v=>
+  v.url===API+'/git/blobs/'+sha&&v.method==='GET');
+ assert(stagedRead);
+ const textUploads=x.trace.filter(v=>v.url===API+'/git/blobs'&&
+  v.method==='POST');
+ assert.equal(textUploads.length,2,'Only textual files are newly created');
+ const tree=x.trace.find(v=>v.url===API+'/git/trees'&&v.method==='POST');
+ const entries=JSON.parse(tree.body).tree;
+ assert.equal(entries.length,3);
+ assert.deepEqual(entries.at(-1),{
+  path:staged.path,type:'blob',mode:'100644',sha,
+ });
+});
+test('D4-P04 staged-original mismatch prevents all repository mutations',async()=>{
+ const bytes=new Uint8Array([255,216,255,1,2,3]);
+ const sha=gitHash(bytes);
+ const staged={action:'staged',
+  path:'pwa/KB/Locations/assets/Original.jpg',
+  blobSha:sha,sha256:'1'.repeat(64),bytes:bytes.length};
+ const x=fixture({planned:[json,md,staged],
+  stagedBlob:{sha,bytes}});
+ await assert.rejects(x.create(),denied('UNVERIFIED_STAGED_GIT_BLOB'));
+ assert(!x.trace.some(v=>v.method==='POST'));
 });
