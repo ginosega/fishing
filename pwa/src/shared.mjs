@@ -83,6 +83,9 @@ export function validateSemantics(data, taxonomy={}) {
   for(const c of maps.catches.values()) {
     for(const [key,domain,type] of [['speciesId','kb','species'],['locationId','kb','location']])if(c[key])assert(maps[domain].get(c[key])?.type===type,`Invalid Catch ${key}: ${c.id}`);
     if(c.lureOrBaitId)assert(['lures','bait'].includes(maps.gear.get(c.lureOrBaitId)?.category),`Invalid Catch lure/bait: ${c.id}`);
+    for(const prefix of ['species','location','lureOrBait'])
+      assert(!(c[prefix+'Id']&&c[prefix+'Name']),
+       `Catch ${prefix} cannot contain both a linked ID and free-text name: ${c.id}`);
   }
   return maps;
 }
