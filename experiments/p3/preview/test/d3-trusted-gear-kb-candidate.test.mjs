@@ -148,3 +148,50 @@ test('D3-S09 reproduces owner editor normalization on exact D2 Gear source',asyn
  assert.deepEqual(item.links,[]);
  assert.equal(x.reads,1);
 });
+
+test('D4-S10 validated staged original joins the exact Gear JSON candidate',async()=>{
+ const original=structuredClone(data.gear.items[0]);
+ const picture='Gear/Rods-Reels/assets/Synthetic Original.jpg';
+ const staged={path:picture,blobSha:'f'.repeat(40),
+  sha256:'d'.repeat(64),bytes:43,mime:'image/jpeg'};
+ const record={...original,picture:{src:picture}};
+ const pkg=await prepareChange({domain:'gear',operation:'edit',
+  id:record.id,record,baseRecord:original,sourceRevision:SHA,
+  pictureAction:'add',picturePath:picture,
+  pictureFile:{bytes:43,sha256:staged.sha256},
+ });
+ const v=createD3TrustedGearKBCandidate({
+  enabled:()=>true,loadSnapshot:async()=>source(),
+  verifyMediaTickets:async(_pkg,media)=>{
+   assert.deepEqual(media,[{ticket:'synthetic-owner-proof'}]);
+   return [staged];
+  },
+ });
+ const result=await v.plan({
+  package:pkg,media:[{ticket:'synthetic-owner-proof'}],
+  repositoryId:ID,ownerGitHubId:OWNER,operationId:
+   'p3_01234567-1234-4234-8234-123456789abc',
+ });
+ assert.equal(result.changes.length,2);
+ assert.equal(result.changes[0].path,'pwa/Gear/gear.json');
+ assert.deepEqual(result.changes[1],{
+  action:'staged',path:'pwa/'+picture,
+  blobSha:staged.blobSha,sha256:staged.sha256,bytes:43,
+ });
+});
+test('D4-S11 a claimed picture without a verified canonical or staged original is denied',async()=>{
+ const original=structuredClone(data.gear.items[0]);
+ const path='Gear/Rods-Reels/assets/Missing.jpg';
+ const record={...original,picture:{src:path}};
+ const pkg=await prepareChange({domain:'gear',operation:'edit',
+  id:record.id,record,baseRecord:original,sourceRevision:SHA,
+  pictureAction:'add',picturePath:path,
+ });
+ const v=createD3TrustedGearKBCandidate({
+  enabled:()=>true,loadSnapshot:async()=>source(),
+  verifyMediaTickets:async()=>[],
+ });
+ await assert.rejects(v.plan({
+  package:pkg,repositoryId:ID,ownerGitHubId:OWNER,
+ }),fail('MISSING_EXISTING_PICTURE'));
+});
