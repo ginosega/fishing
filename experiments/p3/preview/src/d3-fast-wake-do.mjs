@@ -32,17 +32,21 @@ export class D3FastWakeAlarm {
    d3PublishingReady(this.env)&&
    this.ctx.id.name&&OP.test(this.ctx.id.name);
  }
- async arm({operationId,deadlineMs}={}){
+ async _schedule(operationId,deadlineMs,insideAlarm=false){
   if(!this._enabled()||operationId!==this.ctx.id.name||
     !Number.isSafeInteger(deadlineMs)||deadlineMs<0||
     deadlineMs>Date.now()+300000)throw Error('D3_FAST_WAKE_DENIED');
-  // DO IDs are named by op, not user-controlled arbitrary alarm keys.
-  // Keep the EARLIEST wake if duplicate signed webhooks race. A prior
-  // alarm at/before now will fire rather than being postponed.
-  const existing=await this.ctx.storage.getAlarm();
-  if(existing===null||existing>deadlineMs)
+  // External duplicate notifications never postpone an earlier alarm.
+  // Inside an alarm handler we ALWAYS set the NEXT alarm, even if
+  // getAlarm() still reports the currently firing alarm. Otherwise the
+  // newly requested wake could be lost when the current alarm completes.
+  const existing=insideAlarm?null:await this.ctx.storage.getAlarm();
+  if(insideAlarm||existing===null||existing>deadlineMs)
    await this.ctx.storage.setAlarm(Math.max(Date.now(),deadlineMs));
   return {armed:true,testOnly:true};
+ }
+ async arm({operationId,deadlineMs}={}){
+  return this._schedule(operationId,deadlineMs,false);
  }
  async alarm(){
   if(!this._enabled())return;
@@ -64,7 +68,7 @@ export class D3FastWakeAlarm {
    runOneStep:()=>coordinator.tick(),
    readOnlyRecoverMerge:()=>coordinator.tick(),
    // The next alarm belongs to this EXACT named operation.
-   arm:args=>this.arm(args),
+   arm:args=>this._schedule(args.operationId,args.deadlineMs,true),
   });
   // At least once, never blindly retry a marked merge. The existing
   // D1 coordinator reconciles ambiguous merge outcomes read-only.
