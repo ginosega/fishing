@@ -24,9 +24,10 @@ const validReport=(r,id)=>r&&r.operationId===id&&
  typeof r.state==='string'&&typeof r.terminal==='boolean'&&
  typeof r.publicLive==='boolean'&&typeof r.sandboxVerified==='boolean'&&
  typeof r.needsAttention==='boolean';
-const textOnlyPackage=p=>p?.format==='fishing-companion-change-v2'&&
+const acceptedPackage=p=>p?.format==='fishing-companion-change-v2'&&
  ['gear','kb','catches'].includes(p.domain)&&['add','edit'].includes(p.operation)&&
- p.picture?.action==='keep'&&p.pictureSequence?.action==='keep';
+ ['keep','add','replace','remove'].includes(p.picture?.action)&&
+ ['keep','set','remove'].includes(p.pictureSequence?.action??'keep');
 const portableJson=value=>{
  let string;
  try{string=JSON.stringify(value);}catch{deny('INVALID_PACKAGE');}
@@ -74,19 +75,20 @@ export function createD3PublicationLifecycle({
    return true;
   }catch{return false;}
  };
- function initialize(pkg){
+ function initialize(pkg,media){
   active();
   need(!operationId,'ALREADY_ACCEPTED');
   // submit() serializes both the previous-operation check and new request.
-  need(textOnlyPackage(pkg),'MEDIA_REQUIRES_D4');
-  const frozen=portableJson(pkg);
-  const bytes=JSON.stringify(frozen);
+  need(acceptedPackage(pkg)&&Array.isArray(media)&&media.length<=24,
+   'INVALID_PACKAGE');
+  const frozen=portableJson(pkg),tickets=portableJson(media);
+  const bytes=JSON.stringify({package:frozen,media:tickets});
   if(attempt){
    need(bytes===attempt.json,'PAYLOAD_CHANGED_AFTER_SUBMIT');
   }else{
    const key=makeKey();
    need(KEY.test(key??''),'INVALID_IDEMPOTENCY_KEY');
-   attempt={pkg:frozen,json:bytes,key};
+   attempt={pkg:frozen,media:tickets,json:bytes,key};
   }
   return attempt;
  }
@@ -107,16 +109,17 @@ export function createD3PublicationLifecycle({
   need(attempt===null,'UNRESOLVED_SUBMISSION');
   clearCompletedReceipt();
  }
- async function submit(pkg){
+ async function submit(pkg,media=[]){
   active();
   if(inflight)return inflight;
   inflight=(async()=>{
    await prepareNextPublication();
-   const current=initialize(pkg);
+   const current=initialize(pkg,media);
    phase='Saving';
    try{
     const receipt=await measure('owner_submission',()=>client.publish({
-     package:current.pkg,idempotencyKey:current.key,
+     package:current.pkg,media:current.media,
+     idempotencyKey:current.key,
     }));
     need(receipt&&OP.test(receipt.operationId??'')&&
      receipt.accepted===true&&receipt.canonicalLive===false,
@@ -129,7 +132,7 @@ export function createD3PublicationLifecycle({
    }catch(error){
     // Unknown acknowledgements retain the exact in-memory key and
     // package. Never create another request with changed bytes.
-    phase=['MEDIA_REQUIRES_D4','INVALID_CHANGE','INVALID_IDEMPOTENCY_KEY',
+    phase=['MEDIA_REQUIRES_D4','INVALID_PACKAGE','INVALID_CHANGE','INVALID_IDEMPOTENCY_KEY',
      'OWNER_SESSION_REQUIRED','OFFLINE_DENIED','SESSION_EXPIRED',
      'NOT_ENABLED'].includes(error?.code)?'Blocked':'Unknown';
     throw error;
