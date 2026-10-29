@@ -9,13 +9,14 @@ test('P3-D06 CAS transitions audit entire lifecycle with required evidence',asyn
  const steps=[
   ['Accepted','Validating',{}],
   ['Validating','Checking',{prNumber:5,prHeadSha:'a'.repeat(40),mainBaseSha:'b'.repeat(40)}],
-  ['Checking','Merging',{}],
+  ['Checking','Merging',{workflowRunId:876}],
   ['Merging','Deploying',{mergeSha:'c'.repeat(40)}],
   ['Deploying','Verifying',{workflowRunId:876}],
   ['Verifying','Live',{verifiedReleaseId:'d'.repeat(32),workflowRunId:876}],
  ];
  for(const [from,to,details] of steps){
   assert.equal((await s.claim({operationId,leaseOwner:owner})).state,from);
+  if(from==='Merging')assert.equal(await s.markMergeAttempt({operationId,leaseOwner:owner}),true);
   assert.equal((await s.advance({operationId,leaseOwner:owner,from,to,details})).state,to);
  }
  assert.equal((await s.get(operationId)).verifiedReleaseId,'d'.repeat(32));
