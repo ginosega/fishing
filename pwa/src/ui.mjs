@@ -157,8 +157,12 @@ export function createApp(ctx){
    'catch-edit','catch-add']);
   if(editable.has(parseRoute(location.hash||'#/').page))return;
   const state=ownerController?.current();
-  if(!state?.authorized||state.publication!=='Live'||
-   state.sandboxVerified!==true||!state.operationId||
+  // A later failed publication may obscure an earlier verified Live
+  // (Gear image Live followed by invalid Knot, for example).
+  const trustedTerminal=(state?.publication==='Live'&&
+   state.sandboxVerified===true)||
+   ['Failed','Conflict'].includes(state?.publication);
+  if(!state?.authorized||!trustedTerminal||!state.operationId||
    sourceRefreshChecked===state.operationId)return;
   sourceRefreshBusy=true;
   try{
@@ -184,7 +188,8 @@ export function createApp(ctx){
     const prior=ctx.v3.authorized;
     ctx.v3.authorized=state.authorized;
     ownerPanel?.paint();
-    if(state.publication==='Live'&&state.sandboxVerified===true)
+    if((state.publication==='Live'&&state.sandboxVerified===true)||
+     ['Failed','Conflict'].includes(state.publication))
      void refreshPublishedContent();
     if(prior!==state.authorized){
      if(!dirty())void render();
