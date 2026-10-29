@@ -62,12 +62,14 @@ export function createD3MergedReceiptVerifier({request,issueReadToken,
    success(prNumber)&&SHA.test(prHeadSha??'')&&
    SHA.test(mainBaseSha??'')&&prHeadSha!==mainBaseSha&&
    success(workflowRunId)&&
-   Array.isArray(expectedPaths)&&[1,2].includes(expectedPaths.length)&&
+   Array.isArray(expectedPaths)&&expectedPaths.length>=1&&
+   expectedPaths.length<=26&&
    new Set(expectedPaths).size===expectedPaths.length&&
    expectedPaths.every(p=>p==='pwa/Gear/gear.json'||p==='pwa/KB/kb.json'||
     p==='pwa/Catches/catches.json'||
     /^pwa\/(Gear|KB)\/[A-Za-z0-9 _./-]+\.md$/.test(p)||
-    /^pwa\/Catches\/content\/[a-z0-9-]+\.md$/.test(p))&&
+    /^pwa\/Catches\/content\/[a-z0-9-]+\.md$/.test(p)||
+    /^pwa\/(Gear|KB)\/.+\/assets\/.+\.(jpe?g|png|webp|gif)$/i.test(p))&&
    expectedPaths.includes(expectedPaths.some(p=>p==='pwa/Gear/gear.json')?
     'pwa/Gear/gear.json':expectedPaths.some(p=>p==='pwa/KB/kb.json')?
      'pwa/KB/kb.json':'pwa/Catches/catches.json'),
