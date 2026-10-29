@@ -8,14 +8,14 @@
  *
  * Not a public-main publisher, CI proof, protected merge, or hosted receipt.
  */
-import {safePath} from '../../../../pwa/src/shared.mjs';
+import {safePath,sha256} from '../../../../pwa/src/shared.mjs';
 
 const ID=1430581407,OWNER=265665562;
 const REPO='ginosega/fishing-p3-sandbox';
 const API='https://api.github.com/repos/'+REPO;
 const SHA=/^[a-f0-9]{40}$/;
 const OP=/^p3_[0-9a-f-]{36}$/;
-const MAX_FILE=131072,MAX_TOTAL=262144;
+const MAX_FILE=131072,MAX_TOTAL=262144,MAX_MEDIA=48*1024*1024;
 const encoder=new TextEncoder();
 
 export class D3SandboxPRError extends Error{
@@ -93,7 +93,7 @@ export function createD3SandboxGearKBPRAdapter({
     try{return await response.json();}
     catch{fail('INVALID_GITHUB_RESPONSE');}
   }
-  async function plan({operationId,domain,expectedMainSha,pkg}){
+  async function plan({operationId,domain,expectedMainSha,pkg,token}){
     // This callback is server-owned and MUST perform a fresh, immutable
     // GitHub source read using D3's read-only snapshot loader. Unvalidated
     // client-provided plans or file lists are never allowed into this adapter.
@@ -107,13 +107,50 @@ export function createD3SandboxGearKBPRAdapter({
       candidate.domain===domain&&
       ['add','edit'].includes(candidate.operation)&&
       Array.isArray(candidate.changes)&&
-      [1,2].includes(candidate.changes.length),
+      candidate.changes.length>=1&&candidate.changes.length<=26,
       'CANDIDATE_UNVERIFIED');
-    const seen=new Set(),writes=[];let total=0;
+    const seen=new Set(),writes=[];let total=0,mediaTotal=0;
+    let stagedStarted=false;
     for(let i=0;i<candidate.changes.length;i++){
       const item=candidate.changes[i];
-      need(item?.action==='write'&&typeof item.body==='string'&&
-        typeof item.path==='string','UNSAFE_CANDIDATE_WRITE');
+      // Staged originals must be AFTER the one/two canonical text blobs.
+      // The source planner and signed receipt established ownership; the
+      // PR builder re-reads exact original bytes using its own scoped token.
+      if(item?.action==='staged'){
+        stagedStarted=true;
+        need(['gear','kb'].includes(domain)&&typeof item.path==='string'&&
+         item.path.startsWith('pwa/'+(domain==='gear'?'Gear/':'KB/'))&&
+         item.path.includes('/assets/')&&
+         /\.(jpe?g|png|webp|gif)$/i.test(item.path)&&
+         SHA.test(item.blobSha??'')&&
+         /^[a-f0-9]{64}$/.test(item.sha256??'')&&
+         Number.isSafeInteger(item.bytes)&&item.bytes>0&&
+         item.bytes<=10*1024*1024,'UNSAFE_STAGED_BLOB');
+        const path='pwa/'+safePath(item.path.slice(4));
+        need(path===item.path,'UNSAFE_STAGED_BLOB');
+        const key=path.toLowerCase();
+        need(!seen.has(key),'DUPLICATE_CANDIDATE_PATH');seen.add(key);
+        mediaTotal+=item.bytes;
+        need(mediaTotal<=MAX_MEDIA,'CANDIDATE_TOO_LARGE');
+        const b=await api(token,'GET',API+'/git/blobs/'+item.blobSha);
+        need(b?.sha===item.blobSha&&b.encoding==='base64'&&
+         typeof b.content==='string'&&b.size===item.bytes,
+         'UNVERIFIED_STAGED_GIT_BLOB');
+        let bytes;
+        try{
+         const raw=atob(b.content.replace(/\s/g,''));
+         bytes=Uint8Array.from(raw,c=>c.charCodeAt(0));
+        }catch{fail('UNVERIFIED_STAGED_GIT_BLOB');}
+        need(bytes.length===item.bytes&&
+         await blobSha1(bytes)===item.blobSha&&
+         await sha256(bytes)===item.sha256,
+         'UNVERIFIED_STAGED_GIT_BLOB');
+        writes.push({path,blobSha:item.blobSha});
+        continue;
+      }
+      need(!stagedStarted&&item?.action==='write'&&
+        typeof item.body==='string'&&typeof item.path==='string',
+        'UNSAFE_CANDIDATE_WRITE');
       const path=i===0?fileLocation(domain):
         markdownLocation(item.path,domain);
       need(item.path===path,'UNSAFE_CANDIDATE_WRITE');
@@ -194,13 +231,18 @@ export function createD3SandboxGearKBPRAdapter({
         baseSha:base,reused:!!current};
     }
     const writes=await plan({
-      operationId,domain,expectedMainSha:base,pkg,
+      operationId,domain,expectedMainSha:base,pkg,token,
     });
     const parent=await api(token,'GET',API+'/git/commits/'+base);
     need(parent?.sha===base&&SHA.test(parent.tree?.sha),
       'MAIN_COMMIT_UNVERIFIED');
     const tree=[];
     for(const write of writes){
+      if(write.blobSha){
+        tree.push({path:write.path,type:'blob',mode:'100644',
+         sha:write.blobSha});
+        continue;
+      }
       const requestedSha=await blobSha1(write.bytes);
       const b=await api(token,'POST',API+'/git/blobs',{
         content:base64(write.bytes),encoding:'base64',
