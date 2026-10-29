@@ -16,12 +16,12 @@ export class D3HostPathError extends Error{
 }
 const deny=code=>{throw new D3HostPathError(code);};
 const need=(ok,code)=>{if(!ok)deny(code);};
-export function expectedD3HostedPaths(pkg){
+export function expectedD3HostedPaths(pkg,media=[]){
  need(pkg?.format==='fishing-companion-change-v2'&&
   ['gear','kb','catches'].includes(pkg.domain)&&
   ['edit','add'].includes(pkg.operation)&&
-  pkg.picture?.action==='keep'&&
-  (pkg.pictureSequence?.action??'keep')==='keep'&&
+  ['keep','add','replace','remove'].includes(pkg.picture?.action)&&
+  ['keep','set','remove'].includes(pkg.pictureSequence?.action??'keep')&&
   ['keep','create','replace'].includes(pkg.notes?.action),
   'INVALID_PACKAGE');
  const base=pkg.domain==='gear'?'pwa/Gear/gear.json':
@@ -39,15 +39,36 @@ export function expectedD3HostedPaths(pkg){
    'UNSAFE_MARKDOWN');
   result.push('pwa/'+path);
  }
+ need(Array.isArray(media)&&media.length<=24,'INVALID_MEDIA_PATHS');
+ for(const m of media){
+  let file;try{file=safePath(m.path);}catch{deny('INVALID_MEDIA_PATHS');}
+  need(pkg.domain!=='catches'&&
+   file.startsWith(pkg.domain==='gear'?'Gear/':'KB/')&&
+   file.includes('/assets/')&&/\.(jpe?g|png|webp|gif)$/i.test(file)&&
+   /^[a-f0-9]{40}$/.test(m.blobSha??'')&&
+   /^[a-f0-9]{64}$/.test(m.sha256??''),
+   'INVALID_MEDIA_PATHS');
+  result.push('pwa/'+file);
+ }
+ need(result.length<=26&&new Set(result).size===result.length,
+  'DUPLICATE_HOSTED_PATH');
  return Object.freeze(result);
 }
 export function d3HostedTestPath(operationId,file){
  need(OP.test(operationId),'INVALID_OPERATION');
  need(typeof file==='string'&&file.startsWith('pwa/')&&
-  (JSON_FILES.has(file)||isMarkdown(file)),'INVALID_FILE');
+  (JSON_FILES.has(file)||isMarkdown(file)||isMedia(file)),'INVALID_FILE');
  const parts=file.split('/');
  need(parts.every(p=>p!==''&&p!=='.'&&p!=='..'),'INVALID_FILE');
  return ROOT+operationId+'/'+parts.map(encodeURIComponent).join('/');
+}
+function isMedia(file){
+ try{
+  const path=safePath(file.slice(4));
+  return file==='pwa/'+path&&
+   (path.startsWith('Gear/')||path.startsWith('KB/'))&&
+   path.includes('/assets/')&&/\.(jpe?g|png|webp|gif)$/i.test(path);
+ }catch{return false;}
 }
 function isMarkdown(file){
  try{
