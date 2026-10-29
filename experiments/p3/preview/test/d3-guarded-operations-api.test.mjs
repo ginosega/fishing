@@ -113,12 +113,13 @@ test('D3-A05 unverified source, conflict or wrong owner never reach durable acce
   }
 });
 
-test('D3-A06 malformed body, media, extra repository, catch edit fail before D1',async()=>{
+test('D3-A06 malformed body, media, extra repository, unsafe Catch media fail before D1',async()=>{
   const pkg=await edit();
   const attempts=[
     {...envelope(pkg),repositoryId:1350909744},
     {...envelope(pkg),snapshot:{package:pkg,media:[{bytes:12}]}},
-    {...envelope(pkg),snapshot:{package:{...pkg,domain:'catches'},media:[]}},
+    {...envelope(pkg),snapshot:{package:{...pkg,domain:'catches',
+      picture:{action:'add',path:'Catches/assets/disallowed.jpg'}},media:[]}},
     {...envelope(pkg),snapshot:{package:{...pkg,picture:{action:'remove'}},media:[]}},
   ];
   for(const body of attempts){
