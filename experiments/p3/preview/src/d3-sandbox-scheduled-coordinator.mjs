@@ -55,9 +55,8 @@ export function createD3SandboxScheduledCoordinator({
   const changed=pkg?.picture?.action!=='keep'||
    (pkg?.pictureSequence?.action??'keep')!=='keep'||media.length>0;
   need(!changed||env.D4_MEDIA_ENABLED==='true','MEDIA_DISABLED');
-  if(!media.length)return validateD4MediaTickets({
-   package:pkg,media,verifyTicket:async()=>{fail('UNEXPECTED_TICKET');},
-  });
+  if(!media.length)return []; // D3 text-only recovery need not parse
+  // a pre-D4 snapshot as a media-bearing package.
   const tickets=createD4TicketVerifier({
    origin:env.APP_ORIGIN,secret:env.D2_CSRF_KEY,
   });
