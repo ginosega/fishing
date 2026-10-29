@@ -331,3 +331,21 @@ test('D3-L15 server discovery of no receipt remains empty without a write',async
  assert.equal(empty.phase,'Idle');
  assert.equal(empty.sandboxVerified,false);
 });
+
+test('D4-L01 Catch text-only edit uses one durable receipt, no media or auto retry',async()=>{
+ let n=0;
+ const catchPkg={...pkg,domain:'catches',id:'catch-test-existing',
+  changes:{set:{size:'14 in'}}};
+ const flow=createD3PublicationLifecycle({
+  enabled:()=>true,makeKey:()=>key,
+  client:{publish:async request=>{
+   n++;assert.equal(request.package.domain,'catches');
+   return success;
+  },status:async()=>live},
+ });
+ const receipt=await flow.submit(catchPkg);
+ assert.equal(n,1);
+ assert.equal(receipt.phase,'Accepted');
+ assert.equal(receipt.canLeaveEditor,true);
+ assert.equal(receipt.publicLive,false);
+});
