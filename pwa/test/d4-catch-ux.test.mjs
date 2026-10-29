@@ -104,6 +104,7 @@ test('D4-UX10 Live owner source revision refresh is pilot-only and editor-safe',
  const shell=readFileSync(new URL('../src/ui.mjs',import.meta.url),'utf8');
  assert(shell.includes('sourceRefreshChecked'));
  assert(shell.includes("state.publication==='Live'&&state.sandboxVerified===true"));
+ assert(shell.includes("['Failed','Conflict'].includes(state.publication)"));
  assert(shell.includes('latest!==ctx.release.sourceRevision'));
  assert(shell.includes("window.location.reload()"));
  assert(shell.includes("'kb-edit','kb-add'"));
