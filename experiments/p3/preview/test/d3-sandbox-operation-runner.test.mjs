@@ -18,7 +18,7 @@ const pkg=(domain='gear',notesAction='keep')=>({
 function fixture({domain='gear',notesAction='keep',enabled=true,
   unknownMerge=false,invalidCheck=false,invalidPaths=false,
   invalidPR=false,stolenLease=false,untrustedHost=false,
-  invalidSnapshot=false,pendingCheck=false,fastProof=false,
+  invalidSnapshot=false,pendingCheck=false,failedCheck=false,fastProof=false,
   invalidFastProof=false,fastProofThrows=false}={}){
   const trace=[];let row={operationId:OP,state:'Accepted'};
   const snapshot=()=>invalidSnapshot?{}:{package:pkg(domain,notesAction),media:[]};
@@ -71,6 +71,7 @@ function fixture({domain='gear',notesAction='keep',enabled=true,
       trace.push('check');
       assert.equal(info.expectedHeadSha,HEAD);
       if(pendingCheck)throw Object.assign(new Error('CI is pending'),{code:'CHECK_PENDING'});
+      if(failedCheck)throw Object.assign(new Error('CI failed on exact trusted PR'),{code:'CHECK_NOT_SUCCESSFUL'});
       return {repositoryId:ID,prNumber:18,
         headSha:invalidCheck?'f'.repeat(40):HEAD,
         baseSha:BASE,actionsAppId:15368,checkName:'validate-sandbox-head',
@@ -261,4 +262,16 @@ test('D4-R02 Catch JSON-only valid operation uses single verified file',async()=
  for(let i=0;i<6;i++)await x.run();
  assert.deepEqual(x.expected,['pwa/Catches/catches.json']);
  assert.equal(x.state,'Live');
+});
+
+test('D4-R03 failed trusted GitHub CI becomes a durable terminal Failed, never merges',async()=>{
+ const x=fixture({failedCheck:true});
+ await x.run();await x.run();await x.run();
+ assert.equal(x.state,'Checking');
+ const terminal=await x.run();
+ assert.equal(terminal.state,'Failed');
+ assert.equal(x.state,'Failed');
+ assert(x.trace.includes('advance:Checking>Failed'));
+ assert(!x.trace.includes('merge'));
+ assert(!x.trace.includes('host'));
 });
