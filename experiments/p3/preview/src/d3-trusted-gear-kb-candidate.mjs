@@ -11,7 +11,7 @@ import {promoteChange,validatePackage,ChangeConflictError,narrativePath}
 import {validateRecords,validateRecord,collectPaths,checkPathCollisions}
  from '../../../../pwa/src/validation.mjs';
 import {parseMarkdown,markdownRouteMap} from '../../../../pwa/src/markdown.mjs';
-import {DOMAIN,fingerprint,safePath} from '../../../../pwa/src/shared.mjs';
+import {DOMAIN,fingerprint,safePath,pathKey} from '../../../../pwa/src/shared.mjs';
 
 const REPO_ID=1430581407,OWNER=265665562;
 const SHA=/^[a-f0-9]{40}$/,HASH=/^[a-f0-9]{64}$/;
@@ -31,9 +31,14 @@ const object=x=>x&&Object.getPrototypeOf(x)===Object.prototype;
 const own=(record,domain)=>record?.[domain==='kb'?'content':'notes']??null;
 const textPath=(path)=>{try{return safePath(path);}catch{deny('UNSAFE_NARRATIVE_PATH');}};
 
-export function createD3TrustedGearKBCandidate({loadSnapshot,enabled=()=>false}={}){
- check(typeof loadSnapshot==='function'&&typeof enabled==='function','INVALID_CONFIGURATION');
- async function plan({package:pkg,repositoryId,ownerGitHubId,
+export function createD3TrustedGearKBCandidate({loadSnapshot,enabled=()=>false,
+ verifyMediaTickets=async(_pkg,media)=>{
+  check(media.length===0,'MEDIA_DISABLED');return [];
+ },
+}={}){
+ check(typeof loadSnapshot==='function'&&typeof enabled==='function'&&
+  typeof verifyMediaTickets==='function','INVALID_CONFIGURATION');
+ async function plan({package:pkg,media=[],repositoryId,ownerGitHubId,
   expectedMainSha,operationId}={}){
   check(enabled()===true,'DISABLED');
   check(repositoryId===REPO_ID&&ownerGitHubId===OWNER,
@@ -44,10 +49,14 @@ export function createD3TrustedGearKBCandidate({loadSnapshot,enabled=()=>false}=
   try{validatePackage(pkg);}catch{deny('INVALID_PACKAGE');}
   check(['gear','kb','catches'].includes(pkg.domain)&&['add','edit'].includes(pkg.operation)&&
    SHA.test(pkg.base.sourceRevision)&&
-   pkg.picture.action==='keep'&&
-   (pkg.pictureSequence?.action??'keep')==='keep'&&
+   ['keep','add','replace','remove'].includes(pkg.picture.action)&&
+   ['keep','set','remove'].includes(pkg.pictureSequence?.action??'keep')&&
    ['keep','create','replace'].includes(pkg.notes.action),
-   'TEXT_ONLY_D3');
+   'INVALID_D4_PACKAGE');
+  let staged;
+  try{staged=await verifyMediaTickets(pkg,media,{allowExpired:true});}
+  catch{deny('UNVERIFIED_MEDIA');}
+  check(Array.isArray(staged)&&staged.length<=24,'UNVERIFIED_MEDIA');
   // A creation/replace only touches a canonical owned Markdown resource.
   const snapshot=await loadSnapshot({repositoryId:REPO_ID,
    expectedMainSha,operationId});
@@ -62,6 +71,19 @@ export function createD3TrustedGearKBCandidate({loadSnapshot,enabled=()=>false}=
    checkPathCollisions(owned);
    for(const path of owned)check(snapshot.files.has(path),'MISSING_CANONICAL_FILE');
   }catch(e){if(e instanceof D3CandidateError)throw e;deny('INVALID_CANONICAL_SOURCE');}
+  const filesWithMedia=new Set(snapshot.files),allKeys=new Set();
+  for(const p of snapshot.files)allKeys.add(pathKey(p));
+  for(const item of staged){
+   const path=textPath(item.path),key=pathKey(path);
+   check(['gear','kb'].includes(pkg.domain)&&
+    path.startsWith(pkg.domain==='gear'?'Gear/':'KB/')&&
+    /^[a-f0-9]{64}$/.test(item.sha256)&&
+    /^[a-f0-9]{40}$/.test(item.blobSha)&&
+    Number.isSafeInteger(item.bytes)&&item.bytes>0,
+    'UNSAFE_MEDIA_CANDIDATE');
+   if(pkg.picture.action==='add')check(!allKeys.has(key),'MEDIA_PATH_COLLISION');
+   filesWithMedia.add(path);
+  }
   const array=DOMAIN[pkg.domain].array;
   const pos=data[pkg.domain][array].findIndex(r=>r.id===pkg.id);
   const current=pos>=0?data[pkg.domain][array][pos]:null;
@@ -121,7 +143,7 @@ export function createD3TrustedGearKBCandidate({loadSnapshot,enabled=()=>false}=
     'UNSAFE_NARRATIVE_PATH');
    check(pkg.notes.action==='create'?!snapshot.files.has(path):
     snapshot.files.has(path),'MARKDOWN_COLLISION');
-   const exists=new Set(snapshot.files);exists.add(path);
+   const exists=new Set(filesWithMedia);exists.add(path);
    try{
     parseMarkdown(change.body,{owner:path,maps:validateRecords(next),
      exists,pathRoutes:markdownRouteMap(next)});
@@ -132,6 +154,11 @@ export function createD3TrustedGearKBCandidate({loadSnapshot,enabled=()=>false}=
   check(writes.every(w=>enc.encode(w.body).byteLength<=MAX) &&
    writes.reduce((n,w)=>n+enc.encode(w.body).byteLength,0)<=MAX,
    'CANDIDATE_TOO_LARGE');
+  for(const item of staged){
+   writes.push({action:'staged',path:'pwa/'+item.path,
+    blobSha:item.blobSha,sha256:item.sha256,bytes:item.bytes});
+  }
+  check(writes.length<=26,'TOO_MANY_WRITES');
   // All outputs are synthetic until independently recorded by GitHub PR +
   // exact-head CI + ordinary merge + actual hosted-identity verification.
   return Object.freeze({
