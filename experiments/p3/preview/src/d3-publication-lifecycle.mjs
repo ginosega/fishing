@@ -47,9 +47,11 @@ const restore=storage=>{
 const makeReceipt=id=>JSON.stringify({version:1,operationId:id,canonicalLive:false});
 export function createD3PublicationLifecycle({
  client,storage=null,makeKey=()=>crypto.randomUUID(),enabled=()=>false,
+ measure=async(_stage,work)=>work(),
 }={}){
  need(typeof client?.publish==='function'&&typeof client?.status==='function'&&
   typeof makeKey==='function'&&typeof enabled==='function'&&
+  typeof measure==='function'&&
   (storage===null||(typeof storage?.getItem==='function'&&
     typeof storage?.setItem==='function'&&typeof storage?.removeItem==='function')),
   'INVALID_CONFIGURATION');
@@ -113,9 +115,9 @@ export function createD3PublicationLifecycle({
    const current=initialize(pkg);
    phase='Saving';
    try{
-    const receipt=await client.publish({
+    const receipt=await measure('owner_submission',()=>client.publish({
      package:current.pkg,idempotencyKey:current.key,
-    });
+    }));
     need(receipt&&OP.test(receipt.operationId??'')&&
      receipt.accepted===true&&receipt.canonicalLive===false,
      'UNTRUSTED_RECEIPT');
@@ -164,7 +166,7 @@ export function createD3PublicationLifecycle({
   need(OP.test(operationId??''),'NO_DURABLE_OPERATION');
   const id=operationId;
   try{
-   const data=await client.status(id);
+   const data=await measure('owner_ui_refresh',()=>client.status(id));
    need(validReport(data,id),'UNTRUSTED_STATUS');
    report=data;
    phase=data.state;
