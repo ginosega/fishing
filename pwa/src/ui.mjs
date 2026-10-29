@@ -28,7 +28,7 @@ const CATEGORY_PRESENTATION={gear:{'rods-reels':{icon:'🎣'},line:{icon:'〰️
 const categoryLabel=(domain,key)=>(domain==='gear'?GEAR_CATEGORIES:KB_TYPES).find(x=>x[0]===key)?.[1]||key;
 const categoryRoute=(domain,key)=>domain==='gear'?`#/inventory/category/${key}`:`#/kb/category/${key}`;
 const rootRoute=domain=>domain==='gear'?'#/inventory':domain==='kb'?'#/kb':'#/catches';
-const recordTitle=(ctx,domain,record)=>domain==='catches'?`${ctx.maps.kb.get(record.speciesId)?.name||'Catch'} · ${record.date}`:record.name;
+const recordTitle=(ctx,domain,record)=>domain==='catches'?`${ctx.maps.kb.get(record.speciesId)?.name||record.speciesName||'Catch'} · ${record.date}`:record.name;
 export function createApp(ctx){
  const root=document.getElementById('app'),alertHost=document.getElementById('app-notice'),offlineHost=document.getElementById('offline-status');
  const routes=markdownRouteMap(ctx.data),exists=ctx.v3?.source?.files instanceof Set?
@@ -54,7 +54,7 @@ export function createApp(ctx){
  async function copy(value){try{await navigator.clipboard.writeText(value);notify('Copied to clipboard.','success');}catch{const area=el('textarea',{readonly:true,value});alertHost.replaceChildren(text('p','Select and copy this text:'),area);area.focus();area.select();}}
  function frame(title,parent,actions=[],subtitle=''){const header=el('div',{class:'page-header'},el('div',{class:'page-heading'},text('h1',title),subtitle?text('p',subtitle,'page-subtitle'):null),el('div',{class:'page-actions'},...actions,parent?button('Back',()=>navigate(parent)):null));return el('div',{class:'page'},header);}
  function card(title,description,href,icon='',image=null){return el('a',{href,class:'nav-card',onclick:event=>{event.preventDefault();navigate(href);}},image||(icon?el('span',{class:'card-icon','aria-hidden':'true'},icon):el('span',{class:'card-thumbnail card-spacer','aria-hidden':'true'})),el('div',{},text('h2',title),description?text('p',description,'muted'):null));}
- function recordCard(domain,record){const href=routeFor(domain,record.id),pictureSrc=record.picture?.src||(domain==='catches'?ctx.maps.kb.get(record.speciesId)?.picture?.src:null),image=pictureSrc?ctx.thumbnail(pictureSrc):null;const item=card(domain==='catches'?(ctx.maps.kb.get(record.speciesId)?.name||'Catch'):recordTitle(ctx,domain,record),domain==='gear'?record.type:domain==='kb'?record.description||'':record.size||'',href,'',image?el('img',{src:image,alt:'',loading:'lazy',decoding:'async',class:'card-thumbnail',onerror:event=>{event.target.hidden=true;}}):null);if(domain==='catches')item.querySelector('h2').after(el('time',{class:'catch-date muted',datetime:record.date},record.date));return item;}
+ function recordCard(domain,record){const href=routeFor(domain,record.id),pictureSrc=record.picture?.src||(domain==='catches'?ctx.maps.kb.get(record.speciesId)?.picture?.src:null),image=pictureSrc?ctx.thumbnail(pictureSrc):null;const item=card(domain==='catches'?(ctx.maps.kb.get(record.speciesId)?.name||record.speciesName||'Catch'):recordTitle(ctx,domain,record),domain==='gear'?record.type:domain==='kb'?record.description||'':record.size||'',href,'',image?el('img',{src:image,alt:'',loading:'lazy',decoding:'async',class:'card-thumbnail',onerror:event=>{event.target.hidden=true;}}):null);if(domain==='catches')item.querySelector('h2').after(el('time',{class:'catch-date muted',datetime:record.date},record.date));return item;}
  function renderHome(){const page=frame('Fishing Companion',null);page.append(text('p','Fishing reference and catch log','lead'),el('div',{class:'nav-grid home-grid'},card('My Gear',ROOT_SUBTITLES.gear,'#/inventory','🎒'),card('Knowledge Base',ROOT_SUBTITLES.kb,'#/kb','📚'),card('Catch Log','Recorded catches','#/catches','🐟')));return page;}
  function listControls(domain,records,{search=false,filter=false,sort='name',title='',pinnedId=''}={}){
   const controls=el('div',{class:'list-controls'}),results=el('div',{class:'record-grid'}),count=text('p','','result-count');let query='',type='';
@@ -102,7 +102,7 @@ export function createApp(ctx){
   if(domain==='catches'){
    const species=ctx.maps.kb.get(record.speciesId),location=ctx.maps.kb.get(record.locationId),lure=ctx.maps.gear.get(record.lureOrBaitId);
    if(species?.picture)appendPicture(page,{...species,name:species.name},'kb');
-   page.append(table([['Date',record.date],...(record.time?[['Time',record.time]]:[]),...(record.size?[['Size',record.size]]:[]),...(species?[['Species',anchor(species.name,routeFor('kb',species.id))]]:[]),...(location?[['Location',anchor(location.name,routeFor('kb',location.id))]]:[]),...(lure?[['Lure or bait',anchor(lure.name,routeFor('gear',lure.id))]]:[])]));
+   page.append(table([['Date',record.date],...(record.time?[['Time',record.time]]:[]),...(record.size?[['Size',record.size]]:[]),...(species?[['Species',anchor(species.name,routeFor('kb',species.id))]]:record.speciesName?[['Species',record.speciesName]]:[]),...(location?[['Location',anchor(location.name,routeFor('kb',location.id))]]:record.locationName?[['Location',record.locationName]]:[]),...(lure?[['Lure or bait',anchor(lure.name,routeFor('gear',lure.id))]]:record.lureOrBaitName?[['Lure or bait',record.lureOrBaitName]]:[])]));
    await appendMarkdown(page,record.notes,'Notes');return page;
   }
   appendPicture(page,record,domain);
