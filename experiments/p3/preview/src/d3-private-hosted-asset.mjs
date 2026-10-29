@@ -5,6 +5,7 @@
  * canonical record/Markdown files owned by that durable operation.
  */
 import {decodeD2GitBlob} from './d2-worker-source-candidate.mjs';
+import {decodeD4OriginalGitBlob} from './d4-git-blob-stage.mjs';
 import {parseD3HostedTestPath,expectedD3HostedPaths}
  from './d3-sandbox-host-paths.mjs';
 const ID=1430581407,REPO='ginosega/fishing-p3-sandbox';
@@ -108,10 +109,11 @@ export function createD3PrivateHostedAsset({
   const entries=tree.tree.filter(x=>x.path===file);
   need(entries.length===1,'FILE_DENIED');
   const blob=await read(t,API+'/git/blobs/'+entries[0].sha);
-  let bytes;
-  try{bytes=await decodeD2GitBlob(entries[0],blob);}
-  catch{deny('GITHUB_BLOB_MISMATCH');}
   const isImage=/\.(jpe?g|png|webp|gif)$/i.test(file);
+  let bytes;
+  try{bytes=isImage?(await decodeD4OriginalGitBlob(entries[0],blob)).bytes:
+    await decodeD2GitBlob(entries[0],blob);}
+  catch{deny('GITHUB_BLOB_MISMATCH');}
   need(bytes.length<=(isImage?10*1024*1024:131072),
    'FILE_TOO_LARGE');
   const sha256=hex(await crypto.subtle.digest('SHA-256',bytes));
