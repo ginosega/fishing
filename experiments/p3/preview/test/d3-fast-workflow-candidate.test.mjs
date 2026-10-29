@@ -75,3 +75,15 @@ test('P2P3-05 parse candidate YAML with Ruby/Psych when available',t=>{
  if(result.error?.code==='ENOENT'){t.skip('Ruby YAML parser not installed locally');return;}
  assert.equal(result.status,0,(result.stderr||result.error?.message||'YAML parsing failed').slice(0,2000));
 });
+
+test('P2-06 required check fails closed on missing/failed/misclassified lanes',()=>{
+ assert.match(pr,/Require exact source classification and successful validation/);
+ assert.match(pr,/CLASSIFY_OUTCOME:/);
+ assert.match(pr,/CONTENT_OUTCOME:/);
+ assert.match(pr,/FULL_OUTCOME:/);
+ assert.match(pr,/DOCS_OUTCOME:/);
+ assert.match(pr,/case "\$MODE" in/);
+ assert.match(pr,/\*\) exit 1/);
+ for(const id of ['content-proof','full-proof','docs-proof'])
+  assert.match(pr,new RegExp('id: '+id+'\\b'));
+});
