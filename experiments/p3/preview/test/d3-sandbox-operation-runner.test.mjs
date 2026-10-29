@@ -18,7 +18,7 @@ const pkg=(domain='gear',notesAction='keep')=>({
 function fixture({domain='gear',notesAction='keep',enabled=true,
   unknownMerge=false,invalidCheck=false,invalidPaths=false,
   invalidPR=false,stolenLease=false,untrustedHost=false,
-  invalidSnapshot=false,pendingCheck=false,failedCheck=false,fastProof=false,
+  invalidSnapshot=false,pendingCheck=false,failedCheck=false,movedMain=false,fastProof=false,
   invalidFastProof=false,fastProofThrows=false}={}){
   const trace=[];let row={operationId:OP,state:'Accepted'};
   const snapshot=()=>invalidSnapshot?{}:{package:pkg(domain,notesAction),media:[]};
@@ -72,6 +72,7 @@ function fixture({domain='gear',notesAction='keep',enabled=true,
       assert.equal(info.expectedHeadSha,HEAD);
       if(pendingCheck)throw Object.assign(new Error('CI is pending'),{code:'CHECK_PENDING'});
       if(failedCheck)throw Object.assign(new Error('CI failed on exact trusted PR'),{code:'CHECK_NOT_SUCCESSFUL'});
+      if(movedMain)throw Object.assign(new Error('main no longer matches trusted base'),{code:'MAIN_MOVED'});
       return {repositoryId:ID,prNumber:18,
         headSha:invalidCheck?'f'.repeat(40):HEAD,
         baseSha:BASE,actionsAppId:15368,checkName:'validate-sandbox-head',
@@ -272,6 +273,18 @@ test('D4-R03 failed trusted GitHub CI becomes a durable terminal Failed, never m
  assert.equal(terminal.state,'Failed');
  assert.equal(x.state,'Failed');
  assert(x.trace.includes('advance:Checking>Failed'));
+ assert(!x.trace.includes('merge'));
+ assert(!x.trace.includes('host'));
+});
+
+test('D4-R04 stale sandbox main makes Checking terminal Conflict without merging',async()=>{
+ const x=fixture({movedMain:true});
+ await x.run();await x.run();
+ assert.equal(x.state,'Checking');
+ const terminal=await x.run();
+ assert.equal(terminal.state,'Conflict');
+ assert.equal(x.state,'Conflict');
+ assert(x.trace.includes('advance:Checking>Conflict'));
  assert(!x.trace.includes('merge'));
  assert(!x.trace.includes('host'));
 });
