@@ -69,7 +69,7 @@ function verifySubmission(snapshot){
  check(snapshot && Object.getPrototypeOf(snapshot)===Object.prototype,'INVALID_SNAPSHOT');
  check(snapshot.package && Object.getPrototypeOf(snapshot.package)===Object.prototype,'INVALID_SNAPSHOT');
  check(snapshot.package.format==='fishing-companion-change-v2' &&
-  ['gear','kb'].includes(snapshot.package.domain) &&
+  ['gear','kb','catches'].includes(snapshot.package.domain) &&
   ['add','edit'].includes(snapshot.package.operation),'INVALID_SNAPSHOT');
  check(Array.isArray(snapshot.media)&&snapshot.media.length===0,'MEDIA_STAGING_REQUIRED');
  // This is an envelope check, NOT full source-aware or canonical validation.
