@@ -71,7 +71,19 @@ function verifySubmission(snapshot){
  check(snapshot.package.format==='fishing-companion-change-v2' &&
   ['gear','kb','catches'].includes(snapshot.package.domain) &&
   ['add','edit'].includes(snapshot.package.operation),'INVALID_SNAPSHOT');
- check(Array.isArray(snapshot.media)&&snapshot.media.length===0,'MEDIA_STAGING_REQUIRED');
+ check(Array.isArray(snapshot.media)&&snapshot.media.length<=24&&
+  snapshot.media.every(t=>t&&Object.getPrototypeOf(t)===Object.prototype&&
+   Object.keys(t).sort().join(',')===
+   'blobSha,bytes,expiresAt,mime,path,sha256,signature'&&
+   typeof t.path==='string'&&t.path.length<=240&&
+   Number.isSafeInteger(t.bytes)&&t.bytes>0&&t.bytes<=10*1024*1024&&
+   /^[a-f0-9]{40}$/.test(t.blobSha)&&
+   /^[a-f0-9]{64}$/.test(t.sha256)&&
+   /^[A-Za-z0-9_-]{43}$/.test(t.signature)&&
+   Number.isSafeInteger(t.expiresAt)&&
+   typeof t.mime==='string'&&t.mime.length<=40),'MEDIA_STAGING_REQUIRED');
+ check(snapshot.media.length===0||
+  ['gear','kb'].includes(snapshot.package.domain),'MEDIA_STAGING_REQUIRED');
  // This is an envelope check, NOT full source-aware or canonical validation.
 }
 function requireDetails(from,to,fields){
