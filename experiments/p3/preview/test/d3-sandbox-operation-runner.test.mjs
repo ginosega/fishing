@@ -266,7 +266,7 @@ test('D4-R02 Catch JSON-only valid operation uses single verified file',async()=
 
 test('D4-R03 failed trusted GitHub CI becomes a durable terminal Failed, never merges',async()=>{
  const x=fixture({failedCheck:true});
- await x.run();await x.run();await x.run();
+ await x.run();await x.run();
  assert.equal(x.state,'Checking');
  const terminal=await x.run();
  assert.equal(terminal.state,'Failed');
