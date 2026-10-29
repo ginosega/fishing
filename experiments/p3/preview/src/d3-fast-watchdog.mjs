@@ -41,7 +41,9 @@ export function createD3FastWatchdog({
   const deadlineMs=await schedule(operationId,reason,0);
   return Object.freeze({terminal:false,scheduled:true,deadlineMs});
  }
- async function onAlarm(operationId){
+ async function onAlarm(operationId,{stallCount=0}={}){
+  if(!Number.isSafeInteger(stallCount)||stallCount<0||stallCount>1000)
+   deny('INVALID_STALL_COUNT');
   ready();valid(operationId);
   const before=await getOperation(operationId);
   if(!before||before.operationId!==operationId)deny('NOT_FOUND');
@@ -58,8 +60,10 @@ export function createD3FastWatchdog({
     // Only known read-only CI-not-ready results are retriable. Failed CI,
     // lost GitHub write acknowledgments, invalid identity and all other
     // errors MUST surface; DO alarm redelivery + D1 guards handle recovery.
-    const retryable=before.state==='Checking'&&
-     ['CHECK_PENDING','CHECK_MISSING_OR_AMBIGUOUS'].includes(error?.code);
+    const retryable=(before.state==='Checking'&&
+     ['CHECK_PENDING','CHECK_MISSING_OR_AMBIGUOUS'].includes(error?.code))||
+    (before.state==='Verifying'&&
+     error?.code==='PRODUCTION_ORIGIN_UNAVAILABLE');
     if(!retryable)throw error;
    }
   }
@@ -71,9 +75,10 @@ export function createD3FastWatchdog({
   const progressed=after.state!==before.state;
   // Immediately advance deterministic states, check pending CI at bounded
   // interval, wait for expired merge lease before read-only reconstruction.
-  const nextMs=after.state==='Checking'?delayMs:
+  const stalledMs=stallCount>=20?60000:stallCount>=5?30000:delayMs;
+  const nextMs=progressed?0:
    after.state==='Merging'&&after.reasonCode==='merge_attempted'?30000:
-   progressed?0:delayMs;
+   stalledMs;
   const deadlineMs=await schedule(operationId,progressed?'progress':'retry',nextMs);
   return Object.freeze({terminal:false,scheduled:true,progressed,
    state:after.state,deadlineMs});
