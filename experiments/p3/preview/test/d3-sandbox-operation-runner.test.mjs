@@ -7,12 +7,13 @@ const ID=1430581407,OP='p3_01234567-1234-4234-8234-123456789abc';
 const BASE='a'.repeat(40),HEAD='b'.repeat(40),MERGE='c'.repeat(40);
 const BRANCH='p3-test-'+OP.slice(3);
 const PATH='KB/Locations/content/P3 Test Lake.md';
+const CATCH_PATH='Catches/content/catch-test-existing.md';
 const failure=code=>e=>e instanceof D3RunnerError&&e.code===code;
 const pkg=(domain='gear',notesAction='keep')=>({
   format:'fishing-companion-change-v2',domain,operation:'edit',
-  id:domain==='gear'?'p3-test-rod':'location-p3-test-lake',
+  id:domain==='gear'?'p3-test-rod':domain==='kb'?'location-p3-test-lake':'catch-test-existing',
   picture:{action:'keep'},pictureSequence:{action:'keep'},
-  notes:{action:notesAction,...(notesAction!=='keep'?{path:PATH}:{})},
+  notes:{action:notesAction,...(notesAction!=='keep'?{path:domain==='catches'?CATCH_PATH:PATH}:{})},
 });
 function fixture({domain='gear',notesAction='keep',enabled=true,
   unknownMerge=false,invalidCheck=false,invalidPaths=false,
@@ -22,6 +23,8 @@ function fixture({domain='gear',notesAction='keep',enabled=true,
   const trace=[];let row={operationId:OP,state:'Accepted'};
   const snapshot=()=>invalidSnapshot?{}:{package:pkg(domain,notesAction),media:[]};
   const expected=domain==='gear'?['pwa/Gear/gear.json']:
+    domain==='catches'?(notesAction==='keep'?['pwa/Catches/catches.json']:
+      ['pwa/Catches/catches.json','pwa/'+CATCH_PATH]):
     notesAction==='keep'?['pwa/KB/kb.json']:
     ['pwa/KB/kb.json','pwa/'+PATH];
   const store={
@@ -239,4 +242,23 @@ test('P1-MF04 ordinary successful merge never performs extra GET-only recovery',
   for(let i=0;i<4;i++)await x.run();
   assert.equal(x.state,'Deploying');
   assert.equal(x.trace.includes('fast-proof'),false);
+});
+
+test('D4-R01 Catch JSON and Catch Markdown require complete hosted proof before Live',async()=>{
+ const x=fixture({domain:'catches',notesAction:'replace'});
+ for(let i=0;i<6;i++)await x.run();
+ assert.equal(x.state,'Live');
+ assert.deepEqual(x.expected,[
+  'pwa/Catches/catches.json','pwa/'+CATCH_PATH,
+ ]);
+ const incomplete=fixture({domain:'catches',notesAction:'replace',invalidPaths:true});
+ for(let i=0;i<5;i++)await incomplete.run();
+ await assert.rejects(incomplete.run(),failure('HOSTED_UNVERIFIED'));
+ assert.equal(incomplete.state,'Verifying');
+});
+test('D4-R02 Catch JSON-only valid operation uses single verified file',async()=>{
+ const x=fixture({domain:'catches'});
+ for(let i=0;i<6;i++)await x.run();
+ assert.deepEqual(x.expected,['pwa/Catches/catches.json']);
+ assert.equal(x.state,'Live');
 });
