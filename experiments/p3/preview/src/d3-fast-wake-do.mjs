@@ -70,8 +70,8 @@ export class D3FastWakeAlarm {
   const watch=createD3FastWatchdog({
    enabled:()=>this._enabled(),
    getOperation:id=>store.get(id),
-   runOneStep:()=>coordinator.tick(),
-   readOnlyRecoverMerge:()=>coordinator.tick(),
+   runOneStep:({operationId:id})=>coordinator.tick({targetOperationId:id}),
+   readOnlyRecoverMerge:({operationId:id})=>coordinator.tick({targetOperationId:id}),
    // The next alarm belongs to this EXACT named operation.
    arm:args=>this._schedule(args.operationId,args.deadlineMs,true),
   });
