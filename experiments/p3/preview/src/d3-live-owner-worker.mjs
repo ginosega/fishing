@@ -15,8 +15,7 @@ import {createD3SandboxScheduledCoordinator}
  from './d3-sandbox-scheduled-coordinator.mjs';
 import {createD3PrivateHostProof} from './d3-private-host-proof.mjs';
 import {d3PublishingReady} from './d3-publishing-readiness.mjs';
-import {createD4TicketVerifier} from './d4-git-blob-stage.mjs';
-import {validateD4MediaTickets} from './d4-media-tickets.mjs';
+import {createD3HostedMediaVerifier} from './d3-hosted-media-verifier.mjs';
 const ID=1430581407,OWNER=265665562;
 const runEnabled=d3PublishingReady;
 export function createD3LiveOwnerWorker({
@@ -38,15 +37,13 @@ export function createD3LiveOwnerWorker({
     env,request:requestGitHub,
     enabled:()=>runEnabled(env),
    });
-   const verifier=createD4TicketVerifier({
+   const verifyMedia=createD3HostedMediaVerifier({
     origin:env.APP_ORIGIN,secret:env.D2_CSRF_KEY,
+    enabled:()=>env.D4_MEDIA_ENABLED==='true',
    });
    const proof=createD3PrivateHostProof({
     origin:env.APP_ORIGIN,key:env.D2_HOST_PROBE_KEY,
-    store,issueReadToken,requestGitHub,requestHosted,
-    verifyMedia:async(pkg,media,options)=>
-     validateD4MediaTickets({package:pkg,media,
-      verifyTicket:verifier.verifyTicket,...options}),
+    store,issueReadToken,requestGitHub,requestHosted,verifyMedia,
    });
    return createD3SandboxScheduledCoordinator({
     env,store,requestGitHub,issueReadToken,issueWriteToken,
