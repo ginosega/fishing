@@ -6,7 +6,7 @@
  * and tree inventory semantics. The trusted loadSnapshot adapter must verify
  * immutable GitHub blob SHAs and ref before AND after using this candidate.
  */
-import {promoteChange,validatePackage,ChangeConflictError,narrativePath}
+import {promoteChange,validatePackage,ChangeConflictError,narrativePath,picturePath}
  from '../../../../pwa/src/handoff.mjs';
 import {validateRecords,validateRecord,collectPaths,checkPathCollisions}
  from '../../../../pwa/src/validation.mjs';
@@ -122,6 +122,22 @@ export function createD3TrustedGearKBCandidate({loadSnapshot,enabled=()=>false,
     !Object.hasOwn(candidate.record,'pictureSequence'),'CATCH_MEDIA_DENIED');
    check(pkg.notes.action!=='create'||pkg.notes.path===
     narrativePath('catches',candidate.record),'UNSAFE_NARRATIVE_PATH');
+  }
+  // Reusing an already-published picture is not a new upload. Reject
+  // dangling references, and prevent a new original from overwriting a
+  // file owned by some other record.
+  if(['add','replace'].includes(pkg.picture.action)&&!staged.length&&
+    (pkg.pictureSequence?.action??'keep')!=='set')
+    check(snapshot.files.has(pkg.picture.path),'MISSING_EXISTING_PICTURE');
+  const previousPaths=new Set([current?.picture?.src,
+   ...(current?.pictureSequence??[])].filter(Boolean));
+  for(const item of staged){
+   if(snapshot.files.has(item.path))
+    check(pkg.operation==='edit'&&previousPaths.has(item.path),
+     'MEDIA_PATH_COLLISION');
+   if((pkg.pictureSequence?.action??'keep')!=='set')
+    check(item.path===picturePath(pkg.domain,candidate.record,
+     item.path.split('/').at(-1)),'UNOWNED_MEDIA_PATH');
   }
   const next=data,items=next[pkg.domain][array];
   if(pkg.operation==='add')items.push(candidate.record);
