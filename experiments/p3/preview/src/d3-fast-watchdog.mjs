@@ -51,8 +51,7 @@ export function createD3FastWatchdog({
   if(!pending.has(before.state))deny('BAD_STATE');
   // The pending merge marker is an absolute no-repeat barrier.
   // Only independently verified read-only reconciliation may advance.
-  if(before.state==='Merging'&&before.reasonCode==='merge_attempted'&&
-     before.mergeSha===null){
+  if(before.state==='Merging'&&before.reasonCode==='merge_attempted'){
    await readOnlyRecoverMerge({operationId});
   }else{
    try{await runOneStep({operationId});}
