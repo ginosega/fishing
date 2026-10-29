@@ -63,7 +63,7 @@ function submission(raw){
     Object.keys(snapshot).sort().join(',')==='media,package'&&
     Array.isArray(snapshot.media)&&snapshot.media.length===0&&
     plain(pkg)&&pkg.format==='fishing-companion-change-v2'&&
-    ['gear','kb'].includes(pkg.domain)&&
+    ['gear','kb','catches'].includes(pkg.domain)&&
     ['add','edit'].includes(pkg.operation)&&
     pkg.picture?.action==='keep'&&
     (pkg.pictureSequence?.action??'keep')==='keep'&&
