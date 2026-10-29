@@ -143,7 +143,21 @@ export function createD3ConnectionController({
   statusRequest={seq,id,promise};
   return promise;
  }
- return Object.freeze({current,restore,signOut,refreshPublication});
+ function acknowledgeFailedPublication(){
+  gate();need(state.authorized&&
+   ['Failed','Conflict'].includes(state.publication)&&
+   OP.test(state.operationId??''),'TERMINAL_FAILURE_REQUIRED');
+  const tracked=lifecycle.tracking();
+  need(tracked.operationId===state.operationId&&
+   typeof lifecycle.forgetCompleted==='function',
+   'TERMINAL_FAILURE_REQUIRED');
+  lifecycle.forgetCompleted(); // Only after server-confirmed terminal status.
+  replace({...state,publication:'None',operationId:null,
+   sandboxVerified:false,statusReadError:false});
+  return current();
+ }
+ return Object.freeze({current,restore,signOut,refreshPublication,
+  acknowledgeFailedPublication});
 }
 
 /**
@@ -237,6 +251,15 @@ export function mountD3ConnectionPanel({
       (state.sandboxVerified?' · sandbox verified':'')+
       (state.statusReadError?' · status update unavailable':'');
     desc.appendChild(p);
+   }
+   if(['Failed','Conflict'].includes(state.publication)){
+    const warning=documentObject.createElement('p');
+    warning.textContent='This private publication did not reach Live. Review its CI failure before retrying. No successful merge has been verified.';
+    desc.appendChild(warning);
+    command('Dismiss failed publication',()=>{
+     try{controller.acknowledgeFailedPublication();paint();}
+     catch{void controller.refreshPublication().then(paint,paint);}
+    });
    }
    command('Check publication status',()=>{
     void controller.refreshPublication().then(paint,paint);
