@@ -120,12 +120,13 @@ function translate(e){
 export function createD3GuardedOperationsApi({
   session,store,validateCandidate,enabled=()=>false,
   measure=async(_stage,work)=>work(),
+  notifyAccepted=async()=>{},
 }={}){
   requireTrue(['describe','authorizeWrite','authorizeStatus'].every(x=>
     typeof session?.[x]==='function')&&
     ['accept','get','latest','lookupReceipt'].every(x=>typeof store?.[x]==='function')&&
     typeof validateCandidate==='function'&&typeof enabled==='function'&&
-    typeof measure==='function',
+    typeof measure==='function'&&typeof notifyAccepted==='function',
     'INVALID_CONFIG');
   async function handle(request){
     try{
@@ -161,6 +162,7 @@ export function createD3GuardedOperationsApi({
           requireTrue(operationPattern.test(previous.operationId??'')&&
             typeof previous.state==='string'&&previous.inserted===false,
             'UNVERIFIED_SOURCE');
+          await notifyAccepted(previous.operationId);
           return respond({ok:true,operationId:previous.operationId,
             state:previous.state,accepted:true,duplicate:true,
             statusPath:'/api/v3/operations/'+previous.operationId,
@@ -193,6 +195,10 @@ export function createD3GuardedOperationsApi({
         requireTrue(operationPattern.test(row?.operationId)&&
           typeof row.state==='string'&&typeof row.inserted==='boolean',
           'UNVERIFIED_SOURCE');
+        // Fail closed if an enabled fast alarm cannot be durably armed.
+        // The D1 Accepted receipt still exists; retrying with original
+        // key/body recovers the same receipt and retries alarm scheduling.
+        await notifyAccepted(row.operationId);
         return respond({ok:true,operationId:row.operationId,
           state:row.state,accepted:row.state==='Accepted',
           duplicate:!row.inserted,
