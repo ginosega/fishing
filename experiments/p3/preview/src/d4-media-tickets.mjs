@@ -38,7 +38,8 @@ export function expectedD4Media(pkg){
    expected.push(Object.freeze({path:d4MediaPath(path),
     bytes:m.bytes,sha256:m.sha256}));
   }
- }else if(['add','replace'].includes(picture.action)){
+ }else if(['add','replace'].includes(picture.action)&&
+   picture.file!==undefined){
   need(fileMeta(picture.file),'INVALID_PICTURE_METADATA');
   expected.push(Object.freeze({path:d4MediaPath(picture.path),
    bytes:picture.file.bytes,sha256:picture.file.sha256}));
