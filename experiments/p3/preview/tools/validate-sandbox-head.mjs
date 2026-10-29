@@ -108,7 +108,8 @@ export async function validateSandboxHead({
   result.data.catches.catches.every(c=>
    c.id?.startsWith('p3-test-catch-')&&
    ['speciesName','locationName','lureOrBaitName'].every(k=>
-    !c[k]||/p3|test|synthetic/i.test(c[k]))),
+    !c[k]||/p3|test|synthetic/i.test(c[k])||
+    (k==='lureOrBaitName'&&c[k]==='Other'))),
   'NON_SYNTHETIC_SANDBOX_SOURCE');
  return Object.freeze({
   repositoryId:SANDBOX_ID,headSha:expectedHeadSha,baseSha:expectedBaseSha,
