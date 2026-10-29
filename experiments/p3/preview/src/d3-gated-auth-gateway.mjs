@@ -174,6 +174,9 @@ export function createD3GatedAuthGateway({
         loadSnapshot:source.loadSnapshot,
         enabled:()=>env.D3_READ_TOKENS_ENABLED==='true'&&
           env.D3_SANDBOX_REPO_ID===String(ID),
+        verifyMediaTickets:async(pkg,media,options)=>
+          validateD4MediaTickets({package:pkg,media,
+           verifyTicket:mediaStage.verifyTicket,...options}),
       });
       if(benchmark){
         if(!env.DELIVERY_BENCH_R2?.put||!env.DELIVERY_BENCH_R2?.get)
