@@ -20,7 +20,7 @@ const deny=code=>{throw new D4MediaError(code);};
 const need=(ok,code)=>{if(!ok)deny(code);};
 const start=(bytes,...values)=>values.every((n,i)=>bytes[i]===n);
 const at=(bytes,index,...values)=>values.every((n,i)=>bytes[index+i]===n);
-const mime=bytes=>{
+export const d4ImageMime=bytes=>{
  if(start(bytes,255,216,255))return 'image/jpeg';
  if(start(bytes,137,80,78,71,13,10,26,10))return 'image/png';
  if(start(bytes,71,73,70,56)&&[55,57].includes(bytes[4])&&
@@ -29,7 +29,7 @@ const mime=bytes=>{
   at(bytes,8,87,69,66,80))return 'image/webp';
  return null;
 };
-function mediaPath(raw){
+export function d4MediaPath(raw){
  let path;try{path=safePath(raw);}catch{deny('UNSAFE_MEDIA_PATH');}
  const parts=path.split('/'),ext=parts.at(-1).split('.').at(-1)?.toLowerCase();
  need(allowed[ext]&&['Gear','KB'].includes(parts[0])&&
@@ -54,7 +54,7 @@ export async function verifyD4MediaManifest({package:pkg,uploads=[]}={}){
   need(picture.path===sequence.paths.at(-1)&&
    ['add','replace'].includes(picture.action),'INVALID_SEQUENCE');
   for(let i=0;i<sequence.paths.length;i++){
-   const path=mediaPath(sequence.paths[i]);
+   const path=d4MediaPath(sequence.paths[i]);
    const meta=sequence.files.find(m=>m?.path===path);
    const parts=path.split('/'),filename=parts[4]?.toLowerCase()??'';
    const number=String(i+1).padStart(2,'0');
@@ -65,7 +65,7 @@ export async function verifyD4MediaManifest({package:pkg,uploads=[]}={}){
    expected.set(path,meta);
   }
  }else if(['add','replace'].includes(picture.action)){
-  const path=mediaPath(picture.path);
+  const path=d4MediaPath(picture.path);
   need(metadata(picture.file),'MISSING_MEDIA_METADATA');
   expected.set(path,picture.file);
  }
@@ -75,14 +75,14 @@ export async function verifyD4MediaManifest({package:pkg,uploads=[]}={}){
   need(item&&typeof item==='object'&&!Array.isArray(item)&&
    typeof item.path==='string'&&item.bytes instanceof Uint8Array,
    'INVALID_MEDIA_ITEM');
-  const path=mediaPath(item.path),key=pathKey(path);
+  const path=d4MediaPath(item.path),key=pathKey(path);
   need(!seen.has(key),'DUPLICATE_MEDIA_PATH');seen.add(key);
   need(expected.has(path),'UNEXPECTED_MEDIA_PATH');
   const bytes=item.bytes,meta=expected.get(path);
   need(bytes.length>0&&bytes.length<=MAX_FILE&&
    bytes.length===meta.bytes,'MEDIA_LENGTH_MISMATCH');
   total+=bytes.length;need(total<=MAX_TOTAL,'MEDIA_TOTAL_TOO_LARGE');
-  const ext=path.split('.').at(-1).toLowerCase(),kind=mime(bytes);
+  const ext=path.split('.').at(-1).toLowerCase(),kind=d4ImageMime(bytes);
   need(kind!==null&&kind===allowed[ext],'MEDIA_SIGNATURE_MISMATCH');
   const digest=await sha256(bytes);
   need(digest===meta.sha256,'MEDIA_DIGEST_MISMATCH');
