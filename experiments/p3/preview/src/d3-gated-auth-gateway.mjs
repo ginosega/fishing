@@ -21,12 +21,15 @@ import {createD3OwnerPilotHost} from './d3-owner-pilot-host.mjs';
 import {d3PublishingReady} from './d3-publishing-readiness.mjs';
 import {createD3BenchmarkOwnerRoute} from './d3-benchmark-owner-route.mjs';
 import {createD3CheckWebhookWake} from './d3-fast-check-webhook.mjs';
+import {createD4GitBlobStage} from './d4-git-blob-stage.mjs';
+import {validateD4MediaTickets} from './d4-media-tickets.mjs';
 
 const ID=1430581407,OWNER=265665562;
 const authPaths=new Set([
   '/auth/start','/auth/callback','/session/signout','/session/revoke-all',
 ]);
-const operations=path=>path==='/api/v3/authoring-source'||
+const operations=path=>path==='/api/v3/media'||
+  path==='/api/v3/authoring-source'||
   path==='/api/v3/operations'||
   /^\/api\/v3\/operations\/[^/]+$/.test(path);
 const no=(status=404)=>new Response(JSON.stringify({
@@ -46,11 +49,12 @@ export function createD3GatedAuthGateway({
   hostProofFactory=createD3PrivateHostProof,
   benchmarkRouteFactory=createD3BenchmarkOwnerRoute,
   checkWebhookFactory=createD3CheckWebhookWake,
+  mediaStageFactory=createD4GitBlobStage,
 }={}){
   if(typeof auth?.fetch!=='function'||typeof proxy!=='function'||
     [sessionFactory,storeFactory,apiFactory,sourceReadFactory,
      hostAssetFactory,hostProofFactory,pilotHostFactory,
-     benchmarkRouteFactory,checkWebhookFactory].some(x=>typeof x!=='function'))
+     benchmarkRouteFactory,checkWebhookFactory,mediaStageFactory].some(x=>typeof x!=='function'))
     throw Error('D3 gateway requires trusted AUTH-P0 dependencies');
   async function fetchRequest(request,env,context){
     let url;
@@ -72,6 +76,8 @@ export function createD3GatedAuthGateway({
     }
     if(authPaths.has(url.pathname)&&!url.searchParams.has('unknown'))
       return auth.fetch(request,env,context);
+    const mediaRoute=url.pathname==='/api/v3/media';
+    if(mediaRoute&&env.D4_MEDIA_ENABLED!=='true')return no();
     const fastCheck=url.pathname==='/__d3_fast__/github-check';
     if(fastCheck&&(env.D3_FAST_WATCHDOG_ENABLED!=='true'||
       env.D3_FAST_WEBHOOK_ENABLED!=='true'))return no();
@@ -145,11 +151,20 @@ export function createD3GatedAuthGateway({
         }catch{return no(401);}
       }
       const transport=requestGitHub??fetch;
-      const grant=issueReadToken??createD3SandboxTokenIssuers({
+      const issuers=createD3SandboxTokenIssuers({
         env,request:transport,
         enabled:()=>env.D3_READ_TOKENS_ENABLED==='true'&&
           env.D3_SANDBOX_REPO_ID===String(ID),
-      }).issueReadToken;
+      });
+      const grant=issueReadToken??issuers.issueReadToken;
+      const mediaEnabled=()=>env.D4_MEDIA_ENABLED==='true'&&
+        d3PublishingReady(env);
+      const mediaStage=mediaStageFactory({
+        origin:env.APP_ORIGIN,session,
+        requestGitHub:transport,issueWriteToken:issuers.issueWriteToken,
+        secret:env.D2_CSRF_KEY,enabled:mediaEnabled,
+      });
+      if(mediaRoute)return await mediaStage.handle(request);
       const source=createD3SandboxSnapshotLoader({
         request:transport,issueReadToken:grant,
         enabled:()=>env.D3_READ_TOKENS_ENABLED==='true'&&
@@ -207,8 +222,12 @@ export function createD3GatedAuthGateway({
       }
       const api=apiFactory({
         session,store,
-        validateCandidate:async({package:pkg,repositoryId,ownerGitHubId})=>
-          planner.plan({package:pkg,repositoryId,ownerGitHubId}),
+        validateCandidate:async({package:pkg,media,repositoryId,ownerGitHubId})=>
+          planner.plan({package:pkg,media,repositoryId,ownerGitHubId}),
+        mediaEnabled,
+        verifyMediaTickets:async(pkg,media,options)=>
+          validateD4MediaTickets({package:pkg,media,
+            verifyTicket:mediaStage.verifyTicket,...options}),
         // API and scheduler share the same strict readiness policy.
         // A flag-only or partially provisioned runtime never accepts a write.
         enabled:()=>d3PublishingReady(env),
