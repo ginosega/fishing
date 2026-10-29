@@ -20,6 +20,7 @@ import {createD3OwnerSandboxSource} from './d3-owner-sandbox-source.mjs';
 import {createD3OwnerPilotHost} from './d3-owner-pilot-host.mjs';
 import {d3PublishingReady} from './d3-publishing-readiness.mjs';
 import {createD3BenchmarkOwnerRoute} from './d3-benchmark-owner-route.mjs';
+import {createD3CheckWebhookWake} from './d3-fast-check-webhook.mjs';
 
 const ID=1430581407,OWNER=265665562;
 const authPaths=new Set([
@@ -44,11 +45,12 @@ export function createD3GatedAuthGateway({
   hostAssetFactory=createD3PrivateHostedAsset,
   hostProofFactory=createD3PrivateHostProof,
   benchmarkRouteFactory=createD3BenchmarkOwnerRoute,
+  checkWebhookFactory=createD3CheckWebhookWake,
 }={}){
   if(typeof auth?.fetch!=='function'||typeof proxy!=='function'||
     [sessionFactory,storeFactory,apiFactory,sourceReadFactory,
      hostAssetFactory,hostProofFactory,pilotHostFactory,
-     benchmarkRouteFactory].some(x=>typeof x!=='function'))
+     benchmarkRouteFactory,checkWebhookFactory].some(x=>typeof x!=='function'))
     throw Error('D3 gateway requires trusted AUTH-P0 dependencies');
   async function fetchRequest(request,env,context){
     let url;
@@ -62,13 +64,16 @@ export function createD3GatedAuthGateway({
     }
     if(authPaths.has(url.pathname)&&!url.searchParams.has('unknown'))
       return auth.fetch(request,env,context);
+    const fastCheck=url.pathname==='/__d3_fast__/github-check';
+    if(fastCheck&&(env.D3_FAST_WATCHDOG_ENABLED!=='true'||
+      env.D3_FAST_WEBHOOK_ENABLED!=='true'))return no();
     const benchmark=url.pathname.startsWith('/__d3_benchmark__/');
     if(benchmark&&env.D3_BENCHMARK_ENABLED!=='true')return no();
     const privateTest=url.pathname.startsWith('/__d3_test__/operations/');
     const pilot=url.pathname==='/__d3_pilot__/'||
       url.pathname==='/__d3_pilot__/pilot.js';
     if(pilot&&env.D3_PILOT_ENABLED!=='true')return no();
-    if(!privateTest&&!pilot&&!benchmark&&url.pathname!=='/session'&&
+    if(!privateTest&&!pilot&&!benchmark&&!fastCheck&&url.pathname!=='/session'&&
       !operations(url.pathname))return no();
     if(privateTest&&env.D3_TEST_HOST_ENABLED!=='true')
       return no(404);
@@ -97,6 +102,34 @@ export function createD3GatedAuthGateway({
       const store=storeFactory({
         DB:env.OPERATIONS_DB,ownerGitHubId:OWNER,repositoryId:ID,
       });
+      if(fastCheck){
+        // Dedicated GitHub ingress: no browser-cookie authentication.
+        // HMAC SHA-256 covers the EXACT raw request bytes. A matching
+        // webhook is only a hint to read the current D1 operation and
+        // trigger independent exact-head GitHub GET verification.
+        if(typeof env.D3_FAST_WEBHOOK_SECRET!=='string'||
+          env.D3_FAST_WEBHOOK_SECRET.length<32||
+          typeof env.D3_FAST_WAKE_DO?.getByName!=='function')return no(503);
+        const receiver=checkWebhookFactory({
+          secret:env.D3_FAST_WEBHOOK_SECRET,
+          lookupChecking:args=>store.findCheckingByHead(args),
+          armWatchdog:async args=>{
+            const alarm=env.D3_FAST_WAKE_DO.getByName(args.operationId);
+            await alarm.arm({operationId:args.operationId,
+              deadlineMs:Date.now()});
+          },
+          enabled:()=>env.D3_FAST_WEBHOOK_ENABLED==='true'&&
+            d3PublishingReady(env),
+        });
+        try{
+          const wake=await receiver.handle(request);
+          return new Response(JSON.stringify({ok:true,accepted:wake.accepted}),{
+            status:202,headers:{'Cache-Control':'no-store',
+              'Content-Type':'application/json; charset=utf-8',
+              'X-Content-Type-Options':'nosniff'},
+          });
+        }catch{return no(401);}
+      }
       const transport=requestGitHub??fetch;
       const grant=issueReadToken??createD3SandboxTokenIssuers({
         env,request:transport,
@@ -164,6 +197,13 @@ export function createD3GatedAuthGateway({
         // API and scheduler share the same strict readiness policy.
         // A flag-only or partially provisioned runtime never accepts a write.
         enabled:()=>d3PublishingReady(env),
+        notifyAccepted:async operationId=>{
+          if(env.D3_FAST_WATCHDOG_ENABLED!=='true')return;
+          if(typeof env.D3_FAST_WAKE_DO?.getByName!=='function')
+            throw Error('D3_FAST_WAKE_UNAVAILABLE');
+          await env.D3_FAST_WAKE_DO.getByName(operationId).arm({
+            operationId,deadlineMs:Date.now()});
+        },
       });
       return await api.handle(request);
     }catch{return no(503);}
