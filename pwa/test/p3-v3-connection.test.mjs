@@ -379,3 +379,60 @@ test('D3-C16 transient read failure retains progress with bounded backoff',async
  assert.equal(x.clock.delay,5000);
  panel.remove();
 });
+
+
+test('D3-C17 reopening during an older GET rechecks after stale request settles',async()=>{
+ const x=pollingFixture();
+ await x.controller.restore();
+ await x.controller.refreshPublication();
+ const panel=x.mount();
+ x.hold();
+ const oldPoll=x.clock.fire();
+ await x.controller.restore();
+ const reopened=x.controller.refreshPublication();
+ assert.equal(x.lookups,2,'Only the old status GET may be in flight');
+ x.setPhase('Merging');
+ x.resolveHeld({operationId:OP,phase:'Checking',
+  sandboxVerified:false,publicLive:false});
+ await Promise.all([oldPoll,reopened]);
+ assert.equal(x.lookups,3,'Reopened owner must receive a fresh status GET');
+ assert.equal(x.controller.current().publication,'Merging');
+ panel.remove();
+});
+
+test('D3-C18 closing during a GET ignores its update and resumes on reopen',async()=>{
+ const x=pollingFixture();
+ await x.controller.restore();
+ await x.controller.refreshPublication();
+ const panel=x.mount();
+ x.hold();
+ const polling=x.clock.fire();
+ x.dialog.open=false;x.dialog.handlers.close();
+ x.resolveHeld({operationId:OP,phase:'Live',
+  sandboxVerified:true,publicLive:false});
+ await polling;
+ assert.equal(x.controller.current().publication,'Accepted');
+ assert.equal(x.clock.count,0);
+ x.dialog.open=true;panel.paint();
+ assert.equal(x.clock.count,1);
+ x.setPhase('Live');
+ await x.clock.fire();
+ assert.equal(x.controller.current().publication,'Live');
+ assert.equal(x.clock.count,0);
+ panel.remove();
+});
+
+test('D3-C19 Failed and Conflict are terminal and never self-republish',async()=>{
+ for(const terminal of ['Failed','Conflict']){
+  const x=pollingFixture();
+  await x.controller.restore();
+  await x.controller.refreshPublication();
+  const panel=x.mount();
+  x.setPhase(terminal);
+  await x.clock.fire();
+  assert.equal(x.controller.current().publication,terminal);
+  assert.equal(x.clock.count,0);
+  assert.equal(x.lookups,2);
+  panel.remove();
+ }
+});
