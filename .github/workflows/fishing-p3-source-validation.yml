@@ -88,7 +88,8 @@ jobs:
             'experiments/p3/preview/tools/deploy-d3-merge-tree-recovery.ps1',
             'experiments/p3/preview/tools/audit-d3-kb-pr18-readonly.ps1',
             'experiments/p3/preview/tools/deploy-d3-cross-device-status-fix.ps1',
-            'experiments/p3/preview/tools/prepare-d3-fast-watchdog.ps1'
+            'experiments/p3/preview/tools/prepare-d3-fast-watchdog.ps1',
+            'experiments/p3/preview/tools/activate-d3-fast-watchdog.ps1'
           )
           foreach ($scriptFile in $operatorScripts) {
           $tokens = $null
