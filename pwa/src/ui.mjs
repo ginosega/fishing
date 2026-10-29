@@ -48,7 +48,7 @@ export function createApp(ctx){
  function dirty(){return Boolean(editor?.isDirty());}
  function canLeave(){return !dirty()||confirm('Your changes have not been saved. Discard this edit and leave?');}
  function disposeEditor(){editor?.dispose?.();editor=null;}
- function navigate(hash){if(hash===currentHash){if(!dirty())render();return;}if(!canLeave())return;disposeEditor();approvedNavigation=hash;location.hash=hash;}
+ function navigate(hash){if(hash===currentHash){if(!dirty())render();return;}if(!canLeave())return;disposeEditor();approvedNavigation=hash;location.hash=hash;if(privatePilot)void refreshPublishedContent();}
  function anchor(label,href,cls=''){const a=link(label,href,cls);if(href.startsWith('#/'))a.addEventListener('click',event=>{event.preventDefault();navigate(href);});return a;}
  function copyLink(domain,id){const uri=domain+'://'+id;const full=new URL(routeFor(domain,id),ctx.root).href;const box=el('div',{class:'copy-dialog'},text('p','Internal link'),el('code',{},uri),text('p','Shareable browser URL'),el('code',{},full),toolbar(button('Copy internal link',()=>copy(uri)),button('Copy browser URL',()=>copy(full))));const dialog=el('dialog',{class:'small-dialog','aria-label':'Create Link'},box,button('Close',()=>dialog.close()));dialog.addEventListener('close',()=>dialog.remove());document.body.append(dialog);dialog.showModal();}
  async function copy(value){try{await navigator.clipboard.writeText(value);notify('Copied to clipboard.','success');}catch{const area=el('textarea',{readonly:true,value});alertHost.replaceChildren(text('p','Select and copy this text:'),area);area.focus();area.select();}}
@@ -146,6 +146,35 @@ export function createApp(ctx){
  globalThis.__FISHING_SHELL_CLEANUP__?.();
  const connection=document.getElementById('connection-status'),connectionDialog=document.getElementById('connection-dialog');
  const updateConnection=()=>{connection.dataset.online=String(navigator.onLine);document.getElementById('connection-network').textContent=navigator.onLine?'Online':'Offline';const current=offline.getStatus();document.getElementById('offline-update').disabled=privatePilot||Boolean(current?.state==='Downloading')||!navigator.onLine;};
+ // The pilot data are immutable from initial startup. On independently
+ // verified Live, detect a newer sandbox main and reload its current
+ // original-image references, but NEVER while reviewing an open editor.
+ let sourceRefreshBusy=false,sourceRefreshChecked=null;
+ async function refreshPublishedContent(){
+  if(!privatePilot||typeof ctx.v3?.refreshSandboxSource!=='function'||
+   !navigator.onLine||dirty()||sourceRefreshBusy)return;
+  const editable=new Set(['gear-edit','gear-add','kb-edit','kb-add',
+   'catch-edit','catch-add']);
+  if(editable.has(parseRoute(location.hash||'#/').page))return;
+  const state=ownerController?.current();
+  if(!state?.authorized||state.publication!=='Live'||
+   state.sandboxVerified!==true||!state.operationId||
+   sourceRefreshChecked===state.operationId)return;
+  sourceRefreshBusy=true;
+  try{
+   const latest=await ctx.v3.refreshSandboxSource();
+   if(!/^[a-f0-9]{40}$/.test(latest))return;
+   if(latest!==ctx.release.sourceRevision){
+    if(!dirty()&&!editable.has(parseRoute(location.hash||'#/').page))
+     window.location.reload();
+    return;
+   }
+   sourceRefreshChecked=state.operationId;
+  }catch{
+   // A transient read error never replaces the trusted local source.
+   // A future navigation can retry, without publication or blind reload.
+  }finally{sourceRefreshBusy=false;}
+ }
  let ownerPanel=null;
  const ownerController=v3Mode&&ctx.v3?.auth&&ctx.v3?.lifecycle?
   createD3ConnectionController({
@@ -155,6 +184,8 @@ export function createApp(ctx){
     const prior=ctx.v3.authorized;
     ctx.v3.authorized=state.authorized;
     ownerPanel?.paint();
+    if(state.publication==='Live'&&state.sandboxVerified===true)
+     void refreshPublishedContent();
     if(prior!==state.authorized){
      if(!dirty())void render();
      else notify('Owner session changed. Your unfinished edit is preserved.','warning');
