@@ -120,8 +120,17 @@ export function createD3ConnectionController({
         error?.code==='OWNER_SESSION_REQUIRED'){
       replace({...initial(),phase:'Unavailable'});
      }else{
-      replace({...state,publication:silent?state.publication:'Unknown',
-       sandboxVerified:silent?state.sandboxVerified:false,
+      // An already authenticated, server-accepted local receipt can
+      // establish an in-progress state even if its first status GET fails.
+      // Never infer Live or terminal success from local storage.
+      const accepted=ACTIVE.has(tracked?.phase)&&id!==null?
+       tracked.phase:null;
+      const known=state.operationId===id&&ACTIVE.has(state.publication)?
+       state.publication:null;
+      const pending=known??accepted;
+      replace({...state,operationId:pending?id:state.operationId,
+       publication:pending??(silent?state.publication:'Unknown'),
+       sandboxVerified:pending?false:(silent?state.sandboxVerified:false),
        publicLive:false,statusReadError:true});
      }
     }
