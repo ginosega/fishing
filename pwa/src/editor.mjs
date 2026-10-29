@@ -130,8 +130,8 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
   if(domain==='kb'&&record.type!=='knot'&&record.pictureSequence)pictureInfo.append(text('p','This entry still has a step-by-step sequence. Replace it with a single picture, keep only its representative picture, or remove the picture before preparing changes.','notice warning'));
   const fileLabel=sequenceMode?'Choose local pictures':'Choose a local picture';
   pictureHost.replaceChildren(field('Picture action',pictureSelect),pictureInfo,field(fileLabel,fileInput,sequenceMode?'Select the complete sequence; files must be named step-01, step-02, ... and manually uploaded to the repository.':'File must be manually uploaded to repository'),field('Repository picture path',picturePathInput),field('Caption (optional)',captionInput));
-  if(publishChange){
-   // D3 is text-only; D4 introduces atomic browser media upload.
+  if(publishChange&&!ctx.v3?.stageMedia){
+   // Image actions remain unavailable until authenticated D4 staging is enabled.
    // Hide the obsolete v2 manual-upload suggestion in the gated UI.
    for(const control of [pictureSelect,fileInput,picturePathInput,captionInput])
     control.disabled=true;
@@ -181,9 +181,12 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
    if(publishChange){
     // Isolated V3 owner-only interface. The server independently verifies
     // authentication, CSRF, canonical source and repository target.
-    if(pictureAction!=='keep'||pictureSequenceAction!=='keep')
+    if((pictureAction!=='keep'||pictureSequenceAction!=='keep')&&
+      typeof ctx.v3?.stageMedia!=='function')
      throw new Error('Direct picture publishing requires the D4 media service. Your edit is preserved.');
-    const receipt=await publishChange(prepared);
+    const files=sequenceSet?sequenceInfos.map(i=>({path:i.path,file:i.file})):
+     fileInfo?[{path:candidate.picture.src,file:fileInfo.file}]:[];
+    const receipt=await publishChange(prepared,files);
     if(receipt?.accepted!==true||!/^p3_[a-f0-9-]{36}$/.test(receipt.operationId??''))
      throw new Error('A durable publication receipt was not confirmed. Keep your edit.');
     saveAccepted=true;
