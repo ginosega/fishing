@@ -4,7 +4,6 @@
  * The named DO always corresponds to one exact existing sandbox D1 operation.
  * Alarms are wake-ups; all canonical state and merge evidence remains in D1.
  */
-import {DurableObject} from 'cloudflare:workers';
 import {createD3FastWatchdog} from './d3-fast-watchdog.mjs';
 import {createD1OperationStore} from './d1-operation-store.mjs';
 import {createD3SandboxTokenIssuers} from './d3-sandbox-token-issuers.mjs';
@@ -12,7 +11,22 @@ import {createD3SandboxScheduledCoordinator} from './d3-sandbox-scheduled-coordi
 import {createD3PrivateHostProof} from './d3-private-host-proof.mjs';
 import {d3PublishingReady} from './d3-publishing-readiness.mjs';
 const OWNER=265665562,ID=1430581407,OP=/^p3_[0-9a-f-]{36}$/;
-export class D3FastWakeAlarm extends DurableObject {
+export class D3FastWakeAlarm {
+ constructor(ctx,env){this.ctx=ctx;this.env=env;}
+ async fetch(request){
+  if(!(request instanceof Request)||request.method!=='POST'||
+    new URL(request.url).pathname!=='/arm'||
+    request.headers.get('Content-Type')!=='application/json')
+   return new Response(null,{status:404});
+  const body=await request.text();
+  if(new TextEncoder().encode(body).length>256)return new Response(null,{status:413});
+  let data;try{data=JSON.parse(body);}catch{return new Response(null,{status:400});}
+  try{
+   const result=await this.arm(data);
+   return new Response(JSON.stringify(result),{status:200,
+    headers:{'Cache-Control':'no-store','Content-Type':'application/json'}});
+  }catch{return new Response(null,{status:503});}
+ }
  _enabled(){
   return this.env.D3_FAST_WATCHDOG_ENABLED==='true'&&
    d3PublishingReady(this.env)&&
