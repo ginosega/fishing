@@ -145,12 +145,17 @@ export default {
       }
       if (req.method === 'GET' && path === '/auth/start') {
         const destination = url.searchParams.get('return');
+        const integrated = destination === '/fishing/__d3_pilot__/' &&
+          env.D3_PILOT_ENABLED === 'true' &&
+          env.D3_INTEGRATED_PWA_ENABLED === 'true';
         if (destination !== null && destination !== '/fishing/' &&
-            !(destination === '/__d3_pilot__/' && env.D3_PILOT_ENABLED === 'true'))
+            !(destination === '/__d3_pilot__/' &&
+              env.D3_PILOT_ENABLED === 'true') && !integrated)
           return error(400, 'Invalid return target');
         const state = nonce() +
           (destination === '/fishing/' ? '.f' :
-           destination === '/__d3_pilot__/' ? '.p' : '');
+           destination === '/__d3_pilot__/' ? '.p' :
+           integrated ? '.i' : '');
         const verifier = nonce();
         await env.DB.prepare('INSERT INTO auth_flows (state_hash, code_verifier, expires_at) VALUES (?, ?, ?)')
           .bind(await hash(state), verifier, nowSeconds() + FLOW_SECONDS).run();
@@ -168,8 +173,11 @@ export default {
         const state = url.searchParams.get('state');
         const code = url.searchParams.get('code');
         const flow = cookies(req)[FLOW_COOKIE];
-        if (!state || !code || !flow || state !== flow || !/^[A-Za-z0-9_-]{43}(?:\.[fp])?$/.test(state) ||
-            (state.endsWith('.p') && env.D3_PILOT_ENABLED !== 'true'))
+        if (!state || !code || !flow || state !== flow || !/^[A-Za-z0-9_-]{43}(?:\.[fpi])?$/.test(state) ||
+            (state.endsWith('.p') && env.D3_PILOT_ENABLED !== 'true') ||
+            (state.endsWith('.i') &&
+             (env.D3_PILOT_ENABLED !== 'true' ||
+              env.D3_INTEGRATED_PWA_ENABLED !== 'true')))
           return withCookies(error(400, 'Invalid OAuth callback'), [clearFlow]);
         // Atomic, single-use state. Parallel callbacks cannot both consume the row.
         const pending = await env.DB.prepare('DELETE FROM auth_flows WHERE state_hash = ? AND expires_at > ? RETURNING code_verifier')
@@ -182,7 +190,11 @@ export default {
         await env.DB.prepare('INSERT INTO sessions (token_hash, github_id, expires_at) VALUES (?, ?, ?)')
           .bind(await hash(sid), identity.id, nowSeconds() + SESSION_SECONDS).run();
         return redirect(state.endsWith('.p') && env.D3_PILOT_ENABLED === 'true'
-          ? '/__d3_pilot__/' : state.endsWith('.f') ? '/fishing/' : '/',
+          ? '/__d3_pilot__/' :
+          state.endsWith('.i') && env.D3_PILOT_ENABLED === 'true' &&
+          env.D3_INTEGRATED_PWA_ENABLED === 'true'
+          ? '/fishing/__d3_pilot__/' :
+          state.endsWith('.f') ? '/fishing/' : '/',
           [clearFlow, setCookie(SESSION_COOKIE, sid, SESSION_SECONDS)]);
       }
       if (req.method === 'POST' && (path === '/session/signout' || path === '/session/revoke-all')) {
