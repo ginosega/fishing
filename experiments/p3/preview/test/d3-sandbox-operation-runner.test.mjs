@@ -17,7 +17,7 @@ const pkg=(domain='gear',notesAction='keep')=>({
 function fixture({domain='gear',notesAction='keep',enabled=true,
   unknownMerge=false,invalidCheck=false,invalidPaths=false,
   invalidPR=false,stolenLease=false,untrustedHost=false,
-  invalidSnapshot=false}={}){
+  invalidSnapshot=false,pendingCheck=false}={}){
   const trace=[];let row={operationId:OP,state:'Accepted'};
   const snapshot=()=>invalidSnapshot?{}:{package:pkg(domain,notesAction),media:[]};
   const expected=domain==='gear'?['pwa/Gear/gear.json']:
@@ -29,6 +29,12 @@ function fixture({domain='gear',notesAction='keep',enabled=true,
       return stolenLease?null:{operationId,state:row.state};
     },
     get:async()=>structuredClone(row),
+    releasePendingCheckLease:async({operationId,leaseOwner})=>{
+      trace.push('release-pending');
+      assert.equal(operationId,OP);
+      assert.equal(leaseOwner,'lease-owner-012345');
+      return row.state==='Checking';
+    },
     readSnapshot:async()=>snapshot(),
     markMergeAttempt:async()=>{
       trace.push('mark-merge');
@@ -60,6 +66,7 @@ function fixture({domain='gear',notesAction='keep',enabled=true,
     observeCheck:async info=>{
       trace.push('check');
       assert.equal(info.expectedHeadSha,HEAD);
+      if(pendingCheck)throw Object.assign(new Error('CI is pending'),{code:'CHECK_PENDING'});
       return {repositoryId:ID,prNumber:18,
         headSha:invalidCheck?'f'.repeat(40):HEAD,
         baseSha:BASE,actionsAppId:15368,checkName:'validate-sandbox-head',
@@ -168,4 +175,14 @@ test('D3-R08 invalid operation ID/lease input never claims state',async()=>{
     operationId:OP,leaseOwner:'short',
   }),failure('INVALID_REQUEST'));
   assert.equal(x.trace.length,0);
+});
+
+test('D3-R09 pending CI releases exact D1 lease, does not advance or merge',async()=>{
+  const x=fixture({pendingCheck:true});
+  await x.run(); // Accepted -> Validating
+  await x.run(); // Validating -> Checking
+  await assert.rejects(x.run(),e=>e.code==='CHECK_PENDING');
+  assert.equal(x.state,'Checking');
+  assert.equal(x.trace.filter(t=>t==='release-pending').length,1);
+  assert.equal(x.trace.includes('merge'),false);
 });
