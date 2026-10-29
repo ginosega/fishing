@@ -72,6 +72,10 @@ export function createD3OwnerTestShell({
   const v3={
    enabled:true,authorized:false,
    auth:owner,lifecycle,
+   // Owner-only revision check. The UI reloads its validated private
+   // snapshot only AFTER durable Live and after leaving any open editor.
+   refreshSandboxSource:async()=>(
+    await sourceClient.load()).sourceRevision,
    ...(session.sandboxMediaReady===true?{
     privateAssets:true,
     stageMedia:(file)=>owner.stageMedia(file),
