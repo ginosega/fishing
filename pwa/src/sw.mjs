@@ -135,6 +135,11 @@ self.addEventListener('message',event=>{
 self.addEventListener('fetch',event=>{
  const request=event.request,url=new URL(request.url),scopeUrl=new URL(scope);
  if(request.method!=='GET'||url.origin!==scopeUrl.origin||!url.pathname.startsWith(scopeUrl.pathname))return;
+ // V3-owned private test endpoints have their own no-store session gate.
+ // Do not intercept their document or JS and NEVER cache/fallback to V2.
+ // Existing public /fishing/ and every verified release asset still use SW.
+ if(url.pathname==='/fishing/__d3_pilot__/'||
+    url.pathname==='/fishing/__d3_pilot__/pilot.js')return;
  event.respondWith((async()=>{
   let relative;try{relative=decodeURIComponent(url.pathname.slice(scopeUrl.pathname.length));}catch{return new Response('Invalid resource path',{status:400});}
   if(relative==='__fishing_complete__'||relative==='__fishing_selected__')return new Response('Not found',{status:404});
