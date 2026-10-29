@@ -80,3 +80,17 @@ test('D4-UX07 absent Gear picture sequence never leaks to strict record schema',
  assert(editor.includes("if(candidate.pictureSequence===undefined)delete candidate.pictureSequence;"));
  assert(editor.includes("if(baseRecord.pictureSequence===undefined)delete record.pictureSequence;"));
 });
+
+test('D4-UX08 server-accepted Gear/KB and Catch hide Save/Cancel form and offer Exit',()=>{
+ const gear=readFileSync(new URL('../src/editor.mjs',import.meta.url),'utf8');
+ const catchSource=readFileSync(new URL('../src/catch-editor.mjs',import.meta.url),'utf8');
+ assert(gear.includes('form.hidden=true;'));
+ assert(catchSource.includes('form.hidden=true;'));
+ for(const source of [gear,catchSource]){
+  assert(source.includes("toolbar(button('Exit',onExit,{variant:'primary'}))"));
+  assert(source.indexOf('form.hidden=true;') > source.indexOf("accepted=true") ||
+    source.includes('saveAccepted=true'));
+ }
+ assert(gear.includes("if(!saveAccepted)prepareButton.disabled=false"));
+ assert(catchSource.includes("if(!accepted)submit.disabled=false"));
+});
