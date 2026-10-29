@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createD3BenchmarkOwnerRoute} from '../src/d3-benchmark-owner-route.mjs';
+import {D2SessionError} from '../src/d2-unified-owner-session.mjs';
 const origin='https://fishing-auth-p0-test.ginosega.workers.dev';
 const version='bench_'+'a'.repeat(32),sha='b'.repeat(64);
 function fixture({enabled=true,owner=true}={}){
@@ -9,10 +10,10 @@ function fixture({enabled=true,owner=true}={}){
  const route=createD3BenchmarkOwnerRoute({
   origin,enabled:()=>enabled,ownerSession:{
    authorizeStatus:async()=>{
-    calls.status++;if(!authorized)throw Error('No owner');return {authorized:true};
+    calls.status++;if(!authorized)throw new D2SessionError('SESSION_DENIED');return {authorized:true};
    },
    authorizeWrite:async()=>{
-    calls.write++;if(!authorized)throw Error('No owner');return {authorized:true};
+    calls.write++;if(!authorized)throw new D2SessionError('SESSION_DENIED');return {authorized:true};
    },
   },R2:{},D1:{},storageFactory:()=>{
    calls.storage++;
