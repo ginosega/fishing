@@ -88,11 +88,15 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
   return hasPicture?[['keep','Keep current picture'],['replace-static','Replace picture'],['remove-picture','Remove picture']]:[['keep','Keep no picture'],['add-static','Add picture']];
  }
  function renderActionOptions(typeChanged=false){
-  const options=actionOptions();if(!options.some(([value])=>value===mediaAction)){revokeLocal();mediaAction='keep';if(typeChanged&&baseRecord){record.picture=clone(baseRecord.picture);record.pictureSequence=clone(baseRecord.pictureSequence);} }
+  const options=actionOptions();if(!options.some(([value])=>value===mediaAction)){revokeLocal();mediaAction='keep';if(typeChanged&&baseRecord){if(baseRecord.picture===undefined)delete record.picture;else record.picture=clone(baseRecord.picture);
+     if(baseRecord.pictureSequence===undefined)delete record.pictureSequence;
+     else record.pictureSequence=clone(baseRecord.pictureSequence);} }
   pictureSelect.replaceChildren(...options.map(([value,label])=>el('option',{value,selected:value===mediaAction},label)));pictureSelect.value=mediaAction;
  }
  function applyAction(){
-  if(mediaAction==='keep'&&editing){record.picture=clone(baseRecord.picture);record.pictureSequence=clone(baseRecord.pictureSequence);captionInput.value=record.picture?.caption||'';picturePathInput.value=record.picture?.src||'';}
+  if(mediaAction==='keep'&&editing){if(baseRecord.picture===undefined)delete record.picture;else record.picture=clone(baseRecord.picture);
+     if(baseRecord.pictureSequence===undefined)delete record.pictureSequence;
+     else record.pictureSequence=clone(baseRecord.pictureSequence);captionInput.value=record.picture?.caption||'';picturePathInput.value=record.picture?.src||'';}
   if(mediaAction==='keep'&&!editing){delete record.picture;delete record.pictureSequence;captionInput.value='';picturePathInput.value='';}
   if(mediaAction==='remove-picture'){delete record.picture;delete record.pictureSequence;picturePathInput.value='';}
   if(mediaAction==='remove-sequence-keep-picture'){if(baseRecord?.picture)record.picture=clone(baseRecord.picture);delete record.pictureSequence;picturePathInput.value=record.picture?.src||'';captionInput.value=record.picture?.caption||captionInput.value;}
@@ -157,6 +161,12 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
    if(!ID_PATTERN.test(record.id))throw new Error('The ID must use lowercase letters, numbers and hyphens.');
    const existing=ctx.data[domain][DOMAIN[domain].array];if(!editing&&existing.some(x=>x.id===record.id))throw new Error('This ID already exists.');
    const candidate=clone(record),sequenceSet=SEQUENCE_ACTIONS.has(mediaAction);
+   // Keep can restore undefined optional properties. Strict schema forbids
+   // pictureSequence on Gear even when its value is undefined.
+   if(candidate.picture===undefined)delete candidate.picture;
+   if(candidate.pictureSequence===undefined)delete candidate.pictureSequence;
+   if(domain==='gear'&&Object.hasOwn(candidate,'pictureSequence'))
+    throw new Error('Gear records cannot contain picture sequences.');
    if(domain==='gear'){candidate.specifications=(candidate.specifications||[]).map(x=>{const item={value:x.value.trim()};if(x.label?.trim())item.label=x.label.trim();return item;});candidate.links=(candidate.links||[]).map(x=>({label:x.label.trim(),url:x.url.trim()}));}
    if(sequenceSet){if(sequenceInfos.length<2)throw new Error('Select the complete step-by-step sequence before preparing changes.');recalcSequencePaths();candidate.pictureSequence=sequenceInfos.map(x=>x.path);candidate.picture={src:candidate.pictureSequence.at(-1),...(captionInput.value.trim()?{caption:captionInput.value.trim()}:{})};}
    if(mediaAction==='remove-picture'){delete candidate.picture;delete candidate.pictureSequence;}
