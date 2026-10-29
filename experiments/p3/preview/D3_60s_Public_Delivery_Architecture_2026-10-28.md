@@ -90,6 +90,27 @@ historical lower bounds, missing public proof, all three content domains,
 the inclusive deadline and nonautomatic outage handling. A future test
 harness must supply real independent evidence from trusted instrumentation.
 
+## Source-only versioned-content prototype
+
+The [versioned delivery prototype](src/d3-versioned-delivery-prototype.mjs)
+and [regression tests](test/d3-versioned-delivery-prototype.test.mjs)
+are strictly **unrouted**, injected-adapter experiments (default OFF).
+The trusted canonical loader is required to verify the public repository
+numeric ID **1350909744**, actual protected PR/head/check/merge and current
+public `main`, then supply exact Git blob bytes; the prototype independently
+rehashes those bytes as Git blobs and SHA-256. It stages immutable
+commit-addressed JSON/Markdown and manifest bytes, reads them back,
+checks fresh canonical main, uses an injected atomic compare-and-swap
+pointer, and demands independent anonymous/public GET byte proof.
+
+Fail-closed tests include wrong blob, unsafe path, incomplete staging,
+newer canonical main, moved activation pointer, ambiguous CAS, stale edge
+read and lost hosted proof. An ambiguous activation is **not retried or
+silently rolled back**. The prototype does not perform actual GitHub,
+R2, D1, HTTP or user click-to-public timing, and can never return a real
+public Live receipt. The adapter contracts and measured feasibility must
+be validated before selecting a production architecture.
+
 ## Benchmark and stop conditions
 
 For each of Gear, KB and Catch, perform repeated **normal text-only**
