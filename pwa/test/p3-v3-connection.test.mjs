@@ -190,3 +190,192 @@ test('D3-C10 no owner operation returns None, never a fabricated Live',async()=>
  assert.equal(x.controller.current().operationId,null);
  assert.equal(x.controller.current().sandboxVerified,false);
 });
+
+
+const NEXT_OP='p3_abcdef01-1234-4234-8234-123456789abc';
+function pollingFixture(){
+ const scheduled=new Map();
+ let nextId=0,lookups=0,phase='Accepted',tracked=OP;
+ let pending=null;
+ const doc={
+  ...documentObject,visibilityState:'visible',handlers:{},
+  addEventListener(name,fn){this.handlers[name]=fn;},
+  removeEventListener(name){delete this.handlers[name];},
+ };
+ const win={handlers:{},
+  addEventListener(name,fn){this.handlers[name]=fn;},
+  removeEventListener(name){delete this.handlers[name];},
+ };
+ const dialog=new Element('dialog');
+ dialog.open=true;
+ const auth={session:async()=>({authenticated:true,authorized:true}),
+  signOut:async()=>true};
+ const lifecycle={
+  tracking:()=>({operationId:tracked}),
+  refresh:async()=>{
+   lookups++;
+   if(pending)return new Promise(resolve=>{pending.push(resolve);});
+   return {operationId:tracked,phase,sandboxVerified:phase==='Live',
+    publicLive:false};
+  },
+ };
+ let connected=true;
+ const controller=createD3ConnectionController({
+  auth,lifecycle,enabled:()=>true,online:()=>connected,
+ });
+ const clock={
+  setTimer:(fn,ms)=>{
+   const id=++nextId;scheduled.set(id,{fn,ms});return id;
+  },
+  clearTimer:id=>scheduled.delete(id),
+  async fire(){
+   const entry=scheduled.entries().next().value;
+   assert(entry,'Expected a scheduled owner status read');
+   const [id,job]=entry;scheduled.delete(id);
+   await job.fn();
+  },
+  get count(){return scheduled.size;},
+  get delay(){return [...scheduled.values()][0]?.ms;},
+ };
+ const mount=()=>mountD3ConnectionPanel({
+  dialog,controller,documentObject:doc,windowObject:win,
+  online:()=>connected,
+  setTimer:clock.setTimer,clearTimer:clock.clearTimer,
+ });
+ return {controller,clock,mount,doc,win,dialog,
+  get lookups(){return lookups;},
+  setPhase:v=>{phase=v;},
+  setTracked:v=>{tracked=v;},
+  setOnline:v=>{connected=v;},
+  hold:()=>{pending=[];},
+  resolveHeld:result=>{
+   const queue=pending;pending=null;
+   for(const release of queue)release(result);
+  },
+ };
+}
+
+test('D3-C11 visible owner polls about every five seconds and stops at Live',async()=>{
+ const x=pollingFixture();
+ await x.controller.restore();
+ await x.controller.refreshPublication();
+ const panel=x.mount();
+ assert.equal(x.clock.count,1);
+ assert.equal(x.clock.delay,5000);
+ assert.equal(x.controller.current().publication,'Accepted');
+ x.setPhase('Checking');
+ const refreshing=x.clock.fire();
+ assert.equal(x.controller.current().publication,'Accepted',
+  'A pending GET must not flash Checking before receiving a new state');
+ await refreshing;
+ assert.equal(x.controller.current().publication,'Checking');
+ assert.equal(x.clock.count,1);
+ x.setPhase('Live');
+ await x.clock.fire();
+ assert.equal(x.controller.current().publication,'Live');
+ assert.equal(x.controller.current().sandboxVerified,true);
+ assert.equal(x.controller.current().publicLive,false);
+ assert.equal(x.clock.count,0,'Terminal Live must not poll');
+ panel.remove();
+});
+
+test('D3-C12 manual and automatic GETs share one in-flight request',async()=>{
+ const x=pollingFixture();
+ await x.controller.restore();
+ await x.controller.refreshPublication();
+ const panel=x.mount();
+ x.hold();
+ const before=x.lookups;
+ const poll=x.clock.fire();
+ assert.equal(x.lookups,before+1);
+ const toolbar=x.dialog.children[0].children[2];
+ const manual=toolbar.children.find(c=>c.textContent==='Check publication status');
+ manual.handlers.click();
+ assert.equal(x.lookups,before+1,'Manual refresh must reuse polling GET');
+ x.resolveHeld({operationId:OP,phase:'Live',
+  sandboxVerified:true,publicLive:false});
+ await poll;
+ assert.equal(x.controller.current().publication,'Live');
+ assert.equal(x.clock.count,0);
+ panel.remove();
+});
+
+test('D3-C13 hidden, offline and closed screens suspend and safely resume',async()=>{
+ const x=pollingFixture();
+ await x.controller.restore();
+ await x.controller.refreshPublication();
+ const panel=x.mount();
+ assert.equal(x.clock.count,1);
+ x.doc.visibilityState='hidden';x.doc.handlers.visibilitychange();
+ assert.equal(x.clock.count,0);
+ x.doc.visibilityState='visible';x.doc.handlers.visibilitychange();
+ assert.equal(x.clock.count,1);
+ x.setOnline(false);x.win.handlers.offline();
+ assert.equal(x.clock.count,0);
+ x.setOnline(true);x.win.handlers.online();
+ assert.equal(x.clock.count,1);
+ x.dialog.open=false;x.dialog.handlers.close();
+ assert.equal(x.clock.count,0);
+ x.dialog.open=true;panel.paint();
+ assert.equal(x.clock.count,1);
+ panel.remove();
+ assert.equal(x.clock.count,0);
+ assert.equal(x.doc.handlers.visibilitychange,undefined,
+  'Unmount must remove lifecycle listeners');
+});
+
+test('D3-C14 an outstanding status result cannot restore a signed-out owner',async()=>{
+ const x=pollingFixture();
+ await x.controller.restore();
+ await x.controller.refreshPublication();
+ const panel=x.mount();
+ x.hold();
+ const polling=x.clock.fire();
+ assert.equal(x.lookups,2);
+ await x.controller.signOut();
+ panel.paint();
+ assert.equal(x.controller.current().authorized,false);
+ assert.equal(x.clock.count,0);
+ x.resolveHeld({operationId:OP,phase:'Live',
+  sandboxVerified:true,publicLive:false});
+ await polling;
+ assert.equal(x.controller.current().authorized,false);
+ assert.equal(x.controller.current().publication,'None');
+ panel.remove();
+});
+
+test('D3-C15 a changed operation does not accept a stale status reply',async()=>{
+ const x=pollingFixture();
+ await x.controller.restore();
+ await x.controller.refreshPublication();
+ const panel=x.mount();
+ x.hold();
+ const polling=x.clock.fire();
+ x.setTracked(NEXT_OP);
+ x.resolveHeld({operationId:OP,phase:'Live',
+  sandboxVerified:true,publicLive:false});
+ await polling;
+ assert.equal(x.controller.current().operationId,OP);
+ assert.equal(x.controller.current().publication,'Accepted');
+ panel.remove();
+});
+
+test('D3-C16 transient read failure retains progress with bounded backoff',async()=>{
+ const x=pollingFixture();
+ await x.controller.restore();
+ await x.controller.refreshPublication();
+ const panel=x.mount();
+ x.hold();
+ const polling=x.clock.fire();
+ x.resolveHeld(Promise.reject(new Error('temporary network failure')));
+ await polling;
+ assert.equal(x.controller.current().publication,'Accepted');
+ assert.equal(x.controller.current().statusReadError,true);
+ assert.equal(x.clock.delay,10000);
+ x.setPhase('Verifying');
+ await x.clock.fire();
+ assert.equal(x.controller.current().publication,'Verifying');
+ assert.equal(x.controller.current().statusReadError,false);
+ assert.equal(x.clock.delay,5000);
+ panel.remove();
+});
