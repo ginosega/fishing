@@ -41,6 +41,10 @@
     "D3_READ_TOKENS_ENABLED": "false",
     "D3_TEST_HOST_ENABLED": "false",
     "D3_PILOT_ENABLED": "false",
+    // Separate owner-only integration gate for /fishing/__d3_pilot__/.
+    // NEVER enable on V2 while its existing service worker rewrites navigations.
+    // Requires explicit integrated PWA release/source/rollback review.
+    "D3_INTEGRATED_PWA_ENABLED": "false",
     // Set to the independently generated private local pilot bundle SHA-256
     // only in the operator-reviewed LOCAL config, never copy a placeholder
     // to Cloudflare and never enable the page with a missing/mismatched SHA.
