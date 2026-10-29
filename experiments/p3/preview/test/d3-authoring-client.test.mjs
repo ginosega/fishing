@@ -28,7 +28,7 @@ test('D3-C02 anonymous session has no CSRF or ability to publish',async()=>{
   request:async (url,init)=>{calls.push({url,init});return ok({authenticated:false,authorized:false});},
  });
  assert.deepEqual(await client.session(),{authenticated:false,authorized:false,
-  sandboxPublishingReady:false});
+  sandboxPublishingReady:false,sandboxMediaReady:false});
  await assert.rejects(client.publish({package:sample,idempotencyKey:'idempotent-test-001'}),
   refuse('OWNER_SESSION_REQUIRED'));
  assert.equal(calls.length,1);
@@ -54,7 +54,7 @@ test('D3-C03 accepted text-only edit is not public live; durable receipt require
   },
  });
  assert.deepEqual(await client.session(),{authenticated:true,authorized:true,
-  sandboxPublishingReady:false});
+  sandboxPublishingReady:false,sandboxMediaReady:false});
  assert.deepEqual(await client.publish({package:sample,idempotencyKey:'idempotent-test-001'}),
   {operationId:op,state:'Accepted',accepted:true,duplicate:false,canonicalLive:false});
  assert.equal(calls,2);
@@ -114,7 +114,7 @@ test('D3-C05 unsafe cross-origin, offline, media, and missing owner are refused 
  await assert.rejects(client.session(),refuse('OFFLINE_DENIED'));
  assert.equal(hits,0);online=true;await client.session();
  await assert.rejects(client.publish({package:{...sample,picture:{action:'replace'}},
-  idempotencyKey:'idempotent-test-001'}),refuse('MEDIA_REQUIRES_D4'));
+  idempotencyKey:'idempotent-test-001'}),refuse('MEDIA_UNAVAILABLE'));
  await assert.rejects(client.publish({package:sample,idempotencyKey:'bad'}),
   refuse('INVALID_IDEMPOTENCY_KEY'));
  assert.equal(hits,1);
@@ -180,7 +180,7 @@ test('D3-C10 authenticated server readiness is distinct from session permission'
    csrfToken:csrf,sandboxPublishingReady:true}),
  });
  assert.deepEqual(await client.session(),{authenticated:true,authorized:true,
-  sandboxPublishingReady:true});
+  sandboxPublishingReady:true,sandboxMediaReady:false});
 });
 test('D3-C09 ambiguous signout cannot preserve cached CSRF or retry implicitly',async()=>{
  let count=0;
