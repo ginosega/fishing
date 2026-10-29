@@ -148,6 +148,7 @@ export function createApp(ctx){
   }):null;
  if(ownerController)ownerPanel=mountD3ConnectionPanel({
   dialog:connectionDialog,controller:ownerController,documentObject:document,
+  online:()=>navigator.onLine,windowObject:window,
  });
  if(ownerController&&v3Mode){
   // A durable Accepted receipt should update Connection Status immediately,
@@ -170,7 +171,9 @@ export function createApp(ctx){
  connection.addEventListener('click',()=>{
   connectionDialog.showModal();
   if(ownerController)void refreshOwner();
- });document.getElementById('connection-close').addEventListener('click',()=>connectionDialog.close());window.addEventListener('online',updateConnection);window.addEventListener('offline',updateConnection);updateConnection();
+ });document.getElementById('connection-close').addEventListener('click',()=>{
+  ownerPanel?.suspend();connectionDialog.close();
+ });window.addEventListener('online',updateConnection);window.addEventListener('offline',updateConnection);updateConnection();
  document.getElementById('offline-update').disabled=privatePilot||!navigator.onLine;
  document.getElementById('offline-update').addEventListener('click',()=>offline.update());document.getElementById('offline-reload').addEventListener('click',()=>offline.reload());
  const releaseDetails=document.getElementById('release-details');if(releaseDetails)releaseDetails.textContent=`Release ${ctx.release.id.slice(0,12)} · Source ${ctx.release.sourceRevision.slice(0,12)}${ctx.release.pendingMedia?' · Pending media preview':''}`;
