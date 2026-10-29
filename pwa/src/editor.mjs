@@ -53,7 +53,7 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
  function revokeLocal(clearInput=true){if(previewUrl){URL.revokeObjectURL(previewUrl);previewUrl=null;}for(const url of sequenceUrls)URL.revokeObjectURL(url);sequenceUrls=[];fileInfo=null;sequenceInfos=[];if(clearInput)fileInput.value='';}
  function recalcSequencePaths(){if(!sequenceInfos.length||!ID_PATTERN.test(record.id))return;for(const info of sequenceInfos)info.path=sequencePicturePath(record,info.name);record.pictureSequence=sequenceInfos.map(x=>x.path);picturePathInput.value=record.pictureSequence.at(-1);record.picture={src:picturePathInput.value,...(captionInput.value?{caption:captionInput.value}:{})};}
  function control(label,value,change,options={}){const c=input(value,options);c.addEventListener('input',()=>change(c.value));return field(label,c,options.hint||'');}
- function requiredControl(label,keyName,options={}){const c=input(record[keyName]||'',{required:true,maxlength:160,...options});c.addEventListener('input',()=>{record[keyName]=c.value;if(keyName==='name'&&!editing&&!idTouched){record.id=newId(c.value,new Set(ctx.data[domain][DOMAIN[domain].array].map(x=>x.id)));idInput.value=record.id;recalcSequencePaths();renderPicture();}changed();});return field(label,c);}
+ function requiredControl(label,keyName,options={}){const c=input(record[keyName]||'',{required:true,maxlength:160,...options});c.addEventListener('input',()=>{record[keyName]=c.value;if(keyName==='name'&&!editing&&!idTouched){record.id=newId(ctx.v3?.source?.sandboxOnly===true?'p3-'+c.value:c.value,new Set(ctx.data[domain][DOMAIN[domain].array].map(x=>x.id)));idInput.value=record.id;recalcSequencePaths();renderPicture();}changed();});return field(label,c);}
  const idInput=input(record.id,{required:true,maxlength:160,readonly:editing});idInput.addEventListener('input',()=>{idTouched=true;record.id=idInput.value;recalcSequencePaths();renderPicture();changed();});
  const nameField=requiredControl('Name','name');
  form.append(nameField,field('ID',idInput));
@@ -160,6 +160,11 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
   try{
    if(!ID_PATTERN.test(record.id))throw new Error('The ID must use lowercase letters, numbers and hyphens.');
    const existing=ctx.data[domain][DOMAIN[domain].array];if(!editing&&existing.some(x=>x.id===record.id))throw new Error('This ID already exists.');
+   // Sandbox source is exclusively synthetic. Refuse production-like IDs
+   // BEFORE staging any original image; editing existing records is unchanged.
+   if(!editing&&ctx.v3?.source?.sandboxOnly===true&&
+      !record.id.startsWith('p3-'))
+    throw new Error('Private sandbox IDs must begin with p3-. Update the ID before publishing.');
    const candidate=clone(record),sequenceSet=SEQUENCE_ACTIONS.has(mediaAction);
    // Keep can restore undefined optional properties. Strict schema forbids
    // pictureSequence on Gear even when its value is undefined.
