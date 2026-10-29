@@ -18,6 +18,7 @@ function fixture({active=true,hosted=false,state='Accepted',owner=OWNER,
  let status=state;
  const store={
   nextRecoverableMerge:async()=>null,
+  nextRecoverableMergeFor:async()=>null,
   reconcileVerifiedMerge:async()=>{throw Error('Unexpected recovery');},
   nextEligible:async()=>{calls.eligible++;return operationId;},
   get:async id=>{
@@ -105,4 +106,29 @@ test('D3-O06 terminal D2 operation must not be resumed by D3',async()=>{
  await assert.rejects(x.server.tick(),denied('INVALID_OPERATION_STATE'));
  assert.equal(x.calls.claim,0);
  assert.equal(x.calls.requests,0);
+});
+
+test('D3-O07 targeted alarm never consumes a different eligible operation',async()=>{
+ const x=fixture({operationId:'p3_aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'});
+ const requested='p3_bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+ // Fixture's get deliberately returns the requested identity and state.
+ const value=await x.server.tick({targetOperationId:requested});
+ assert.equal(value.operationId,requested);
+ assert.equal(value.state,'Validating');
+ assert.equal(x.calls.eligible,0);
+ assert.equal(x.calls.claim,1);
+});
+test('D3-O08 a malformed targeted identifier fails before D1',async()=>{
+ const x=fixture();
+ await assert.rejects(x.server.tick({targetOperationId:'bad'}),
+  denied('INVALID_DURABLE_ID'));
+ assert.equal(x.calls.eligible,0);
+ assert.equal(x.calls.get,0);
+});
+test('D3-O09 terminal target never gets a lease or GitHub token',async()=>{
+ const x=fixture({state:'Live'});
+ const result=await x.server.tick({targetOperationId:OP});
+ assert.equal(result.reason,'ALREADY_TERMINAL');
+ assert.equal(x.calls.claim,0);
+ assert.equal(x.calls.token,0);
 });
