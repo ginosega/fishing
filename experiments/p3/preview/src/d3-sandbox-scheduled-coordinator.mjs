@@ -122,7 +122,7 @@ export function createD3SandboxScheduledCoordinator({
   request:requestGitHub,issueReadToken,enabled:()=>hosted(),
  });
  const runner=createD3SandboxOperationRunner({
-  store,enabled:()=>active(),measure,
+  store,enabled:()=>active(),measure,verifyMedia:verifyStaged,
   currentMain:async({repositoryId})=>{
    need(repositoryId===ID,'REPOSITORY_DENIED');
    const source=await reader.loadSnapshot({repositoryId:ID});
