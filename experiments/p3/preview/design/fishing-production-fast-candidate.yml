@@ -391,7 +391,8 @@ jobs:
 
   main-fast-content:
     name: Verify and publish main content (single job)
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.classify.outputs.mode == 'content'
+    needs: classify
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     # The top-level workflow already serializes main. Reusing the same
@@ -408,101 +409,36 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - id: classify
-        name: Select fast content or full application lane
-        shell: bash
-        run: |
-          set -euo pipefail
-          mode=''
-          files=''
-          if [[ "$GITHUB_EVENT_NAME" == 'workflow_dispatch' ]]; then
-            mode='full'
-          elif [[ "$GITHUB_EVENT_NAME" == 'pull_request' ]]; then
-            base='${{ github.event.pull_request.base.sha }}'
-            files="$(git diff --name-only "$base"...HEAD)"
-          else
-            base='${{ github.event.before }}'
-            if [[ -z "$base" || "$base" =~ ^0+$ ]]; then
-              base="$(git rev-parse HEAD^)"
-            fi
-            files="$(git diff --name-only "$base" "$GITHUB_SHA")"
-          fi
-          if [[ "$mode" != 'full' ]]; then
-            mode='docs'
-            seen_docs=false
-            if [[ -z "$files" ]]; then
-              mode='full'
-            else
-              while IFS= read -r file; do
-                [[ -z "$file" ]] && continue
-                case "$file" in
-                  pwa/Gear/*|pwa/KB/*|pwa/Catches/*)
-                    if [[ "$seen_docs" == true ]]; then
-                      mode='full'
-                      break
-                    fi
-                    mode='content'
-                    ;;
-                  *.md)
-                    # Markdown outside canonical content roots has no published
-                    # runtime effect. Mixed canonical + docs changes are full.
-                    seen_docs=true
-                    if [[ "$mode" == 'content' ]]; then
-                      mode='full'
-                      break
-                    fi
-                    ;;
-                  *)
-                    mode='full'
-                    break
-                    ;;
-                esac
-              done <<< "$files"
-            fi
-          fi
-          echo "mode=$mode" >> "$GITHUB_OUTPUT"
-          echo "Release lane: $mode"
-          if [[ -n "$files" ]]; then printf 'Changed files:\n%s\n' "$files"; fi
-
-
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
-        if: steps.classify.outputs.mode == 'content'
         with:
           node-version: '24'
           cache: npm
           cache-dependency-path: pwa/package-lock.json
       - name: Install locked canonical dependencies
-        if: steps.classify.outputs.mode == 'content'
         working-directory: pwa
         run: npm ci --no-audit --no-fund
       - name: Validate canonical content, rebuild with exact merged main, verify
-        if: steps.classify.outputs.mode == 'content'
         working-directory: pwa
         run: |
           npm run build -- --base=/fishing/ --source-revision="$GITHUB_SHA"
           npm run verify
       - uses: actions/configure-pages@v5
-        if: steps.classify.outputs.mode == 'content'
       - uses: actions/upload-pages-artifact@v3
-        if: steps.classify.outputs.mode == 'content'
         with:
           name: github-pages-${{ github.run_attempt }}
           path: pwa/dist
       - name: Guard exact current main
-        if: steps.classify.outputs.mode == 'content'
         env:
           GH_TOKEN: ${{ github.token }}
         run: test "$(gh api repos/$GITHUB_REPOSITORY/git/ref/heads/main --jq .object.sha)" = "$GITHUB_SHA"
       - uses: actions/deploy-pages@v4
-        if: steps.classify.outputs.mode == 'content'
         with:
           artifact_name: github-pages-${{ github.run_attempt }}
       - name: Independently verify hosted bytes and release identity
-        if: steps.classify.outputs.mode == 'content'
         working-directory: pwa
         run: node tools/verify-hosted-fast.mjs --dist=dist --url=https://ginosega.github.io/fishing/ --source-revision="$GITHUB_SHA"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        if: always() && steps.classify.outputs.mode == 'content'
+        if: always()
         with:
           name: actual-hosted-content-verification-${{ github.run_attempt }}
           path: pwa/hosted-evidence/
