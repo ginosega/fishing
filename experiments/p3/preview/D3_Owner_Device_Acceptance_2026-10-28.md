@@ -1,6 +1,6 @@
 # FISH118 D3 — Owner device acceptance (private pilot only)
 
-**Prepared:** 2026-10-28. **Execution status:** Android Chrome cross-device publication-status fix owner-verified on 2026-10-28. Private owner pilot passes core owner sign-in/KB/reload/status behavior; installed V3 PWA acceptance remains a separate pending gate. This is a focused owner-observed test protocol for the already deployed private sandbox. Do not infer a pass from previous D2 / V2 tests.
+**Prepared:** 2026-10-28. **Execution status:** Android Chrome cross-device publication-status fix and subsequent A5–A7 browser-session sequence owner-reported PASS on 2026-10-28. Private owner pilot passes core owner sign-in/KB/reload/status behavior; installed V3 PWA acceptance remains a separate pending gate. This is a focused owner-observed test protocol for the already deployed private sandbox. Do not infer a pass from previous D2 / V2 tests.
 
 ## Scope and guardrails
 
@@ -19,9 +19,9 @@
 | A2 | In Chrome's top-level address bar open `https://fishing-auth-p0-test.ginosega.workers.dev/auth/start?return=%2F__d3_pilot__%2F`; complete GitHub owner OAuth | Navigation returns to `/__d3_pilot__/` with the genuine authenticated sandbox, not the public V2 UI | **PASS — existing GitHub authorization completed automatically; private pilot opened signed in** |
 | A3 | View Knowledge Base and open `P3 Test Lake` | Test-only KB content and Notes display; no accidental canonical/public-data attribution | **PASS — changes verified on Android** |
 | A4 | Open Connection Status / publication tracking, if exposed in current pilot UI, and inspect PR #18 final result | Displays Live as **sandbox verified**, never public canonical Live; if pilot lacks a status link, record UI GAP rather than count PASS | **PASS after fix — owner confirmed publication status message appears and Check publication status button works in Android Chrome.** The earlier missing-message/inert-button failure was due to browser-local-only receipts; the new owner-scoped, read-only latest-operation service lookup resolved it. The exact visible text was not supplied in the retest; the prior D1 audit already established sandbox Live independently. |
-| A5 | Switch to another page, reload and reopen the Chrome tab with the still-valid owner session | Private pilot still loads; existing KB content remains accessible and any retained durable status is recoverable | **PARTIAL PASS — KB changes verified after reload; A4 subsequently passed following cross-device status fix.** Closing/reopening Chrome as a separate test remains unreported. |
-| A6 | Use the supported Sign out action, then revisit the pilot route | Signout confirmed; owner-only pilot denies access, no edit controls. If pilot UI has no sign-out control, record UI GAP; do not clear cookies as a pretend signout test | **PARTIAL PASS — owner reports Sign Out works; post-signout direct private-route denial not separately reported** |
-| A7 | Reauthenticate with owner account, reopen pilot, then close/reopen Chrome | Correct session restored while valid; no unintended new publication or OAuth loop | NOT TESTED |
+| A5 | Switch to another page, reload and reopen the Chrome tab with the still-valid owner session | Private pilot still loads; existing KB content remains accessible and any retained durable status is recoverable | **PASS — October 28 evening owner reports all requested Chrome relaunch/session tests passed.** Earlier KB reload and cross-device status were separately confirmed; no screen recording or detailed new observation supplied. |
+| A6 | Use the supported Sign out action, then revisit the pilot route | Signout confirmed; owner-only pilot denies access, no edit controls. If pilot UI has no sign-out control, record UI GAP; do not clear cookies as a pretend signout test | **PASS — October 28 evening owner reports the requested signout plus direct private-route denial test passed.** No new unauthorized POST was attempted. |
+| A7 | Reauthenticate with owner account, reopen pilot, then close/reopen Chrome | Correct session restored while valid; no unintended new publication or OAuth loop | **PASS — October 28 evening owner reports reauthentication, Chrome closure/relaunch and restored private pilot passed.** Browser pilot only; exact timings not supplied. |
 
 ## B. Windows Chrome or Edge — independent browser pass
 
@@ -41,10 +41,12 @@ Current D3 owner test page resides at `/__d3_pilot__/`, while the existing insta
 
 | Case | PASS / FAIL / GAP / NOT TESTED | Device and short factual observation |
 | --- | --- | --- |
-| A1–A7 | MIXED | A1/A2/A3/A4 PASS; A5/A6 partial; A7 NOT TESTED. A4 originally failed and passed after server-latest receipt fix. |
+| A1–A7 | OWNER-REPORTED PASS | A1–A4 previously individually evidenced; A5–A7 reported passed in the follow-up on October 28 evening after the requested test sequence. No new logs, exact displayed text, or installed-PWA evidence. |
 | B | PARTIAL | PC/Edge publication message and status button work; full pass outstanding |
 | C | BLOCKED | Current /__d3_pilot__/ route is not installed PWA's /fishing/ scope |
 | D | OPEN | Use existing audited PR18 evidence; no destructive resubmission |
+
+**Later owner confirmation (October 28 evening):** After being instructed to verify post-signout direct-route denial, owner reauthentication and Chrome closure/relaunch, the owner replied: "Tests pass - continue." This is accepted as owner-reported PASS for A5–A7, without inventing further observations. This does not close section C or D.
 
 **Observed Android retest:** The owner reported, "That fixed it. The status message is showing and the button works on Android." This verifies the private browser pilot's cross-device display and button behavior; it does not by itself verify the exact displayed text, a new backend D1 transition, installed-PWA scope, or the public 60-second requirement.
 
