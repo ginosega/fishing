@@ -94,7 +94,7 @@ export function createD3AuthoringClient({
   need(owner&&CSRF.test(csrf??''),'OWNER_SESSION_REQUIRED');
   need(KEY.test(idempotencyKey??''),'INVALID_IDEMPOTENCY_KEY');
   need(pkg&&pkg.format==='fishing-companion-change-v2'&&
-   ['gear','kb'].includes(pkg.domain)&&['add','edit'].includes(pkg.operation),
+   ['gear','kb','catches'].includes(pkg.domain)&&['add','edit'].includes(pkg.operation),
    'INVALID_CHANGE');
   // D3 is text-only. D4 adds binary media as a separately approved
   // atomic source-upload protocol; NEVER silently drop selected media.
