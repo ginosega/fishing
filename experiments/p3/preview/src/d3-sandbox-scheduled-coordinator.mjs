@@ -60,7 +60,7 @@ export function createD3SandboxScheduledCoordinator({
   expectedMainSha,package:pkg,leaseOwner}={}){
   need(active(),'RUNNER_DISABLED');
   need(repositoryId===ID&&OP.test(operationId??'')&&
-   ['gear','kb'].includes(domain)&&pkg?.domain===domain&&
+   ['gear','kb','catches'].includes(domain)&&pkg?.domain===domain&&
    typeof leaseOwner==='string','INVALID_DRAFT_REQUEST');
   const pr=createD3SandboxGearKBPRAdapter({
    request:requestGitHub,issueToken:issueWriteToken,
