@@ -58,7 +58,15 @@ export function createD3GatedAuthGateway({
     if(!env?.APP_ORIGIN||url.protocol!=='https:'||
       url.origin!==env.APP_ORIGIN||url.username||url.password)
       return no();
-    if(url.pathname==='/fishing'||url.pathname.startsWith('/fishing/')){
+    // The existing public /fishing/ gateway remains byte-for-byte proxied.
+    // A separately armed exact owner-only path may be tested inside the
+    // installed PWA scope; never allow a broad private prefix interception.
+    const scopedPilot=url.pathname==='/fishing/__d3_pilot__/'||
+      url.pathname==='/fishing/__d3_pilot__/pilot.js';
+    const scopedOn=scopedPilot&&env.D3_PILOT_ENABLED==='true'&&
+      env.D3_INTEGRATED_PWA_ENABLED==='true';
+    if((url.pathname==='/fishing'||url.pathname.startsWith('/fishing/'))&&
+       !scopedOn){
       try{return await proxy(request)??no();}
       catch{return no(503);}
     }
@@ -71,7 +79,7 @@ export function createD3GatedAuthGateway({
     if(benchmark&&env.D3_BENCHMARK_ENABLED!=='true')return no();
     const privateTest=url.pathname.startsWith('/__d3_test__/operations/');
     const pilot=url.pathname==='/__d3_pilot__/'||
-      url.pathname==='/__d3_pilot__/pilot.js';
+      url.pathname==='/__d3_pilot__/pilot.js'||scopedOn;
     if(pilot&&env.D3_PILOT_ENABLED!=='true')return no();
     if(!privateTest&&!pilot&&!benchmark&&!fastCheck&&url.pathname!=='/session'&&
       !operations(url.pathname))return no();
@@ -168,6 +176,7 @@ export function createD3GatedAuthGateway({
           readBundle:readPilotBundle??(async()=>null),
           expectedSha256:env.D3_PILOT_SHA256??null,
           enabled:()=>env.D3_PILOT_ENABLED==='true',
+          integratedEnabled:()=>env.D3_INTEGRATED_PWA_ENABLED==='true',
         });
         return await route.serve(request);
       }
