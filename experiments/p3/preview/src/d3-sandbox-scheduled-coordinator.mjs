@@ -133,7 +133,8 @@ export function createD3SandboxScheduledCoordinator({
    const record=await store.get(blocked);
    need(record?.operationId===blocked&&record.state==='Merging'&&
     record.reasonCode==='merge_attempted'&&
-    record.mergeSha===null&&Number.isSafeInteger(record.workflowRunId)&&
+    (record.mergeSha===null||/^[0-9a-f]{40}$/.test(record.mergeSha??''))&&
+    Number.isSafeInteger(record.workflowRunId)&&
     record.workflowRunId>0,'RECOVERY_RECEIPT_CHANGED');
    const saved=await store.readSnapshot(blocked);
    need(Array.isArray(saved?.media)&&saved.media.length===0,
