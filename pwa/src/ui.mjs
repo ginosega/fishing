@@ -38,7 +38,9 @@ export function createApp(ctx){
  // authenticated, same-origin integration; server authorization is still
  // mandatory for every actual write, regardless of client-side visibility.
  const v3Mode=ctx.v3?.enabled===true;
- const privatePilot=v3Mode&&location.pathname==='/__d3_pilot__/';
+ const privatePilot=v3Mode&&[
+  '/__d3_pilot__/','/fishing/__d3_pilot__/',
+ ].includes(location.pathname);
  if(v3Mode)ctx.v3.authorized=false; // do not trust stale browser state
  const canAuthor=()=>!v3Mode||(ctx.v3?.authorized===true&&typeof ctx.v3?.publish==='function');
  function notify(message,kind='info'){status(alertHost,message,kind);}
