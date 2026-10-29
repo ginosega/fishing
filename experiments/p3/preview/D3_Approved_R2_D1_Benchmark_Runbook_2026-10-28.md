@@ -20,8 +20,8 @@ upgrade, GitHub App permission changes, or altering the public /fishing/ site.**
   `/fishing/` routes are unchanged. A separate preview WEBSITE is not needed.
 - Add R2 binding **`DELIVERY_BENCH_R2`** to the private bucket.
   Preserve existing `DB` (AUTH-P0 D1), `OPERATIONS_DB`, encrypted
-  GitHub App/CSRF/host secrets, OAuth, existing D3 pilot settings and
-  disabled D2 flags. **Never** put secrets into repo/terminal output/chat.
+  GitHub App/CSRF/host secrets, OAuth, existing D3 pilot, publishing and
+  Cron settings **without changing their current values**, and disabled D2 flags. **Never** put secrets into repo/terminal output/chat.
 - New string flag **`D3_BENCHMARK_ENABLED=false`** by default.
   The route denies before D1/R2 access when false. Enabling it is
   owner-only synthetic testing under the approval, after verified deployment
@@ -56,7 +56,9 @@ merely because this source/test branch passes CI.
    `feature/fish118-p3-mock-publisher` branch to the verified exact head
    after CI, then `Set-Location .\experiments\p3\preview`.
    Retain an offline local copy of the current **working** Wrangler
-   config and note the currently deployed Worker version privately.
+   config (most recently generated as
+   `wrangler.d3-cross-device-status-fix.local.jsonc`) and note the
+   currently deployed Worker version privately.
    Do not paste the config (which can contain private identifiers) in chat.
 2. Confirm `npx.cmd wrangler whoami` identifies the intended Cloudflare
    account. Read-only inspect R2 with
