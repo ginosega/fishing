@@ -17,6 +17,8 @@ import {createD2SandboxNormalMerge} from './d2-sandbox-normal-merge.mjs';
 import {createD3SandboxOperationRunner} from './d3-sandbox-operation-runner.mjs';
 import {createD3MergedReceiptVerifier} from './d3-merged-receipt-verifier.mjs';
 import {expectedD3HostedPaths} from './d3-sandbox-host-paths.mjs';
+import {createD4TicketVerifier} from './d4-git-blob-stage.mjs';
+import {validateD4MediaTickets} from './d4-media-tickets.mjs';
 const ID=1430581407,OWNER=265665562,OP=/^p3_[0-9a-f-]{36}$/;
 const branch=id=>'p3-test-'+id.slice(3);
 export class D3CoordinatorError extends Error{
@@ -49,15 +51,29 @@ export function createD3SandboxScheduledCoordinator({
   request:requestGitHub,issueReadToken,
   enabled:()=>active(),
  });
+ const verifyStaged=async(pkg,media,options={})=>{
+  const changed=pkg?.picture?.action!=='keep'||
+   (pkg?.pictureSequence?.action??'keep')!=='keep'||media.length>0;
+  need(!changed||env.D4_MEDIA_ENABLED==='true','MEDIA_DISABLED');
+  if(!media.length)return validateD4MediaTickets({
+   package:pkg,media,verifyTicket:async()=>{fail('UNEXPECTED_TICKET');},
+  });
+  const tickets=createD4TicketVerifier({
+   origin:env.APP_ORIGIN,secret:env.D2_CSRF_KEY,
+  });
+  return validateD4MediaTickets({package:pkg,media,
+   verifyTicket:tickets.verifyTicket,...options});
+ };
  const candidate=createD3TrustedGearKBCandidate({
   loadSnapshot:reader.loadSnapshot,enabled:()=>active(),
+  verifyMediaTickets:verifyStaged,
  });
  const observer=createSandboxCheckObserver({
   request:requestGitHub,issueCheckReadToken:issueReadToken,
   enabled:()=>active(),
  });
  async function createDraft({operationId,repositoryId,domain,
-  expectedMainSha,package:pkg,leaseOwner}={}){
+  expectedMainSha,package:pkg,media=[],leaseOwner}={}){
   need(active(),'RUNNER_DISABLED');
   need(repositoryId===ID&&OP.test(operationId??'')&&
    ['gear','kb','catches'].includes(domain)&&pkg?.domain===domain&&
@@ -71,9 +87,12 @@ export function createD3SandboxScheduledCoordinator({
      expected===expectedMainSha,'CANDIDATE_RECEIPT_MISMATCH');
     const stored=await store.readSnapshot(operationId);
     need(stored?.package&&JSON.stringify(stored.package)===
-     JSON.stringify(incoming),'DURABLE_SNAPSHOT_MISMATCH');
+     JSON.stringify(incoming)&&
+     JSON.stringify(stored.media)===JSON.stringify(media),
+     'DURABLE_SNAPSHOT_MISMATCH');
     return candidate.plan({
-     package:stored.package,repositoryId:ID,ownerGitHubId:OWNER,
+     package:stored.package,media:stored.media,
+     repositoryId:ID,ownerGitHubId:OWNER,
      expectedMainSha:expected,operationId,
     });
    },
@@ -119,16 +138,16 @@ export function createD3SandboxScheduledCoordinator({
     OP.test(info.operationId??'')&&
     info.canonicalLive===false,'FAST_MERGE_PROOF_DISABLED');
    const saved=await store.readSnapshot(info.operationId);
-   need(Array.isArray(saved?.media)&&saved.media.length===0,
-    'FAST_MERGE_SNAPSHOT_DENIED');
-   const expectedPaths=expectedD3HostedPaths(saved.package);
+   need(Array.isArray(saved?.media),'FAST_MERGE_SNAPSHOT_DENIED');
+   const media=await verifyStaged(saved.package,saved.media,{allowExpired:true});
+   const expectedPaths=expectedD3HostedPaths(saved.package,media);
    return mergeVerifier.verify({...info,expectedPaths});
   },
   verifyHosted:async info=>{
    need(hosted()&&info.repositoryId===ID&&
     info.canonicalLive===false&&
     Array.isArray(info.expectedPaths)&&
-    info.expectedPaths.length>=1&&info.expectedPaths.length<=2,
+    info.expectedPaths.length>=1&&info.expectedPaths.length<=26,
     'HOST_PROOF_DISABLED');
    return verifyHosted(info);
   },
@@ -153,9 +172,9 @@ export function createD3SandboxScheduledCoordinator({
     Number.isSafeInteger(record.workflowRunId)&&
     record.workflowRunId>0,'RECOVERY_RECEIPT_CHANGED');
    const saved=await store.readSnapshot(blocked);
-   need(Array.isArray(saved?.media)&&saved.media.length===0,
-    'RECOVERY_SNAPSHOT_DENIED');
-   const paths=expectedD3HostedPaths(saved.package);
+   need(Array.isArray(saved?.media),'RECOVERY_SNAPSHOT_DENIED');
+   const media=await verifyStaged(saved.package,saved.media,{allowExpired:true});
+   const paths=expectedD3HostedPaths(saved.package,media);
    const proof=await mergeVerifier.verify({operationId:blocked,
     repositoryId:ID,prNumber:record.prNumber,
     prHeadSha:record.prHeadSha,mainBaseSha:record.mainBaseSha,
