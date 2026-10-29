@@ -17,7 +17,8 @@ const pkg=(domain='gear',notesAction='keep')=>({
 function fixture({domain='gear',notesAction='keep',enabled=true,
   unknownMerge=false,invalidCheck=false,invalidPaths=false,
   invalidPR=false,stolenLease=false,untrustedHost=false,
-  invalidSnapshot=false,pendingCheck=false}={}){
+  invalidSnapshot=false,pendingCheck=false,fastProof=false,
+  invalidFastProof=false,fastProofThrows=false}={}){
   const trace=[];let row={operationId:OP,state:'Accepted'};
   const snapshot=()=>invalidSnapshot?{}:{package:pkg(domain,notesAction),media:[]};
   const expected=domain==='gear'?['pwa/Gear/gear.json']:
@@ -78,6 +79,19 @@ function fixture({domain='gear',notesAction='keep',enabled=true,
       if(unknownMerge)throw Error('remote merge receipt uncertain');
       return {repositoryId:ID,sandboxMerged:true,
         canonicalLive:false,mergeSha:MERGE};
+    },
+    verifyMerged:async info=>{
+      trace.push('fast-proof');
+      assert.equal(info.operationId,OP);
+      assert.equal(info.repositoryId,ID);
+      assert.equal(info.prHeadSha,HEAD);
+      assert.equal(info.mainBaseSha,BASE);
+      assert.equal(info.workflowRunId,126);
+      assert.equal(info.canonicalLive,false);
+      if(fastProofThrows)throw Error('GitHub read-only proof unavailable');
+      return fastProof?{verified:true,repositoryId:ID,operationId:OP,
+        prNumber:invalidFastProof?999:18,prHeadSha:HEAD,mainBaseSha:BASE,
+        workflowRunId:126,mergeSha:MERGE,canonicalLive:false}:null;
     },
     verifyHosted:async info=>{
       trace.push('host');
@@ -185,4 +199,44 @@ test('D3-R09 pending CI releases exact D1 lease, does not advance or merge',asyn
   assert.equal(x.state,'Checking');
   assert.equal(x.trace.filter(t=>t==='release-pending').length,1);
   assert.equal(x.trace.includes('merge'),false);
+});
+
+test('P1-MF01 ambiguous successful GitHub PUT is recovered by exact read-only proof in same lease',async()=>{
+  const x=fixture({unknownMerge:true,fastProof:true});
+  for(let i=0;i<3;i++)await x.run();
+  const result=await x.run();
+  assert.equal(result.state,'Deploying');
+  assert.equal(result.canonicalLive,false);
+  assert.equal(x.trace.filter(x=>x==='merge').length,1);
+  assert.equal(x.trace.filter(x=>x==='fast-proof').length,1);
+  assert(x.trace.indexOf('mark-merge')<x.trace.indexOf('merge'));
+  assert(x.trace.indexOf('merge')<x.trace.indexOf('fast-proof'));
+  assert(x.trace.indexOf('fast-proof')<x.trace.indexOf('advance:Merging>Deploying'));
+  await x.run();
+  await x.run();
+  assert.equal(x.state,'Live');
+  assert.equal(x.trace.filter(x=>x==='merge').length,1);
+});
+test('P1-MF02 mismatch proof cannot advance, repeat merge, or claim Live',async()=>{
+  const x=fixture({unknownMerge:true,fastProof:true,invalidFastProof:true});
+  for(let i=0;i<3;i++)await x.run();
+  await assert.rejects(x.run(),/remote merge receipt uncertain/);
+  assert.equal(x.state,'Merging');
+  await assert.rejects(x.run(),failure('MERGE_RECONCILIATION_REQUIRED'));
+  assert.equal(x.trace.filter(x=>x==='merge').length,1);
+  assert(!x.trace.includes('advance:Merging>Deploying'));
+});
+test('P1-MF03 inconclusive GitHub GET must preserve original error and marker',async()=>{
+  const x=fixture({unknownMerge:true,fastProofThrows:true});
+  for(let i=0;i<3;i++)await x.run();
+  await assert.rejects(x.run(),/remote merge receipt uncertain/);
+  assert.equal(x.state,'Merging');
+  await assert.rejects(x.run(),failure('MERGE_RECONCILIATION_REQUIRED'));
+  assert.equal(x.trace.filter(x=>x==='merge').length,1);
+});
+test('P1-MF04 ordinary successful merge never performs extra GET-only recovery',async()=>{
+  const x=fixture({fastProof:true});
+  for(let i=0;i<4;i++)await x.run();
+  assert.equal(x.state,'Deploying');
+  assert.equal(x.trace.includes('fast-proof'),false);
 });
