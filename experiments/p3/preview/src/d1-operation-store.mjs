@@ -160,6 +160,26 @@ export function createD1OperationStore({DB,ownerGitHubId,repositoryId=SANDBOX_ID
    ownerGitHubId,SANDBOX_ID,at).first();
   return row?.operation_id??null;
  }
+ // An authenticated GitHub check webhook is only a wake-up hint.
+ // Find an EXACT one owner/repo scoped D1 CHECKING receipt by immutable
+ // head SHA, using primary read when read replicas are enabled. Never use a
+ // webhook PR number or check conclusion to make a merge decision.
+ async function findCheckingByHead({repositoryId,headSha}={}){
+  check(repositoryId===SANDBOX_ID&&/^[a-f0-9]{40}$/.test(headSha??''),
+   'INVALID_CHECK_WAKE');
+  const primary=typeof DB.withSession==='function'?
+   DB.withSession('first-primary'):DB;
+  const rows=await primary.prepare(
+   "SELECT operation_id,state,pr_head_sha FROM p3_operations WHERE "+
+   "github_id=? AND repo_id=? AND state='Checking' AND pr_head_sha=? "+
+   'ORDER BY operation_id LIMIT 2'
+  ).bind(ownerGitHubId,SANDBOX_ID,headSha).all();
+  check(Array.isArray(rows?.results)&&rows.results.length<=1,
+   'AMBIGUOUS_CHECK_WAKE');
+  const row=rows.results[0];
+  return row?Object.freeze({operationId:row.operation_id,state:row.state,
+   prHeadSha:row.pr_head_sha,repositoryId:SANDBOX_ID}):null;
+ }
  // Only expired, completed-attempt markers are eligible for read-only
  // independent reconciliation. This query cannot replay a GitHub merge.
  async function nextRecoverableMerge(){
@@ -302,6 +322,7 @@ export function createD1OperationStore({DB,ownerGitHubId,repositoryId=SANDBOX_ID
   return (rows?.results||[]).map(row=>({eventType:row.event_type,from:row.from_state,to:row.to_state,at:row.event_at,error:row.error_code}));
  }
  return Object.freeze({accept,get,latest,lookupReceipt,readSnapshot,nextEligible,
+  findCheckingByHead,
   nextRecoverableMerge,reconcileVerifiedMerge,branchReceipt,saveBranchReceipt,
   markMergeAttempt,saveMergeReceipt,claim,advance,events});
 }
