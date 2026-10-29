@@ -42,6 +42,13 @@ function fixture(options={}){
    }};
   }};
  }};
+ if(options.sessions){
+  D1.withSession=mode=>{
+   assert.equal(mode,'first-primary');
+   trace.push('D1_PRIMARY_SESSION');
+   return {prepare:D1.prepare};
+  };
+ }
  const bench=createD3StorageBenchmark({R2,D1,
   enabled:()=>options.enabled!==false});
  return {bench,calls,trace,objects,get pointer(){return ptr},
@@ -126,4 +133,12 @@ test('BENCH-09 sequential synthetic versions and readback',async()=>{
  assert.equal(r.version,other);
  assert.equal((await f.bench.current()).bytes.length,2048);
  assert.equal(f.objects.size,2);
+});
+
+test('BENCH-10 primary D1 session reads never rely on unconstrained replicas',async()=>{
+ const f=fixture({sessions:true});
+ await f.bench.stageAndActivate({
+  runId:version,expectedVersion:null,sizeBytes:1024,
+ });
+ assert.ok(f.trace.filter(x=>x==='D1_PRIMARY_SESSION').length>=2);
 });
