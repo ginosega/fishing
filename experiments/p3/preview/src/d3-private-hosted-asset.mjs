@@ -29,12 +29,15 @@ const meta={
 export function createD3PrivateHostedAsset({
  origin,ownerSession,store,issueReadToken,requestGitHub,
  authorizeProbe=async()=>false,enabled=()=>false,
+ verifyMedia=async(_pkg,media)=>{
+  need(media.length===0,'MEDIA_DISABLED');return [];
+ },
 }={}){
  need(typeof origin==='string'&&origin.startsWith('https://')&&
   new URL(origin).origin===origin&&
   typeof ownerSession?.authorizeStatus==='function'&&
   typeof store?.get==='function'&&typeof store?.readSnapshot==='function'&&
-  [issueReadToken,requestGitHub,authorizeProbe,enabled]
+  [issueReadToken,requestGitHub,authorizeProbe,enabled,verifyMedia]
    .every(x=>typeof x==='function'),'INVALID_CONFIGURATION');
  async function read(token,path){
   need(path===API||path.startsWith(API+'/'),'GITHUB_PATH_DENIED');
@@ -78,11 +81,13 @@ export function createD3PrivateHostedAsset({
    ['Deploying','Verifying','Live'].includes(receipt.state),
    'MERGE_RECEIPT_MISSING');
   const submitted=await store.readSnapshot(operationId);
-  let paths;
-  try{paths=expectedD3HostedPaths(submitted?.package);}
-  catch{deny('INVALID_DURABLE_PACKAGE');}
-  need(paths.includes(file)&&Array.isArray(submitted.media)&&
-   submitted.media.length===0,'UNAUTHORIZED_FILE');
+  let paths,media;
+  try{
+   need(Array.isArray(submitted?.media),'INVALID_DURABLE_PACKAGE');
+   media=await verifyMedia(submitted.package,submitted.media,{allowExpired:true});
+   paths=expectedD3HostedPaths(submitted.package,media);
+  }catch{deny('INVALID_DURABLE_PACKAGE');}
+  need(paths.includes(file),'UNAUTHORIZED_FILE');
   const issued=await issueReadToken({repositoryId:ID,
    permissions:{contents:'read'}});
   need(issued?.repositoryId===ID&&
@@ -106,12 +111,23 @@ export function createD3PrivateHostedAsset({
   let bytes;
   try{bytes=await decodeD2GitBlob(entries[0],blob);}
   catch{deny('GITHUB_BLOB_MISMATCH');}
-  need(bytes.length<=131072,'FILE_TOO_LARGE');
+  const isImage=/\.(jpe?g|png|webp|gif)$/i.test(file);
+  need(bytes.length<=(isImage?10*1024*1024:131072),
+   'FILE_TOO_LARGE');
   const sha256=hex(await crypto.subtle.digest('SHA-256',bytes));
+  if(isImage){
+   const proof=media.find(m=>'pwa/'+m.path===file);
+   need(proof?.sha256===sha256&&proof.bytes===bytes.length&&
+    proof.blobSha===entries[0].sha,'UNTRUSTED_ORIGINAL_MEDIA');
+  }
   return new Response(bytes,{status:200,headers:{
    ...meta,
    'Content-Type':file.endsWith('.md')?
-    'text/markdown; charset=utf-8':'application/json; charset=utf-8',
+    'text/markdown; charset=utf-8':
+    file.endsWith('.json')?'application/json; charset=utf-8':
+    /\.(jpg|jpeg)$/i.test(file)?'image/jpeg':
+    /\.png$/i.test(file)?'image/png':
+    /\.webp$/i.test(file)?'image/webp':'image/gif',
    'X-D3-Sandbox-Merge-Sha':receipt.mergeSha,
    'X-D3-Sandbox-Blob-Sha256':sha256,
   }});
