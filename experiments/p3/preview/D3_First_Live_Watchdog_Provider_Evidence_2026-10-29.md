@@ -35,3 +35,25 @@ Owner reports Save and Publish → Connection Status Live **129 seconds (2m09s)*
 - Next: query D1 events by exact operation ID using event_at Unix seconds and per-state `LEAD(event_at)-event_at`, without database mutation. Verify GitHub check_run completed delivery response `accepted:true/false` without copying signatures or secrets. Preserve all prior verified operation receipts.
 
 The owner-approved future Connection Status automatic polling (~5 seconds while the panel is visible and a publication is pending, stopping in terminal states) is documented separately. UI polling is not a fix for backend publication latency.
+
+## Exact D1 event audit for private PR #20 — owner supplied 2026-10-29
+
+Read-only Wrangler query on remote `fishing-p3-sandbox` (`p3_events`, operation `p3_9be42fb6-9ceb-4b52-b5b8-4f7539a95a74`), success true, changes 0, rows_written 0, served_by_primary true.
+
+| Durable state | D1 event_at (Unix seconds) | Local PDT | Seconds until next transition |
+| --- | ---: | --- | ---: |
+| Accepted | 1793292327 | 09:45:27 | 1 |
+| Validating | 1793292328 | 09:45:28 | 13 |
+| Checking | 1793292341 | 09:45:41 | 27 |
+| Merging | 1793292368 | 09:46:08 | **78** |
+| Deploying | 1793292446 | 09:47:26 | 0 (second-resolution) |
+| Verifying | 1793292446 | 09:47:26 | 7 |
+| Live | 1793292453 | 09:47:33 | terminal |
+
+Total D1 Accepted→Live **126s** versus owner-observed Save→Live **129s** (~3s before Accepted). Merging occupies **78/126 = 61.9%** of server pipeline; Checking 27s (21.4%).
+
+Independent GitHub PR #20 merged at **09:46:18**, only ~10s after entering Merging, but durable D1 did not enter Deploying until **09:47:26**, around **68s after the actual GitHub merge**. The intended 60-second exclusive D1 lease (`leaseSeconds=60`) plus its conservative `merge_attempted` write-ahead barrier is a strong candidate explanation: on an ambiguous post-merge receipt or provider read, a 60s lease expiration forces independent read-only reconciliation instead of replaying PUT /merge. **Audit transition rows do not prove which adapter call failed or precisely when the marker was set. Do not assert definitive cause without event/log evidence.**
+
+GitHub repository webhook Recent Deliveries: HTTP **202**, body `{"ok":true,"accepted":false}`. This confirms a valid request was handled but was not a match to an *eligible Waiting/Checking* operation at handling time. It does **not** prove that signed event waking occurred. A webhook-only performance benefit is therefore unproven.
+
+**Actionable next engineering hypothesis:** add a fast, independently verified read-only merged-PR reconciliation path for the *exact* marked operation, without waiting a full 60s after GitHub merge acknowledgement uncertainty; retain compare-and-swap guards, write-ahead safety, no repeat PUT /merge, exact SHA/base/tree/changed paths validation, and hosted proof before Live. Instrument redacted merge-attempt/ack/error/reconciliation timings; test acknowledged, ambiguous/lost ACK, concurrent wake, provider stale projection, forbidden replay, and terminal cases. Keep private webhook and public V2 untouched during source-only work. Measure again before claiming any 60s SLA.
