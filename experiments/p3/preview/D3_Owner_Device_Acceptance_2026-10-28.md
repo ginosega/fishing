@@ -31,6 +31,20 @@ Repeat A2–A6 in Windows desktop Chrome/Edge with a separate cookie store or ca
 
 Current D3 owner test page resides at `/__d3_pilot__/`, while the existing installed app controls `/fishing/`. A passing mobile browser-tab run cannot claim an installed app sign-in/callback/return/owner-edit validation. The **integrated, production-hosted V3 PWA flow** must later demonstrate: installed Chrome PWA launch, Connection Status-only GitHub sign-in, callback return without losing app identity, restored owner session after relaunch, existing KB detail, status across navigation, and sign-out/relogin. **Status: BLOCKED by V3 integrated-PWA wiring / NOT TESTED.** Do not infer successful iPhone behavior (no iPhone test available).
 
+## Approved forthcoming Connection Status UX enhancement — October 29, 2026
+
+**Owner decision: APPROVED / OPEN (not yet implemented or deployed).** When a publication is underway, the V3 Connection Status panel must refresh status **automatically at approximately 5-second intervals** while the owner is authenticated and the panel remains visible. Keep the existing **Check publication status** button as a manual fallback.
+
+Acceptance and safety criteria:
+- Poll the **original owner-scoped durable operation receipt** (or discover the latest only when no operation is known), never re-submit a write or create another publication merely because status refresh fails.
+- Poll only during nonterminal publication states (e.g. Accepted, Validating, Checking, Merging, Deploying, Verifying); **stop at Live, Failed, or Conflict** and accurately distinguish private-sandbox verification from public canonical Live.
+- Stop or suspend polling when Connection Status closes, the page is hidden, the owner signs out, or connectivity is lost; restore on reopening/reconnection when appropriate. Do not leave orphan timers across panel destruction/relaunch.
+- Use at most **one in-flight status request**, prevent stale responses after sign-out or operation change from overwriting current state, and avoid flashing `Checking` in the UI on every automatic refresh. Retry transient read failures conservatively without duplicating operations.
+- Show the new state accessibly (existing live region) and retain the manual button for on-demand checks and troubleshooting.
+- Test the change on desktop Edge and Android Chrome, including cross-device restoration, pending→Live, terminal stop, close/reopen, offline/online, and sign-out mid-poll. Integrated installed-PWA acceptance remains a separate gate.
+
+**Priority:** Include in the next planned Connection Status screen update. **No source/deployment change is authorized by recording this future UX requirement; active webhook performance tests continue on the existing pilot.**
+
 ## D. Security and reliability checks not closed by A–C
 
 - Anonymous/foreign-account owner denial, server-side write refusal, stale source, conflict preservation, duplicate suppression, lost acknowledgment, interrupted merge and exactly-once recovery: covered in source tests where applicable, but real-provider regression still needs an evidence matrix. Do not perform destructive writes to manufacture failures.
