@@ -1,34 +1,16 @@
 ## Controls
-- Power: 
-  - Press to turn on, long-press to turn off
-  - While on, press to use Sonar, Backlight, Background, and Standby menus
-- \+ \/ \- "zoom" keys
-  - While in sonar zoom view, adjusts zoom range
-  - While in sonar views, adjusts sensitivity
-  - While in chart views, adjusts chart range
-- VIEW: 
-  - Press to rotate views (rotate backwards using Exit), long-press to open View X-Press menu
-- Cursor pad:
-  - Moves active cursor in sonar and chart views
-  - Navigates menus
-- MENU:
-  - Press once to open an X-Press menu
-  - Press twice to open the main menu
-- Check ("P"):
-  - While in chart view, opens chart info submenu
-  - While in sonar views, switches frequencies
-  - When cursor is active in chart view, displays chart info
-- MARK:
-  - Press once to mark a waypoint at the boat's position
-  - Press twice to mark a waypoint at the cursor position
-  - Press and hold to save a screenshot if SD card is installed
-- GOTO/MOB:
-  - Press once to display saved navigation data
-  - When cursor is active, press once to start navigation towards a waypoint
-- EXIT:
-  - Close a menu, exit active cursor, or turn off an alarm
-  - Press to rotate view backwards (rotate forwards using View)
-
+| Button | Description |
+| -- | -- |
+| Power | - Press to turn on, long-press to turn off<br> - While on, press to use Sonar, Backlight, Background, and Standby menus |
+| Plus & Minus keys | - While in sonar zoom view, adjusts zoom range<br> - While in sonar views, adjusts sensitivity<br> - While in chart views, adjusts chart range |
+| VIEW | - Press to rotate views (rotate backwards using Exit)<br> - Long-press to open View X-Press menu |
+| Cursor pad |  - Moves active cursor in sonar and chart views<br> - Navigates menus |
+| MENU | - Press once to open an X-Press menu<br> - Press twice to open the main menu |
+| Check mark | - While in chart view, opens chart info submenu<br> - While in sonar views, switches frequencies<br> - When cursor is active in chart view, displays chart info |
+| MARK | - Press once to mark a waypoint at the boat's position<br> - Press twice to mark a waypoint at the cursor position<br> - Press and hold to save a screenshot if SD card is installed |
+| GOTO/MOB | - Press once to display saved navigation data<br> - When cursor is active, press once to start navigation towards a waypoint |
+| EXIT | - Close a menu, exit active cursor, or turn off an alarm<br> - Press to rotate view backwards (rotate forwards using View) |
+  
 ## Setup
 - Quick Setup menu: 
   - Should launch on first use; if not see Set Up Sonar, p. 39
