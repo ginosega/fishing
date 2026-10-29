@@ -51,17 +51,13 @@ const exactFields=t=>t&&typeof t==='object'&&!Array.isArray(t)&&
  Object.keys(t).sort().join(',')===
  'blobSha,bytes,expiresAt,mime,path,sha256,signature';
 
-export function createD4GitBlobStage({
- origin,session,issueWriteToken,requestGitHub,secret,
- enabled=()=>false,now=()=>Math.floor(Date.now()/1000),
+export function createD4TicketVerifier({
+ origin,secret,now=()=>Math.floor(Date.now()/1000),
 }={}){
  need(typeof origin==='string'&&origin.startsWith('https://')&&
   new URL(origin).origin===origin&&
-  typeof session?.authorizeMedia==='function'&&
-  typeof issueWriteToken==='function'&&typeof requestGitHub==='function'&&
   typeof secret==='string'&&enc.encode(secret).length>=32&&
-  typeof enabled==='function'&&typeof now==='function',
-  'INVALID_CONFIG');
+  typeof now==='function','INVALID_CONFIG');
  const keyPromise=crypto.subtle.importKey('raw',enc.encode(secret),
   {name:'HMAC',hash:'SHA-256'},false,['sign']);
  const sign=async ticket=>web64(new Uint8Array(
@@ -81,6 +77,16 @@ export function createD4GitBlobStage({
   return Object.freeze({path,sha256:ticket.sha256,blobSha:ticket.blobSha,
    bytes:ticket.bytes,mime:ticket.mime,expiresAt:ticket.expiresAt});
  }
+ return Object.freeze({sign,verifyTicket});
+}
+export function createD4GitBlobStage({
+ origin,session,issueWriteToken,requestGitHub,secret,
+ enabled=()=>false,now=()=>Math.floor(Date.now()/1000),
+}={}){
+ need(typeof session?.authorizeMedia==='function'&&
+  typeof issueWriteToken==='function'&&typeof requestGitHub==='function'&&
+  typeof enabled==='function','INVALID_CONFIG');
+ const {sign,verifyTicket}=createD4TicketVerifier({origin,secret,now});
  async function stage(request){
   need(enabled()===true,'DISABLED');
   const url=new URL(request.url);
