@@ -8,6 +8,10 @@
  */
 export const D3_OWNER_PILOT_PATH='/__d3_pilot__/';
 export const D3_OWNER_PILOT_SCRIPT='/__d3_pilot__/pilot.js';
+// Future gated owner-only path inside the installed /fishing/ PWA scope.
+// Not active on public V2; the V3 service worker must explicitly network-pass it.
+export const D3_SCOPED_PILOT_PATH='/fishing/__d3_pilot__/';
+export const D3_SCOPED_PILOT_SCRIPT='/fishing/__d3_pilot__/pilot.js';
 export const D3_OWNER_PILOT_HTML=String.raw`<!doctype html>
 <html lang="en">
 <head>
@@ -53,3 +57,12 @@ export const D3_OWNER_PILOT_HTML=String.raw`<!doctype html>
 </dialog>
 </body>
 </html>`;
+
+// Exact trusted template selection; never construct a script URL from input.
+export function d3PilotHtmlForPath(path){
+ if(path===D3_OWNER_PILOT_PATH)return D3_OWNER_PILOT_HTML;
+ if(path===D3_SCOPED_PILOT_PATH)return D3_OWNER_PILOT_HTML.replace(
+  'src="'+D3_OWNER_PILOT_SCRIPT+'"',
+  'src="'+D3_SCOPED_PILOT_SCRIPT+'"');
+ throw Error('Unrecognized private owner pilot path');
+}
