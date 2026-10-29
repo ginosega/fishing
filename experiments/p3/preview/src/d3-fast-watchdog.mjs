@@ -53,7 +53,15 @@ export function createD3FastWatchdog({
      before.mergeSha===null){
    await readOnlyRecoverMerge({operationId});
   }else{
-   await runOneStep({operationId});
+   try{await runOneStep({operationId});}
+   catch(error){
+    // Only known read-only CI-not-ready results are retriable. Failed CI,
+    // lost GitHub write acknowledgments, invalid identity and all other
+    // errors MUST surface; DO alarm redelivery + D1 guards handle recovery.
+    const retryable=before.state==='Checking'&&
+     ['CHECK_PENDING','CHECK_MISSING_OR_AMBIGUOUS'].includes(error?.code);
+    if(!retryable)throw error;
+   }
   }
   const after=await getOperation(operationId);
   if(!after||after.operationId!==operationId)deny('RECEIPT_CHANGED');
