@@ -74,7 +74,7 @@ export function createD3ConnectionController({
    throw new D3ConnectionError('SIGNOUT_UNCONFIRMED');
   }
  }
- function refreshPublication({silent=false,canApply=()=>true}={}){
+ async function refreshPublication({silent=false,canApply=()=>true}={}){
   gate();offline();need(state.authorized,'OWNER_REQUIRED');
   need(typeof canApply==='function','INVALID_CONFIG');
   // The manual button and the automatic timer share this single request.
