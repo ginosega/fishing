@@ -57,3 +57,28 @@ Independent GitHub PR #20 merged at **09:46:18**, only ~10s after entering Mergi
 GitHub repository webhook Recent Deliveries: HTTP **202**, body `{"ok":true,"accepted":false}`. This confirms a valid request was handled but was not a match to an *eligible Waiting/Checking* operation at handling time. It does **not** prove that signed event waking occurred. A webhook-only performance benefit is therefore unproven.
 
 **Actionable next engineering hypothesis:** add a fast, independently verified read-only merged-PR reconciliation path for the *exact* marked operation, without waiting a full 60s after GitHub merge acknowledgement uncertainty; retain compare-and-swap guards, write-ahead safety, no repeat PUT /merge, exact SHA/base/tree/changed paths validation, and hosted proof before Live. Instrument redacted merge-attempt/ack/error/reconciliation timings; test acknowledged, ambiguous/lost ACK, concurrent wake, provider stale projection, forbidden replay, and terminal cases. Keep private webhook and public V2 untouched during source-only work. Measure again before claiming any 60s SLA.
+
+## Third private publication #21: fast original-lease merge recovery deployed — owner audit October 29, 2026
+
+Owner measured Save→Live **72 seconds** (versus 129s for PR #20). Read-only D1 query for operation `p3_fb8a59a5-5fe3-4dad-a468-96b8dd5706ec` succeeded: `served_by_primary=true`, `changes=0`, `rows_written=0`.
+
+| State | Unix seconds | PDT | Duration |
+| --- | ---: | --- | ---: |
+| Accepted | 1793294717 | 10:25:17 | 1s |
+| Validating | 1793294718 | 10:25:18 | 11s |
+| Checking | 1793294729 | 10:25:29 | 36s |
+| Merging | 1793294765 | 10:26:05 | 14s |
+| Deploying | 1793294779 | 10:26:19 | 1s |
+| Verifying | 1793294780 | 10:26:20 | 6s |
+| Live | 1793294786 | 10:26:26 | terminal |
+
+**Exact Accepted→Live was 69 seconds** versus 126s for previous run (57s faster); owner E2E 72s versus 129s (57s faster). Merging fell **78s→14s** (64s improvement, approximately 82%), while Checking grew **27s→36s** (+9s), Validating fell 13s→11s, Deploying grew 0s→1s, and Verifying fell 7s→6s. This validates elimination of the long after-merge gap, although these audit events do NOT by themselves prove which original-lease verification or ordinary merge result branch executed.
+
+Independent GitHub PR #21: https://github.com/ginosega/fishing-p3-sandbox/pull/21. Created 10:25:29 PDT, merged **10:26:14 PDT**, merge commit `9df2d11cc7f8c93f3ffed8ea672a5e9dd918bbcd`, exact head `2303473640f5116ad8515de77068b91caa5c7cc7`. Only `pwa/KB/Locations/content/P3 Test Lake.md` and `pwa/KB/kb.json` changed.
+
+- Initial exact-head validation workflow `40921201069`: created 10:25:33, check-run completed ~10:26:02 (provider check run `123614571641`), CI→D1 Checking exit ~3s. GitHub PR opened to merge 45s. D1 Merging entered 10:26:05, actual provider merge 10:26:14 (~9s), D1 Deploying 10:26:19 (~5s after merge, rather than prior ~68s).
+- Second pull-request-triggered validation `40921306175`: created ~10:26:12, completed ~10:26:34 (check-run `123614943837`), after PR merge; **not** hosted verification. The workflow listens for `opened`, `synchronize`, `reopened`, and `ready_for_review`, causing this duplicate check. No evidence this second check was on the critical path.
+- GitHub hook recent delivery: HTTP 202 body `{"ok":true,"accepted":false}`. The specific delivery's event timestamp/check-run identity is not supplied; the second run's post-merge notification would be ineligible by design. Do not infer the signed webhook accelerated CI progression from this.
+- Read-only inspection of the initial workflow log showed the second checkout action (`ginosega/fishing` pinned immutable trusted validator) around **10:25:41.05–10:25:55.35 PDT**, approximately **14.3s**, a major part of the 36s Checking stage. Other components include GitHub job startup and npm dependency installation. The pinned trusted validation and same-repo full source verification cannot be weakened to gain speed.
+
+**Next bottleneck / goal:** end-to-end 72s remains **12s above ≤60s target**. First evaluate safe CI checkout/performance improvements to the exact, pinned trusted validator fetching/installation, preserving the exact-head/base/tree/full-validator security requirements; also separately consider removing redundant `ready_for_review` validation (cost/noise, not primary critical path). Measure after independent CI/sandbox tests; do not claim public V3 SLA compliance from private sandbox timing.
