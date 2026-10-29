@@ -143,6 +143,7 @@ test('D3-RC04 scheduled coordinator verifies completed merge via GET only, no fr
  };
  const store={
   nextRecoverableMerge:async()=>OP,
+  nextRecoverableMergeFor:async id=>id===OP?OP:null,
   nextEligible:async()=>{throw Error('No operation replay permitted');},
   get:async()=>structuredClone(row),
   readSnapshot:async()=>({package:{format:'fishing-companion-change-v2',
