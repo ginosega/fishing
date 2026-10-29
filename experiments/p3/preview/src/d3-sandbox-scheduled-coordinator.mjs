@@ -27,7 +27,7 @@ export class D3CoordinatorError extends Error{
 }
 const fail=code=>{throw new D3CoordinatorError(code);};
 const need=(v,code)=>{if(!v)fail(code);};
-const methods=['nextEligible','claim','get','readSnapshot','advance',
+const methods=['nextEligible','nextRecoverableMergeFor','claim','get','readSnapshot','advance',
  'branchReceipt','saveBranchReceipt','markMergeAttempt','saveMergeReceipt',
  'nextRecoverableMerge','reconcileVerifiedMerge'];
 export function createD3SandboxScheduledCoordinator({
@@ -121,13 +121,17 @@ export function createD3SandboxScheduledCoordinator({
    return verifyHosted(info);
   },
  });
- async function tick(){
+ async function tick({targetOperationId=null}={}){
   need(active(),'RUNNER_DISABLED');
+  if(targetOperationId!==null)
+   need(OP.test(targetOperationId),'INVALID_DURABLE_ID');
   // A prior GitHub merge may have succeeded after the durable write-ahead
   // marker but before the D1 acknowledgement. Never retry PUT /merge.
   // Only when the independent hosted proof is enabled, reconstruct its exact
   // private PR + main + squash parent + file evidence using GETs, then CAS D1.
-  const blocked=hosted()?await store.nextRecoverableMerge():null;
+  const blocked=hosted()?(targetOperationId!==null?
+    await store.nextRecoverableMergeFor(targetOperationId):
+    await store.nextRecoverableMerge()):null;
   if(blocked!==null){
    need(OP.test(blocked),'INVALID_RECOVERY_ID');
    const record=await store.get(blocked);
@@ -152,11 +156,24 @@ export function createD3SandboxScheduledCoordinator({
    return Object.freeze({progressed:true,operationId:blocked,
     state:'Deploying',reconciled:true,canonicalLive:false});
   }
-  const operationId=await store.nextEligible();
+  const operationId=targetOperationId??await store.nextEligible();
   if(operationId===null)return Object.freeze({
    progressed:false,reason:'NO_ELIGIBLE_OPERATION',canonicalLive:false,
   });
   need(OP.test(operationId),'INVALID_DURABLE_ID');
+  if(targetOperationId!==null){
+   const record=await store.get(operationId);
+   need(record?.operationId===operationId,'RECEIPT_DRIFT');
+   if(['Live','Conflict','Failed'].includes(record.state))
+    return Object.freeze({progressed:false,operationId,
+     reason:'ALREADY_TERMINAL',canonicalLive:false});
+   // A marked merge MUST NOT enter the runner even if it has a
+   // known durable SHA. If lease hasn't expired, wait for the next wake.
+   // Once expired, only the exact-op read-only reconciliation above runs.
+   if(record.state==='Merging'&&record.reasonCode==='merge_attempted')
+    return Object.freeze({progressed:false,operationId,
+     reason:'MERGE_RECONCILIATION_PENDING',canonicalLive:false});
+  }
   // Before any merge attempt, the independent hosted verifier must already
   // be enabled. Never acquire a lease or write a merge marker while it is off.
   if(!hosted()){
