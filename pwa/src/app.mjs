@@ -22,8 +22,15 @@ export async function bootstrap({root,release},{v3=null,sandboxSource=null}={}){
   sourceRevision:sandboxSource.sourceRevision}:release;
  const maps=validateRecords(library);
  const manifest=globalThis.__FISHING_BOOT__.manifest;
- const asset=file=>new URL('content/'+encodedPath(file),base).href;
+ const privateAssets=isolated&&v3?.privateAssets===true;
+ const asset=file=>privateAssets&&sandboxSource.files.has(file)?
+  new URL('api/v3/assets/'+encodedPath(file)+
+   '?revision='+sandboxSource.sourceRevision,new URL(root).origin+'/').href:
+  new URL('content/'+encodedPath(file),base).href;
  const thumbnail=file=>{
+  // A private image must use its own verified immutable original bytes,
+  // not a stale thumbnail from the unrelated public V2 release.
+  if(privateAssets&&sandboxSource.files.has(file))return asset(file);
   const thumb=manifest.cardThumbnails?.[file];
   return thumb?new URL('card-thumbnails/'+encodedPath(thumb),base).href:asset(file);
  };
