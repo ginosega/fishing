@@ -73,6 +73,7 @@ export function createD3OwnerTestShell({
    enabled:true,authorized:false,
    auth:owner,lifecycle,
    ...(session.sandboxMediaReady===true?{
+    privateAssets:true,
     stageMedia:(file)=>owner.stageMedia(file),
    }:{}),
    // Only a verified owner-loaded sandbox base permits presenting Save.
