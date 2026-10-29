@@ -62,7 +62,9 @@ export function createD2UnifiedOwnerSession({AUTH_DB,ownerGitHubId,origin,csrfKe
   // Only an exact GET document navigation is exempt; JSON, JS, status,
   // writes and any non-navigation cross-site request remain forbidden.
   const freshPilotNavigation=pilotNavigation===true&&
-   request.method==='GET'&&url.pathname==='/__d3_pilot__/'&&
+   request.method==='GET'&&
+   (url.pathname==='/__d3_pilot__/'||
+    url.pathname==='/fishing/__d3_pilot__/')&&
    !url.search&&!url.hash&&
    request.headers.get('Sec-Fetch-Mode')==='navigate'&&
    request.headers.get('Sec-Fetch-Dest')==='document';
