@@ -55,17 +55,18 @@ function exactPaths(expected,observed){
 export function createD3SandboxOperationRunner({
   store,currentMain,createDraft,observeCheck,merge,verifyHosted,
   enabled=()=>false,
+  measure=async(_phase,work)=>work(),
 }={}){
   need(['claim','get','advance','readSnapshot','markMergeAttempt'].every(x=>
     typeof store?.[x]==='function')&&
-    [currentMain,createDraft,observeCheck,merge,verifyHosted,enabled]
+    [currentMain,createDraft,observeCheck,merge,verifyHosted,enabled,measure]
       .every(x=>typeof x==='function'),'INVALID_CONFIGURATION');
   async function run({operationId,leaseOwner}={}){
     need(enabled()===true,'RUNNER_DISABLED');
     need(OP.test(operationId??'')&&
       typeof leaseOwner==='string'&&
       /^[A-Za-z0-9_-]{12,96}$/.test(leaseOwner),'INVALID_REQUEST');
-    const claimed=await store.claim({operationId,leaseOwner});
+    const claimed=await measure('lease_claim',()=>store.claim({operationId,leaseOwner}));
     if(!claimed)return Object.freeze({progressed:false,reason:'NOT_CLAIMED',
       operationId,canonicalLive:false});
     const state=claimed.state;
@@ -73,15 +74,16 @@ export function createD3SandboxOperationRunner({
     need(record?.operationId===operationId&&record.state===state,
       'RECEIPT_DRIFT');
     const advance=async(to,details={})=>{
-      const row=await store.advance({operationId,leaseOwner,
+      const work=()=>store.advance({operationId,leaseOwner,
         from:state,to,details});
+      const row=await (to==='Live'?measure('state_to_live',work):work());
       need(row?.operationId===operationId&&row.state===to,'D1_CAS_DENIED');
       return Object.freeze({progressed:true,operationId,state:to,
         canonicalLive:false});
     };
     if(state==='Accepted')return advance('Validating');
     if(state==='Validating'){
-      const saved=await store.readSnapshot(operationId);
+      const saved=await measure('snapshot_validation',()=>store.readSnapshot(operationId));
       need(textOnly(saved?.package)&&Array.isArray(saved.media)&&
         saved.media.length===0,'INVALID_SNAPSHOT');
       const pkg=saved.package;
@@ -89,8 +91,8 @@ export function createD3SandboxOperationRunner({
       const base=await currentMain({repositoryId:ID,operationId,
         package:pkg});
       need(SHA.test(base),'MAIN_UNVERIFIED');
-      const pr=await createDraft({operationId,repositoryId:ID,
-        expectedMainSha:base,domain:pkg.domain,package:pkg,leaseOwner});
+      const pr=await measure('github_prepare_pr',()=>createDraft({operationId,repositoryId:ID,
+        expectedMainSha:base,domain:pkg.domain,package:pkg,leaseOwner}));
       need(pr?.baseSha===base&&SHA.test(pr.headSha)&&
         positive(pr.number)&&pr.state==='open'&&pr.merged===false&&
         pr.branch===BRANCH(operationId),'PR_UNVERIFIED');
@@ -108,7 +110,7 @@ export function createD3SandboxOperationRunner({
         'PR_RECEIPT_MISSING');
     }
     if(state==='Checking'){
-      const check=await observeCheck(receipt);
+      const check=await measure('check_observation',()=>observeCheck(receipt));
       need(check?.repositoryId===ID&&
         check.prNumber===receipt.prNumber&&
         check.headSha===receipt.expectedHeadSha&&
@@ -126,7 +128,7 @@ export function createD3SandboxOperationRunner({
       need(record.reasonCode==null,'MERGE_RECONCILIATION_REQUIRED');
       const marked=await store.markMergeAttempt({operationId,leaseOwner});
       need(marked===true,'MERGE_RECONCILIATION_REQUIRED');
-      const result=await merge({...receipt,operationId,leaseOwner});
+      const result=await measure('github_protected_merge',()=>merge({...receipt,operationId,leaseOwner}));
       need(result?.sandboxMerged===true&&
         result.repositoryId===ID&&result.canonicalLive===false&&
         SHA.test(result.mergeSha),'MERGE_UNVERIFIED');
@@ -142,10 +144,10 @@ export function createD3SandboxOperationRunner({
       need(textOnly(saved?.package)&&Array.isArray(saved.media)&&
         saved.media.length===0,'INVALID_SNAPSHOT');
       const paths=expectedPaths(saved.package);
-      const verified=await verifyHosted({
+      const verified=await measure('hosted_byte_release_proof',()=>verifyHosted({
         operationId,repositoryId:ID,mergeSha:record.mergeSha,
         expectedPaths:paths,canonicalLive:false,
-      });
+      }));
       need(verified?.verified===true&&
         verified.repositoryId===ID&&
         verified.mergeSha===record.mergeSha&&
