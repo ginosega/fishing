@@ -7,7 +7,7 @@
 import {safePath} from '../../../../pwa/src/shared.mjs';
 const OP=/^p3_[a-f0-9-]{36}$/;
 const ROOT='/__d3_test__/operations/';
-const JSON_FILES=new Set(['pwa/Gear/gear.json','pwa/KB/kb.json']);
+const JSON_FILES=new Set(['pwa/Gear/gear.json','pwa/KB/kb.json','pwa/Catches/catches.json']);
 export class D3HostPathError extends Error{
  constructor(code){
   super('D3 isolated hosted resource path refused');
@@ -18,20 +18,24 @@ const deny=code=>{throw new D3HostPathError(code);};
 const need=(ok,code)=>{if(!ok)deny(code);};
 export function expectedD3HostedPaths(pkg){
  need(pkg?.format==='fishing-companion-change-v2'&&
-  ['gear','kb'].includes(pkg.domain)&&
+  ['gear','kb','catches'].includes(pkg.domain)&&
   ['edit','add'].includes(pkg.operation)&&
   pkg.picture?.action==='keep'&&
   (pkg.pictureSequence?.action??'keep')==='keep'&&
   ['keep','create','replace'].includes(pkg.notes?.action),
   'INVALID_PACKAGE');
- const base=pkg.domain==='gear'?'pwa/Gear/gear.json':'pwa/KB/kb.json';
+ const base=pkg.domain==='gear'?'pwa/Gear/gear.json':
+  pkg.domain==='kb'?'pwa/KB/kb.json':'pwa/Catches/catches.json';
  const result=[base];
  if(pkg.notes.action!=='keep'){
   let path;
   try{path=safePath(pkg.notes.path);}catch{deny('UNSAFE_MARKDOWN');}
-  const prefix=pkg.domain==='gear'?'Gear/':'KB/';
+  const prefix=pkg.domain==='gear'?'Gear/':
+   pkg.domain==='kb'?'KB/':'Catches/content/';
   need(path.startsWith(prefix)&&path.includes('/content/')&&
-   path.endsWith('.md')&&path.split('/').length>=4,
+   path.endsWith('.md')&&
+   (pkg.domain==='catches'?path.split('/').length===3:
+    path.split('/').length>=4),
    'UNSAFE_MARKDOWN');
   result.push('pwa/'+path);
  }
@@ -49,8 +53,10 @@ function isMarkdown(file){
  try{
   const path=safePath(file.slice(4));
   return file==='pwa/'+path&&
-   (path.startsWith('Gear/')||path.startsWith('KB/'))&&
-   path.includes('/content/')&&path.endsWith('.md');
+   (path.startsWith('Gear/')||path.startsWith('KB/')||
+    path.startsWith('Catches/content/'))&&
+   path.includes('/content/')&&path.endsWith('.md')&&
+   (!path.startsWith('Catches/')||path.split('/').length===3);
  }catch{return false;}
 }
 export function parseD3HostedTestPath(pathname){
