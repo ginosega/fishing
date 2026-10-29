@@ -19,6 +19,7 @@ const MAX=128*1024;
 const location=Object.freeze({
  gear:'pwa/Gear/gear.json',
  kb:'pwa/KB/kb.json',
+ catches:'pwa/Catches/catches.json',
 });
 const enc=new TextEncoder();
 export class D3CandidateError extends Error{
@@ -27,7 +28,7 @@ export class D3CandidateError extends Error{
 const deny=code=>{throw new D3CandidateError(code);};
 const check=(v,code)=>{if(!v)deny(code);};
 const object=x=>x&&Object.getPrototypeOf(x)===Object.prototype;
-const own=(record,domain)=>record?.[domain==='gear'?'notes':'content']??null;
+const own=(record,domain)=>record?.[domain==='kb'?'content':'notes']??null;
 const textPath=(path)=>{try{return safePath(path);}catch{deny('UNSAFE_NARRATIVE_PATH');}};
 
 export function createD3TrustedGearKBCandidate({loadSnapshot,enabled=()=>false}={}){
@@ -41,7 +42,7 @@ export function createD3TrustedGearKBCandidate({loadSnapshot,enabled=()=>false}=
   check(operationId===undefined||/^p3_[0-9a-f-]{36}$/.test(operationId),
    'INVALID_OPERATION');
   try{validatePackage(pkg);}catch{deny('INVALID_PACKAGE');}
-  check(['gear','kb'].includes(pkg.domain)&&['add','edit'].includes(pkg.operation)&&
+  check(['gear','kb','catches'].includes(pkg.domain)&&['add','edit'].includes(pkg.operation)&&
    SHA.test(pkg.base.sourceRevision)&&
    pkg.picture.action==='keep'&&
    (pkg.pictureSequence?.action??'keep')==='keep'&&
@@ -90,6 +91,15 @@ export function createD3TrustedGearKBCandidate({loadSnapshot,enabled=()=>false}=
   }catch(e){
    if(e instanceof ChangeConflictError)deny('SOURCE_CONFLICT');
    deny('INVALID_PROMOTION');
+  }
+  // Catch schema and relationships are validated against the SAME
+  // immutable Gear/KB snapshot. No image, GPS or new Catch fields.
+  // Existing catches, source IDs and their Markdown are never deleted.
+  if(pkg.domain==='catches'){
+   check(!Object.hasOwn(candidate.record,'picture')&&
+    !Object.hasOwn(candidate.record,'pictureSequence'),'CATCH_MEDIA_DENIED');
+   check(pkg.notes.action!=='create'||pkg.notes.path===
+    narrativePath('catches',candidate.record),'UNSAFE_NARRATIVE_PATH');
   }
   const next=data,items=next[pkg.domain][array];
   if(pkg.operation==='add')items.push(candidate.record);
