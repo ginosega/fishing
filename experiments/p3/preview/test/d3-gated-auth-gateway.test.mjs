@@ -222,3 +222,26 @@ test('D3-G12 unknown pilot filenames never reach authorizing pilot handler',asyn
  assert.equal(x.calls.pilot,0);
  assert.equal(x.calls.api,0);
 });
+
+test('D3-G14 check webhook is invisible unless BOTH independent gates enabled',async()=>{
+ const route='/__d3_fast__/github-check';
+ for(const flags of [{},{D3_FAST_WATCHDOG_ENABLED:'true'},
+  {D3_FAST_WEBHOOK_ENABLED:'true'}]){
+  const x=fixture(),e=env(flags);
+  const response=await x.service.fetch(request(route,'POST'),e,{});
+  assert.equal(response.status,404);
+  assert.equal(x.calls.created,0);
+  assert.equal(x.calls.transport,0);
+ }
+});
+test('D3-G15 enabled webhook still needs secret and DO binding, never owner-token ingress',async()=>{
+ const x=fixture(),e=env({D3_FAST_WATCHDOG_ENABLED:'true',
+  D3_FAST_WEBHOOK_ENABLED:'true',D3_WRITE_ENABLED:'true',
+  D3_RUNNER_ENABLED:'true',D3_READ_TOKENS_ENABLED:'true',
+  D3_TEST_HOST_ENABLED:'true'});
+ const response=await x.service.fetch(
+  request('/__d3_fast__/github-check','POST'),e,{});
+ assert.equal(response.status,503);
+ assert.equal(x.calls.transport,0);
+ assert.equal(x.calls.api,0);
+});
