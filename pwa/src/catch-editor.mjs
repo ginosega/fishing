@@ -6,20 +6,25 @@
 import {el,text,button,field,toolbar,status} from './dom.mjs';
 import {DOMAIN,ID_PATTERN,newId,sha256} from './shared.mjs';
 import {validateRecord} from './validation.mjs';
-import {parseMarkdown,markdownRouteMap} from './markdown.mjs';
+import {parseMarkdown,markdownRouteMap,sanitizeHtml} from './markdown.mjs';
+import {applyCatchField,catchFieldValue,speciesCatchChoices,lureCatchChoices} from './catch-fields.mjs';
 import {prepareChange,narrativePath} from './handoff.mjs';
 
 const clone=value=>structuredClone(value);
 const str=value=>typeof value==='string'?value.trim():'';
 const allowed=new Set(['id','date','time','size','speciesId',
- 'locationId','lureOrBaitId','notes']);
+ 'speciesName','locationId','locationName',
+ 'lureOrBaitId','lureOrBaitName','notes']);
 const validReceipt=r=>r?.accepted===true&&
  /^p3_[a-f0-9-]{36}$/.test(r.operationId??'');
 
-export function suggestedCatchId(record,existing){
- const location=(record.locationId??'').replace(/^location-/,'');
- const species=(record.speciesId??'').replace(/^species-/,'');
- return newId(['catch',record.date||'undated',location||'unknown',
+export function suggestedCatchId(record,existing,{sandboxOnly=false}={}){
+ const location=(record.locationId??record.locationName??'')
+  .replace(/^location-/,'');
+ const species=(record.speciesId??record.speciesName??'')
+  .replace(/^species-/,'');
+ return newId([sandboxOnly?'p3-test-catch':'catch',
+  record.date||'undated',location||'unknown',
   species||'fish'].join('-'),existing);
 }
 
@@ -36,7 +41,8 @@ export async function prepareCatchPackage({
  if(baseRecord&&baseRecord.id!==record.id)
   throw new Error('Existing Catch IDs cannot be changed.');
  const candidate=clone(record);
- for(const key of ['time','size','speciesId','locationId','lureOrBaitId'])
+ for(const key of ['time','size','speciesId','speciesName',
+  'locationId','locationName','lureOrBaitId','lureOrBaitName'])
   if(!str(candidate[key]))delete candidate[key];
   else candidate[key]=str(candidate[key]);
  if(typeof notesText!=='string'||typeof baseText!=='string')
@@ -103,7 +109,8 @@ export async function createCatchEditor(ctx,{
  const idInput=el('input',{type:'text',readonly:true,value:record.id});
  const generateId=()=>{
   if(editing)return;
-  record.id=suggestedCatchId(record,ids);
+  record.id=suggestedCatchId(record,ids,{
+   sandboxOnly:ctx.v3.source.sandboxOnly===true});
   idInput.value=record.id;
  };
  const dateInput=el('input',{type:'date',required:true,value:record.date});
@@ -122,38 +129,64 @@ export async function createCatchEditor(ctx,{
   else delete record.size;
   updated();
  });
- const options=(list)=>[['','Not recorded'],...list
-  .slice().sort((a,b)=>a.name.localeCompare(b.name))
-  .map(x=>[x.id,x.name])];
- const selectors=[
-  ['speciesId','Species',ctx.data.kb.entities.filter(x=>x.type==='species')],
-  ['locationId','Location',ctx.data.kb.entities.filter(x=>x.type==='location')],
-  ['lureOrBaitId','Lure or bait',ctx.data.gear.items.filter(x=>
-   ['lures','bait'].includes(x.category))],
- ];
- const selectorHosts=selectors.map(([key,label,items])=>{
-  const control=el('select',{},options(items).map(([id,name])=>
-   el('option',{value:id,selected:id===(record[key]||'')},name)));
-  control.value=record[key]||'';
-  control.addEventListener('change',()=>{
-   if(control.value)record[key]=control.value;else delete record[key];
+ const species=speciesCatchChoices(ctx.data),
+  lure=lureCatchChoices(ctx.data);
+ const createAutocomplete=(key,label,choices)=>{
+  const id='catch-'+key+'-options';
+  const list=el('datalist',{id},choices.map(name=>el('option',{value:name})));
+  const entry=el('input',{type:'text',list:id,maxlength:160,
+   autocomplete:'off',value:catchFieldValue(record,key,
+    key==='species'?species.linked:lure.linked)});
+  entry.addEventListener('input',()=>{
+   applyCatchField(record,key,entry.value,
+    key==='species'?species.linked:lure.linked);
    generateId();updated();
   });
-  return field(label,control);
+  return el('div',{class:'catch-combobox'},field(label,entry),list);
+ };
+ const speciesField=createAutocomplete('species','Species',species.suggestions);
+ const locationEntry=el('input',{type:'text',maxlength:160,
+  placeholder:'Enter lake, river, or specific location',
+  value:catchFieldValue(record,'location',ctx.data.kb.entities
+   .filter(e=>e.type==='location'))});
+ locationEntry.addEventListener('input',()=>{
+  applyCatchField(record,'location',locationEntry.value,
+   ctx.data.kb.entities.filter(e=>e.type==='location'));
+  generateId();updated();
  });
+ const locationField=field('Location',locationEntry);
+ const lureField=createAutocomplete('lureOrBait','Lure or bait',
+  lure.suggestions);
  generateId();
  const noteInput=el('textarea',{rows:12,
   placeholder:'Optional field notes in Markdown',value:notesText});
  noteInput.addEventListener('input',()=>{
   notesText=noteInput.value;updated();
  });
- const submit=el('button',{type:'submit',class:'btn primary'},'Save and Publish');
+ const preview=el('div',{class:'markdown-preview',hidden:true});
+ let showingPreview=false;
+ const previewButton=button('Preview Markdown',()=>{
+  try{
+   const notesPath=record.notes||narrativePath('catches',record);
+   const parsed=parseMarkdown(notesText,{
+    owner:notesPath,maps:ctx.maps,exists:ctx.v3.source.files,
+    pathRoutes:markdownRouteMap(ctx.data),assetBase:ctx.base,
+    allowMissing:true,
+   });
+   preview.innerHTML=sanitizeHtml(parsed.html,window);
+   showingPreview=!showingPreview;
+   preview.hidden=!showingPreview;noteInput.hidden=showingPreview;
+   previewButton.textContent=showingPreview?'Edit Markdown':'Preview Markdown';
+   status(notice,'Markdown preview is local and has not been saved.','info');
+  }catch(error){status(notice,error.message,'error');}
+ });
+  const submit=el('button',{type:'submit',class:'btn primary'},'Save and Publish');
  form.append(
   field('Catch ID (fixed after publication)',idInput),
   field('Date',dateInput),field('Time (optional)',timeInput),
-  field('Size (optional)',sizeInput),...selectorHosts,
-  field('Notes (Markdown, optional)',noteInput,
-   'Existing notes and referenced media stay intact. Catch photos and GPS are not supported.'),
+  field('Size (optional)',sizeInput),
+  speciesField,locationField,lureField,
+  field('Notes (Markdown, optional)',noteInput),previewButton,preview,
   toolbar(submit,button('Cancel',onBack)),actionNotice,
  );
  form.addEventListener('submit',async event=>{
@@ -187,6 +220,9 @@ export async function createCatchEditor(ctx,{
    pending=false;if(!accepted)submit.disabled=false;
   }
  });
+ if(ctx.v3.source.sandboxOnly===true)
+  host.append(text('p',
+   'Private sandbox: use fabricated test Catch data only. Real catches belong in the eventual production release.','hint'));
  host.append(notice,form,output);
  return {element:host,isDirty:dirty,dispose:()=>{},record};
 }
