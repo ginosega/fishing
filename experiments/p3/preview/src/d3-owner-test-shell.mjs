@@ -65,13 +65,34 @@ export function createD3OwnerTestShell({
    snapshot.repositoryId===1430581407&&
    /^[a-f0-9]{40}$/.test(snapshot.sourceRevision??''),
    'UNTRUSTED_SANDBOX_SOURCE');
+  const staged=new WeakMap();
   const v3={
    enabled:true,authorized:false,
    auth:owner,lifecycle,
+   ...(session.sandboxMediaReady===true?{
+    stageMedia:(file)=>owner.stageMedia(file),
+   }:{}),
    // Only a verified owner-loaded sandbox base permits presenting Save.
    ...(publishingEnabled()===true&&session.sandboxPublishingReady===true?
-    {publish:async pkg=>{
-    const receipt=await lifecycle.submit(pkg);
+    {publish:async (pkg,files=[])=>{
+    need(Array.isArray(files)&&files.length<=24,
+     'INVALID_MEDIA_FILES');
+    need(files.length===0||session.sandboxMediaReady===true,
+     'MEDIA_UNAVAILABLE');
+    let tickets=staged.get(pkg);
+    if(!tickets){
+     tickets=[];
+     for(const item of files){
+      need(item&&typeof item.path==='string'&&item.file,
+       'INVALID_MEDIA_FILES');
+      // Stage is explicitly user initiated by Save and Publish, never
+      // backgrounded or silently retried. Partial originals are unlinked
+      // until a complete source-verified PR is merged.
+      tickets.push(await owner.stageMedia(item));
+     }
+     staged.set(pkg,tickets);
+    }
+    const receipt=await lifecycle.submit(pkg,tickets);
     need(receipt.phase==='Accepted'&&
      /^p3_[a-f0-9-]{36}$/.test(receipt.operationId??''),
      'ACCEPTANCE_UNVERIFIED');
