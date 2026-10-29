@@ -97,12 +97,18 @@ export async function validateSandboxHead({
  // This is the actual canonical source inventory, including Ajv, Markdown,
  // references, image decoding and hashes. No source files are executed.
  const result=await inventorySource(pwa,{pendingMedia:false});
- // This private P3 repository is for synthetic tests only, not a second copy
- // of the owner's production Fishing data. It is not yet a Catch editor.
- assert(result.data.gear.items.length<=10&&result.data.kb.entities.length<=10&&
-  result.data.catches.catches.length===0&&
+ // This private P3 repository is for clearly fabricated tests only.
+ // D4 Catch acceptance may use a small number of synthetic IDs; never
+ // permit a second copy of real production Fishing catches or Gear.
+ assert(result.data.gear.items.length<=10&&
+  result.data.kb.entities.length<=10&&
+  result.data.catches.catches.length<=5&&
   result.data.gear.items.every(item=>item.id?.startsWith('p3-'))&&
-  result.data.kb.entities.every(item=>item.id?.includes('p3-')),
+  result.data.kb.entities.every(item=>item.id?.includes('p3-'))&&
+  result.data.catches.catches.every(c=>
+   c.id?.startsWith('p3-test-catch-')&&
+   ['speciesName','locationName','lureOrBaitName'].every(k=>
+    !c[k]||/p3|test|synthetic/i.test(c[k]))),
   'NON_SYNTHETIC_SANDBOX_SOURCE');
  return Object.freeze({
   repositoryId:SANDBOX_ID,headSha:expectedHeadSha,baseSha:expectedBaseSha,
