@@ -18,11 +18,12 @@ const safe=err=>err instanceof D3StorageBenchmarkError?
  err.code:err instanceof D2SessionError?'OWNER_DENIED':'BENCHMARK_UNAVAILABLE';
 export function createD3BenchmarkOwnerRoute({
  origin,ownerSession,R2,D1,enabled=()=>false,
+ storageFactory=createD3StorageBenchmark,
 }={}){
  if(typeof origin!=='string'||!origin.startsWith('https://')||
     ownerSession==null||typeof ownerSession.authorizeStatus!=='function'||
     typeof ownerSession.authorizeWrite!=='function'||
-    typeof enabled!=='function')
+    typeof enabled!=='function'||typeof storageFactory!=='function')
   throw Error('Benchmark route configuration invalid');
  async function handle(request){
   let url;try{url=new URL(request.url);}catch{return error(404,'NOT_FOUND');}
@@ -31,7 +32,7 @@ export function createD3BenchmarkOwnerRoute({
       url.pathname.slice(BASE.length)))return error(404,'NOT_FOUND');
   if(!enabled())return error(404,'NOT_FOUND');
   try{
-   const storage=createD3StorageBenchmark({R2,D1,enabled});
+   const storage=storageFactory({R2,D1,enabled});
    if(request.method==='GET'&&url.pathname===BASE+'current'){
     await ownerSession.authorizeStatus(request);
     const value=await storage.current();
