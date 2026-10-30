@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import {applyCatchField,catchFieldValue,speciesCatchChoices,
  lureCatchChoices} from '../src/catch-fields.mjs';
 import {validateRecords} from '../src/validation.mjs';
-import {suggestedCatchId} from '../src/catch-editor.mjs';
+import {suggestedCatchId,validatePrivateSandboxCatch} from '../src/catch-editor.mjs';
 import {suggestedItemId,ID_PATTERN} from '../src/shared.mjs';
 const entries=[
  {id:'species-test-bass',name:'Test Bass',type:'species',
@@ -163,4 +163,42 @@ test('D4-UX14 Catch detail displays owner-only Edit item before early return',()
  assert(branch.indexOf("page.append(anchor('Edit item'")<branch.lastIndexOf('return page;'));
  assert(ui.includes("case 'catch-edit':page=await renderCatchEditor(route.id)"));
  assert(ui.includes("if(!v3Mode||!canAuthor())return missing('Owner sign-in is required to edit Catches."));
+});
+
+test('D4-UX15 trusted private Catch rules reject real species before publication',()=>{
+ const base={id:'p3-test-catch-2026-10-29-test-lake-test-bass',
+  date:'2026-10-30',speciesName:'Shark',
+  locationName:'Synthetic test lake',lureOrBaitName:'Other'};
+ assert.throws(()=>validatePrivateSandboxCatch(base,{sandboxOnly:true}),
+  /Private sandbox Species.*Synthetic Shark/);
+ // This is an isolation rule; normal production may use real species.
+ assert.doesNotThrow(()=>validatePrivateSandboxCatch(base,{sandboxOnly:false}));
+ assert.doesNotThrow(()=>validatePrivateSandboxCatch({
+  ...base,speciesName:'Synthetic Shark'},{sandboxOnly:true}));
+ for(const [key,label] of [['locationName','Location'],
+  ['lureOrBaitName','Lure or bait']]){
+  const rec={...base,speciesName:'Synthetic Shark',[key]:'Lake Washington'};
+  assert.throws(()=>validatePrivateSandboxCatch(rec,{sandboxOnly:true}),
+   new RegExp('Private sandbox '+label));
+  assert.doesNotThrow(()=>validatePrivateSandboxCatch({
+   ...rec,[key]:'Test Lake'},{sandboxOnly:true}));
+ }
+ assert.doesNotThrow(()=>validatePrivateSandboxCatch({
+  ...base,speciesName:'p3 synthetic bass',lureOrBaitName:'Other'
+ },{sandboxOnly:true}));
+});
+test('D4-UX16 sandbox Catch edit retains original ID, capacity does not deny edit',()=>{
+ const base={id:'p3-test-catch-existing',date:'2026-10-30',
+  speciesName:'Synthetic shark'};
+ assert.doesNotThrow(()=>validatePrivateSandboxCatch(base,{
+  sandboxOnly:true,adding:false,count:5}));
+ assert.throws(()=>validatePrivateSandboxCatch(base,{
+  sandboxOnly:true,adding:true,count:5}),/five-Catch test limit/);
+ assert.throws(()=>validatePrivateSandboxCatch({...base,id:'catch-shark'},{
+  sandboxOnly:true}),/p3-test-catch-/);
+ const editor=readFileSync(new URL('../src/catch-editor.mjs',import.meta.url),'utf8');
+ assert(editor.indexOf('validatePrivateSandboxCatch(candidate,')>
+  editor.indexOf('const candidate=clone(record);'));
+ assert(editor.indexOf('validatePrivateSandboxCatch(candidate,')<
+  editor.indexOf("return prepareChange({"));
 });
