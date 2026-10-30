@@ -10,7 +10,16 @@ export function bindMarkdownPictureViewer(article,{references,resolveAsset,openV
  images.forEach((img,index)=>{
   const reference=allowed[index];
   if(reference.isImage!==true||reference.kind!=='local'||reference.local==null)return;
-  if(img.src!==reference.target)return;
+  // A sanitizer/browser may normalize the src DOM property differently
+  // from the token's literal URL (notably percent-encoded spaces). Compare
+  // only canonical absolute URLs, never match by alt text or filename.
+  let rendered,expected;
+  try{
+   rendered=new URL(img.getAttribute('src')||img.src,
+    article.ownerDocument.baseURI||reference.target).href;
+   expected=new URL(reference.target).href;
+  }catch{return;}
+  if(rendered!==expected)return;
   const alt=img.getAttribute('alt')||'Picture';
   const caption=img.getAttribute('title')||'';
   const fallback=()=>{
