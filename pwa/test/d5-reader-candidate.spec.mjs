@@ -55,6 +55,10 @@ test('D5-browser mode control responds after verified offline library preparatio
  await expect(work).toHaveAttribute('aria-pressed','true');
  await expect(page.locator('#connection-status')).toHaveAttribute(
   'data-reading-mode','work-offline');
+ await expect(page.locator('#connection-status')).toHaveAttribute(
+  'data-publication-indicator','network');
+ await expect(page.locator('#connection-status')).toHaveAttribute(
+  'title',/Online.*Reading mode: Work Offline/);
  await expect(page.locator('#connection-network'))
   .toContainText('Reading Work Offline');
  await dialog.getByRole('button',{name:'Close'}).click();
