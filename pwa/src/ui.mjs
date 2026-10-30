@@ -103,7 +103,12 @@ export function createApp(ctx){
    const species=ctx.maps.kb.get(record.speciesId),location=ctx.maps.kb.get(record.locationId),lure=ctx.maps.gear.get(record.lureOrBaitId);
    if(species?.picture)appendPicture(page,{...species,name:species.name},'kb');
    page.append(table([['Date',record.date],...(record.time?[['Time',record.time]]:[]),...(record.size?[['Size',record.size]]:[]),...(species?[['Species',anchor(species.name,routeFor('kb',species.id))]]:record.speciesName?[['Species',record.speciesName]]:[]),...(location?[['Location',anchor(location.name,routeFor('kb',location.id))]]:record.locationName?[['Location',record.locationName]]:[]),...(lure?[['Lure or bait',anchor(lure.name,routeFor('gear',lure.id))]]:record.lureOrBaitName?[['Lure or bait',record.lureOrBaitName]]:[])]));
-   await appendMarkdown(page,record.notes,'Notes');return page;
+   await appendMarkdown(page,record.notes,'Notes');
+   // Catch details return early, before the Gear/KB edit footer.
+   // Preserve the private owner-only authoring gate and normal route.
+   if(v3Mode&&canAuthor())
+    page.append(anchor('Edit item',`#/catches/edit/${record.id}`,'page-edit-link'));
+   return page;
   }
   appendPicture(page,record,domain);
   if(domain==='gear'){
