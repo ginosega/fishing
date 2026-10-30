@@ -24,13 +24,14 @@
 .markdown-image-button:focus-visible{outline:3px solid var(--accent);outline-offset:4px;border-radius:8px}
 .markdown-image-unavailable{display:inline-block;max-width:100%;padding:12px 16px;border:1px dashed var(--border);border-radius:8px;background:var(--surface);color:var(--muted);font-size:.9rem}
 
-/* V3-only indicator: network reachability and intentional reading mode
-   are different states. V2 never sets data-reading-mode. */
-.connection-status[data-reading-mode="work-offline"] .connection-dot{
+/* V3 only: publication outranks network connectivity for the header dot.
+   Automatic/Work Offline are displayed separately and never change the dot.
+   V2 does not set data-publication-indicator and keeps green/yellow. */
+.connection-status[data-publication-indicator="publishing"] .connection-dot{
  background:#7099da;box-shadow:0 0 0 5px #7099da22
 }
-.connection-status[data-reading-mode="checking"] .connection-dot{
- background:#929ea1;box-shadow:0 0 0 5px #929ea122
+.connection-status[data-publication-indicator="error"] .connection-dot{
+ background:#d85a61;box-shadow:0 0 0 5px #d85a6122
 }
 .offline-mode-select [aria-pressed="true"]{
  outline:2px solid var(--accent);outline-offset:2px
