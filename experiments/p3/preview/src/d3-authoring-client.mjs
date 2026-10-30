@@ -42,6 +42,20 @@ async function parseJson(response){
  need(body&&typeof body==='object'&&!Array.isArray(body),'UNTRUSTED_RESPONSE');
  return body;
 }
+// Optional owner-only status summary. Invalid/unavailable fields are
+// discarded rather than treated as publication evidence.
+function validPublicationSummary(value){
+ return value&&typeof value==='object'&&!Array.isArray(value)&&
+  ['gear','kb','catches'].includes(value.domain)&&
+  ['add','edit'].includes(value.action)&&
+  typeof value.itemName==='string'&&
+  value.itemName.length>0&&value.itemName.length<=160&&
+  (value.completedAt===null||(Number.isSafeInteger(value.completedAt)&&
+   value.completedAt>0))&&
+  (value.reasonCode===null||
+   (typeof value.reasonCode==='string'&&
+    /^[A-Z][A-Z0-9_]{1,63}$/.test(value.reasonCode)));
+}
 export function describeD3Operation(record,{canonicalLive=false}={}){
  need(record&&OP.test(record.operationId)&&STATES.has(record.state),
   'INVALID_OPERATION_STATUS');
@@ -54,6 +68,7 @@ export function describeD3Operation(record,{canonicalLive=false}={}){
   publicLive:record.state==='Live'&&canonicalLive===true,
   sandboxVerified:record.state==='Live'&&canonicalLive===false,
   needsAttention:['Conflict','Failed'].includes(record.state),
+  summary:validPublicationSummary(record.summary)?record.summary:null,
  });
 }
 export function createD3AuthoringClient({
@@ -74,6 +89,8 @@ export function createD3AuthoringClient({
   owner=authorized;csrf=authorized?body.csrfToken:null;
   mediaReady=authorized&&body.sandboxMediaReady===true;
   return Object.freeze({authenticated:body.authenticated===true,authorized,
+   ownerLogin:authorized&&typeof body.ownerLogin==='string'&&
+    /^[a-zA-Z0-9-]{1,39}$/.test(body.ownerLogin)?body.ownerLogin:null,
    sandboxPublishingReady:authorized&&body.sandboxPublishingReady===true,
    sandboxMediaReady:mediaReady});
  }
