@@ -4,6 +4,12 @@ on:
     paths:
       - 'experiments/p3/**'
       - 'pwa/test/p3-*.test.mjs'
+      # D5 V3-only reading mode and its offline-integrity regressions.
+      - 'pwa/src/sw.mjs'
+      - 'pwa/src/offline.mjs'
+      - 'pwa/src/ui.mjs'
+      - 'pwa/tools/build.mjs'
+      - 'pwa/test/offline-integrity.test.mjs'
       - '.github/workflows/fishing-p3-source-validation.yml'
 permissions:
   contents: read
