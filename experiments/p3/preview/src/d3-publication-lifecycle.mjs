@@ -12,10 +12,19 @@
 const OP=/^p3_[0-9a-f-]{36}$/;
 const KEY=/^[A-Za-z0-9_-]{12,96}$/;
 const STORAGE='fishing-v3-owner-publication-receipt-v1';
+const DISMISSED='fishing-v3-owner-dismissed-terminal-v1';
 const MAX_PACKAGE_BYTES=12*1024; // leave room for operation envelope (16 KiB service cap)
 const utf8=new TextEncoder();
 export class D3LifecycleError extends Error{
- constructor(code){super('Fishing publication lifecycle is unavailable');this.name='D3LifecycleError';this.code=code;}
+ constructor(code){
+  const messages={
+   PREVIOUS_PUBLICATION_NOT_LIVE:'The previous publication is not Live. Open Connection Status and check its status. If it Failed or Conflict, select Dismiss failed publication before saving this edit.',
+   UNRESOLVED_SUBMISSION:'A previous submission has an uncertain result. Check Connection Status and preserve the original submission before retrying.',
+   ALREADY_ACCEPTED:'A previous publication is still being tracked. Check Connection Status before publishing another edit.',
+  };
+  super(messages[code]??'Fishing publication lifecycle is unavailable');
+  this.name='D3LifecycleError';this.code=code;
+ }
 }
 const deny=code=>{throw new D3LifecycleError(code);};
 const need=(v,code)=>{if(!v)deny(code);};
@@ -46,6 +55,19 @@ const restore=storage=>{
  }catch{return null;}
 };
 const makeReceipt=id=>JSON.stringify({version:1,operationId:id,canonicalLive:false});
+// Only an authenticated status-verified Failed/Conflict can be dismissed.
+// The marker is an operation ID, never a package or authorization credential.
+const readDismissed=storage=>{
+ if(!storage)return null;
+ try{
+  const raw=storage.getItem(DISMISSED);
+  if(typeof raw!=='string'||raw.length>300)return null;
+  const row=JSON.parse(raw);
+  return row?.version===1&&OP.test(row.operationId??'')?
+   row.operationId:null;
+ }catch{return null;}
+};
+const dismissedReceipt=id=>JSON.stringify({version:1,operationId:id});
 export function createD3PublicationLifecycle({
  client,storage=null,makeKey=()=>crypto.randomUUID(),enabled=()=>false,
  mediaEnabled=()=>false,
@@ -59,6 +81,7 @@ export function createD3PublicationLifecycle({
     typeof storage?.setItem==='function'&&typeof storage?.removeItem==='function')),
   'INVALID_CONFIGURATION');
  let operationId=restore(storage),attempt=null,report=null,inflight=null;
+ let dismissedTerminalId=readDismissed(storage);
  let phase=operationId?'NeedsStatusCheck':'Idle',trackingStored=Boolean(operationId);
  const active=()=>need(enabled()===true,'NOT_ENABLED');
  const tracking=()=>stateObject({
@@ -131,6 +154,9 @@ export function createD3PublicationLifecycle({
      'UNTRUSTED_RECEIPT');
     operationId=receipt.operationId;
     trackingStored=storeReceipt(operationId);
+    // A newly accepted operation supersedes the previous dismissed one.
+    dismissedTerminalId=null;
+    if(storage){try{storage.removeItem(DISMISSED);}catch{} }
     phase='Accepted';
     attempt=null;report=null;
     return tracking();
@@ -163,6 +189,15 @@ export function createD3PublicationLifecycle({
   }
   need(OP.test(recent?.operationId??'')&&validReport(recent,recent.operationId)&&
    recent.publicLive===false,'UNTRUSTED_STATUS');
+  // The server's latest receipt may still be the very same failure the
+  // owner explicitly acknowledged. Never resurrect it after a reload or
+  // a new Connection Status lookup. Do not hide new/pending operations.
+  if(recent.operationId===dismissedTerminalId&&recent.terminal===true&&
+   ['Failed','Conflict'].includes(recent.state)&&
+   recent.needsAttention===true){
+   phase='Idle';report=null;
+   return tracking();
+  }
   operationId=recent.operationId;
   trackingStored=storeReceipt(operationId);
   report=recent;phase=recent.state;
@@ -187,6 +222,16 @@ export function createD3PublicationLifecycle({
  }
  function clearCompletedReceipt(){
   const old=operationId;
+  const confirmedFailed=report?.operationId===old&&
+   report.terminal===true&&report.publicLive===false&&
+   report.needsAttention===true&&
+   ['Failed','Conflict'].includes(report.state);
+  if(confirmedFailed){
+   dismissedTerminalId=old;
+   // Persist acknowledgement across reload; only the bounded operation ID
+   // is kept. Storage denial cannot grant publishing or falsify server state.
+   if(storage){try{storage.setItem(DISMISSED,dismissedReceipt(old));}catch{} }
+  }
   if(storage){try{if(restore(storage)===old)storage.removeItem(STORAGE);}catch{
    deny('STORAGE_UNAVAILABLE');
   }}
