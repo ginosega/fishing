@@ -157,6 +157,8 @@ export function createApp(ctx){
  for(const a of document.querySelectorAll('[data-nav]'))a.addEventListener('click',event=>{event.preventDefault();navigate(a.getAttribute('href'));});
  offline=createOffline({root:ctx.root,releaseId:ctx.release.id,onlineOnly:privatePilot,
   v3ReadingMode:v3Mode&&!privatePilot,onMode:()=>{paintReadingMode();
+   if(workOffline())ownerPanel?.suspend();
+   else ownerPanel?.paint();
    const page=parseRoute(location.hash||'#/').page;
    if(!dirty()&&!['gear-edit','gear-add','kb-edit','kb-add','catch-edit','catch-add'].includes(page))void render();
   },onStatus:state=>{const needsUpdate=state.state==='Incomplete'&&Boolean(state.message);const label=state.state==='Ready'?(navigator.onLine?(state.releaseId===ctx.release.id?`Offline library ready · current · ${state.files||0} files`:`Offline library ready · update available · ${state.files||0} files`):`Offline library ready · ${state.files||0} files`):state.state==='Downloading'?`Preparing offline library · ${state.completed||0}/${state.files||'?'} files`:needsUpdate?'Offline library needs update':'Offline library not prepared';offlineHost.replaceChildren(text('span',label),...(state.message?[text('span',state.message,'hint')]:[]));offlineHost.dataset.state=state.state;offlineHost.dataset.releaseId=state.releaseId||'';document.getElementById('offline-reload').disabled=privatePilot||Boolean(state.updating)||state.state==='Downloading';document.getElementById('offline-update').disabled=privatePilot||Boolean(state.updating)||state.state==='Downloading'||!navigator.onLine;},isDirty:dirty,notify});
@@ -218,7 +220,7 @@ export function createApp(ctx){
  const ownerController=v3Mode&&ctx.v3?.auth&&ctx.v3?.lifecycle?
   createD3ConnectionController({
    auth:ctx.v3.auth,lifecycle:ctx.v3.lifecycle,
-   enabled:()=>v3Mode,online:()=>navigator.onLine,
+   enabled:()=>v3Mode,online:()=>navigator.onLine&&!workOffline(),
    onChange:state=>{
     const prior=ctx.v3.authorized;
     ctx.v3.authorized=state.authorized;
@@ -234,7 +236,7 @@ export function createApp(ctx){
   }):null;
  if(ownerController)ownerPanel=mountD3ConnectionPanel({
   dialog:connectionDialog,controller:ownerController,documentObject:document,
-  online:()=>navigator.onLine,windowObject:window,
+  online:()=>navigator.onLine&&!workOffline(),windowObject:window,
  });
  if(ownerController&&v3Mode){
   // A durable Accepted receipt should update Connection Status immediately,
@@ -256,7 +258,7 @@ export function createApp(ctx){
  };
  connection.addEventListener('click',()=>{
   connectionDialog.showModal();
-  if(ownerController)void refreshOwner();
+  if(ownerController&&!workOffline())void refreshOwner();
  });document.getElementById('connection-close').addEventListener('click',()=>{
   ownerPanel?.suspend();connectionDialog.close();
  });window.addEventListener('online',updateConnection);window.addEventListener('offline',updateConnection);updateConnection();
@@ -264,7 +266,10 @@ export function createApp(ctx){
  document.getElementById('offline-update').addEventListener('click',()=>offline.update());document.getElementById('offline-reload').addEventListener('click',()=>offline.reload());
  const releaseDetails=document.getElementById('release-details');if(releaseDetails)releaseDetails.textContent=`Release ${ctx.release.id.slice(0,12)} · Source ${ctx.release.sourceRevision.slice(0,12)}${ctx.release.pendingMedia?' · Pending media preview':''}`;
  if(ctx.release.pendingMedia)notify('Preview only: some approved image replacements remain unresolved. This is not a production-cutover candidate.','warning');
- render();offline.start();
- if(ownerController)void refreshOwner();
+ render();
+ void offline.start().then(()=>{
+  // Work Offline must not automatically restore online owner/auth services.
+  if(ownerController&&!workOffline())void refreshOwner();
+ });
  return {navigate,isDirty:dirty,render};
 }
