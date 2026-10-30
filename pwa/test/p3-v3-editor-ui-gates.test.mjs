@@ -17,7 +17,8 @@ test('FISH118 D3 beta editor Save/Publish is strictly opt-in; v2 manual authorin
  assert.match(editor,/const dirty=\(\)=>!saveAccepted/);
  assert.match(editor,/if\(savePending\|\|saveAccepted\)return/);
  assert.match(editor,/Your edit is preserved/);
- assert.match(editor,/Accepted\. This is not yet verified as Live\./);
+ assert.match(editor,/Publication accepted\. Verification and publishing are in progress\./);
+ assert.match(editor,/actions\.replaceChildren\(button\('Exit'/);
  assert.match(editor,/Copy Changes/); // historic v2 remains for current public app
  assert.match(editor,/onPrepared\?\.\(receipt\)/);
 });
