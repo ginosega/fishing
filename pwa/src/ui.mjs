@@ -253,6 +253,8 @@ export function createApp(ctx){
   connection.title=network+' · Reading mode: '+(available?selected:'Checking');
   connection.setAttribute('aria-label','Connection status, '+
    network+', reading mode '+(available?selected:'checking'));
+  document.getElementById('connection-network').textContent=
+   network+' · Reading '+(available?selected:'Checking');
   if(feedback?.message)modeStatus.textContent=feedback.message;
   else if(!available)modeStatus.textContent=
    'Reading mode: Checking service worker… Retry reading controls if this persists.';
