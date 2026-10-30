@@ -48,7 +48,8 @@ export function parseMarkdown(text,{owner,maps,assetBase='https://example.invali
   }
   const missing=Boolean(resolved.local&&exists&&!exists.has(resolved.local));
   if(missing&&!allowMissing&&!(image&&allowMissingImages))throw new Error(`Missing Markdown resource: ${owner} -> ${resolved.local}`);
-  references.push({owner,kind:image?'image':'link',source:original,...resolved,missing});token.attrSet(attr,resolved.target);if(!image&&resolved.kind==='external'){token.attrSet('target','_blank');token.attrSet('rel','noopener noreferrer');}
+  references.push({owner,kind:image?'image':'link',source:original,...resolved,
+   ...(image&&missing&&allowMissingImages?{missing:true}:{})});token.attrSet(attr,resolved.target);if(!image&&resolved.kind==='external'){token.attrSet('target','_blank');token.attrSet('rel','noopener noreferrer');}
  }}
  walk(tokens);
  const headings=new Map();for(let i=0;i<tokens.length;i++)if(tokens[i].type==='heading_open'){
