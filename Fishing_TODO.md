@@ -1,5 +1,15 @@
 # Fishing TODO
 
+## October 29, 2026 — D5 Work Offline source PASS; Viewer/Diagnostics follow-up pending validation
+
+**Owner's Windows npm test at source `8bf524f326e1494711c3fa20016d045248c1013e`: 120/120 PASS, zero failures.** The D5 Work Offline source gate is validated across no-library rejection, persistent CacheStorage preference, no ordinary network in Work Offline, V2 mode isolation, and corrupt/quota rollback. D4 D1 read-only audit separately **PASSED** for #35 Live, #36 Failed, #37 Live. This does not substitute for installed Android V3 testing or separately verified hosted original-image bytes.
+
+**New D5 source on unmerged draft PR #263 (NOT YET RETESTED):** V3-only Markdown Picture Viewer for safe local inline images (using original bytes, native keyboard-open button, preserve linked images, inline missing-image fallback), Copy Diagnostics strict allowlist (no owner credentials/operation identifiers/drafts), and fail-closed offline preference revalidation before publishing. Explicit V3-only reading-mode flag now contributes to immutable release identity. Unit regressions D5-V01..V05 and D5-C01..C03 added; next validate all with a fresh exact-head Windows test. Follow-up: real V3 release-scope offline/Android acceptance, Connection Status polish and removable draft recovery evaluation; independent <=60-second public Save-to-Live gate remains open.
+
+**Public V2 untouched; no private D5 deployment, draft PR merge or production V3 cutover authorized.** [D4/D5 transition](experiments/p3/preview/D4_D5_Transition_2026-10-29.md) is the evidence checkpoint.
+
+---
+
 ## October 29, 2026 — V3 D5 verified offline-reading source checkpoint
 
 **D5 implementation underway, SOURCE ONLY — WINDOWS RETEST PENDING AND NOT DEPLOYED.** A Work Offline mode backed by the existing complete verified CacheStorage release has been added to the V3 code path, compiled **OFF by default** for all V2 builds. The separate `--v3-reading-mode` build option is for an eventual reviewed V3 candidate, not an authorization for production. Connection Status offers Automatic and Work Offline in V3 non-sandbox app mode, protects publishing and owner-status network polling while offline, and persists selection in service-worker metadata across restarts. Private sandbox pilot remains online-only.
