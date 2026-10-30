@@ -52,3 +52,9 @@ The first push-triggered isolated source CI run [#41009327363](https://github.co
 
 Instead of relaxing the required-check test or changing public `main`, the draft branch's entire production workflow was reconciled **verbatim** to the current protected `main` file, blob `40b71f3a5e7c4a0ec42eb434dbb8b9a12d74b580` (reconciled draft commit `a30e84fe9824a2165500dc535b0353f618ce4d4c`). This preserves the current `validate-docs` and `merge-ready` safeguards and avoids an accidental future downgrade by draft PR #263. No production workflow was edited on main, and no deploy ran. **A fresh exact-head CI result after this alignment is required before claiming the complete source suite PASS.**
 
+
+## Exact-source validation success — October 30 UTC
+
+**Full isolated push CI [#41009690121](https://github.com/ginosega/fishing/actions/runs/41009690121): SUCCESS**, exact tested draft source `fbfbf8c97f769eaeba4ff2ac0affdbc6b963d1a5`. The CI log confirms **136/136 PWA unit tests PASS**, including D5-RC01..05 and D5-RS01..02; **43/43 isolated broker tests PASS**; **760/760 private preview/P3 tests PASS**, including the previously failing P2P3-04 protected-workflow requirement. It also successfully built the candidate, validated all immutable manifest bytes using `tools/verify.mjs`, confirmed the isolated candidate release marker, bundled the D2/D3 backend source, ran CSP/Windows parsing/Cloudflare Wrangler **dry-run only**, and verified the generated pilot source. Prior run #41009327363's 759/760 result is superseded after the exact `main` production workflow was copied unchanged into the draft branch.
+
+**Acceptance status:** isolated candidate source/CI/build/byte-verification gate **PASS**, with no deployment. It is still **not** a browser/device or installed-Android acceptance. No hosted public V2, private Cloudflare runtime or production GitHub content changed. Subsequent documentation-only commits are not code-source retests.
