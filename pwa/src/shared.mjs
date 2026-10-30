@@ -133,4 +133,22 @@ export function internalLink(uri,maps) {
 }
 export function categoryFolder(domain,key) {const row=(domain==='gear'?GEAR_CATEGORIES:KB_TYPES).find(x=>x[0]===key);assert(row,`Unknown category: ${key}`);return (domain==='gear'?'Gear/':'KB/')+row[2];}
 export function suggestedFilename(name,ext='.md') {const text=name.normalize('NFC').replace(/[<>:"\\/|?*\x00-\x1f\x7f]/g,'').replace(/[. ]+$/,'').slice(0,175);return text+ext;}
-export function newId(name,existing) {const base=name.normalize('NFKD').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'item';let id=base;let n=2;while(existing.has(id))id=base+'-'+n++;return id;}
+export function newId(name,existing) {
+ assert(typeof name==='string'&&existing instanceof Set,'Invalid ID generation request');
+ // Generated IDs are canonical, URL-safe, <=160 chars, and collision-safe.
+ // Reserve room for the suffix before truncating long names.
+ const full=name.normalize('NFKD').toLowerCase()
+  .replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'item';
+ let n=1,id='';
+ do{
+  const suffix=n===1?'':'-'+n;
+  id=full.slice(0,160-suffix.length).replace(/-+$/,'')+suffix;
+  n++;
+ }while(existing.has(id));
+ return id;
+}
+export function suggestedItemId(domain,name,existing,{sandboxOnly=false}={}){
+ assert(['gear','kb'].includes(domain),'Automatic ID is only for Gear and Knowledge Base');
+ assert(typeof name==='string'&&existing instanceof Set,'Invalid generated ID');
+ return newId(sandboxOnly?'p3-'+name:name,existing);
+}
