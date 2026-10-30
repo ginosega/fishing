@@ -152,3 +152,15 @@ test('D4-UX13 changing new item Name after media selection recalculates image pa
  assert(editor.includes('record.picture.src=path;picturePathInput.value=path;'));
  assert(editor.includes('recalcSequencePaths();'));
 });
+test('D4-UX14 Catch detail displays owner-only Edit item before early return',()=>{
+ const ui=readFileSync(new URL('../src/ui.mjs',import.meta.url),'utf8');
+ const start=ui.indexOf("if(domain==='catches'){",ui.indexOf('async function renderDetail'));
+ const stop=ui.indexOf('appendPicture(page,record,domain);',start);
+ assert(start>=0&&stop>start);
+ const branch=ui.slice(start,stop);
+ assert.match(branch,/if\(v3Mode&&canAuthor\(\)\)/);
+ assert(branch.includes("page.append(anchor('Edit item',`#/catches/edit/${record.id}`,'page-edit-link'))"));
+ assert(branch.indexOf("page.append(anchor('Edit item'")<branch.lastIndexOf('return page;'));
+ assert(ui.includes("case 'catch-edit':page=await renderCatchEditor(route.id)"));
+ assert(ui.includes("if(!v3Mode||!canAuthor())return missing('Owner sign-in is required to edit Catches."));
+});
