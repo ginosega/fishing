@@ -7,10 +7,10 @@ test('D5-IND01 network green/yellow regardless of Work Offline selection',()=>{
  for(const readingMode of ['Automatic','Work Offline','Checking']){
   const online=connectionIndicator({online:true,readingMode});
   assert.equal(online.tone,'network');
-  assert.match(online.title,/^Online · Reading mode:/);
+  assert.equal(online.title,'Connection status: Online');
   const offline=connectionIndicator({online:false,readingMode});
   assert.equal(offline.tone,'network');
-  assert.match(offline.title,/^Offline · Reading mode:/);
+  assert.equal(offline.title,'Connection status: Offline');
  }
 });
 test('D5-IND02 each publication step turns blue and is the mouse hover title',()=>{
@@ -19,7 +19,7 @@ test('D5-IND02 each publication step turns blue and is the mouse hover title',()
   const d=connectionIndicator({online:false,authorized:true,
    publication,readingMode:'Work Offline'});
   assert.equal(d.tone,'publishing');
-  assert(d.title.startsWith('Publication: '+publication));
+  assert.equal(d.title,'Publishing: '+publication);
   assert(!d.title.includes('Work Offline'));
  }
 });
@@ -27,7 +27,7 @@ test('D5-IND03 transient GET failure never turns red or claims Live',()=>{
  const d=connectionIndicator({online:true,authorized:true,
   publication:'Checking',statusReadError:true});
  assert.equal(d.tone,'publishing');
- assert.match(d.title,/Latest status check unavailable/);
+ assert.equal(d.title,'Publishing: Checking');
 });
 test('D5-IND04 server terminal Failed/Conflict outrank network and reading',()=>{
  for(const publication of ['Failed','Conflict']){
@@ -35,7 +35,7 @@ test('D5-IND04 server terminal Failed/Conflict outrank network and reading',()=>
    const d=connectionIndicator({online,authorized:true,
     publication,readingMode:'Work Offline'});
    assert.equal(d.tone,'error');
-   assert.match(d.title,new RegExp('Publication '+publication));
+   assert.equal(d.title,'Publishing failed');
   }
  }
 });
@@ -59,5 +59,5 @@ test('D5-IND06 V2 CSS untouched; V3 publication precedence and hover wired',()=>
  assert.match(ui,/connection\.title=display\.title/);
  assert.match(ui,/connection\.dataset\.publicationIndicator=display\.tone/);
  assert.match(ui,/paintConnectionIndicator\(\)/);
- assert.match(ui,/ownerPanel\?\.paint\(\);\s*paintConnectionIndicator\(\)/);
+ assert.match(ui,/ownerPanel\?\.paint\(\);\s*connectionExperience\?\.paint\(\);\s*paintConnectionIndicator\(\)/);
 });
