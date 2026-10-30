@@ -378,6 +378,17 @@ export function createApp(ctx){
  if(ownerController)connectionExperience=mountV3ConnectionExperience({
   dialog:connectionDialog,controller:ownerController,documentObject:document,
  });
+ else if(v3Mode){
+  // The isolated read-only candidate has no owner session. Keep the exact
+  // six-section layout without inventing a working sign-in or publisher.
+  const close=document.getElementById('connection-close');
+  for(const [heading,description] of [
+   ['Account','Not signed in · Owner sign-in unavailable in this reader candidate.'],
+   ['Publishing Status','Sign in to view publishing status.']]){
+   connectionDialog.insertBefore(el('section',{class:'v3-connection-section'},
+    text('h3',heading),text('p',description,'hint')),close);
+  }
+ }
  if(ownerController&&v3Mode){
   // A durable Accepted receipt should update Connection Status immediately,
   // even if the editor is subsequently closed or navigated away from.
