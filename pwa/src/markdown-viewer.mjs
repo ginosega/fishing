@@ -24,7 +24,14 @@ export function bindMarkdownPictureViewer(article,{references,resolveAsset,openV
    img.replaceWith(fallback());return;
   }
   const source=resolveAsset(reference.local);
-  if(typeof source!=='string'||!/^https:\/\//.test(source))return;
+  // Candidate acceptance uses a loopback secure-context exception. Never
+  // permit plaintext remote images, even when the original Markdown target
+  // has been validated as a repository-local reference.
+  let url;
+  try{url=new URL(source);}catch{return;}
+  if(url.protocol!=='https:'&&!(url.protocol==='http:'&&
+    ['localhost','127.0.0.1','[::1]'].includes(url.hostname)))return;
+  if(url.username||url.password)return;
   // The private V3 sandbox serves immutable original bytes from the owner
   // asset endpoint, not an unrelated public V2 content release.
   img.src=source;
