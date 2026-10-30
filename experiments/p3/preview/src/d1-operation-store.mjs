@@ -344,7 +344,7 @@ export function createD1OperationStore({DB,ownerGitHubId,repositoryId=SANDBOX_ID
    name=String(species)+' · '+String(rec?.date||pkg.changes?.baseFields?.date||'Undated');
   }
   if(!name)name=typeof pkg.id==='string'?pkg.id:'Item';
-  name=name.slice(0,160).replace(/[\\x00-\\x1f\\x7f]/g,' ').trim();
+  name=name.slice(0,160).replace(/\p{Cc}/gu,' ').trim();
   const time=Number.isSafeInteger(row.updated_at)&&row.updated_at>0?
    row.updated_at:null;
   const reason=typeof row.reason_code==='string'&&
