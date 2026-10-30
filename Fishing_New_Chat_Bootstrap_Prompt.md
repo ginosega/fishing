@@ -1,3 +1,76 @@
+## AUTHORITATIVE FULL NEW-CHAT START — October 30, 2026 (Fishing V3 D4/D5; Edge acceptance pending)
+
+I am resuming my persistent **Fishing** project. **This is the full canonical project handoff, not a request to generate a shorter handoff.** I copy the **ENTIRE contents** of this file from GitHub `ginosega/fishing` **`main`** when transitioning chats. Read the whole prompt and five root documents, but treat this **October 30 checkpoint as authoritative**: any earlier “CURRENT,” “NEXT” or old planned-deployment instructions in the history below are superseded, not permissions to redo work. Use **Chat mode** by default, and proceed through routine approved engineering work with few interruptions.
+
+### Start with GitHub ground truth before acting
+
+Read the complete, current **`main`** versions, in this order: `README.md` → `Fishing_Context.md` → `Fishing_TODO.md` → `Fishing_Decision_Log.md` → this full `Fishing_New_Chat_Bootstrap_Prompt.md`. Then inspect the active development draft and its two evidence files; do not rely on old chat snippets or assume the GitHub branch remains at a past SHA. The last inspected public `main` before the documentation-only update was `a77e50f1fe296e3c16db18aa0fd5f9b17b7c95f4`; future documentation merges advance main without publishing the PWA. Re-query current branch heads and the actual hosted release rather than treating a `main` docs commit as a deployment.
+
+Current repositories and refs as observed during the October 30 handoff:
+- **Canonical public repo:** `ginosega/fishing`, branch `main`, https://ginosega.github.io/fishing/ is still **V2**. **No public V3 cutover or merge-to-main of application code authorized.** Draft [FISH118 PR #263](https://github.com/ginosega/fishing/pull/263), branch `feature/fish118-p3-mock-publisher`, most recent seen draft head `1933725237196c592a7451270fbc9df9fb828b72` (documentation-only after code). PR #263 is open/draft and currently marked **unmergeable against main**; don't resolve by accidentally bringing V3 source into public main. [AUTH-P0 draft PR #262](https://github.com/ginosega/fishing/pull/262) still open. Earlier unrelated PR #268 is **closed**.
+- **Private sandbox:** `ginosega/fishing-p3-sandbox`, last observed private main `c93da0a79ae37c243b6bd0f32f8cb9b484c5a40b`, isolated Cloudflare D1 `fishing-p3-sandbox`. Authenticated owner pilot Worker `fishing-auth-p0-test` is at `https://fishing-auth-p0-test.ginosega.workers.dev/__d3_pilot__/` with GitHub OAuth return through `/auth/start?return=%2F__d3_pilot__%2F`. The owner browser pilot is **outside** the public installed `/fishing/` PWA service-worker scope.
+- **Source CI confidence:** latest independently passed *application source* is `ff9dc182feb4e366ccad970a21955a79c313319e`, [isolated Actions run #41012355230](https://github.com/ginosega/fishing/actions/runs/41012355230). It reports **140/140 PWA, 43/43 broker, 760/760 private P3 test cases, isolated reader manifest/byte verification, and 4/4 real Chromium loopback acceptance tests**. Draft branch docs may be later; don't present source CI as exact-head validation of a later application change or as GitHub Pages/Cloudflare deployment.
+- **Source evidence:** [D4 receipts + D5 early implementation](https://github.com/ginosega/fishing/blob/feature/fish118-p3-mock-publisher/experiments/p3/preview/D4_D5_Transition_2026-10-29.md) and [D5 isolated V3 reader build, Edge field bugs and 4/4 real Chromium acceptance](https://github.com/ginosega/fishing/blob/feature/fish118-p3-mock-publisher/experiments/p3/preview/D5_Isolated_V3_Reader_Candidate_2026-10-29.md). Keep these linked to actual source branch, and never replace the complete root GitHub `main` files with the previously shortened copies from PR #263.
+
+### What has been accomplished — do not repeat already accepted publications
+
+**D1/D2:** approved V3 requirements, technical design, owner UX and finite **D1–D6** delivery stages; owner-gated private broker/D1/private GitHub App sandbox and initial source-verified Gear publication are established. No old P3 submilestone restart, no repeat D1 migrations, no manual state edits or rerunning a completed PR/merge to prove status. User preapproved routine interim GitHub workflows and tests; do not pause for each, but consequential new infrastructure, permissions, costs or production releases need separate explicit approval.
+
+**D3:** authenticated owner-only private Gear/KB sandbox authoring and Android Chrome **browser** pilot works, including owner-confirmed correction of the cross-device status message and Check publication status button. Gated approximately **five-second automatic read-only polling while visible/authorized/in-progress** is present in draft source, with terminal, hidden, offline/signout and duplicate-check safeguards; do not assume this precise UI revision has been privately deployed or installed-device accepted. An installed **Android Chrome V3 PWA** with the actual owner GitHub OAuth callback/return/session restoration/relaunch/logout remains **not accepted**. Anonymous/wrong-owner denial and reconnect edges still merit device proof.
+
+**D4:** user saw private sandbox **Catch Add PR #31, Gear picture Add PR #32, ordered two-image Knot sequence Add PR #34, Gear original-image Replace PR #35, Catch Edit PR #37** become sandbox Live. Independently observed read-only D1 audit `#35 Live / #36 Failed / #37 Live` matches provider PR/CI outcomes. Fabricated non-synthetic Catch Edit PR #36 failed CI and was never merged. Core D4 functional acceptance is supported; **not** independently done: direct GET original hosted-image bytes/hash proof, replacement of an *existing* Knot image sequence, interrupted media-upload negative real-device proof and applying deterministic small WebP thumbnails to *private* V3 cards. Public V2 already ships WebP card thumbnails; original detail pictures are preserved. No Catch photos per approved requirements.
+
+**Private performance:** PR #26 achieved a single owner **59-second Save→sandbox Live**, D1 **56-second Accepted→Live**. Do not claim repeated <=60-second behavior or public `V3-SAVE-09`. Public requirement remains **every routine text-only Gear/KB/Catch click→independent canonical GitHub-source/hosted-byte verified Live within 60 seconds**, without skipping CI, safety, merge proof or rollback. No public V3 cutover approved; private and public Live are distinct.
+
+**D5 source:** isolated V3 reader candidate is deliberately **read-only**: `/fishing/__v3_reader_candidate__/` with a separate scoped service worker/manifest/release hash and mandatory explicit `--v3-reader-candidate --v3-reading-mode` option. The ordinary V2 build does not switch to V3. Offline library is fully verified before persistent Work Offline, uses cache-only ordinary reads, no publication/polling, no silent network mixing; Automatic restores network. Local Markdown originals use Picture Viewer; allowlisted Copy Diagnostics never exposes session tokens, CSRF, owner IDs, operation IDs, draft text or private URLs. The reader candidate contains **no** owner OAuth/publisher/server write and is **not an integrated V3 owner PWA**.
+
+### CURRENT OWNER-BLOCKING FIELD TEST — Windows Edge
+
+The owner tested the local V3 reader candidate in Microsoft Edge and reported that:
+1. The `Reading mode` text was absent on initial Connection Status opening and after reload, appeared only following a mode-button click.
+2. The header connection dot stayed green after selecting Work Offline; the browser remained connected, but the **reading preference** was changed.
+3. Markdown pictures on **Knowledge Base → Locations → Banks Lake** and **Gear → Equipment → Garmin Force Current motor** did not open full Picture Viewer.
+
+The draft source was updated to show an initial `Reading mode: Checking service worker…` and repeat readback on dialog open, display the active source/release ID, distinguish network status from persistent reading mode, show a **blue header dot for Work Offline** (gray while unverified, green on online Automatic), and use canonical URL comparisons for validated Markdown images including space-encoded Garmin filenames. **Four real Chromium browser cases passed** at `ff9dc182...`: mode change and persistence, Banks Lake original Viewer, all three Garmin original images, and both articles' Viewer in Work Offline. **But the owner's updated Edge retest is STILL PENDING; the preceding Edge bugs must not be called fixed on the user's device merely because CI passed.**
+
+Critical stale-release detail: **Work Offline deliberately pins the previously verified entire cached release**, so rebuilding the candidate directory doesn't necessarily replace the running JS in a retained Edge context. To retest, ask owner to switch old candidate to Automatic if possible, close all Edge InPrivate windows, stop any older local server (Ctrl+C), then pull/build/verify/serve the new candidate on its own scoped localhost URL. Compare displayed source and release IDs. If still broken, request **Copy Diagnostics** (allowlisted), DOM/console error and exact mode state; don't just add speculative fixes or force-delete a potentially valuable real offline library.
+
+#### Known-good local-only source acceptance instructions (Windows, no deployment)
+
+PowerShell checkout is `$HOME\fishing-d2-deploy` on expected branch `feature/fish118-p3-mock-publisher`. Verify current branch and `git pull --ff-only`, then in `pwa` run:
+
+```powershell
+$ErrorActionPreference = 'Stop'
+Set-Location "$HOME\fishing-d2-deploy"
+if ((git branch --show-current).Trim() -ne 'feature/fish118-p3-mock-publisher') { throw 'Unexpected Git branch' }
+git pull --ff-only
+if ($LASTEXITCODE -ne 0) { throw 'Git pull failed' }
+Set-Location .\pwa
+$out = "$HOME\fishing-v3-reader-candidate"
+node .\tools\build.mjs --base=/fishing/__v3_reader_candidate__/ --v3-reading-mode --v3-reader-candidate --out="$out"
+if ($LASTEXITCODE -ne 0) { throw 'Reader build failed' }
+node .\tools\verify.mjs --out="$out"
+if ($LASTEXITCODE -ne 0) { throw 'Manifest/byte verification failed' }
+node .\tools\serve-v3-reader-candidate.mjs --out="$out"
+```
+
+Then open **a fresh Microsoft Edge InPrivate window** at `http://127.0.0.1:4173/fishing/__v3_reader_candidate__/`. This server is loopback-only and never hosts, uploads, publishes, or routes public Pages/Cloudflare bytes; stop with Ctrl+C. The `--out` directory is deliberately **not** ordinary `pwa/dist`. Test Connection Status initial and reload mode label, Automatic/Work Offline toggling, blue dot and independent browser-online text, both Markdown article viewers in Automatic and Work Offline, Copy Diagnostics, persisted release identity, and proper fail-closed offline behavior.
+
+### Next work after the owner Edge acceptance
+
+Finish D5 reader state/UX and errors on actual Edge with source IDs; then develop a strictly separated secure HTTPS/device candidate **only after approval of any new host/route or cost**. Complete installed Android PWA owner session/OAuth/scope/signout, multi-device negative/recovery cases and pending D4 bounded media/thumbnail/hash evidence. Consolidate D6 acceptance, stable repeated public canonical ≤60s publication proof and rollback. **Do not merge draft PR #263 into public main or deploy public V3 without a separate final approval.**
+
+### Handoff and working preferences
+
+- Read **all five full GitHub `main` root Markdown files**, not just summary headings. Use newer links and source logs over stale historical narrative. The V3 draft branch previously contained *shorter* and older root docs, so preserve the longer main canonical versions and reconcile any future source PR carefully. New chats paste the entire Bootstrap from main, not a concise surrogate. Do not overwrite main historical documentation with the draft's abbreviated copies.
+- Owner prefers progress through authorized steps without repeated approvals and no background promises. Unresolved material hosting, provider/payment/permissions/secret operations and public cutover remain consequential and require explicit approval. Do not reveal sensitive recovery bookmarks or ask for tokens in chat. Use Chat mode unless a genuinely necessary Work-only task.
+- No iPhone testing. Windows Edge/Chrome and Android Chrome/installed PWA are relevant. No Catch pictures; anonymous reading default; only owner signs in. Preserve editorial and design approvals, immutable source, verified thumbnails, full original images and minimal GitHub permissions. Protect dirty editors; no offline queued writes.
+- Continue non-PWA fishing tracks without silently closing them: Bonafide RVR119 under-seat tackle tray availability (FISH-TODO-008), KastKing box (014), Garmin Force Current + Redodo 24V 50Ah/40A protected kayak wiring and first on-water calibration/commissioning/storage foam (040), and existing tackle, waterbody, KB and gear maintenance TODOs. A reported wiring completion does not by itself prove motor commissioning.
+
+**Transition rule:** This is the authoritative current section. Older October 29/28/26/21 passages below remain complete historical evidence; don't resume their obsolete “next step,” and don't re-perform already signed-off source/CI or private GitHub writes without reason.
+
+---
+
 ## CURRENT NEW-CHAT START — October 29, 2026 (authoritative full Fishing handoff)
 
 You are resuming my **Fishing** project after the October 29 private Fishing Companion V3 performance sprint. **Use this ENTIRE prompt, including the older history below; do not reduce this to a short handoff.** All older October 28, October 26–27, October 21 and earlier sections lower in the file are historical and **must not override this October 29 checkpoint**, although their detailed background and approvals remain preserved. Before any action, read the *latest real GitHub `main`* versions of `README.md`, `Fishing_Context.md`, `Fishing_TODO.md`, `Fishing_Decision_Log.md` and this bootstrap; also read the still-open FISH118 branch and evidence. Do not restart completed P0/P3 or repeat prior user approvals.
