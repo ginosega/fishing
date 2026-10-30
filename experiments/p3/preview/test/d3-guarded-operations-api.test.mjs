@@ -219,3 +219,39 @@ test('D3-A09 lost 202 replays the original receipt WITHOUT revalidating moved so
   assert.equal(f.calls.writes,0);
   assert.equal(f.calls.authorizations,1);
 });
+
+test('D3-UX04 both latest and tracked operation GET return the owner-only durable display summary',async()=>{
+ const calls={summary:0,authorization:0};
+ const record={operationId:OP,state:'Live',verifiedReleaseId:'a'.repeat(32)};
+ const display={domain:'gear',action:'edit',itemName:'Garmin Force Current',
+  completedAt:1793360000,reasonCode:null};
+ const store={
+  accept:async()=>{throw Error('POST must not run');},
+  lookupReceipt:async()=>null,
+  latest:async()=>record,
+  get:async id=>id===OP?record:null,
+  summary:async id=>{calls.summary++;assert.equal(id,OP);return display;},
+ };
+ const session={
+  describe:async()=>({authenticated:true,authorized:true}),
+  authorizeWrite:async()=>{throw Error('POST must not run');},
+  authorizeStatus:async()=>{calls.authorization++;return {authorized:true,ownerGitHubId:OWNER};},
+ };
+ const api=createD3GuardedOperationsApi({session,store,enabled:()=>true,
+  validateCandidate:async()=>{throw Error('no writer');}});
+ for(const path of ['/api/v3/operations/latest','/api/v3/operations/'+OP]){
+  const response=await api.handle(new Request(origin+path,{method:'GET'}));
+  assert.equal(response.status,200);
+  const body=await response.json();
+  assert.deepEqual(body.operation.summary,display);
+  assert.equal(body.canonicalLive,false);
+ }
+ assert.equal(calls.summary,2);
+ assert.equal(calls.authorization,2);
+ const bad=createD3GuardedOperationsApi({
+  session:{...session,authorizeStatus:async()=>({authorized:false,ownerGitHubId:OWNER})},
+  store,enabled:()=>true,validateCandidate:async()=>{throw Error('no writer');},
+ });
+ assert.notEqual((await bad.handle(new Request(origin+'/api/v3/operations/latest'))).status,200);
+ assert.equal(calls.summary,2,'anonymous requests never read owner details');
+});
