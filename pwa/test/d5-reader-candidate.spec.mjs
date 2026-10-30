@@ -112,8 +112,8 @@ test('D5-browser cached Work Offline mode still opens Banks Lake and Garmin view
  await expect(page.locator('#offline-status'))
   .toHaveAttribute('data-state','Ready',{timeout:210000});
  await page.getByRole('button',{name:'Work Offline',exact:true}).click();
- await expect(page.locator('.offline-mode-select [role="status"]'))
-  .toContainText('Reading mode: Work Offline',{timeout:200000});
+ await expect(page.getByRole('button',{name:'Work Offline',exact:true}))
+  .toHaveAttribute('aria-pressed','true',{timeout:200000});
  await page.getByRole('button',{name:'Close'}).click();
  for(const [hash,count] of [
   ['#/kb/'+banks.id,2],
