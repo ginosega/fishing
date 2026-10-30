@@ -52,7 +52,8 @@ export function createApp(ctx){
  const guardedPublish=async(...args)=>{
   // A different tab may have switched the persisted SW reading preference.
   // Recheck it immediately before any owner publish request.
-  if(v3Mode&&!privatePilot)await offline?.refreshMode?.();
+  if(v3Mode&&!privatePilot&&await offline?.refreshMode?.()!==true)
+   throw new Error('Reading mode could not be verified. Publishing is paused; reopen Connection Status and retry.');
   if(workOffline())throw new Error('Work Offline is reading-only. Switch to Automatic in Connection Status before publishing.');
   if(!navigator.onLine)throw new Error('Reconnect to publish your changes.');
   return ctx.v3.publish(...args);
