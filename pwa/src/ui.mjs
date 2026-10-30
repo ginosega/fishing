@@ -5,6 +5,7 @@ import {parseMarkdown,sanitizeHtml,markdownRouteMap} from './markdown.mjs';
 import {createEditor} from './editor.mjs';
 import {createCatchEditor} from './catch-editor.mjs';
 import {openViewer,openSequenceViewer} from './viewer.mjs';
+import {bindMarkdownPictureViewer} from './markdown-viewer.mjs';
 import {createOffline} from './offline.mjs';
 import {createD3ConnectionController,mountD3ConnectionPanel} from './v3-connection.mjs';
 
@@ -89,7 +90,24 @@ export function createApp(ctx){
  }
  function missing(message,parent='#/'){const page=frame('Not found',parent);page.append(empty(message),anchor('Return to the parent page',parent));return page;}
  function appendPicture(page,record,domain){const pic=record.picture;if(!pic)return;const src=ctx.asset(pic.src),caption=pic.caption||'';const activate=record.pictureSequence?.length?()=>openSequenceViewer(record.pictureSequence.map(ctx.asset),record.name,caption):()=>openViewer(src,record.name,caption);page.append(picture(src,pic.caption||record.name,caption,activate));}
- async function markdownContent(owner,textValue){const parsed=parseMarkdown(textValue,{owner,maps:ctx.maps,assetBase:ctx.base,exists,pathRoutes:routes});const article=el('article',{class:'markdown-body'});article.innerHTML=sanitizeHtml(parsed.html,window);article.addEventListener('click',event=>{const a=event.target.closest('a[href^="#/"]');if(a){event.preventDefault();navigate(a.getAttribute('href'));}});return article;}
+ async function markdownContent(owner,textValue){
+  // V2 remains strict and unchanged; V3 readers preserve the containing
+  // article when a historical local image has been retired or is missing.
+  const parsed=parseMarkdown(textValue,{owner,maps:ctx.maps,assetBase:ctx.base,
+   exists,pathRoutes:routes,allowMissingImages:v3Mode});
+  const article=el('article',{class:'markdown-body'});
+  article.innerHTML=sanitizeHtml(parsed.html,window);
+  if(v3Mode)bindMarkdownPictureViewer(article,{
+   references:parsed.references,
+   resolveAsset:file=>ctx.asset(file),
+   openViewer,
+  });
+  article.addEventListener('click',event=>{
+   const a=event.target.closest('a[href^="#/"]');
+   if(a){event.preventDefault();navigate(a.getAttribute('href'));}
+  });
+  return article;
+ }
  async function appendMarkdown(page,pathValue,heading){
   if(!pathValue)return;
   let content;
