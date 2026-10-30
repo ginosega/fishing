@@ -37,44 +37,38 @@ test('D5-browser mode control responds after verified offline library preparatio
  await loaded(page);
  await page.getByRole('button',{name:'Connection status'}).click();
  const dialog=page.locator('#connection-dialog');
- await expect(dialog.locator('.offline-mode-select [role="status"]'))
-  .toContainText('Reading mode:');
+ await expect(dialog.getByRole('heading',{name:'Mode'})).toBeVisible();
  const auto=dialog.getByRole('button',{name:'Automatic',exact:true});
  const work=dialog.getByRole('button',{name:'Work Offline',exact:true});
  await expect(auto).toBeEnabled({timeout:20000});
  await expect(work).toBeEnabled();
- await expect(dialog.locator('.offline-mode-select [role="status"]'))
-  .toContainText('Reading mode: Automatic');
- await dialog.getByRole('button',{name:'Update offline library'}).click();
+ await expect(auto).toHaveAttribute('aria-pressed','true');
+ await dialog.getByRole('button',{name:'Update',exact:true}).click();
  await expect(page.locator('#offline-status'))
   .toHaveAttribute('data-state','Ready',{timeout:210000});
  await expect(work).toBeEnabled();
  await work.click();
- await expect(dialog.locator('.offline-mode-select [role="status"]'))
-  .toContainText('Reading mode: Work Offline',{timeout:200000});
+ await expect(work).toHaveAttribute('aria-pressed','true',{timeout:200000});
  await expect(work).toHaveAttribute('aria-pressed','true');
  await expect(page.locator('#connection-status')).toHaveAttribute(
   'data-reading-mode','work-offline');
  await expect(page.locator('#connection-status')).toHaveAttribute(
   'data-publication-indicator','network');
  await expect(page.locator('#connection-status')).toHaveAttribute(
-  'title',/Online.*Reading mode: Work Offline/);
- await expect(page.locator('#connection-network'))
-  .toContainText('Reading Work Offline');
+  'title','Connection status: Online');
+ await expect(page.locator('#connection-network')).toHaveText('Online');
  await dialog.getByRole('button',{name:'Close'}).click();
  await page.reload();
  await expect.poll(()=>page.evaluate(()=>globalThis.__FISHING_V2__?.releaseId),
   {timeout:45000}).toBe(pointer.id);
  await page.getByRole('button',{name:'Connection status'}).click();
- await expect(page.locator('.offline-mode-select [role="status"]'))
-  .toContainText('Reading mode:',{timeout:2000});
- await expect(page.locator('.offline-mode-select [role="status"]'))
-  .toContainText('Reading mode: Work Offline',{timeout:20000});
+ await expect(page.getByRole('button',{name:'Work Offline',exact:true}))
+  .toHaveAttribute('aria-pressed','true',{timeout:20000});
  await expect(page.locator('#connection-status')).toHaveAttribute(
   'data-reading-mode','work-offline');
  await page.getByRole('button',{name:'Automatic',exact:true}).click();
- await expect(page.locator('.offline-mode-select [role="status"]'))
-  .toContainText('Reading mode: Automatic',{timeout:20000});
+ await expect(page.getByRole('button',{name:'Automatic',exact:true}))
+  .toHaveAttribute('aria-pressed','true',{timeout:20000});
  await expect(page.locator('#connection-status')).toHaveAttribute(
   'data-reading-mode','automatic');
  expect(jsErrors).toEqual([]);
@@ -114,7 +108,7 @@ test('D5-browser cached Work Offline mode still opens Banks Lake and Garmin view
  await loaded(page);
  await page.getByRole('button',{name:'Connection status'}).click();
  await expect(page.getByRole('button',{name:'Work Offline'})).toBeEnabled();
- await page.getByRole('button',{name:'Update offline library'}).click();
+ await page.getByRole('button',{name:'Update',exact:true}).click();
  await expect(page.locator('#offline-status'))
   .toHaveAttribute('data-state','Ready',{timeout:210000});
  await page.getByRole('button',{name:'Work Offline',exact:true}).click();
