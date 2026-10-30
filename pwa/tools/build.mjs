@@ -17,6 +17,8 @@ if(!base.startsWith('/')||!base.endsWith('/')||base.includes('..')||base.include
 const pendingMedia=args.includes('--pending-media');
 // Prototype toggle. Both variants remain isolated on the unmerged PR.
 const cardThumbnails=!args.includes('--without-card-thumbnails');
+// V3-only SW candidate. Ordinary public V2 remains online-first.
+const v3ReadingMode=args.includes('--v3-reading-mode');
 if(pendingMedia&&base!=='/fishing/v2-preview/')throw new Error('Pending media may only be built for the isolated preview');
 const source=path.resolve(option('--source',path.join(repo,'pwa'))),output=path.resolve(option('--out',path.join(repo,'pwa/dist')));
 const sourceRevision=option('--source-revision',(()=>{try{return execFileSync('git',['rev-parse','HEAD'],{cwd:source,encoding:'utf8'}).trim();}catch{return 'uncommitted-source';}})());
@@ -51,7 +53,8 @@ export async function build(){
   await write(path.join(tmp,'index.html'),index);await write(path.join(tmp,'loader.js'),loader);
   await write(path.join(tmp,'manifest.webmanifest'),stableJson({name:'Fishing Companion',short_name:'Fishing',description:'Fishing reference and catch log',start_url:'./',scope:'./',display:'standalone',background_color:'#101b18',theme_color:'#11665c',icons:[{src:'./icon.png',sizes:`${iconMeta.width}x${iconMeta.height}`,type:'image/png',purpose:'any'},{src:'./icon-maskable.png',sizes:`${iconMeta.width}x${iconMeta.height}`,type:'image/png',purpose:'maskable'}]}));
   await write(path.join(tmp,'icon.png'),icon);await write(path.join(tmp,'icon-maskable.png'),maskableIcon);
-  const sw=await esbuild.build({entryPoints:[path.join(repo,'pwa/src/sw.mjs')],bundle:true,format:'iife',platform:'browser',target:'es2022',minify:true,write:false});
+  const sw=await esbuild.build({entryPoints:[path.join(repo,'pwa/src/sw.mjs')],bundle:true,format:'iife',platform:'browser',target:'es2022',minify:true,write:false,
+   define:{__FISHING_V3_READING_MODE__:v3ReadingMode?'true':'false'}});
   await write(path.join(tmp,'sw.js'),sw.outputFiles[0].contents);
   const files=(await hashFiles(tmp)).filter(x=>x.path!==release.manifest&&x.path!=='release.json');
   const manifest={format:'fishing-companion-release-v2',releaseId,sourceRevision,schemaVersions:release.schemaVersions,pendingMedia,base,files,cardThumbnails:thumbs?.mapping||null,totalBytes:files.reduce((sum,x)=>sum+x.bytes,0),counts:{gear:library.data.gear.items.length,kb:library.data.kb.entities.length,catches:library.data.catches.catches.length},unresolvedMedia:library.pending};
