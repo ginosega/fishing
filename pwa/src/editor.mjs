@@ -79,7 +79,7 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
  // Published IDs remain stable so links, Catches and media paths do not break.
  const idInput=input(record.id,{required:true,maxlength:160,readonly:true});
  const nameField=requiredControl('Name','name');
- form.append(nameField,field(editing?'ID (fixed after publication)':
+ form.append(nameField,field(editing?'ID':
   'ID (generated automatically)',idInput));
  const categoryControls=el('div',{class:'form-grid'});let typeSelect=null;
  if(domain==='gear'){
