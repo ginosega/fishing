@@ -92,6 +92,7 @@ export function createD3PublicationLifecycle({
   publicLive:report?.publicLive===true,
   sandboxVerified:report?.sandboxVerified===true,
   state:report?.state??null,
+  summary:report?.summary??null,
  });
  const storeReceipt=id=>{
   if(storage===null)return false;
