@@ -13,8 +13,8 @@ export class D3ConnectionError extends Error{
 const fail=code=>{throw new D3ConnectionError(code);};
 const need=(x,code)=>{if(!x)fail(code);};
 const initial=()=>({
- authenticated:false,authorized:false,phase:'Unverified',
- operationId:null,publication:'None',sandboxVerified:false,
+ authenticated:false,authorized:false,ownerLogin:null,phase:'Unverified',
+ operationId:null,publication:'None',summary:null,sandboxVerified:false,
  publicLive:false,statusReadError:false,
 });
 export function createD3ConnectionController({
@@ -54,7 +54,11 @@ export function createD3ConnectionController({
   if(!valid){state={...initial(),phase:'Unavailable'};emit();
    return current();}
   state={...initial(),authenticated:reply.authenticated,
-   authorized:reply.authorized,phase:reply.authorized?'Owner':'Anonymous'};
+   authorized:reply.authorized,
+   ownerLogin:reply.authorized&&typeof reply.ownerLogin==='string'&&
+    /^[a-zA-Z0-9-]{1,39}$/.test(reply.ownerLogin)?
+    reply.ownerLogin:null,
+   phase:reply.authorized?'Owner':'Anonymous'};
   emit();
   return current();
  }
@@ -108,6 +112,7 @@ export function createD3ConnectionController({
      'STATUS_UNTRUSTED');
     replace({...state,operationId:result.operationId,
      publication:result.operationId?result.phase:'None',
+     summary:result.summary??null,
      sandboxVerified:result.sandboxVerified===true,
      publicLive:false,statusReadError:false});
     return current();
@@ -159,7 +164,7 @@ export function createD3ConnectionController({
    typeof lifecycle.forgetCompleted==='function',
    'TERMINAL_FAILURE_REQUIRED');
   lifecycle.forgetCompleted(); // Only after server-confirmed terminal status.
-  replace({...state,publication:'None',operationId:null,
+  replace({...state,publication:'Cleared',operationId:null,
    sandboxVerified:false,statusReadError:false});
   return current();
  }
