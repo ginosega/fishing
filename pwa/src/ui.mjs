@@ -47,7 +47,10 @@ export function createApp(ctx){
   offline?.getMode?.()==='Work Offline';
  const canAuthor=()=>!v3Mode||(ctx.v3?.authorized===true&&
   typeof ctx.v3?.publish==='function'&&!workOffline());
- const guardedPublish=(...args)=>{
+ const guardedPublish=async(...args)=>{
+  // A different tab may have switched the persisted SW reading preference.
+  // Recheck it immediately before any owner publish request.
+  if(v3Mode&&!privatePilot)await offline?.refreshMode?.();
   if(workOffline())throw new Error('Work Offline is reading-only. Switch to Automatic in Connection Status before publishing.');
   if(!navigator.onLine)throw new Error('Reconnect to publish your changes.');
   return ctx.v3.publish(...args);
