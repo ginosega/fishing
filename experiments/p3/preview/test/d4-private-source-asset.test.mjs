@@ -17,13 +17,13 @@ const entry={path:FILE,type:'blob',mode:'100644',
  size:BYTES.length,sha:SHA};
 const blob={sha:SHA,encoding:'base64',size:BYTES.length,content:CONTENT};
 function setup({enabled=true,owner=true,revision=MAIN,referenced=true,
- sha=SHA}={}){
+ sha=SHA,assetPath=PATH}={}){
  const hits=[];
  const source={
   repositoryId:ID,sourceRevision:MAIN,treeSha:TREE,
-  files:new Set([PATH]),blobHashes:new Map([[FILE,sha]]),
+  files:new Set([assetPath]),blobHashes:new Map([['pwa/'+assetPath,sha]]),
   data:{
-   gear:{items:referenced?[{id:'synthetic',picture:{src:PATH}}]:[]},
+   gear:{items:referenced?[{id:'synthetic',picture:{src:assetPath}}]:[]},
    kb:{entities:[]},catches:{catches:[]},
   },
  };
@@ -37,7 +37,7 @@ function setup({enabled=true,owner=true,revision=MAIN,referenced=true,
   requestGitHub:async(url,options)=>{
    hits.push({url,method:options.method});
    if(url.endsWith('/git/trees/'+TREE+'?recursive=1'))
-    return new Response(JSON.stringify({sha:TREE,truncated:false,tree:[entry]}));
+    return new Response(JSON.stringify({sha:TREE,truncated:false,tree:[{...entry,path:'pwa/'+assetPath}]}));
    if(url.endsWith('/git/blobs/'+SHA))
     return new Response(JSON.stringify(blob));
    if(url.endsWith('/git/ref/heads/main'))
@@ -45,7 +45,8 @@ function setup({enabled=true,owner=true,revision=MAIN,referenced=true,
    throw Error('unexpected GitHub route');
   },
  });
- const request=new Request(ORIGIN+'/api/v3/assets/'+PATH+
+ const request=new Request(ORIGIN+'/api/v3/assets/'+
+  assetPath.split('/').map(encodeURIComponent).join('/')+
   '?revision='+revision);
  return {route,request,hits};
 }
@@ -84,4 +85,31 @@ test('D4-A04 image changing after tree read is denied, never served from stale m
  assert.equal((await x.route.serve(bearer)).status,404);
  const wrongQuery=new Request(x.request.url+'&extra=1');
  assert.equal((await x.route.serve(wrongQuery)).status,404);
+});
+
+test('D4-A05 original filename with spaces is served through canonical %20 URL',async()=>{
+ const x=setup({assetPath:'Gear/Rods-Reels/assets/Vision TEST.jpg'});
+ assert.match(x.request.url,/Vision%20TEST\.jpg/);
+ const r=await x.route.serve(x.request);
+ assert.equal(r.status,200,'Existing Vision TEST.jpg must NOT 404');
+ assert.deepEqual(new Uint8Array(await r.arrayBuffer()),BYTES);
+ assert.equal(x.hits.length,3);
+});
+test('D4-A06 safe percent, parentheses and Unicode encoded filenames round-trip',async()=>{
+ for(const name of ['Test (Rod) %25.jpg','Résumé rod.jpg']){
+  const x=setup({assetPath:'Gear/Rods-Reels/assets/'+name});
+  assert.equal((await x.route.serve(x.request)).status,200,name);
+ }
+});
+test('D4-A07 malformed encoded filename and encoded traversal fail closed',async()=>{
+ const x=setup({assetPath:'Gear/Rods-Reels/assets/Vision TEST.jpg'});
+ for(const path of [
+  'Gear/Rods-Reels/assets/Vision%2520TEST.jpg',
+  'Gear/Rods-Reels/assets/Vision%2FTEST.jpg',
+  'Gear/Rods-Reels/assets/%25ZZ.jpg',
+  'Gear/Rods-Reels/assets/Vision%20TEST%2Ejpg',
+ ]){
+  const request=new Request(ORIGIN+'/api/v3/assets/'+path+'?revision='+MAIN);
+  assert.equal((await x.route.serve(request)).status,404,path);
+ }
 });
