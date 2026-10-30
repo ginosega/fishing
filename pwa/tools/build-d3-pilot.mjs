@@ -59,8 +59,15 @@ async function main(){
  // The private pilot uses the exact V3 CSS accepted in the local reader,
  // never the stale public V2 stylesheet. Both bundles are owner-only,
  // independently checksum pinned and served under strict CSP.
- const cssBytes=await fs.readFile(cssSource);
- const cssText=safeUtf8(cssBytes);
+ const cssText=safeUtf8(await fs.readFile(cssSource));
+ // Normalize checkout line endings before hashing the privately bundled CSS.
+ // In particular, a Windows CRLF checkout must match the CI LF digest.
+ const canonicalCss=cssText.replace(/\r\n/g,'\n');
+ const simulateWindows=process.argv.includes('--simulate-windows-eol');
+ if(simulateWindows&&canonicalCss.replace(/\n/g,'\r\n')
+  .replace(/\r\n/g,'\n')!==canonicalCss)
+  throw Error('CRLF private CSS round-trip changed canonical content');
+ const cssBytes=new TextEncoder().encode(canonicalCss);
  if(cssBytes.length<1024||cssBytes.length>160*1024||
   !cssText.includes('v3-connection-dialog')||
   !cssText.includes('data-publication-indicator'))
@@ -82,7 +89,8 @@ async function main(){
    check.cssSha256!==sha256(cssObserved))
    throw Error('Generated manifest failed readback');
  }
- process.stdout.write(JSON.stringify(metadata)+'\n');
+ process.stdout.write(JSON.stringify(simulateWindows?
+  {...metadata,simulatedWindowsEol:true}:metadata)+'\n');
 }
 main().catch(error=>{
  console.error('D3_PILOT_BUILD_FAILED',error.message);
