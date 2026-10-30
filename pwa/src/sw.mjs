@@ -168,7 +168,10 @@ self.addEventListener('message',event=>{
   readingMode().then(mode=>event.ports[0]?.postMessage({
    type:'FISHING_V3_MODE',mode,available:true})));
  if(message.type==='V3_SET_MODE'&&v3ReadingMode)event.waitUntil(
-  setReadingMode(message.mode).then(result=>event.ports[0]?.postMessage({
+  setReadingMode(message.mode).catch(async()=>({
+   mode:await readingMode(),available:true,
+   error:'The offline library could not be verified. Previous mode retained.',
+  })).then(result=>event.ports[0]?.postMessage({
    type:'FISHING_V3_MODE',...result})));
  if(message.type==='CHECK_CURRENT')event.waitUntil(readingMode().then(mode=>
   mode==='Work Offline'?null:loadOnlineContext().then(context=>context.pointer.id)
