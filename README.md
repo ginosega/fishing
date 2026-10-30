@@ -1,5 +1,15 @@
 # Fishing
 
+## October 30 owner follow-up — D5 Edge PASS and new publishing-indicator UX
+
+**This entry supersedes only the October 30 "Edge retest pending" statement above.** The owner **confirmed real Windows Edge acceptance PASS** for reading-mode text, Connection Status, Banks Lake and Garmin motor Markdown Picture Viewer. No new chat handoff is requested.
+
+New owner UX decision: Connection Status **green when browser online, yellow when browser offline** regardless of Automatic/Work Offline selection; **blue** only while an owner publication is actively Submitting/Accepted/Validating/Checking/Merging/Deploying/Verifying with the *current publishing step* shown on mouse hover; **red** on server-confirmed Failed/Conflict, remaining red through transient status-read errors until explicit owner acknowledgement/clear, then network color or blue on a new accepted operation. A status GET timeout is not a Failed publication. V2 colors remain unchanged. The draft V3 source is updated; **no private Worker, installed owner PWA, or public V3 deployment/field acceptance is claimed for the new colors**.
+
+[Exact-source isolated CI #41067354331](https://github.com/ginosega/fishing/actions/runs/41067354331) **SUCCESS** at `268018e65a0b6e786c21e9ec1027b12d1b46ec8f`: **154/154 PWA**, **760/760 private P3**, **43/43 broker** tests, **4/4 real Chromium** local reader cases and immutable isolated candidate verification. The app can check status, explicitly acknowledge a confirmed failed operation, correct content and submit a fresh attempt; acknowledgement **does not fix GitHub CI/server errors** and there is no automatic repeat of an ambiguous submission. See Decision Log and TODO. Draft [PR #263](https://github.com/ginosega/fishing/pull/263) remains unmerged; public V2 remains live.
+
+---
+
 ## AUTHORITATIVE current checkpoint — October 30, 2026 (Fishing Companion V3 D4/D5 and Edge reader retest)
 
 **This October 30 checkpoint supersedes earlier dated “current” and “next action” passages below, without deleting their project history.** The five full canonical handoff documents live on GitHub `main`: `README.md`, `Fishing_Context.md`, `Fishing_TODO.md`, `Fishing_Decision_Log.md`, and `Fishing_New_Chat_Bootstrap_Prompt.md`. At the October 30 source audit `main` was `a77e50f1fe296e3c16db18aa0fd5f9b17b7c95f4`; a documentation-only merge may advance it. Always query fresh GitHub refs before any operation.
