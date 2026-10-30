@@ -45,3 +45,10 @@ A future secure-origin, isolated-scope **device test hosting** decision and prop
 6. Run D6 signed-off requirement traceability, rollback and true public <=60-second canonical publication checks before any separately authorized V3 production cutover.
 
 D4 separate direct hosted original-image byte audit and Knot-sequence replacement/interrupted upload remain documented limitations; do not manufacture new publisher writes just to repeat previous success.
+
+## Source-CI baseline reconciliation — October 29 late
+
+The first push-triggered isolated source CI run [#41009327363](https://github.com/ginosega/fishing/actions/runs/41009327363) passed canonical PWA tests, built and byte-verified the independent candidate, passed the standalone broker, D2/D3 bundle/CSP/Wrangler dry-run, and Windows-script parsing. Its final 760-case legacy P3 preview suite reported **759 PASS / 1 FAIL**: `P2P3-04` checked that `.github/workflows/fishing-production.yml` retains `merge-ready`, but the experimental draft branch held an outdated file missing that job. No user-facing candidate failure was implicated.
+
+Instead of relaxing the required-check test or changing public `main`, the draft branch's entire production workflow was reconciled **verbatim** to the current protected `main` file, blob `40b71f3a5e7c4a0ec42eb434dbb8b9a12d74b580` (reconciled draft commit `a30e84fe9824a2165500dc535b0353f618ce4d4c`). This preserves the current `validate-docs` and `merge-ready` safeguards and avoids an accidental future downgrade by draft PR #263. No production workflow was edited on main, and no deploy ran. **A fresh exact-head CI result after this alignment is required before claiming the complete source suite PASS.**
+
