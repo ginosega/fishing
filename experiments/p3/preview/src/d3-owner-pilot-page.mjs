@@ -8,10 +8,12 @@
  */
 export const D3_OWNER_PILOT_PATH='/__d3_pilot__/';
 export const D3_OWNER_PILOT_SCRIPT='/__d3_pilot__/pilot.js';
+export const D3_OWNER_PILOT_STYLE='/__d3_pilot__/pilot.css';
 // Future gated owner-only path inside the installed /fishing/ PWA scope.
 // Not active on public V2; the V3 service worker must explicitly network-pass it.
 export const D3_SCOPED_PILOT_PATH='/fishing/__d3_pilot__/';
 export const D3_SCOPED_PILOT_SCRIPT='/fishing/__d3_pilot__/pilot.js';
+export const D3_SCOPED_PILOT_STYLE='/fishing/__d3_pilot__/pilot.css';
 export const D3_OWNER_PILOT_HTML=String.raw`<!doctype html>
 <html lang="en">
 <head>
@@ -20,6 +22,7 @@ export const D3_OWNER_PILOT_HTML=String.raw`<!doctype html>
 <meta name="theme-color" content="#11665c">
 <meta name="robots" content="noindex,nofollow,noarchive">
 <title>Fishing Companion · Private Sandbox Test</title>
+<link rel="stylesheet" href="/__d3_pilot__/pilot.css">
 <script defer src="/__d3_pilot__/pilot.js"></script>
 </head>
 <body>
@@ -59,10 +62,18 @@ export const D3_OWNER_PILOT_HTML=String.raw`<!doctype html>
 </html>`;
 
 // Exact trusted template selection; never construct a script URL from input.
-export function d3PilotHtmlForPath(path){
- if(path===D3_OWNER_PILOT_PATH)return D3_OWNER_PILOT_HTML;
- if(path===D3_SCOPED_PILOT_PATH)return D3_OWNER_PILOT_HTML.replace(
-  'src="'+D3_OWNER_PILOT_SCRIPT+'"',
-  'src="'+D3_SCOPED_PILOT_SCRIPT+'"');
- throw Error('Unrecognized private owner pilot path');
+export function d3PilotHtmlForPath(path,{withCss=true}={}){
+ let html;
+ if(path===D3_OWNER_PILOT_PATH)html=D3_OWNER_PILOT_HTML;
+ else if(path===D3_SCOPED_PILOT_PATH)html=D3_OWNER_PILOT_HTML
+  .replace('src="'+D3_OWNER_PILOT_SCRIPT+'"',
+   'src="'+D3_SCOPED_PILOT_SCRIPT+'"')
+  .replace('href="'+D3_OWNER_PILOT_STYLE+'"',
+   'href="'+D3_SCOPED_PILOT_STYLE+'"');
+ else throw Error('Unrecognized private owner pilot path');
+ // Legacy source-only fixtures have no CSS asset; the deployed runtime
+ // always binds the pinned stylesheet and never uses this fallback.
+ return withCss?html:html.replace(
+  '<link rel="stylesheet" href="'+(path===D3_OWNER_PILOT_PATH?
+   D3_OWNER_PILOT_STYLE:D3_SCOPED_PILOT_STYLE)+'">','');
 }
