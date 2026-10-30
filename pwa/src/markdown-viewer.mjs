@@ -3,13 +3,13 @@
 // This module never loads arbitrary URLs or invents missing source references.
 export function bindMarkdownPictureViewer(article,{references,resolveAsset,openViewer}){
  const images=[...article.querySelectorAll('img')];
- const allowed=references.filter(ref=>ref.kind==='image');
+ const allowed=references.filter(ref=>ref.isImage===true);
  // Fail closed if sanitized DOM no longer matches the validated Markdown
  // image sequence; V2 keeps its old unchanged rendered Markdown.
  if(images.length!==allowed.length)return false;
  images.forEach((img,index)=>{
   const reference=allowed[index];
-  if(reference.kind!=='image'||reference.local==null)return;
+  if(reference.isImage!==true||reference.kind!=='local'||reference.local==null)return;
   if(img.src!==reference.target)return;
   const alt=img.getAttribute('alt')||'Picture';
   const caption=img.getAttribute('title')||'';
