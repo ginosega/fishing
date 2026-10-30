@@ -140,6 +140,9 @@ export function createD2UnifiedOwnerSession({AUTH_DB,ownerGitHubId,origin,csrfKe
   const session=await identity(request);
   if(!session)return Object.freeze({authenticated:false,authorized:false});
   return Object.freeze({authenticated:true,authorized:true,
+   // This login is a server-configured label for the exact authenticated
+   // OWNER_GITHUB_ID, never a browser claim or an email address.
+   ownerLogin:ownerGitHubId===265665562?'ginosega':null,
    csrfToken:await csrfFor(session),expiresAt:session.expiresAt});
  }
  return Object.freeze({describe,authorizeWrite,authorizeMedia,authorizeStatus,authorizePilotPage});
