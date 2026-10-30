@@ -128,9 +128,16 @@ export function createD3ConnectionController({
       const known=state.operationId===id&&ACTIVE.has(state.publication)?
        state.publication:null;
       const pending=known??accepted;
+      // A transient error must never erase a previously verified terminal
+      // failure. Only owner acknowledgement or a verified new operation
+      // clears a Failed/Conflict indicator; status lookup errors do not.
+      const terminal=state.operationId===id&&
+       ['Failed','Conflict'].includes(state.publication);
       replace({...state,operationId:pending?id:state.operationId,
-       publication:pending??(silent?state.publication:'Unknown'),
-       sandboxVerified:pending?false:(silent?state.sandboxVerified:false),
+       publication:terminal?state.publication:
+        pending??(silent?state.publication:'Unknown'),
+       sandboxVerified:terminal?state.sandboxVerified:
+        pending?false:(silent?state.sandboxVerified:false),
        publicLive:false,statusReadError:true});
      }
     }
