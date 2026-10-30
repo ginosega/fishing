@@ -42,7 +42,9 @@ test('D5-C02 untrusted diagnostic fields are rejected, not interpolated',()=>{
 });
 test('D5-C03 diagnostics UI is V3-only and never serializes owner operations or drafts',()=>{
  const ui=readFileSync(new URL('../src/ui.mjs',import.meta.url),'utf8');
- assert.match(ui,/if\(v3Mode\)\s*\{\s*const details=el\('div',\{class:'diagnostics-panel'\}\)/);
+ assert.match(ui,/if\(v3Mode\)\s*\{/);
+ assert.match(ui,/el\('details',\{class:'v3-connection-help diagnostics-panel'\}/);
+ assert.match(ui,/connectionDialog\.insertBefore\(details,document\.getElementById\('connection-close'\)\)/);
  assert(ui.includes("button('Copy diagnostics'"));
  assert(ui.includes('formatV3Diagnostics({'));
  assert(ui.includes('publicationState:ownerController?.current()?.publication'));
