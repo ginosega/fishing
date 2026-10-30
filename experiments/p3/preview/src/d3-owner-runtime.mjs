@@ -13,14 +13,19 @@
  * until a separately authorized version-locked deployment.
  */
 import pilotSource from './generated/d3-pilot.bundle.txt';
+import pilotStyle from './generated/d3-pilot.css.txt';
 import {createD3LiveOwnerWorker} from './d3-live-owner-worker.mjs';
 import {createD3GatedAuthGateway} from './d3-gated-auth-gateway.mjs';
 
 const bytes=new TextEncoder().encode(pilotSource);
+const cssBytes=new TextEncoder().encode(pilotStyle);
 if(bytes.length<1024||bytes.length>3*1024*1024)
  throw Error('D3 pilot bundle missing or too large');
+if(cssBytes.length<1024||cssBytes.length>160*1024)
+ throw Error('D3 private stylesheet missing or too large');
 const route=createD3GatedAuthGateway({
  readPilotBundle:async()=>new Uint8Array(bytes),
+ readPilotStylesheet:async()=>new Uint8Array(cssBytes),
 });
 export default createD3LiveOwnerWorker({route});
 
