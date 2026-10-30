@@ -1,5 +1,13 @@
 # Fishing TODO
 
+## October 29/30 — D5 isolated V3 reader candidate source assembled; validation pending
+
+**Source-only feature on draft PR #263.** Added explicitly isolated `/fishing/__v3_reader_candidate__/` candidate with its own manifest/SW scope and read-only V3 UI, retaining original V2 `bootstrap(settings)` when the candidate flag is off. The optional `--v3-reader-candidate` flag requires `--v3-reading-mode`, exact isolated base and distinct output. Candidate enables existing D5 Automatic/Work Offline, Markdown Picture Viewer and Copy Diagnostics but has **no owner auth, sandbox source, publishing, media staging, GitHub writes or Cloudflare route**. Source regressions D5-RC01..05 added; isolated CI configured for candidate build plus manifest/byte verification. **New CI and Windows candidate build outcomes are NOT YET VERIFIED**; last completed owner's unrelated source validation remains 129/129 PASS at `57a5984`.
+
+**Next:** exact-head `npm.cmd test` plus candidate build/`verify.mjs` on Windows or fresh isolated CI; then independently scoped HTTPS/installed Android reader test (requires distinct hosting approval/control and may not reuse V2's /fishing/ SW). Integrating owner OAuth/session/publishing inside a proper installed V3 app, and public <=60s Save-to-Live, remain independent pre-D6 blockers. The candidate is deliberately not a full V3 owner PWA or production cutover. [Detailed scope and acceptance](experiments/p3/preview/D5_Isolated_V3_Reader_Candidate_2026-10-29.md).
+
+---
+
 ## October 29 late (October 30 UTC) — D5 Viewer/Diagnostics Windows source PASS
 
 **Owner exact-source Windows test: PASS 129/129, zero failures, zero skipped** on V3 draft head `57a598453a97cd28ee11e45b77f475b8098e30b1`. User ran `git pull --ff-only`, verified the full expected commit SHA, and executed `npm.cmd test` from `pwa`. The prior 123/128 five-failure run is **superseded**: D5-V01..V06 all pass, D5-C01..C03 all pass, D5-O01..O04 all pass, and existing release/media/owner lifecycle regressions remain green. This **closes D5 Picture Viewer and Copy Diagnostics Windows source-validation** at the tested source revision (as well as the prior D5 Work Offline source gate). It is **not** an independent GitHub Actions full-suite result, browser/installed Android acceptance, or deployed V3 verification. Documentation commits after this checkpoint do not silently change the code SHA that was tested.
