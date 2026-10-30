@@ -43,9 +43,11 @@ export function mountV3ConnectionExperience({
  const publicationBody=mk('div','v3-publication-body');
  publicationBody.setAttribute('aria-live','polite');
  publishing.append(publicationBody);
- const close=dialog.querySelector?.('#connection-close')??null;
- dialog.insertBefore(account,close);
- dialog.insertBefore(publishing,close);
+ // Keep diagnostics last, after Account and Publishing Status.
+ const anchor=dialog.querySelector?.('.v3-connection-help')||
+  dialog.querySelector?.('#connection-close')||null;
+ dialog.insertBefore(account,anchor);
+ dialog.insertBefore(publishing,anchor);
  let statusError='';
  const command=(label,call)=>{
   const control=btn(label,()=>{
