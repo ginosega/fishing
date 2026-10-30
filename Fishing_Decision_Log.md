@@ -1,5 +1,11 @@
 # Fishing Decision Log
 
+## October 30 final UX integration decision — header polling when dialog closed
+
+**Final source checkpoint (October 30, supersedes earlier CI pointers):** The V3 owner publication indicator now keeps its step hover current **while Connection Status is closed**, using the existing authenticated, read-only 5-second polling path; only when a publication is active and the tab is visible, owner-authorized and online. Terminal Live/Failed/Conflict, hidden tab, offline or sign-out stop polling; no background publish/retry. Normal green/yellow still means physical browser connectivity even in Work Offline, blue is active publish, red is verified Failed/Conflict until explicit acknowledgement. [Isolated CI #41068451025](https://github.com/ginosega/fishing/actions/runs/41068451025) **PASS** at source `1ac38306ed8d7090ac6b874182c0e7c75b936c36`: **149/149 PWA tests, 43/43 broker, 760/760 private P3, 4/4 real Chromium, candidate byte-verified, Worker dry-run only**. The prior source CI's 154-case PWA output included seven FISH118-M workflow-lane cases not listed in this exact run; no test files were removed by this update. **No hosting/Worker/public V3 deployment**, no authenticated header color/hover device field acceptance yet. The owner remains in this chat. [Detailed D5 evidence](https://github.com/ginosega/fishing/blob/feature/fish118-p3-mock-publisher/experiments/p3/preview/D5_Isolated_V3_Reader_Candidate_2026-10-29.md).
+
+---
+
 ## October 30 owner acceptance and Connection Status indicator decision
 
 **Owner confirmed D5 Windows Edge test PASS:** initial/reload reading-mode label, Connection Status interactions, and original Markdown Picture Viewer on Banks Lake and Garmin motor work as expected. Close only **desktop Edge reader acceptance for these paths**, not installed Android/owner-integrated V3 or D6.
