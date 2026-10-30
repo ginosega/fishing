@@ -1,5 +1,5 @@
 import {el,text,button,field,input,select,section,toolbar,status,picture} from './dom.mjs';
-import {DOMAIN,GEAR_CATEGORIES,KB_TYPES,ROD_TYPES,EQUIPMENT_TYPES,ID_PATTERN,categoryFolder,safePath,encodedPath,newId,suggestedFilename,sha256,sequenceFolder,sequencePicturePath} from './shared.mjs';
+import {DOMAIN,GEAR_CATEGORIES,KB_TYPES,ROD_TYPES,EQUIPMENT_TYPES,ID_PATTERN,categoryFolder,safePath,encodedPath,suggestedItemId,suggestedFilename,sha256,sequenceFolder,sequencePicturePath} from './shared.mjs';
 import {TAXONOMY,validateRecord,validateRecords} from './validation.mjs';
 import {parseMarkdown,sanitizeHtml,markdownRouteMap} from './markdown.mjs';
 import {prepareChange,narrativePath,picturePath,equal} from './handoff.mjs';
@@ -28,7 +28,7 @@ const acceptedImages='.jpg,.jpeg,.png,.webp,.gif,image/jpeg,image/png,image/webp
 export async function createEditor(ctx,{domain,baseRecord=null,category=null,type=null,onBack,onExit,onPrepared,onDirty,publishChange=null}){
  const editing=Boolean(baseRecord),key=domain==='gear'?'notes':'content',record=baseRecord?clone(baseRecord):{id:'',name:'',...(domain==='gear'?{category:category||'lures',type:'',specifications:[],links:[]}:{type:type||'technique',content:''})};
  if(!editing&&domain==='gear')record.type=(record.category==='rods-reels'?ROD_TYPES:record.category==='accessories'?EQUIPMENT_TYPES:TAXONOMY[record.category])[0];
- let baseText='',body='',baseHash=null,idTouched=false,mediaAction='keep',fileInfo=null,previewUrl=null,sequenceInfos=[],sequenceUrls=[],prepared=null,savePending=false,saveAccepted=false;
+ let baseText='',body='',baseHash=null,mediaAction='keep',fileInfo=null,previewUrl=null,sequenceInfos=[],sequenceUrls=[],prepared=null,savePending=false,saveAccepted=false;
  if(baseRecord?.[key]){
   let bytes;
   if(ctx.v3?.source?.markdown instanceof Map){
@@ -53,10 +53,34 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
  function revokeLocal(clearInput=true){if(previewUrl){URL.revokeObjectURL(previewUrl);previewUrl=null;}for(const url of sequenceUrls)URL.revokeObjectURL(url);sequenceUrls=[];fileInfo=null;sequenceInfos=[];if(clearInput)fileInput.value='';}
  function recalcSequencePaths(){if(!sequenceInfos.length||!ID_PATTERN.test(record.id))return;for(const info of sequenceInfos)info.path=sequencePicturePath(record,info.name);record.pictureSequence=sequenceInfos.map(x=>x.path);picturePathInput.value=record.pictureSequence.at(-1);record.picture={src:picturePathInput.value,...(captionInput.value?{caption:captionInput.value}:{})};}
  function control(label,value,change,options={}){const c=input(value,options);c.addEventListener('input',()=>change(c.value));return field(label,c,options.hint||'');}
- function requiredControl(label,keyName,options={}){const c=input(record[keyName]||'',{required:true,maxlength:160,...options});c.addEventListener('input',()=>{record[keyName]=c.value;if(keyName==='name'&&!editing&&!idTouched){record.id=newId(ctx.v3?.source?.sandboxOnly===true?'p3-'+c.value:c.value,new Set(ctx.data[domain][DOMAIN[domain].array].map(x=>x.id)));idInput.value=record.id;recalcSequencePaths();renderPicture();}changed();});return field(label,c);}
- const idInput=input(record.id,{required:true,maxlength:160,readonly:editing});idInput.addEventListener('input',()=>{idTouched=true;record.id=idInput.value;recalcSequencePaths();renderPicture();changed();});
+ function requiredControl(label,keyName,options={}){
+  const c=input(record[keyName]||'',{required:true,maxlength:160,...options});
+  c.addEventListener('input',()=>{
+   record[keyName]=c.value;
+   if(keyName==='name'&&!editing){
+    record.id=c.value.trim()?suggestedItemId(domain,c.value,
+     new Set(ctx.data[domain][DOMAIN[domain].array].map(x=>x.id)),
+     {sandboxOnly:ctx.v3?.source?.sandboxOnly===true}):'';
+    idInput.value=record.id;
+    recalcSequencePaths();
+    // An unsubmitted new record's image and Knot paths follow its
+    // generated ID when the owner changes Name after selecting files.
+    if(fileInfo&&record.picture&&record.id){
+     const path=picturePath(domain,record,fileInfo.name);
+     record.picture.src=path;picturePathInput.value=path;
+    }
+    renderPicture();
+   }
+   changed();
+  });
+  return field(label,c);
+ }
+ // All Gear and Knowledge Base types share this non-editable generated ID.
+ // Published IDs remain stable so links, Catches and media paths do not break.
+ const idInput=input(record.id,{required:true,maxlength:160,readonly:true});
  const nameField=requiredControl('Name','name');
- form.append(nameField,field('ID',idInput));
+ form.append(nameField,field(editing?'ID (fixed after publication)':
+  'ID (generated automatically)',idInput));
  const categoryControls=el('div',{class:'form-grid'});let typeSelect=null;
  if(domain==='gear'){
   const categorySelect=select(GEAR_CATEGORIES.map(r=>[r[0],r[1]]),record.category,()=>{record.category=categorySelect.value;const choices=typesFor(record.category);if(!choices.includes(record.type))record.type=choices[0];typeSelect.replaceChildren(...choices.map(x=>el('option',{value:x},x)));typeSelect.value=record.type;changed();});
