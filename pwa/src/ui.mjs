@@ -179,7 +179,7 @@ export function createApp(ctx){
  window.addEventListener('beforeunload',event=>{if(dirty()){event.preventDefault();event.returnValue='';}});
  for(const a of document.querySelectorAll('[data-nav]'))a.addEventListener('click',event=>{event.preventDefault();navigate(a.getAttribute('href'));});
  offline=createOffline({root:ctx.root,releaseId:ctx.release.id,onlineOnly:privatePilot,
-  v3ReadingMode:v3Mode&&!privatePilot,onMode:()=>{paintReadingMode();
+  v3ReadingMode:v3Mode&&!privatePilot,onMode:(_mode,_available,feedback)=>{paintReadingMode(feedback);
    if(workOffline())ownerPanel?.suspend();
    else ownerPanel?.paint();
    const page=parseRoute(location.hash||'#/').page;
@@ -187,11 +187,19 @@ export function createApp(ctx){
   },onStatus:state=>{const needsUpdate=state.state==='Incomplete'&&Boolean(state.message);const label=state.state==='Ready'?(navigator.onLine?(state.releaseId===ctx.release.id?`Offline library ready · current · ${state.files||0} files`:`Offline library ready · update available · ${state.files||0} files`):`Offline library ready · ${state.files||0} files`):state.state==='Downloading'?`Preparing offline library · ${state.completed||0}/${state.files||'?'} files`:needsUpdate?'Offline library needs update':'Offline library not prepared';offlineHost.replaceChildren(text('span',label),...(state.message?[text('span',state.message,'hint')]:[]));offlineHost.dataset.state=state.state;offlineHost.dataset.releaseId=state.releaseId||'';document.getElementById('offline-reload').disabled=privatePilot||Boolean(state.updating)||state.state==='Downloading';document.getElementById('offline-update').disabled=privatePilot||Boolean(state.updating)||state.state==='Downloading'||!navigator.onLine;},isDirty:dirty,notify});
  globalThis.__FISHING_SHELL_CLEANUP__?.();
  const connection=document.getElementById('connection-status'),connectionDialog=document.getElementById('connection-dialog');
+ const modeStatus=v3Mode&&!privatePilot?
+  el('p',{role:'status','aria-live':'polite',class:'hint'},
+   'Checking service-worker reading mode…'):null;
+ const automaticModeButton=v3Mode&&!privatePilot?
+  button('Automatic',()=>void offline.setMode('Automatic')):null;
+ const workOfflineButton=v3Mode&&!privatePilot?
+  button('Work Offline',()=>void offline.setMode('Work Offline')):null;
+ const retryModeButton=v3Mode&&!privatePilot?
+  button('Retry reading controls',()=>void offline.refreshMode()):null;
  const modeControls=v3Mode&&!privatePilot?el('div',{class:'offline-mode-select'},
-  text('h3','Mode'),
-  el('div',{class:'toolbar'},
-   button('Automatic',()=>void offline.setMode('Automatic')),
-   button('Work Offline',()=>void offline.setMode('Work Offline'))),
+  text('h3','Mode'),el('div',{class:'toolbar'},
+   automaticModeButton,workOfflineButton),modeStatus,
+  retryModeButton,
   text('p','Automatic prefers online; Work Offline uses only a prepared, verified library.','muted')):null;
  if(modeControls)connectionDialog.querySelector('.offline-panel')?.prepend(modeControls);
  if(v3Mode){
@@ -228,15 +236,20 @@ export function createApp(ctx){
   details.append(copyButton,result);
   connectionDialog.querySelector('.offline-panel')?.append(details);
  }
- function paintReadingMode(){
+ function paintReadingMode(feedback={}){
   if(!modeControls)return;
   const selected=offline?.getMode?.()||'Automatic';
   const available=offline?.getModeAvailable?.()===true;
-  const buttons=modeControls.querySelectorAll('button');
-  for(const b of buttons){
-   b.disabled=!available;
+  const busy=feedback?.busy===true;
+  for(const b of [automaticModeButton,workOfflineButton]){
+   b.disabled=!available||busy;
    b.setAttribute('aria-pressed',String(b.textContent===selected));
   }
+  retryModeButton.disabled=busy;
+  if(feedback?.message)modeStatus.textContent=feedback.message;
+  else if(!available)modeStatus.textContent=
+   'Waiting for the V3 service worker. Retry reading controls if this persists.';
+  else modeStatus.textContent='Reading mode: '+selected;
  }
  paintReadingMode();
  const updateConnection=()=>{connection.dataset.online=String(navigator.onLine);document.getElementById('connection-network').textContent=navigator.onLine?'Online':'Offline';const current=offline.getStatus();document.getElementById('offline-update').disabled=privatePilot||Boolean(current?.state==='Downloading')||!navigator.onLine;};
