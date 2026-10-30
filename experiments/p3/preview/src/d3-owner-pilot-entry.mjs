@@ -96,10 +96,18 @@ export function createD3OwnerPilotEntry({
    manifest.files.some(f=>f.path==='releases/'+release.id+'/styles.css'),
    'INCOMPATIBLE_PUBLIC_RELEASE');
   windowObject.__FISHING_BOOT__={root,release,manifest};
-  const style=documentObject.createElement('link');
-  style.rel='stylesheet';
-  style.href=root+'releases/'+release.id+'/styles.css';
-  documentObject.head.append(style);
+  // The authenticated pilot document provides an owner-gated, SHA-verified
+  // V3 stylesheet. Do not append older public V2 CSS afterward: doing so
+  // would override V3's network/publishing indicator and modal styling.
+  const isHostedPilot=['/__d3_pilot__/','/fishing/__d3_pilot__/']
+   .includes(windowObject.location?.pathname??'');
+  if(!isHostedPilot){
+   // Source-only integration fixtures not hosted by the gated Worker.
+   const style=documentObject.createElement('link');
+   style.rel='stylesheet';
+   style.href=root+'releases/'+release.id+'/styles.css';
+   documentObject.head.append(style);
+  }
   const shell=shellFactory({
    origin,request,enabled,online,storage,makeKey,
    publishingEnabled,bootstrap:bootstrapApp,
