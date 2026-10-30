@@ -97,7 +97,10 @@ test('D4-UX08 accepted Gear/KB and Catch retain visible form and replace only ac
 });
 test('D4-UX09 pilot creates prefixed Knot ID and rejects manual unsafe test ID',()=>{
  const gear=readFileSync(new URL('../src/editor.mjs',import.meta.url),'utf8');
- assert(gear.includes("ctx.v3?.source?.sandboxOnly===true?'p3-'+c.value:c.value"));
+ assert(gear.includes('suggestedItemId(domain,c.value'));
+ assert(gear.includes('sandboxOnly:ctx.v3?.source?.sandboxOnly===true'));
+ assert(gear.includes('readonly:true'));
+ assert(!gear.includes("idInput.addEventListener('input'"));
  assert(gear.includes("!record.id.startsWith('p3-')"));
  assert(gear.indexOf("!record.id.startsWith('p3-')") < gear.indexOf('const files=sequenceSet?'));
 });
