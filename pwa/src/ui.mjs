@@ -10,6 +10,7 @@ import {connectionIndicator} from './connection-indicator.mjs';
 import {formatV3Diagnostics} from './diagnostics.mjs';
 import {createOffline} from './offline.mjs';
 import {createD3ConnectionController,mountD3ConnectionPanel} from './v3-connection.mjs';
+import {mountV3ConnectionExperience} from './v3-connection-experience.mjs';
 
 const KAYAK_ICON=`<svg viewBox="0 0 64 64" role="img" aria-label="Kayak">
   <defs><linearGradient id="kayakHull" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a2def7"/><stop offset="1" stop-color="#76c8ef"/></linearGradient></defs>
@@ -193,23 +194,37 @@ export function createApp(ctx){
  globalThis.__FISHING_SHELL_CLEANUP__?.();
  const connection=document.getElementById('connection-status'),connectionDialog=document.getElementById('connection-dialog');
  const modeStatus=v3Mode&&!privatePilot?
-  el('p',{role:'status','aria-live':'polite',class:'hint'},
-   'Reading mode: Checking service worker…'):null;
+  el('p',{role:'status','aria-live':'polite',class:'hint',hidden:true}):null;
  const automaticModeButton=v3Mode&&!privatePilot?
   button('Automatic',()=>void offline.setMode('Automatic')):null;
  const workOfflineButton=v3Mode&&!privatePilot?
   button('Work Offline',()=>void offline.setMode('Work Offline')):null;
  const retryModeButton=v3Mode&&!privatePilot?
-  button('Retry reading controls',()=>void offline.refreshMode()):null;
- const modeControls=v3Mode&&!privatePilot?el('div',{class:'offline-mode-select'},
+  button('Retry',()=>void offline.refreshMode()):null;
+ if(retryModeButton)retryModeButton.hidden=true;
+ const modeControls=v3Mode&&!privatePilot?el('section',{class:'v3-connection-section offline-mode-select'},
   text('h3','Mode'),el('div',{class:'toolbar'},
-   automaticModeButton,workOfflineButton),modeStatus,
-  retryModeButton,
-  text('p','Automatic prefers online; Work Offline uses only a prepared, verified library.','muted')):null;
- if(modeControls)connectionDialog.querySelector('.offline-panel')?.prepend(modeControls);
+   automaticModeButton,workOfflineButton),modeStatus,retryModeButton):null;
  if(v3Mode){
-  const details=el('div',{class:'diagnostics-panel'}),
-   result=el('p',{role:'status','aria-live':'polite',class:'hint'});
+  const offlinePanel=connectionDialog.querySelector('.offline-panel');
+  const onlineLabel=document.getElementById('connection-network');
+  const offlineActions=document.getElementById('offline-update').parentElement;
+  document.getElementById('offline-update').textContent='Update';
+  const networkSection=el('section',{class:'v3-connection-section v3-network-section'},
+   text('h3','Status'),onlineLabel);
+  const librarySection=el('section',{class:'v3-connection-section'},
+   text('h3','Offline Library'),offlineHost,offlineActions);
+  offlinePanel.replaceChildren(networkSection,...(modeControls?[modeControls]:[]),librarySection);
+  offlinePanel.classList.add('v3-connection-layout');
+  connectionDialog.classList.add('v3-connection-dialog');
+
+  // Troubleshooting is optional in the everyday V3 interface. Never put
+  // the diagnostics export or build identity in the main status sections.
+  const details=el('details',{class:'v3-connection-help diagnostics-panel'},
+   el('summary',{},'Help & Diagnostics'));
+  const helpBody=el('div',{class:'v3-help-body'},
+   text('p','Copy technical information to help troubleshoot an issue. No credentials or draft content are included.','hint'));
+  const result=el('p',{role:'status','aria-live':'polite',class:'hint'});
   const copyButton=button('Copy diagnostics',async()=>{
    let usage,quota;
    try{
@@ -219,8 +234,7 @@ export function createApp(ctx){
    const contents=formatV3Diagnostics({
     releaseId:ctx.release.id,
     sourceRevision:ctx.release.sourceRevision,
-    mode:offline.getMode(),
-    online:navigator.onLine,
+    mode:offline.getMode(),online:navigator.onLine,
     offline:offline.getStatus(),
     publicationState:ownerController?.current()?.publication,
     userAgent:navigator.userAgent||'',
@@ -229,17 +243,22 @@ export function createApp(ctx){
    try{
     await navigator.clipboard.writeText(contents);
     result.textContent='Diagnostics copied. No credentials or draft content included.';
-    const previous=details.querySelector('textarea');previous?.remove();
+    helpBody.querySelector('textarea')?.remove();
    }catch{
     result.textContent='Clipboard unavailable. Select and copy the diagnostics below.';
     const area=el('textarea',{rows:12,readonly:true,value:contents,
      'aria-label':'Diagnostics ready to copy'});
-    details.querySelector('textarea')?.remove();
-    details.append(area);area.focus();area.select();
+    helpBody.querySelector('textarea')?.remove();
+    helpBody.append(area);area.focus();area.select();
    }
   });
-  details.append(copyButton,result);
-  connectionDialog.querySelector('.offline-panel')?.append(details);
+  const version=el('p',{class:'hint'},
+   'App release '+ctx.release.id.slice(0,12)+' · Source '+ctx.release.sourceRevision.slice(0,12));
+  helpBody.append(copyButton,result,version);
+  if(ctx.v3?.readerOnly===true)
+   helpBody.append(text('p','Isolated local reader candidate · no owner publishing','hint'));
+  details.append(helpBody);
+  connectionDialog.insertBefore(details,document.getElementById('connection-close'));
  }
  function paintReadingMode(feedback={}){
   if(!modeControls)return;
@@ -251,16 +270,21 @@ export function createApp(ctx){
    b.setAttribute('aria-pressed',String(b.textContent===selected));
   }
   retryModeButton.disabled=busy;
+  retryModeButton.hidden=available||busy;
   connection.dataset.readingMode=available?
    (selected==='Work Offline'?'work-offline':'automatic'):'checking';
   document.getElementById('connection-network').textContent=
    'Browser '+(navigator.onLine?'online':'offline')+' · Reading '+
     (available?selected:'Checking');
   paintConnectionIndicator();
-  if(feedback?.message)modeStatus.textContent=feedback.message;
-  else if(!available)modeStatus.textContent=
-   'Reading mode: Checking service worker… Retry reading controls if this persists.';
-  else modeStatus.textContent='Reading mode: '+selected;
+  // Normal selection is conveyed by aria-pressed, not redundant text.
+  // Show a short status only during verification or a recoverable fault.
+  const showIssue=!available||busy||Boolean(feedback?.message&&
+   !feedback.message.startsWith('Reading mode: '));
+  modeStatus.hidden=!showIssue;
+  modeStatus.textContent=!available?
+   (busy?'Checking mode controls…':'Mode controls unavailable. Use Retry to reconnect.'):
+   showIssue?(feedback?.message||'Checking mode controls…'):'';
  }
  function paintConnectionIndicator(){
   // A locally accepted receipt may precede the first read-only status GET.
@@ -325,7 +349,7 @@ export function createApp(ctx){
    // A future navigation can retry, without publication or blind reload.
   }finally{sourceRefreshBusy=false;}
  }
- let ownerPanel=null;
+ let ownerPanel=null,connectionExperience=null;
  ownerController=v3Mode&&ctx.v3?.auth&&ctx.v3?.lifecycle?
   createD3ConnectionController({
    auth:ctx.v3.auth,lifecycle:ctx.v3.lifecycle,
@@ -334,6 +358,7 @@ export function createApp(ctx){
     const prior=ctx.v3.authorized;
     ctx.v3.authorized=state.authorized;
     ownerPanel?.paint();
+    connectionExperience?.paint();
     paintConnectionIndicator();
     if((state.publication==='Live'&&state.sandboxVerified===true)||
      ['Failed','Conflict'].includes(state.publication))
@@ -347,7 +372,10 @@ export function createApp(ctx){
  if(ownerController)ownerPanel=mountD3ConnectionPanel({
   dialog:connectionDialog,controller:ownerController,documentObject:document,
   online:()=>navigator.onLine&&!workOffline(),windowObject:window,
-  trackInHeader:true,
+  trackInHeader:true,headless:true,
+ });
+ if(ownerController)connectionExperience=mountV3ConnectionExperience({
+  dialog:connectionDialog,controller:ownerController,documentObject:document,
  });
  if(ownerController&&v3Mode){
   // A durable Accepted receipt should update Connection Status immediately,
@@ -359,8 +387,8 @@ export function createApp(ctx){
    // The server accepted this operation, but Live still requires a read.
    paintConnectionIndicator();
    void ownerController.refreshPublication().then(
-    ()=>{ownerPanel?.paint();paintConnectionIndicator();},
-    ()=>{ownerPanel?.paint();paintConnectionIndicator();});
+    ()=>{ownerPanel?.paint();connectionExperience?.paint();paintConnectionIndicator();},
+    ()=>{ownerPanel?.paint();connectionExperience?.paint();paintConnectionIndicator();});
   };
  }
  const refreshOwner=async()=>{
@@ -372,6 +400,7 @@ export function createApp(ctx){
   if(ownerController.current().authorized)
    await ownerController.refreshPublication();
   ownerPanel?.paint();
+  connectionExperience?.paint();
  };
  connection.addEventListener('click',()=>{
   connectionDialog.showModal();
@@ -383,9 +412,6 @@ export function createApp(ctx){
  });window.addEventListener('online',updateConnection);window.addEventListener('offline',updateConnection);updateConnection();
  document.getElementById('offline-update').disabled=privatePilot||!navigator.onLine;
  document.getElementById('offline-update').addEventListener('click',()=>offline.update());document.getElementById('offline-reload').addEventListener('click',()=>offline.reload());
- if(ctx.v3?.readerOnly===true)connectionDialog.querySelector('.diagnostics-panel')?.append(
-  text('p','Local V3 reader · Release '+ctx.release.id.slice(0,12)+
-   ' · Source '+ctx.release.sourceRevision.slice(0,12),'hint'));
  const releaseDetails=document.getElementById('release-details');if(releaseDetails)releaseDetails.textContent=`Release ${ctx.release.id.slice(0,12)} · Source ${ctx.release.sourceRevision.slice(0,12)}${ctx.release.pendingMedia?' · Pending media preview':''}`;
  if(ctx.release.pendingMedia)notify('Preview only: some approved image replacements remain unresolved. This is not a production-cutover candidate.','warning');
  render();
