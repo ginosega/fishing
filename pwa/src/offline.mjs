@@ -55,9 +55,9 @@ export function createOffline({root,releaseId,onStatus,isDirty,notify,
   return true;
  }
  async function refreshMode(){
-  if(!v3ReadingMode)return;
+  if(!v3ReadingMode)return true;
   const result=await modeCommand('V3_READ_MODE');
-  setModeState(result);
+  return setModeState(result); // A missing/untrusted SW reply is never consent to publish.
  }
  async function setMode(next){
   if(!v3ReadingMode||!['Automatic','Work Offline'].includes(next))return false;
