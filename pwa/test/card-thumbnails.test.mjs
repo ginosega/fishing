@@ -90,6 +90,6 @@ test('P0-B release builds automatically cover added/replaced Gear, KB, Knot and 
   for(const image of images.slice(1))
    assert.deepEqual(
     await fs.readFile(path.join(destA,before.mapping[image])),
-    await fs.readFile(path.join(destB,after.mapping[image]]));
+    await fs.readFile(path.join(destB,after.mapping[image])));
  }finally{await fs.rm(temp,{recursive:true,force:true});}
 });
