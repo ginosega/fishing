@@ -20,6 +20,8 @@ const src=path.join(root,'experiments/p3/preview/src');
 const entry=path.join(src,'d3-owner-pilot-main.mjs');
 const output=path.join(src,'generated/d3-pilot.bundle.txt');
 const meta=path.join(src,'generated/d3-pilot.bundle.sha256.json');
+const cssOutput=path.join(src,'generated/d3-pilot.css.txt');
+const cssSource=path.join(root,'pwa/src/styles.css');
 const sha256=bytes=>createHash('sha256').update(bytes).digest('hex');
 const safeUtf8=bytes=>{
  const text=new TextDecoder('utf-8',{fatal:true}).decode(bytes);
@@ -54,13 +56,30 @@ async function main(){
  await fs.writeFile(output,bytes,{flag:'w'});
  const observed=await fs.readFile(output);
  if(sha256(observed)!==digest)throw Error('Written module digest drift');
+ // The private pilot uses the exact V3 CSS accepted in the local reader,
+ // never the stale public V2 stylesheet. Both bundles are owner-only,
+ // independently checksum pinned and served under strict CSP.
+ const cssBytes=await fs.readFile(cssSource);
+ const cssText=safeUtf8(cssBytes);
+ if(cssBytes.length<1024||cssBytes.length>160*1024||
+  !cssText.includes('v3-connection-dialog')||
+  !cssText.includes('data-publication-indicator'))
+  throw Error('Private V3 Connection Status CSS unverified');
+ await fs.writeFile(cssOutput,cssBytes,{flag:'w'});
+ const cssObserved=await fs.readFile(cssOutput);
+ const cssDigest=sha256(cssObserved);
+ if(cssDigest!==sha256(cssBytes))throw Error('Pilot CSS byte mismatch');
  const metadata={format:'fishing-d3-pilot-local-build-v1',
   sha256:digest,bytes:observed.length,entry:'d3-owner-pilot-main.mjs',
-  output:'generated/d3-pilot.bundle.txt',noDeployment:true};
+  output:'generated/d3-pilot.bundle.txt',
+  cssSha256:cssDigest,cssBytes:cssObserved.length,
+  cssOutput:'generated/d3-pilot.css.txt',noDeployment:true};
  await fs.writeFile(meta,JSON.stringify(metadata,null,2)+'\n');
  if(process.argv.includes('--check')){
   const r=await fs.readFile(meta,'utf8');
-  if(JSON.parse(r).sha256!==sha256(observed))
+  const check=JSON.parse(r);
+  if(check.sha256!==sha256(observed)||
+   check.cssSha256!==sha256(cssObserved))
    throw Error('Generated manifest failed readback');
  }
  process.stdout.write(JSON.stringify(metadata)+'\n');
