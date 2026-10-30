@@ -2,6 +2,7 @@ import test from 'node:test';
 import {validateManifest} from '../src/release.mjs';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
+import {fileURLToPath} from 'node:url';
 import {webcrypto,createHash} from 'node:crypto';
 import {build} from 'esbuild';
 const scope='https://example.test/fishing/v2-preview/',abs=p=>new URL(p,scope).href;
@@ -27,7 +28,7 @@ function storage(){
 async function worker(caches,network,{v3=false}={}){
  const handlers={};
  const self={registration:{scope},clients:{async claim(){},async matchAll(){return [];}},skipWaiting:async()=>{},addEventListener:(name,fn)=>handlers[name]=fn};
- const bundle=await build({entryPoints:[new URL('../src/sw.mjs',import.meta.url).pathname],bundle:true,write:false,format:'iife',define:{__FISHING_V3_READING_MODE__:v3?'true':'false'}});
+ const bundle=await build({entryPoints:[fileURLToPath(new URL('../src/sw.mjs',import.meta.url))],bundle:true,write:false,format:'iife',define:{__FISHING_V3_READING_MODE__:v3?'true':'false'}});
  const networkRequests=[];
  vm.runInNewContext(bundle.outputFiles[0].text,{self,caches,crypto:webcrypto,URL,Response,TextDecoder,TextEncoder,Uint8Array,DOMException,console,fetch:async url=>{networkRequests.push(url);return network.has(url)?new Response(network.get(url)):new Response('Unavailable',{status:503});}});
  const waited=handler=>new Promise((resolve,reject)=>{let p;try{handler({waitUntil:x=>p=x});}catch(error){reject(error);return;}Promise.resolve(p).then(resolve,reject);});
