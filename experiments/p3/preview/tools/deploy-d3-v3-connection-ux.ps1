@@ -86,7 +86,11 @@ try{
   ExactlyOne $source ('"'+$name+'"\s*:\s*"false"') $name
  }
  # The V3 integrated PWA must remain disabled during standalone owner pilot acceptance.
- ExactlyOne $source '"D3_INTEGRATED_PWA_ENABLED"\s*:\s*"false"' 'Integrated owner PWA remains off'
+ # Older approved D4 configs may omit this future-only flag entirely.
+ # Either absent or exact false is safe; never permit an enabled value.
+ $integrated=[regex]::Matches($source,'"D3_INTEGRATED_PWA_ENABLED"\s*:\s*"([^"]*)"')
+ Need ($integrated.Count -le 1 -and ($integrated.Count -eq 0 -or
+  $integrated[0].Groups[1].Value -ceq 'false')) 'Integrated owner PWA must remain off'
  Need ($source -notmatch 'REPLACE_WITH_') 'Unfilled config placeholder'
  Need ([regex]::Matches($source,'"database_id"\s*:\s*"[0-9a-f-]{36}"').Count -eq 2) 'Unverified private D1 bindings'
  foreach($secret in @('D2_CSRF_KEY','D2_GITHUB_APP_PRIVATE_KEY','GITHUB_CLIENT_SECRET','D3_FAST_WEBHOOK_SECRET')){
