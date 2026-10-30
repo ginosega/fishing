@@ -1,5 +1,13 @@
 # Fishing TODO
 
+## October 29/30 — D5 Windows candidate feedback repaired, real Chromium PASS
+
+The owner found Update Offline Library worked in the first Windows Edge loopback candidate, but Automatic/Work Offline were unresponsive and Banks Lake Markdown pictures did not launch the viewer. **Fixes SOURCE-ONLY on draft PR #263:** allow loopback-only HTTP original images without allowing remote insecure image URLs; extend full-cache Work Offline verification response timeout (old 4s), show verification/selected-mode status, add explicit retry and safe error reporting. Exact-source isolated [CI #41010928402](https://github.com/ginosega/fishing/actions/runs/41010928402) at code `6a960d249dd7b9d9296f501f5f4418537cf073af`: **140/140 PWA, 43/43 broker, 760/760 private tests, and 2/2 real Chromium loopback acceptance (mode persistence and Banks Lake Markdown viewer) PASS**; candidate build/immutable bytes PASS; no deployment.
+
+**Next:** owner Windows Edge retest after clean loopback-server stop, git pull, full candidate rebuild and serve. Edge field acceptance remains pending. No public V2 change, no private D3 Worker deploy, no Android installed-V3 claim, no OAuth+publishing integrated or V3 production cutover. [D5 candidate evidence](experiments/p3/preview/D5_Isolated_V3_Reader_Candidate_2026-10-29.md).
+
+---
+
 ## October 29/30 — D5 isolated V3 reader candidate source assembled; validation pending
 
 **Source-only feature on draft PR #263.** Added explicitly isolated `/fishing/__v3_reader_candidate__/` candidate with its own manifest/SW scope and read-only V3 UI, retaining original V2 `bootstrap(settings)` when the candidate flag is off. The optional `--v3-reader-candidate` flag requires `--v3-reading-mode`, exact isolated base and distinct output. Candidate enables existing D5 Automatic/Work Offline, Markdown Picture Viewer and Copy Diagnostics but has **no owner auth, sandbox source, publishing, media staging, GitHub writes or Cloudflare route**. Source regressions D5-RC01..05 added; isolated CI configured for candidate build plus manifest/byte verification. **Isolated CI #41009690121 now PASS** at source `fbfbf8c97f769eaeba4ff2ac0affdbc6b963d1a5`: 136/136 PWA, 43/43 broker, 760/760 private P3 suite, independently verified candidate release/manifest bytes and D2/D3 dry-runs. First source CI failed a stale draft production-workflow parity assertion; the branch workflow was reconciled byte-identically to current protected main (`merge-ready` retained), and the full rerun passed. No deployment, Android installation or browser UX acceptance has occurred.
