@@ -50,7 +50,11 @@ export function createD4PrivateSourceAsset({
    const parts=encoded.split('/');
    if(!parts.length||parts.some(p=>!p))return fail();
    const path=parts.map(decodeURIComponent).join('/');
-   if(parts.map(encodeURIComponent).join('/')!==encoded)return fail();
+   // Re-encode the DECODED path, not the original encoded segments:
+   // otherwise a valid filename like Vision%20TEST.jpg is rejected as
+   // Vision%2520TEST.jpg, while step-01.jpg happens to work.
+   if(path.split('/').map(encodeURIComponent).join('/')!==encoded)
+    return fail();
    const relative=safePath(path);
    if(relative!==path||!ALLOWED.test(path))return fail();
    const session=await ownerSession.authorizeStatus(request);
