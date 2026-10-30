@@ -178,7 +178,7 @@ export function createD3ConnectionController({
  */
 export function mountD3ConnectionPanel({
  dialog,controller,documentObject,onSignIn=()=>{},online=()=>true,
- trackInHeader=false,windowObject=null,setTimer=(fn,ms)=>setTimeout(fn,ms),
+ trackInHeader=false,headless=false,windowObject=null,setTimer=(fn,ms)=>setTimeout(fn,ms),
  clearTimer=id=>clearTimeout(id),
 }={}){
  need(dialog?.appendChild&&typeof controller?.current==='function'&&
@@ -189,6 +189,7 @@ export function mountD3ConnectionPanel({
   'INVALID_PANEL');
  const section=documentObject.createElement('section');
  section.className='v3-owner-connection';
+ if(headless)section.hidden=true;
  const title=documentObject.createElement('h3');
  title.textContent='Owner';
  const desc=documentObject.createElement('p');
