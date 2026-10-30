@@ -28,6 +28,29 @@ export function suggestedCatchId(record,existing,{sandboxOnly=false}={}){
   species||'fish'].join('-'),existing);
 }
 
+/**
+ * Private P3 source CI permits fabricated Catch entries only. Keep this
+ * presentation guard scoped to that sandbox; production names are unrestricted.
+ * This mirrors the trusted sandbox validator, which remains authoritative.
+ */
+export function validatePrivateSandboxCatch(record,{sandboxOnly=false,adding=false,count=0}={}){
+ if(!sandboxOnly)return;
+ if(!record?.id?.startsWith('p3-test-catch-'))
+  throw new Error('Private sandbox Catch IDs must start with p3-test-catch-.');
+ if(adding&&count>=5)
+  throw new Error('The private sandbox has reached its five-Catch test limit.');
+ for(const [key,label] of [
+  ['speciesName','Species'],['locationName','Location'],
+  ['lureOrBaitName','Lure or bait'],
+ ]){
+  const value=record[key];
+  if(!value)continue;
+  if(/p3|test|synthetic/i.test(value)||
+   (key==='lureOrBaitName'&&value==='Other'))continue;
+  throw new Error('Private sandbox '+label+' must clearly identify fabricated test data. Include "Test", "Synthetic", or "p3" (for example, "Synthetic '+value+'"). Real '+label.toLowerCase()+' names are permitted in production.');
+ }
+}
+
 export async function prepareCatchPackage({
  ctx,record,baseRecord=null,text:notesText='',baseText='',baseHash=null,
 }={}){
@@ -45,6 +68,12 @@ export async function prepareCatchPackage({
   'locationId','locationName','lureOrBaitId','lureOrBaitName'])
   if(!str(candidate[key]))delete candidate[key];
   else candidate[key]=str(candidate[key]);
+ // Fail fast before a durable receipt, GitHub PR or unneeded CI run.
+ // Sandbox-only synthetic-content restrictions never apply to production.
+ validatePrivateSandboxCatch(candidate,{
+  sandboxOnly:ctx.v3.source.sandboxOnly===true,
+  adding:!baseRecord,count:ctx.data.catches.catches.length,
+ });
  if(typeof notesText!=='string'||typeof baseText!=='string')
   throw new Error('Invalid Catch Notes.');
  if(baseRecord?.notes&&!notesText.trim())
