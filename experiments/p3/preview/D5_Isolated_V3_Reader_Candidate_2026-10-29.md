@@ -25,7 +25,15 @@ node .\tools\build.mjs --base=/fishing/__v3_reader_candidate__/ --v3-reading-mod
 node .\tools\verify.mjs --out="$HOME\fishing-v3-reader-candidate"
 ```
 
-Build/verify are **source-only**. Opening `index.html` as a `file://` document cannot test service workers or installation. A future secure-origin, isolated-scope **test hosting** decision and proper HTTP browser/device checks are required; do not publish over the canonical public /fishing/ SW.
+Build/verify are **source-only**. Opening `index.html` as a `file://` document cannot test service workers or installation. To exercise the verified candidate in **Windows Edge or Chrome on the same PC** without any hosted deployment, run the following in another PowerShell terminal (it only binds `127.0.0.1`; stop with Ctrl+C):
+
+```powershell
+node .\\tools\\serve-v3-reader-candidate.mjs --out="$HOME\\fishing-v3-reader-candidate"
+```
+
+Then navigate to `http://127.0.0.1:4173/fishing/__v3_reader_candidate__/`. The loopback-only server never serves `/fishing/` or the D3 private pilot, handles encoded media filenames, rejects traversal and never uploads/publishes files. Tests `D5-RS01..02` cover these boundaries. In Windows Edge, verify Connection Status shows Automatic and Work Offline, Update offline library prepares a complete local copy, Work Offline persists after reload, missing online network does not break prepared reading, and Copy Diagnostics excludes secrets. Review a Gear/KB Markdown image and test its original-quality Picture Viewer. A local desktop preview **does not** satisfy installed Android PWA or actual hosted owner-auth acceptance.
+
+A future secure-origin, isolated-scope **device test hosting** decision and proper HTTPS Android checks are required; do not publish over the canonical public `/fishing/` SW.
 
 ## Acceptance still needed
 
