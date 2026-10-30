@@ -1,5 +1,11 @@
 # Fishing Decision Log
 
+## October 30 implementation validation evidence — V3 Connection Status
+
+**Final isolated source gate (October 30, supersedes preceding validation-pending language):** [GitHub Actions #41088642846](https://github.com/ginosega/fishing/actions/runs/41088642846) **SUCCESS** on exact application source commit `1bbce127be86525c02e6ad26f32ff08973bea038`. Evidence: **154/154 PWA**, **4/4 real Chromium isolated candidate**, **43/43 broker**, **763/763 private P3 publishing** tests; byte-verified local reader candidate and D3 Worker Wrangler packaging dry-run. The completed test includes the source-verified owner-only D1 latest-publication item summary and name sanitization. Earlier failing runs were caused by a stale removed-text browser assertion and an overbroad item-name cleanup regex; both were corrected and independently retested. **No private Worker deployment, no real signed-in owner UI field test, and no public V3 release/cutover.** V3 remains on draft [PR #263](https://github.com/ginosega/fishing/pull/263). The owner is continuing in the same conversation; do not initiate a new-chat handoff. Final next gate: owner Edge review of the newly built isolated reader layout; then deliberate private authenticated pilot build/deployment and Windows/Android owner acceptance of Account, server-backed latest Live item/time, and failure-recovery UI. The PWA device/hosting/speed/D6 gates remain open.
+
+---
+
 ## October 30 — Owner-approved final V3 Connection Status UX
 
 DECISION: Build six sections, in order: **Status; Mode; Offline Library; Account; Publishing Status; Help & Diagnostics**. The last is collapsed by default. Status text `Online`/`Offline` only. Two Mode buttons show pressed selection; hide redundant reading-mode explanation and normal Retry, display contextual Retry only if service-worker controls fail. Rename offline Update button `Update`. Account shows trusted username `ginosega` after authenticated owner sign-in, otherwise Sign in with GitHub; no email.
