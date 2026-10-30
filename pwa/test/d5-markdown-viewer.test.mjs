@@ -8,7 +8,7 @@ const image='KB/Knots/assets/step-01.jpg';
 const base='https://example.test/fishing/releases/abc123/';
 function parsedMarkdown(markdown,extras={}){
  return parseMarkdown(markdown,{owner,maps:{},
-  assetBase:base,exists:new Set([image]),...extras});
+  assetBase:base,exists:new Set([image]),viewerImages:true,...extras});
 }
 
 function element(tag){
@@ -37,7 +37,8 @@ test('D5-V01 strict writer still rejects missing Markdown images, V3 reader degr
  assert.throws(()=>parsedMarkdown(markdown),/Missing Markdown resource/);
  const relaxed=parsedMarkdown(markdown,{allowMissingImages:true});
  assert.equal(relaxed.references.length,1);
- assert.equal(relaxed.references[0].kind,'image');
+ assert.equal(relaxed.references[0].kind,'local');
+ assert.equal(relaxed.references[0].isImage,true);
  assert.equal(relaxed.references[0].missing,true);
  assert.match(relaxed.html,/Before/);
  assert.match(relaxed.html,/after/);
@@ -50,7 +51,8 @@ test('D5-V01 strict writer still rejects missing Markdown images, V3 reader degr
 test('D5-V02 V3 local Markdown pictures open full original with accessible button and caption',()=>{
  const parsed=parsedMarkdown('![Synthetic knot](../assets/step-01.jpg "Step 1")');
  const reference=parsed.references[0];
- assert.equal(reference.kind,'image');
+ assert.equal(reference.kind,'local');
+ assert.equal(reference.isImage,true);
  assert.equal(reference.local,image);
  assert.equal(reference.missing,undefined,'Existing valid Markdown reference shape stays unchanged');
  const {article,imageNode}=fixture({src:reference.target,title:'Step 1'});
@@ -75,8 +77,8 @@ test('D5-V02 V3 local Markdown pictures open full original with accessible butto
 });
 test('D5-V03 image inside a normal link keeps link behavior, no contradictory viewer action',()=>{
  const parsed=parsedMarkdown('[![Synthetic knot](../assets/step-01.jpg)](https://example.com)');
- assert.equal(parsed.references.filter(x=>x.kind==='image').length,1);
- const ref=parsed.references.find(x=>x.kind==='image');
+ assert.equal(parsed.references.filter(x=>x.isImage===true).length,1);
+ const ref=parsed.references.find(x=>x.isImage===true);
  const {article,imageNode}=fixture({src:ref.target,linked:true});
  let opens=0;
  assert.equal(bindMarkdownPictureViewer(article,{
@@ -125,4 +127,21 @@ test('D5-V05 unexpected extra sanitized images do not obtain viewer controls',()
   openViewer:()=>{},
  }),false);
  assert.equal(opened,0);
+});
+
+test('D5-V06 ordinary V2 Markdown reference kinds and fields are unchanged',()=>{
+ const result=parseMarkdown('![Synthetic knot](../assets/step-01.jpg)',{
+  owner,maps:{},assetBase:base,exists:new Set([image]),
+ });
+ assert.equal(result.references.length,1);
+ assert.equal(result.references[0].kind,'local');
+ assert(!Object.hasOwn(result.references[0],'isImage'));
+ assert(!Object.hasOwn(result.references[0],'missing'));
+ assert.equal(result.references[0].local,image);
+ const v3=parsedMarkdown('![Synthetic knot](../assets/step-01.jpg)');
+ assert.equal(v3.references[0].kind,'local');
+ assert.equal(v3.references[0].isImage,true);
+ const linked=parsedMarkdown('[![Synthetic knot](../assets/step-01.jpg)](https://example.com)');
+ assert.equal(linked.references.filter(x=>x.isImage===true).length,1);
+ assert.equal(linked.references.filter(x=>x.kind==='external').length,1);
 });
