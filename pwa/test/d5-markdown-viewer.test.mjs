@@ -52,7 +52,7 @@ test('D5-V02 V3 local Markdown pictures open full original with accessible butto
  const reference=parsed.references[0];
  assert.equal(reference.kind,'image');
  assert.equal(reference.local,image);
- assert.equal(reference.missing,false);
+ assert.equal(reference.missing,undefined,'Existing valid Markdown reference shape stays unchanged');
  const {article,imageNode}=fixture({src:reference.target,title:'Step 1'});
  let called=null;
  assert.equal(bindMarkdownPictureViewer(article,{
