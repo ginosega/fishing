@@ -189,7 +189,7 @@ export function createApp(ctx){
  const connection=document.getElementById('connection-status'),connectionDialog=document.getElementById('connection-dialog');
  const modeStatus=v3Mode&&!privatePilot?
   el('p',{role:'status','aria-live':'polite',class:'hint'},
-   'Checking service-worker reading mode…'):null;
+   'Reading mode: Checking service worker…'):null;
  const automaticModeButton=v3Mode&&!privatePilot?
   button('Automatic',()=>void offline.setMode('Automatic')):null;
  const workOfflineButton=v3Mode&&!privatePilot?
@@ -246,13 +246,20 @@ export function createApp(ctx){
    b.setAttribute('aria-pressed',String(b.textContent===selected));
   }
   retryModeButton.disabled=busy;
+  const indicator=available?
+   (selected==='Work Offline'?'work-offline':'automatic'):'checking';
+  connection.dataset.readingMode=indicator;
+  const network=navigator.onLine?'Browser online':'Browser offline';
+  connection.title=network+' · Reading mode: '+(available?selected:'Checking');
+  connection.setAttribute('aria-label','Connection status, '+
+   network+', reading mode '+(available?selected:'checking'));
   if(feedback?.message)modeStatus.textContent=feedback.message;
   else if(!available)modeStatus.textContent=
-   'Waiting for the V3 service worker. Retry reading controls if this persists.';
+   'Reading mode: Checking service worker… Retry reading controls if this persists.';
   else modeStatus.textContent='Reading mode: '+selected;
  }
  paintReadingMode();
- const updateConnection=()=>{connection.dataset.online=String(navigator.onLine);document.getElementById('connection-network').textContent=navigator.onLine?'Online':'Offline';const current=offline.getStatus();document.getElementById('offline-update').disabled=privatePilot||Boolean(current?.state==='Downloading')||!navigator.onLine;};
+ const updateConnection=()=>{connection.dataset.online=String(navigator.onLine);paintReadingMode();const network=navigator.onLine?'Online':'Offline';document.getElementById('connection-network').textContent=v3Mode&&!privatePilot?'Browser '+network+' · Reading '+(offline.getModeAvailable()?offline.getMode():'Checking'):network;const current=offline.getStatus();document.getElementById('offline-update').disabled=privatePilot||Boolean(current?.state==='Downloading')||!navigator.onLine;};
  // The pilot data are immutable from initial startup. On independently
  // verified Live, detect a newer sandbox main and reload its current
  // original-image references, but NEVER while reviewing an open editor.
@@ -328,12 +335,16 @@ export function createApp(ctx){
  };
  connection.addEventListener('click',()=>{
   connectionDialog.showModal();
+  if(modeControls)void offline.refreshMode();
   if(ownerController&&!workOffline())void refreshOwner();
  });document.getElementById('connection-close').addEventListener('click',()=>{
   ownerPanel?.suspend();connectionDialog.close();
  });window.addEventListener('online',updateConnection);window.addEventListener('offline',updateConnection);updateConnection();
  document.getElementById('offline-update').disabled=privatePilot||!navigator.onLine;
  document.getElementById('offline-update').addEventListener('click',()=>offline.update());document.getElementById('offline-reload').addEventListener('click',()=>offline.reload());
+ if(ctx.v3?.readerOnly===true)connectionDialog.querySelector('.diagnostics-panel')?.append(
+  text('p','Local V3 reader · Release '+ctx.release.id.slice(0,12)+
+   ' · Source '+ctx.release.sourceRevision.slice(0,12),'hint'));
  const releaseDetails=document.getElementById('release-details');if(releaseDetails)releaseDetails.textContent=`Release ${ctx.release.id.slice(0,12)} · Source ${ctx.release.sourceRevision.slice(0,12)}${ctx.release.pendingMedia?' · Pending media preview':''}`;
  if(ctx.release.pendingMedia)notify('Preview only: some approved image replacements remain unresolved. This is not a production-cutover candidate.','warning');
  render();
