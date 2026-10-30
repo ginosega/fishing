@@ -1,5 +1,13 @@
 # Fishing Context
 
+### October 30 D5 acceptance update and status ownership
+
+**Supersedes the older pending Edge retest note above.** Owner's Windows Edge retests **passed** for Connection Status and original Markdown viewer on Banks Lake and Garmin motor. The new desired indicator does **not** track Work Offline preference: V2-compatible green/yellow reflect navigator online/offline; blue tracks the server-accepted owner publication's actual active step (with step hover); red tracks verified Failed/Conflict and persists until explicit acknowledgement or a verified state change. Authenticated owner publishing status is not shown to anonymous readers. Status-query failures do not falsely infer terminal failure or erase a known terminal failure. The app's current failure action clears local durable tracking only after authenticated server terminal confirmation; no blind replay or automated conflict overwrite.
+
+**Source-only validation:** [CI #41067354331](https://github.com/ginosega/fishing/actions/runs/41067354331) succeeded for code `268018e65a0b6e786c21e9ec1027b12d1b46ec8f`: 154 PWA, 760 private P3, 43 broker and 4 real Chromium tests (all passed). The new indicator has NOT been field accepted on integrated owner-installed V3; neither public V3 nor a new private Worker version has been deployed. User remains in current chat; no handoff requested. Existing October 30 full context and all history are preserved below.
+
+---
+
 ## CURRENT verified architecture and acceptance context — October 30, 2026
 
 **Authoritative over older dated snapshots later in this document.** Actual public `main` was `a77e50f1fe296e3c16db18aa0fd5f9b17b7c95f4` at the audit; documentation-only work will advance that SHA without constituting a PWA deployment. Preserve all earlier detailed architecture, tackle, gear and user preferences below.
