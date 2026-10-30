@@ -6,6 +6,7 @@ import {createEditor} from './editor.mjs';
 import {createCatchEditor} from './catch-editor.mjs';
 import {openViewer,openSequenceViewer} from './viewer.mjs';
 import {bindMarkdownPictureViewer} from './markdown-viewer.mjs';
+import {formatV3Diagnostics} from './diagnostics.mjs';
 import {createOffline} from './offline.mjs';
 import {createD3ConnectionController,mountD3ConnectionPanel} from './v3-connection.mjs';
 
@@ -192,6 +193,40 @@ export function createApp(ctx){
    button('Work Offline',()=>void offline.setMode('Work Offline'))),
   text('p','Automatic prefers online; Work Offline uses only a prepared, verified library.','muted')):null;
  if(modeControls)connectionDialog.querySelector('.offline-panel')?.prepend(modeControls);
+ if(v3Mode){
+  const details=el('div',{class:'diagnostics-panel'}),
+   result=el('p',{role:'status','aria-live':'polite',class:'hint'});
+  const copyButton=button('Copy diagnostics',async()=>{
+   let usage,quota;
+   try{
+    const estimate=await navigator.storage?.estimate?.();
+    usage=estimate?.usage;quota=estimate?.quota;
+   }catch{ /* Storage access is optional and never required for browsing. */ }
+   const contents=formatV3Diagnostics({
+    releaseId:ctx.release.id,
+    sourceRevision:ctx.release.sourceRevision,
+    mode:offline.getMode(),
+    online:navigator.onLine,
+    offline:offline.getStatus(),
+    publicationState:ownerController?.current()?.publication,
+    userAgent:navigator.userAgent||'',
+    storageUsed:usage,storageQuota:quota,
+   });
+   try{
+    await navigator.clipboard.writeText(contents);
+    result.textContent='Diagnostics copied. No credentials or draft content included.';
+    const previous=details.querySelector('textarea');previous?.remove();
+   }catch{
+    result.textContent='Clipboard unavailable. Select and copy the diagnostics below.';
+    const area=el('textarea',{rows:12,readonly:true,value:contents,
+     'aria-label':'Diagnostics ready to copy'});
+    details.querySelector('textarea')?.remove();
+    details.append(area);area.focus();area.select();
+   }
+  });
+  details.append(copyButton,result);
+  connectionDialog.querySelector('.offline-panel')?.append(details);
+ }
  function paintReadingMode(){
   if(!modeControls)return;
   const selected=offline?.getMode?.()||'Automatic';
