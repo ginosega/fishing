@@ -35,7 +35,7 @@ export function resolveMarkdownTarget(url,{owner,maps,assetBase,pathRoutes=new M
  if(route)return {target:route+section(fragment),kind:'internal',local};
  return {target:new URL('content/'+encodedPath(local)+query+fragment,assetBase).href,kind:'local',local};
 }
-export function parseMarkdown(text,{owner,maps,assetBase='https://example.invalid/fishing/releases/test/',exists,pathRoutes=new Map(),ownerRoute,allowMissing=false,allowMissingImages=false}={}){
+export function parseMarkdown(text,{owner,maps,assetBase='https://example.invalid/fishing/releases/test/',exists,pathRoutes=new Map(),ownerRoute,allowMissing=false,allowMissingImages=false,viewerImages=false}={}){
  const tokens=md.parse(text,{}),references=[];
  function walk(items){for(const token of items){
   if(token.children)walk(token.children);
@@ -48,7 +48,11 @@ export function parseMarkdown(text,{owner,maps,assetBase='https://example.invali
   }
   const missing=Boolean(resolved.local&&exists&&!exists.has(resolved.local));
   if(missing&&!allowMissing&&!(image&&allowMissingImages))throw new Error(`Missing Markdown resource: ${owner} -> ${resolved.local}`);
+  // Keep the historical `kind` (local/internal/external) unchanged: it is
+  // supplied by resolveMarkdownTarget and is part of the V2 contract.
+  // Only explicitly opted-in V3 readers need the image-vs-link marker.
   references.push({owner,kind:image?'image':'link',source:original,...resolved,
+   ...(viewerImages&&image?{isImage:true}:{}),
    ...(image&&missing&&allowMissingImages?{missing:true}:{})});token.attrSet(attr,resolved.target);if(!image&&resolved.kind==='external'){token.attrSet('target','_blank');token.attrSet('rel','noopener noreferrer');}
  }}
  walk(tokens);
