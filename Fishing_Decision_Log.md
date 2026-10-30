@@ -1,5 +1,17 @@
 # Fishing Decision Log
 
+## October 30 owner acceptance and Connection Status indicator decision
+
+**Owner confirmed D5 Windows Edge test PASS:** initial/reload reading-mode label, Connection Status interactions, and original Markdown Picture Viewer on Banks Lake and Garmin motor work as expected. Close only **desktop Edge reader acceptance for these paths**, not installed Android/owner-integrated V3 or D6.
+
+**Owner-approved new indicator semantics:** normal green (browser online), yellow (browser offline), *independent* of Work Offline reading mode. Blue during owner publication Submitting, Accepted, Validating, Checking, Merging, Deploying or Verifying; hover identifies current step (and any status lookup uncertainty). Return to normal connectivity color **only after independently verified Live**, explicit acknowledged failure removal, or no active publication. A confirmed Failed/Conflict is **red and sticky** through temporary status-fetch errors; clear only via deliberate owner acknowledgement of the server-confirmed terminal result (or a new verified server result). Signed-out/anonymous views do not expose private failure state. Preserve V2 green/yellow semantics.
+
+**Recovery decision and limitation:** Connection Status supports authenticated status refresh and **Acknowledge and clear failed status**; clearing the error indicator is *not repair*. Corrected content may be submitted as a fresh owner publication after the previous terminal failure is acknowledged, but CI validation, merge conflicts or infrastructure failures are not automatically fixed by the app. Unknown requests retain exact in-memory idempotency semantics and must be reconciled by read-only status before any retry. No automatic blind write/merge retry or claim of universal in-app recovery.
+
+**No-deploy source evidence:** [CI #41067354331](https://github.com/ginosega/fishing/actions/runs/41067354331) **success** on V3 app source `268018e65a0b6e786c21e9ec1027b12d1b46ec8f`: 154 PWA tests, 760 private P3, 43 broker, four local Chromium; isolated manifest/byte build passed. The new color/hover UI is source-tested but not owner-tested in integrated publishing. Draft PR #263 remains unmerged, public V2 unchanged, no private Worker deploy. Owner **does not request a new chat transfer now**.
+
+---
+
 ## October 30, 2026 — authoritative D4/D5 decisions and acceptance boundaries
 
 **Newest decisions and observed evidence; all older “current/next” sections below are historical.** The five root project Markdown files on GitHub `main` remain the complete canonical record. Preserve them intact, with a new dated top checkpoint rather than replacing them with shortened development-branch copies. At the time of documentation preparation `main` was `a77e50f1fe296e3c16db18aa0fd5f9b17b7c95f4`; update this SHA in future transfers after any docs-only merge.
