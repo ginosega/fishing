@@ -237,10 +237,11 @@ function pollingFixture(){
   get count(){return scheduled.size;},
   get delay(){return [...scheduled.values()][0]?.ms;},
  };
- const mount=()=>mountD3ConnectionPanel({
+ const mount=(options={})=>mountD3ConnectionPanel({
   dialog,controller,documentObject:doc,windowObject:win,
   online:()=>connected,
   setTimer:clock.setTimer,clearTimer:clock.clearTimer,
+  ...options,
  });
  return {controller,clock,mount,doc,win,dialog,
   get lookups(){return lookups;},
@@ -518,4 +519,42 @@ test('D3-C22 confirmed Failed/Conflict stays terminal through GET failure until 
   assert.equal(controller.current().operationId,null);
   panel.remove();
  }
+});
+
+test('D3-C23 opted-in header continues owner step polling after dialog closes',async()=>{
+ const x=pollingFixture();
+ await x.controller.restore();
+ await x.controller.refreshPublication();
+ const panel=x.mount({trackInHeader:true});
+ assert.equal(x.clock.count,1);
+ x.dialog.open=false;
+ x.dialog.handlers.close();
+ assert.equal(x.clock.count,1,'Closing dialog must not strand global blue indicator');
+ x.setPhase('Merging');
+ await x.clock.fire();
+ assert.equal(x.controller.current().publication,'Merging');
+ assert.equal(x.clock.count,1);
+ x.setPhase('Live');
+ await x.clock.fire();
+ assert.equal(x.controller.current().publication,'Live');
+ assert.equal(x.clock.count,0,'Verified terminal status stops header reads');
+ panel.remove();
+});
+test('D3-C24 opted-in header stops while tab hidden, offline, signed out',async()=>{
+ const x=pollingFixture();
+ await x.controller.restore();
+ await x.controller.refreshPublication();
+ const panel=x.mount({trackInHeader:true});
+ x.dialog.open=false;x.dialog.handlers.close();
+ x.doc.visibilityState='hidden';x.doc.handlers.visibilitychange();
+ assert.equal(x.clock.count,0);
+ x.doc.visibilityState='visible';x.doc.handlers.visibilitychange();
+ assert.equal(x.clock.count,1);
+ x.setOnline(false);x.win.handlers.offline();
+ assert.equal(x.clock.count,0);
+ x.setOnline(true);x.win.handlers.online();
+ assert.equal(x.clock.count,1);
+ await x.controller.signOut();panel.paint();
+ assert.equal(x.clock.count,0);
+ panel.remove();
 });
