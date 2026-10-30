@@ -1,5 +1,13 @@
 # Fishing TODO
 
+## October 29/30 — D5 Edge feedback: candidate status, indicator and Markdown viewer corrected in source
+
+Owner Edge field report: `Reading mode` label only after first click and absent on reload; dot stayed green when explicitly Work Offline; Banks Lake + Garmin motor Markdown images did not open full viewer. V3 candidate now displays an initial `Reading mode: Checking`, refreshes on dialog open, labels browser connectivity separately from reading mode, turns header dot blue for Work Offline (V2 unchanged), shows local release/source identity, and compares normalized local-image URLs for viewer. A previously chosen Work Offline can retain an old cached release across rebuilds: owner fresh/reconnect test needed; root cause of all Edge-specific picture observations is not independently proven.
+
+**Exact-source [CI #41012355230](https://github.com/ginosega/fishing/actions/runs/41012355230) PASS:** 140/140 PWA source, 43/43 broker, 760/760 private P3 tests, candidate immutable build/verify, and **4/4 real Chromium** cases covering mode state persistence/indicator, Banks Lake Markdown, Garmin foot-pedal/mount/battery image URLs, and viewing both articles in Work Offline. No hosted deployment or production change. **Next:** owner Windows Edge retest after stopping server, switching old candidate to Automatic if retained, closing all InPrivate windows, pulling/building verified candidate and checking displayed source ID and viewer. [D5 evidence](experiments/p3/preview/D5_Isolated_V3_Reader_Candidate_2026-10-29.md).
+
+---
+
 ## October 29/30 — D5 Windows candidate feedback repaired, real Chromium PASS
 
 The owner found Update Offline Library worked in the first Windows Edge loopback candidate, but Automatic/Work Offline were unresponsive and Banks Lake Markdown pictures did not launch the viewer. **Fixes SOURCE-ONLY on draft PR #263:** allow loopback-only HTTP original images without allowing remote insecure image URLs; extend full-cache Work Offline verification response timeout (old 4s), show verification/selected-mode status, add explicit retry and safe error reporting. Exact-source isolated [CI #41010928402](https://github.com/ginosega/fishing/actions/runs/41010928402) at code `6a960d249dd7b9d9296f501f5f4418537cf073af`: **140/140 PWA, 43/43 broker, 760/760 private tests, and 2/2 real Chromium loopback acceptance (mode persistence and Banks Lake Markdown viewer) PASS**; candidate build/immutable bytes PASS; no deployment.
