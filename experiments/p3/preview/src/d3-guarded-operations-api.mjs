@@ -266,7 +266,7 @@ export function createD3GuardedOperationsApi({
         requireTrue(operationPattern.test(id),'STATUS_NOT_FOUND');
         const found=await store.get(id);
         requireTrue(found?.operationId===id,'STATUS_NOT_FOUND');
-        return respond({ok:true,operation:found,canonicalLive:false});
+        return respond({ok:true,operation:await withSummary(found),canonicalLive:false});
       }
       return error(404,'NOT_FOUND');
     }catch(e){return translate(e);}
