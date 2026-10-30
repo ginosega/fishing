@@ -145,6 +145,14 @@ export function createD3GuardedOperationsApi({
     typeof verifyMediaTickets==='function'&&
     typeof measure==='function'&&typeof notifyAccepted==='function',
     'INVALID_CONFIG');
+  // Owner-scoped, read-only display metadata. Existing simulated stores
+  // lacking summary() continue to return their minimal status contract.
+  async function withSummary(record){
+   if(record===null)return null;
+   const summary=typeof store.summary==='function'?
+    await store.summary(record.operationId):null;
+   return summary?{...record,summary}:record;
+  }
   async function handle(request){
     try{
       requireTrue(request instanceof Request,'INVALID_CONFIG');
@@ -246,7 +254,7 @@ export function createD3GuardedOperationsApi({
         requireTrue(found===null||
           (operationPattern.test(found?.operationId??'')&&
            typeof found.state==='string'),'UNVERIFIED_SOURCE');
-        return respond({ok:true,operation:found,canonicalLive:false});
+        return respond({ok:true,operation:await withSummary(found),canonicalLive:false});
       }
       if(request.method==='GET'&&
         /^\/api\/v3\/operations\/[^/]+$/.test(url.pathname)&&
