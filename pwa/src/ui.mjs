@@ -6,6 +6,7 @@ import {createEditor} from './editor.mjs';
 import {createCatchEditor} from './catch-editor.mjs';
 import {openViewer,openSequenceViewer} from './viewer.mjs';
 import {bindMarkdownPictureViewer} from './markdown-viewer.mjs';
+import {connectionIndicator} from './connection-indicator.mjs';
 import {formatV3Diagnostics} from './diagnostics.mjs';
 import {createOffline} from './offline.mjs';
 import {createD3ConnectionController,mountD3ConnectionPanel} from './v3-connection.mjs';
@@ -37,6 +38,7 @@ export function createApp(ctx){
   new Set(ctx.v3.source.files):
   new Set(ctx.manifest.files.filter(x=>x.path.startsWith(`releases/${ctx.release.id}/content/`)).map(x=>x.path.slice(`releases/${ctx.release.id}/content/`.length)));
  let currentHash=location.hash||'#/',route=parseRoute(currentHash),editor=null,serial=0,offline=null,approvedNavigation=null,previousHash=null;
+ let ownerController=null,savingPublication=false;
  // V2 stays unchanged. V3 owner controls are strictly opt-in via an
  // authenticated, same-origin integration; server authorization is still
  // mandatory for every actual write, regardless of client-side visibility.
@@ -56,7 +58,10 @@ export function createApp(ctx){
    throw new Error('Reading mode could not be verified. Publishing is paused; reopen Connection Status and retry.');
   if(workOffline())throw new Error('Work Offline is reading-only. Switch to Automatic in Connection Status before publishing.');
   if(!navigator.onLine)throw new Error('Reconnect to publish your changes.');
-  return ctx.v3.publish(...args);
+  savingPublication=true;
+  paintConnectionIndicator();
+  try{return await ctx.v3.publish(...args);}
+  finally{savingPublication=false;paintConnectionIndicator();}
  };
  function notify(message,kind='info'){status(alertHost,message,kind);}
  function dirty(){return Boolean(editor?.isDirty());}
@@ -246,22 +251,46 @@ export function createApp(ctx){
    b.setAttribute('aria-pressed',String(b.textContent===selected));
   }
   retryModeButton.disabled=busy;
-  const indicator=available?
+  connection.dataset.readingMode=available?
    (selected==='Work Offline'?'work-offline':'automatic'):'checking';
-  connection.dataset.readingMode=indicator;
-  const network=navigator.onLine?'Browser online':'Browser offline';
-  connection.title=network+' · Reading mode: '+(available?selected:'Checking');
-  connection.setAttribute('aria-label','Connection status, '+
-   network+', reading mode '+(available?selected:'checking'));
   document.getElementById('connection-network').textContent=
-   network+' · Reading '+(available?selected:'Checking');
+   'Browser '+(navigator.onLine?'online':'offline')+' · Reading '+
+    (available?selected:'Checking');
+  paintConnectionIndicator();
   if(feedback?.message)modeStatus.textContent=feedback.message;
   else if(!available)modeStatus.textContent=
    'Reading mode: Checking service worker… Retry reading controls if this persists.';
   else modeStatus.textContent='Reading mode: '+selected;
  }
+ function paintConnectionIndicator(){
+  // A locally accepted receipt may precede the first read-only status GET.
+  // Confirmed Failed/Conflict takes priority until the owner dismisses it.
+  const state=ownerController?.current();
+  let publication=state?.authorized===true?state.publication:'None';
+  if(state?.authorized===true&&savingPublication)publication='Submitting';
+  else if(state?.authorized===true){
+   const tracked=ctx.v3?.lifecycle?.tracking?.();
+   if(tracked?.operationId&&tracked.operationId!==state.operationId&&
+    tracked.phase==='Accepted')publication='Accepted';
+  }
+  const reading=v3Mode&&!privatePilot?
+   (offline?.getModeAvailable?.()===true?offline.getMode():'Checking'):null;
+  const display=connectionIndicator({online:navigator.onLine,
+   authorized:state?.authorized===true,publication,
+   statusReadError:state?.statusReadError===true,readingMode:reading});
+  connection.dataset.online=String(navigator.onLine);
+  if(v3Mode)connection.dataset.publicationIndicator=display.tone;
+  connection.title=display.title;
+  connection.setAttribute('aria-label',display.label);
+ }
  paintReadingMode();
- const updateConnection=()=>{connection.dataset.online=String(navigator.onLine);paintReadingMode();const network=navigator.onLine?'Online':'Offline';document.getElementById('connection-network').textContent=v3Mode&&!privatePilot?'Browser '+network+' · Reading '+(offline.getModeAvailable()?offline.getMode():'Checking'):network;const current=offline.getStatus();document.getElementById('offline-update').disabled=privatePilot||Boolean(current?.state==='Downloading')||!navigator.onLine;};
+ const updateConnection=()=>{
+  if(modeControls)paintReadingMode();
+  else paintConnectionIndicator();
+  const current=offline.getStatus();
+  document.getElementById('offline-update').disabled=
+   privatePilot||Boolean(current?.state==='Downloading')||!navigator.onLine;
+ };
  // The pilot data are immutable from initial startup. On independently
  // verified Live, detect a newer sandbox main and reload its current
  // original-image references, but NEVER while reviewing an open editor.
@@ -296,7 +325,7 @@ export function createApp(ctx){
   }finally{sourceRefreshBusy=false;}
  }
  let ownerPanel=null;
- const ownerController=v3Mode&&ctx.v3?.auth&&ctx.v3?.lifecycle?
+ ownerController=v3Mode&&ctx.v3?.auth&&ctx.v3?.lifecycle?
   createD3ConnectionController({
    auth:ctx.v3.auth,lifecycle:ctx.v3.lifecycle,
    enabled:()=>v3Mode,online:()=>navigator.onLine&&!workOffline(),
@@ -304,6 +333,7 @@ export function createApp(ctx){
     const prior=ctx.v3.authorized;
     ctx.v3.authorized=state.authorized;
     ownerPanel?.paint();
+    paintConnectionIndicator();
     if((state.publication==='Live'&&state.sandboxVerified===true)||
      ['Failed','Conflict'].includes(state.publication))
      void refreshPublishedContent();
@@ -324,8 +354,11 @@ export function createApp(ctx){
   ctx.v3.onPublicationReceipt=receipt=>{
    if(!/^p3_[0-9a-f-]{36}$/.test(receipt?.operationId??'')||
     receipt?.canonicalLive!==false)return;
+   // The server accepted this operation, but Live still requires a read.
+   paintConnectionIndicator();
    void ownerController.refreshPublication().then(
-    ()=>ownerPanel?.paint(),()=>ownerPanel?.paint());
+    ()=>{ownerPanel?.paint();paintConnectionIndicator();},
+    ()=>{ownerPanel?.paint();paintConnectionIndicator();});
   };
  }
  const refreshOwner=async()=>{
