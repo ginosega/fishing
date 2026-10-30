@@ -183,7 +183,7 @@ export async function createCatchEditor(ctx,{
   const submit=el('button',{type:'submit',class:'btn primary'},'Save and Publish');
  const actions=toolbar(submit,button('Cancel',onBack));
  form.append(
-  field('Catch ID (fixed after publication)',idInput),
+  field(baseRecord?'ID (fixed after publication)':'ID (generated automatically)',idInput),
   field('Date',dateInput),field('Time (optional)',timeInput),
   field('Size (optional)',sizeInput),
   speciesField,locationField,lureField,
