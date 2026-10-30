@@ -96,7 +96,7 @@ export function createApp(ctx){
   // V2 remains strict and unchanged; V3 readers preserve the containing
   // article when a historical local image has been retired or is missing.
   const parsed=parseMarkdown(textValue,{owner,maps:ctx.maps,assetBase:ctx.base,
-   exists,pathRoutes:routes,allowMissingImages:v3Mode});
+   exists,pathRoutes:routes,allowMissingImages:v3Mode,viewerImages:v3Mode});
   const article=el('article',{class:'markdown-body'});
   article.innerHTML=sanitizeHtml(parsed.html,window);
   if(v3Mode)bindMarkdownPictureViewer(article,{
