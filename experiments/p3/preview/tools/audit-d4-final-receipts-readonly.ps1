@@ -32,7 +32,7 @@ try {
   }
   foreach($row in $rows){
    $id=[string]$row.operation_id
-   Need $expected.ContainsKey($id) 'Unexpected operation identity'
+   Need ($expected.ContainsKey($id)) 'Unexpected operation identity'
    $want=$expected[$id]
    Need ($row.pr_number -eq $want.pr) ('Unexpected PR number for '+$id)
    Need ($row.merge_sha -eq $want.sha) ('Unexpected merge receipt for '+$id)
