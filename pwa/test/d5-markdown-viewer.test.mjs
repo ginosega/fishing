@@ -145,3 +145,47 @@ test('D5-V06 ordinary V2 Markdown reference kinds and fields are unchanged',()=>
  assert.equal(linked.references.filter(x=>x.isImage===true).length,1);
  assert.equal(linked.references.filter(x=>x.kind==='external').length,1);
 });
+
+
+test('D5-V07 loopback candidate shows Banks Lake-style local Markdown PNG in full viewer',()=>{
+ const banksOwner='KB/Locations/content/banks-lake.md';
+ const south='KB/Locations/content/Banks-Lake-Steamboat-Rock-State-Park-South.png';
+ const north='KB/Locations/content/Banks-Lake-Steamboat-Rock-State-Park-North.png';
+ const localBase='http://127.0.0.1:4173/fishing/__v3_reader_candidate__/releases/'+'a'.repeat(32)+'/';
+ const parsed=parseMarkdown(
+  '| South | North |\n| --- | --- |\n| ![South](./Banks-Lake-Steamboat-Rock-State-Park-South.png) | ![North](./Banks-Lake-Steamboat-Rock-State-Park-North.png) |',
+  {owner:banksOwner,maps:{},assetBase:localBase,viewerImages:true,
+   exists:new Set([south,north])});
+ const imgs=parsed.references.filter(x=>x.isImage===true);
+ assert.equal(imgs.length,2);
+ let opened=[];
+ const fixtures=imgs.map(ref=>fixture({src:ref.target}));
+ const doc=fixtures[0].article;
+ doc.querySelectorAll=()=>fixtures.map(f=>f.imageNode);
+ assert.equal(bindMarkdownPictureViewer(doc,{
+  references:parsed.references,
+  resolveAsset:file=>new URL('content/'+file,localBase).href,
+  openViewer:(...args)=>opened.push(args),
+ }),true);
+ for(const f of fixtures){
+  assert.equal(f.imageNode.replacement.tag,'button');
+  f.imageNode.replacement.handlers.click();
+ }
+ assert.equal(opened.length,2);
+ assert.match(opened[0][0],/^http:\/\/127\.0\.0\.1:4173\/fishing\/__v3_reader_candidate__\//);
+});
+
+test('D5-V08 viewer refuses non-loopback plaintext and credential-bearing original assets',()=>{
+ const parsed=parsedMarkdown('![Synthetic knot](../assets/step-01.jpg)');
+ for(const url of [
+  'http://example.com/original.jpg',
+  'http://user:password@127.0.0.1:4173/original.jpg',
+  'javascript:alert(1)',
+ ]){
+  const {article,imageNode}=fixture({src:parsed.references[0].target});
+  assert.equal(bindMarkdownPictureViewer(article,{
+   references:parsed.references,resolveAsset:()=>url,openViewer:()=>{},
+  }),true);
+  assert.equal(imageNode.replacement,null,'untrusted asset must not gain viewer');
+ }
+});
