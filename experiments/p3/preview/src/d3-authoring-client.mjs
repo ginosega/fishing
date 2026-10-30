@@ -68,7 +68,7 @@ export function describeD3Operation(record,{canonicalLive=false}={}){
   publicLive:record.state==='Live'&&canonicalLive===true,
   sandboxVerified:record.state==='Live'&&canonicalLive===false,
   needsAttention:['Conflict','Failed'].includes(record.state),
-  summary:validPublicationSummary(record.summary)?record.summary:null,
+  ...(validPublicationSummary(record.summary)?{summary:record.summary}:{}),
  });
 }
 export function createD3AuthoringClient({
@@ -89,8 +89,9 @@ export function createD3AuthoringClient({
   owner=authorized;csrf=authorized?body.csrfToken:null;
   mediaReady=authorized&&body.sandboxMediaReady===true;
   return Object.freeze({authenticated:body.authenticated===true,authorized,
-   ownerLogin:authorized&&typeof body.ownerLogin==='string'&&
-    /^[a-zA-Z0-9-]{1,39}$/.test(body.ownerLogin)?body.ownerLogin:null,
+   ...(authorized&&typeof body.ownerLogin==='string'&&
+    /^[a-zA-Z0-9-]{1,39}$/.test(body.ownerLogin)?
+    {ownerLogin:body.ownerLogin}:{}),
    sandboxPublishingReady:authorized&&body.sandboxPublishingReady===true,
    sandboxMediaReady:mediaReady});
  }
