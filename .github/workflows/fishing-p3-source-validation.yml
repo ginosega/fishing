@@ -1,5 +1,17 @@
 name: Fishing P3 isolated source validation
 on:
+  # Draft #263 may be unmergeable against docs-only main; keep this
+  # source-only suite runnable on its own isolated development branch.
+  # It never publishes a V2/V3 app or deploys Cloudflare resources.
+  push:
+    branches:
+      - 'feature/fish118-p3-mock-publisher'
+    paths:
+      - 'pwa/src/**'
+      - 'pwa/test/**'
+      - 'pwa/tools/**'
+      - 'experiments/p3/**'
+      - '.github/workflows/fishing-p3-source-validation.yml'
   pull_request:
     paths:
       - 'experiments/p3/**'
