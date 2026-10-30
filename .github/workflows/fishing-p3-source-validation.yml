@@ -10,6 +10,12 @@ on:
       - 'pwa/src/ui.mjs'
       - 'pwa/tools/build.mjs'
       - 'pwa/test/offline-integrity.test.mjs'
+      - 'pwa/src/markdown.mjs'
+      - 'pwa/src/markdown-viewer.mjs'
+      - 'pwa/test/d5-markdown-viewer.test.mjs'
+      - 'pwa/src/diagnostics.mjs'
+      - 'pwa/test/d5-diagnostics.test.mjs'
+      - 'pwa/src/styles.css'
       - '.github/workflows/fishing-p3-source-validation.yml'
 permissions:
   contents: read
