@@ -1,5 +1,13 @@
 # Fishing TODO
 
+## October 29 late (October 30 UTC) — D5 Viewer/Diagnostics Windows source PASS
+
+**Owner exact-source Windows test: PASS 129/129, zero failures, zero skipped** on V3 draft head `57a598453a97cd28ee11e45b77f475b8098e30b1`. User ran `git pull --ff-only`, verified the full expected commit SHA, and executed `npm.cmd test` from `pwa`. The prior 123/128 five-failure run is **superseded**: D5-V01..V06 all pass, D5-C01..C03 all pass, D5-O01..O04 all pass, and existing release/media/owner lifecycle regressions remain green. This **closes D5 Picture Viewer and Copy Diagnostics Windows source-validation** at the tested source revision (as well as the prior D5 Work Offline source gate). It is **not** an independent GitHub Actions full-suite result, browser/installed Android acceptance, or deployed V3 verification. Documentation commits after this checkpoint do not silently change the code SHA that was tested.
+
+**Next D5 work:** source-aware real V3 candidate/integrated installed Android and Windows browser acceptance with independently verified release scope; persistent Work Offline/Automatic, Connection Status diagnostics and Picture Viewer interaction, and editor draft-protection/recovery assessment. Private sandbox pilot remains online-only and separate from the public V2 cached PWA. No V3 public cutover, material production routing change, or public-main write approved. Separately retain D3 installed-PWA OAuth/session gate and V3-SAVE-09 genuine public Save-to-Live <=60 seconds gate. Preserve D4 original-byte audit caveat and untested Knot replacement/interrupted upload cases.
+
+---
+
 ## October 29, 2026 — D5 Work Offline source PASS; Viewer/Diagnostics follow-up pending validation
 
 **New Viewer/Diagnostics Windows test:** owner reran 128 tests at `236872d` — **123 PASS, 5 FAIL**, with all D5 Work Offline and prior v2 tests still passing. Four new Viewer failures revealed a real V3-only reference-kind bug (`...resolved` had always supplied `kind:'local'`, so image detection using `kind:'image'` failed); patched by an explicit V3-only `isImage` marker, preserving all old V2 link-kind fields, and added D5-V06 compatibility test. One diagnostics test expected a literal escaped newline; its assertion is now whitespace-independent. **Corrected new source is not yet rerun; require fresh exact-head `npm.cmd test` before claiming D5 Viewer/Diagnostics PASS.** No deployment made.
