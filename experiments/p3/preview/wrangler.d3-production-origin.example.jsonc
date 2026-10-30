@@ -1,0 +1,76 @@
+{
+  // FISH118 D3 production-origin SANDBOX PILOT ONLY.
+  // SOURCE TEMPLATE, NOT DEPLOYED, NOT A DEPLOYMENT INSTRUCTION.
+  // The owner's Oct 26 screenshots and Wrangler 4.153.0 confirm that
+  // fishing-auth-p0-test version 82b678b2-b024-4428-922c-d2363f2bcbc2
+  // is safely parked, with TWO D1 bindings and ZERO Cron triggers.
+  //
+  // Do not replace that parked deployment until the separate D3 runtime
+  // authorization, a pinned safe rollback version, and explicit operator
+  // preflight are complete. The original private D2 operation must not rerun.
+  "name": "fishing-auth-p0-test",
+  "main": "src/d3-owner-runtime.mjs",
+  "compatibility_date": "2026-10-25",
+  "compatibility_flags": ["global_fetch_strictly_public"],
+  "workers_dev": true,
+  "preview_urls": false,
+  "observability": { "enabled": true, "logs": { "enabled": true } },
+  "keep_vars": true,
+  // Wrangler imports ./src/generated/d3-pilot.bundle.txt as a Text module.
+  // Generate with the local locked esbuild script BEFORE an authorized dry-run.
+  "rules": [{ "type": "Text", "globs": ["**/*.txt"], "fallthrough": true }],
+  // Reuse existing encrypted D2 App/probe secrets on this same Worker.
+  // D3 HMAC messages have an independent D3-test-only domain prefix.
+  // Never export, duplicate, rotate or redeclare a PEM to add D3.
+  "secrets": {
+    "required": [
+      "GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET",
+      "OWNER_GITHUB_ID", "D2_CSRF_KEY",
+      "D2_GITHUB_APP_PRIVATE_KEY", "D2_HOST_PROBE_KEY"
+    ]
+  },
+  "vars": {
+    "APP_ORIGIN": "https://fishing-auth-p0-test.ginosega.workers.dev",
+    "D3_SANDBOX_REPO_ID": "1430581407",
+    "D3_GITHUB_APP_ID": "5436811",
+    "D3_GITHUB_INSTALLATION_ID": "174361658",
+    // D3 is HARD OFF at the first postflight.
+    // No special browser parameter can override any of these gates.
+    "D3_WRITE_ENABLED": "false",
+    "D3_RUNNER_ENABLED": "false",
+    "D3_READ_TOKENS_ENABLED": "false",
+    "D3_TEST_HOST_ENABLED": "false",
+    "D3_PILOT_ENABLED": "false",
+    // D4 private originals via Git blobs: requires separate guarded
+    // application/media release and owner acceptance. NEVER on by default.
+    "D4_MEDIA_ENABLED": "false",
+    // Separate owner-only integration gate for /fishing/__d3_pilot__/.
+    // NEVER enable on V2 while its existing service worker rewrites navigations.
+    // Requires explicit integrated PWA release/source/rollback review.
+    "D3_INTEGRATED_PWA_ENABLED": "false",
+    // Set to the independently generated private local pilot bundle SHA-256
+    // only in the operator-reviewed LOCAL config, never copy a placeholder
+    // to Cloudflare and never enable the page with a missing/mismatched SHA.
+    "D3_PILOT_SHA256": "REPLACE_WITH_LOCAL_PILOT_SHA256",
+    // Preserve D2 disabled even when the source entrypoint changes.
+    "D2_WRITE_ENABLED": "false",
+    "D2_RUNNER_ENABLED": "false",
+    "D2_READ_TOKENS_ENABLED": "false",
+    "D2_TEST_HOST_ENABLED": "false"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "fishing-auth-p0",
+      "database_id": "REPLACE_WITH_VERIFIED_EXISTING_AUTH_D1_UUID"
+    },
+    {
+      "binding": "OPERATIONS_DB",
+      "database_name": "fishing-p3-sandbox",
+      "database_id": "REPLACE_WITH_VERIFIED_EXISTING_OPERATIONS_D1_UUID"
+    }
+  ],
+  // An inert first deployment has ZERO triggers.
+  // Do not create a D3 Cron until privileged test-run authorization.
+  "triggers": { "crons": [] }
+}

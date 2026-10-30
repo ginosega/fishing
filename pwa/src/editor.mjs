@@ -1,5 +1,5 @@
 import {el,text,button,field,input,select,section,toolbar,status,picture} from './dom.mjs';
-import {DOMAIN,GEAR_CATEGORIES,KB_TYPES,ROD_TYPES,EQUIPMENT_TYPES,ID_PATTERN,categoryFolder,safePath,encodedPath,newId,suggestedFilename,sha256,sequenceFolder,sequencePicturePath} from './shared.mjs';
+import {DOMAIN,GEAR_CATEGORIES,KB_TYPES,ROD_TYPES,EQUIPMENT_TYPES,ID_PATTERN,categoryFolder,safePath,encodedPath,suggestedItemId,suggestedFilename,sha256,sequenceFolder,sequencePicturePath} from './shared.mjs';
 import {TAXONOMY,validateRecord,validateRecords} from './validation.mjs';
 import {parseMarkdown,sanitizeHtml,markdownRouteMap} from './markdown.mjs';
 import {prepareChange,narrativePath,picturePath,equal} from './handoff.mjs';
@@ -10,7 +10,13 @@ import {validateBrowserImage} from './image-validation.mjs';
 const clone=value=>structuredClone(value);
 function serialize(record){return JSON.stringify(record);}
 function optional(record,key,value){if(value.trim())record[key]=value.trim();else delete record[key];}
-function knownFiles(ctx){const prefix=`releases/${ctx.release.id}/content/`;return new Map(ctx.manifest.files.filter(x=>x.path.startsWith(prefix)).map(x=>[x.path.slice(prefix.length),x]));}
+function knownFiles(ctx){
+ if(ctx.v3?.source?.files instanceof Set)
+  return new Map([...ctx.v3.source.files].map(path=>[path,{path}]));
+ const prefix=`releases/${ctx.release.id}/content/`;
+ return new Map(ctx.manifest.files.filter(x=>x.path.startsWith(prefix))
+  .map(x=>[x.path.slice(prefix.length),x]));
+}
 function knownPaths(ctx){return new Set(knownFiles(ctx).keys());}
 function editorMaps(ctx,domain,record){const data=clone(ctx.data),key=DOMAIN[domain].array;data[domain][key]=data[domain][key].filter(x=>x.id!==record.id).concat(record);return {data,maps:validateRecords(data),routes:markdownRouteMap(data)};}
 function linkToUpload(path){const dir=path.split('/').slice(0,-1).map(encodeURIComponent).join('/');return `https://github.com/ginosega/fishing/tree/main/pwa/${dir}`;}
@@ -19,24 +25,62 @@ const SEQUENCE_ACTIONS=new Set(['add-sequence','replace-with-sequence','replace-
 const STATIC_FILE_ACTIONS=new Set(['add-static','replace-static','replace-with-static']);
 const acceptedImages='.jpg,.jpeg,.png,.webp,.gif,image/jpeg,image/png,image/webp,image/gif';
 
-export async function createEditor(ctx,{domain,baseRecord=null,category=null,type=null,onBack,onExit,onPrepared,onDirty}){
+export async function createEditor(ctx,{domain,baseRecord=null,category=null,type=null,onBack,onExit,onPrepared,onDirty,publishChange=null}){
  const editing=Boolean(baseRecord),key=domain==='gear'?'notes':'content',record=baseRecord?clone(baseRecord):{id:'',name:'',...(domain==='gear'?{category:category||'lures',type:'',specifications:[],links:[]}:{type:type||'technique',content:''})};
  if(!editing&&domain==='gear')record.type=(record.category==='rods-reels'?ROD_TYPES:record.category==='accessories'?EQUIPMENT_TYPES:TAXONOMY[record.category])[0];
- let baseText='',body='',baseHash=null,idTouched=false,mediaAction='keep',fileInfo=null,previewUrl=null,sequenceInfos=[],sequenceUrls=[],prepared=null;
- if(baseRecord?.[key]){const response=await fetch(ctx.asset(baseRecord[key]));if(!response.ok)throw new Error(`Cannot read original Markdown: ${response.status}`);const bytes=new Uint8Array(await response.arrayBuffer());baseText=new TextDecoder('utf-8',{fatal:true}).decode(bytes);body=baseText;baseHash=await sha256(bytes);}
+ let baseText='',body='',baseHash=null,mediaAction='keep',fileInfo=null,previewUrl=null,sequenceInfos=[],sequenceUrls=[],prepared=null,savePending=false,saveAccepted=false;
+ if(baseRecord?.[key]){
+  let bytes;
+  if(ctx.v3?.source?.markdown instanceof Map){
+   const text=ctx.v3.source.markdown.get(baseRecord[key]);
+   if(typeof text!=='string')
+    throw new Error('The immutable sandbox Markdown is missing.');
+   bytes=new TextEncoder().encode(text);
+  }else{
+   const response=await fetch(ctx.asset(baseRecord[key]));
+   if(!response.ok)throw new Error(`Cannot read original Markdown: ${response.status}`);
+   bytes=new Uint8Array(await response.arrayBuffer());
+  }
+  baseText=new TextDecoder('utf-8',{fatal:true}).decode(bytes);
+  body=baseText;baseHash=await sha256(bytes);
+ }
  if(!editing&&domain==='kb')body='';
  const host=el('div',{class:'editor'}),notice=el('div',{class:'editor-notice','aria-live':'polite'}),form=el('form',{class:'editor-form'}),output=el('div',{class:'handoff-output'});
  const original=serialize(record),initialBody=body;
- const dirty=()=>serialize(record)!==original||body!==initialBody||mediaAction!=='keep';
- function changed(){prepared=null;output.replaceChildren();onDirty?.(dirty());}
+ const dirty=()=>!saveAccepted&&(serialize(record)!==original||body!==initialBody||mediaAction!=='keep');
+ function changed(){if(saveAccepted)return;prepared=null;output.replaceChildren();onDirty?.(dirty());}
  function update(fieldName,value){optional(record,fieldName,value);changed();}
  function revokeLocal(clearInput=true){if(previewUrl){URL.revokeObjectURL(previewUrl);previewUrl=null;}for(const url of sequenceUrls)URL.revokeObjectURL(url);sequenceUrls=[];fileInfo=null;sequenceInfos=[];if(clearInput)fileInput.value='';}
  function recalcSequencePaths(){if(!sequenceInfos.length||!ID_PATTERN.test(record.id))return;for(const info of sequenceInfos)info.path=sequencePicturePath(record,info.name);record.pictureSequence=sequenceInfos.map(x=>x.path);picturePathInput.value=record.pictureSequence.at(-1);record.picture={src:picturePathInput.value,...(captionInput.value?{caption:captionInput.value}:{})};}
  function control(label,value,change,options={}){const c=input(value,options);c.addEventListener('input',()=>change(c.value));return field(label,c,options.hint||'');}
- function requiredControl(label,keyName,options={}){const c=input(record[keyName]||'',{required:true,maxlength:160,...options});c.addEventListener('input',()=>{record[keyName]=c.value;if(keyName==='name'&&!editing&&!idTouched){record.id=newId(c.value,new Set(ctx.data[domain][DOMAIN[domain].array].map(x=>x.id)));idInput.value=record.id;recalcSequencePaths();renderPicture();}changed();});return field(label,c);}
- const idInput=input(record.id,{required:true,maxlength:160,readonly:editing});idInput.addEventListener('input',()=>{idTouched=true;record.id=idInput.value;recalcSequencePaths();renderPicture();changed();});
+ function requiredControl(label,keyName,options={}){
+  const c=input(record[keyName]||'',{required:true,maxlength:160,...options});
+  c.addEventListener('input',()=>{
+   record[keyName]=c.value;
+   if(keyName==='name'&&!editing){
+    record.id=c.value.trim()?suggestedItemId(domain,c.value,
+     new Set(ctx.data[domain][DOMAIN[domain].array].map(x=>x.id)),
+     {sandboxOnly:ctx.v3?.source?.sandboxOnly===true}):'';
+    idInput.value=record.id;
+    recalcSequencePaths();
+    // An unsubmitted new record's image and Knot paths follow its
+    // generated ID when the owner changes Name after selecting files.
+    if(fileInfo&&record.picture&&record.id){
+     const path=picturePath(domain,record,fileInfo.name);
+     record.picture.src=path;picturePathInput.value=path;
+    }
+    renderPicture();
+   }
+   changed();
+  });
+  return field(label,c);
+ }
+ // All Gear and Knowledge Base types share this non-editable generated ID.
+ // Published IDs remain stable so links, Catches and media paths do not break.
+ const idInput=input(record.id,{required:true,maxlength:160,readonly:true});
  const nameField=requiredControl('Name','name');
- form.append(nameField,field('ID',idInput));
+ form.append(nameField,field(editing?'ID':
+  'ID (generated automatically)',idInput));
  const categoryControls=el('div',{class:'form-grid'});let typeSelect=null;
  if(domain==='gear'){
   const categorySelect=select(GEAR_CATEGORIES.map(r=>[r[0],r[1]]),record.category,()=>{record.category=categorySelect.value;const choices=typesFor(record.category);if(!choices.includes(record.type))record.type=choices[0];typeSelect.replaceChildren(...choices.map(x=>el('option',{value:x},x)));typeSelect.value=record.type;changed();});
@@ -68,11 +112,15 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
   return hasPicture?[['keep','Keep current picture'],['replace-static','Replace picture'],['remove-picture','Remove picture']]:[['keep','Keep no picture'],['add-static','Add picture']];
  }
  function renderActionOptions(typeChanged=false){
-  const options=actionOptions();if(!options.some(([value])=>value===mediaAction)){revokeLocal();mediaAction='keep';if(typeChanged&&baseRecord){record.picture=clone(baseRecord.picture);record.pictureSequence=clone(baseRecord.pictureSequence);} }
+  const options=actionOptions();if(!options.some(([value])=>value===mediaAction)){revokeLocal();mediaAction='keep';if(typeChanged&&baseRecord){if(baseRecord.picture===undefined)delete record.picture;else record.picture=clone(baseRecord.picture);
+     if(baseRecord.pictureSequence===undefined)delete record.pictureSequence;
+     else record.pictureSequence=clone(baseRecord.pictureSequence);} }
   pictureSelect.replaceChildren(...options.map(([value,label])=>el('option',{value,selected:value===mediaAction},label)));pictureSelect.value=mediaAction;
  }
  function applyAction(){
-  if(mediaAction==='keep'&&editing){record.picture=clone(baseRecord.picture);record.pictureSequence=clone(baseRecord.pictureSequence);captionInput.value=record.picture?.caption||'';picturePathInput.value=record.picture?.src||'';}
+  if(mediaAction==='keep'&&editing){if(baseRecord.picture===undefined)delete record.picture;else record.picture=clone(baseRecord.picture);
+     if(baseRecord.pictureSequence===undefined)delete record.pictureSequence;
+     else record.pictureSequence=clone(baseRecord.pictureSequence);captionInput.value=record.picture?.caption||'';picturePathInput.value=record.picture?.src||'';}
   if(mediaAction==='keep'&&!editing){delete record.picture;delete record.pictureSequence;captionInput.value='';picturePathInput.value='';}
   if(mediaAction==='remove-picture'){delete record.picture;delete record.pictureSequence;picturePathInput.value='';}
   if(mediaAction==='remove-sequence-keep-picture'){if(baseRecord?.picture)record.picture=clone(baseRecord.picture);delete record.pictureSequence;picturePathInput.value=record.picture?.src||'';captionInput.value=record.picture?.caption||captionInput.value;}
@@ -93,7 +141,7 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
     const files=orderedSequenceFiles(fileInput.files||[]),infos=[];for(const file of files){const info=await validateBrowserImage(file);infos.push({...info,file,name:file.name,path:sequencePicturePath(record,file.name)});}
     revokeLocal(false);sequenceInfos=infos;sequenceUrls=files.map(file=>URL.createObjectURL(file));record.pictureSequence=sequenceInfos.map(x=>x.path);picturePathInput.value=record.pictureSequence.at(-1);record.picture={src:picturePathInput.value,...(captionInput.value?{caption:captionInput.value}:{})};renderPicture();changed();return;
    }
-   const file=fileInput.files?.[0];if(!file)return;fileInfo=await validateBrowserImage(file);if(previewUrl)URL.revokeObjectURL(previewUrl);previewUrl=URL.createObjectURL(file);picturePathInput.value=picturePath(domain,record,file.name);record.picture={src:picturePathInput.value,...(captionInput.value?{caption:captionInput.value}:{})};if(mediaAction==='replace-with-static')delete record.pictureSequence;renderPicture();changed();
+   const file=fileInput.files?.[0];if(!file)return;fileInfo={...(await validateBrowserImage(file)),file};if(previewUrl)URL.revokeObjectURL(previewUrl);previewUrl=URL.createObjectURL(file);picturePathInput.value=picturePath(domain,record,file.name);record.picture={src:picturePathInput.value,...(captionInput.value?{caption:captionInput.value}:{})};if(mediaAction==='replace-with-static')delete record.pictureSequence;renderPicture();changed();
   }catch(error){fileInput.value='';revokeLocal();status(notice,error.message,'error');renderPicture();}
  }
  fileInput.addEventListener('change',chooseFile);
@@ -109,7 +157,14 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
   if(mediaAction==='remove-sequence-keep-picture')pictureInfo.append(text('p','The sequence reference will be removed; the representative picture will remain. Source bytes are not deleted.','hint'));
   if(domain==='kb'&&record.type!=='knot'&&record.pictureSequence)pictureInfo.append(text('p','This entry still has a step-by-step sequence. Replace it with a single picture, keep only its representative picture, or remove the picture before preparing changes.','notice warning'));
   const fileLabel=sequenceMode?'Choose local pictures':'Choose a local picture';
-  pictureHost.replaceChildren(field('Picture action',pictureSelect),pictureInfo,field(fileLabel,fileInput,sequenceMode?'Select the complete sequence; files must be named step-01, step-02, ... and manually uploaded to the repository.':'File must be manually uploaded to repository'),field('Repository picture path',picturePathInput),field('Caption (optional)',captionInput));
+  pictureHost.replaceChildren(field('Picture action',pictureSelect),pictureInfo,field(fileLabel,fileInput,ctx.v3?.stageMedia?(sequenceMode?'Select the complete step-01, step-02, ... sequence. Original files will upload with Save and Publish.':'The original file will upload with Save and Publish.'):(sequenceMode?'Select the complete sequence; files must be named step-01, step-02, ... and manually uploaded to the repository.':'File must be manually uploaded to repository')),field('Repository picture path',picturePathInput),field('Caption (optional)',captionInput));
+  if(publishChange&&!ctx.v3?.stageMedia){
+   // Image actions remain unavailable until authenticated D4 staging is enabled.
+   // Hide the obsolete v2 manual-upload suggestion in the gated UI.
+   for(const control of [pictureSelect,fileInput,picturePathInput,captionInput])
+    control.disabled=true;
+   pictureHost.replaceChildren(pictureInfo,text('p','Image changes and Knot sequences will become available with integrated uploads. Existing images are preserved.','hint'));
+  }
  }
  renderActionOptions(false);renderPicture();
  form.insertBefore(section('Picture',pictureHost),nameField.nextElementSibling.nextElementSibling);
@@ -120,12 +175,27 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
   try{const owner=record[key]||narrativePath(domain,record),previewRecord=clone(record);if(!previewRecord[key])previewRecord[key]=owner;const {maps,routes}=editorMaps(ctx,domain,previewRecord);const parsed=parseMarkdown(body,{owner,maps,assetBase:ctx.base,exists:knownPaths(ctx),pathRoutes:routes,allowMissing:true});const unresolved=parsed.references.filter(r=>r.local&&!knownPaths(ctx).has(r.local));if(unresolved.length)throw new Error('Upload referenced local files first: '+unresolved.map(r=>r.local).join(', '));preview.innerHTML=sanitizeHtml(parsed.html,window);showPreview=!showPreview;preview.hidden=!showPreview;textArea.hidden=showPreview;previewButton.textContent=showPreview?'Edit Markdown':'Preview Markdown';status(notice,'Markdown preview is local and has not been saved.','info');}catch(error){status(notice,error.message,'error');}
  });
  form.append(section('Notes',field('Markdown',textArea),previewButton,preview));
- const prepareButton=button('Prepare Changes',()=>form.requestSubmit(),{variant:'primary'});
+ const actionNotice=el('div',{class:'editor-notice','aria-live':'assertive'});
+ const prepareButton=button(publishChange?'Save and Publish':'Prepare Changes',()=>form.requestSubmit(),{variant:'primary'});
  form.addEventListener('submit',async event=>{
-  event.preventDefault();try{
+  event.preventDefault();if(savePending||saveAccepted)return;
+  savePending=true;prepareButton.disabled=true;
+  notice.replaceChildren();actionNotice.replaceChildren();
+  try{
    if(!ID_PATTERN.test(record.id))throw new Error('The ID must use lowercase letters, numbers and hyphens.');
    const existing=ctx.data[domain][DOMAIN[domain].array];if(!editing&&existing.some(x=>x.id===record.id))throw new Error('This ID already exists.');
+   // Sandbox source is exclusively synthetic. Refuse production-like IDs
+   // BEFORE staging any original image; editing existing records is unchanged.
+   if(!editing&&ctx.v3?.source?.sandboxOnly===true&&
+      !record.id.startsWith('p3-'))
+    throw new Error('Private sandbox IDs must begin with p3-. Update the ID before publishing.');
    const candidate=clone(record),sequenceSet=SEQUENCE_ACTIONS.has(mediaAction);
+   // Keep can restore undefined optional properties. Strict schema forbids
+   // pictureSequence on Gear even when its value is undefined.
+   if(candidate.picture===undefined)delete candidate.picture;
+   if(candidate.pictureSequence===undefined)delete candidate.pictureSequence;
+   if(domain==='gear'&&Object.hasOwn(candidate,'pictureSequence'))
+    throw new Error('Gear records cannot contain picture sequences.');
    if(domain==='gear'){candidate.specifications=(candidate.specifications||[]).map(x=>{const item={value:x.value.trim()};if(x.label?.trim())item.label=x.label.trim();return item;});candidate.links=(candidate.links||[]).map(x=>({label:x.label.trim(),url:x.url.trim()}));}
    if(sequenceSet){if(sequenceInfos.length<2)throw new Error('Select the complete step-by-step sequence before preparing changes.');recalcSequencePaths();candidate.pictureSequence=sequenceInfos.map(x=>x.path);candidate.picture={src:candidate.pictureSequence.at(-1),...(captionInput.value.trim()?{caption:captionInput.value.trim()}:{})};}
    if(mediaAction==='remove-picture'){delete candidate.picture;delete candidate.pictureSequence;}
@@ -146,13 +216,51 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
    if(sequenceSet){for(const info of sequenceInfos){const existingFile=knownFiles(ctx).get(info.path);if(existingFile&&existingFile.sha256!==info.sha256&&mediaAction==='add-sequence')throw new Error(`A different file already exists at ${info.path}. Use an explicit replacement.`);}}
    let pictureAction='keep';if(mediaAction==='remove-picture')pictureAction=baseRecord?.picture?'remove':'keep';else if(sequenceSet||STATIC_FILE_ACTIONS.has(mediaAction))pictureAction=editing&&baseRecord?.picture?'replace':'add';else if(editing&&!equal(baseRecord.picture,candidate.picture))pictureAction=candidate.picture?'replace':'remove';
    let pictureSequenceAction='keep';if(sequenceSet)pictureSequenceAction='set';else if(editing&&baseRecord?.pictureSequence&&!candidate.pictureSequence)pictureSequenceAction='remove';
-   prepared=await prepareChange({domain,operation:editing?'edit':'add',id:candidate.id,baseRecord,record:candidate,baseText,text:body,sourceRevision:ctx.release.sourceRevision,notesPath:candidate[key]||narrativePath(domain,candidate),baseFileHash:baseHash,pictureAction,picturePath:candidate.picture?.src,pictureFile:sequenceSet?null:fileInfo,pictureSequenceAction,pictureSequencePaths:candidate.pictureSequence,pictureSequenceFiles:sequenceSet?sequenceInfos.map(x=>({path:x.path,bytes:x.bytes,sha256:x.sha256})):undefined});
+   prepared??=await prepareChange({domain,operation:editing?'edit':'add',id:candidate.id,baseRecord,record:candidate,baseText,text:body,sourceRevision:ctx.release.sourceRevision,notesPath:candidate[key]||narrativePath(domain,candidate),baseFileHash:baseHash,pictureAction,picturePath:candidate.picture?.src,pictureFile:sequenceSet?null:fileInfo,pictureSequenceAction,pictureSequencePaths:candidate.pictureSequence,pictureSequenceFiles:sequenceSet?sequenceInfos.map(x=>({path:x.path,bytes:x.bytes,sha256:x.sha256})):undefined});
+   if(publishChange){
+    // Isolated V3 owner-only interface. The server independently verifies
+    // authentication, CSRF, canonical source and repository target.
+    if((pictureAction!=='keep'||pictureSequenceAction!=='keep')&&
+      typeof ctx.v3?.stageMedia!=='function')
+     throw new Error('Direct picture publishing requires the D4 media service. Your edit is preserved.');
+    const files=sequenceSet?sequenceInfos.map(i=>({path:i.path,file:i.file})):
+     fileInfo?[{path:candidate.picture.src,file:fileInfo.file}]:[];
+    const receipt=await publishChange(prepared,files);
+    if(receipt?.accepted!==true||!/^p3_[a-f0-9-]{36}$/.test(receipt.operationId??''))
+     throw new Error('A durable publication receipt was not confirmed. Keep your edit.');
+    saveAccepted=true;
+    // Accepted content may have an outdated base; never re-enable editing
+    // until the next independently loaded canonical release.
+    for(const control of form.querySelectorAll('input,select,textarea,button'))
+     control.disabled=true;
+    // Keep the accepted form visible and locked for review. Replace only
+    // Save and Publish / Cancel with a single Exit action. A rejected save
+    // does not reach this branch and retains editable actions.
+    actions.replaceChildren(button('Exit',onExit,{variant:'primary'}));
+    output.replaceChildren(text('p',
+     'Publication accepted. Verification and publishing are in progress. You may leave the editor and check publication status in the Connection Status screen.',
+     'hint'));
+    notice.replaceChildren();
+    actionNotice.replaceChildren();
+    onDirty?.(false);
+    try{onPrepared?.(receipt);}catch{ /* Callback cannot undo server acceptance. */ }
+    return;
+   }
    const copyNotice=el('div',{'aria-live':'polite',class:'copy-notice'}),clipboardText=changePackageClipboardText(prepared),area=el('textarea',{rows:12,readonly:true,class:'package-text',value:clipboardText}),exit=button('Exit',onExit);exit.hidden=true;
    const upload=sequenceSet?[text('p','Upload the selected originals to:','hint'),el('code',{},sequenceFolder(candidate)+'/'),el('p',{},el('a',{href:linkToSequenceUpload(sequenceFolder(candidate)),target:'_blank',rel:'noopener noreferrer'},'Open the repository upload folder'))]:fileInfo?[text('p','Upload the selected original to the repository path before promotion:','hint'),el('code',{},candidate.picture.src),el('p',{},el('a',{href:linkToUpload(candidate.picture.src),target:'_blank',rel:'noopener noreferrer'},'Open the repository upload folder'))]:[];
    output.replaceChildren(text('h3','Prepared change package'),text('p','Copy this instruction and change package into the Fishing project chat. Preparing is not saving.','hint'),area,copyNotice,toolbar(button('Copy Changes',async()=>{try{const copying=prepared;await navigator.clipboard.writeText(clipboardText);if(prepared!==copying||!output.contains(area))return;exit.hidden=false;status(copyNotice,'Changes copied to clipboard. Paste them into the Fishing project chat for implementation and deployment.','success');}catch{area.focus();area.select();status(copyNotice,'Clipboard unavailable. Select and copy the package manually, then paste it into the Fishing project chat for implementation and deployment.','warning');}},{variant:'primary'}),button('Select text',()=>{area.focus();area.select();}),exit),...upload);
    status(notice,'Package prepared. Nothing has been saved.','success');onPrepared?.(prepared);output.scrollIntoView({block:'nearest'});
-  }catch(error){status(notice,error.message,'error');}
+  }catch(error){
+   const message=error?.code==='PREVIOUS_PUBLICATION_NOT_LIVE'?
+    'The previous publication is not yet verified Live. Check Connection Status before starting another publication. No new publication was submitted.':
+    error?.code==='UNTRUSTED_STATUS'?
+    'Could not verify the previous publication. Your edit is preserved; check Connection Status before trying again.':
+    error?.message||'Save was not confirmed. Your edit is retained.';
+   status(notice,message,'error');
+   status(actionNotice,message,'error');
+  }
+  finally{savePending=false;if(!saveAccepted)prepareButton.disabled=false;}
  });
- const actions=toolbar(prepareButton,button('Cancel',onBack));form.append(actions);host.append(notice,form,output);
+ const actions=toolbar(prepareButton,button('Cancel',onBack));form.append(actions,actionNotice);host.append(notice,form,output);
  return {element:host,isDirty:dirty,dispose:()=>{revokeLocal();},record};
 }

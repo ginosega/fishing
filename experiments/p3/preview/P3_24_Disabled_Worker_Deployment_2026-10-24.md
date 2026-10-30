@@ -1,0 +1,65 @@
+# FISH118 P3-24 — Disabled isolated Worker deployment and signer provisioning
+
+**October 24, 2026 — DISABLED WORKER DEPLOYED; POSTFLIGHT VERIFIED; COMMAND ACCEPTANCE AND PUBLISHING REMAIN OFF.** The owner approved an isolated disabled Worker deployment and secret provisioning only. The first Wrangler deploy succeeded but initial postflight failed; independent corrected read-only postflight now verifies the intended isolated D1 binding, encryption-secret presence, both disabled flags and non-public URLs. R1–R4 are complete and verified in `fishing-p3-sandbox`. The existing `fishing-p3-sandbox-preview` sentinel, P1 AUTH-P0 Worker, production app and source branches must not be touched.
+
+## First deployment — immutable disabled Worker
+
+`src/p3-disabled-bridge-worker.mjs` is the entire separate Worker entry point. It exports only `fetch`, returning a static HTTP 503 `bridge-disabled` response on every path and HTTP method, even if both software flags are mistakenly set to true. It has **no D1 SQL, GitHub API, authentication endpoint, signer usage, operation acceptance, cron or service binding routes**. It intentionally does not import the source-only accepting service; that later stage needs a new reviewed source diff.
+
+Private sandbox GitHub Actions will pin this exact code by SHA, verify its digest, and generate a deployment configuration for a uniquely named **new Worker** `fishing-p3-command-bridge-sandbox`: `workers_dev=false`, `preview_urls=false`, no routes, no cron, flags `P3_WRITE_ENABLED=false`, `P3_COMMAND_BRIDGE_ENABLED=false`, and D1 `DB` binding pinned to the isolated `fishing-p3-sandbox` UUID independently verified against Cloudflare metadata and Wrangler D1 inventory. No domain or public version URL will be exposed. The initial Worker must not replace or affect the existing preview Worker.
+
+Deployment is intentionally manual-only in the private sandbox CI workflow: read-only `preflight` first, then separate exact-confirmation `deploy-disabled` only when required secrets exist. **No push-triggered deployment, no automatic retry, no Worker deletion.** A new, narrowly scoped Cloudflare Workers API token may be required because the existing D1-only token was provisioned for database migrations, not script deployments. Tokens are never placed in source/chat/logs.
+
+## HMAC secret creation and lifecycle
+
+The dedicated `P3_BRIDGE_HMAC_SECRET` is generated on the owner's local computer using a cryptographically secure random generator (at least 48 bytes). The same value is saved as a **private GitHub Actions repository secret** in `ginosega/fishing-p3-sandbox`. Its value is passed to Wrangler **only via a restricted, short-lived temp `--secrets-file`**, never echoed. The Worker stores it as an encrypted secret binding. This is **provisioning only**: the hard-disabled first Worker has no code path that uses the secret. No code, key, token, database identifier or signer value should be pasted in chat. The secret must not be reused for Cloudflare API credentials, GitHub installation tokens or consumer-facing PWA JavaScript.
+
+Cloudflare secret updates (`wrangler secret put`) can create a new Worker version/deployment; avoid ad hoc secret updates outside the reviewed deployment path. Rotation must be explicitly reviewed and must update the eventual trusted Node signer and Worker verifier coherently; disabled mode allows safe rotation before activation. GitHub grants for the App were already owner-confirmed correctly configured, and require no updates.
+
+## Private sandbox deployment workflow prepared — October 24, 2026
+
+Private sandbox [PR #9](https://github.com/ginosega/fishing-p3-sandbox/pull/9) passed exact-head infrastructure CI and was squash-merged to sandbox main `db616b94a19b2760a00518f775580e58d9c83978`. Its manual-only workflow [`Fishing P3 disabled command bridge (manual)`](https://github.com/ginosega/fishing-p3-sandbox/actions/workflows/fishing-p3-disabled-bridge.yml) has **no push/PR trigger**, and supports only `preflight`, `deploy-disabled` (explicit `DEPLOY-DISABLED-P3-BRIDGE-ONLY` confirmation), and `postflight`. The script pins public draft P3 source commit `503fbe5d8595981936388b81355df8cad08f5252` and exact Git blob `38c6e142cb898d547faf8131c831f8db41027050`, uses Wrangler 4.152.0 and no Cloudflare prod/preview Worker name. The initial infra PR's source pin typo was corrected before CI passed; the audited main workflow uses the correct immutable commit. Six Python guard tests passed in CI; existing synthetic-content validation was unchanged.
+
+**Deployment not yet executed.** To avoid an account-level Admin token, owner first creates the uniquely named **empty separate Worker** `fishing-p3-command-bridge-sandbox` in Cloudflare and disables **both workers.dev and Version URLs** in its Settings → Domains & Routes. This blank Worker must be confirmed pre-existing and unrouted. Cloudflare's granular role docs require product-level Admin to create a Worker, but permit individual-Worker `Editor` to update/deploy an existing Worker; the automation then only needs the latter. Source: https://developers.cloudflare.com/workers/authorization/workers/ .
+
+In the private sandbox GitHub repository Actions secrets, the owner adds:
+1. `P3_WORKER_CLOUDFLARE_TOKEN`: separate, narrowly scoped **individual-Worker Editor** Cloudflare API token restricted to `fishing-p3-command-bridge-sandbox`, not the legacy D1 token or an account-wide Admin token.
+2. `P3_BRIDGE_HMAC_SECRET`: **48 randomly generated bytes, base64url encoded** (64 characters), stored as a private GitHub Actions secret; no values in PRs/chat/logs. A Node 24 local one-liner: `node -e "console.log(require('node:crypto').randomBytes(48).toString('base64url'))"`. Retain value locally only as long as needed to enter the GitHub secret, then securely discard the local output. GitHub Actions deploy passes it to the new Cloudflare Worker as encrypted Worker secret via protected temporary secrets file.
+
+The previous three D1 secrets already exist in that private repository and are reused for **read-only** exact DB identity matching; no new D1 privileges are authorized. After owner setup, run **manual `preflight` only** and review actual private job logs; do not jump straight to `deploy-disabled` on guessed credentials. After preflight passes, the owner can dispatch `deploy-disabled` with the exact text `DEPLOY-DISABLED-P3-BRIDGE-ONLY`. Postflight will verify separate Worker metadata, D1 binding ID, encrypted secret binding name/type, both false flags, workers.dev disabled and Version URLs disabled.
+
+This deployment is source-only infrastructure code until those explicit manual operator actions. It does not create a public command route, publish content, issue GitHub App write tokens, run migrations or alter production. The future trusted Node → Worker command enablement is a **separate** owner-reviewed change.
+
+## Partial-success deployment incident and read-only reconciliation — October 24, 2026
+
+The owner-dispatched [sandbox GitHub Actions run #40132650257](https://github.com/ginosega/fishing-p3-sandbox/actions/runs/40132650257), `deploy-disabled` mode on private sandbox main `db616b94a19b2760a00518f775580e58d9c83978`, concluded **failure**. Actual logs show the reviewed pinned source/identity/secret-format checks passed; both `workers.dev` and version URLs were still disabled; and **Wrangler `deploy` exited successfully**. However, the subsequent read-only postflight stopped on `Disabled Worker D1 binding mismatch`. This is a **possible successfully deployed but not yet independently verified state**; failure is not proof that the new code did not deploy. Do **not** rerun deployment, restore the database, change the Worker, or expose credentials.
+
+Provider documentation makes `database_id` the canonical D1 binding metadata field and marks `id` deprecated. The prior verifier used `id` first. This creates a plausible postflight false negative, but the specific cause has **not yet been proven** from current remote metadata. [Private sandbox PR #10](https://github.com/ginosega/fishing-p3-sandbox/pull/10) added redacted per-field presence/equality diagnostics and changed validation to prefer canonical `database_id` with deprecated `id` fallback only if the canonical field is absent; a mismatched canonical database remains a hard stop. Six original tests plus new canonical/legacy tests passed sandbox infrastructure CI. PR #10 was squash-merged to private sandbox main `f52bcde9140a21188d7a0ab8ecfe1859fa9fc763` **without touching Cloudflare**.
+
+For incident containment, that same PR removed `deploy-disabled` from the workflow and deleted its deploy step and executable deploy CLI handler: `Fishing P3 disabled command bridge (read-only reconciliation)` now supports **manual `postflight` or `preflight` only**, no push trigger, deployment, database write or secret upload. Next owner action is one manual `postflight` dispatch on sandbox `main`. Review sanitized job logs; if it passes, close the incident after verifying D1/secret/false flags/no URLs. If it fails, stop and analyze reported booleans/metadata shape before considering any fresh deployment authorization. No retries or assumptions of failure.
+
+## Final incident resolution — postflight verified October 24, 2026
+
+**DISABLED SANDBOX WORKER DEPLOYMENT COMPLETE / VERIFIED CONFIGURATION.** Following the first deployment [run #40132650257](https://github.com/ginosega/fishing-p3-sandbox/actions/runs/40132650257) (Wrangler exit success, initial binding postflight failed), private sandbox [PR #10](https://github.com/ginosega/fishing-p3-sandbox/pull/10) corrected the read-only metadata verifier and **removed all deployment/mutation options** from its workflow. PR #10 passed CI and merged to isolated sandbox main `f52bcde9140a21188d7a0ab8ecfe1859fa9fc763`.
+
+The owner manually dispatched [read-only postflight run #40133925321](https://github.com/ginosega/fishing-p3-sandbox/actions/runs/40133925321), which **completed/success** on that exact main SHA. The actual job log independently confirms:
+
+- All **seven** revised bridge guard tests passed, including canonical/deprecated database ID conflict rejection and no deployment CLI availability.
+- `PASS: Dedicated sandbox Worker exists; workers.dev and version URLs disabled`.
+- `DIAGNOSTIC: D1 binding candidates=1; canonical database_id present=True; canonical database_id matches=True; deprecated id present=True; deprecated id matches=True` — only presence/equality booleans were emitted; private identifiers are never printed.
+- `PASS: Worker settings verify exact D1 binding, encrypted secret presence, both disable flags, no public workers.dev/version URL`.
+- `PASS: Read-only disabled bridge postflight after incident; no deployment performed.`
+
+The first failure was in the previous binding-field verifier, which prioritized the deprecated `id` key. The later live read proves the canonical `database_id` and deprecated `id` both match now; the precise transient provider metadata cause of the first mismatch cannot be proven from these logs. No second deploy was needed. This **closes the configuration-verification incident**.
+
+**Scope of evidence:** The Workflow attests to successful prior Wrangler deployment and exact immutable source checkout, followed by an independent current **settings/binding** verification. It does not independently hash the remote deployed Worker script body or execute an authenticated command endpoint. Since this Worker has no public domain, no request smoke test is needed for this disabled-only stage. All public command acceptance, GitHub write/publish, merge, service route binding, and production cutover remain out of scope; existing preview and production services were not intentionally changed. Do not re-enable a deployment workflow until a separately reviewed next release.
+
+## Postdeploy verification / blockers
+
+- Confirm GitHub CI exact source SHA and deployment guard, separately scoped Cloudflare Worker deploy token, exact account and D1 UUID.
+- Verify the new Worker actually exists, has the precise D1 `DB` binding, no `workers.dev` or preview/version URL, no routes, and both flags disabled. Do not probe an unknown public hostname as if it were safe.
+- Keep all six existing application tables plus the nonce ledger empty. No operation IDs, PRs, merges, publication or production deploys should be created.
+- Deploy success does NOT authorize connecting the command gate. No traffic, service binding, cron, GitHub App write token, or D1 writes are part of P3-24.
+- A future separately approved release would require a real authenticated owner ID, hardened endpoint/service binding threat model, consistent HMAC secret in trusted Node and Worker, exactly-once durable nonce, and explicit write enablement with recovery/rollback procedures.
+
+Reference docs: https://developers.cloudflare.com/workers/wrangler/configuration/ ; https://developers.cloudflare.com/workers/versions-and-deployments/version-urls/ ; https://developers.cloudflare.com/workers/configuration/secrets/ .

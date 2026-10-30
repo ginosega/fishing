@@ -35,3 +35,61 @@ test('P0-B card thumbnail generation is deterministic and leaves canonical origi
   }
  }finally{await fs.rm(temp,{recursive:true,force:true});}
 });
+
+test('P0-B release builds automatically cover added/replaced Gear, KB, Knot and Catch-species card pictures',async()=>{
+ const temp=await fs.mkdtemp(path.join(os.tmpdir(),'fishing-new-media-thumbs-'));
+ const source=path.join(temp,'source');
+ const destA=path.join(temp,'thumb-a'),destB=path.join(temp,'thumb-b');
+ const images=[
+  'Gear/Rods-Reels/assets/Vision TEST.png',
+  'Gear/Lures/assets/New lure.png',
+  'KB/Species/assets/Synthetic Bass.png',
+  'KB/Knots/assets/p3-synthetic-knot/step-02.png',
+ ];
+ const make=async(r,g,b)=>sharp({create:{width:960,height:640,channels:4,
+  background:{r,g,b,alpha:1}}}).png().toBuffer();
+ const bytes=await Promise.all([
+  make(25,75,150),make(60,155,20),make(180,80,45),make(10,170,175),
+ ]);
+ try{
+  for(let i=0;i<images.length;i++){
+   const file=path.join(source,images[i]);
+   await fs.mkdir(path.dirname(file),{recursive:true});
+   await fs.writeFile(file,bytes[i]);
+  }
+  const data={gear:{items:[
+   {picture:{src:images[0]}},{picture:{src:images[1]}},
+  ]},kb:{entities:[
+   {type:'species',picture:{src:images[2]}},
+   {type:'knot',picture:{src:images[3]},pictureSequence:[
+    'KB/Knots/assets/p3-synthetic-knot/step-01.png',images[3],
+   ]},
+  ]},catches:{catches:[{speciesId:'p3-species'}]}};
+  const before=await generateCardThumbnails({data,source,destination:destA});
+  assert.equal(before.originals,4);
+  assert.equal(Object.keys(before.mapping).length,4);
+  for(let i=0;i<images.length;i++){
+   const thumbnail=path.join(destA,before.mapping[images[i]]);
+   assert.deepEqual(await fs.readFile(path.join(source,images[i])),bytes[i],
+    'Original image must be preserved');
+   const meta=await sharp(await fs.readFile(thumbnail)).metadata();
+   assert.equal(meta.format,'webp');
+   assert(meta.width<=512&&meta.height<=270);
+  }
+  // A replacement reuses the canonical picture URL; the next release must
+  // regenerate derivative *bytes* from the new original, not cache an old
+  // preview. Release identity includes both original/derivative byte hashes.
+  const updated=await make(245,10,220);
+  await fs.writeFile(path.join(source,images[0]),updated);
+  const after=await generateCardThumbnails({data,source,destination:destB});
+  assert.equal(after.mapping[images[0]],before.mapping[images[0]]);
+  assert.notDeepEqual(
+   await fs.readFile(path.join(destA,before.mapping[images[0]])),
+   await fs.readFile(path.join(destB,after.mapping[images[0]])));
+  assert.deepEqual(await fs.readFile(path.join(source,images[0])),updated);
+  for(const image of images.slice(1))
+   assert.deepEqual(
+    await fs.readFile(path.join(destA,before.mapping[image])),
+    await fs.readFile(path.join(destB,after.mapping[image])));
+ }finally{await fs.rm(temp,{recursive:true,force:true});}
+});

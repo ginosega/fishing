@@ -1,0 +1,57 @@
+# FISH118 P3-40 — Unsigned owner-approval review, exact-byte agreement, and closed runtime gates
+
+**Checkpoint:** October 25, 2026 PDT. **Disposition: SOURCE-ONLY review preparation and local test suite on public draft PR #263. NO owner signing key generation/registration, ECDSA approval issued, enabled workflow, Cloudflare Worker/route, credential migration, D1 change/write, App token issuance, publish, merge or production deployment.**
+
+## 1. Restored authority, goals and previous verified proofs
+
+- Public production `ginosega/fishing` `main` at task start was `587b978118df64cc9ec584375c458fa2b10fecfa`. Public review branch `feature/fish118-p3-mock-publisher` was `23426c649240331eb3acf2fcfa0d7f2b1a938bbe` and its PR #263 was **open, draft, unmerged**.
+- Private sandbox `ginosega/fishing-p3-sandbox` `main` was `69b236c8af663cdce687dc855bb117a01874060a`, repo ID **1430581407**, immutable numeric owner GitHub ID **265665562**.
+- P3-37 truly verified GitHub-owned RS256 OIDC and exact owner/repo/main/manual workflow and run metadata in live [GitHub Actions #40207347824](https://github.com/ginosega/fishing-p3-sandbox/actions/runs/40207347824). This **does not** authorize or attest a different privileged publishing workflow.
+- P3-38 aligned a future command-runner verifier to those signed identity claims and verifies signature before claims; P3-39 developed the combined OIDC + App **GET-only local-source** verifier and recorded the credential boundary. The existing GitHub App PEM is write-capable even if a particular program only performs GETs. Do not inject it into a runner merely to repeat metadata evidence.
+- P3-34 independently verifies owner ECDSA P-256 approval tied to exact raw command SHA-256, one named run/workflow attempt, one `idempotencyKey`, expiration within 300 seconds, owner/repo identity, and accepts no signature inferred from GitHub OIDC. P3-36 carries this detached proof inside the 24,576-byte canonical envelope. P3-33 records accepted operation, canonical content, owner approval and HMAC nonce in **one atomic D1 batch**. Neither live receiver nor D1 write is enabled.
+
+The remaining safety gap addressed in P3-40: provide an owner-reviewable **exact-byte signing agreement** without moving the ECDSA signing key into GitHub Actions or trusting a mere runner UI's short summary as complete consent.
+
+## 2. New source-only owner review module
+
+**`src/p3-owner-review-preparation.mjs`** exports `createP3OwnerReviewPreparation`. The factory receives **injected** `verifyProvenance` (must be separately reviewed GitHub RSA/OIDC + actual App identity verification) and an injected clock; there is NO default network fetch, stored key, signer, Cloudflare token, D1 connection, or repo publisher. Construction does not call a provider.
+
+On `prepare({body,oidcJwt,approvalId,issuedAt,expiresAt})` it:
+
+1. Demands the literal exact canonical compact JSON command: `{action:"accept",idempotencyKey,snapshot:{package,media}}` with a single `fishing-companion-change-v2` package, domain only `gear|kb`, operation only `add|edit`, a nonempty package ID, **empty media**, bounded UTF-8 inner body **8,192 bytes**, no extra/duplicate keys or noncanonical byte spelling and no dangerous prototype-related property names. This is a deliberately narrow source preflight, **not** full source-aware package validation; the latter remains required before actual acceptance or publishing.
+2. Rejects invalid/missing UUIDv4 approval ID, malformed OIDC input, unverified or inconsistent repository/owner/run/workflow claims via the **injected trusted** verifier. Passing an arbitrary object with `verified:true` through an untrusted injected callback is **not** a provider proof. The source does NOT independently fetch issuer JWKS or authenticate the App; that is the injected verifier's job.
+3. Uses exact command UTF-8 bytes to calculate `bodySha256`. Validates issuance within last 300 seconds (or at most 30 seconds clock skew) and `expiresAt` later than now but within 300 seconds of issuance. Constructs exactly the existing eleven-field `canonicalP3Approval`: action, unique approval ID, SHA-256, expiry, idempotency key, issued time, numeric owner/repo IDs and signed-run ID/attempt/workflow SHA. This is one-operation **accept** only, not `publish`, `merge` or `deploy`.
+4. Returns **UNSIGNED** fixed-shape review material: original exact command for *private* full-content inspection, domain/operation/ID labels, body hash, run/workflow identity, canonical approval JSON, exact `p3-operator-approval-v1\n` signing message, SHA-256 of signing message, and flags `unsigned:true`, `validForOneAcceptOnly:true`, `requiresExternalOwnerSignature:true`.
+5. NEVER signs, returns a signature, signs with the owner's ECDSA key, consumes a nonce/approval ledger, submits a command, contacts Cloudflare, requests a GitHub installation token, creates a PR or writes any D1 row. A valid review is not a permission to execute.
+
+The approval ID must be generated by a separate trusted owner device using a cryptographic RNG; this source does **not** mint approval IDs itself. The raw signed OIDC assertion is accepted only for injected verification and **never returned** in review material. The exact command may contain private application content, so the output must **not** be written to Actions logs, GitHub issue comments, artifacts, public PRs or telemetry.
+
+## 3. Required external owner signing experience (PROPOSAL, NOT IMPLEMENTED)
+
+A future **independent and trusted owner-side** signing tool must display the **complete** canonical command bytes in a readable content diff/preview, with full source-aware semantic validation, plus package ID/domain/operation, owner/repo, exact verified workflow and commit, run ID/attempt, exact SHA-256 digest and expiry. A shortened title or preview summary is insufficient. The tool must verify the presented bytes **independently** rather than blindly signing a hash claimed by a GitHub runner or web page. Cross-channel provenance authentication and anti-substitution checks remain a design gate.
+
+Only after an explicit human review should that separate trusted device use a nonexportable or otherwise well-protected P-256 owner signing key to sign the domain-separated canonical approval message. It must not expose the private key to **GitHub Actions**, either Cloudflare Worker, the PWA, the code repository, ChatGPT or logs. The public JWK may be pinned in a future separately reviewed verification service, with documented rotation, revocation, recovery and loss procedures. Signing must be denied if content changes, run changes, the device cannot independently corroborate provenance, or the 5-minute window expires; a new approval requires full re-review.
+
+An external signature still is **not** enough by itself: the private receiver must independently check GitHub RSA OIDC/App, ECDSA, HMAC and bounded raw bytes, then single-batch atomic D1 approval/nonce/idempotency consumption. The 202 receipt means **Accepted only**, not Live or Published. Lost acknowledgment = UNKNOWN, no automatic retry; separately secured read-status is needed. The P3-36 transport cannot be swapped for the old HMAC-only P3-26 route.
+
+## 4. Local adversarial tests and limitations
+
+**`test/p3-owner-review-preparation.test.mjs`** adds P3-H01..P3-H11:
+
+- Verifies exact canonical signing payload, SHA-256 hashes and numeric run/owner/operation binding.
+- Uses locally generated P-256 ECDSA keys **outside the builder** to sign its exact output, then re-verifies using existing P3-34 `createP3OperatorApprovalVerifier`; tampered body denied.
+- Rejects noncanonical whitespace, duplicate/extra JSON fields, media uploads, wrong package domain/operation, bad idempotency, forbidden object keys, bad/missing approval UUID, wrong signed-run context, injected verifier exceptions, altered bytes/run and time-window abuse.
+- Performs full SOURCE-ONLY local roundtrip: unsigned review → external ECDSA → signed command HMAC → P3-36 canonical outer proof envelope → P3-34 verify-only signature adapter. Checks verified result without a D1 connection, Worker or provider call.
+- Scans source for accidental signing, default network, installer token minting, transport, D1 or publishing primitives.
+
+**Evidence boundary:** the test's injected `verifyProvenance` is an explicitly mocked verified-run fixture; this phase does not verify a **new real** GitHub OIDC/App combined token, a real owner-held key, real Cloudflare service binding or live D1 batch. Earlier live P3-37 OIDC and local P3-34/P3-39 tests remain separate evidence; they are not transitive authorization for a command.
+
+Initial module source commit `5ff53a62da2999a5c959ead4bc3375e212e11493`, initial test commit `0f845de95b89fe7535207391d3a123a0e13214bb`, expanded canonical transport roundtrip test commit `8f56747a01eb7b6aab6c6126ab2e19db390e441f`. The final exact-head CI result must be checked before declaring PASS. Prior P3-39 result was **418/418** tests.
+
+## 5. Next significant milestone, safe default
+
+The appropriate **P3-41** next source-only work is a threat-model / UX trust-boundary review of how the owner device receives and independently validates the full command and signed run identity, signs exactly once, safely transports the detached ECDSA signature, and handles timeout/expired approvals without ever granting the runner self-approval authority. An independent signer must never share custody with the App key, the HMAC key, or the automation runner.
+
+Do not install a new GitHub App PEM secret, enable any private Worker route, rerun R1-R4 D1 migrations, mint installation tokens or give write/publishing privileges solely to complete a diagnostic. Those are **significant** owner-reviewed operational gates, separate from the previously preapproved interim source-only tests and read-only run inspections.
+
+The canonical public root README, Fishing_Context, Fishing_TODO, Fishing_Decision_Log and **full** Fishing_New_Chat_Bootstrap_Prompt remain untouched until an actual new-chat handoff; updating all five coherently then is the established project procedure.

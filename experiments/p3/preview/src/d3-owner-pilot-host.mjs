@@ -1,0 +1,97 @@
+/**
+ * FISH118 D3: PRIVATE owner-only pilot HTML / bundled JS host.
+ * DEFAULT-OFF, SOURCE ONLY. Never mounted on current parked D2 Worker.
+ * Standalone test route, NOT a proxy rewrite/injection into canonical
+ * public /fishing/ release assets. Only a fresh AUTH-P0 owner cookie may
+ * read this page or script. Never expose a server-side GitHub token.
+ *
+ * An approved future binding must supply actual bundled JS bytes and pin
+ * their SHA-256. No anonymous/static fallback or arbitrary asset fetch.
+ */
+import {D3_OWNER_PILOT_PATH,D3_OWNER_PILOT_SCRIPT,D3_OWNER_PILOT_STYLE,
+ D3_SCOPED_PILOT_PATH,D3_SCOPED_PILOT_SCRIPT,D3_SCOPED_PILOT_STYLE,
+ d3PilotHtmlForPath} from './d3-owner-pilot-page.mjs';
+
+const OWNER=265665562,MAX_BUNDLE=3*1024*1024,MAX_STYLE=160*1024;
+const SHA=/^[0-9a-f]{64}$/;
+const textEncoder=new TextEncoder();
+const headers={
+ 'Cache-Control':'private, no-store, max-age=0',
+ 'Vary':'Cookie',
+ 'X-Content-Type-Options':'nosniff',
+ 'X-Frame-Options':'DENY',
+ 'Referrer-Policy':'no-referrer',
+ 'X-Robots-Tag':'noindex, nofollow, noarchive',
+ 'Permissions-Policy':'camera=(), microphone=(), geolocation=()',
+ 'Content-Security-Policy':"default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; connect-src 'self'; font-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; object-src 'none'",
+};
+const response=(bytes,mime)=>new Response(bytes,{status:200,headers:{
+ ...headers,'Content-Type':mime,
+}});
+const denied=(status=404)=>new Response('Not found',{status,headers:{
+ 'Cache-Control':'no-store','X-Content-Type-Options':'nosniff',
+}});
+const hex=bytes=>[...new Uint8Array(bytes)]
+ .map(v=>v.toString(16).padStart(2,'0')).join('');
+export function createD3OwnerPilotHost({
+ origin,ownerSession,readBundle,readStylesheet=null,
+ expectedSha256=null,expectedCssSha256=null,enabled=()=>false,
+ integratedEnabled=()=>false,
+}={}){
+ if(typeof origin!=='string'||!origin.startsWith('https://')||
+  new URL(origin).origin!==origin||
+  typeof ownerSession?.authorizeStatus!=='function'||
+  typeof ownerSession?.authorizePilotPage!=='function'||
+  typeof readBundle!=='function'||typeof enabled!=='function'||
+  typeof integratedEnabled!=='function')
+  throw Error('D3 pilot route requires trusted owner dependencies');
+ async function serve(req){
+  // Hide the pilot entirely until future separately authorized activation.
+  if(enabled()!==true)return denied();
+  if(!(req instanceof Request)||req.method!=='GET')return denied();
+  let url;
+  try{url=new URL(req.url);}catch{return denied();}
+  if(url.origin!==origin||url.search||url.hash||
+   req.headers.has('Authorization'))return denied();
+  const css=url.pathname===D3_OWNER_PILOT_STYLE||
+   url.pathname===D3_SCOPED_PILOT_STYLE;
+  const integrated=url.pathname===D3_SCOPED_PILOT_PATH||
+   url.pathname===D3_SCOPED_PILOT_SCRIPT||
+   url.pathname===D3_SCOPED_PILOT_STYLE;
+  if(integrated&&integratedEnabled()!==true)return denied();
+  if(![D3_OWNER_PILOT_PATH,D3_OWNER_PILOT_SCRIPT,D3_OWNER_PILOT_STYLE,
+   D3_SCOPED_PILOT_PATH,D3_SCOPED_PILOT_SCRIPT,
+   D3_SCOPED_PILOT_STYLE].includes(url.pathname))
+   return denied();
+  const page=url.pathname===D3_OWNER_PILOT_PATH||
+   url.pathname===D3_SCOPED_PILOT_PATH;
+  let owner;
+  try{owner=await (page?
+    ownerSession.authorizePilotPage(req):
+    ownerSession.authorizeStatus(req));}
+  catch{return denied(401);}
+  if(owner?.authorized!==true||owner.ownerGitHubId!==OWNER)
+   return denied(401);
+  // An otherwise-authorized page MUST NOT be served without an actual,
+  // independently pinned pilot bundle. Do not silently load public V2 JS.
+  if(!SHA.test(expectedSha256??''))return denied(503);
+  const cssConfigured=typeof readStylesheet==='function'||
+   expectedCssSha256!==null;
+  if(cssConfigured&&(!SHA.test(expectedCssSha256??'')||
+   typeof readStylesheet!=='function'))return denied(503);
+  if(css&&!cssConfigured)return denied(404);
+  let bytes;
+  try{bytes=await (css?readStylesheet():readBundle());}
+  catch{return denied(503);}
+  if(!(bytes instanceof Uint8Array)||bytes.length===0||
+   bytes.length>(css?MAX_STYLE:MAX_BUNDLE))return denied(503);
+  const digest=hex(await crypto.subtle.digest('SHA-256',bytes));
+  if(digest!==(css?expectedCssSha256:expectedSha256))return denied(503);
+  return css?response(bytes,'text/css; charset=utf-8'):
+   !page?response(bytes,'text/javascript; charset=utf-8'):
+    response(textEncoder.encode(d3PilotHtmlForPath(url.pathname,
+     {withCss:cssConfigured})),
+     'text/html; charset=utf-8');
+ }
+ return Object.freeze({serve});
+}

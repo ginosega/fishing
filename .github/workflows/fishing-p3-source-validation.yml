@@ -1,0 +1,152 @@
+name: Fishing P3 isolated source validation
+on:
+  # Draft #263 may be unmergeable against docs-only main; keep this
+  # source-only suite runnable on its own isolated development branch.
+  # It never publishes a V2/V3 app or deploys Cloudflare resources.
+  push:
+    branches:
+      - 'feature/fish118-p3-mock-publisher'
+    paths:
+      - 'pwa/src/**'
+      - 'pwa/test/**'
+      - 'pwa/tools/**'
+      - 'experiments/p3/**'
+      - '.github/workflows/fishing-p3-source-validation.yml'
+  pull_request:
+    paths:
+      - 'experiments/p3/**'
+      - 'pwa/test/p3-*.test.mjs'
+      # D5 V3-only reading mode and its offline-integrity regressions.
+      - 'pwa/src/sw.mjs'
+      - 'pwa/src/offline.mjs'
+      - 'pwa/src/ui.mjs'
+      - 'pwa/tools/build.mjs'
+      - 'pwa/test/offline-integrity.test.mjs'
+      - 'pwa/src/markdown.mjs'
+      - 'pwa/src/markdown-viewer.mjs'
+      - 'pwa/test/d5-markdown-viewer.test.mjs'
+      - 'pwa/src/diagnostics.mjs'
+      - 'pwa/test/d5-diagnostics.test.mjs'
+      - 'pwa/src/styles.css'
+      - 'pwa/src/entry.mjs'
+      - 'pwa/src/v3-reader-candidate.mjs'
+      - 'pwa/test/d5-reader-candidate.test.mjs'
+      - '.github/workflows/fishing-p3-source-validation.yml'
+permissions:
+  contents: read
+concurrency:
+  group: fishing-p3-source-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  verify-source-and-sandbox:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: pwa/package-lock.json
+      - name: Install locked canonical validator dependencies
+        working-directory: pwa
+        run: npm ci --no-audit --no-fund
+      - name: Exercise all PWA source unit tests including P3 mock + real-source tests
+        working-directory: pwa
+        run: npm test
+      - name: Build and byte-verify isolated V3 reader candidate (no deploy)
+        working-directory: pwa
+        run: |
+          node tools/build.mjs --base=/fishing/__v3_reader_candidate__/ --v3-reading-mode --v3-reader-candidate --out=/tmp/fishing-v3-reader-candidate
+          node tools/verify.mjs --out=/tmp/fishing-v3-reader-candidate
+          node --input-type=module -e "import fs from 'node:fs';const p='/tmp/fishing-v3-reader-candidate/';const r=JSON.parse(fs.readFileSync(p+'release.json'));const m=JSON.parse(fs.readFileSync(p+r.manifest));if(m.base!=='/fishing/__v3_reader_candidate__/'||m.v3ReaderCandidate!==true||m.releaseId!==r.id)process.exit(1);console.log('PASS: private candidate manifest and release match isolated scope')"
+      - name: Real Chromium V3 reader-mode and Banks Lake viewer acceptance (loopback only)
+        working-directory: pwa
+        timeout-minutes: 8
+        run: |
+          npx playwright install --with-deps chromium
+          npx playwright test test/d5-reader-candidate.spec.mjs --project=chromium
+      - name: Exercise isolated standalone broker suite
+        working-directory: experiments/p3
+        run: npm test
+      - name: Bundle guarded D2 gateway and scheduled publisher (no deploy)
+        working-directory: pwa
+        run: |
+          ./node_modules/.bin/esbuild ../experiments/p3/preview/src/d2-gated-auth-gateway.mjs --bundle --platform=browser --format=esm --target=es2022 --outfile=/tmp/fishing-d2-gateway.bundle.mjs
+          node --check /tmp/fishing-d2-gateway.bundle.mjs
+          ./node_modules/.bin/esbuild ../experiments/p3/preview/src/d2-live-publisher-worker.mjs --bundle --platform=browser --format=esm --target=es2022 --outfile=/tmp/fishing-d2-live-worker.bundle.mjs
+          node --check /tmp/fishing-d2-live-worker.bundle.mjs
+      - name: Generate and verify ignored D3 owner pilot module (no deploy)
+        working-directory: pwa
+        run: |
+          node tools/build-d3-pilot.mjs --check
+          node tools/verify-d3-windows-eol.mjs
+          node tools/verify-d3-csp.mjs
+          node tools/verify-d3-runtime.mjs
+      - name: Bundle gated D3 owner source gateway and pilot shell (no deploy)
+        working-directory: pwa
+        run: |
+          ./node_modules/.bin/esbuild ../experiments/p3/preview/src/d3-gated-auth-gateway.mjs --bundle --platform=browser --format=esm --target=es2022 --outfile=/tmp/fishing-d3-gateway.bundle.mjs
+          node --check /tmp/fishing-d3-gateway.bundle.mjs
+          ./node_modules/.bin/esbuild ../experiments/p3/preview/src/d3-owner-test-shell.mjs --bundle --platform=browser --format=esm --target=es2022 --outfile=/tmp/fishing-d3-shell.bundle.mjs
+          node --check /tmp/fishing-d3-shell.bundle.mjs
+          node --check < ../experiments/p3/preview/src/generated/d3-pilot.bundle.txt
+          ./node_modules/.bin/esbuild ../experiments/p3/preview/src/d3-sandbox-scheduled-coordinator.mjs --bundle --platform=browser --format=esm --target=es2022 --outfile=/tmp/fishing-d3-coordinator.bundle.mjs
+          node --check /tmp/fishing-d3-coordinator.bundle.mjs
+          ./node_modules/.bin/esbuild ../experiments/p3/preview/src/d3-live-owner-worker.mjs --bundle --platform=browser --format=esm --target=es2022 --outfile=/tmp/fishing-d3-owner-worker.bundle.mjs
+          node --check /tmp/fishing-d3-owner-worker.bundle.mjs
+          ./node_modules/.bin/esbuild ../experiments/p3/preview/src/d3-owner-runtime.mjs --bundle --platform=browser --format=esm --target=es2022 --loader:.txt=text --outfile=/tmp/fishing-d3-owner-runtime.bundle.mjs
+          node --check /tmp/fishing-d3-owner-runtime.bundle.mjs
+      - name: Wrangler 4.153.0 dry-run private D3 Worker packaging (never deploy)
+        working-directory: experiments/p3/preview
+        run: |
+          node tools/build-d3-wrangler-ci-config.mjs
+          npx --yes wrangler@4.153.0 deploy --dry-run --config ./wrangler.d3-ci-generated.jsonc --outdir /tmp/fishing-d3-dryrun
+          test -d /tmp/fishing-d3-dryrun
+      - name: Syntax-check inert Windows D3 operator preflight (do not run it)
+        shell: pwsh
+        run: |
+          $operatorScripts = @(
+            'experiments/p3/preview/tools/prepare-d3-hardoff-config.ps1',
+            'experiments/p3/preview/tools/deploy-d3-hardoff-approved.ps1',
+            'experiments/p3/preview/tools/prepare-d3-readonly-pilot.ps1',
+            'experiments/p3/preview/tools/deploy-d3-readonly-approved.ps1',
+            'experiments/p3/preview/tools/deploy-d3-pilot-navigation-repair.ps1',
+            'experiments/p3/preview/tools/deploy-d3-csp-repair.ps1',
+            'experiments/p3/preview/tools/prepare-d3-sandbox-write.ps1',
+            'experiments/p3/preview/tools/deploy-d3-sandbox-write-approved.ps1',
+            'experiments/p3/preview/tools/deploy-d3-source-diagnostic-refresh.ps1',
+            'experiments/p3/preview/tools/deploy-d3-ajv-runtime-fix.ps1',
+            'experiments/p3/preview/tools/reconcile-d3-pr17-once.ps1',
+            'experiments/p3/preview/tools/deploy-d3-merge-recovery-approved.ps1',
+            'experiments/p3/preview/tools/deploy-d3-sequential-kb-fix.ps1',
+            'experiments/p3/preview/tools/deploy-d3-pr-merge-diagnostics.ps1',
+            'experiments/p3/preview/tools/deploy-d3-readonly-merge-status-fix.ps1',
+            'experiments/p3/preview/tools/deploy-d3-merge-tree-recovery.ps1',
+            'experiments/p3/preview/tools/audit-d3-kb-pr18-readonly.ps1',
+            'experiments/p3/preview/tools/deploy-d3-cross-device-status-fix.ps1',
+            'experiments/p3/preview/tools/prepare-d3-fast-watchdog.ps1',
+            'experiments/p3/preview/tools/activate-d3-fast-watchdog.ps1',
+            'experiments/p3/preview/tools/repair-d3-pilot-bundle-hash.ps1',
+            'experiments/p3/preview/tools/activate-d3-fast-webhook.ps1',
+            'experiments/p3/preview/tools/deploy-d3-fast-merge-recovery.ps1',
+            'experiments/p3/preview/tools/deploy-d3-v3-connection-ux.ps1'
+          )
+          foreach ($scriptFile in $operatorScripts) {
+          $tokens = $null
+          $parseErrors = $null
+          [void][System.Management.Automation.Language.Parser]::ParseFile(
+            $scriptFile, [ref]$tokens, [ref]$parseErrors
+          )
+          if ($parseErrors.Count -ne 0) {
+            $parseErrors | ForEach-Object { Write-Error $_.Message }
+            throw 'Windows local preflight syntax invalid'
+          }
+            Write-Output "PASS: D3 PowerShell parsed (never executed): $scriptFile"
+          }
+      - name: Verify browser-paste Worker bundle matches source exactly
+        run: node experiments/p3/preview/tools/build-dashboard.mjs
+      - name: Exercise unpublished Cloudflare sandbox deny-by-default worker
+        run: node --test experiments/p3/preview/test/*.test.mjs

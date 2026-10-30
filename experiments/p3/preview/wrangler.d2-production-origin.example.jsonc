@@ -1,0 +1,66 @@
+{
+  // FISH118 D2: OWNER-APPROVED isolated sandbox publication on ONE chosen
+  // intended production Cloudflare gateway, NOT a second preview website.
+  // Copy to a LOCAL, UNTRACKED config and replace ALL placeholders.
+  // Never commit real D1 UUIDs, private keys, OAuth secrets or recovery bookmarks.
+  // Do not deploy to the historical P3 static-disabled ingress/bridge workers.
+  "name": "fishing-auth-p0-test",
+  "main": "src/d2-live-publisher-worker.mjs",
+  "compatibility_date": "2026-10-25",
+  "workers_dev": true,
+  "preview_urls": false,
+  "observability": { "enabled": true, "logs": { "enabled": true } },
+  // The scheduled host-proof fetch MUST return through the public origin,
+  // rather than being routed to a nonexistent zone origin (Cloudflare 1042).
+  // Its one exact HMAC-authenticated GET is read-only and bounded.
+  "compatibility_flags": ["global_fetch_strictly_public"],
+  // Existing dashboard-managed variables remain intact across a Wrangler
+  // deployment. Encrypted secrets are independently retained by Cloudflare.
+  "keep_vars": true,
+  "secrets": {
+    "required": [
+      "GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET", "OWNER_GITHUB_ID",
+      "D2_CSRF_KEY", "D2_HOST_PROBE_KEY", "D2_GITHUB_APP_PRIVATE_KEY"
+    ]
+  },
+  "vars": {
+    "APP_ORIGIN": "https://fishing-auth-p0-test.ginosega.workers.dev",
+    // OWNER_GITHUB_ID is already an encrypted secret on this Worker.
+    // Do NOT redeclare it in vars or replace it with a plaintext value.
+    "D2_SANDBOX_REPO_ID": "1430581407",
+    "D2_GITHUB_APP_ID": "REPLACE_WITH_DEDICATED_SANDBOX_APP_ID",
+    "D2_GITHUB_INSTALLATION_ID": "REPLACE_WITH_DEDICATED_SELECTED_INSTALLATION_ID",
+    // REQUIRED: retain hard-OFF for the first deployed read-only postflight.
+    // Flip only after provider inventory + AUTH/OAuth negative tests and
+    // server-side App PEM/CSRF/host-probe binding are all verified.
+    "D2_WRITE_ENABLED": "false",
+    "D2_RUNNER_ENABLED": "false",
+    "D2_READ_TOKENS_ENABLED": "false",
+    "D2_TEST_HOST_ENABLED": "false"
+  },
+  "d1_databases": [
+    {
+      // The October 25 Cloudflare screenshot confirms this binding exists.
+      // EXISTING approved AUTH-P0 sessions DB. Do NOT run P3 migrations here.
+      "binding": "DB",
+      "database_name": "fishing-auth-p0",
+      "database_id": "REPLACE_EXISTING_AUTH_P0_D1_UUID"
+    },
+    {
+      // EXISTING isolated P3 R1-R4 migrated DB. Never rerun migrations.
+      "binding": "OPERATIONS_DB",
+      "database_name": "fishing-p3-sandbox",
+      "database_id": "REPLACE_EXISTING_MIGRATED_P3_D1_UUID"
+    }
+  ],
+  // Preserve existing encrypted GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET,
+  // OWNER_GITHUB_ID on fishing-auth-p0-test. Add three NEW encrypted secrets:
+  // D2_CSRF_KEY, D2_HOST_PROBE_KEY, D2_GITHUB_APP_PRIVATE_KEY.
+  // Do NOT declare encrypted values in vars or copy values into chat.
+  // A scheduled event invokes at most one D1 transition and has NO
+  // public HTTP trigger. The hard-OFF flags above block all operations.
+  // Cloudflare Workers Free permits 10ms CPU for Cron; check telemetry
+  // during one real sandbox operation. Never assume it can complete under
+  // Free limits or switch to a paid plan without owner authorization.
+  "triggers": { "crons": ["*/5 * * * *"] }
+}

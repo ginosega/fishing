@@ -12,14 +12,22 @@ export const TAXONOMY={
 };
 const ajv=new Ajv2020({allErrors:true,strict:true});
 const validators=Object.fromEntries(Object.entries(DOMAIN).map(([key,d])=>[key,ajv.compile({$ref:'#/$defs/'+d.definition,$defs:schema.$defs})]));
+// Cloudflare Workers disallow dynamic JavaScript generation during request
+// handling. Compile the per-record validators once at module initialization,
+// just like the bundle validators above. Never compile schemas in an editor
+// event handler or server-side publication request.
+const recordValidators=Object.freeze(Object.fromEntries(
+ Object.entries({gear:'gearItem',kb:'kbEntity',catches:'catch'})
+  .map(([domain,definition])=>[domain,
+   ajv.compile({$ref:'#/$defs/'+definition,$defs:schema.$defs})])
+));
 export function validateRecords(data){
  for(const [domain,validate] of Object.entries(validators))if(!validate(data[domain]))throw new Error(`${domain} schema: ${ajv.errorsText(validate.errors,{separator:'; '})}`);
  return validateSemantics(data,TAXONOMY);
 }
 export function validateRecord(record,domain,otherData){
  assert(['gear','kb','catches'].includes(domain),'Unknown domain');
- const definition={gear:'gearItem',kb:'kbEntity',catches:'catch'}[domain];
- const validate=ajv.compile({$ref:'#/$defs/'+definition,$defs:schema.$defs});
+ const validate=recordValidators[domain];
  if(!validate(record))throw new Error(ajv.errorsText(validate.errors));
  const data=structuredClone(otherData);const key=DOMAIN[domain].array;
  data[domain][key]=data[domain][key].filter(x=>x.id!==record.id).concat(record);

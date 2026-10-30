@@ -2,6 +2,7 @@ import test from 'node:test';
 import {validateManifest} from '../src/release.mjs';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
+import {fileURLToPath} from 'node:url';
 import {webcrypto,createHash} from 'node:crypto';
 import {build} from 'esbuild';
 const scope='https://example.test/fishing/v2-preview/',abs=p=>new URL(p,scope).href;
@@ -24,15 +25,17 @@ function storage(){
   return {async match(r){return data.get(typeof r==='string'?r:r.url)?.clone();},async keys(){return [...data.keys()].map(url=>({url}));},async delete(r){return data.delete(typeof r==='string'?r:r.url);},async put(r,response){const url=typeof r==='string'?r:r.url;if(fail(name,url))throw new DOMException('Injected storage quota failure','QuotaExceededError');data.set(url,response.clone());}};
  }};
 }
-async function worker(caches,network){
+async function worker(caches,network,{v3=false}={}){
  const handlers={};
  const self={registration:{scope},clients:{async claim(){},async matchAll(){return [];}},skipWaiting:async()=>{},addEventListener:(name,fn)=>handlers[name]=fn};
- const bundle=await build({entryPoints:[new URL('../src/sw.mjs',import.meta.url).pathname],bundle:true,write:false,format:'iife'});
- vm.runInNewContext(bundle.outputFiles[0].text,{self,caches,crypto:webcrypto,URL,Response,TextDecoder,TextEncoder,Uint8Array,DOMException,console,fetch:async url=>network.has(url)?new Response(network.get(url)):new Response('Unavailable',{status:503})});
+ const bundle=await build({entryPoints:[fileURLToPath(new URL('../src/sw.mjs',import.meta.url))],bundle:true,write:false,format:'iife',define:{__FISHING_V3_READING_MODE__:v3?'true':'false'}});
+ const networkRequests=[];
+ vm.runInNewContext(bundle.outputFiles[0].text,{self,caches,crypto:webcrypto,URL,Response,TextDecoder,TextEncoder,Uint8Array,DOMException,console,fetch:async url=>{networkRequests.push(url);return network.has(url)?new Response(network.get(url)):new Response('Unavailable',{status:503});}});
  const waited=handler=>new Promise((resolve,reject)=>{let p;try{handler({waitUntil:x=>p=x});}catch(error){reject(error);return;}Promise.resolve(p).then(resolve,reject);});
  return {
   install(){return waited(handlers.install);},activate(){return waited(handlers.activate);},
-  async message(type){let result;let p;handlers.message({data:{type},ports:[{postMessage:value=>{result=value;}}],waitUntil:x=>p=x});await p;return result;},
+  async message(type,mode){let result;let p;handlers.message({data:{type,mode},ports:[{postMessage:value=>{result=value;}}],waitUntil:x=>p=x});await p;return result;},
+  networkRequests,
   async fetch(path,mode='cors',clientId='client'){let p;handlers.fetch({request:{method:'GET',url:abs(path),mode},clientId,resultingClientId:mode==='navigate'?clientId:'',respondWith:x=>p=x});return p;}
  };
 }
@@ -113,4 +116,72 @@ test('verified current-release query detects A-to-B replacement without serving 
  assert.deepEqual(await markers(caches),[],'ordinary online use never caches the complete previous release');
  const corrupt=Buffer.from('tampered');network.set(abs(next.pointer.manifest),corrupt);
  assert.equal((await runtime.message('CHECK_CURRENT')).releaseId,null,'never trust an unverifiable B manifest');
+});
+
+test('D5-O01 V2 ignores V3 mode commands and preserves online default',async()=>{
+ const caches=storage(),network=new Map(old.network);
+ const runtime=await worker(caches,network);
+ assert.equal(await runtime.message('V3_READ_MODE'),undefined);
+ assert.equal(await runtime.message('V3_SET_MODE','Work Offline'),undefined);
+ await runtime.message('PREPARE');
+ const prior=runtime.networkRequests.length;
+ assert.equal((await runtime.fetch('index.html','navigate')).status,200);
+ assert(runtime.networkRequests.length>prior);
+});
+
+test('D5-O02 V3 Work Offline refuses missing verified library and retains Automatic',async()=>{
+ const caches=storage(),network=new Map(old.network);
+ const runtime=await worker(caches,network,{v3:true});
+ const denied=await runtime.message('V3_SET_MODE','Work Offline');
+ assert.equal(denied.mode,'Automatic');
+ assert.match(denied.error,/complete verified offline library/);
+ assert.equal((await runtime.message('V3_READ_MODE')).mode,'Automatic');
+ assert.equal((await runtime.fetch('index.html','navigate')).status,200);
+});
+
+test('D5-O03 V3 Work Offline persists across restart and reads zero normal network resources',async()=>{
+ const caches=storage(),network=new Map(old.network);
+ const runtime=await worker(caches,network,{v3:true});
+ assert.equal((await runtime.message('PREPARE')).status.state,'Ready');
+ const selected=await runtime.message('V3_SET_MODE','Work Offline');
+ assert.equal(selected.mode,'Work Offline');
+ runtime.networkRequests.length=0;
+ assert.equal((await runtime.fetch('index.html','navigate')).status,200);
+ assert.equal((await (await runtime.fetch('release.json')).json()).id,old.id);
+ assert.equal((await runtime.fetch(`releases/${old.id}/app.js`)).status,200);
+ assert.equal((await runtime.message('CHECK_CURRENT')).releaseId,null);
+ assert.equal(runtime.networkRequests.length,0,
+  'Ordinary Work Offline page, assets and release checks must not use network');
+ const restarted=await worker(caches,network,{v3:true});
+ assert.equal((await restarted.message('V3_READ_MODE')).mode,'Work Offline');
+ assert.equal((await restarted.fetch('index.html','navigate')).status,200);
+ assert.equal((await restarted.fetch(`releases/${old.id}/app.js`)).status,200);
+ assert.equal(restarted.networkRequests.length,0);
+ const automatic=await restarted.message('V3_SET_MODE','Automatic');
+ assert.equal(automatic.mode,'Automatic');
+ assert.equal((await restarted.message('V3_READ_MODE')).mode,'Automatic');
+ const before=restarted.networkRequests.length;
+ assert.equal((await restarted.fetch('index.html','navigate')).status,200);
+ assert(restarted.networkRequests.length>before,'Automatic restores online-current reads');
+});
+
+test('D5-O04 corruption and quota failure cannot select or strand Work Offline',async()=>{
+ const caches=storage(),network=new Map(old.network);
+ const runtime=await worker(caches,network,{v3:true});
+ await runtime.message('PREPARE');
+ const entry=(await markers(caches))[0];
+ await (await caches.open(entry.name)).put(abs(`releases/${old.id}/app.js`),
+  new Response('tampered'));
+ const invalid=await runtime.message('V3_SET_MODE','Work Offline');
+ assert.equal(invalid.mode,'Automatic');
+ assert.match(invalid.error,/complete verified offline library/);
+ // Repair existing full verified release, then ensure failed preference write
+ // leaves Automatic selected, never reports Work Offline as committed.
+ await runtime.message('PREPARE');
+ caches.setFailure((name,url)=>url===abs('__fishing_v3_reading_mode__'));
+ const failed=await runtime.message('V3_SET_MODE','Work Offline');
+ assert.equal(failed.mode,'Automatic');
+ assert.match(failed.error,/Unable to save/);
+ assert.equal((await runtime.message('V3_READ_MODE')).mode,'Automatic');
+ caches.setFailure(()=>false);
 });

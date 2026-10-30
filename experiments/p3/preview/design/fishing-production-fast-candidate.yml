@@ -1,0 +1,445 @@
+name: Fishing production acceptance and deployment
+on:
+  push:
+    branches: [main, feature/v2-implementation-20260908]
+    paths: ['pwa/**', '!pwa/docs/**', '!pwa/README.md', '.github/workflows/**']
+  pull_request:
+    # Every PR must emit the same required check, including docs-only PRs.
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.ref == 'refs/heads/main' && 'fishing-pages' || format('production-validation-{0}', github.ref) }}
+  cancel-in-progress: false
+# P1-3 SOURCE-ONLY candidate. NOT activated / not a production release.
+# This source must replace the trusted original workflow at its EXISTING
+# path only after protected-ruleset identity, full lane equivalence, branch
+# conditions and end-to-end proof pass a separate cutover review.
+jobs:
+  pr-validate:
+    name: fishing-merge-ready
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - id: classify
+        name: Select fast content or full application lane
+        shell: bash
+        run: |
+          set -euo pipefail
+          mode=''
+          files=''
+          if [[ "$GITHUB_EVENT_NAME" == 'workflow_dispatch' ]]; then
+            mode='full'
+          elif [[ "$GITHUB_EVENT_NAME" == 'pull_request' ]]; then
+            base='${{ github.event.pull_request.base.sha }}'
+            files="$(git diff --name-only "$base"...HEAD)"
+          else
+            base='${{ github.event.before }}'
+            if [[ -z "$base" || "$base" =~ ^0+$ ]]; then
+              base="$(git rev-parse HEAD^)"
+            fi
+            files="$(git diff --name-only "$base" "$GITHUB_SHA")"
+          fi
+          if [[ "$mode" != 'full' ]]; then
+            mode='docs'
+            seen_docs=false
+            if [[ -z "$files" ]]; then
+              mode='full'
+            else
+              while IFS= read -r file; do
+                [[ -z "$file" ]] && continue
+                case "$file" in
+                  pwa/Gear/*|pwa/KB/*|pwa/Catches/*)
+                    if [[ "$seen_docs" == true ]]; then
+                      mode='full'
+                      break
+                    fi
+                    mode='content'
+                    ;;
+                  *.md)
+                    # Markdown outside canonical content roots has no published
+                    # runtime effect. Mixed canonical + docs changes are full.
+                    seen_docs=true
+                    if [[ "$mode" == 'content' ]]; then
+                      mode='full'
+                      break
+                    fi
+                    ;;
+                  *)
+                    mode='full'
+                    break
+                    ;;
+                esac
+              done <<< "$files"
+            fi
+          fi
+          echo "mode=$mode" >> "$GITHUB_OUTPUT"
+          echo "Release lane: $mode"
+          if [[ -n "$files" ]]; then printf 'Changed files:\n%s\n' "$files"; fi
+
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        if: steps.classify.outputs.mode != 'docs'
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: pwa/package-lock.json
+      - name: Install content-lane locked dependencies
+        if: steps.classify.outputs.mode == 'content'
+        working-directory: pwa
+        run: npm ci --no-audit --no-fund
+      - name: Validate canonical content and PR-head release
+        id: content-proof
+        if: steps.classify.outputs.mode == 'content'
+        working-directory: pwa
+        env:
+          SOURCE_REVISION: ${{ github.event.pull_request.head.sha }}
+        run: |
+          npm run build -- --base=/fishing/ --source-revision="$SOURCE_REVISION"
+          npm run verify
+      - name: Verify documentation-only diff
+        id: docs-proof
+        if: steps.classify.outputs.mode == 'docs'
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: git diff --check "$PR_BASE_SHA"...HEAD
+      - name: Verify durable v1 recovery and prepare actual cutover fixture
+        if: steps.classify.outputs.mode == 'full'
+        run: |
+          git show 4aafcd2f88b35bb34b608e2f85dec1daffc6c1d1:recovery/v1-production.zip > /tmp/v1-production.zip
+          echo 'fc036dc92dbf25a250917f8236c22099b798be1d5f2aa7274f6df9cb5215396e  /tmp/v1-production.zip' | sha256sum --check
+          git show 4aafcd2f88b35bb34b608e2f85dec1daffc6c1d1:recovery/v1-migration-source.zip > /tmp/v1-migration-source.zip
+          echo '83100e9cf2788b2d33959b39a6bb63fdd0e78c5e512936a07e46b22632bf7dbf  /tmp/v1-migration-source.zip' | sha256sum --check
+          mkdir /tmp/v1-root
+          unzip -q /tmp/v1-production.zip -d /tmp/v1-root
+      - name: Install and audit locked dependencies
+        if: steps.classify.outputs.mode == 'full'
+        timeout-minutes: 5
+        working-directory: pwa
+        run: |
+          npm ci --no-audit --no-fund
+          npm audit --omit=dev --audit-level=high
+      - name: Validate core behavior and preview build
+        if: steps.classify.outputs.mode == 'full'
+        timeout-minutes: 5
+        working-directory: pwa
+        run: |
+          npm test
+          npm run build -- --pending-media --source-revision="$GITHUB_SHA"
+          npm run verify
+      - name: Install Chromium and WebKit
+        if: steps.classify.outputs.mode == 'full'
+        timeout-minutes: 10
+        working-directory: pwa
+        run: npx playwright install --with-deps chromium webkit
+      - name: Preserve preview scope regression coverage
+        if: steps.classify.outputs.mode == 'full'
+        timeout-minutes: 12
+        working-directory: pwa
+        run: |
+          npm run test:browser
+          mv .test-output .preview-test-output
+      - name: Build and verify production root
+        if: steps.classify.outputs.mode == 'full'
+        timeout-minutes: 5
+        working-directory: pwa
+        run: |
+          npm run build -- --base=/fishing/ --source-revision="$GITHUB_SHA"
+          npm run verify
+      - name: Complete production browser and real v1 cutover acceptance
+        id: full-proof
+        if: steps.classify.outputs.mode == 'full'
+        timeout-minutes: 15
+        working-directory: pwa
+        env:
+          FISHING_BASE: /fishing/
+          FISHING_V1_DIST: /tmp/v1-root
+        run: npm run test:browser
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: steps.classify.outputs.mode == 'full'
+        with:
+          name: production-bundle-full
+          path: pwa/dist/
+          retention-days: 30
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: ${{ always() && steps.classify.outputs.mode == 'full' }}
+        with:
+          name: production-acceptance-evidence
+          path: |
+            pwa/.test-output/
+            pwa/.preview-test-output/
+          include-hidden-files: true
+          retention-days: 90
+
+      - name: Require exact source classification and successful validation
+        if: always()
+        env:
+          CLASSIFY_OUTCOME: ${{ steps.classify.outcome }}
+          MODE: ${{ steps.classify.outputs.mode }}
+          CONTENT_OUTCOME: ${{ steps.content-proof.outcome }}
+          FULL_OUTCOME: ${{ steps.full-proof.outcome }}
+          DOCS_OUTCOME: ${{ steps.docs-proof.outcome }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$CLASSIFY_OUTCOME" == success ]] || exit 1
+          case "$MODE" in
+            content) [[ "$CONTENT_OUTCOME" == success ]] ;;
+            full) [[ "$FULL_OUTCOME" == success ]] ;;
+            docs) [[ "$DOCS_OUTCOME" == success ]] ;;
+            *) exit 1 ;;
+          esac
+
+  classify:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      mode: ${{ steps.classify.outputs.mode }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - id: classify
+        name: Select fast content or full application lane
+        shell: bash
+        run: |
+          set -euo pipefail
+          mode=''
+          files=''
+          if [[ "$GITHUB_EVENT_NAME" == 'workflow_dispatch' ]]; then
+            mode='full'
+          elif [[ "$GITHUB_EVENT_NAME" == 'pull_request' ]]; then
+            base='${{ github.event.pull_request.base.sha }}'
+            files="$(git diff --name-only "$base"...HEAD)"
+          else
+            base='${{ github.event.before }}'
+            if [[ -z "$base" || "$base" =~ ^0+$ ]]; then
+              base="$(git rev-parse HEAD^)"
+            fi
+            files="$(git diff --name-only "$base" "$GITHUB_SHA")"
+          fi
+          if [[ "$mode" != 'full' ]]; then
+            mode='docs'
+            seen_docs=false
+            if [[ -z "$files" ]]; then
+              mode='full'
+            else
+              while IFS= read -r file; do
+                [[ -z "$file" ]] && continue
+                case "$file" in
+                  pwa/Gear/*|pwa/KB/*|pwa/Catches/*)
+                    if [[ "$seen_docs" == true ]]; then
+                      mode='full'
+                      break
+                    fi
+                    mode='content'
+                    ;;
+                  *.md)
+                    # Markdown outside canonical content roots has no published
+                    # runtime effect. Mixed canonical + docs changes are full.
+                    seen_docs=true
+                    if [[ "$mode" == 'content' ]]; then
+                      mode='full'
+                      break
+                    fi
+                    ;;
+                  *)
+                    mode='full'
+                    break
+                    ;;
+                esac
+              done <<< "$files"
+            fi
+          fi
+          echo "mode=$mode" >> "$GITHUB_OUTPUT"
+          echo "Release lane: $mode"
+          if [[ -n "$files" ]]; then printf 'Changed files:\n%s\n' "$files"; fi
+
+  validate-full:
+    if: needs.classify.outputs.mode == 'full'
+    needs: classify
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: pwa/package-lock.json
+      - name: Verify durable v1 recovery and prepare actual cutover fixture
+        run: |
+          git show 4aafcd2f88b35bb34b608e2f85dec1daffc6c1d1:recovery/v1-production.zip > /tmp/v1-production.zip
+          echo 'fc036dc92dbf25a250917f8236c22099b798be1d5f2aa7274f6df9cb5215396e  /tmp/v1-production.zip' | sha256sum --check
+          git show 4aafcd2f88b35bb34b608e2f85dec1daffc6c1d1:recovery/v1-migration-source.zip > /tmp/v1-migration-source.zip
+          echo '83100e9cf2788b2d33959b39a6bb63fdd0e78c5e512936a07e46b22632bf7dbf  /tmp/v1-migration-source.zip' | sha256sum --check
+          mkdir /tmp/v1-root
+          unzip -q /tmp/v1-production.zip -d /tmp/v1-root
+      - name: Install and audit locked dependencies
+        timeout-minutes: 5
+        working-directory: pwa
+        run: |
+          npm ci --no-audit --no-fund
+          npm audit --omit=dev --audit-level=high
+      - name: Validate core behavior and preview build
+        timeout-minutes: 5
+        working-directory: pwa
+        run: |
+          npm test
+          npm run build -- --pending-media --source-revision="$GITHUB_SHA"
+          npm run verify
+      - name: Install Chromium and WebKit
+        timeout-minutes: 10
+        working-directory: pwa
+        run: npx playwright install --with-deps chromium webkit
+      - name: Preserve preview scope regression coverage
+        timeout-minutes: 12
+        working-directory: pwa
+        run: |
+          npm run test:browser
+          mv .test-output .preview-test-output
+      - name: Build and verify production root
+        timeout-minutes: 5
+        working-directory: pwa
+        run: |
+          npm run build -- --base=/fishing/ --source-revision="$GITHUB_SHA"
+          npm run verify
+      - name: Complete production browser and real v1 cutover acceptance
+        timeout-minutes: 15
+        working-directory: pwa
+        env:
+          FISHING_BASE: /fishing/
+          FISHING_V1_DIST: /tmp/v1-root
+        run: npm run test:browser
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: production-bundle-full
+          path: pwa/dist/
+          retention-days: 30
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: production-acceptance-evidence
+          path: |
+            pwa/.test-output/
+            pwa/.preview-test-output/
+          include-hidden-files: true
+          retention-days: 90
+
+  deploy-full:
+    if: needs.classify.outputs.mode == 'full' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: [classify, validate-full]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: https://ginosega.github.io/fishing/
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: production-bundle-full
+          path: pwa/dist
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Prepare hosted verifier before deployment
+        timeout-minutes: 10
+        working-directory: pwa
+        run: |
+          npm ci --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          name: github-pages-${{ github.run_attempt }}
+          path: pwa/dist
+      - name: Guard exact current main
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: test "$(gh api repos/$GITHUB_REPOSITORY/git/ref/heads/main --jq .object.sha)" = "$GITHUB_SHA"
+      - uses: actions/deploy-pages@v4
+        with:
+          artifact_name: github-pages-${{ github.run_attempt }}
+      - name: Verify actual hosted production bytes and browser behavior
+        working-directory: pwa
+        run: node tools/verify-hosted.mjs --production=true --dist=dist
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: actual-hosted-production-verification-${{ github.run_attempt }}
+          path: pwa/hosted-evidence/
+          retention-days: 90
+
+  main-fast-content:
+    name: Verify and publish main content (single job)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.classify.outputs.mode == 'content'
+    needs: classify
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    # The top-level workflow already serializes main. Reusing the same
+    # concurrency key inside this job can deadlock against its own run.
+    environment:
+      name: github-pages
+      url: https://ginosega.github.io/fishing/
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: pwa/package-lock.json
+      - name: Install locked canonical dependencies
+        working-directory: pwa
+        run: npm ci --no-audit --no-fund
+      - name: Validate canonical content, rebuild with exact merged main, verify
+        working-directory: pwa
+        run: |
+          npm run build -- --base=/fishing/ --source-revision="$GITHUB_SHA"
+          npm run verify
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          name: github-pages-${{ github.run_attempt }}
+          path: pwa/dist
+      - name: Guard exact current main
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: test "$(gh api repos/$GITHUB_REPOSITORY/git/ref/heads/main --jq .object.sha)" = "$GITHUB_SHA"
+      - uses: actions/deploy-pages@v4
+        with:
+          artifact_name: github-pages-${{ github.run_attempt }}
+      - name: Independently verify hosted bytes and release identity
+        working-directory: pwa
+        run: node tools/verify-hosted-fast.mjs --dist=dist --url=https://ginosega.github.io/fishing/ --source-revision="$GITHUB_SHA"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: actual-hosted-content-verification-${{ github.run_attempt }}
+          path: pwa/hosted-evidence/
+          retention-days: 30

@@ -1,0 +1,40 @@
+# FISH118 P3-39. INERT SOURCE-ONLY DESIGN — NOT AN INSTALLED WORKFLOW.
+# Do not install or dispatch; this deliberately fails before any OIDC request,
+# App access, network operation, secret injection or GitHub mutation.
+# Critical boundary: the existing sandbox App PEM can sign App JWTs that in
+# other code could mint WRITE-capable installation tokens. An App private key
+# therefore must NOT be copied to an Actions secret as an "interim" step.
+# A future proof requires a separately reviewed key-custody decision:
+# - Prefer a distinct private read-only signer/metadata verifier with authenticated
+#   OIDC-to-signer boundary, or an explicit, scoped, owner-approved equivalent.
+# - Pin source and workflow SHA, restrict manual event/owner/repo/runner,
+#   and emit only PASS or fixed redacted DENY codes.
+# - Until reviewed, THIS WORKFLOW MUST REMAIN OUTSIDE .github/workflows.
+name: Fishing P3 OIDC and App combined GET-only preflight (NOT APPROVED)
+on:
+  workflow_dispatch:
+permissions: {}
+concurrency:
+  group: fishing-p3-oidc-app-review-only
+  cancel-in-progress: false
+jobs:
+  blocked:
+    if: >-
+      ${{ github.event_name == 'workflow_dispatch'
+          && github.repository == 'ginosega/fishing-p3-sandbox'
+          && github.repository_id == 1430581407
+          && github.actor_id == 265665562
+          && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Hard stop before secret access or network requests
+        shell: bash
+        run: |
+          echo 'P3-39 combined proof remains source-only pending key custody review.'
+          exit 1
+# No GitHub App private key, Cloudflare token, Access assertion, installation
+# token, D1 binding, content write, PR merge or publishing capability permitted.

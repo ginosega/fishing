@@ -1,6 +1,26 @@
 // Explicit complete-offline-library management. Editing remains exclusively in memory.
-export function createOffline({root,releaseId,onStatus,isDirty,notify}){
+export function createOffline({root,releaseId,onStatus,isDirty,notify,
+ onlineOnly=false,v3ReadingMode=false,onMode=()=>{}}){
+ // Isolated private owner pilot lives outside /fishing/ SW scope. Its
+ // content is fetched from an authenticated immutable sandbox snapshot,
+ // NEVER cached as part of the verified public V2 offline release.
+ if(onlineOnly===true){
+  const status={state:'OnlineOnly',releaseId:null,files:0,bytes:0,failed:[],
+   message:'Private sandbox pilot · online-only'};
+  return {
+   start:async()=>onStatus({...status,updating:false}),
+   checkCurrent:async()=>true,
+   getStatus:()=>({...status}),
+   update:async()=>notify('The private sandbox pilot does not have an offline library.'),
+   reload:()=>{if(isDirty()&&!confirm('Discard the unfinished private sandbox edit?'))return;location.reload();},
+   dispose:()=>{},
+   getSessionReleaseId:()=>releaseId,
+   getMode:()=> 'Automatic',getModeAvailable:()=>false,
+   setMode:async()=>false,refreshMode:async()=>{},
+  };
+ }
  let registration=null,updating=false,checking=null,switching=false,warned=false;
+ let mode='Automatic',modeAvailable=false;
  let status={state:'Incomplete',releaseId:null,files:0,bytes:0,failed:[]};
  const publish=next=>{status={...status,...next};onStatus({...status,updating});};
  const handler=event=>{const msg=event.data||{};if(msg.type==='FISHING_V2_STATUS'||msg.type==='FISHING_V2_PROGRESS')publish(msg.status);};
@@ -13,10 +33,69 @@ export function createOffline({root,releaseId,onStatus,isDirty,notify}){
    controller.postMessage({type},[channel.port2]);
   });
  }
+ async function modeCommand(type,newMode){
+  const worker=registration?.active||navigator.serviceWorker?.controller;
+  if(!worker)return null;
+  return new Promise(resolve=>{
+   const channel=new MessageChannel();
+   // A real Work Offline transition re-hashes every selected library file.
+   // Hundreds of images can take far longer than the former 4s timeout.
+   // Keep the only submitted request alive; no automatic second write.
+   const timeoutMs=type==='V3_SET_MODE'&&newMode==='Work Offline'?
+    180000:12000;
+   const timeout=setTimeout(()=>{channel.port1.close();resolve(null);},timeoutMs);
+   channel.port1.onmessage=event=>{
+    clearTimeout(timeout);channel.port1.close();
+    const value=event.data;
+    resolve(value?.type==='FISHING_V3_MODE'&&
+     ['Automatic','Work Offline'].includes(value.mode)?value:null);
+   };
+   try{worker.postMessage({type,mode:newMode},[channel.port2]);}
+   catch{clearTimeout(timeout);channel.port1.close();resolve(null);}
+  });
+ }
+ const reportMode=(message='',busy=false)=>
+  onMode(mode,modeAvailable,{message,busy});
+ function setModeState(result){
+  if(result?.available!==true){
+   modeAvailable=false;
+   reportMode('Reading controls could not reach the V3 service worker. Try Retry reading controls.');
+   return false;
+  }
+  modeAvailable=true;mode=result.mode;
+  reportMode(result.error||('Reading mode: '+mode));
+  return true;
+ }
+ async function refreshMode(){
+  if(!v3ReadingMode)return true;
+  reportMode('Checking service-worker reading mode…',true);
+  const result=await modeCommand('V3_READ_MODE');
+  return setModeState(result); // A missing/untrusted reply never grants publishing.
+ }
+ async function setMode(next){
+  if(!v3ReadingMode||!['Automatic','Work Offline'].includes(next))return false;
+  if(!registration)await start();
+  if(!modeAvailable){
+   reportMode('Reading controls are unavailable. Retry reading controls.');
+   return false;
+  }
+  reportMode(next==='Work Offline'?
+   'Verifying every file in the selected offline library…':
+   'Switching to Automatic…',true);
+  const result=await modeCommand('V3_SET_MODE',next);
+  if(!setModeState(result)){
+   notify('Reading-mode change could not be verified. Previous mode retained.','warning');
+   return false;
+  }
+  if(result.error){notify(result.error,'warning');return false;}
+  if(next==='Work Offline'&&isDirty())
+   notify('The unsaved editor stays open, but publishing is disabled in Work Offline.','warning');
+  return true;
+ }
  // Check the hosted pointer through the worker's own verified network path.
  // Do not trust the page's intercepted release.json: it is pinned to this tab.
  async function checkCurrent(){
-  if(!navigator.onLine||updating||switching)return !switching;
+  if(mode==='Work Offline'||!navigator.onLine||updating||switching)return !switching;
   if(checking)return checking;
   checking=(async()=>{
    const controller=navigator.serviceWorker?.controller||registration?.active;
@@ -48,7 +127,8 @@ export function createOffline({root,releaseId,onStatus,isDirty,notify}){
    window.addEventListener('pageshow',becameActive);
    window.addEventListener('online',becameActive);
    document.addEventListener('visibilitychange',becameActive);
-   await navigator.serviceWorker.ready;await command('STATUS');await checkCurrent();
+   await navigator.serviceWorker.ready;await command('STATUS');
+   await refreshMode();await checkCurrent();
   }catch(error){publish({state:'Incomplete',message:error.message});}
  }
  async function update(){
@@ -66,9 +146,12 @@ export function createOffline({root,releaseId,onStatus,isDirty,notify}){
     worker.addEventListener('statechange',changed);changed();
    });
    await command('PREPARE');
+   if(v3ReadingMode)await refreshMode();
   }catch(error){await command('STATUS').catch(()=>{});publish({...status,message:error.message});}finally{updating=false;publish(status);}
  }
  function reload(){if(updating){notify('The offline update is still running. Reload when it finishes.');return;}if(isDirty()&&!confirm('Your prepared changes have not been saved. Discard the current edit and reload?'))return;location.reload();}
  function dispose(){navigator.serviceWorker?.removeEventListener('message',handler);navigator.serviceWorker?.removeEventListener('controllerchange',controllerChanged);window.removeEventListener('focus',becameActive);window.removeEventListener('pageshow',becameActive);window.removeEventListener('online',becameActive);document.removeEventListener('visibilitychange',becameActive);}
- return {start,update,reload,dispose,checkCurrent,getStatus:()=>status,getSessionReleaseId:()=>releaseId};
+ return {start,update,reload,dispose,checkCurrent,getStatus:()=>status,
+  getSessionReleaseId:()=>releaseId,getMode:()=>mode,
+  getModeAvailable:()=>modeAvailable,setMode,refreshMode};
 }

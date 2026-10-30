@@ -1,0 +1,42 @@
+# FISH118 P3-32 — REVIEW TEMPLATE, NOT AN INSTALLED WORKFLOW.
+# Intentionally stored outside .github/workflows in the PUBLIC SOURCE-ONLY PR.
+# DO NOT copy into the private sandbox until separately authorized.
+# This template fails closed; it contains no GitHub App key, Access token,
+# Cloudflare credentials, D1 binding, installation token or network command.
+name: Fishing P3 owner-only command (UNAPPROVED TEMPLATE)
+on:
+  workflow_dispatch:
+    inputs:
+      reviewed_operation_id:
+        description: 'Nonsecret reviewed operation ID only; never pass command JSON or keys'
+        required: true
+        type: string
+permissions: {}
+concurrency:
+  group: fishing-p3-manual-accept
+  cancel-in-progress: false
+jobs:
+  denied-until-approved:
+    if: >-
+      ${{ github.event_name == 'workflow_dispatch'
+          && github.repository == 'ginosega/fishing-p3-sandbox'
+          && github.repository_id == 1430581407
+          && github.actor_id == 265665562
+          && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Explicit non-executable approval gate
+        shell: bash
+        run: |
+          printf '%s\n' 'P3-32 template is source-only. No trusted runner is provisioned.'
+          exit 1
+# After a separate approval: use full-commit-SHA pinned actions only;
+# checkout persist-credentials:false; verify checked SHA, signed OIDC
+# claims + GH App GET metadata; obtain an out-of-runner ECDSA approval,
+# then separate D1 ledger and command gates. NEVER add pull_request,
+# pull_request_target, workflow_call, schedule, untrusted artifacts or
+# checkout of user-controlled PR refs to this privileged workflow.

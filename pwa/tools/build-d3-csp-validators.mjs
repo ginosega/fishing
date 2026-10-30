@@ -1,0 +1,104 @@
+#!/usr/bin/env node
+/**
+ * FISH118 D3: compile canonical AJV 2020 schema at BUILD TIME.
+ * Strict private owner pilot CSP excludes unsafe-eval, so it must NEVER
+ * instantiate the Ajv runtime compiler in the browser.
+ * Unmodified semantic rules still come from pwa/src/validation.mjs.
+ */
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {createHash} from 'node:crypto';
+import Ajv2020 from 'ajv/dist/2020.js';
+import standaloneCode from 'ajv/dist/standalone/index.js';
+
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+const schemaFile=path.join(root,'contracts/schema.json');
+const validationFile=path.join(root,'src/validation.mjs');
+const generatedDir=path.join(root,'src/generated');
+const validatorsFile=path.join(generatedDir,'d3-validators.mjs');
+// Git for Windows may check out tracked source as CRLF even though GitHub
+// and Linux CI use LF. Exact canonical transformation seams are LF-based.
+const originalRaw=await fs.readFile(validationFile,'utf8');
+const simulatedWindowsEol=process.argv.includes('--simulate-windows-eol');
+const input=simulatedWindowsEol?
+ originalRaw.replace(/\r\n?|\n/g,'\r\n'):originalRaw;
+const originalFile=input.replace(/\r\n?/g,'\n');
+const schema=JSON.parse(await fs.readFile(schemaFile,'utf8'));
+const ajv=new Ajv2020({allErrors:true,strict:true,
+ code:{source:true,esm:true}});
+const definitions={
+ gear:'gearBundle',kb:'kbBundle',catches:'catchBundle',
+ gearItem:'gearItem',kbEntity:'kbEntity',catchItem:'catch',
+};
+const validators={};
+for(const [key,definition]of Object.entries(definitions)){
+ if(!Object.hasOwn(schema.$defs,definition))
+  throw Error('Missing canonical schema definition: '+definition);
+ // Standalone multi-export API accepts registry schema IDs, not compiled
+ // function objects. Register exact canonical definitions, then retrieve
+ // and emit their compiled functions at build time.
+ const id='fishing-d3-standalone-'+key;
+ ajv.addSchema({$ref:'#/$defs/'+definition,$defs:schema.$defs},id);
+ if(typeof ajv.getSchema(id)!=='function')
+  throw Error('Cannot compile canonical schema: '+key);
+ validators[key]=id;
+}
+const code=standaloneCode(ajv,validators);
+if(!code.includes('export')||code.includes('new Function('))
+ throw Error('Generated CSP validators contain unsafe compilation');
+await fs.mkdir(generatedDir,{recursive:true});
+await fs.writeFile(validatorsFile,code,'utf8');
+
+const from=[
+ "import Ajv2020 from 'ajv/dist/2020.js';",
+ "import schema from '../contracts/schema.json' with {type:'json'};"
+].join('\n');
+const to="import {gear,kb,catches,gearItem,kbEntity,catchItem} from './generated/d3-validators.mjs';";
+const oldInit=[
+ 'const ajv=new Ajv2020({allErrors:true,strict:true});',
+ "const validators=Object.fromEntries(Object.entries(DOMAIN).map(([key,d])=>[key,ajv.compile({$ref:'#/$defs/'+d.definition,$defs:schema.$defs})]));",
+].join('\n');
+const newInit=[
+ 'const validators={gear,kb,catches};',
+ "const schemaErrors=errors=>(errors??[]).map(e=>(e.instancePath||'/')+' '+(e.message??'schema violation')).join('; ');",
+].join('\n');
+const oldRecord=[
+ 'const recordValidators=Object.freeze(Object.fromEntries(',
+ " Object.entries({gear:'gearItem',kb:'kbEntity',catches:'catch'})",
+ '  .map(([domain,definition])=>[domain,',
+ "   ajv.compile({$ref:'#/$defs/'+definition,$defs:schema.$defs})])",
+ '));',
+].join('\n');
+const newRecord='const recordValidators=Object.freeze({gear:gearItem,kb:kbEntity,catches:catchItem});';
+let safe=originalFile;
+for(const [needle,replacement]of [
+ [from,to],
+ [oldInit,newInit],
+ [oldRecord,newRecord],
+ ["ajv.errorsText(validate.errors,{separator:'; '})","schemaErrors(validate.errors)"],
+ ["ajv.errorsText(validate.errors)","schemaErrors(validate.errors)"],
+]){
+ if(safe.split(needle).length!==2)
+  throw Error('Validation source changed; review CSP transform: '+needle.slice(0,60));
+ safe=safe.replace(needle,replacement);
+}
+if(/\bAjv2020\b|\bajv\.|ajv\/dist/.test(safe))
+ throw Error('Runtime AJV compiler leaked into owner pilot validation');
+const digest=s=>createHash('sha256').update(s).digest('hex');
+process.stdout.write(JSON.stringify({
+ generated:true,canonicalSchemaSha256:digest(JSON.stringify(schema)),
+ originalValidationSha256:digest(originalFile),
+ simulatedWindowsEol,
+ staticCodeBytes:Buffer.byteLength(code),
+ cspSafeValidationBytes:Buffer.byteLength(safe),
+ noDeployment:true,
+})+'\n');
+
+export function ownerPilotCspValidationPlugin(){
+ return {name:'fishing-d3-csp-ajv',setup(build){
+  build.onLoad({filter:/[/\\]pwa[/\\]src[/\\]validation\.mjs$/},
+   async()=>({contents:safe,loader:'js',
+     resolveDir:path.dirname(validationFile)}));
+ }};
+}

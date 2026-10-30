@@ -1,0 +1,64 @@
+// V3-only Markdown original-image viewer behavior. The parser has already
+// resolved every image to a repository-local source and rejected remote URLs.
+// This module never loads arbitrary URLs or invents missing source references.
+export function bindMarkdownPictureViewer(article,{references,resolveAsset,openViewer}){
+ const images=[...article.querySelectorAll('img')];
+ const allowed=references.filter(ref=>ref.isImage===true);
+ // Fail closed if sanitized DOM no longer matches the validated Markdown
+ // image sequence; V2 keeps its old unchanged rendered Markdown.
+ if(images.length!==allowed.length)return false;
+ images.forEach((img,index)=>{
+  const reference=allowed[index];
+  if(reference.isImage!==true||reference.kind!=='local'||reference.local==null)return;
+  // A sanitizer/browser may normalize the src DOM property differently
+  // from the token's literal URL (notably percent-encoded spaces). Compare
+  // only canonical absolute URLs, never match by alt text or filename.
+  let rendered,expected;
+  try{
+   rendered=new URL(img.getAttribute('src')||img.src,
+    article.ownerDocument.baseURI||reference.target).href;
+   expected=new URL(reference.target).href;
+  }catch{return;}
+  if(rendered!==expected)return;
+  const alt=img.getAttribute('alt')||'Picture';
+  const caption=img.getAttribute('title')||'';
+  const fallback=()=>{
+   const label=article.ownerDocument.createElement('span');
+   label.className='markdown-image-unavailable';
+   label.setAttribute('role','status');
+   label.textContent='Picture unavailable: '+alt;
+   return label;
+  };
+  if(reference.missing===true){
+   img.replaceWith(fallback());return;
+  }
+  const source=resolveAsset(reference.local);
+  // Candidate acceptance uses a loopback secure-context exception. Never
+  // permit plaintext remote images, even when the original Markdown target
+  // has been validated as a repository-local reference.
+  let url;
+  try{url=new URL(source);}catch{return;}
+  if(url.protocol!=='https:'&&!(url.protocol==='http:'&&
+    ['localhost','127.0.0.1','[::1]'].includes(url.hostname)))return;
+  if(url.username||url.password)return;
+  // The private V3 sandbox serves immutable original bytes from the owner
+  // asset endpoint, not an unrelated public V2 content release.
+  img.src=source;
+  const linked=img.closest('a');
+  let wrapper=null;
+  if(!linked){
+   wrapper=article.ownerDocument.createElement('button');
+   wrapper.type='button';
+   wrapper.className='markdown-image-button';
+   wrapper.setAttribute('aria-label','Enlarge '+alt);
+   wrapper.addEventListener('click',()=>openViewer(source,alt,caption));
+   img.replaceWith(wrapper);
+   wrapper.append(img);
+  }
+  img.addEventListener('error',()=>{
+   if(wrapper)wrapper.replaceWith(fallback());
+   else img.replaceWith(fallback());
+  },{once:true});
+ });
+ return true;
+}

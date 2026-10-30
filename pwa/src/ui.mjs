@@ -3,8 +3,14 @@ import {DOMAIN,GEAR_CATEGORIES,KB_TYPES,ROD_TYPES,sortGear,sortNames,sortCatches
 import {TAXONOMY} from './validation.mjs';
 import {parseMarkdown,sanitizeHtml,markdownRouteMap} from './markdown.mjs';
 import {createEditor} from './editor.mjs';
+import {createCatchEditor} from './catch-editor.mjs';
 import {openViewer,openSequenceViewer} from './viewer.mjs';
+import {bindMarkdownPictureViewer} from './markdown-viewer.mjs';
+import {connectionIndicator} from './connection-indicator.mjs';
+import {formatV3Diagnostics} from './diagnostics.mjs';
 import {createOffline} from './offline.mjs';
+import {createD3ConnectionController,mountD3ConnectionPanel} from './v3-connection.mjs';
+import {mountV3ConnectionExperience} from './v3-connection-experience.mjs';
 
 const KAYAK_ICON=`<svg viewBox="0 0 64 64" role="img" aria-label="Kayak">
   <defs><linearGradient id="kayakHull" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a2def7"/><stop offset="1" stop-color="#76c8ef"/></linearGradient></defs>
@@ -26,22 +32,49 @@ const CATEGORY_PRESENTATION={gear:{'rods-reels':{icon:'🎣'},line:{icon:'〰️
 const categoryLabel=(domain,key)=>(domain==='gear'?GEAR_CATEGORIES:KB_TYPES).find(x=>x[0]===key)?.[1]||key;
 const categoryRoute=(domain,key)=>domain==='gear'?`#/inventory/category/${key}`:`#/kb/category/${key}`;
 const rootRoute=domain=>domain==='gear'?'#/inventory':domain==='kb'?'#/kb':'#/catches';
-const recordTitle=(ctx,domain,record)=>domain==='catches'?`${ctx.maps.kb.get(record.speciesId)?.name||'Catch'} · ${record.date}`:record.name;
+const recordTitle=(ctx,domain,record)=>domain==='catches'?`${ctx.maps.kb.get(record.speciesId)?.name||record.speciesName||'Catch'} · ${record.date}`:record.name;
 export function createApp(ctx){
  const root=document.getElementById('app'),alertHost=document.getElementById('app-notice'),offlineHost=document.getElementById('offline-status');
- const routes=markdownRouteMap(ctx.data),exists=new Set(ctx.manifest.files.filter(x=>x.path.startsWith(`releases/${ctx.release.id}/content/`)).map(x=>x.path.slice(`releases/${ctx.release.id}/content/`.length)));
+ const routes=markdownRouteMap(ctx.data),exists=ctx.v3?.source?.files instanceof Set?
+  new Set(ctx.v3.source.files):
+  new Set(ctx.manifest.files.filter(x=>x.path.startsWith(`releases/${ctx.release.id}/content/`)).map(x=>x.path.slice(`releases/${ctx.release.id}/content/`.length)));
  let currentHash=location.hash||'#/',route=parseRoute(currentHash),editor=null,serial=0,offline=null,approvedNavigation=null,previousHash=null;
+ let ownerController=null,savingPublication=false;
+ // V2 stays unchanged. V3 owner controls are strictly opt-in via an
+ // authenticated, same-origin integration; server authorization is still
+ // mandatory for every actual write, regardless of client-side visibility.
+ const v3Mode=ctx.v3?.enabled===true;
+ const privatePilot=v3Mode&&[
+  '/__d3_pilot__/','/fishing/__d3_pilot__/',
+ ].includes(location.pathname);
+ if(v3Mode)ctx.v3.authorized=false; // do not trust stale browser state
+ const workOffline=()=>v3Mode&&!privatePilot&&
+  offline?.getMode?.()==='Work Offline';
+ const canAuthor=()=>!v3Mode||(ctx.v3?.authorized===true&&
+  typeof ctx.v3?.publish==='function'&&!workOffline());
+ const guardedPublish=async(...args)=>{
+  // A different tab may have switched the persisted SW reading preference.
+  // Recheck it immediately before any owner publish request.
+  if(v3Mode&&!privatePilot&&await offline?.refreshMode?.()!==true)
+   throw new Error('Reading mode could not be verified. Publishing is paused; reopen Connection Status and retry.');
+  if(workOffline())throw new Error('Work Offline is reading-only. Switch to Automatic in Connection Status before publishing.');
+  if(!navigator.onLine)throw new Error('Reconnect to publish your changes.');
+  savingPublication=true;
+  paintConnectionIndicator();
+  try{return await ctx.v3.publish(...args);}
+  finally{savingPublication=false;paintConnectionIndicator();}
+ };
  function notify(message,kind='info'){status(alertHost,message,kind);}
  function dirty(){return Boolean(editor?.isDirty());}
  function canLeave(){return !dirty()||confirm('Your changes have not been saved. Discard this edit and leave?');}
  function disposeEditor(){editor?.dispose?.();editor=null;}
- function navigate(hash){if(hash===currentHash){if(!dirty())render();return;}if(!canLeave())return;disposeEditor();approvedNavigation=hash;location.hash=hash;}
+ function navigate(hash){if(hash===currentHash){if(!dirty())render();return;}if(!canLeave())return;disposeEditor();approvedNavigation=hash;location.hash=hash;if(privatePilot)void refreshPublishedContent();}
  function anchor(label,href,cls=''){const a=link(label,href,cls);if(href.startsWith('#/'))a.addEventListener('click',event=>{event.preventDefault();navigate(href);});return a;}
  function copyLink(domain,id){const uri=domain+'://'+id;const full=new URL(routeFor(domain,id),ctx.root).href;const box=el('div',{class:'copy-dialog'},text('p','Internal link'),el('code',{},uri),text('p','Shareable browser URL'),el('code',{},full),toolbar(button('Copy internal link',()=>copy(uri)),button('Copy browser URL',()=>copy(full))));const dialog=el('dialog',{class:'small-dialog','aria-label':'Create Link'},box,button('Close',()=>dialog.close()));dialog.addEventListener('close',()=>dialog.remove());document.body.append(dialog);dialog.showModal();}
  async function copy(value){try{await navigator.clipboard.writeText(value);notify('Copied to clipboard.','success');}catch{const area=el('textarea',{readonly:true,value});alertHost.replaceChildren(text('p','Select and copy this text:'),area);area.focus();area.select();}}
  function frame(title,parent,actions=[],subtitle=''){const header=el('div',{class:'page-header'},el('div',{class:'page-heading'},text('h1',title),subtitle?text('p',subtitle,'page-subtitle'):null),el('div',{class:'page-actions'},...actions,parent?button('Back',()=>navigate(parent)):null));return el('div',{class:'page'},header);}
  function card(title,description,href,icon='',image=null){return el('a',{href,class:'nav-card',onclick:event=>{event.preventDefault();navigate(href);}},image||(icon?el('span',{class:'card-icon','aria-hidden':'true'},icon):el('span',{class:'card-thumbnail card-spacer','aria-hidden':'true'})),el('div',{},text('h2',title),description?text('p',description,'muted'):null));}
- function recordCard(domain,record){const href=routeFor(domain,record.id),pictureSrc=record.picture?.src||(domain==='catches'?ctx.maps.kb.get(record.speciesId)?.picture?.src:null),image=pictureSrc?ctx.thumbnail(pictureSrc):null;const item=card(domain==='catches'?(ctx.maps.kb.get(record.speciesId)?.name||'Catch'):recordTitle(ctx,domain,record),domain==='gear'?record.type:domain==='kb'?record.description||'':record.size||'',href,'',image?el('img',{src:image,alt:'',loading:'lazy',decoding:'async',class:'card-thumbnail',onerror:event=>{event.target.hidden=true;}}):null);if(domain==='catches')item.querySelector('h2').after(el('time',{class:'catch-date muted',datetime:record.date},record.date));return item;}
+ function recordCard(domain,record){const href=routeFor(domain,record.id),pictureSrc=record.picture?.src||(domain==='catches'?ctx.maps.kb.get(record.speciesId)?.picture?.src:null),image=pictureSrc?ctx.thumbnail(pictureSrc):null;const item=card(domain==='catches'?(ctx.maps.kb.get(record.speciesId)?.name||record.speciesName||'Catch'):recordTitle(ctx,domain,record),domain==='gear'?record.type:domain==='kb'?record.description||'':record.size||'',href,'',image?el('img',{src:image,alt:'',loading:'lazy',decoding:'async',class:'card-thumbnail',onerror:event=>{event.target.hidden=true;}}):null);if(domain==='catches')item.querySelector('h2').after(el('time',{class:'catch-date muted',datetime:record.date},record.date));return item;}
  function renderHome(){const page=frame('Fishing Companion',null);page.append(text('p','Fishing reference and catch log','lead'),el('div',{class:'nav-grid home-grid'},card('My Gear',ROOT_SUBTITLES.gear,'#/inventory','🎒'),card('Knowledge Base',ROOT_SUBTITLES.kb,'#/kb','📚'),card('Catch Log','Recorded catches','#/catches','🐟')));return page;}
  function listControls(domain,records,{search=false,filter=false,sort='name',title='',pinnedId=''}={}){
   const controls=el('div',{class:'list-controls'}),results=el('div',{class:'record-grid'}),count=text('p','','result-count');let query='',type='';
@@ -54,27 +87,65 @@ export function createApp(ctx){
  function renderRoot(domain){const gear=domain==='gear',rows=gear?GEAR_CATEGORIES:KB_TYPES,all=ctx.data[domain][DOMAIN[domain].array];const page=frame(gear?'My Gear':'Knowledge Base','#/',[],ROOT_SUBTITLES[domain]);
   const searchInput=input('',{type:'search',placeholder:'Search '+(gear?'My Gear':'Knowledge Base')});const searchResults=el('div',{class:'record-grid',hidden:true});const categories=el('div',{class:'nav-grid'},...rows.map(([key,label])=>{const meta=CATEGORY_PRESENTATION[domain][key];const item=card(label,meta.description||'',categoryRoute(domain,key),meta.icon);if(meta.svg)item.querySelector('.card-icon').innerHTML=meta.svg;return item;}));
   searchInput.addEventListener('input',()=>{const q=searchInput.value.trim().toLocaleLowerCase();searchResults.hidden=!q;categories.hidden=Boolean(q);if(!q){searchResults.replaceChildren();return;}const matches=all.filter(r=>[r.name,r.type,r.description,r.manufacturer,r.model].filter(Boolean).join(' ').toLocaleLowerCase().includes(q));searchResults.replaceChildren(...(matches.length?sortNames(matches).map(r=>recordCard(domain,r)):[empty('No matching entries.')]));});
-  searchInput.setAttribute('aria-label','Search '+(gear?'My Gear':'Knowledge Base'));page.querySelector('.page-actions').prepend(searchInput);page.append(categories,searchResults,anchor(gear?'Add Gear':'Add Entry',gear?'#/inventory/add/lures':'#/kb/add/technique','page-edit-link'));return page;
+  searchInput.setAttribute('aria-label','Search '+(gear?'My Gear':'Knowledge Base'));page.querySelector('.page-actions').prepend(searchInput);page.append(categories,searchResults,...(canAuthor()?[anchor(gear?'Add Gear':'Add Entry',gear?'#/inventory/add/lures':'#/kb/add/technique','page-edit-link')]:[]));return page;
  }
  function renderList(domain,key){const gear=domain==='gear',rows=gear?GEAR_CATEGORIES:KB_TYPES;const definition=rows.find(x=>x[0]===key);if(!definition)return missing('Unknown category',rootRoute(domain));
   const records=ctx.data[domain][DOMAIN[domain].array].filter(r=>(gear?r.category:r.type)===key);
   const page=frame(definition[1],rootRoute(domain));
   if(!gear&&key==='equipment')page.append(text('p','Equipment, rig, and presentation reference','muted'));
   if(!gear&&key==='technique')page.append(text('p','Strategy, conditions, and species reference','muted'));
-  const list=listControls(domain,records,{title:definition[1],search:gear?key==='lures':key==='equipment',filter:gear,sort:gear?'gear':'name',pinnedId:gear?'':KB_PINNED_FIRST[key]||''});page.querySelector('.page-actions').prepend(...list.controls.children);page.append(list.element,anchor(gear?'Add Gear':'Add Entry',gear?`#/inventory/add/${key}`:`#/kb/add/${key}`,'page-edit-link'));return page;
+  const list=listControls(domain,records,{title:definition[1],search:gear?key==='lures':key==='equipment',filter:gear,sort:gear?'gear':'name',pinnedId:gear?'':KB_PINNED_FIRST[key]||''});page.querySelector('.page-actions').prepend(...list.controls.children);page.append(list.element,...(canAuthor()?[anchor(gear?'Add Gear':'Add Entry',gear?`#/inventory/add/${key}`:`#/kb/add/${key}`,'page-edit-link')]:[]));return page;
  }
  function missing(message,parent='#/'){const page=frame('Not found',parent);page.append(empty(message),anchor('Return to the parent page',parent));return page;}
  function appendPicture(page,record,domain){const pic=record.picture;if(!pic)return;const src=ctx.asset(pic.src),caption=pic.caption||'';const activate=record.pictureSequence?.length?()=>openSequenceViewer(record.pictureSequence.map(ctx.asset),record.name,caption):()=>openViewer(src,record.name,caption);page.append(picture(src,pic.caption||record.name,caption,activate));}
- async function markdownContent(owner,textValue){const parsed=parseMarkdown(textValue,{owner,maps:ctx.maps,assetBase:ctx.base,exists,pathRoutes:routes});const article=el('article',{class:'markdown-body'});article.innerHTML=sanitizeHtml(parsed.html,window);article.addEventListener('click',event=>{const a=event.target.closest('a[href^="#/"]');if(a){event.preventDefault();navigate(a.getAttribute('href'));}});return article;}
- async function appendMarkdown(page,pathValue,heading){if(!pathValue)return;const response=await fetch(ctx.asset(pathValue));if(!response.ok)throw new Error(`Cannot load ${pathValue}: HTTP ${response.status}`);const content=await response.text();page.append(section(heading,await markdownContent(pathValue,content)));}
+ async function markdownContent(owner,textValue){
+  // V2 remains strict and unchanged; V3 readers preserve the containing
+  // article when a historical local image has been retired or is missing.
+  const parsed=parseMarkdown(textValue,{owner,maps:ctx.maps,assetBase:ctx.base,
+   exists,pathRoutes:routes,allowMissingImages:v3Mode,viewerImages:v3Mode});
+  const article=el('article',{class:'markdown-body'});
+  article.innerHTML=sanitizeHtml(parsed.html,window);
+  if(v3Mode)bindMarkdownPictureViewer(article,{
+   references:parsed.references,
+   resolveAsset:file=>ctx.asset(file),
+   openViewer,
+  });
+  article.addEventListener('click',event=>{
+   const a=event.target.closest('a[href^="#/"]');
+   if(a){event.preventDefault();navigate(a.getAttribute('href'));}
+  });
+  return article;
+ }
+ async function appendMarkdown(page,pathValue,heading){
+  if(!pathValue)return;
+  let content;
+  if(ctx.v3?.source?.markdown instanceof Map){
+   // The test-only editor must never mix public V2 Markdown with the
+   // private sandbox's immutable record/sourceRevision.
+   if(!ctx.v3.source.markdown.has(pathValue))
+    throw new Error('Sandbox Markdown is unavailable: '+pathValue);
+   content=ctx.v3.source.markdown.get(pathValue);
+  }else{
+   const response=await fetch(ctx.asset(pathValue));
+   if(!response.ok)
+    throw new Error(`Cannot load ${pathValue}: HTTP ${response.status}`);
+   content=await response.text();
+  }
+  page.append(section(heading,await markdownContent(pathValue,content)));
+ }
  function historySection(domain,record){const catches=catchHistory(ctx.data,domain,record.id);if(!catches.length)return null;return section('Catch History',el('div',{class:'record-grid'},...catches.map(c=>recordCard('catches',c))));}
  async function renderDetail(domain,id){const record=ctx.maps[domain].get(id);if(!record)return missing('This item does not exist or its ID has been retired.',rootRoute(domain));
   const parent=domain==='catches'?'#/catches':categoryRoute(domain,domain==='gear'?record.category:record.type),page=frame(recordTitle(ctx,domain,record),parent,[],domain==='gear'?categoryLabel(domain,record.category)+' – '+record.type:domain==='kb'?record.description||'':'');
   if(domain==='catches'){
    const species=ctx.maps.kb.get(record.speciesId),location=ctx.maps.kb.get(record.locationId),lure=ctx.maps.gear.get(record.lureOrBaitId);
    if(species?.picture)appendPicture(page,{...species,name:species.name},'kb');
-   page.append(table([['Date',record.date],...(record.time?[['Time',record.time]]:[]),...(record.size?[['Size',record.size]]:[]),...(species?[['Species',anchor(species.name,routeFor('kb',species.id))]]:[]),...(location?[['Location',anchor(location.name,routeFor('kb',location.id))]]:[]),...(lure?[['Lure or bait',anchor(lure.name,routeFor('gear',lure.id))]]:[])]));
-   await appendMarkdown(page,record.notes,'Notes');return page;
+   page.append(table([['Date',record.date],...(record.time?[['Time',record.time]]:[]),...(record.size?[['Size',record.size]]:[]),...(species?[['Species',anchor(species.name,routeFor('kb',species.id))]]:record.speciesName?[['Species',record.speciesName]]:[]),...(location?[['Location',anchor(location.name,routeFor('kb',location.id))]]:record.locationName?[['Location',record.locationName]]:[]),...(lure?[['Lure or bait',anchor(lure.name,routeFor('gear',lure.id))]]:record.lureOrBaitName?[['Lure or bait',record.lureOrBaitName]]:[])]));
+   await appendMarkdown(page,record.notes,'Notes');
+   // Catch details return early, before the Gear/KB edit footer.
+   // Preserve the private owner-only authoring gate and normal route.
+   if(v3Mode&&canAuthor())
+    page.append(anchor('Edit item',`#/catches/edit/${record.id}`,'page-edit-link'));
+   return page;
   }
   appendPicture(page,record,domain);
   if(domain==='gear'){
@@ -85,15 +156,27 @@ export function createApp(ctx){
   }else{
    await appendMarkdown(page,record.content,'Notes');
   }
-  const history=historySection(domain,record);if(history)page.append(history);page.append(anchor('Edit item',domain==='gear'?`#/inventory/edit/${record.id}`:`#/kb/edit/${record.id}`,'page-edit-link'));return page;
+  const history=historySection(domain,record);if(history)page.append(history);if(canAuthor()&&(domain!=='catches'||v3Mode))page.append(anchor('Edit item',domain==='gear'?`#/inventory/edit/${record.id}`:domain==='kb'?`#/kb/edit/${record.id}`:`#/catches/edit/${record.id}`,'page-edit-link'));return page;
  }
- function renderCatches(){const page=frame('Recorded catches','#/');page.append(el('div',{class:'record-grid'},...sortCatches(ctx.data.catches.catches).map(c=>recordCard('catches',c))));return page;}
- async function renderEditor(domain,id,category,type){const record=id?ctx.maps[domain].get(id):null;if(id&&!record)return missing('This item does not exist or its ID has been retired.',rootRoute(domain));const fallback=categoryRoute(domain,domain==='gear'?category:type);const origin=previousHash===rootRoute(domain)||previousHash===fallback?previousHash:fallback;const parent=record?routeFor(domain,record.id):fallback;const exitTarget=record?parent:origin;
-  const page=frame(record?'Edit '+record.name:domain==='gear'?'Add Gear':'Add Entry',parent,record?[button('Create Link',()=>copyLink(domain,record.id))]:[]);const created=await createEditor(ctx,{domain,baseRecord:record,category,type,onBack:()=>navigate(parent),onExit:()=>{disposeEditor();navigate(exitTarget);},onDirty:()=>{}});editor=created;page.append(created.element);return page;
+ function renderCatches(){const page=frame('Recorded catches','#/');if(v3Mode&&canAuthor())page.querySelector('.page-actions').prepend(anchor('Add Catch','#/catches/add','page-edit-link'));page.append(el('div',{class:'record-grid'},...sortCatches(ctx.data.catches.catches).map(c=>recordCard('catches',c))));return page;}
+ async function renderEditor(domain,id,category,type){if(!canAuthor())return missing('Owner sign-in is required to edit. Open Connection Status to sign in.',rootRoute(domain));const record=id?ctx.maps[domain].get(id):null;if(id&&!record)return missing('This item does not exist or its ID has been retired.',rootRoute(domain));const fallback=categoryRoute(domain,domain==='gear'?category:type);const origin=previousHash===rootRoute(domain)||previousHash===fallback?previousHash:fallback;const parent=record?routeFor(domain,record.id):fallback;const exitTarget=record?parent:origin;
+  const page=frame(record?'Edit '+record.name:domain==='gear'?'Add Gear':'Add Entry',parent,record?[button('Create Link',()=>copyLink(domain,record.id))]:[]);const created=await createEditor(ctx,{domain,baseRecord:record,category,type,onBack:()=>navigate(parent),onExit:()=>{disposeEditor();navigate(exitTarget);},onDirty:()=>{},publishChange:v3Mode?guardedPublish:null,onPrepared:v3Mode?(receipt)=>ctx.v3.onPublicationReceipt?.(receipt):null});editor=created;page.append(created.element);return page;
+ }
+ async function renderCatchEditor(id=null){
+  if(!v3Mode||!canAuthor())return missing('Owner sign-in is required to edit Catches. Open Connection Status to sign in.','#/catches');
+  const record=id?ctx.maps.catches.get(id):null;
+  if(id&&!record)return missing('This Catch does not exist.','#/catches');
+  const parent=record?routeFor('catches',record.id):'#/catches';
+  const page=frame(record?'Edit Catch':'Add Catch',parent);
+  const created=await createCatchEditor(ctx,{baseRecord:record,
+   onBack:()=>navigate(parent),onExit:()=>{disposeEditor();navigate('#/catches');},
+   onDirty:()=>{},publishChange:guardedPublish,
+   onPrepared:receipt=>ctx.v3.onPublicationReceipt?.(receipt),
+  });editor=created;page.append(created.element);return page;
  }
  async function render(){const ticket=++serial;if(offline&&!(await offline.checkCurrent()))return;if(ticket!==serial)return;disposeEditor();route=parseRoute(currentHash);root.replaceChildren(el('div',{class:'loading'},'Loading…'));
   try{let page;
-   switch(route.page){case 'home':page=renderHome();break;case 'gear-root':page=renderRoot('gear');break;case 'kb-root':page=renderRoot('kb');break;case 'gear-list':page=renderList('gear',route.category);break;case 'kb-list':page=renderList('kb',route.type);break;case 'gear-detail':page=await renderDetail('gear',route.id);break;case 'kb-detail':page=await renderDetail('kb',route.id);break;case 'catch-list':page=renderCatches();break;case 'catch-detail':page=await renderDetail('catches',route.id);break;case 'gear-edit':page=await renderEditor('gear',route.id);break;case 'kb-edit':page=await renderEditor('kb',route.id);break;case 'gear-add':page=await renderEditor('gear',null,route.category);break;case 'kb-add':page=await renderEditor('kb',null,null,route.type);break;default:page=missing('The requested page is not available.');}
+   switch(route.page){case 'home':page=renderHome();break;case 'gear-root':page=renderRoot('gear');break;case 'kb-root':page=renderRoot('kb');break;case 'gear-list':page=renderList('gear',route.category);break;case 'kb-list':page=renderList('kb',route.type);break;case 'gear-detail':page=await renderDetail('gear',route.id);break;case 'kb-detail':page=await renderDetail('kb',route.id);break;case 'catch-list':page=renderCatches();break;case 'catch-detail':page=await renderDetail('catches',route.id);break;case 'catch-add':page=await renderCatchEditor();break;case 'catch-edit':page=await renderCatchEditor(route.id);break;case 'gear-edit':page=await renderEditor('gear',route.id);break;case 'kb-edit':page=await renderEditor('kb',route.id);break;case 'gear-add':page=await renderEditor('gear',null,route.category);break;case 'kb-add':page=await renderEditor('kb',null,null,route.type);break;default:page=missing('The requested page is not available.');}
    if(ticket!==serial){if(editor&&ticket!==serial)disposeEditor();return;}root.replaceChildren(page);document.title=(page.querySelector('h1')?.textContent||'Fishing Companion')+' · Fishing Companion';
    if(route.section){requestAnimationFrame(()=>{const heading=[...page.querySelectorAll('[id]')].find(e=>e.id===route.section);heading?.scrollIntoView({block:'start'});});}
   }catch(error){if(ticket===serial){const page=missing('Unable to display this page: '+error.message);page.append(button('Retry',()=>render(),{variant:'primary'}));root.replaceChildren(page);}console.error(error);}
@@ -101,15 +184,263 @@ export function createApp(ctx){
  window.addEventListener('hashchange',()=>{const requested=location.hash||'#/';if(requested===currentHash)return;if(approvedNavigation!==requested&&!canLeave()){history.replaceState(null,'',currentHash);return;}disposeEditor();approvedNavigation=null;previousHash=currentHash;currentHash=requested;alertHost.replaceChildren();render();window.scrollTo(0,0);});
  window.addEventListener('beforeunload',event=>{if(dirty()){event.preventDefault();event.returnValue='';}});
  for(const a of document.querySelectorAll('[data-nav]'))a.addEventListener('click',event=>{event.preventDefault();navigate(a.getAttribute('href'));});
- offline=createOffline({root:ctx.root,releaseId:ctx.release.id,onStatus:state=>{const needsUpdate=state.state==='Incomplete'&&Boolean(state.message);const label=state.state==='Ready'?(navigator.onLine?(state.releaseId===ctx.release.id?`Offline library ready · current · ${state.files||0} files`:`Offline library ready · update available · ${state.files||0} files`):`Offline library ready · ${state.files||0} files`):state.state==='Downloading'?`Preparing offline library · ${state.completed||0}/${state.files||'?'} files`:needsUpdate?'Offline library needs update':'Offline library not prepared';offlineHost.replaceChildren(text('span',label),...(state.message?[text('span',state.message,'hint')]:[]));offlineHost.dataset.state=state.state;offlineHost.dataset.releaseId=state.releaseId||'';document.getElementById('offline-reload').disabled=Boolean(state.updating)||state.state==='Downloading';document.getElementById('offline-update').disabled=Boolean(state.updating)||state.state==='Downloading'||!navigator.onLine;},isDirty:dirty,notify});
+ offline=createOffline({root:ctx.root,releaseId:ctx.release.id,onlineOnly:privatePilot,
+  v3ReadingMode:v3Mode&&!privatePilot,onMode:(_mode,_available,feedback)=>{paintReadingMode(feedback);
+   if(workOffline())ownerPanel?.suspend();
+   else ownerPanel?.paint();
+   const page=parseRoute(location.hash||'#/').page;
+   if(!dirty()&&!['gear-edit','gear-add','kb-edit','kb-add','catch-edit','catch-add'].includes(page))void render();
+  },onStatus:state=>{const needsUpdate=state.state==='Incomplete'&&Boolean(state.message);const label=state.state==='Ready'?(navigator.onLine?(state.releaseId===ctx.release.id?`Offline library ready · current · ${state.files||0} files`:`Offline library ready · update available · ${state.files||0} files`):`Offline library ready · ${state.files||0} files`):state.state==='Downloading'?`Preparing offline library · ${state.completed||0}/${state.files||'?'} files`:needsUpdate?'Offline library needs update':'Offline library not prepared';offlineHost.replaceChildren(text('span',label),...(state.message?[text('span',state.message,'hint')]:[]));offlineHost.dataset.state=state.state;offlineHost.dataset.releaseId=state.releaseId||'';document.getElementById('offline-reload').disabled=privatePilot||Boolean(state.updating)||state.state==='Downloading';document.getElementById('offline-update').disabled=privatePilot||Boolean(state.updating)||state.state==='Downloading'||!navigator.onLine;},isDirty:dirty,notify});
  globalThis.__FISHING_SHELL_CLEANUP__?.();
  const connection=document.getElementById('connection-status'),connectionDialog=document.getElementById('connection-dialog');
- const updateConnection=()=>{connection.dataset.online=String(navigator.onLine);document.getElementById('connection-network').textContent=navigator.onLine?'Online':'Offline';const current=offline.getStatus();document.getElementById('offline-update').disabled=Boolean(current?.state==='Downloading')||!navigator.onLine;};
- connection.addEventListener('click',()=>connectionDialog.showModal());document.getElementById('connection-close').addEventListener('click',()=>connectionDialog.close());window.addEventListener('online',updateConnection);window.addEventListener('offline',updateConnection);updateConnection();
- document.getElementById('offline-update').disabled=!navigator.onLine;
+ const modeStatus=v3Mode&&!privatePilot?
+  el('p',{role:'status','aria-live':'polite',class:'hint',hidden:true}):null;
+ const automaticModeButton=v3Mode&&!privatePilot?
+  button('Automatic',()=>void offline.setMode('Automatic')):null;
+ const workOfflineButton=v3Mode&&!privatePilot?
+  button('Work Offline',()=>void offline.setMode('Work Offline')):null;
+ const retryModeButton=v3Mode&&!privatePilot?
+  button('Retry',()=>void offline.refreshMode()):null;
+ if(retryModeButton)retryModeButton.hidden=true;
+ const modeControls=v3Mode&&!privatePilot?el('section',{class:'v3-connection-section offline-mode-select'},
+  text('h3','Mode'),el('div',{class:'toolbar'},
+   automaticModeButton,workOfflineButton),modeStatus,retryModeButton):null;
+ // The owner pilot is online-only: retain the approved screen structure
+ // but do not imply that its publishing origin can be used Work Offline.
+ const pilotMode=v3Mode&&privatePilot?el('section',{
+  class:'v3-connection-section offline-mode-select'},
+  text('h3','Mode'),el('div',{class:'toolbar'},
+   el('button',{type:'button',class:'btn secondary',disabled:true,
+    'aria-pressed':'true'},'Automatic'),
+   el('button',{type:'button',class:'btn secondary',disabled:true,
+    'aria-pressed':'false'},'Work Offline')),
+  text('p','Private publishing pilot is online-only.','hint')):null;
+ if(v3Mode){
+  const offlinePanel=connectionDialog.querySelector('.offline-panel');
+  const onlineLabel=document.getElementById('connection-network');
+  const offlineActions=document.getElementById('offline-update').parentElement;
+  document.getElementById('offline-update').textContent='Update';
+  const networkSection=el('section',{class:'v3-connection-section v3-network-section'},
+   text('h3','Status'),onlineLabel);
+  const librarySection=el('section',{class:'v3-connection-section'},
+   text('h3','Offline Library'),offlineHost,offlineActions);
+  offlinePanel.replaceChildren(networkSection,...(modeControls?[modeControls]:pilotMode?[pilotMode]:[]),librarySection);
+  offlinePanel.classList.add('v3-connection-layout');
+  connectionDialog.classList.add('v3-connection-dialog');
+
+  // Troubleshooting is optional in the everyday V3 interface. Never put
+  // the diagnostics export or build identity in the main status sections.
+  const details=el('details',{class:'v3-connection-help diagnostics-panel'},
+   el('summary',{},'Help & Diagnostics'));
+  const helpBody=el('div',{class:'v3-help-body'},
+   text('p','Copy technical information to help troubleshoot an issue. No credentials or draft content are included.','hint'));
+  const result=el('p',{role:'status','aria-live':'polite',class:'hint'});
+  const copyButton=button('Copy diagnostics',async()=>{
+   let usage,quota;
+   try{
+    const estimate=await navigator.storage?.estimate?.();
+    usage=estimate?.usage;quota=estimate?.quota;
+   }catch{ /* Storage access is optional and never required for browsing. */ }
+   const contents=formatV3Diagnostics({
+    releaseId:ctx.release.id,
+    sourceRevision:ctx.release.sourceRevision,
+    mode:offline.getMode(),online:navigator.onLine,
+    offline:offline.getStatus(),
+    publicationState:ownerController?.current()?.publication,
+    userAgent:navigator.userAgent||'',
+    storageUsed:usage,storageQuota:quota,
+   });
+   try{
+    await navigator.clipboard.writeText(contents);
+    result.textContent='Diagnostics copied. No credentials or draft content included.';
+    helpBody.querySelector('textarea')?.remove();
+   }catch{
+    result.textContent='Clipboard unavailable. Select and copy the diagnostics below.';
+    const area=el('textarea',{rows:12,readonly:true,value:contents,
+     'aria-label':'Diagnostics ready to copy'});
+    helpBody.querySelector('textarea')?.remove();
+    helpBody.append(area);area.focus();area.select();
+   }
+  });
+  const version=el('p',{class:'hint'},
+   'App release '+ctx.release.id.slice(0,12)+' · Source '+ctx.release.sourceRevision.slice(0,12));
+  helpBody.append(copyButton,result,version);
+  if(ctx.v3?.readerOnly===true)
+   helpBody.append(text('p','Isolated local reader candidate · no owner publishing','hint'));
+  details.append(helpBody);
+  connectionDialog.insertBefore(details,document.getElementById('connection-close'));
+ }
+ function paintReadingMode(feedback={}){
+  if(!modeControls)return;
+  const selected=offline?.getMode?.()||'Automatic';
+  const available=offline?.getModeAvailable?.()===true;
+  const busy=feedback?.busy===true;
+  for(const b of [automaticModeButton,workOfflineButton]){
+   b.disabled=!available||busy;
+   b.setAttribute('aria-pressed',String(b.textContent===selected));
+  }
+  retryModeButton.disabled=busy;
+  retryModeButton.hidden=available||busy;
+  connection.dataset.readingMode=available?
+   (selected==='Work Offline'?'work-offline':'automatic'):'checking';
+  document.getElementById('connection-network').textContent=
+   navigator.onLine?'Online':'Offline';
+  paintConnectionIndicator();
+  // Normal selection is conveyed by aria-pressed, not redundant text.
+  // Show a short status only during verification or a recoverable fault.
+  const showIssue=!available||busy||Boolean(feedback?.message&&
+   !feedback.message.startsWith('Reading mode: '));
+  modeStatus.hidden=!showIssue;
+  modeStatus.textContent=!available?
+   (busy?'Checking mode controls…':'Mode controls unavailable. Use Retry to reconnect.'):
+   showIssue?(feedback?.message||'Checking mode controls…'):'';
+ }
+ function paintConnectionIndicator(){
+  // A locally accepted receipt may precede the first read-only status GET.
+  // Confirmed Failed/Conflict takes priority until the owner dismisses it.
+  const state=ownerController?.current();
+  let publication=state?.authorized===true?state.publication:'None';
+  if(state?.authorized===true&&savingPublication&&
+   !['Failed','Conflict'].includes(publication))publication='Submitting';
+  else if(state?.authorized===true){
+   const tracked=ctx.v3?.lifecycle?.tracking?.();
+   if(tracked?.operationId&&tracked.operationId!==state.operationId&&
+    tracked.phase==='Accepted')publication='Accepted';
+  }
+  const reading=v3Mode&&!privatePilot?
+   (offline?.getModeAvailable?.()===true?offline.getMode():'Checking'):null;
+  const display=connectionIndicator({online:navigator.onLine,
+   authorized:state?.authorized===true,publication,
+   statusReadError:state?.statusReadError===true,readingMode:reading});
+  connection.dataset.online=String(navigator.onLine);
+  if(v3Mode)connection.dataset.publicationIndicator=display.tone;
+  connection.title=display.title;
+  connection.setAttribute('aria-label',display.label);
+ }
+ paintReadingMode();
+ const updateConnection=()=>{
+  if(modeControls)paintReadingMode();
+  else paintConnectionIndicator();
+  if(v3Mode)document.getElementById('connection-network').textContent=
+   navigator.onLine?'Online':'Offline';
+  const current=offline.getStatus();
+  document.getElementById('offline-update').disabled=
+   privatePilot||Boolean(current?.state==='Downloading')||!navigator.onLine;
+ };
+ // The pilot data are immutable from initial startup. On independently
+ // verified Live, detect a newer sandbox main and reload its current
+ // original-image references, but NEVER while reviewing an open editor.
+ let sourceRefreshBusy=false,sourceRefreshChecked=null;
+ async function refreshPublishedContent(){
+  if(!privatePilot||typeof ctx.v3?.refreshSandboxSource!=='function'||
+   !navigator.onLine||dirty()||sourceRefreshBusy)return;
+  const editable=new Set(['gear-edit','gear-add','kb-edit','kb-add',
+   'catch-edit','catch-add']);
+  if(editable.has(parseRoute(location.hash||'#/').page))return;
+  const state=ownerController?.current();
+  // A later failed publication may obscure an earlier verified Live
+  // (Gear image Live followed by invalid Knot, for example).
+  const trustedTerminal=(state?.publication==='Live'&&
+   state.sandboxVerified===true)||
+   ['Failed','Conflict'].includes(state?.publication);
+  if(!state?.authorized||!trustedTerminal||!state.operationId||
+   sourceRefreshChecked===state.operationId)return;
+  sourceRefreshBusy=true;
+  try{
+   const latest=await ctx.v3.refreshSandboxSource();
+   if(!/^[a-f0-9]{40}$/.test(latest))return;
+   if(latest!==ctx.release.sourceRevision){
+    if(!dirty()&&!editable.has(parseRoute(location.hash||'#/').page))
+     window.location.reload();
+    return;
+   }
+   sourceRefreshChecked=state.operationId;
+  }catch{
+   // A transient read error never replaces the trusted local source.
+   // A future navigation can retry, without publication or blind reload.
+  }finally{sourceRefreshBusy=false;}
+ }
+ let ownerPanel=null,connectionExperience=null;
+ ownerController=v3Mode&&ctx.v3?.auth&&ctx.v3?.lifecycle?
+  createD3ConnectionController({
+   auth:ctx.v3.auth,lifecycle:ctx.v3.lifecycle,
+   enabled:()=>v3Mode,online:()=>navigator.onLine&&!workOffline(),
+   onChange:state=>{
+    const prior=ctx.v3.authorized;
+    ctx.v3.authorized=state.authorized;
+    ownerPanel?.paint();
+    connectionExperience?.paint();
+    paintConnectionIndicator();
+    if((state.publication==='Live'&&state.sandboxVerified===true)||
+     ['Failed','Conflict'].includes(state.publication))
+     void refreshPublishedContent();
+    if(prior!==state.authorized){
+     if(!dirty())void render();
+     else notify('Owner session changed. Your unfinished edit is preserved.','warning');
+    }
+   },
+  }):null;
+ if(ownerController)ownerPanel=mountD3ConnectionPanel({
+  dialog:connectionDialog,controller:ownerController,documentObject:document,
+  online:()=>navigator.onLine&&!workOffline(),windowObject:window,
+  trackInHeader:true,headless:true,
+ });
+ if(ownerController)connectionExperience=mountV3ConnectionExperience({
+  dialog:connectionDialog,controller:ownerController,documentObject:document,
+ });
+ else if(v3Mode){
+  // The isolated read-only candidate has no owner session. Keep the exact
+  // six-section layout without inventing a working sign-in or publisher.
+  const close=connectionDialog.querySelector('.v3-connection-help')||
+   document.getElementById('connection-close');
+  for(const [heading,description] of [
+   ['Account','Not signed in · Owner sign-in unavailable in this reader candidate.'],
+   ['Publishing Status','Sign in to view publishing status.']]){
+   connectionDialog.insertBefore(el('section',{class:'v3-connection-section'},
+    text('h3',heading),text('p',description,'hint')),close);
+  }
+ }
+ if(ownerController&&v3Mode){
+  // A durable Accepted receipt should update Connection Status immediately,
+  // even if the editor is subsequently closed or navigated away from.
+  // The lifecycle retains only the operation ID, never package/credentials.
+  ctx.v3.onPublicationReceipt=receipt=>{
+   if(!/^p3_[0-9a-f-]{36}$/.test(receipt?.operationId??'')||
+    receipt?.canonicalLive!==false)return;
+   // The server accepted this operation, but Live still requires a read.
+   paintConnectionIndicator();
+   void ownerController.refreshPublication().then(
+    ()=>{ownerPanel?.paint();connectionExperience?.paint();paintConnectionIndicator();},
+    ()=>{ownerPanel?.paint();connectionExperience?.paint();paintConnectionIndicator();});
+  };
+ }
+ const refreshOwner=async()=>{
+  if(!ownerController)return;
+  // Do not erase a confirmed Failed/Conflict during every dialog reopen.
+  // A fresh authenticated status GET still verifies the owner session.
+  if(!ownerController.current().authorized)
+   await ownerController.restore();
+  if(ownerController.current().authorized)
+   await ownerController.refreshPublication();
+  ownerPanel?.paint();
+  connectionExperience?.paint();
+ };
+ connection.addEventListener('click',()=>{
+  connectionDialog.showModal();
+  if(modeControls)void offline.refreshMode();
+  if(ownerController&&!workOffline())void refreshOwner();
+ });document.getElementById('connection-close').addEventListener('click',()=>{
+  // Header mode continues read-only tracking while visible and in progress.
+  connectionDialog.close();
+ });window.addEventListener('online',updateConnection);window.addEventListener('offline',updateConnection);updateConnection();
+ document.getElementById('offline-update').disabled=privatePilot||!navigator.onLine;
  document.getElementById('offline-update').addEventListener('click',()=>offline.update());document.getElementById('offline-reload').addEventListener('click',()=>offline.reload());
  const releaseDetails=document.getElementById('release-details');if(releaseDetails)releaseDetails.textContent=`Release ${ctx.release.id.slice(0,12)} · Source ${ctx.release.sourceRevision.slice(0,12)}${ctx.release.pendingMedia?' · Pending media preview':''}`;
  if(ctx.release.pendingMedia)notify('Preview only: some approved image replacements remain unresolved. This is not a production-cutover candidate.','warning');
- render();offline.start();
+ render();
+ void offline.start().then(()=>{
+  // Work Offline must not automatically restore online owner/auth services.
+  if(ownerController&&!workOffline())void refreshOwner();
+ });
  return {navigate,isDirty:dirty,render};
 }

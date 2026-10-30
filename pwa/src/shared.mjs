@@ -83,6 +83,9 @@ export function validateSemantics(data, taxonomy={}) {
   for(const c of maps.catches.values()) {
     for(const [key,domain,type] of [['speciesId','kb','species'],['locationId','kb','location']])if(c[key])assert(maps[domain].get(c[key])?.type===type,`Invalid Catch ${key}: ${c.id}`);
     if(c.lureOrBaitId)assert(['lures','bait'].includes(maps.gear.get(c.lureOrBaitId)?.category),`Invalid Catch lure/bait: ${c.id}`);
+    for(const prefix of ['species','location','lureOrBait'])
+      assert(!(c[prefix+'Id']&&c[prefix+'Name']),
+       `Catch ${prefix} cannot contain both a linked ID and free-text name: ${c.id}`);
   }
   return maps;
 }
@@ -117,6 +120,8 @@ export function parseRoute(hash) {
     if(KB_TYPES.some(x=>x[0]===parts[1]))return parts[2]?detail('kb-detail',parts[2]):{page:'kb-list',type:parts[1]};
     if(parts.length===2)return detail('kb-detail',parts[1]);
   }
+  if(parts[0]==='catches'&&parts.length===2&&parts[1]==='add')return {page:'catch-add'};
+  if(parts[0]==='catches'&&parts.length===3&&parts[1]==='edit')return {page:'catch-edit',id:parts[2]};
   if((parts[0]==='catches'||parts[0]==='catch-log')&&parts.length<=2)return parts[1]?detail('catch-detail',parts[1]):{page:'catch-list'};
   return {page:'missing'};
 }
@@ -128,4 +133,22 @@ export function internalLink(uri,maps) {
 }
 export function categoryFolder(domain,key) {const row=(domain==='gear'?GEAR_CATEGORIES:KB_TYPES).find(x=>x[0]===key);assert(row,`Unknown category: ${key}`);return (domain==='gear'?'Gear/':'KB/')+row[2];}
 export function suggestedFilename(name,ext='.md') {const text=name.normalize('NFC').replace(/[<>:"\\/|?*\x00-\x1f\x7f]/g,'').replace(/[. ]+$/,'').slice(0,175);return text+ext;}
-export function newId(name,existing) {const base=name.normalize('NFKD').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'item';let id=base;let n=2;while(existing.has(id))id=base+'-'+n++;return id;}
+export function newId(name,existing) {
+ assert(typeof name==='string'&&existing instanceof Set,'Invalid ID generation request');
+ // Generated IDs are canonical, URL-safe, <=160 chars, and collision-safe.
+ // Reserve room for the suffix before truncating long names.
+ const full=name.normalize('NFKD').toLowerCase()
+  .replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'item';
+ let n=1,id='';
+ do{
+  const suffix=n===1?'':'-'+n;
+  id=full.slice(0,160-suffix.length).replace(/-+$/,'')+suffix;
+  n++;
+ }while(existing.has(id));
+ return id;
+}
+export function suggestedItemId(domain,name,existing,{sandboxOnly=false}={}){
+ assert(['gear','kb'].includes(domain),'Automatic ID is only for Gear and Knowledge Base');
+ assert(typeof name==='string'&&existing instanceof Set,'Invalid generated ID');
+ return newId(sandboxOnly?'p3-'+name:name,existing);
+}

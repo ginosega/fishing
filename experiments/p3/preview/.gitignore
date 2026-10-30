@@ -1,0 +1,12 @@
+# Never check in live Cloudflare bindings, environment secrets, or state.
+wrangler.jsonc
+.dev.vars
+.env
+.wrangler/
+node_modules/
+wrangler.d2-phase0.local.jsonc
+wrangler.d2-sandbox.local.jsonc
+wrangler.d2-submit.local.jsonc
+wrangler.d2-runner.local.jsonc
+wrangler.d2-hosted-final.local.jsonc
+wrangler.d2-parked.local.jsonc
