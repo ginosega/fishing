@@ -347,6 +347,7 @@ export function createApp(ctx){
  if(ownerController)ownerPanel=mountD3ConnectionPanel({
   dialog:connectionDialog,controller:ownerController,documentObject:document,
   online:()=>navigator.onLine&&!workOffline(),windowObject:window,
+  trackInHeader:true,
  });
  if(ownerController&&v3Mode){
   // A durable Accepted receipt should update Connection Status immediately,
@@ -377,7 +378,8 @@ export function createApp(ctx){
   if(modeControls)void offline.refreshMode();
   if(ownerController&&!workOffline())void refreshOwner();
  });document.getElementById('connection-close').addEventListener('click',()=>{
-  ownerPanel?.suspend();connectionDialog.close();
+  // Header mode continues read-only tracking while visible and in progress.
+  connectionDialog.close();
  });window.addEventListener('online',updateConnection);window.addEventListener('offline',updateConnection);updateConnection();
  document.getElementById('offline-update').disabled=privatePilot||!navigator.onLine;
  document.getElementById('offline-update').addEventListener('click',()=>offline.update());document.getElementById('offline-reload').addEventListener('click',()=>offline.reload());
