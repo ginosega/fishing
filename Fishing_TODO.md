@@ -1,5 +1,15 @@
 # Fishing TODO
 
+## October 29, 2026 — V3 D4 owner publishing acceptance
+
+**Private V3 sandbox functional tests: PASSED; D4 operational/security closeout remains OPEN.** The owner reports Live for Catch Add and **Catch Edit**, Gear image Add and Replace, and a two-frame Knot Add; private GitHub PRs [#31](https://github.com/ginosega/fishing-p3-sandbox/pull/31), [#37](https://github.com/ginosega/fishing-p3-sandbox/pull/37), [#32](https://github.com/ginosega/fishing-p3-sandbox/pull/32), [#35](https://github.com/ginosega/fishing-p3-sandbox/pull/35), and [#34](https://github.com/ginosega/fishing-p3-sandbox/pull/34) respectively are merged with successful exact-head sandbox checks. Catch Edit #37 retains the prior stable ID, commits revised date, fabricated Species and Markdown notes, and was confirmed Live by the owner. Original Catch attempt [#36](https://github.com/ginosega/fishing-p3-sandbox/pull/36) correctly failed synthetic-only CI and is not merged.
+
+**Finish D4:** reconcile read-only D1 operation/hosted-byte verification for recent #35/#37, consolidate negative media/timeout/unauthorized tests, explicitly record any untested Knot sequence replacement; do not manufacture unnecessary failed owner publications. Private-only source fixes to pre-submit synthetic Catch validation and persistent failed-operation acknowledgement are CI-passing on draft [PR #263](https://github.com/ginosega/fishing/pull/263), but not yet redeployed. Full owner-functional evidence and exact PRs are documented in [D4 checkpoint](experiments/p3/preview/D4_Catch_And_Media_Implementation_Checkpoint_2026-10-29.md).
+
+**Next D5:** persistent Automatic/Work Offline, atomic verified library, release/service-worker coherence, Connection Status, Markdown Picture Viewer and optional safe drafts (per the finite D1–D6 plan). D3 installed Android V3 OAuth/scope acceptance and publicly hosted <=60-second text-only delivery remain **OPEN** before D6 cutover decision. **Public V2 remains untouched; no V3 production cutover approved.** Earlier dated sections below are historical and should not override this checkpoint.
+
+---
+
 ## October 21, 2026 new-chat transfer — active checkpoint
 
 **Release engineering:** FISH115 (record-card thumbnails and security patches), FISH116 (P0-A stale-session reliability fix), and FISH117 (small WebP category icons/scenic headers) are **implemented, authorized, merged and hosted-verified**. **Latest [production workflow #543](https://github.com/ginosega/fishing/actions/runs/39690549053) succeeded**, source `ab1c59a61c748e9a8a1da2b31d87e1d86c96ac9f`, release `131ebca9c6d46fa1c1d815ad43a318f6`, **577 hosted files, counts 100/60/12**. Pre-handoff `main` `c42d0e737151608b53ffd0de6fa29dbbd76eba32`, **0 open PRs**. The new handoff PR is documentation only and is not a production deployment. FISH117 measured 18 assets **17,090,051 original bytes vs 253,660 shipped bytes**; the user chose to visually/time-check the live site rather than run prepublication acceptance and **has not yet provided that subjective result**. [FISH117 report](pwa/docs/Fishing_Companion_FISH117_Static_Artwork_Optimization_2026-10-21.md).
