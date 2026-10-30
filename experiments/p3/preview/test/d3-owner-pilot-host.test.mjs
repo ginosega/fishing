@@ -93,3 +93,52 @@ test('D3-PH06 cross-origin, query, HTTP method or bearer cannot access pilot',as
  }
  assert.deepEqual(f.calls,{auth:0,bundle:0});
 });
+
+test('D3-PH07 private V3 stylesheet is owner-only, SHA-pinned and strict CSP',async()=>{
+ const css=new TextEncoder().encode('.v3-connection-dialog{width:520px}');
+ const sha=createHash('sha256').update(css).digest('hex');
+ const counts={auth:0,js:0,css:0};
+ const host=createD3OwnerPilotHost({
+  origin:ORIGIN,expectedSha256:DIGEST,
+  expectedCssSha256:sha,
+  readBundle:async()=>{counts.js++;return JS;},
+  readStylesheet:async()=>{counts.css++;return css;},
+  enabled:()=>true,
+  ownerSession:{
+   authorizeStatus:async()=>{counts.auth++;return {authorized:true,ownerGitHubId:OWNER};},
+   authorizePilotPage:async()=>{counts.auth++;return {authorized:true,ownerGitHubId:OWNER};},
+  },
+ });
+ const style=await host.serve(req('/__d3_pilot__/pilot.css'));
+ assert.equal(style.status,200);
+ assert.equal(style.headers.get('Content-Type'),'text/css; charset=utf-8');
+ assert.match(style.headers.get('Cache-Control'),/no-store/);
+ assert.match(style.headers.get('Content-Security-Policy'),/style-src 'self'/);
+ assert.deepEqual(new Uint8Array(await style.arrayBuffer()),css);
+ const html=await host.serve(req('/__d3_pilot__/'));
+ assert.equal(html.status,200);
+ assert.match(await html.text(),/href="\/__d3_pilot__\/pilot.css"/);
+ assert.deepEqual(counts,{auth:2,js:1,css:1});
+});
+test('D3-PH08 private CSS cannot leak to anonymous, foreign, or unenabled scoped pilot',async()=>{
+ const css=new TextEncoder().encode('.v3-connection-dialog{width:520px}');
+ const sha=createHash('sha256').update(css).digest('hex');
+ let reads=0;
+ const create=(owner,integrated,expectedCss=sha)=>createD3OwnerPilotHost({
+  origin:ORIGIN,expectedSha256:DIGEST,expectedCssSha256:expectedCss,
+  readBundle:async()=>JS,readStylesheet:async()=>{reads++;return css;},
+  enabled:()=>true,integratedEnabled:()=>integrated,
+  ownerSession:{
+   authorizeStatus:async()=>owner===OWNER?{authorized:true,ownerGitHubId:OWNER}:null,
+   authorizePilotPage:async()=>owner===OWNER?{authorized:true,ownerGitHubId:OWNER}:null,
+  },
+ });
+ const denied=await create(null,true).serve(req('/__d3_pilot__/pilot.css'));
+ assert.equal(denied.status,401);
+ assert.equal((await create(42,false).serve(req('/fishing/__d3_pilot__/pilot.css'))).status,404);
+ assert.equal((await create(OWNER,true,'0'.repeat(64)).serve(req('/__d3_pilot__/pilot.css'))).status,503);
+ assert.equal(reads,1,'Only valid owner and enabled CSS route may read bytes');
+ const good=await create(OWNER,true).serve(req('/fishing/__d3_pilot__/'));
+ assert.equal(good.status,200);
+ assert.match(await good.text(),/href="\/fishing\/__d3_pilot__\/pilot.css"/);
+});
