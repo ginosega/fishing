@@ -122,6 +122,7 @@ test('D4-UX11 all Gear and KB subtypes use non-editable ID input',()=>{
  assert(editor.includes("'ID (generated automatically)'"));
  assert(!editor.includes("idInput.addEventListener('input'"));
  assert(catchEditor.includes("readonly:true,value:record.id"));
+ assert(catchEditor.includes("baseRecord?'ID (fixed after publication)':'ID (generated automatically)'"));
 });
 test('D4-UX12 generated Gear and KB IDs are collision-safe, stable and capped at schema limit',()=>{
  for(const domain of ['gear','kb']){
