@@ -515,7 +515,7 @@ test('D3-C22 confirmed Failed/Conflict stays terminal through GET failure until 
    x.textContent.includes('does not repair the underlying error')));
   controller.acknowledgeFailedPublication();
   assert.equal(cleared,1);
-  assert.equal(controller.current().publication,'None');
+  assert.equal(controller.current().publication,'Cleared');
   assert.equal(controller.current().operationId,null);
   panel.remove();
  }
