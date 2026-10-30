@@ -53,7 +53,7 @@ function Proof([bool]$newCss){
  Need ((Status '/session') -eq 200) 'Session endpoint missing'
  $status=Status '/api/v3/operations/latest'
  Need ($status -ne 200 -and $status -in @(401,403,404)) 'Unauthenticated publishing history exposed'
- Need ((Status '/__d3_fast__/github-check' 'POST') -ne 200) 'Webhook incorrectly open'
+ Need ((Status '/__d3_fast__/github-check' 'POST') -eq 401) 'Unsigned webhook must be denied'
 }
 Push-Location $root
 try{
