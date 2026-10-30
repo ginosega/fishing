@@ -331,11 +331,17 @@ export function createD1OperationStore({DB,ownerGitHubId,repositoryId=SANDBOX_ID
   const pkg=snapshot?.package;
   if(!pkg||!['gear','kb','catches'].includes(pkg.domain)||
    !['add','edit'].includes(pkg.operation))return null;
-  const rec=pkg.record;
-  let name=typeof rec?.name==='string'?rec.name.trim():'';
+  // Source change packages encode records under changes.set rather than
+  // requiring a complete record field. Use only the validated, immutable
+  // package metadata and fall back to its stable record ID.
+  const rec=pkg.record??pkg.changes?.set;
+  let name=typeof rec?.name==='string'?rec.name.trim():
+   typeof pkg.changes?.baseFields?.name==='string'?
+    pkg.changes.baseFields.name.trim():'';
   if(pkg.domain==='catches'){
-   const species=rec?.speciesName||rec?.speciesId||'Catch';
-   name=String(species)+' · '+String(rec?.date||'Undated');
+   const species=rec?.speciesName||rec?.speciesId||
+    pkg.changes?.baseFields?.speciesName||'Catch';
+   name=String(species)+' · '+String(rec?.date||pkg.changes?.baseFields?.date||'Undated');
   }
   if(!name)name=typeof pkg.id==='string'?pkg.id:'Item';
   name=name.slice(0,160).replace(/[\\x00-\\x1f\\x7f]/g,' ').trim();
