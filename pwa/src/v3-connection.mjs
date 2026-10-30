@@ -254,9 +254,9 @@ export function mountD3ConnectionPanel({
    }
    if(['Failed','Conflict'].includes(state.publication)){
     const warning=documentObject.createElement('p');
-    warning.textContent='This private publication did not reach Live. Review its CI failure before retrying. No successful merge has been verified.';
+    warning.textContent='This publication did not reach verified Live. Check publication status and review the failed change or conflict before attempting a corrected edit. Clearing the failed status only acknowledges this operation; it does not repair the underlying error or republish anything.';
     desc.appendChild(warning);
-    command('Dismiss failed publication',()=>{
+    command('Acknowledge and clear failed status',()=>{
      try{controller.acknowledgeFailedPublication();paint();}
      catch{void controller.refreshPublication().then(paint,paint);}
     });
