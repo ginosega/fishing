@@ -1,5 +1,15 @@
 # Fishing TODO
 
+## October 29, 2026 — V3 D5 verified offline-reading source checkpoint
+
+**D5 implementation underway, SOURCE ONLY — NOT YET CI-VALIDATED OR DEPLOYED.** A Work Offline mode backed by the existing complete verified CacheStorage release has been added to the V3 code path, compiled **OFF by default** for all V2 builds. The separate `--v3-reading-mode` build option is for an eventual reviewed V3 candidate, not an authorization for production. Connection Status offers Automatic and Work Offline in V3 non-sandbox app mode, protects publishing and owner-status network polling while offline, and persists selection in service-worker metadata across restarts. Private sandbox pilot remains online-only.
+
+D5-O01..04 regressions have been added for V2 hard-off, no-library rejection, zero normal network requests, persistence/switchback, and corrupt/quota rollback. **Latest branch has no new GitHub Actions check run yet; do not claim this is tested or deploy it.** Further D5 work: obtain passing exact-head source CI, exercise the mode in a real V3 installed Android/desktop integration, complete draft/remove decision, Markdown Picture Viewer, Connection Status/rollback acceptance. Details and authoritative D4 CI/PR inventory: [D4/D5 Transition](experiments/p3/preview/D4_D5_Transition_2026-10-29.md). Final D4 Cloudflare D1 read-only receipts #35/#36/#37 still require owner-local evidence; guarded audit script `experiments/p3/preview/tools/audit-d4-final-receipts-readonly.ps1` is source-only.
+
+**Public V2 unchanged; draft PR #263 remains unmerged.** The separate D3 installed Android owner OAuth/SW proof, publicly hosted text-only <=60-second Save-to-Live benchmark, and owner-approved V3 production cutover remain OPEN.
+
+---
+
 ## October 29, 2026 — V3 D4 owner publishing acceptance
 
 **Private V3 sandbox functional tests: PASSED; D4 operational/security closeout remains OPEN.** The owner reports Live for Catch Add and **Catch Edit**, Gear image Add and Replace, and a two-frame Knot Add; private GitHub PRs [#31](https://github.com/ginosega/fishing-p3-sandbox/pull/31), [#37](https://github.com/ginosega/fishing-p3-sandbox/pull/37), [#32](https://github.com/ginosega/fishing-p3-sandbox/pull/32), [#35](https://github.com/ginosega/fishing-p3-sandbox/pull/35), and [#34](https://github.com/ginosega/fishing-p3-sandbox/pull/34) respectively are merged with successful exact-head sandbox checks. Catch Edit #37 retains the prior stable ID, commits revised date, fabricated Species and Markdown notes, and was confirmed Live by the owner. Original Catch attempt [#36](https://github.com/ginosega/fishing-p3-sandbox/pull/36) correctly failed synthetic-only CI and is not merged.
