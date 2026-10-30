@@ -8,6 +8,9 @@ const prefix='fishing-v2:'+base+':';
 const metadataName=prefix+'metadata';
 const marker=new URL('__fishing_complete__',scope).href;
 const selectionKey=new URL('__fishing_selected__',scope).href;
+const v3ReadingMode=typeof __FISHING_V3_READING_MODE__!=='undefined'&&
+ __FISHING_V3_READING_MODE__===true;
+const readingModeKey=new URL('__fishing_v3_reading_mode__',scope).href;
 const absolute=relative=>new URL(encodedPath(relative),scope).href;
 const clientContexts=new Map();
 let operation=null;
@@ -60,6 +63,35 @@ async function writeSelection(entry){
  const cache=await caches.open(metadataName);
  if(!entry){await cache.delete(selectionKey);return;}
  await cache.put(selectionKey,new Response(JSON.stringify({cacheName:entry.name,releaseId:entry.meta.releaseId}),{headers:{'Content-Type':'application/json','Cache-Control':'no-store'}}));
+}
+async function readingMode(){
+ if(!v3ReadingMode)return 'Automatic';
+ try{
+  const r=await (await caches.open(metadataName)).match(readingModeKey);
+  const value=r?await r.json():null;
+  return value?.version===1&&value.mode==='Work Offline'?
+   'Work Offline':'Automatic';
+ }catch{return 'Automatic';}
+}
+async function setReadingMode(mode){
+ if(!v3ReadingMode)return {mode:'Automatic',available:false};
+ if(!['Automatic','Work Offline'].includes(mode))
+  return {mode:await readingMode(),available:true,error:'Invalid reading mode.'};
+ if(mode==='Work Offline'){
+  const {entry}=await resolveSelected({verify:true});
+  if(!entry)return {mode:await readingMode(),available:true,
+   error:'Prepare a complete verified offline library before selecting Work Offline.'};
+ }
+ try{
+  const cache=await caches.open(metadataName);
+  if(mode==='Work Offline')await cache.put(readingModeKey,
+   new Response(JSON.stringify({version:1,mode}),{
+    headers:{'Content-Type':'application/json','Cache-Control':'no-store'}}));
+  else await cache.delete(readingModeKey);
+  clientContexts.clear();
+  return {mode,available:true};
+ }catch{return {mode:await readingMode(),available:true,
+  error:'Unable to save the reading mode. Previous mode retained.'};}
 }
 async function resolveSelected({verify=false}={}){
  const entries=await completed();if(!entries.length)return {entry:null,error:null};
@@ -117,8 +149,13 @@ async function networkFile(context,path){const file=context.entries.get(path);if
 function remember(event,context){for(const key of [event.clientId,event.resultingClientId])if(key)clientContexts.set(key,context);return context;}
 async function fallbackContext(){const {entry}=await resolveSelected();return entry;}
 function offlineUnavailable(){return new Response('<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Fishing Companion · Offline</title><style>body{font:16px system-ui,sans-serif;background:#101b18;color:#eef7f4;margin:0;padding:2rem}main{max-width:42rem;margin:auto}h1{font-size:1.5rem}p{line-height:1.5}</style><main><h1>Fishing Companion is not prepared for offline use</h1><p>Reconnect to the internet, open Fishing Companion, then choose <strong>Connection Status → Update offline library</strong> before going offline.</p></main>',{status:503,headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'}});}
-async function contextFor(event){
- const key=event.clientId||event.resultingClientId;if(key&&clientContexts.has(key))return clientContexts.get(key);
+async function contextFor(event,offlineOnly=false){
+ const key=event.clientId||event.resultingClientId;
+ if(key&&clientContexts.has(key)&&
+  (!offlineOnly||clientContexts.get(key).source==='offline'))
+  return clientContexts.get(key);
+ if(offlineOnly){const fallback=await fallbackContext();
+  return fallback?remember(event,fallback):null;}
  try{return remember(event,await loadOnlineContext());}catch{const fallback=await fallbackContext();return fallback?remember(event,fallback):null;}
 }
 self.addEventListener('install',event=>event.waitUntil(self.skipWaiting()));
@@ -127,9 +164,16 @@ self.addEventListener('message',event=>{
  const message=event.data||{};
  if(message.type==='HELLO')event.ports[0]?.postMessage({protocol:'fishing-companion-v2',base,capabilities:{onlineDefault:true,explicitOffline:true}});
  if(message.type==='STATUS')event.waitUntil(state().then(status=>event.ports[0]?.postMessage({type:'FISHING_V2_STATUS',status})));
- if(message.type==='CHECK_CURRENT')event.waitUntil(loadOnlineContext()
-  .then(context=>event.ports[0]?.postMessage({type:'FISHING_V2_CURRENT',releaseId:context.pointer.id}))
-  .catch(()=>event.ports[0]?.postMessage({type:'FISHING_V2_CURRENT',releaseId:null})));
+ if(message.type==='V3_READ_MODE'&&v3ReadingMode)event.waitUntil(
+  readingMode().then(mode=>event.ports[0]?.postMessage({
+   type:'FISHING_V3_MODE',mode,available:true})));
+ if(message.type==='V3_SET_MODE'&&v3ReadingMode)event.waitUntil(
+  setReadingMode(message.mode).then(result=>event.ports[0]?.postMessage({
+   type:'FISHING_V3_MODE',...result})));
+ if(message.type==='CHECK_CURRENT')event.waitUntil(readingMode().then(mode=>
+  mode==='Work Offline'?null:loadOnlineContext().then(context=>context.pointer.id)
+   .catch(()=>null)).then(releaseId=>event.ports[0]?.postMessage({
+    type:'FISHING_V2_CURRENT',releaseId})));
  if(message.type==='PREPARE'||message.type==='REPAIR')event.waitUntil(prepareRelease().then(()=>state(),error=>state({message:error.message,failed:[]})).then(status=>event.ports[0]?.postMessage({type:'FISHING_V2_STATUS',status})));
 });
 self.addEventListener('fetch',event=>{
@@ -141,14 +185,20 @@ self.addEventListener('fetch',event=>{
  if(url.pathname==='/fishing/__d3_pilot__/'||
     url.pathname==='/fishing/__d3_pilot__/pilot.js')return;
  event.respondWith((async()=>{
+  const offlineOnly=(await readingMode())==='Work Offline';
   let relative;try{relative=decodeURIComponent(url.pathname.slice(scopeUrl.pathname.length));}catch{return new Response('Invalid resource path',{status:400});}
-  if(relative==='__fishing_complete__'||relative==='__fishing_selected__')return new Response('Not found',{status:404});
+  if(relative==='__fishing_complete__'||relative==='__fishing_selected__'||
+     relative==='__fishing_v3_reading_mode__')return new Response('Not found',{status:404});
   const target=request.mode==='navigate'&&(!relative||relative==='index.html')?'index.html':relative;
   if(request.mode==='navigate'){
+   if(offlineOnly){const fallback=await fallbackContext();
+    if(!fallback)return offlineUnavailable();
+    remember(event,fallback);
+    return await cachedFile(fallback,'index.html')||offlineUnavailable();}
    try{const context=remember(event,await loadOnlineContext());return await networkFile(context,'index.html');}
    catch{const fallback=await fallbackContext();if(!fallback)return offlineUnavailable();remember(event,fallback);try{return await cachedFile(fallback,'index.html')||offlineUnavailable();}catch{return offlineUnavailable();}}
   }
-  const context=await contextFor(event);
+  const context=await contextFor(event,offlineOnly);
   if(!context)return new Response('Fishing Companion is not prepared for offline use',{status:503,headers:{'Content-Type':'text/plain; charset=utf-8'}});
   if(target==='release.json')return responseFor(context.pointerBytes,'release.json');
   if(target===context.pointer.manifest)return responseFor(context.manifestBytes,context.pointer.manifest);
