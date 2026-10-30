@@ -409,13 +409,13 @@ test('D3-L16 acknowledgement never suppresses different, pending or unacknowledg
  // The terminal status is still visible until owner explicitly dismisses.
  assert.equal((await flow.discover()).operationId,old);
  flow.forgetCompleted();
+ const same=new Map(db.entries());
  recent={...failure,operationId:other};
  const another=createD3PublicationLifecycle({enabled:()=>true,
   client,storage:db,makeKey:()=>key});
  assert.equal((await another.discover()).operationId,other);
  // Even the same ID must not be hidden if its server status is no longer
  // an independently verified terminal Failed/Conflict.
- const same=new Map(db.entries());
  recent={...failure,state:'Checking',terminal:false,needsAttention:false};
  const rollback=createD3PublicationLifecycle({
   enabled:()=>true,storage:{
