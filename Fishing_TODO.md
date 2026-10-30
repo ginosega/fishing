@@ -1,5 +1,15 @@
 # Fishing TODO
 
+## October 30 D5 follow-up — Edge reader accepted, publishing indicator source PASS
+
+- **CLOSED, bounded:** Owner's latest Windows Edge reader retest passed—Connection Status reading-mode label and interactions, Banks Lake and Garmin motor original Markdown viewer.
+- **SOURCE COMPLETE / DEVICE PENDING:** New indicator semantics approved by owner: green when network online, yellow offline (V2 unchanged), blue for authenticated active publishing steps (mouse hover names stage), red sticky for server-confirmed Failed/Conflict until acknowledged/cleared, never for mere GET timeout. Reading mode never changes the dot color. Display preserves private status security. [Source CI #41067354331](https://github.com/ginosega/fishing/actions/runs/41067354331) PASS at `268018e65a0b6e786c21e9ec1027b12d1b46ec8f`: 154/154 PWA, 760/760 private, 43/43 broker, 4/4 Chromium. **Do not claim installed V3 owner publishing or private Worker deployment; source draft PR #263 only.**
+- **OPEN / recovery UX:** Test red/blue step hover and failure acknowledgement on authenticated real owner pilot/PWA (cannot be exercised in read-only local candidate). Current UI allows check status and manual acknowledgement; document clear/fix/retry instructions, error/CI details and classify actionable validation vs infrastructure errors. Do not add unsafe automatic replays; preserve exact idempotency and server verification.
+- **STILL OPEN:** D3 installed Android owner OAuth/PWA state, D4 bounded original media audit/thumbnail/sequence-replacement tests, durable public <=60s repeated canonical Save→Live, D6 traceability/rollback and separate consequential release approval.
+- **Documentation:** owner is staying in this chat; no transition or shortened handoff. Keep all five canonical root files current and retain older history.
+
+---
+
 ## ACTIVE NOW — October 30, 2026 Fishing V3 D5 owner Edge retest and remaining D3–D6 gates
 
 **This is the only current next-work section; older dated “next actions,” now-completed private publications, and old project-stage starts further down are historical.** Preserve every still-open Gear/KB/Catch/fishing/boat/gear-research task below; do not silently mark any unrelated task bought, completed or cancelled.
