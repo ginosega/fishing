@@ -267,7 +267,8 @@ export function createApp(ctx){
   // Confirmed Failed/Conflict takes priority until the owner dismisses it.
   const state=ownerController?.current();
   let publication=state?.authorized===true?state.publication:'None';
-  if(state?.authorized===true&&savingPublication)publication='Submitting';
+  if(state?.authorized===true&&savingPublication&&
+   !['Failed','Conflict'].includes(publication))publication='Submitting';
   else if(state?.authorized===true){
    const tracked=ctx.v3?.lifecycle?.tracking?.();
    if(tracked?.operationId&&tracked.operationId!==state.operationId&&
@@ -363,7 +364,10 @@ export function createApp(ctx){
  }
  const refreshOwner=async()=>{
   if(!ownerController)return;
-  await ownerController.restore();
+  // Do not erase a confirmed Failed/Conflict during every dialog reopen.
+  // A fresh authenticated status GET still verifies the owner session.
+  if(!ownerController.current().authorized)
+   await ownerController.restore();
   if(ownerController.current().authorized)
    await ownerController.refreshPublication();
   ownerPanel?.paint();
