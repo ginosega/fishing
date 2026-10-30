@@ -480,3 +480,42 @@ test('D3-C21 in-scope owner PWA sign-in returns only to exact private app page',
   else delete globalThis.location;
  }
 });
+
+test('D3-C22 confirmed Failed/Conflict stays terminal through GET failure until explicit acknowledgement',async()=>{
+ for(const terminal of ['Failed','Conflict']){
+  let id=OP,phase=terminal,failReads=false,cleared=0,updates=[];
+  const lifecycle={
+   tracking:()=>({operationId:id,phase}),
+   refresh:async()=>{
+    if(failReads)throw Error('transient read error');
+    return {operationId:id,phase,sandboxVerified:false,publicLive:false};
+   },
+   forgetCompleted:()=>{id=null;phase='Idle';cleared++;},
+  };
+  const controller=createD3ConnectionController({
+   auth:{session:async()=>({authenticated:true,authorized:true}),
+    signOut:async()=>true},
+   lifecycle,enabled:()=>true,online:()=>true,
+   onChange:state=>updates.push(state),
+  });
+  await controller.restore();
+  await controller.refreshPublication();
+  assert.equal(controller.current().publication,terminal);
+  failReads=true;
+  await controller.refreshPublication();
+  assert.equal(controller.current().publication,terminal,
+   'Temporary unavailable status must not clear a verified failure');
+  assert.equal(controller.current().statusReadError,true);
+  const dialog=new Element('dialog');
+  const panel=mountD3ConnectionPanel({dialog,controller,documentObject});
+  const toolbar=dialog.children[0].children[2];
+  assert(toolbar.children.some(x=>x.textContent==='Acknowledge and clear failed status'));
+  assert(dialog.children[0].children[1].children.some(x=>
+   x.textContent.includes('does not repair the underlying error')));
+  controller.acknowledgeFailedPublication();
+  assert.equal(cleared,1);
+  assert.equal(controller.current().publication,'None');
+  assert.equal(controller.current().operationId,null);
+  panel.remove();
+ }
+});
