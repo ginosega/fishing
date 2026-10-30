@@ -5,6 +5,7 @@ import {applyCatchField,catchFieldValue,speciesCatchChoices,
  lureCatchChoices} from '../src/catch-fields.mjs';
 import {validateRecords} from '../src/validation.mjs';
 import {suggestedCatchId} from '../src/catch-editor.mjs';
+import {suggestedItemId,ID_PATTERN} from '../src/shared.mjs';
 const entries=[
  {id:'species-test-bass',name:'Test Bass',type:'species',
   content:'KB/Species/content/Test Bass.md'},
@@ -108,4 +109,39 @@ test('D4-UX10 Live owner source revision refresh is pilot-only and editor-safe',
  assert(shell.includes('latest!==ctx.release.sourceRevision'));
  assert(shell.includes("window.location.reload()"));
  assert(shell.includes("'kb-edit','kb-add'"));
+});
+
+test('D4-UX11 all Gear and KB subtypes use non-editable ID input',()=>{
+ const editor=readFileSync(new URL('../src/editor.mjs',import.meta.url),'utf8');
+ const catchEditor=readFileSync(new URL('../src/catch-editor.mjs',import.meta.url),'utf8');
+ assert(editor.includes('suggestedItemId(domain,c.value'));
+ assert(editor.includes("readonly:true"));
+ assert(editor.includes("'ID (generated automatically)'"));
+ assert(!editor.includes("idInput.addEventListener('input'"));
+ assert(catchEditor.includes("readonly:true,value:record.id"));
+});
+test('D4-UX12 generated Gear and KB IDs are collision-safe, stable and capped at schema limit',()=>{
+ for(const domain of ['gear','kb']){
+  const existing=new Set(['p3-test-knot','p3-test-knot-2']);
+  const id=suggestedItemId(domain,'Test Knot',existing,{sandboxOnly:true});
+  assert.equal(id,'p3-test-knot-3');
+  assert(!existing.has(id));
+  assert(ID_PATTERN.test(id));
+  assert.equal(suggestedItemId(domain,'Rod & Reel!',new Set()),'rod-reel');
+  const long='A'.repeat(320);
+  const truncated=suggestedItemId(domain,long,new Set());
+  assert.equal(truncated.length,160);
+  assert(ID_PATTERN.test(truncated));
+  const colliding=suggestedItemId(domain,long,new Set([truncated]));
+  assert.equal(colliding.length,160);
+  assert(colliding.endsWith('-2'));
+  assert(ID_PATTERN.test(colliding));
+ }
+ assert.throws(()=>suggestedItemId('catches','Test',new Set()));
+});
+test('D4-UX13 changing new item Name after media selection recalculates image path',()=>{
+ const editor=readFileSync(new URL('../src/editor.mjs',import.meta.url),'utf8');
+ assert(editor.includes('const path=picturePath(domain,record,fileInfo.name);'));
+ assert(editor.includes('record.picture.src=path;picturePathInput.value=path;'));
+ assert(editor.includes('recalcSequencePaths();'));
 });
