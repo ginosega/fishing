@@ -381,7 +381,8 @@ export function createApp(ctx){
  else if(v3Mode){
   // The isolated read-only candidate has no owner session. Keep the exact
   // six-section layout without inventing a working sign-in or publisher.
-  const close=document.getElementById('connection-close');
+  const close=connectionDialog.querySelector('.v3-connection-help')||
+   document.getElementById('connection-close');
   for(const [heading,description] of [
    ['Account','Not signed in · Owner sign-in unavailable in this reader candidate.'],
    ['Publishing Status','Sign in to view publishing status.']]){
