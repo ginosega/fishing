@@ -54,7 +54,7 @@ function fakeWorker({badFirstModeRead=false}={}){
    reply={type:'FISHING_V3_MODE',mode,available:true};
   }
   // Asynchronous message channel to exercise the real client callback.
-  queueMicrotask(()=>port.postMessage(reply));
+  queueMicrotask(()=>{port.postMessage(reply);port.close();});
  }};
 }
 
