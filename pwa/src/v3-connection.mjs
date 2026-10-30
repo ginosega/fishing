@@ -173,7 +173,7 @@ export function createD3ConnectionController({
  */
 export function mountD3ConnectionPanel({
  dialog,controller,documentObject,onSignIn=()=>{},online=()=>true,
- windowObject=null,setTimer=(fn,ms)=>setTimeout(fn,ms),
+ trackInHeader=false,windowObject=null,setTimer=(fn,ms)=>setTimeout(fn,ms),
  clearTimer=id=>clearTimeout(id),
 }={}){
  need(dialog?.appendChild&&typeof controller?.current==='function'&&
@@ -202,7 +202,7 @@ export function mountD3ConnectionPanel({
  };
  const allowed=()=>{
   const state=controller.current();
-  return !disposed&&dialog.open===true&&
+  return !disposed&&(dialog.open===true||trackInHeader===true)&&
    documentObject.visibilityState!=='hidden'&&online()===true&&
    state.authorized===true&&ACTIVE.has(state.publication);
  };
@@ -291,8 +291,11 @@ export function mountD3ConnectionPanel({
   }
   schedule();
  }
- observe(dialog,'close',suspend);
- observe(dialog,'cancel',suspend);
+ // With a global header indicator, in-progress polling stays active while
+ // the owner is on a visible page even when Connection Status is closed.
+ // Default standalone/pilot panels retain their original dialog-only mode.
+ observe(dialog,'close',trackInHeader?schedule:suspend);
+ observe(dialog,'cancel',trackInHeader?schedule:suspend);
  observe(documentObject,'visibilitychange',()=>{
   if(documentObject.visibilityState==='hidden')suspend();
   else schedule();
