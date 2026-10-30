@@ -205,6 +205,16 @@ export function createApp(ctx){
  const modeControls=v3Mode&&!privatePilot?el('section',{class:'v3-connection-section offline-mode-select'},
   text('h3','Mode'),el('div',{class:'toolbar'},
    automaticModeButton,workOfflineButton),modeStatus,retryModeButton):null;
+ // The owner pilot is online-only: retain the approved screen structure
+ // but do not imply that its publishing origin can be used Work Offline.
+ const pilotMode=v3Mode&&privatePilot?el('section',{
+  class:'v3-connection-section offline-mode-select'},
+  text('h3','Mode'),el('div',{class:'toolbar'},
+   el('button',{type:'button',class:'btn secondary',disabled:true,
+    'aria-pressed':'true'},'Automatic'),
+   el('button',{type:'button',class:'btn secondary',disabled:true,
+    'aria-pressed':'false'},'Work Offline')),
+  text('p','Private publishing pilot is online-only.','hint')):null;
  if(v3Mode){
   const offlinePanel=connectionDialog.querySelector('.offline-panel');
   const onlineLabel=document.getElementById('connection-network');
@@ -214,7 +224,7 @@ export function createApp(ctx){
    text('h3','Status'),onlineLabel);
   const librarySection=el('section',{class:'v3-connection-section'},
    text('h3','Offline Library'),offlineHost,offlineActions);
-  offlinePanel.replaceChildren(networkSection,...(modeControls?[modeControls]:[]),librarySection);
+  offlinePanel.replaceChildren(networkSection,...(modeControls?[modeControls]:pilotMode?[pilotMode]:[]),librarySection);
   offlinePanel.classList.add('v3-connection-layout');
   connectionDialog.classList.add('v3-connection-dialog');
 
