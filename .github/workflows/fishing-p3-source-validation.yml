@@ -62,6 +62,12 @@ jobs:
           node tools/build.mjs --base=/fishing/__v3_reader_candidate__/ --v3-reading-mode --v3-reader-candidate --out=/tmp/fishing-v3-reader-candidate
           node tools/verify.mjs --out=/tmp/fishing-v3-reader-candidate
           node --input-type=module -e "import fs from 'node:fs';const p='/tmp/fishing-v3-reader-candidate/';const r=JSON.parse(fs.readFileSync(p+'release.json'));const m=JSON.parse(fs.readFileSync(p+r.manifest));if(m.base!=='/fishing/__v3_reader_candidate__/'||m.v3ReaderCandidate!==true||m.releaseId!==r.id)process.exit(1);console.log('PASS: private candidate manifest and release match isolated scope')"
+      - name: Real Chromium V3 reader-mode and Banks Lake viewer acceptance (loopback only)
+        working-directory: pwa
+        timeout-minutes: 8
+        run: |
+          npx playwright install --with-deps chromium
+          npx playwright test test/d5-reader-candidate.spec.mjs --project=chromium
       - name: Exercise isolated standalone broker suite
         working-directory: experiments/p3
         run: npm test
