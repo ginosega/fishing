@@ -16,7 +16,7 @@ export function createOffline({root,releaseId,onStatus,isDirty,notify,
    dispose:()=>{},
    getSessionReleaseId:()=>releaseId,
    getMode:()=> 'Automatic',getModeAvailable:()=>false,
-   setMode:async()=>false,
+   setMode:async()=>false,refreshMode:async()=>{},
   };
  }
  let registration=null,updating=false,checking=null,switching=false,warned=false;
@@ -136,5 +136,5 @@ export function createOffline({root,releaseId,onStatus,isDirty,notify,
  function dispose(){navigator.serviceWorker?.removeEventListener('message',handler);navigator.serviceWorker?.removeEventListener('controllerchange',controllerChanged);window.removeEventListener('focus',becameActive);window.removeEventListener('pageshow',becameActive);window.removeEventListener('online',becameActive);document.removeEventListener('visibilitychange',becameActive);}
  return {start,update,reload,dispose,checkCurrent,getStatus:()=>status,
   getSessionReleaseId:()=>releaseId,getMode:()=>mode,
-  getModeAvailable:()=>modeAvailable,setMode};
+  getModeAvailable:()=>modeAvailable,setMode,refreshMode};
 }
