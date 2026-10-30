@@ -43,7 +43,15 @@ export function createApp(ctx){
   '/__d3_pilot__/','/fishing/__d3_pilot__/',
  ].includes(location.pathname);
  if(v3Mode)ctx.v3.authorized=false; // do not trust stale browser state
- const canAuthor=()=>!v3Mode||(ctx.v3?.authorized===true&&typeof ctx.v3?.publish==='function');
+ const workOffline=()=>v3Mode&&!privatePilot&&
+  offline?.getMode?.()==='Work Offline';
+ const canAuthor=()=>!v3Mode||(ctx.v3?.authorized===true&&
+  typeof ctx.v3?.publish==='function'&&!workOffline());
+ const guardedPublish=(...args)=>{
+  if(workOffline())throw new Error('Work Offline is reading-only. Switch to Automatic in Connection Status before publishing.');
+  if(!navigator.onLine)throw new Error('Reconnect to publish your changes.');
+  return ctx.v3.publish(...args);
+ };
  function notify(message,kind='info'){status(alertHost,message,kind);}
  function dirty(){return Boolean(editor?.isDirty());}
  function canLeave(){return !dirty()||confirm('Your changes have not been saved. Discard this edit and leave?');}
@@ -123,7 +131,7 @@ export function createApp(ctx){
  }
  function renderCatches(){const page=frame('Recorded catches','#/');if(v3Mode&&canAuthor())page.querySelector('.page-actions').prepend(anchor('Add Catch','#/catches/add','page-edit-link'));page.append(el('div',{class:'record-grid'},...sortCatches(ctx.data.catches.catches).map(c=>recordCard('catches',c))));return page;}
  async function renderEditor(domain,id,category,type){if(!canAuthor())return missing('Owner sign-in is required to edit. Open Connection Status to sign in.',rootRoute(domain));const record=id?ctx.maps[domain].get(id):null;if(id&&!record)return missing('This item does not exist or its ID has been retired.',rootRoute(domain));const fallback=categoryRoute(domain,domain==='gear'?category:type);const origin=previousHash===rootRoute(domain)||previousHash===fallback?previousHash:fallback;const parent=record?routeFor(domain,record.id):fallback;const exitTarget=record?parent:origin;
-  const page=frame(record?'Edit '+record.name:domain==='gear'?'Add Gear':'Add Entry',parent,record?[button('Create Link',()=>copyLink(domain,record.id))]:[]);const created=await createEditor(ctx,{domain,baseRecord:record,category,type,onBack:()=>navigate(parent),onExit:()=>{disposeEditor();navigate(exitTarget);},onDirty:()=>{},publishChange:v3Mode?ctx.v3.publish:null,onPrepared:v3Mode?(receipt)=>ctx.v3.onPublicationReceipt?.(receipt):null});editor=created;page.append(created.element);return page;
+  const page=frame(record?'Edit '+record.name:domain==='gear'?'Add Gear':'Add Entry',parent,record?[button('Create Link',()=>copyLink(domain,record.id))]:[]);const created=await createEditor(ctx,{domain,baseRecord:record,category,type,onBack:()=>navigate(parent),onExit:()=>{disposeEditor();navigate(exitTarget);},onDirty:()=>{},publishChange:v3Mode?guardedPublish:null,onPrepared:v3Mode?(receipt)=>ctx.v3.onPublicationReceipt?.(receipt):null});editor=created;page.append(created.element);return page;
  }
  async function renderCatchEditor(id=null){
   if(!v3Mode||!canAuthor())return missing('Owner sign-in is required to edit Catches. Open Connection Status to sign in.','#/catches');
@@ -133,7 +141,7 @@ export function createApp(ctx){
   const page=frame(record?'Edit Catch':'Add Catch',parent);
   const created=await createCatchEditor(ctx,{baseRecord:record,
    onBack:()=>navigate(parent),onExit:()=>{disposeEditor();navigate('#/catches');},
-   onDirty:()=>{},publishChange:ctx.v3.publish,
+   onDirty:()=>{},publishChange:guardedPublish,
    onPrepared:receipt=>ctx.v3.onPublicationReceipt?.(receipt),
   });editor=created;page.append(created.element);return page;
  }
@@ -147,9 +155,31 @@ export function createApp(ctx){
  window.addEventListener('hashchange',()=>{const requested=location.hash||'#/';if(requested===currentHash)return;if(approvedNavigation!==requested&&!canLeave()){history.replaceState(null,'',currentHash);return;}disposeEditor();approvedNavigation=null;previousHash=currentHash;currentHash=requested;alertHost.replaceChildren();render();window.scrollTo(0,0);});
  window.addEventListener('beforeunload',event=>{if(dirty()){event.preventDefault();event.returnValue='';}});
  for(const a of document.querySelectorAll('[data-nav]'))a.addEventListener('click',event=>{event.preventDefault();navigate(a.getAttribute('href'));});
- offline=createOffline({root:ctx.root,releaseId:ctx.release.id,onlineOnly:privatePilot,onStatus:state=>{const needsUpdate=state.state==='Incomplete'&&Boolean(state.message);const label=state.state==='Ready'?(navigator.onLine?(state.releaseId===ctx.release.id?`Offline library ready · current · ${state.files||0} files`:`Offline library ready · update available · ${state.files||0} files`):`Offline library ready · ${state.files||0} files`):state.state==='Downloading'?`Preparing offline library · ${state.completed||0}/${state.files||'?'} files`:needsUpdate?'Offline library needs update':'Offline library not prepared';offlineHost.replaceChildren(text('span',label),...(state.message?[text('span',state.message,'hint')]:[]));offlineHost.dataset.state=state.state;offlineHost.dataset.releaseId=state.releaseId||'';document.getElementById('offline-reload').disabled=privatePilot||Boolean(state.updating)||state.state==='Downloading';document.getElementById('offline-update').disabled=privatePilot||Boolean(state.updating)||state.state==='Downloading'||!navigator.onLine;},isDirty:dirty,notify});
+ offline=createOffline({root:ctx.root,releaseId:ctx.release.id,onlineOnly:privatePilot,
+  v3ReadingMode:v3Mode&&!privatePilot,onMode:()=>{paintReadingMode();
+   const page=parseRoute(location.hash||'#/').page;
+   if(!dirty()&&!['gear-edit','gear-add','kb-edit','kb-add','catch-edit','catch-add'].includes(page))void render();
+  },onStatus:state=>{const needsUpdate=state.state==='Incomplete'&&Boolean(state.message);const label=state.state==='Ready'?(navigator.onLine?(state.releaseId===ctx.release.id?`Offline library ready · current · ${state.files||0} files`:`Offline library ready · update available · ${state.files||0} files`):`Offline library ready · ${state.files||0} files`):state.state==='Downloading'?`Preparing offline library · ${state.completed||0}/${state.files||'?'} files`:needsUpdate?'Offline library needs update':'Offline library not prepared';offlineHost.replaceChildren(text('span',label),...(state.message?[text('span',state.message,'hint')]:[]));offlineHost.dataset.state=state.state;offlineHost.dataset.releaseId=state.releaseId||'';document.getElementById('offline-reload').disabled=privatePilot||Boolean(state.updating)||state.state==='Downloading';document.getElementById('offline-update').disabled=privatePilot||Boolean(state.updating)||state.state==='Downloading'||!navigator.onLine;},isDirty:dirty,notify});
  globalThis.__FISHING_SHELL_CLEANUP__?.();
  const connection=document.getElementById('connection-status'),connectionDialog=document.getElementById('connection-dialog');
+ const modeControls=v3Mode&&!privatePilot?el('div',{class:'offline-mode-select'},
+  text('h3','Mode'),
+  el('div',{class:'toolbar'},
+   button('Automatic',()=>void offline.setMode('Automatic')),
+   button('Work Offline',()=>void offline.setMode('Work Offline'))),
+  text('p','Automatic prefers online; Work Offline uses only a prepared, verified library.','muted')):null;
+ if(modeControls)connectionDialog.querySelector('.offline-panel')?.prepend(modeControls);
+ function paintReadingMode(){
+  if(!modeControls)return;
+  const selected=offline?.getMode?.()||'Automatic';
+  const available=offline?.getModeAvailable?.()===true;
+  const buttons=modeControls.querySelectorAll('button');
+  for(const b of buttons){
+   b.disabled=!available;
+   b.setAttribute('aria-pressed',String(b.textContent===selected));
+  }
+ }
+ paintReadingMode();
  const updateConnection=()=>{connection.dataset.online=String(navigator.onLine);document.getElementById('connection-network').textContent=navigator.onLine?'Online':'Offline';const current=offline.getStatus();document.getElementById('offline-update').disabled=privatePilot||Boolean(current?.state==='Downloading')||!navigator.onLine;};
  // The pilot data are immutable from initial startup. On independently
  // verified Live, detect a newer sandbox main and reload its current
