@@ -274,8 +274,7 @@ export function createApp(ctx){
   connection.dataset.readingMode=available?
    (selected==='Work Offline'?'work-offline':'automatic'):'checking';
   document.getElementById('connection-network').textContent=
-   'Browser '+(navigator.onLine?'online':'offline')+' · Reading '+
-    (available?selected:'Checking');
+   navigator.onLine?'Online':'Offline';
   paintConnectionIndicator();
   // Normal selection is conveyed by aria-pressed, not redundant text.
   // Show a short status only during verification or a recoverable fault.
@@ -312,6 +311,8 @@ export function createApp(ctx){
  const updateConnection=()=>{
   if(modeControls)paintReadingMode();
   else paintConnectionIndicator();
+  if(v3Mode)document.getElementById('connection-network').textContent=
+   navigator.onLine?'Online':'Offline';
   const current=offline.getStatus();
   document.getElementById('offline-update').disabled=
    privatePilot||Boolean(current?.state==='Downloading')||!navigator.onLine;
