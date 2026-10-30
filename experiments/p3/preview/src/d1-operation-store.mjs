@@ -320,6 +320,35 @@ export function createD1OperationStore({DB,ownerGitHubId,repositoryId=SANDBOX_ID
   check(hash===row.payload_sha256&&hash===row.operation_sha,'CORRUPT_SNAPSHOT');
   return JSON.parse(row.request_json);
  }
+ // Authenticated API calls only. Extract bounded display fields from the
+ // hash-verified durable request, never from browser-local draft data.
+ async function summary(operationId){
+  check(opId(operationId),'INVALID_OPERATION_ID');
+  const row=await sql('SELECT state,created_at,updated_at,reason_code FROM p3_operations WHERE operation_id=? AND github_id=? AND repo_id=?',
+   operationId,ownerGitHubId,SANDBOX_ID).first();
+  if(!row)return null;
+  const snapshot=await readSnapshot(operationId);
+  const pkg=snapshot?.package;
+  if(!pkg||!['gear','kb','catches'].includes(pkg.domain)||
+   !['add','edit'].includes(pkg.operation))return null;
+  const rec=pkg.record;
+  let name=typeof rec?.name==='string'?rec.name.trim():'';
+  if(pkg.domain==='catches'){
+   const species=rec?.speciesName||rec?.speciesId||'Catch';
+   name=String(species)+' · '+String(rec?.date||'Undated');
+  }
+  if(!name)name=typeof pkg.id==='string'?pkg.id:'Item';
+  name=name.slice(0,160).replace(/[\\x00-\\x1f\\x7f]/g,' ').trim();
+  const time=Number.isSafeInteger(row.updated_at)&&row.updated_at>0?
+   row.updated_at:null;
+  const reason=typeof row.reason_code==='string'&&
+   /^[A-Z][A-Z0-9_]{1,63}$/.test(row.reason_code)?
+   row.reason_code:null;
+  return Object.freeze({domain:pkg.domain,action:pkg.operation,
+   itemName:name||'Item',
+   completedAt:row.state==='Live'?time:null,
+   reasonCode:['Failed','Conflict'].includes(row.state)?reason:null});
+ }
  async function claim({operationId,leaseOwner}={}){
   check(opId(operationId)&&token(leaseOwner),'INVALID_CLAIM');
   const at=ts();
@@ -370,7 +399,7 @@ export function createD1OperationStore({DB,ownerGitHubId,repositoryId=SANDBOX_ID
   const rows=await sql('SELECT e.event_id,e.event_type,e.from_state,e.to_state,e.event_at,e.error_code FROM p3_events e JOIN p3_operations o ON o.operation_id=e.operation_id WHERE e.operation_id=? AND o.github_id=? AND o.repo_id=? ORDER BY e.event_id',operationId,ownerGitHubId,SANDBOX_ID).all();
   return (rows?.results||[]).map(row=>({eventType:row.event_type,from:row.from_state,to:row.to_state,at:row.event_at,error:row.error_code}));
  }
- return Object.freeze({accept,get,latest,lookupReceipt,readSnapshot,nextEligible,
+ return Object.freeze({accept,get,latest,lookupReceipt,readSnapshot,summary,nextEligible,
   findCheckingByHead,
   nextRecoverableMerge,nextRecoverableMergeFor,reconcileVerifiedMerge,branchReceipt,saveBranchReceipt,
   markMergeAttempt,saveMergeReceipt,claim,releasePendingCheckLease,advance,events});
