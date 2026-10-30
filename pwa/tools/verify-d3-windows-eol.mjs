@@ -15,6 +15,7 @@ const pwa=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const generated=path.resolve(pwa,'../experiments/p3/preview/src/generated');
 const paths=[
  path.join(generated,'d3-pilot.bundle.txt'),
+ path.join(generated,'d3-pilot.css.txt'),
  path.join(generated,'d3-pilot.bundle.sha256.json'),
  path.join(pwa,'src/generated/d3-validators.mjs'),
 ];
@@ -38,6 +39,7 @@ for(let i=0;i<paths.length;i++){
 }
 const manifest=JSON.parse(after[1].toString('utf8'));
 assert.equal(manifest.sha256,sha(after[0]));
+assert.equal(manifest.cssSha256,sha(after[1]));
 process.stdout.write(JSON.stringify({
  verified:true,simulatedWindowsCrlf:true,
  exactlyEqualGeneratedArtifacts:paths.length,
