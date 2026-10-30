@@ -349,3 +349,79 @@ test('D4-L01 Catch text-only edit uses one durable receipt, no media or auto ret
  assert.equal(receipt.canLeaveEditor,true);
  assert.equal(receipt.publicLive,false);
 });
+
+test('D3-L15 dismissed server-terminal failure stays dismissed across source reload and status lookup',async()=>{
+ const old='p3_01234567-1111-4111-8111-123456789abc';
+ const next='p3_01234567-2222-4222-8222-123456789abc';
+ const db=storage();
+ let posts=0,lookups=0;
+ const failed={operationId:old,state:'Failed',terminal:true,
+  publicLive:false,sandboxVerified:false,needsAttention:true};
+ let latest=failed;
+ const client={
+  publish:async()=>({accepted:true,canonicalLive:false,
+   operationId:++posts===1?old:next}),
+  status:async()=>failed,
+  latest:async()=>{lookups++;return latest;},
+ };
+ const first=createD3PublicationLifecycle({
+  enabled:()=>true,client,storage:db,makeKey:()=>key,
+ });
+ await first.submit(pkg);
+ // Until explicit owner acknowledgement, never permit a second POST.
+ await assert.rejects(first.submit({...pkg,domain:'kb'}),
+  isCode('PREVIOUS_PUBLICATION_NOT_LIVE'));
+ assert.equal(posts,1);
+ await first.refresh();
+ first.forgetCompleted();
+ assert.equal(first.tracking().operationId,null);
+ assert.equal(db.entries().length,1,'Only dismissal marker persists');
+ assert(!JSON.stringify(db.entries()).includes('updated'));
+ assert.equal((await first.discover()).phase,'Idle');
+ assert.equal(first.tracking().operationId,null);
+ const reopened=createD3PublicationLifecycle({
+  enabled:()=>true,client,storage:db,
+  makeKey:()=> 'new-after-dismissed-failure-20261029',
+ });
+ assert.equal((await reopened.discover()).phase,'Idle',
+  'Do not resurrect dismissed failure from server latest');
+ assert.equal(lookups,2);
+ const saved=await reopened.submit({...pkg,domain:'kb'});
+ assert.equal(saved.phase,'Accepted');
+ assert.equal(saved.operationId,next);
+ assert.equal(posts,2);
+ assert(!JSON.stringify(db.entries()).includes('dismissed-terminal'),
+  'A confirmed new Accepted supersedes old dismissal marker');
+});
+test('D3-L16 acknowledgement never suppresses different, pending or unacknowledged provider operations',async()=>{
+ const old='p3_01234567-1111-4111-8111-123456789abc';
+ const other='p3_01234567-2222-4222-8222-123456789abc';
+ const db=storage(),failure={operationId:old,state:'Conflict',
+  terminal:true,publicLive:false,sandboxVerified:false,needsAttention:true};
+ let recent=failure;
+ const client={publish:async()=>({operationId:old,accepted:true,canonicalLive:false}),
+  status:async()=>failure,latest:async()=>recent};
+ const flow=createD3PublicationLifecycle({
+  enabled:()=>true,storage:db,client,makeKey:()=>key,
+ });
+ await flow.submit(pkg);
+ await flow.refresh();
+ // The terminal status is still visible until owner explicitly dismisses.
+ assert.equal((await flow.discover()).operationId,old);
+ flow.forgetCompleted();
+ recent={...failure,operationId:other};
+ const another=createD3PublicationLifecycle({enabled:()=>true,
+  client,storage:db,makeKey:()=>key});
+ assert.equal((await another.discover()).operationId,other);
+ // Even the same ID must not be hidden if its server status is no longer
+ // an independently verified terminal Failed/Conflict.
+ const same=new Map(db.entries());
+ recent={...failure,state:'Checking',terminal:false,needsAttention:false};
+ const rollback=createD3PublicationLifecycle({
+  enabled:()=>true,storage:{
+   getItem:key=>same.get(key)??null,
+   setItem:(k,v)=>same.set(k,v),removeItem:k=>same.delete(k),
+  },client,makeKey:()=>key,
+ });
+ assert.equal((await rollback.discover()).operationId,old);
+});
