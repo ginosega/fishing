@@ -27,9 +27,9 @@ function setup({enabled=true,owner=true,revision=MAIN,referenced=true,
   markdown:new Map(inlineNotes?[[catchNotes,catchBody]]:[]),
   blobHashes:new Map([['pwa/'+assetPath,sha]]),
   data:{
-   gear:{items:referenced&&!inlineNotes?[{id:'synthetic',picture:{src:assetPath}}]:[]},
-   kb:{entities:[]},
-   catches:{catches:inlineNotes?[{id:catchId,date:'2026-10-31',
+   gear:{schemaVersion:2,items:referenced&&!inlineNotes?[{id:'synthetic',picture:{src:assetPath}}]:[]},
+   kb:{schemaVersion:2,entities:[]},
+   catches:{schemaVersion:2,catches:inlineNotes?[{id:catchId,date:'2026-10-31',
     speciesName:'Synthetic Salmon',notes:catchNotes}]:[]},
   },
  };
