@@ -42,8 +42,8 @@ export function expectedD3HostedPaths(pkg,media=[]){
  need(Array.isArray(media)&&media.length<=24,'INVALID_MEDIA_PATHS');
  for(const m of media){
   let file;try{file=safePath(m.path);}catch{deny('INVALID_MEDIA_PATHS');}
-  need(pkg.domain!=='catches'&&
-   file.startsWith(pkg.domain==='gear'?'Gear/':'KB/')&&
+  need(file.startsWith(pkg.domain==='gear'?'Gear/':pkg.domain==='kb'?'KB/':'Catches/')&&
+   (pkg.domain!=='catches'||/^Catches\/assets\/[a-z0-9-]+\/notes\/[^/]+\.(?:jpe?g|png|webp|gif)$/i.test(file))&&
    file.includes('/assets/')&&/\.(jpe?g|png|webp|gif)$/i.test(file)&&
    /^[a-f0-9]{40}$/.test(m.blobSha??'')&&
    /^[a-f0-9]{64}$/.test(m.sha256??''),
@@ -66,7 +66,8 @@ function isMedia(file){
  try{
   const path=safePath(file.slice(4));
   return file==='pwa/'+path&&
-   (path.startsWith('Gear/')||path.startsWith('KB/'))&&
+   (path.startsWith('Gear/')||path.startsWith('KB/')||
+    /^Catches\/assets\/[a-z0-9-]+\/notes\/[^/]+\.(?:jpe?g|png|webp|gif)$/i.test(path))&&
    path.includes('/assets/')&&/\.(jpe?g|png|webp|gif)$/i.test(path);
  }catch{return false;}
 }

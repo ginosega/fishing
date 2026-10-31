@@ -7,6 +7,7 @@ import {notesImageMarkdown,noteImagePath,noteImageReference,viewerMarkdownTitle}
 import {prepareChange,validatePackage,validInlineNoteImagePath} from '../src/handoff.mjs';
 import {expectedD4Media} from '../../experiments/p3/preview/src/d4-media-tickets.mjs';
 import {verifyD4MediaManifest} from '../../experiments/p3/preview/src/d4-media-integrity.mjs';
+import {expectedD3HostedPaths,d3HostedTestPath,parseD3HostedTestPath} from '../../experiments/p3/preview/src/d3-sandbox-host-paths.mjs';
 
 test('V3-N01 semantic unordered and ordered Markdown lists inside table cells',()=>{
  const md=['| Action | Instructions |','| --- | --- |',
@@ -60,4 +61,16 @@ test('V3-N04 Notes image paths are owner-scoped and Catch cover media remains ex
  await assert.rejects(prepareChange({domain:'catches',operation:'add',id,
   record:{id,date:'2026-10-31',speciesName:'Synthetic Salmon',picture:{src:'Catches/assets/cover.jpg'}},
   sourceRevision:'a'.repeat(40),text:'Image'}),/Catch pictures/);
+});
+
+test('V3-N05 Catch Notes photos participate in authenticated exact hosted-byte verification',async()=>{
+ const id='p3-test-catch-salmon',path='Catches/assets/'+id+'/notes/fish.jpg';
+ const pkg=await prepareChange({domain:'catches',operation:'add',id,
+  record:{id,date:'2026-10-31',speciesName:'Synthetic Salmon'},
+  sourceRevision:'a'.repeat(40),text:'![Fish](../assets/'+id+'/notes/fish.jpg "viewer")',
+  notesImages:[{path,bytes:8,sha256:'b'.repeat(64)}]});
+ const files=expectedD3HostedPaths(pkg,[{path,blobSha:'c'.repeat(40),sha256:'b'.repeat(64)}]);
+ assert(files.includes('pwa/'+path));
+ const url=d3HostedTestPath('p3_'+('a'.repeat(36)),'pwa/'+path);
+ assert.equal(parseD3HostedTestPath(url)?.file,'pwa/'+path);
 });

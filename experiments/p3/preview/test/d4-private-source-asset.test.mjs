@@ -17,14 +17,20 @@ const entry={path:FILE,type:'blob',mode:'100644',
  size:BYTES.length,sha:SHA};
 const blob={sha:SHA,encoding:'base64',size:BYTES.length,content:CONTENT};
 function setup({enabled=true,owner=true,revision=MAIN,referenced=true,
- sha=SHA,assetPath=PATH}={}){
+ sha=SHA,assetPath=PATH,inlineNotes=false,noteBody=null}={}){
  const hits=[];
+ const catchId='p3-test-catch-salmon',catchNotes='Catches/content/'+catchId+'.md';
+ const catchBody=noteBody??'![Catch photo](../assets/'+catchId+'/notes/fish.jpg "viewer")';
  const source={
   repositoryId:ID,sourceRevision:MAIN,treeSha:TREE,
-  files:new Set([assetPath]),blobHashes:new Map([['pwa/'+assetPath,sha]]),
+  files:new Set([assetPath,...(inlineNotes?[catchNotes]:[])]),
+  markdown:new Map(inlineNotes?[[catchNotes,catchBody]]:[]),
+  blobHashes:new Map([['pwa/'+assetPath,sha]]),
   data:{
-   gear:{items:referenced?[{id:'synthetic',picture:{src:assetPath}}]:[]},
-   kb:{entities:[]},catches:{catches:[]},
+   gear:{items:referenced&&!inlineNotes?[{id:'synthetic',picture:{src:assetPath}}]:[]},
+   kb:{entities:[]},
+   catches:{catches:inlineNotes?[{id:catchId,date:'2026-10-31',
+    speciesName:'Synthetic Salmon',notes:catchNotes}]:[]},
   },
  };
  const route=createD4PrivateSourceAsset({
@@ -112,4 +118,17 @@ test('D4-A07 malformed encoded filename and encoded traversal fail closed',async
   const request=new Request(ORIGIN+'/api/v3/assets/'+path+'?revision='+MAIN);
   assert.equal((await x.route.serve(request)).status,404,path);
  }
+});
+
+test('D4-A08 owner-only Catch Notes pictures render only if referenced by immutable Markdown',async()=>{
+ const path='Catches/assets/p3-test-catch-salmon/notes/fish.jpg';
+ const yes=setup({assetPath:path,inlineNotes:true});
+ assert.equal((await yes.route.serve(yes.request)).status,200);
+ assert.equal(yes.hits.length,3);
+ const no=setup({assetPath:path,inlineNotes:true,noteBody:'No image reference'});
+ assert.equal((await no.route.serve(no.request)).status,404);
+ assert.equal(no.hits.length,0);
+ const anon=setup({assetPath:path,inlineNotes:true,owner:false});
+ assert.equal((await anon.route.serve(anon.request)).status,404);
+ assert.equal(anon.hits.length,0);
 });

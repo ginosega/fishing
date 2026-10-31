@@ -110,6 +110,8 @@ test('D4-M07 no-media or Catch submission never accepts unexpected originals',as
  await assert.rejects(verifyD4MediaManifest({package:keep,
   uploads:[{path,bytes:jpg}]}),fail('MEDIA_COUNT_MISMATCH'));
  const catchPkg={...keep,domain:'catches'};
+ const empty=await verifyD4MediaManifest({package:catchPkg,uploads:[]});
+ assert.equal(empty.fileCount,0,'A Catch with no Notes image is still valid');
  await assert.rejects(verifyD4MediaManifest({package:catchPkg,
-  uploads:[]}),fail('INVALID_MEDIA_REQUEST'));
+  uploads:[{path,bytes:jpg}]}),fail('MEDIA_COUNT_MISMATCH'));
 });

@@ -3,7 +3,10 @@
  * CURRENT immutable private sandbox source. Never proxies arbitrary GitHub
  * files, grants anonymous access, or mutates public /fishing/.
  */
-import {safePath} from '../../../../pwa/src/shared.mjs';
+import {safePath,categoryFolder} from '../../../../pwa/src/shared.mjs';
+import {validInlineNoteImagePath} from '../../../../pwa/src/handoff.mjs';
+import {parseMarkdown,markdownRouteMap} from '../../../../pwa/src/markdown.mjs';
+import {validateRecords} from '../../../../pwa/src/validation.mjs';
 import {collectPaths} from '../../../../pwa/src/validation.mjs';
 import {decodeD4OriginalGitBlob} from './d4-git-blob-stage.mjs';
 
@@ -12,6 +15,27 @@ const API='https://api.github.com/repos/ginosega/fishing-p3-sandbox';
 const PREFIX='/api/v3/assets/';
 const REV=/^[a-f0-9]{40}$/;
 const ALLOWED=/^(Gear|KB)\/.+\/assets\/.+\.(jpe?g|png|webp|gif)$/i;
+const CATCH_NOTE=/^Catches\/assets\/[a-z0-9-]+\/notes\/[^/]+\.(jpe?g|png|webp|gif)$/i;
+function referencedNoteAsset(snapshot,path){
+ const pieces=path.split('/');
+ const domain=pieces[0]==='Gear'?'gear':pieces[0]==='KB'?'kb':
+  pieces[0]==='Catches'?'catches':null;
+ if(!domain)return false;
+ const id=pieces[domain==='catches'?2:3],array=domain==='gear'?
+  snapshot.data?.gear?.items:domain==='kb'?
+  snapshot.data?.kb?.entities:snapshot.data?.catches?.catches;
+ const record=array?.find(item=>item.id===id);
+ if(!record||!validInlineNoteImagePath(domain,id,path))return false;
+ if(domain!=='catches'&&!path.startsWith(
+  categoryFolder(domain,domain==='gear'?record.category:record.type)+'/assets/'+id+'/notes/'))
+  return false;
+ const owner=domain==='kb'?record.content:record.notes;
+ const body=snapshot.markdown?.get(owner);
+ if(typeof body!=='string'||!snapshot.files.has(owner))return false;
+ const parsed=parseMarkdown(body,{owner,maps:validateRecords(snapshot.data),
+  exists:snapshot.files,pathRoutes:markdownRouteMap(snapshot.data),viewerImages:true});
+ return parsed.references.some(ref=>ref.isImage===true&&ref.local===path);
+}
 const fail=()=>new Response('Not found',{status:404,headers:{
  'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff',
  'Referrer-Policy':'no-referrer','Vary':'Cookie',
@@ -56,7 +80,7 @@ export function createD4PrivateSourceAsset({
    if(path.split('/').map(encodeURIComponent).join('/')!==encoded)
     return fail();
    const relative=safePath(path);
-   if(relative!==path||!ALLOWED.test(path))return fail();
+   if(relative!==path||!(ALLOWED.test(path)||CATCH_NOTE.test(path)))return fail();
    const session=await ownerSession.authorizeStatus(request);
    if(session?.authorized!==true||session.ownerGitHubId!==OWNER)
     return fail();
@@ -65,8 +89,9 @@ export function createD4PrivateSourceAsset({
    const snapshot=await loadSnapshot({repositoryId:ID});
    if(snapshot?.repositoryId!==ID||
     snapshot.sourceRevision!==u.searchParams.get('revision')||
-    !snapshot.files?.has(path)||
-    !collectPaths(snapshot.data).has(path))return fail();
+    !snapshot.files?.has(path))return fail();
+   if(!collectPaths(snapshot.data).has(path)&&
+    !referencedNoteAsset(snapshot,path))return fail();
    const grant=await issueReadToken({repositoryId:ID,
     permissions:{contents:'read'}});
    if(grant?.repositoryId!==ID||
