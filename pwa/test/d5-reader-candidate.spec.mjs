@@ -43,9 +43,11 @@ test('D5-browser mode control responds after verified offline library preparatio
  await expect(auto).toBeEnabled({timeout:20000});
  await expect(work).toBeEnabled();
  await expect(auto).toHaveAttribute('aria-pressed','true');
- await dialog.getByRole('button',{name:'Update',exact:true}).click();
+ await expect(dialog.getByRole('button',{name:'Reload',exact:true})).toHaveCount(0);
+ await dialog.getByRole('button',{name:'Prepare',exact:true}).click();
  await expect(page.locator('#offline-status'))
   .toHaveAttribute('data-state','Ready',{timeout:210000});
+ await expect(dialog.getByRole('button',{name:'Update',exact:true})).toBeVisible();
  await expect(work).toBeEnabled();
  await work.click();
  await expect(work).toHaveAttribute('aria-pressed','true',{timeout:200000});
@@ -108,7 +110,8 @@ test('D5-browser cached Work Offline mode still opens Banks Lake and Garmin view
  await loaded(page);
  await page.getByRole('button',{name:'Connection status'}).click();
  await expect(page.getByRole('button',{name:'Work Offline'})).toBeEnabled();
- await page.getByRole('button',{name:'Update',exact:true}).click();
+ await expect(page.getByRole('button',{name:'Reload',exact:true})).toHaveCount(0);
+ await page.getByRole('button',{name:'Prepare',exact:true}).click();
  await expect(page.locator('#offline-status'))
   .toHaveAttribute('data-state','Ready',{timeout:210000});
  await page.getByRole('button',{name:'Work Offline',exact:true}).click();

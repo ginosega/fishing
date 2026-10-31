@@ -165,3 +165,6 @@
 @media(max-width:520px){
  .v3-connection-dialog .v3-publishing{padding:14px 0}
 }
+
+/* V3: keep one Prepare/Update button compact on narrow screens. */
+.v3-connection-dialog .v3-offline-actions>.btn{flex:0 0 auto}
