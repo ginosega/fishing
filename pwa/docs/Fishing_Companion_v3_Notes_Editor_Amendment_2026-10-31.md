@@ -1,5 +1,10 @@
 # V3 Notes Markdown Editor — October 31, 2026 approved UX and scope clarification
 
+## October 31 private deployed-build feedback
+
+The owner reported that **Preview Markdown** failed after a link to the existing D3 Verification sandbox page was inserted. The screenshot text was not accessible in the present exchange, so this remains an acceptance failure to retest. Code review identified a defect pathway: the Gear/KB preview built its link catalog by validating the entire, potentially incomplete draft, rather than using the already verified source catalog. The fix ensures Preview can render before a new record has a valid Name/ID; the record and Markdown remain subject to strict validation on **Save and Publish**. Regression tests exercise both source Gear and KB D3 Verification fixtures. The owner also specified that the confirmation controls for both **Insert link** and **Insert image** must read simply **Insert**. No public V2 or published Markdown change; owner field acceptance after private redeployment is required.
+
+
 ## Owner-approved Insert link extension (October 31, 2026)
 
 Owner approved the shared Insert link dialog alongside Insert image in every V3 Notes editor (Gear, KB, Catches), in normal and expanded modes. Show selectable Site page versus External URL, a customizable label prefilled from highlighted Markdown, a searchable and category-filterable page selector, and insert at the editing cursor. **Picker includes Gear + Knowledge Base entries and Home/My Gear/Knowledge Base/Catch Log navigation, but NEVER individual Catch records.** Manual `catches://<ID>` references still work if the Catch exists; `gear://<ID>` and `kb://<ID>` remain unchanged. New `site://home`, `site://gear`, `site://kb`, `site://catches` use stable navigation routes. External links require HTTP(S), no credentials, and open separately. No new storage or schema changes. Source work: [edd2fcb](https://github.com/ginosega/fishing/commit/edd2fcb96dcbe47fcb5a4fcf9136d60f5e7e8682); private build UX/device acceptance and other D6 release gates remain OPEN. No deploy for this individual feature.
@@ -14,7 +19,7 @@ Gear, Knowledge Base and Catch Notes use the same full-featured Markdown editing
 - Compact **Insert image**, **Preview Markdown / Edit Markdown**, and **Expand / Exit full page** controls at the **top** of the Markdown area, not full-width below it.
 - Expanded editing uses nearly the full window, and exiting preserves the same text and editing position; Escape exits expanded mode.
 - Preview shows rendered Markdown and pending local image previews without publishing.
-- Image insertion uses the owner-facing file picker, original image preview, required alternative text, optional **Enable Picture Viewer** checkbox (OFF by default), and optional viewer caption. **Insert into Notes** places Markdown at the cursor and retains the original file in memory until the single **Save and Publish** action.
+- Image insertion uses the owner-facing file picker, original image preview, required alternative text, optional **Enable Picture Viewer** checkbox (OFF by default), and optional viewer caption. **Insert** places Markdown at the cursor and retains the original file in memory until the single **Save and Publish** action.
 - The inserted file is stored beneath an item-specific `assets/<item-id>/notes/` directory. Source paths are generated automatically. The existing GitHub/manual-upload authoring route does not require new work; direct V3 editor authoring is the target.
 
 ## Markdown syntax and renderer safety

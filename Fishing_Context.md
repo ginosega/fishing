@@ -1,5 +1,10 @@
 # Fishing Context
 
+### October 31 — Private Notes editor field feedback and fix in source
+
+Owner-confirmed private Worker `7cbef72d-d4ab-4c17-a451-2a06c3867436` is live and passed anonymous/public V2 protections. First Edge acceptance report: inserting a link to existing D3 Verification followed by Preview caused an error; exact screenshot text not available. Root-cause candidate in source: `editor.mjs` preview validated a partially completed Gear/KB draft (`editorMaps(ctx,domain,previewRecord)`) and could fail regardless of valid linked target. New `draftNotesPreviewOptions` uses verified source maps and a safe temporary Markdown owner path for incomplete add forms, without altering Save validation. Both image and link panels use button **Insert** rather than **Insert into Notes**. Source tests must pass; new private version-lock/deploy gate must be run by owner; deployed UX acceptance remains open.
+
+
 ### October 31 — no bulk migration for new site:// links; next acceptance gate
 
 Owner adopted the **additive link scheme / targeted D6 audit** policy: do not rewrite existing functioning Markdown. Keep `gear://`, `kb://`, relative Markdown links and HTTP(S) links. Use `site://` only for new site-navigation references; manually typed `catches://ID` works, while individual Catches remain excluded from the picker. Use integrated Insert link for new writing. In D6, verify legacy destinations and repair only actual failures. No content modifications made.

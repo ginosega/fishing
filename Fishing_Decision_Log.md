@@ -1,5 +1,10 @@
 # Fishing Decision Log
 
+## October 31 — Owner feedback: Notes insertion button copy and draft preview behavior
+
+**Owner UX decision:** For both Insert image and Insert link forms, the confirmation label is **Insert** (not **Insert into Notes**). Markdown Preview must work on an incomplete new Gear/Knowledge Base entry when its text references an existing valid sandbox catalog page. Preview may use the already validated immutable source catalog; **Save and Publish still requires full record schema/semantic and Markdown/link validation**. Individual Catch records remain excluded from the link picker; no legacy link migration. Private-only fix; do not infer deployed or accepted.
+
+
 ## October 31 — V3 link conventions: additive, no bulk Markdown migration
 
 **Owner approved.** The new `site://` scheme is for navigation pages (Home, My Gear, Knowledge Base, Catch Log), not a replacement for `gear://`, `kb://`, existing relative Markdown links, or HTTPS/HTTP URLs. Continue accepting existing working links. `catches://ID` resolves manually entered Catch references, but individual Catches stay excluded from the Insert link picker. Use the new Insert link dialog for new authoring. **Do not bulk rewrite existing Markdown.** During D6, run a targeted link audit and repair only confirmed broken or obsolete destinations. This decision authorizes no content rewrite, deployment, or public V3 cutover.

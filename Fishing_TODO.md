@@ -1,5 +1,10 @@
 # Fishing TODO
 
+## October 31 — D3 private owner Notes preview feedback
+
+Private V3 Notes editor Worker version `7cbef72d-d4ab-4c17-a451-2a06c3867436` was deployed and anonymous denial/public V2 identity passed. The owner reported a Preview error after inserting a link to the existing D3 Verification page. Investigation found a source-level failure path: the Gear/KB preview revalidated an incomplete draft record instead of using the already verified sandbox catalog. Patch: preview reads immutable validated catalog and tolerates blank draft name/ID; full Save and Publish validation remains unchanged. Both Insert link and Insert image confirmation buttons are now labeled **Insert**. Owner must retest in newly deployed private build; screenshot text was not available in this exchange, so exact symptom root cause is not yet confirmed. No public deployment. New private, version-pinned dry-run/rollout script is `experiments/p3/preview/tools/deploy-d3-notes-preview-fix-private.ps1` (do not use predecessor script for incremental update).
+
+
 ## D6 link-audit policy and next private V3 editor acceptance (October 31)
 
 **Approved — do not migrate existing links wholesale.** Retain existing working Gear/KB references, relative Markdown links and HTTPS/HTTP URLs. `site://` is for site navigation only. Manual `catches://ID` works, but individual Catches are excluded from the picker. D6 must run a targeted link audit and correct only proven broken or obsolete destinations; do not modify Markdown until a defect is confirmed.

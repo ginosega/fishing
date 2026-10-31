@@ -157,7 +157,7 @@ export function createNotesMarkdownEditor({
   linkPanel.scrollIntoView({block:'nearest'});
   if(highlighted)linkLabel.focus();else linkSearch.focus();
  });
- const confirmLink=button('Insert into Notes',()=>{
+ const confirmLink=button('Insert',()=>{
   try{
    const target=linkSiteRadio.checked?selectedLinkTarget()?.uri:linkUrl.value;
    const markdown=notesLinkMarkdown(linkLabel.value,target,linkMaps());
@@ -198,7 +198,7 @@ export function createNotesMarkdownEditor({
    alt.value=file.name.replace(/\.[^.]+$/,'').replace(/[-_]+/g,' ');
   }catch(error){status(imageMessage,error.message,'error');}
  });
- const insert=button('Insert into Notes',()=>{
+ const insert=button('Insert',()=>{
   if(!candidate){status(imageMessage,'Choose a supported image first.','error');return;}
   try{
    const record=getRecord(),existing=new Set([...knownPaths(),...staged.keys()]);

@@ -7,6 +7,7 @@ import {changePackageClipboardText} from './change-prompt.mjs';
 import {openViewer,openSequenceViewer} from './viewer.mjs';
 import {validateBrowserImage} from './image-validation.mjs';
 import {createNotesMarkdownEditor} from './notes-markdown-editor.mjs';
+import {draftNotesPreviewOptions} from './editor-preview.mjs';
 
 const clone=value=>structuredClone(value);
 function serialize(record){return JSON.stringify(record);}
@@ -178,13 +179,9 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
    onChange:value=>{body=value;changed();},
    knownPaths:()=>knownPaths(ctx),allowUpload:typeof ctx.v3?.stageMedia==='function',
    linkMaps:()=>ctx.maps,
-   previewOptions:()=>{
-    const owner=record[key]||narrativePath(domain,record);
-    const previewRecord=clone(record);
-    if(!previewRecord[key])previewRecord[key]=owner;
-    const {maps,routes}=editorMaps(ctx,domain,previewRecord);
-    return {owner,maps,assetBase:ctx.base,pathRoutes:routes};
-   },
+   // Preview must remain available while a new record's required fields are
+   // incomplete. Save and Publish retains full validateRecords/validateRecord.
+   previewOptions:()=>draftNotesPreviewOptions(ctx,domain,record),
   });
   form.append(section('Notes',notesEditor.element));
  }else{

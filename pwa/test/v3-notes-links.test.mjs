@@ -5,6 +5,7 @@ import {parseMarkdown} from '../src/markdown.mjs';
 import {notesLinkTargets,findNotesLinkTargets,notesLinkMarkdown}
  from '../src/notes-link.mjs';
 import {readFileSync} from 'node:fs';
+import {draftNotesPreviewOptions} from '../src/editor-preview.mjs';
 
 const maps={
  gear:new Map([
@@ -93,4 +94,47 @@ test('V3-L06 all Gear/KB/Catch Notes share toolbar with link and image insertion
  assert.match(catchNotes,/createNotesMarkdownEditor\(/);
  assert.match(editor,/linkList\.addEventListener\('change'/);
  assert.match(editor,/insertAtCursor\(markdown\)/);
+});
+
+test('V3-L07 Preview renders a chosen D3 Verification link before a new Gear draft has a Name or ID',()=>{
+ const testRod={id:'p3-test-rod',name:'P3 Test Rod D3 Verification',
+  type:'Spinning rod',category:'rods-reels',
+  notes:'Gear/Rods-Reels/content/P3 Test Rod D3 Verification.md'};
+ const testLake={id:'location-p3-test-lake',
+  name:'P3 Test Lake D3 Verification - Validation Fix Test',
+  type:'location',content:'KB/Locations/content/P3 Test Lake.md'};
+ const data={gear:{items:[testRod]},kb:{entities:[testLake]},catches:{catches:[]}};
+ const verifiedMaps={gear:new Map([[testRod.id,testRod]]),
+  kb:new Map([[testLake.id,testLake]]),catches:new Map()};
+ const ctx={data,maps:verifiedMaps,base:'https://example.test/fishing/releases/release/'};
+ const incompleteGear={id:'',name:'',category:'rods-reels',
+  type:'Spinning rod',specifications:[],links:[]};
+ const options=draftNotesPreviewOptions(ctx,'gear',incompleteGear);
+ assert.equal(options.maps,verifiedMaps,'Preview uses the validated source catalog');
+ assert.equal(options.owner,'Gear/Rods-Reels/content/Notes-Preview.md');
+ for(const uri of ['gear://p3-test-rod','kb://location-p3-test-lake','site://kb']){
+  const markdown=notesLinkMarkdown('D3 Verification',uri,verifiedMaps);
+  const parsed=parseMarkdown(markdown,{...options,exists:new Set()});
+  assert.equal(parsed.references.length,1);
+  assert.equal(parsed.references[0].kind,'internal');
+  assert.match(parsed.html,/>D3 Verification<\/a>/);
+ }
+});
+test('V3-L08 Preview handles incomplete Knowledge Base draft and preserves validation on Save',()=>{
+ const data={gear:{items:[]},kb:{entities:[]},catches:{catches:[]}};
+ const maps={gear:new Map(),kb:new Map(),catches:new Map()};
+ const ctx={data,maps,base:'https://example.test/fishing/releases/release/'};
+ const draft={id:'',name:'',type:'technique'};
+ const preview=draftNotesPreviewOptions(ctx,'kb',draft);
+ assert.equal(preview.owner,'KB/Techniques/content/Notes-Preview.md');
+ const parsed=parseMarkdown('[Knowledge Base](site://kb)',preview);
+ assert.match(parsed.html,/href="#\/kb"/);
+ const editor=readFileSync(new URL('../src/editor.mjs',import.meta.url),'utf8');
+ assert.match(editor,/draftNotesPreviewOptions\(ctx,domain,record\)/);
+ assert.match(editor,/const result=editorMaps\(ctx,domain,candidate\);validateRecord\(candidate,domain,ctx.data\)/);
+});
+test('V3-L09 Both image and link panels have compact Insert label',()=>{
+ const editor=readFileSync(new URL('../src/notes-markdown-editor.mjs',import.meta.url),'utf8');
+ assert.equal((editor.match(/button\('Insert',/g)||[]).length,2);
+ assert.doesNotMatch(editor,/Insert into Notes/);
 });

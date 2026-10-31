@@ -1,5 +1,10 @@
 # Fishing
 
+## October 31: Private V3 Notes Preview fix pending field acceptance
+
+Following the owner-confirmed private version `7cbef72d-d4ab-4c17-a451-2a06c3867436`, the owner reported a failure in Preview after linking to D3 Verification. The Gear/KB draft-only preview now avoids premature full-record validation, and both image/link confirmation buttons read **Insert**. Source regression covers an incomplete new Gear draft linking to actual sandbox D3 Verification fixture IDs. Full Save/Publish validation remains. Incremental private deployment uses a new version-gated script `deploy-d3-notes-preview-fix-private.ps1`; public V2 remains unchanged, and deployed owner acceptance is pending.
+
+
 ## October 31: Existing Markdown link compatibility and next V3 acceptance
 
 Owner approved **no bulk link migration** for the additive `site://` navigation convention. Keep working existing `gear://`, `kb://`, relative Markdown links and HTTP(S) references; individual Catch URLs may be entered manually but remain absent from the link picker. Use Insert link for future edits; D6 audits/repairs only genuinely broken or obsolete legacy links. Source remains on draft PR #263. **Next:** safeguarded private D3 owner pilot for actual Gear/KB/Catch Notes editor acceptance (Windows Edge/Android browser), then a distinct installed-PWA D5 offline test. Public V2 stays live; no public V3 cutover has been authorized.
