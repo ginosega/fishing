@@ -36,10 +36,16 @@ export function mountV3ConnectionExperience({
  const btn=(label,callback)=>{const e=mk('button','btn secondary',label);
   e.type='button';e.addEventListener('click',callback);return e;};
  const account=mk('section','v3-connection-section v3-account');
- account.append(mk('h3','','Account'));
+ account.append(mk('h2','','Account'));
  const accountBody=mk('div','v3-account-body');account.append(accountBody);
  const publishing=mk('section','v3-connection-section v3-publishing');
- publishing.append(mk('h3','','Publishing Status'));
+ const publishingHeading=mk('div','v3-publishing-heading');
+ publishingHeading.append(mk('h2','','Publishing Status'));
+ const publishingDot=mk('span','v3-publication-dot');
+ publishingDot.hidden=true;
+ publishingDot.setAttribute('aria-hidden','true');
+ publishingHeading.append(publishingDot);
+ publishing.append(publishingHeading);
  const publicationBody=mk('div','v3-publication-body');
  publicationBody.setAttribute('aria-live','polite');
  publishing.append(publicationBody);
@@ -59,7 +65,7 @@ export function mountV3ConnectionExperience({
   });
   return control;
  };
- const title=(label)=>mk('p','v3-connection-value',label);
+ const title=(label)=>mk('strong','v3-connection-value',label);
  const caption=(label)=>mk('p','hint',label);
  const appendSummary=(body,summary,{includeTime=false}={})=>{
   const info=displayPublicationSummary(summary);if(!info)return;
@@ -67,6 +73,18 @@ export function mountV3ConnectionExperience({
   if(includeTime&&info.completedAt&&!Number.isNaN(info.completedAt.getTime()))
    body.append(caption('Completed '+info.completedAt.toLocaleString()));
  };
+ function paintIndicator(display){
+  const tone=display?.tone;
+  const visible=tone==='publishing'||tone==='error';
+  publishingDot.hidden=!visible;
+  if(visible){
+   publishingDot.dataset.tone=tone;
+   publishingDot.title=display.title;
+  }else{
+   delete publishingDot.dataset.tone;
+   publishingDot.title='';
+  }
+ }
  function paint(){
   const state=controller.current(),authorized=state.authorized===true;
   accountBody.replaceChildren();
@@ -133,5 +151,5 @@ export function mountV3ConnectionExperience({
   if(statusError)publicationBody.append(caption(statusError));
  }
  paint();
- return Object.freeze({paint,remove(){account.remove();publishing.remove();}});
+ return Object.freeze({paint,paintIndicator,remove(){account.remove();publishing.remove();}});
 }

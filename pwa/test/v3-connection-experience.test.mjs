@@ -5,7 +5,7 @@ import {displayPublicationSummary,publicationGuidance,
 
 class E{
  constructor(tag){this.tagName=tag;this.className='';this.textContent='';
-  this.children=[];this.handlers={};this.href='';}
+  this.children=[];this.handlers={};this.href='';this.dataset={};this.hidden=false;}
  append(...children){this.children.push(...children);}
  appendChild(child){this.children.push(child);return child;}
  replaceChildren(...children){this.children=children;}
@@ -85,3 +85,32 @@ test('V3-UX05 unknown failures are never called correctable or auto retried',()=
  assert.equal(displayPublicationSummary({...summary,itemName:''}),null);
  assert.equal(displayPublicationSummary({...summary,itemName:'a'}).name,'a');
 });
+
+test('V3-UX06 publication dot mirrors header only while active or failed',()=>{
+ const x=screen({phase:'Owner',authorized:true,ownerLogin:'ginosega',
+  publication:'Live',sandboxVerified:true,summary,operationId:OP});
+ const header=x.publishing.children[0],dot=header.children[1];
+ assert.equal(header.children[0].tagName,'h2');
+ assert.equal(dot.hidden,true);
+ x.view.paintIndicator({tone:'publishing',title:'Publishing: Checking'});
+ assert.equal(dot.hidden,false);
+ assert.equal(dot.dataset.tone,'publishing');
+ assert.equal(dot.title,'Publishing: Checking');
+ x.view.paintIndicator({tone:'error',title:'Publishing failed'});
+ assert.equal(dot.hidden,false);
+ assert.equal(dot.dataset.tone,'error');
+ x.view.paintIndicator({tone:'network',title:'Connection status: Online'});
+ assert.equal(dot.hidden,true);
+ assert.equal(dot.title,'');
+ x.view.remove();
+});
+test('V3-UX07 headings remain H2s and values are strong text',()=>{
+ const x=screen({phase:'Owner',authorized:true,ownerLogin:'ginosega',
+  publication:'Live',sandboxVerified:true,summary,operationId:OP});
+ assert.equal(x.account.children[0].tagName,'h2');
+ assert.equal(x.account.children[1].children[0].tagName,'strong');
+ assert.equal(x.publishing.children[1].children[0].tagName,'strong');
+ assert.equal(x.publishing.children[1].children[1].tagName,'strong');
+ x.view.remove();
+});
+

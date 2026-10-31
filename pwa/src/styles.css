@@ -67,3 +67,79 @@
  .v3-connection-layout .toolbar{width:100%}
  .v3-connection-layout .toolbar>.btn{flex:1;min-width:0}
 }
+
+/* FISH118: Alpine Mist dark theme is scoped to V3 Connection Status only. */
+.v3-connection-dialog{
+ color-scheme:dark;
+ --ink:#eef5f0;--muted:#b3c6bb;--accent:#91cbb0;--accent-dark:#bee7d1;
+ --surface:#2c413a;--soft:#30483d;--border:#41564b;
+ background:linear-gradient(150deg,#233430,#1c2927);
+ color:var(--ink);border:1px solid #597b69;
+ position:relative;box-shadow:0 24px 75px rgba(0,0,0,.42)
+}
+.v3-connection-dialog::before{
+ content:"";position:absolute;top:0;left:0;right:0;height:3px;
+ background:linear-gradient(90deg,#719f82,transparent 85%);
+ pointer-events:none;border-radius:14px 14px 0 0
+}
+.v3-connection-dialog .v3-connection-section{padding:12px 0}
+.v3-connection-section>h2,.v3-publishing-heading>h2{
+ font-size:1rem;line-height:1.35;font-weight:700;margin:0 0 9px;color:var(--ink)
+}
+.v3-network-row,.v3-publishing-heading{
+ display:flex;align-items:center;justify-content:space-between;gap:12px
+}
+.v3-network-row{min-height:24px}
+.v3-network-section #connection-network{
+ margin:0;font-size:.9rem;font-weight:700;line-height:1.45;color:var(--ink)
+}
+.v3-network-dot,.v3-publication-dot{
+ flex:none;width:12px;height:12px;border-radius:50%;display:inline-block
+}
+.v3-network-dot{background:#66bfa1;box-shadow:0 0 0 5px #66bfa122}
+.v3-connection-dialog[data-network-online="false"] .v3-network-dot{
+ background:#c79443;box-shadow:0 0 0 5px #c7944322
+}
+.v3-publication-dot[data-tone="publishing"]{
+ background:#7099da;box-shadow:0 0 0 5px #7099da22
+}
+.v3-publication-dot[data-tone="error"]{
+ background:#d85a61;box-shadow:0 0 0 5px #d85a6122
+}
+.v3-publication-dot[hidden]{display:none}
+.v3-connection-dialog .v3-connection-value{
+ display:block;font-size:.9rem;font-weight:700;line-height:1.45;color:var(--ink)
+}
+.v3-connection-dialog .offline-state{font-size:.9rem;color:var(--muted);margin:0 0 11px}
+.v3-connection-dialog .offline-state[data-state="Ready"]{color:#94d8ad}
+.v3-connection-dialog .offline-state[data-state="Incomplete"]{color:#e6bd7d}
+.v3-connection-dialog .offline-state[data-state="OnlineOnly"]{color:var(--muted)}
+.v3-connection-dialog .v3-connection-section .btn,
+.v3-connection-dialog #connection-close,
+.v3-connection-dialog .v3-help-body .btn{
+ background:#2c413a;color:var(--ink);border-color:#4b685a
+}
+.v3-connection-dialog .v3-connection-section .btn:hover:not(:disabled),
+.v3-connection-dialog #connection-close:hover,
+.v3-connection-dialog .v3-help-body .btn:hover:not(:disabled){
+ background:#365447;border-color:#91cbb0
+}
+.v3-connection-dialog .offline-mode-select [aria-pressed="true"]{
+ background:#365749;color:var(--ink);border-color:#91cbb0;
+ outline:1px solid #91cbb0;outline-offset:0
+}
+.v3-connection-dialog :is(.btn,a,summary,textarea):focus-visible{
+ outline:2px solid #91cbb0;outline-offset:2px
+}
+.v3-connection-dialog .v3-connection-help{border-color:var(--border)}
+.v3-connection-dialog .v3-connection-help summary{color:var(--ink)}
+.v3-connection-dialog textarea{
+ background:#20322c;color:var(--ink);border:1px solid #597b69
+}
+.v3-connection-dialog #connection-close{
+ display:block;min-width:108px;margin:14px auto 0
+}
+@media(max-width:520px){
+ .v3-connection-dialog .v3-connection-section{padding:10px 0}
+ .v3-connection-dialog #connection-close{margin:12px auto 0}
+}

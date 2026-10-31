@@ -190,9 +190,11 @@ export function createApp(ctx){
    else ownerPanel?.paint();
    const page=parseRoute(location.hash||'#/').page;
    if(!dirty()&&!['gear-edit','gear-add','kb-edit','kb-add','catch-edit','catch-add'].includes(page))void render();
-  },onStatus:state=>{const needsUpdate=state.state==='Incomplete'&&Boolean(state.message);const label=state.state==='Ready'?(navigator.onLine?(state.releaseId===ctx.release.id?`Offline library ready · current · ${state.files||0} files`:`Offline library ready · update available · ${state.files||0} files`):`Offline library ready · ${state.files||0} files`):state.state==='Downloading'?`Preparing offline library · ${state.completed||0}/${state.files||'?'} files`:needsUpdate?'Offline library needs update':'Offline library not prepared';offlineHost.replaceChildren(text('span',label),...(state.message?[text('span',state.message,'hint')]:[]));offlineHost.dataset.state=state.state;offlineHost.dataset.releaseId=state.releaseId||'';document.getElementById('offline-reload').disabled=privatePilot||Boolean(state.updating)||state.state==='Downloading';document.getElementById('offline-update').disabled=privatePilot||Boolean(state.updating)||state.state==='Downloading'||!navigator.onLine;},isDirty:dirty,notify});
+  },onStatus:state=>{const needsUpdate=state.state==='Incomplete'&&Boolean(state.message);const label=state.state==='Ready'?(navigator.onLine?(state.releaseId===ctx.release.id?`Offline library ready · current · ${state.files||0} files`:`Offline library ready · update available · ${state.files||0} files`):`Offline library ready · ${state.files||0} files`):state.state==='Downloading'?`Preparing offline library · ${state.completed||0}/${state.files||'?'} files`:needsUpdate?'Offline library needs update':'Offline library not prepared';offlineHost.replaceChildren(text('span',label),...(state.message&&!(privatePilot&&state.state==='OnlineOnly')?[text('span',state.message,'hint')]:[]));offlineHost.dataset.state=state.state;offlineHost.dataset.releaseId=state.releaseId||'';document.getElementById('offline-reload').disabled=privatePilot||Boolean(state.updating)||state.state==='Downloading';document.getElementById('offline-update').disabled=privatePilot||Boolean(state.updating)||state.state==='Downloading'||!navigator.onLine;},isDirty:dirty,notify});
  globalThis.__FISHING_SHELL_CLEANUP__?.();
  const connection=document.getElementById('connection-status'),connectionDialog=document.getElementById('connection-dialog');
+ // Declared before the first indicator paint; experience mounts later.
+ let ownerPanel=null,connectionExperience=null;
  const modeStatus=v3Mode&&!privatePilot?
   el('p',{role:'status','aria-live':'polite',class:'hint',hidden:true}):null;
  const automaticModeButton=v3Mode&&!privatePilot?
@@ -203,30 +205,36 @@ export function createApp(ctx){
   button('Retry',()=>void offline.refreshMode()):null;
  if(retryModeButton)retryModeButton.hidden=true;
  const modeControls=v3Mode&&!privatePilot?el('section',{class:'v3-connection-section offline-mode-select'},
-  text('h3','Mode'),el('div',{class:'toolbar'},
+  text('h2','Mode'),el('div',{class:'toolbar'},
    automaticModeButton,workOfflineButton),modeStatus,retryModeButton):null;
  // The owner pilot is online-only: retain the approved screen structure
  // but do not imply that its publishing origin can be used Work Offline.
  const pilotMode=v3Mode&&privatePilot?el('section',{
   class:'v3-connection-section offline-mode-select'},
-  text('h3','Mode'),el('div',{class:'toolbar'},
+  text('h2','Mode'),el('div',{class:'toolbar'},
    el('button',{type:'button',class:'btn secondary',disabled:true,
     'aria-pressed':'true'},'Automatic'),
    el('button',{type:'button',class:'btn secondary',disabled:true,
-    'aria-pressed':'false'},'Work Offline')),
-  text('p','Private publishing pilot is online-only.','hint')):null;
+    'aria-pressed':'false'},'Work Offline'))):null;
  if(v3Mode){
   const offlinePanel=connectionDialog.querySelector('.offline-panel');
   const onlineLabel=document.getElementById('connection-network');
+  onlineLabel.className='v3-network-value';
   const offlineActions=document.getElementById('offline-update').parentElement;
   document.getElementById('offline-update').textContent='Update';
   const networkSection=el('section',{class:'v3-connection-section v3-network-section'},
-   text('h3','Status'),onlineLabel);
+   text('h2','Connection status'),
+   el('div',{class:'v3-network-row'},onlineLabel,
+    el('span',{class:'v3-network-dot','aria-hidden':'true'})));
   const librarySection=el('section',{class:'v3-connection-section'},
-   text('h3','Offline Library'),offlineHost,offlineActions);
+   text('h2','Offline Library'),offlineHost,offlineActions);
   offlinePanel.replaceChildren(networkSection,...(modeControls?[modeControls]:pilotMode?[pilotMode]:[]),librarySection);
   offlinePanel.classList.add('v3-connection-layout');
   connectionDialog.classList.add('v3-connection-dialog');
+  // V2 keeps its title; the V3 dialog is identified by a concise ARIA label.
+  connectionDialog.querySelector('#connection-title')?.remove();
+  connectionDialog.removeAttribute('aria-labelledby');
+  connectionDialog.setAttribute('aria-label','Fishing Companion settings');
 
   // Troubleshooting is optional in the everyday V3 interface. Never put
   // the diagnostics export or build identity in the main status sections.
@@ -316,6 +324,11 @@ export function createApp(ctx){
   if(v3Mode)connection.dataset.publicationIndicator=display.tone;
   connection.title=display.title;
   connection.setAttribute('aria-label',display.label);
+  if(v3Mode){
+   connectionDialog.dataset.networkOnline=String(navigator.onLine);
+   // Same status result as the header; no duplicated publication state logic.
+   connectionExperience?.paintIndicator(display);
+  }
  }
  paintReadingMode();
  const updateConnection=()=>{
@@ -360,7 +373,6 @@ export function createApp(ctx){
    // A future navigation can retry, without publication or blind reload.
   }finally{sourceRefreshBusy=false;}
  }
- let ownerPanel=null,connectionExperience=null;
  ownerController=v3Mode&&ctx.v3?.auth&&ctx.v3?.lifecycle?
   createD3ConnectionController({
    auth:ctx.v3.auth,lifecycle:ctx.v3.lifecycle,
@@ -397,7 +409,7 @@ export function createApp(ctx){
    ['Account','Not signed in · Owner sign-in unavailable in this reader candidate.'],
    ['Publishing Status','Sign in to view publishing status.']]){
    connectionDialog.insertBefore(el('section',{class:'v3-connection-section'},
-    text('h3',heading),text('p',description,'hint')),close);
+    text('h2',heading),text('p',description,'hint')),close);
   }
  }
  if(ownerController&&v3Mode){
