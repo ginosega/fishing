@@ -24,7 +24,8 @@ function localPath(owner,relative){
 function section(url){return url?`?section=${encodeURIComponent(decode(url.slice(1)))}`:'';}
 export function resolveMarkdownTarget(url,{owner,maps,assetBase,pathRoutes=new Map(),ownerRoute}={}){
  assert(typeof url==='string'&&url.length>0,'Empty Markdown URL');
- if(/^(gear|kb):\/\//.test(url))return {target:internalLink(url,maps),kind:'internal'};
+ if(/^(gear|kb|catches|site):\/\//.test(url))
+  return {target:internalLink(url,maps),kind:'internal'};
  if(url.startsWith('#'))return {target:(ownerRoute||pathRoutes.get(owner)||'#/')+section(url),kind:'anchor'};
  if(/^https?:\/\//i.test(url)){const u=new URL(url);assert(['http:','https:'].includes(u.protocol),'Unsafe URL');return {target:url,kind:'external'};}
  if(url.startsWith('//')||url.startsWith('/')||url.includes('\\')||/^[a-z][a-z0-9+.-]*:/i.test(url))throw new Error(`Unsafe Markdown URL: ${url}`);

@@ -4,6 +4,7 @@ import {el,button,field,status} from './dom.mjs';
 import {categoryFolder,ID_PATTERN,safePath} from './shared.mjs';
 import {validateBrowserImage} from './image-validation.mjs';
 import {parseMarkdown,sanitizeHtml} from './markdown.mjs';
+import {notesLinkTargets,findNotesLinkTargets,notesLinkMarkdown} from './notes-link.mjs';
 
 export function noteImagePath(domain,record,filename){
  if(!ID_PATTERN.test(record?.id??''))throw Error('Complete the item fields to generate an ID before inserting an image.');
@@ -42,6 +43,7 @@ export function createNotesMarkdownEditor({
  const editorField=field(label,input);
  const message=el('div',{class:'notes-editor-message','aria-live':'polite'});
  const details=el('div',{class:'notes-image-panel',hidden:true});
+ const linkPanel=el('div',{class:'notes-link-panel',hidden:true});
  const choose=el('input',{type:'file',accept:'.jpg,.jpeg,.png,.webp,.gif,image/jpeg,image/png,image/webp,image/gif'});
  const alt=el('input',{type:'text',maxlength:160,placeholder:'Describe this image'});
  const viewer=el('input',{type:'checkbox'});
@@ -88,12 +90,94 @@ export function createNotesMarkdownEditor({
  input.addEventListener('select',()=>{selection=[input.selectionStart,input.selectionEnd];});
  input.addEventListener('keyup',()=>{selection=[input.selectionStart,input.selectionEnd];});
  input.addEventListener('click',()=>{selection=[input.selectionStart,input.selectionEnd];});
+ // Links are inserted as Markdown, never published independently.
+ // Search deliberately enumerates Gear, KB and four site navigation pages,
+ // but does not enumerate any Catch records (manual catches://ID still works).
+ const linkKindName='notes-link-type-'+Math.random().toString(36).slice(2);
+ const linkSiteRadio=el('input',{type:'radio',name:linkKindName,value:'site',checked:true});
+ const linkExternalRadio=el('input',{type:'radio',name:linkKindName,value:'external'});
+ const linkLabel=el('input',{type:'text',maxlength:500,placeholder:'Text displayed to readers'});
+ const linkSearch=el('input',{type:'search',placeholder:'Search pages by title'});
+ const linkFilter=el('select',{},
+  el('option',{value:'all'},'All pages'),
+  el('option',{value:'Gear'},'Gear'),
+  el('option',{value:'Knowledge Base'},'Knowledge Base'),
+  el('option',{value:'Navigation'},'Navigation'));
+ const linkList=el('select',{size:7,'aria-label':'Link to page'});
+ const linkUrl=el('input',{type:'url',placeholder:'https://example.com/manual'});
+ const linkSiteFields=el('div',{class:'notes-link-site'},
+  field('Search site pages',linkSearch),field('Page category',linkFilter),
+  field('Link to page',linkList));
+ const linkExternalFields=el('div',{class:'notes-link-external',hidden:true},
+  field('Destination URL',linkUrl));
+ const linkMessage=el('div',{'aria-live':'polite'});
+ let linkChoices=[],linkLabelCustom=false;
+ function selectedLinkTarget(){
+  return linkChoices.find(t=>t.uri===linkList.value);
+ }
+ function renderLinkChoices(){
+  const saved=linkList.value;
+  linkChoices=findNotesLinkTargets(notesLinkTargets(previewOptions().maps),{
+   query:linkSearch.value,group:linkFilter.value});
+  linkList.replaceChildren(...(linkChoices.length?
+   linkChoices.map(t=>el('option',{value:t.uri},t.group+' · '+t.title)):
+   [el('option',{value:''},'No matching pages')]));
+  if(linkChoices.some(t=>t.uri===saved))linkList.value=saved;
+  else if(linkChoices.length)linkList.value=linkChoices[0].uri;
+  if(!linkLabelCustom)linkLabel.value=selectedLinkTarget()?.title||'';
+ }
+ linkSearch.addEventListener('input',renderLinkChoices);
+ linkFilter.addEventListener('change',renderLinkChoices);
+ linkList.addEventListener('change',()=>{
+  if(!linkLabelCustom)linkLabel.value=selectedLinkTarget()?.title||'';
+ });
+ linkLabel.addEventListener('input',()=>{linkLabelCustom=true;});
+ function renderLinkKind(){
+  linkSiteFields.hidden=!linkSiteRadio.checked;
+  linkExternalFields.hidden=linkSiteRadio.checked;
+ }
+ linkSiteRadio.addEventListener('change',renderLinkKind);
+ linkExternalRadio.addEventListener('change',renderLinkKind);
+ function closeLink(){
+  linkPanel.hidden=true;linkMessage.replaceChildren();
+ }
+ const linkButton=button('Insert link',()=>{
+  if(showPreview)previewButton.click();
+  closeImage();
+  selection=[input.selectionStart,input.selectionEnd];
+  const highlighted=input.value.slice(...selection).trim();
+  linkLabelCustom=Boolean(highlighted);
+  linkLabel.value=highlighted;
+  linkSearch.value='';linkFilter.value='all';linkSiteRadio.checked=true;
+  linkExternalRadio.checked=false;linkUrl.value='';
+  renderLinkKind();renderLinkChoices();
+  linkPanel.hidden=false;
+  linkPanel.scrollIntoView({block:'nearest'});
+  if(highlighted)linkLabel.focus();else linkSearch.focus();
+ });
+ const confirmLink=button('Insert into Notes',()=>{
+  try{
+   const target=linkSiteRadio.checked?selectedLinkTarget()?.uri:linkUrl.value;
+   const markdown=notesLinkMarkdown(linkLabel.value,target,previewOptions().maps);
+   insertAtCursor(markdown);
+   closeLink();
+  }catch(error){status(linkMessage,error.message,'error');}
+ });
+ linkPanel.append(el('h3',{},'Insert link'),
+  el('fieldset',{class:'notes-link-kind'},
+   el('legend',{},'Destination'),
+   el('label',{},linkSiteRadio,' Site page'),
+   el('label',{},linkExternalRadio,' External URL')),
+  field('Link text',linkLabel),linkSiteFields,linkExternalFields,
+  linkMessage,el('div',{class:'notes-image-actions'},
+   button('Cancel',closeLink),confirmLink));
  function closeImage(){
   details.hidden=true;candidate=null;choose.value='';imageMessage.replaceChildren();
   previewThumb.replaceChildren();
  }
  const imageButton=button('Insert image',()=>{
   if(showPreview)previewButton.click();
+  closeLink();
   selection=[input.selectionStart,input.selectionEnd];
   details.hidden=false;details.scrollIntoView({block:'nearest'});
  });
@@ -132,8 +216,8 @@ export function createNotesMarkdownEditor({
   el('label',{class:'notes-viewer-checkbox'},viewer,' Enable Picture Viewer'),
   captionField,imageMessage,el('div',{class:'notes-image-actions'},
    button('Cancel',closeImage),insert));
- toolbar.append(imageButton,previewButton,expandButton);
- outer.append(toolbar,editorField,view,details,message);
+ toolbar.append(linkButton,imageButton,previewButton,expandButton);
+ outer.append(toolbar,editorField,view,linkPanel,details,message);
  function syncPaths(){
   const record=getRecord();
   if(!ID_PATTERN.test(record?.id??''))return;

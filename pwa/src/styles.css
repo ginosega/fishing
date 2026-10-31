@@ -205,3 +205,20 @@
 }
 
 .notes-editor>.field[hidden],.notes-editor.expanded>.field[hidden]{display:none}
+
+/* V3 Notes Insert link follows the same inline form as Insert image. */
+.notes-link-panel{border:1px solid var(--border);border-radius:12px;
+ padding:15px;display:grid;gap:12px;background:var(--background)}
+.notes-link-panel[hidden],.notes-link-site[hidden],
+.notes-link-external[hidden]{display:none}
+.notes-link-panel h3{margin:0}
+.notes-link-panel .field{display:flex;flex-direction:column;gap:6px}
+.notes-link-panel input[type="text"],.notes-link-panel input[type="url"],
+.notes-link-panel input[type="search"],.notes-link-panel select{max-width:100%;min-width:0}
+.notes-link-panel select[size]{height:auto;max-height:240px;overflow:auto}
+.notes-link-kind{border:0;padding:0;margin:0;display:flex;gap:16px;flex-wrap:wrap}
+.notes-link-kind legend{font-weight:600;margin-bottom:7px}
+.notes-link-kind label{display:inline-flex;align-items:center;gap:6px}
+.notes-link-kind input{width:auto}
+.notes-link-site{display:grid;gap:10px}
+.notes-link-external{display:grid;gap:10px}
