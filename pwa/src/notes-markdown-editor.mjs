@@ -31,7 +31,7 @@ export function notesImageMarkdown(path,alt,{viewer=false,caption=''}={}){
 }
 export function createNotesMarkdownEditor({
  domain,getRecord,value='',label='Markdown',onChange=()=>{},previewOptions,
- knownPaths=()=>new Set(),allowUpload=false,
+ knownPaths=()=>new Set(),allowUpload=false,linkMaps=()=>previewOptions().maps,
 }={}){
  if(!['gear','kb','catches'].includes(domain)||typeof getRecord!=='function'||
   typeof previewOptions!=='function')throw Error('Invalid Markdown editor configuration');
@@ -117,7 +117,7 @@ export function createNotesMarkdownEditor({
  }
  function renderLinkChoices(){
   const saved=linkList.value;
-  linkChoices=findNotesLinkTargets(notesLinkTargets(previewOptions().maps),{
+  linkChoices=findNotesLinkTargets(notesLinkTargets(linkMaps()),{
    query:linkSearch.value,group:linkFilter.value});
   linkList.replaceChildren(...(linkChoices.length?
    linkChoices.map(t=>el('option',{value:t.uri},t.group+' · '+t.title)):
@@ -135,6 +135,8 @@ export function createNotesMarkdownEditor({
  function renderLinkKind(){
   linkSiteFields.hidden=!linkSiteRadio.checked;
   linkExternalFields.hidden=linkSiteRadio.checked;
+  if(!linkLabelCustom)linkLabel.value=linkSiteRadio.checked?
+   selectedLinkTarget()?.title||'':'External link';
  }
  linkSiteRadio.addEventListener('change',renderLinkKind);
  linkExternalRadio.addEventListener('change',renderLinkKind);
@@ -158,7 +160,7 @@ export function createNotesMarkdownEditor({
  const confirmLink=button('Insert into Notes',()=>{
   try{
    const target=linkSiteRadio.checked?selectedLinkTarget()?.uri:linkUrl.value;
-   const markdown=notesLinkMarkdown(linkLabel.value,target,previewOptions().maps);
+   const markdown=notesLinkMarkdown(linkLabel.value,target,linkMaps());
    insertAtCursor(markdown);
    closeLink();
   }catch(error){status(linkMessage,error.message,'error');}

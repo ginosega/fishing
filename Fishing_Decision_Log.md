@@ -1,5 +1,10 @@
 # Fishing Decision Log
 
+## October 31 — owner-approved Notes link picker scope
+
+The owner approved adding **Insert link** to the shared V3 Gear/Knowledge Base/Catch Notes Markdown toolbar, matching Insert image UX. The picker searches **Gear entries, Knowledge Base entries, and fixed Home/My Gear/Knowledge Base/Catch Log navigation pages**; it explicitly **does not enumerate individual Catches**, regardless of Catch count. Existing `gear://ID` and `kb://ID` are preserved; new `site://home`, `site://gear`, `site://kb`, `site://catches` resolve stable navigation; `catches://ID` works when manually typed and is validated against existing Catch IDs. External links require HTTP(S), no credentials, and open separately; internal links navigate within the app, including offline when cached. The link popup supports page-name search and category filter, custom/selected link text, and cursor-position insertion. No image upload or new backend is involved. **Source implementation only** on V3 draft PR #263; official UX acceptance requires a deployed build, and V2/public D6 cutover is untouched.
+
+
 ## October 31 — approved V3 Notes editor extension
 
 Owner approved shared Gear, Knowledge Base, and Catch Notes editing: compact top toolbar (Insert image, Preview Markdown, Expand), full-page editor, in-app upload with required alt text, and per-image Picture Viewer off by default with optional "viewer: caption". Catch Notes may include user-uploaded photos; the Catch's representative cover remains species-derived and its JSON schema gains no picture field. Safe table-cell ordered and unordered lists use <br/>. This is source-only implementation; official UX acceptance requires a deployed build. Public V2 is unchanged. See [the detailed amendment](pwa/docs/Fishing_Companion_v3_Notes_Editor_Amendment_2026-10-31.md). Separate D6 public release and ≤60-second publishing gates remain open.

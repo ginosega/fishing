@@ -177,6 +177,7 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
    domain,getRecord:()=>record,value:body,label:'Markdown',
    onChange:value=>{body=value;changed();},
    knownPaths:()=>knownPaths(ctx),allowUpload:typeof ctx.v3?.stageMedia==='function',
+   linkMaps:()=>ctx.maps,
    previewOptions:()=>{
     const owner=record[key]||narrativePath(domain,record);
     const previewRecord=clone(record);

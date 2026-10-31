@@ -1,5 +1,10 @@
 # V3 Notes Markdown Editor — October 31, 2026 approved UX and scope clarification
 
+## Owner-approved Insert link extension (October 31, 2026)
+
+Owner approved the shared Insert link dialog alongside Insert image in every V3 Notes editor (Gear, KB, Catches), in normal and expanded modes. Show selectable Site page versus External URL, a customizable label prefilled from highlighted Markdown, a searchable and category-filterable page selector, and insert at the editing cursor. **Picker includes Gear + Knowledge Base entries and Home/My Gear/Knowledge Base/Catch Log navigation, but NEVER individual Catch records.** Manual `catches://<ID>` references still work if the Catch exists; `gear://<ID>` and `kb://<ID>` remain unchanged. New `site://home`, `site://gear`, `site://kb`, `site://catches` use stable navigation routes. External links require HTTP(S), no credentials, and open separately. No new storage or schema changes. Source work: [edd2fcb](https://github.com/ginosega/fishing/commit/edd2fcb96dcbe47fcb5a4fcf9136d60f5e7e8682); private build UX/device acceptance and other D6 release gates remain OPEN. No deploy for this individual feature.
+
+
 **Owner decision:** The Notes editor design was approved for implementation, not yet for deployed-build acceptance. Field acceptance must occur in a deployed V3 build. This amendment updates the October 19 V3 product baseline without changing its canonical public-read/owner-write architecture, Gear/KB/Catch data model, no offline queue, or separately approved public cutover requirement.
 
 ## Shared authoring experience

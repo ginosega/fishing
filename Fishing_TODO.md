@@ -1,5 +1,10 @@
 # Fishing TODO
 
+## D3/D5 Notes Insert link: source implementation, deployed UX acceptance pending
+
+The owner approved adding **Insert link** to the shared V3 Gear/Knowledge Base/Catch Notes Markdown toolbar, matching Insert image UX. The picker searches **Gear entries, Knowledge Base entries, and fixed Home/My Gear/Knowledge Base/Catch Log navigation pages**; it explicitly **does not enumerate individual Catches**, regardless of Catch count. Existing `gear://ID` and `kb://ID` are preserved; new `site://home`, `site://gear`, `site://kb`, `site://catches` resolve stable navigation; `catches://ID` works when manually typed and is validated against existing Catch IDs. External links require HTTP(S), no credentials, and open separately; internal links navigate within the app, including offline when cached. The link popup supports page-name search and category filter, custom/selected link text, and cursor-position insertion. No image upload or new backend is involved. **Source implementation only** on V3 draft PR #263; official UX acceptance requires a deployed build, and V2/public D6 cutover is untouched.
+
+
 ## FISH-TODO-118 — Notes editing source complete, deployed acceptance still open
 
 Owner approved the shared full-page Gear/KB/Catch Notes Markdown editor, compact top Preview and Insert image actions, table-cell ordered/unordered lists using safe `<br/>`, and opt-in `"viewer"` / `"viewer: caption"` image viewing (off by default). **Catch Notes photographs are included**, while the Catch representative/cover picture remains species-derived; no Catch JSON picture field. Original Notes photos use the existing authenticated and verified D4 staging/PR/hosted-byte path, without a new storage service. Implementation lives on open draft PR #263 only. **Deployed-build acceptance, installed Android/Windows field testing and D6 release gates remain open; public V2 is unchanged.** Full owner-approved scope and acceptance checklist: [V3 Notes Editor Amendment](pwa/docs/Fishing_Companion_v3_Notes_Editor_Amendment_2026-10-31.md).
