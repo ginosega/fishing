@@ -85,9 +85,9 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
   'ID (generated automatically)',idInput));
  const categoryControls=el('div',{class:'form-grid'});let typeSelect=null;
  if(domain==='gear'){
-  const categorySelect=select(GEAR_CATEGORIES.map(r=>[r[0],r[1]]),record.category,()=>{record.category=categorySelect.value;const choices=typesFor(record.category);if(!choices.includes(record.type))record.type=choices[0];typeSelect.replaceChildren(...choices.map(x=>el('option',{value:x},x)));typeSelect.value=record.type;changed();});
+  const categorySelect=select(GEAR_CATEGORIES.map(r=>[r[0],r[1]]),record.category,()=>{record.category=categorySelect.value;const choices=typesFor(record.category);if(!choices.includes(record.type))record.type=choices[0];typeSelect.replaceChildren(...choices.map(x=>el('option',{value:x},x)));typeSelect.value=record.type;notesEditor?.syncPaths();changed();});
   const typesFor=c=>c==='rods-reels'?ROD_TYPES:c==='accessories'?EQUIPMENT_TYPES:TAXONOMY[c];
-  typeSelect=select(typesFor(record.category),record.type,()=>{record.type=typeSelect.value;changed();});
+  typeSelect=select(typesFor(record.category),record.type,()=>{record.type=typeSelect.value;notesEditor?.syncPaths();changed();});
   categoryControls.append(field('Category',categorySelect),field('Type',typeSelect));
   form.append(categoryControls,el('div',{class:'form-grid'},control('Manufacturer',record.manufacturer||'',value=>update('manufacturer',value),{maxlength:120}),control('Model',record.model||'',value=>update('model',value),{maxlength:160})));
   function repeater(title,keyName,fields){
@@ -98,7 +98,7 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
   }
   form.append(repeater('Specifications','specifications',[['label','Label (optional)'],['value','Value']]),repeater('Links','links',[['label','Label'],['url','URL']]));
  }else{
-  typeSelect=select(KB_TYPES.map(r=>[r[0],r[1]]),record.type,()=>{record.type=typeSelect.value;renderActionOptions(true);renderPicture();changed();});
+  typeSelect=select(KB_TYPES.map(r=>[r[0],r[1]]),record.type,()=>{record.type=typeSelect.value;notesEditor?.syncPaths();renderActionOptions(true);renderPicture();changed();});
   form.append(field('Type',typeSelect),control('Description',record.description||'',value=>update('description',value),{maxlength:80,hint:'Optional, maximum 80 characters.'}));
  }
 

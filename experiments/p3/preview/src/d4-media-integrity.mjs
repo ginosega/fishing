@@ -33,7 +33,9 @@ export function d4MediaPath(raw){
  let path;try{path=safePath(raw);}catch{deny('UNSAFE_MEDIA_PATH');}
  const parts=path.split('/'),ext=parts.at(-1).split('.').at(-1)?.toLowerCase();
  need(allowed[ext]&&['Gear','KB','Catches'].includes(parts[0])&&
-  parts.includes('assets')&&parts.length>=4,'UNSAFE_MEDIA_PATH');
+  parts.includes('assets')&&parts.length>=4&&
+  (parts[0]!=='Catches'||(parts.length===5&&parts[1]==='assets'&&
+   parts[3]==='notes')),'UNSAFE_MEDIA_PATH');
  return path;
 }
 const metadata=m=>m&&Number.isSafeInteger(m.bytes)&&m.bytes>0&&

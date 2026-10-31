@@ -170,8 +170,11 @@ export function createD3TrustedGearKBCandidate({loadSnapshot,enabled=()=>false,
     snapshot.files.has(path),'MARKDOWN_COLLISION');
    const exists=new Set(filesWithMedia);exists.add(path);
    try{
-    parseMarkdown(change.body,{owner:path,maps:validateRecords(next),
-     exists,pathRoutes:markdownRouteMap(next)});
+    const parsed=parseMarkdown(change.body,{owner:path,maps:validateRecords(next),
+     exists,pathRoutes:markdownRouteMap(next),viewerImages:true});
+    for(const image of pkg.notes.images??[])
+     check(parsed.references.some(ref=>ref.isImage===true&&
+      ref.local===image.path),'UNREFERENCED_INLINE_MEDIA');
    }catch{deny('INVALID_MARKDOWN_LINKS');}
    writes.push({action:'write',path:'pwa/'+path,body:change.body});
   }

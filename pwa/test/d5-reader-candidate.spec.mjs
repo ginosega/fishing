@@ -76,36 +76,24 @@ test('D5-browser mode control responds after verified offline library preparatio
  expect(jsErrors).toEqual([]);
 });
 
-test('D5-browser Banks Lake Markdown PNGs open original viewer on loopback',async({page})=>{
+test('D5-browser Banks Lake untagged Markdown images remain ordinary',async({page})=>{
  test.setTimeout(90000);
  await loaded(page,'#/kb/'+banks.id);
  await expect(page.locator('#app h1')).toContainText('Banks Lake');
- const imageButtons=page.locator('.markdown-body .markdown-image-button');
- await expect(imageButtons).toHaveCount(2);
- await imageButtons.first().click();
- await expect(page.getByRole('dialog',{name:'Image viewer'})).toBeVisible();
- await page.getByRole('dialog',{name:'Image viewer'})
-  .getByRole('button',{name:'Close'}).last().click();
+ await expect(page.locator('.markdown-body img')).toHaveCount(2);
+ await expect(page.locator('.markdown-body .markdown-image-button')).toHaveCount(0);
  await expect(page.getByRole('dialog',{name:'Image viewer'})).toHaveCount(0);
 });
 
-
-test('D5-browser real Garmin motor percent-encoded images open the original viewer',async({page})=>{
+test('D5-browser Garmin motor percent-encoded images display without auto viewer',async({page})=>{
  test.setTimeout(90000);
  await loaded(page,'#/inventory/item/'+garmin.id);
  await expect(page.locator('#app h1')).toContainText('Garmin Force Current');
- const imageButtons=page.locator('.markdown-body .markdown-image-button');
- await expect(imageButtons).toHaveCount(3);
- for(const alt of ['Power Steer Foot Pedals','Stern Motor Mount',
-  'Redodo 24V 50Ah Bluetooth Lithium Trolling Motor Battery']){
-  await page.getByRole('button',{name:'Enlarge '+alt,exact:true}).click();
-  await expect(page.getByRole('dialog',{name:'Image viewer'})).toBeVisible();
-  await page.getByRole('dialog',{name:'Image viewer'})
-   .getByRole('button',{name:'Close'}).last().click();
- }
+ await expect(page.locator('.markdown-body img')).toHaveCount(3);
+ await expect(page.locator('.markdown-body .markdown-image-button')).toHaveCount(0);
 });
 
-test('D5-browser cached Work Offline mode still opens Banks Lake and Garmin viewer',async({page})=>{
+test('D5-browser cached Work Offline retains untagged Banks Lake and Garmin images',async({page})=>{
  test.setTimeout(300000);
  await loaded(page);
  await page.getByRole('button',{name:'Connection status'}).click();
@@ -123,11 +111,8 @@ test('D5-browser cached Work Offline mode still opens Banks Lake and Garmin view
   ['#/inventory/item/'+garmin.id,3]
  ]){
   await page.goto(base+hash,{waitUntil:'domcontentloaded'});
-  await expect(page.locator('.markdown-image-button')).toHaveCount(count);
-  await page.locator('.markdown-image-button').first().click();
-  await expect(page.getByRole('dialog',{name:'Image viewer'})).toBeVisible();
-  await page.getByRole('dialog',{name:'Image viewer'})
-   .getByRole('button',{name:'Close'}).last().click();
+  await expect(page.locator('.markdown-body img')).toHaveCount(count);
+  await expect(page.locator('.markdown-image-button')).toHaveCount(0);
  }
  await expect(page.locator('#connection-status'))
   .toHaveAttribute('data-reading-mode','work-offline');
