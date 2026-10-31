@@ -1,5 +1,10 @@
 # Fishing Companion v3 — Approved UX Flows
 
+## October 31, 2026 — Shared Notes editor UX approved for implementation
+
+The owner approved the shared expandable Markdown Notes editor for Gear, Knowledge Base and Catches. All Notes fields include the compact top Preview Markdown and Insert image controls, original image preview, required alternative text, opt-in Picture Viewer (OFF by default; `"viewer"` / `"viewer: caption"`), and safe `<br/>`-separated ordered/unordered table-cell lists. Direct in-app original-image uploads publish atomically with Notes through the existing guarded D4 infrastructure. **Catch Notes photographs are expressly included**; the earlier Catch photo exclusion applies only to the Catch record's representative/cover picture, which remains inferred from Species. The Catch JSON schema and Picture Sequence exclusion stay unchanged. This is an approved clarification/scope amendment, not retroactive approval of a deployed build or public cutover. The owner will perform final UX acceptance in a deployed build; preserve existing V2 and D6 requirements. Full record: [October 31 Notes Editor Amendment](Fishing_Companion_v3_Notes_Editor_Amendment_2026-10-31.md).
+
+
 **Status:** **UX SCREENS AND FLOWS APPROVED — October 19, 2026.** The user expressly approved the reviewed sign-in, editor/Save-and-Publish and refreshed Connection Status screens and flows. The exact reviewed document is pinned at [main revision `f0ead8e94edffda6f073cde30e44fc24b7c5c3af`](https://github.com/ginosega/fishing/blob/f0ead8e94edffda6f073cde30e44fc24b7c5c3af/pwa/docs/Fishing_Companion_v3_UX_Review.md), file blob `e661e59791f756b8d1a67a6cbdcacada42cbebcc`. See [UX approval record](Fishing_Companion_v3_UX_Approval_2026-10-19.md). **Implementation plan approval and implementation authorization remain pending.**
 **Date:** October 19, 2026
 **Authority:** [Approved v3 requirements](Fishing_Companion_v3_Requirements.md), [approved v3 technical design](Fishing_Companion_v3_Technical_Design.md), [design approval](Fishing_Companion_v3_Technical_Design_Approval_2026-10-19.md).

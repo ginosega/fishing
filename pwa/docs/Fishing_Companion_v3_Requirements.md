@@ -1,5 +1,10 @@
 # Fishing Companion v3 — Approved Requirements
 
+## October 31, 2026 — Owner-approved Notes photo clarification
+
+The owner approved the shared expandable Markdown Notes editor for Gear, Knowledge Base and Catches. All Notes fields include the compact top Preview Markdown and Insert image controls, original image preview, required alternative text, opt-in Picture Viewer (OFF by default; `"viewer"` / `"viewer: caption"`), and safe `<br/>`-separated ordered/unordered table-cell lists. Direct in-app original-image uploads publish atomically with Notes through the existing guarded D4 infrastructure. **Catch Notes photographs are expressly included**; the earlier Catch photo exclusion applies only to the Catch record's representative/cover picture, which remains inferred from Species. The Catch JSON schema and Picture Sequence exclusion stay unchanged. This is an approved clarification/scope amendment, not retroactive approval of a deployed build or public cutover. The owner will perform final UX acceptance in a deployed build; preserve existing V2 and D6 requirements. Full record: [October 31 Notes Editor Amendment](Fishing_Companion_v3_Notes_Editor_Amendment_2026-10-31.md).
+
+
 **Status:** **REQUIREMENTS APPROVED — October 19, 2026.** The user explicitly reviewed and signed off on the exact requirements in [the final review revision](https://github.com/ginosega/fishing/blob/121fafc496238caca1b593885e8f83d4f8f9a865/pwa/docs/Fishing_Companion_v3_Requirements.md), reviewed file blob `2e23686d59cf8ca4fa0ac77ce54cea9379e2b1a1`. See [v3 requirements approval record](Fishing_Companion_v3_Requirements_Approval_2026-10-19.md). **Technical design may now be prepared and reviewed; design approval, implementation, and production release remain unauthorized.**
 **Date:** October 19, 2026
 **Repository:** ginosega/fishing
