@@ -34,8 +34,20 @@ const denial=code=>err=>err instanceof D3SnapshotError&&err.code===code;
 
 function fixture({enabled=true,badToken=false,repoId=ID,moveMain=false,
   corrupt=false,omitNarrative=false,duplicate=false,largeNarrative=false,
-  redirect=false}={}){
+  redirect=false,inlineGearNotes=false}={}){
   const current=structuredClone(sources);
+  if(inlineGearNotes){
+    const notes='Gear/Lures/content/Rapala Demon Test.md';
+    const media='Gear/Lures/assets/p3-rapala-demon-test/notes/step-02.jpg';
+    current['pwa/Gear/gear.json'].items.push({
+      id:'p3-rapala-demon-test',category:'lures',
+      type:'Crankbaits and hard jerkbaits',name:'Rapala Demon Test',
+      notes,
+    });
+    current['pwa/'+notes]=
+      '![step 02](../assets/p3-rapala-demon-test/notes/step-02.jpg "viewer: Step 2")';
+    current['pwa/'+media]='synthetic JPG original bytes';
+  }
   if(omitNarrative)delete current['pwa/'+NARRATIVE];
   if(largeNarrative)current['pwa/'+NARRATIVE]='x'.repeat(140000);
   const entries=[],blobs=new Map();
@@ -98,7 +110,12 @@ test('D3-L01 immutable actual Git blobs load all domains, markdown and inventory
   assert(snapshot.files.has(NARRATIVE));
   assert(snapshot.files.has('Gear/Rods-Reels/assets/test.jpg'));
   assert(snapshot.markdown.get(NARRATIVE).includes('Trusted fixture.'));
-  assert.equal(snapshot.blobHashes.size,4);
+  assert.equal(snapshot.blobHashes.size,5);
+  // A private original-image read must be pinned to the immutable full tree,
+  // even when an image isn't a first-class picture field in record JSON.
+  const image='pwa/Gear/Rods-Reels/assets/test.jpg';
+  assert.match(snapshot.blobHashes.get(image),/^[0-9a-f]{40}$/);
+  assert.equal(snapshot.blobHashes.get(image),blobHash(Buffer.from(sources[image])));
   assert.equal(x.refs,2);
   assert.equal(x.issued,1);
   assert(x.trace.every(c=>c.method==='GET'&&c.redirect==='manual'));
@@ -172,4 +189,24 @@ test('D3-L07 redirect/network ambiguity and hostile request are not retried',asy
   await assert.rejects(x.reader.loadSnapshot({
     repositoryId:ID,expectedMainSha:'untrusted',
   }),denial('INVALID_REQUEST'));
+});
+
+
+test('D3-L08 published Rapala Gear Notes-only picture SHA is pinned to the trusted tree',async()=>{
+ const x=fixture({inlineGearNotes:true});
+ const snapshot=await load(x);
+ const note='Gear/Lures/content/Rapala Demon Test.md';
+ const image='Gear/Lures/assets/p3-rapala-demon-test/notes/step-02.jpg';
+ assert(snapshot.files.has(image));
+ assert.equal(snapshot.markdown.get(note),
+  '![step 02](../assets/p3-rapala-demon-test/notes/step-02.jpg "viewer: Step 2")');
+ assert(!snapshot.data.gear.items.some(r=>r.picture?.src===image),
+  'The new image is referenced only inside Notes Markdown');
+ assert.equal(snapshot.blobHashes.get('pwa/'+image),
+  blobHash(Buffer.from('synthetic JPG original bytes')));
+ assert.equal(snapshot.blobHashes.size,7);
+ // This hash proves membership in the immutable source tree, not permission.
+ // D4 still authorizes every requested image against the current Notes body.
+ assert.equal(x.refs,2);
+ assert.equal(x.issued,1);
 });

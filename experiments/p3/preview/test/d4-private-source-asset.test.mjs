@@ -17,17 +17,25 @@ const entry={path:FILE,type:'blob',mode:'100644',
  size:BYTES.length,sha:SHA};
 const blob={sha:SHA,encoding:'base64',size:BYTES.length,content:CONTENT};
 function setup({enabled=true,owner=true,revision=MAIN,referenced=true,
- sha=SHA,assetPath=PATH,inlineNotes=false,noteBody=null}={}){
+ sha=SHA,assetPath=PATH,inlineNotes=false,inlineGearNotes=false,noteBody=null}={}){
  const hits=[];
  const catchId='p3-test-catch-salmon',catchNotes='Catches/content/'+catchId+'.md';
  const catchBody=noteBody??'![Catch photo](../assets/'+catchId+'/notes/fish.jpg "viewer")';
+ const gearId='p3-rapala-demon-test';
+ const gearNotes='Gear/Lures/content/Rapala Demon Test.md';
+ const gearBody=noteBody??'![step 02](../assets/'+gearId+'/notes/step-02.jpg "viewer: Step 2")';
  const source={
   repositoryId:ID,sourceRevision:MAIN,treeSha:TREE,
-  files:new Set([assetPath,...(inlineNotes?[catchNotes]:[])]),
-  markdown:new Map(inlineNotes?[[catchNotes,catchBody]]:[]),
+  files:new Set([assetPath,...(inlineNotes?[catchNotes]:[]),
+   ...(inlineGearNotes?[gearNotes]:[])]),
+  markdown:new Map([...(inlineNotes?[[catchNotes,catchBody]]:[]),
+   ...(inlineGearNotes?[[gearNotes,gearBody]]:[])]),
   blobHashes:new Map([['pwa/'+assetPath,sha]]),
   data:{
-   gear:{schemaVersion:2,items:referenced&&!inlineNotes?[{id:'synthetic',picture:{src:assetPath}}]:[]},
+   gear:{schemaVersion:2,items:inlineGearNotes?[{
+      id:gearId,name:'Rapala Demon Test',category:'lures',
+      type:'Crankbaits and hard jerkbaits',notes:gearNotes,
+    }]:referenced&&!inlineNotes?[{id:'synthetic',picture:{src:assetPath}}]:[]},
    kb:{schemaVersion:2,entities:[]},
    catches:{schemaVersion:2,catches:inlineNotes?[{id:catchId,date:'2026-10-31',
     speciesName:'Synthetic Salmon',notes:catchNotes}]:[]},
@@ -131,4 +139,20 @@ test('D4-A08 owner-only Catch Notes pictures render only if referenced by immuta
  const anon=setup({assetPath:path,inlineNotes:true,owner:false});
  assert.equal((await anon.route.serve(anon.request)).status,404);
  assert.equal(anon.hits.length,0);
+});
+
+test('D4-A09 uploaded Rapala Notes image is served only for authorized current Markdown',async()=>{
+ const image='Gear/Lures/assets/p3-rapala-demon-test/notes/step-02.jpg';
+ const ok=setup({assetPath:image,inlineGearNotes:true});
+ const response=await ok.route.serve(ok.request);
+ assert.equal(response.status,200);
+ assert.equal(response.headers.get('Content-Type'),'image/jpeg');
+ assert.deepEqual(new Uint8Array(await response.arrayBuffer()),BYTES);
+ assert.equal(ok.hits.length,3);
+ const notLinked=setup({assetPath:image,inlineGearNotes:true,noteBody:'No inline image'});
+ assert.equal((await notLinked.route.serve(notLinked.request)).status,404);
+ assert.equal(notLinked.hits.length,0);
+ const notSignedIn=setup({assetPath:image,inlineGearNotes:true,owner:false});
+ assert.equal((await notSignedIn.route.serve(notSignedIn.request)).status,404);
+ assert.equal(notSignedIn.hits.length,0);
 });

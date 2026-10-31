@@ -149,9 +149,13 @@ export function createD3SandboxSnapshotLoader({
       }
     }
     const markdown=new Map();
-    const hashes=new Map();
-    for(const path of Object.values(SOURCE))
-      hashes.set(path,entries.get(path).sha);
+    // The authenticated private media endpoint verifies the SHA from this
+    // exact immutable Git tree before decoding original image bytes. Include
+    // *all* already-validated pwa/ blob paths in the index: collectPaths(data)
+    // contains canonical record pictures but not images referenced solely in
+    // Notes Markdown. Authorization of a particular image remains a separate
+    // strict check against the canonical record or its parsed Notes Markdown.
+    const hashes=new Map([...entries].map(([path,entry])=>[path,entry.sha]));
     const narratives=new Set(referenced.filter(p=>p.toLowerCase().endsWith('.md')));
     need(narratives.size<=MAX_MD_FILES,'TOO_MANY_NARRATIVES');
     for(const relative of referenced){
