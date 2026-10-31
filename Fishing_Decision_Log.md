@@ -1,5 +1,10 @@
 # Fishing Decision Log
 
+## October 31 — V3 link conventions: additive, no bulk Markdown migration
+
+**Owner approved.** The new `site://` scheme is for navigation pages (Home, My Gear, Knowledge Base, Catch Log), not a replacement for `gear://`, `kb://`, existing relative Markdown links, or HTTPS/HTTP URLs. Continue accepting existing working links. `catches://ID` resolves manually entered Catch references, but individual Catches stay excluded from the Insert link picker. Use the new Insert link dialog for new authoring. **Do not bulk rewrite existing Markdown.** During D6, run a targeted link audit and repair only confirmed broken or obsolete destinations. This decision authorizes no content rewrite, deployment, or public V3 cutover.
+
+
 ## October 31 — owner-approved Notes link picker scope
 
 The owner approved adding **Insert link** to the shared V3 Gear/Knowledge Base/Catch Notes Markdown toolbar, matching Insert image UX. The picker searches **Gear entries, Knowledge Base entries, and fixed Home/My Gear/Knowledge Base/Catch Log navigation pages**; it explicitly **does not enumerate individual Catches**, regardless of Catch count. Existing `gear://ID` and `kb://ID` are preserved; new `site://home`, `site://gear`, `site://kb`, `site://catches` resolve stable navigation; `catches://ID` works when manually typed and is validated against existing Catch IDs. External links require HTTP(S), no credentials, and open separately; internal links navigate within the app, including offline when cached. The link popup supports page-name search and category filter, custom/selected link text, and cursor-position insertion. No image upload or new backend is involved. **Source implementation only** on V3 draft PR #263; official UX acceptance requires a deployed build, and V2/public D6 cutover is untouched.

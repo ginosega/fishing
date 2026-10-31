@@ -1,3 +1,9 @@
+## Current decision and next execution gate — October 31, 2026
+
+The owner approved preserving all working existing Markdown link formats: `site://` is additive for Home/My Gear/Knowledge Base/Catch Log navigation, not a migration target. `gear://`, `kb://`, relative Markdown paths and HTTP(S) stay unchanged. `catches://ID` works if manually typed, but **no individual Catch entries appear in the Insert link picker**. D6 must do a targeted link audit and fix only proven stale/broken links; do not bulk rewrite content. Decision is documented in `Fishing_Decision_Log.md`.
+
+At this checkpoint the V3 source branch `feature/fish118-p3-mock-publisher` app HEAD before decision-docs is `1599ec97b12fe7287bc0c6b7ff2015e6e5dac34d`. Latest isolated source gate [41228286422](https://github.com/ginosega/fishing/actions/runs/41228286422) PASSED. Work on a version-locked, protected **private online-only** D3 pilot release to owner-test Notes editing, image/link insertion, table-cell lists, viewer opt-in, publishing, and the earlier Connection Status refinements. The existing deployment PowerShell script `deploy-d3-publishing-disclosure.ps1` has historical pinned SHA requirements and is not automatically reusable for latest HEAD. Require exact expected local HEAD, latest deployed Worker version, anonymous denials, D1, private configuration and public V2 identity before/after private deployment. The private pilot is not equivalent to installed PWA or offline Work Offline, which must be tested separately in D5/D6. D6 ≤60-second public text save, complete original-byte/rollback tests and separate explicit public V3 cutover approval remain OPEN. The owner has not requested to transfer to a new chat.
+
 ## October 30 verified source checkpoint — stay in this chat
 
 ## Current V3 Notes link feature checkpoint — code committed, field acceptance pending

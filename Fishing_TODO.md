@@ -1,5 +1,12 @@
 # Fishing TODO
 
+## D6 link-audit policy and next private V3 editor acceptance (October 31)
+
+**Approved — do not migrate existing links wholesale.** Retain existing working Gear/KB references, relative Markdown links and HTTPS/HTTP URLs. `site://` is for site navigation only. Manual `catches://ID` works, but individual Catches are excluded from the picker. D6 must run a targeted link audit and correct only proven broken or obsolete destinations; do not modify Markdown until a defect is confirmed.
+
+**Next gate:** Review and version-lock a guarded deployment of the latest private D3 owner pilot containing Gear/KB/Catch Notes full-page editor, table-cell ordered/unordered lists, Insert image, Insert link, and opt-in Picture Viewer. Then conduct real owner Edge and Android browser UX, live original-image publication and link navigation tests; public V2 stays unchanged. **D5 integrated installed Android PWA and Offline Library acceptance must be separate**, since the private standalone pilot is online-only. Afterward D6 repeatable public-hosting ≤60s text-only save, lineage and rollback acceptance remain open; owner must explicitly approve public V3 cutover.
+
+
 ## D3/D5 Notes Insert link: source implementation, deployed UX acceptance pending
 
 The owner approved adding **Insert link** to the shared V3 Gear/Knowledge Base/Catch Notes Markdown toolbar, matching Insert image UX. The picker searches **Gear entries, Knowledge Base entries, and fixed Home/My Gear/Knowledge Base/Catch Log navigation pages**; it explicitly **does not enumerate individual Catches**, regardless of Catch count. Existing `gear://ID` and `kb://ID` are preserved; new `site://home`, `site://gear`, `site://kb`, `site://catches` resolve stable navigation; `catches://ID` works when manually typed and is validated against existing Catch IDs. External links require HTTP(S), no credentials, and open separately; internal links navigate within the app, including offline when cached. The link popup supports page-name search and category filter, custom/selected link text, and cursor-position insertion. No image upload or new backend is involved. **Source implementation only** on V3 draft PR #263; official UX acceptance requires a deployed build, and V2/public D6 cutover is untouched.

@@ -1,5 +1,12 @@
 # Fishing Context
 
+### October 31 — no bulk migration for new site:// links; next acceptance gate
+
+Owner adopted the **additive link scheme / targeted D6 audit** policy: do not rewrite existing functioning Markdown. Keep `gear://`, `kb://`, relative Markdown links and HTTP(S) links. Use `site://` only for new site-navigation references; manually typed `catches://ID` works, while individual Catches remain excluded from the picker. Use integrated Insert link for new writing. In D6, verify legacy destinations and repair only actual failures. No content modifications made.
+
+Current source head prior to this doc-only decision was `1599ec97b12fe7287bc0c6b7ff2015e6e5dac34d`; isolated source validation [run #41228286422](https://github.com/ginosega/fishing/actions/runs/41228286422) passed. **Next:** guarded, version-locked private online-only D3 pilot deployment with Notes editor and status UX; owner Edge/Android browser field tests. Then separate D5 integrated installed-PWA offline reading/device acceptance, followed by D6 hosting performance, security, rollback and explicitly approved public cutover. Do not treat the online-only private pilot as a completed installed-PWA/offline test. Public V2 remains untouched.
+
+
 ### October 31 — V3 Insert link source checkpoint
 
 Owner approved the shared Insert link dialog alongside Insert image in every V3 Notes editor (Gear, KB, Catches), in normal and expanded modes. Show selectable Site page versus External URL, a customizable label prefilled from highlighted Markdown, a searchable and category-filterable page selector, and insert at the editing cursor. **Picker includes Gear + Knowledge Base entries and Home/My Gear/Knowledge Base/Catch Log navigation, but NEVER individual Catch records.** Manual `catches://<ID>` references still work if the Catch exists; `gear://<ID>` and `kb://<ID>` remain unchanged. New `site://home`, `site://gear`, `site://kb`, `site://catches` use stable navigation routes. External links require HTTP(S), no credentials, and open separately. No new storage or schema changes. Source work: [edd2fcb](https://github.com/ginosega/fishing/commit/edd2fcb96dcbe47fcb5a4fcf9136d60f5e7e8682); private build UX/device acceptance and other D6 release gates remain OPEN. No deploy for this individual feature.
