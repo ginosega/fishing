@@ -1,5 +1,10 @@
 # Fishing TODO
 
+## October 31 — Private Publishing Status disclosure deployment preparation
+
+The owner confirmed deployed private Worker version `9570feaa-2731-4b29-8d95-4503c1e5056c` and previously accepted the Notes `Insert` buttons and missing-Name corner-case behavior in Edge. **Next:** privately deploy and field-test the Publishing Status disclosure update (open default only; preserve manual disclosure while dialog remains visible). Dedicated, default-prepare-only deployment script: `experiments/p3/preview/tools/deploy-d3-publishing-state-private.ps1`. Prior immutable JS/CSS fingerprints are pinned from the successful Notes-preview-fix source CI, and the script requires an exact currently deployed Worker version, checks D1 binding/flags and anonymous denial, Wrangler dry-runs, and verifies V2 proxy identity before and after. Public V2 and D6 cutover untouched. Field acceptance of this UX behavior remains open.
+
+
 ## October 31 — Publishing Status disclosure state on dialog open
 
 **Owner-approved private V3 Connection Status correction (October 31, 2026):** Publishing Status must choose its automatic disclosure state **only when the Connection Status dialog is opened**. On opening: expanded if publishing is active or a confirmed Failed/Conflict, collapsed for Live/cleared/no active publication. **While the dialog is already open, status polling and transitions (including completion to Live) must never expand or collapse the disclosure**; preserve any user-chosen expanded/collapsed state. Continue updating the dot, status text, action buttons, and verified summary while open. On a later close and reopen, apply the default again. Source fix moves disclosure initialization into `onDialogOpen()` and invokes that immediately after `showModal()`; `paintIndicator()` now only updates the dot. Add tests for Live completion while open, manually collapsed active status, and reopen defaults. Source validation and deployed Windows/Android acceptance remain distinct gates; public V2 unchanged.

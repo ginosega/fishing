@@ -1,5 +1,10 @@
 # Fishing Context
 
+### October 31 — Private publishing disclosure release preparation
+
+Owner reported private `fishing-auth-p0-test` deployed version `9570feaa-2731-4b29-8d95-4503c1e5056c`. This follows Edge acceptance of latest Notes preview and `Insert` copy fixes. The next pending functionality is preserving Publishing Status accordion expansion while Connection Status stays open, now source committed and source-CI green at `f52f7ba7e22d3eb71af348176531ee1ea502666c`. New script `deploy-d3-publishing-state-private.ps1` is default preflight only and includes exact Worker version, previous private bundle fingerprints, source JS-only CSS parity, immutable source config, anonymous denials, and public V2 proxy verification. No deployment performed on assistant side. Owner deployment and real field acceptance needed.
+
+
 ### October 31 — Publishing Status disclosure stays as the user left it
 
 **Owner-approved private V3 Connection Status correction (October 31, 2026):** Publishing Status must choose its automatic disclosure state **only when the Connection Status dialog is opened**. On opening: expanded if publishing is active or a confirmed Failed/Conflict, collapsed for Live/cleared/no active publication. **While the dialog is already open, status polling and transitions (including completion to Live) must never expand or collapse the disclosure**; preserve any user-chosen expanded/collapsed state. Continue updating the dot, status text, action buttons, and verified summary while open. On a later close and reopen, apply the default again. Source fix moves disclosure initialization into `onDialogOpen()` and invokes that immediately after `showModal()`; `paintIndicator()` now only updates the dot. Add tests for Live completion while open, manually collapsed active status, and reopen defaults. Source validation and deployed Windows/Android acceptance remain distinct gates; public V2 unchanged.
