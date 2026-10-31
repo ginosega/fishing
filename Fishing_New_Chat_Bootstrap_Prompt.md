@@ -1,5 +1,10 @@
 ## Current decision and next execution gate — October 31, 2026
 
+## October 31 — Catch Notes image acceptance split by environment
+
+**October 31 — private Catch cover-photo acceptance is NOT testable in the isolated pilot.** The owner confirmed that the private sandbox has no species pictures. Split acceptance: **now**, publish a temporary Catch with an inline photograph in Notes and verify the original image, caption, opt-in Picture Viewer, and preservation on reopen (as feasible). **Deferred until the integrated V3 build with the complete species image library**, verify the Catch representative/cover image stays species-derived while the uploaded photograph appears only within Notes. Do not add images to the private sandbox just to satisfy this unrelated cover-photo test; this is a test-environment limitation, not an accepted implementation regression. No code or public V2 change.
+
+
 ## Latest field acceptance — Publishing Status PASSED, media next
 
 **October 31, 2026 — owner Edge acceptance PASSED (deployed private V3 pilot).** Owner confirmed the Publishing Status disclosure behavior works as requested: the default expanded/collapsed state is applied when Connection Status opens; a publishing-completed transition while the screen is already open preserves its existing disclosure state; close and reopen recalculates the default. Mark this specific issue **CLOSED / field accepted**. Owner separately accepted the two Notes insertion confirmation labels (both **Insert**) and missing-Name behavior. This acceptance is specific to the private Edge pilot, not Android installed PWA or public V3. The precise post-deploy Worker version was not supplied; do not infer it. **Next acceptance priority:** publish a disposable private Gear/KB Notes image and verify saved/reopened hosted image, viewer opt-in, caption, internal/external links; then a Catch Notes image with species-based cover unchanged. Follow with Android Chrome and separate integrated installed PWA/offline checks. D6 recurring ≤60-second public save-to-Live, negative media/rollback and public cutover still open.
