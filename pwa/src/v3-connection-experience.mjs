@@ -76,26 +76,26 @@ export function mountV3ConnectionExperience({
   if(includeTime&&info.completedAt&&!Number.isNaN(info.completedAt.getTime()))
    body.append(caption('Completed '+info.completedAt.toLocaleString()));
  };
- let previousIndicatorActive=false;
+ let latestIndicatorActive=false;
  function paintIndicator(display){
-  // The caller supplies the same authoritative tone used for the header dot.
-  // Keep this accordion open for active or failed work; collapse as soon as
-  // the header dot returns to network green/yellow (Live or cleared).
-  // Manual expansion of a completed record remains available between
-  // indicator changes; normal network repaint must not undo user choice.
+  // Keep the dot synchronized with the same verified tone as the header.
+  // Publication polling must NEVER change an already-open disclosure:
+  // the owner may choose to inspect the completed result or keep it closed.
   const tone=display?.tone;
-  const active=tone==='publishing'||tone==='error';
-  publishingDot.hidden=!active;
-  if(active){
+  latestIndicatorActive=tone==='publishing'||tone==='error';
+  publishingDot.hidden=!latestIndicatorActive;
+  if(latestIndicatorActive){
    publishingDot.dataset.tone=tone;
    publishingDot.title=display.title;
-   publishing.open=true;
   }else{
    delete publishingDot.dataset.tone;
    publishingDot.title='';
-   if(previousIndicatorActive)publishing.open=false;
   }
-  previousIndicatorActive=active;
+ }
+ function onDialogOpen(){
+  // Apply the default only on each new dialog opening, not on publication
+  // transition or network repaint while the dialog remains visible.
+  publishing.open=latestIndicatorActive;
  }
  function paint(){
   const state=controller.current(),authorized=state.authorized===true;
@@ -163,5 +163,6 @@ export function mountV3ConnectionExperience({
   if(statusError)publicationBody.append(caption(statusError));
  }
  paint();
- return Object.freeze({paint,paintIndicator,remove(){account.remove();publishing.remove();}});
+ return Object.freeze({paint,paintIndicator,onDialogOpen,
+  remove(){account.remove();publishing.remove();}});
 }

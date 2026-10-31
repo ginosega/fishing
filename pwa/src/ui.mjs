@@ -443,6 +443,9 @@ export function createApp(ctx){
  };
  connection.addEventListener('click',()=>{
   connectionDialog.showModal();
+  // The Publishing Status disclosure chooses its initial state exactly once
+  // per opening; ongoing polling preserves the owner's expanded/collapsed choice.
+  connectionExperience?.onDialogOpen();
   if(modeControls)void offline.refreshMode();
   if(ownerController&&!workOffline())void refreshOwner();
  });document.getElementById('connection-close').addEventListener('click',()=>{

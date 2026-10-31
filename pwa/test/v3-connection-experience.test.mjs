@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import {displayPublicationSummary,publicationGuidance,
  mountV3ConnectionExperience} from '../src/v3-connection-experience.mjs';
 
@@ -86,7 +87,7 @@ test('V3-UX05 unknown failures are never called correctable or auto retried',()=
  assert.equal(displayPublicationSummary({...summary,itemName:'a'}).name,'a');
 });
 
-test('V3-UX06 publication dot mirrors header only while active or failed',()=>{
+test('V3-UX06 publication dot tracks tone without overriding an open disclosure',()=>{
  const x=screen({phase:'Owner',authorized:true,ownerLogin:'ginosega',
   publication:'Live',sandboxVerified:true,summary,operationId:OP});
  const header=x.publishing.children[0],dot=header.children[0].children[0];
@@ -96,6 +97,7 @@ test('V3-UX06 publication dot mirrors header only while active or failed',()=>{
  assert.equal(x.publishing.open,false);
  assert.equal(dot.hidden,true);
  x.view.paintIndicator({tone:'publishing',title:'Publishing: Checking'});
+ x.view.onDialogOpen(); // Opening during publishing defaults to expanded.
  assert.equal(dot.hidden,false);
  assert.equal(dot.dataset.tone,'publishing');
  assert.equal(dot.title,'Publishing: Checking');
@@ -105,7 +107,7 @@ test('V3-UX06 publication dot mirrors header only while active or failed',()=>{
  assert.equal(dot.dataset.tone,'error');
  assert.equal(x.publishing.open,true);
  x.view.paintIndicator({tone:'network',title:'Connection status: Online'});
- assert.equal(x.publishing.open,false);
+ assert.equal(x.publishing.open,true,'Completion cannot collapse while dialog is open');
  assert.equal(dot.hidden,true);
  assert.equal(dot.title,'');
  x.view.remove();
@@ -126,6 +128,7 @@ test('V3-UX08 completed publishing defaults collapsed; manual view survives netw
   publication:'Live',sandboxVerified:true,summary,operationId:OP});
  const dot=x.publishing.children[0].children[0].children[0];
  x.view.paintIndicator({tone:'network',title:'Connection status: Online'});
+ x.view.onDialogOpen();
  assert.equal(x.publishing.open,false);
  assert.equal(dot.hidden,true);
  assert.match(texts(x.publishing),/Completed · Sandbox Live/);
@@ -135,21 +138,44 @@ test('V3-UX08 completed publishing defaults collapsed; manual view survives netw
  assert.equal(x.publishing.open,true);
  x.view.remove();
 });
-test('V3-UX09 active or failed operations expand; Live/Cleared/signout collapse',()=>{
+test('V3-UX09 opening defaults to expanded for active/failed, collapsed after Live or Clear',()=>{
  const x=screen({phase:'Owner',authorized:true,publication:'Checking',
   summary,operationId:OP});
  for(const tone of ['publishing','error']){
   x.view.paintIndicator({tone,title:tone==='error'?'Publishing failed':'Publishing: Checking'});
+  x.view.onDialogOpen();
   assert.equal(x.publishing.open,true);
-  x.publishing.open=false; // Next live status refresh enforces auto-expansion.
-  x.view.paintIndicator({tone,title:'Update'});
+  x.publishing.open=false; // Owner's deliberate collapse while dialog is open.
+  x.view.paintIndicator({tone,title:'Polling update'});
+  assert.equal(x.publishing.open,false,'Polling must preserve manual collapse');
+  x.view.onDialogOpen(); // After close, next open reapplies active default.
   assert.equal(x.publishing.open,true);
  }
  for(const outcome of ['Live','Cleared','None']){
   x.update({publication:outcome,sandboxVerified:outcome==='Live'});
   x.view.paintIndicator({tone:'network',title:'Connection status: Online'});
+  assert.equal(x.publishing.open,true,'Completion must not collapse existing view');
+  x.view.onDialogOpen(); // Close + reopen, terminal default is collapsed.
   assert.equal(x.publishing.open,false);
+  x.publishing.open=true; // Owner may still review history.
  }
+ x.view.remove();
+});
+test('V3-UX11 a pre-expanded completed view is preserved through active and terminal updates',()=>{
+ const x=screen({phase:'Owner',authorized:true,publication:'Live',
+  sandboxVerified:true,summary,operationId:OP});
+ x.view.paintIndicator({tone:'network',title:'Connection status: Online'});
+ x.view.onDialogOpen();
+ assert.equal(x.publishing.open,false);
+ x.publishing.open=true; // User opens the completed disclosure manually.
+ x.view.paintIndicator({tone:'publishing',title:'Publishing: Accepted'});
+ x.update({publication:'Accepted'});
+ assert.equal(x.publishing.open,true);
+ x.view.paintIndicator({tone:'network',title:'Connection status: Online'});
+ x.update({publication:'Live',sandboxVerified:true});
+ assert.equal(x.publishing.open,true);
+ x.view.onDialogOpen(); // It collapses only at the next instantiation.
+ assert.equal(x.publishing.open,false);
  x.view.remove();
 });
 test('V3-UX10 unknown read failure never falsely expands or claims publishing failure',()=>{
@@ -160,4 +186,12 @@ test('V3-UX10 unknown read failure never falsely expands or claims publishing fa
  assert.match(texts(x.publishing),/outcome could not be verified/);
  assert.match(texts(x.publishing),/Check again/);
  x.view.remove();
+});
+
+test('V3-UX12 the real Connection Status entry initializes disclosure after opening',()=>{
+ const ui=readFileSync(new URL('../src/ui.mjs',import.meta.url),'utf8');
+ assert.match(ui,/connectionDialog\.showModal\(\);\s*\/\/[^\n]*\n\s*\/\/[^\n]*\n\s*connectionExperience\?\.onDialogOpen\(\)/);
+ const presentation=readFileSync(new URL('../src/v3-connection-experience.mjs',import.meta.url),'utf8');
+ assert.match(presentation,/function onDialogOpen\(\)\{/);
+ assert.doesNotMatch(presentation,/previousIndicatorActive/);
 });
