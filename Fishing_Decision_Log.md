@@ -1,5 +1,10 @@
 # Fishing Decision Log
 
+## October 31: Show precise Name prerequisite for image insertion
+
+October 31 Edge screenshots confirm the unfinished Add Gear form produces `gear schema: /items/1/id ... /items/1/name ...` on **Preview Markdown** if Name has not been entered. This is not an invalid internal link. Already implemented in the pending, **not yet field-deployed** preview fix (`draftNotesPreviewOptions`): preview uses the validated catalog without requiring a complete draft; Save and Publish still performs full record validation. The second screenshot shows an image insert attempted before an item ID was generated. Such insertion must still be blocked because the item ID defines its photo storage path, but the message now explicitly says **Enter a Name above first. The generated item ID is required to store the image.** Both Insert link and Insert image forms must show **Insert**, already implemented in the pending private build. User confirmed links, images, and ordered/unordered table lists worked; publication/Picture Viewer not yet accepted. Retest after the version-locked private Worker deployment, keeping public V2 unchanged.
+
+
 ## October 31 — Owner feedback: Notes insertion button copy and draft preview behavior
 
 **Owner UX decision:** For both Insert image and Insert link forms, the confirmation label is **Insert** (not **Insert into Notes**). Markdown Preview must work on an incomplete new Gear/Knowledge Base entry when its text references an existing valid sandbox catalog page. Preview may use the already validated immutable source catalog; **Save and Publish still requires full record schema/semantic and Markdown/link validation**. Individual Catch records remain excluded from the link picker; no legacy link migration. Private-only fix; do not infer deployed or accepted.

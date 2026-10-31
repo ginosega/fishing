@@ -1,5 +1,10 @@
 # V3 Notes Markdown Editor — October 31, 2026 approved UX and scope clarification
 
+## Add Gear screenshots: missing Name guidance
+
+October 31 Edge screenshots confirm the unfinished Add Gear form produces `gear schema: /items/1/id ... /items/1/name ...` on **Preview Markdown** if Name has not been entered. This is not an invalid internal link. Already implemented in the pending, **not yet field-deployed** preview fix (`draftNotesPreviewOptions`): preview uses the validated catalog without requiring a complete draft; Save and Publish still performs full record validation. The second screenshot shows an image insert attempted before an item ID was generated. Such insertion must still be blocked because the item ID defines its photo storage path, but the message now explicitly says **Enter a Name above first. The generated item ID is required to store the image.** Both Insert link and Insert image forms must show **Insert**, already implemented in the pending private build. User confirmed links, images, and ordered/unordered table lists worked; publication/Picture Viewer not yet accepted. Retest after the version-locked private Worker deployment, keeping public V2 unchanged.
+
+
 ## October 31 private deployed-build feedback
 
 The owner reported that **Preview Markdown** failed after a link to the existing D3 Verification sandbox page was inserted. The screenshot text was not accessible in the present exchange, so this remains an acceptance failure to retest. Code review identified a defect pathway: the Gear/KB preview built its link catalog by validating the entire, potentially incomplete draft, rather than using the already verified source catalog. The fix ensures Preview can render before a new record has a valid Name/ID; the record and Markdown remain subject to strict validation on **Save and Publish**. Regression tests exercise both source Gear and KB D3 Verification fixtures. The owner also specified that the confirmation controls for both **Insert link** and **Insert image** must read simply **Insert**. No public V2 or published Markdown change; owner field acceptance after private redeployment is required.

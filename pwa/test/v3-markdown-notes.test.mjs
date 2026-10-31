@@ -74,3 +74,12 @@ test('V3-N05 Catch Notes photos participate in authenticated exact hosted-byte v
  const url=d3HostedTestPath('p3_'+('a'.repeat(36)),'pwa/'+path);
  assert.equal(parseD3HostedTestPath(url)?.file,'pwa/'+path);
 });
+
+test('V3-N06 missing Name errors identify the field required to create an image owner path',()=>{
+ for(const domain of ['gear','kb']){
+  const draft={id:'',name:'',category:'rods-reels',type:'location'};
+  assert.throws(()=>noteImagePath(domain,draft,'photo.jpg'),/Enter a Name above first/);
+  assert.throws(()=>noteImagePath(domain,{...draft,name:'New item'},'photo.jpg'),/item ID is not yet valid/);
+ }
+ assert.throws(()=>noteImagePath('catches',{id:''},'photo.jpg'),/Catch details/);
+});

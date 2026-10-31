@@ -1,5 +1,10 @@
 # Fishing
 
+### October 31: Editor field findings, verified screenshots
+
+October 31 Edge screenshots confirm the unfinished Add Gear form produces `gear schema: /items/1/id ... /items/1/name ...` on **Preview Markdown** if Name has not been entered. This is not an invalid internal link. Already implemented in the pending, **not yet field-deployed** preview fix (`draftNotesPreviewOptions`): preview uses the validated catalog without requiring a complete draft; Save and Publish still performs full record validation. The second screenshot shows an image insert attempted before an item ID was generated. Such insertion must still be blocked because the item ID defines its photo storage path, but the message now explicitly says **Enter a Name above first. The generated item ID is required to store the image.** Both Insert link and Insert image forms must show **Insert**, already implemented in the pending private build. User confirmed links, images, and ordered/unordered table lists worked; publication/Picture Viewer not yet accepted. Retest after the version-locked private Worker deployment, keeping public V2 unchanged.
+
+
 ## October 31: Private V3 Notes Preview fix pending field acceptance
 
 Following the owner-confirmed private version `7cbef72d-d4ab-4c17-a451-2a06c3867436`, the owner reported a failure in Preview after linking to D3 Verification. The Gear/KB draft-only preview now avoids premature full-record validation, and both image/link confirmation buttons read **Insert**. Source regression covers an incomplete new Gear draft linking to actual sandbox D3 Verification fixture IDs. Full Save/Publish validation remains. Incremental private deployment uses a new version-gated script `deploy-d3-notes-preview-fix-private.ps1`; public V2 remains unchanged, and deployed owner acceptance is pending.

@@ -7,7 +7,13 @@ import {parseMarkdown,sanitizeHtml} from './markdown.mjs';
 import {notesLinkTargets,findNotesLinkTargets,notesLinkMarkdown} from './notes-link.mjs';
 
 export function noteImagePath(domain,record,filename){
- if(!ID_PATTERN.test(record?.id??''))throw Error('Complete the item fields to generate an ID before inserting an image.');
+ if(!ID_PATTERN.test(record?.id??'')){
+  if(domain==='catches')
+   throw Error('Complete the Catch details so its ID is generated before inserting an image.');
+  if(!record?.name?.trim())
+   throw Error('Enter a Name above first. The generated item ID is required to store the image.');
+  throw Error('The item ID is not yet valid. Check the Name field before inserting an image.');
+ }
  const root=domain==='catches'?'Catches':
   categoryFolder(domain,domain==='gear'?record.category:record.type);
  return safePath(root+'/assets/'+record.id+'/notes/'+filename);

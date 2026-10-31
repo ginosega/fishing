@@ -1,5 +1,10 @@
 # Fishing Context
 
+### October 31: Screenshot-confirmed Add Gear preview and image-ID feedback
+
+October 31 Edge screenshots confirm the unfinished Add Gear form produces `gear schema: /items/1/id ... /items/1/name ...` on **Preview Markdown** if Name has not been entered. This is not an invalid internal link. Already implemented in the pending, **not yet field-deployed** preview fix (`draftNotesPreviewOptions`): preview uses the validated catalog without requiring a complete draft; Save and Publish still performs full record validation. The second screenshot shows an image insert attempted before an item ID was generated. Such insertion must still be blocked because the item ID defines its photo storage path, but the message now explicitly says **Enter a Name above first. The generated item ID is required to store the image.** Both Insert link and Insert image forms must show **Insert**, already implemented in the pending private build. User confirmed links, images, and ordered/unordered table lists worked; publication/Picture Viewer not yet accepted. Retest after the version-locked private Worker deployment, keeping public V2 unchanged.
+
+
 ### October 31 — Private Notes editor field feedback and fix in source
 
 Owner-confirmed private Worker `7cbef72d-d4ab-4c17-a451-2a06c3867436` is live and passed anonymous/public V2 protections. First Edge acceptance report: inserting a link to existing D3 Verification followed by Preview caused an error; exact screenshot text not available. Root-cause candidate in source: `editor.mjs` preview validated a partially completed Gear/KB draft (`editorMaps(ctx,domain,previewRecord)`) and could fail regardless of valid linked target. New `draftNotesPreviewOptions` uses verified source maps and a safe temporary Markdown owner path for incomplete add forms, without altering Save validation. Both image and link panels use button **Insert** rather than **Insert into Notes**. Source tests must pass; new private version-lock/deploy gate must be run by owner; deployed UX acceptance remains open.

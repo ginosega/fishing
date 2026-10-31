@@ -1,5 +1,10 @@
 ## Current decision and next execution gate — October 31, 2026
 
+## Current screenshot-based editor acceptance checkpoint
+
+October 31 Edge screenshots confirm the unfinished Add Gear form produces `gear schema: /items/1/id ... /items/1/name ...` on **Preview Markdown** if Name has not been entered. This is not an invalid internal link. Already implemented in the pending, **not yet field-deployed** preview fix (`draftNotesPreviewOptions`): preview uses the validated catalog without requiring a complete draft; Save and Publish still performs full record validation. The second screenshot shows an image insert attempted before an item ID was generated. Such insertion must still be blocked because the item ID defines its photo storage path, but the message now explicitly says **Enter a Name above first. The generated item ID is required to store the image.** Both Insert link and Insert image forms must show **Insert**, already implemented in the pending private build. User confirmed links, images, and ordered/unordered table lists worked; publication/Picture Viewer not yet accepted. Retest after the version-locked private Worker deployment, keeping public V2 unchanged.
+
+
 ## Current immediate D3 owner feedback checkpoint — October 31, 2026
 
 Owner deployed private Worker version `7cbef72d-d4ab-4c17-a451-2a06c3867436` and confirmed anonymous denial/public V2 stability. Reported error previewing a Notes link to existing D3 Verification and requested both Insert image and Insert link button texts be changed to **Insert**. No usable screenshot text was included in the current visible context. Source fix separates Gear/KB draft Markdown Preview from premature whole-record validation (use verified source maps and owner fallback path); the strict validation at Save/Publish is preserved. Add regression using actual `p3-test-rod` and `location-p3-test-lake` sandbox IDs. Next run dedicated source CI, then owner-run dry-run preflight and version-locked private deployment using `experiments/p3/preview/tools/deploy-d3-notes-preview-fix-private.ps1`. No public V2 changes or live UX acceptance yet.
