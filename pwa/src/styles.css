@@ -203,3 +203,5 @@
  .notes-toolbar .btn{padding:8px}
  .notes-editor.expanded .markdown-editor{min-height:60vh}
 }
+
+.notes-editor>.field[hidden],.notes-editor.expanded>.field[hidden]{display:none}

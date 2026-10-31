@@ -14,7 +14,9 @@ export function noteImagePath(domain,record,filename){
 export function noteImageReference(path){
  const at=path.indexOf('/assets/');
  if(at<0)throw Error('Invalid Notes image path');
- return '../'+path.slice(at+1);
+ return '../'+path.slice(at+1).split('/').map(part=>
+  encodeURIComponent(part).replace(/[()]/g,ch=>'%'+ch.charCodeAt(0).toString(16).toUpperCase())
+ ).join('/');
 }
 export function viewerMarkdownTitle(enabled,caption=''){
  if(!enabled)return '';
@@ -37,6 +39,7 @@ export function createNotesMarkdownEditor({
  const toolbar=el('div',{class:'notes-toolbar'});
  const input=el('textarea',{rows:14,class:'markdown-editor',spellcheck:true,value});
  const view=el('div',{class:'markdown-preview markdown-body',hidden:true});
+ const editorField=field(label,input);
  const message=el('div',{class:'notes-editor-message','aria-live':'polite'});
  const details=el('div',{class:'notes-image-panel',hidden:true});
  const choose=el('input',{type:'file',accept:'.jpg,.jpeg,.png,.webp,.gif,image/jpeg,image/png,image/webp,image/gif'});
@@ -50,7 +53,7 @@ export function createNotesMarkdownEditor({
  function changed(){onChange(input.value);}
  input.addEventListener('input',changed);
  const previewButton=button('Preview Markdown',()=>{
-  if(showPreview){showPreview=false;view.hidden=true;input.hidden=false;previewButton.textContent='Preview Markdown';input.focus();return;}
+  if(showPreview){showPreview=false;view.hidden=true;editorField.hidden=false;input.hidden=false;previewButton.textContent='Preview Markdown';input.focus();return;}
   try{
    const options=previewOptions(),exists=new Set([...knownPaths(),...staged.keys()]);
    const parsed=parseMarkdown(input.value,{...options,exists,allowMissing:false,viewerImages:true});
@@ -61,7 +64,7 @@ export function createNotesMarkdownEditor({
     const item=staged.get(refs[i]?.local);
     if(item)image.src=item.url;
    });
-   showPreview=true;view.hidden=false;input.hidden=true;
+   showPreview=true;view.hidden=false;editorField.hidden=true;input.hidden=true;
    previewButton.textContent='Edit Markdown';
    status(message,'Markdown preview is local and has not been saved.','info');
   }catch(error){status(message,error.message,'error');}
@@ -130,7 +133,7 @@ export function createNotesMarkdownEditor({
   captionField,imageMessage,el('div',{class:'notes-image-actions'},
    button('Cancel',closeImage),insert));
  toolbar.append(imageButton,previewButton,expandButton);
- outer.append(toolbar,field(label,input),view,details,message);
+ outer.append(toolbar,editorField,view,details,message);
  function syncPaths(){
   const record=getRecord();
   if(!ID_PATTERN.test(record?.id??''))return;

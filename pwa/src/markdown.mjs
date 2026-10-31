@@ -83,7 +83,7 @@ export function parseMarkdown(text,{owner,maps,assetBase='https://example.invali
   const viewerMatch=viewerImages&&image?/^viewer(?:\s*:\s*(.*))?$/i.exec(pictureTitle.trim()):null;
   if(viewerMatch){
    if(viewerMatch[1])token.attrSet('title',viewerMatch[1]);
-   else token.attrRemove('title');
+   else token.attrs=token.attrs?.filter(([key])=>key!=='title')||[];
   }
   const missing=Boolean(resolved.local&&exists&&!exists.has(resolved.local));
   if(missing&&!allowMissing&&!(image&&allowMissingImages))throw new Error(`Missing Markdown resource: ${owner} -> ${resolved.local}`);

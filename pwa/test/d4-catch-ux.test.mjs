@@ -70,8 +70,10 @@ test('D4-UX05 only private sandbox uses special p3-test Catch IDs',()=>{
 });
 test('D4-UX06 Catch uses Markdown preview and no redundant photo/GPS hint',()=>{
  const editor=readFileSync(new URL('../src/catch-editor.mjs',import.meta.url),'utf8');
- assert(editor.includes("'Preview Markdown'"));
- assert(editor.includes('sanitizeHtml(parsed.html,window)'));
+ assert(editor.includes('createNotesMarkdownEditor'));
+ const shared=readFileSync(new URL('../src/notes-markdown-editor.mjs',import.meta.url),'utf8');
+ assert(shared.includes("'Preview Markdown'"));
+ assert(shared.includes('sanitizeHtml(parsed.html,window)'));
  assert(editor.includes('locationEntry'));
  assert(editor.includes('speciesField,locationField,lureField'));
  assert(!editor.includes("'Existing notes and referenced media stay intact. Catch photos and GPS are not supported.'"));

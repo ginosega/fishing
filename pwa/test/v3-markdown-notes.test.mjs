@@ -25,10 +25,10 @@ test('V3-N02 raw HTML is still disabled and untrusted tags are escaped',()=>{
 });
 test('V3-N03 generated relative image paths and viewer marker preserve Catch cover picture',async()=>{
  const record={id:'p3-test-catch-salmon',date:'2026-10-31',speciesName:'Synthetic Salmon'};
- const file='fish-photo.jpg',path=noteImagePath('catches',record,file);
- assert.equal(path,'Catches/assets/p3-test-catch-salmon/notes/fish-photo.jpg');
- assert.equal(noteImageReference(path),'../assets/p3-test-catch-salmon/notes/fish-photo.jpg');
- assert.equal(notesImageMarkdown(path,'Fish',['x']), '![Fish](../assets/p3-test-catch-salmon/notes/fish-photo.jpg)');
+ const file='fish-photo.png',path=noteImagePath('catches',record,file);
+ assert.equal(path,'Catches/assets/p3-test-catch-salmon/notes/fish-photo.png');
+ assert.equal(noteImageReference(path),'../assets/p3-test-catch-salmon/notes/fish-photo.png');
+ assert.equal(notesImageMarkdown(path,'Fish'), '![Fish](../assets/p3-test-catch-salmon/notes/fish-photo.png)');
  assert.equal(viewerMarkdownTitle(true,'Large fish'),' "viewer: Large fish"');
  const body=notesImageMarkdown(path,'Fish',{viewer:true,caption:'Large fish'});
  const files=new Set([path]);
@@ -56,7 +56,7 @@ test('V3-N04 Notes image paths are owner-scoped and Catch cover media remains ex
  const metadata={path:'Catches/assets/unrelated/notes/fish.jpg',bytes:8,sha256:'f'.repeat(64)};
  await assert.rejects(prepareChange({domain:'catches',operation:'add',id,
   record:{id,date:'2026-10-31',speciesName:'Synthetic Salmon'},
-  sourceRevision:'a'.repeat(40),text:'Image',notesImages:[metadata]}),/Invalid inline Notes image/);
+  sourceRevision:'a'.repeat(40),text:'Image',notesImages:[metadata]}),/Invalid Notes image/);
  await assert.rejects(prepareChange({domain:'catches',operation:'add',id,
   record:{id,date:'2026-10-31',speciesName:'Synthetic Salmon',picture:{src:'Catches/assets/cover.jpg'}},
   sourceRevision:'a'.repeat(40),text:'Image'}),/Catch pictures/);
