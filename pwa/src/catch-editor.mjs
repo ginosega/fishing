@@ -9,6 +9,7 @@ import {validateRecord} from './validation.mjs';
 import {parseMarkdown,markdownRouteMap,sanitizeHtml} from './markdown.mjs';
 import {applyCatchField,catchFieldValue,speciesCatchChoices,lureCatchChoices} from './catch-fields.mjs';
 import {prepareChange,narrativePath} from './handoff.mjs';
+import {createNotesMarkdownEditor} from './notes-markdown-editor.mjs';
 
 const clone=value=>structuredClone(value);
 const str=value=>typeof value==='string'?value.trim():'';
@@ -52,7 +53,7 @@ export function validatePrivateSandboxCatch(record,{sandboxOnly=false,adding=fal
 }
 
 export async function prepareCatchPackage({
- ctx,record,baseRecord=null,text:notesText='',baseText='',baseHash=null,
+ ctx,record,baseRecord=null,text:notesText='',baseText='',baseHash=null,notesImages=[],
 }={}){
  if(!ctx?.v3?.source||!(ctx.v3.source.files instanceof Set)||
   !ctx.release?.sourceRevision)
@@ -95,14 +96,14 @@ export async function prepareCatchPackage({
   const pos=items.findIndex(x=>x.id===candidate.id);
   if(pos<0)items.push(candidate);else items[pos]=candidate;
   parseMarkdown(notesText,{owner:candidate.notes,
-   maps,exists:known,pathRoutes:markdownRouteMap(data),
+   maps,exists:new Set([...known,...notesImages.map(x=>x.path)]),pathRoutes:markdownRouteMap(data),
    assetBase:ctx.base});
  }
  return prepareChange({
   domain:'catches',operation:baseRecord?'edit':'add',
   id:candidate.id,baseRecord,record:candidate,
   baseText,text:notesText,sourceRevision:ctx.release.sourceRevision,
-  notesPath:candidate.notes??expectedPath,baseFileHash:baseHash,
+  notesPath:candidate.notes??expectedPath,baseFileHash:baseHash,notesImages,
  });
 }
 
@@ -126,7 +127,7 @@ export async function createCatchEditor(ctx,{
   notesText=initialText;
   baseHash=await sha256(new TextEncoder().encode(initialText));
  }
- let pending=false,accepted=false;
+ let pending=false,accepted=false,notesEditor=null;
  const dirty=()=>!accepted&&
   (JSON.stringify(record)!==original||notesText!==initialText);
  const host=el('div',{class:'editor'}),form=el('form',{class:'editor-form'}),
@@ -141,6 +142,7 @@ export async function createCatchEditor(ctx,{
   record.id=suggestedCatchId(record,ids,{
    sandboxOnly:ctx.v3.source.sandboxOnly===true});
   idInput.value=record.id;
+  notesEditor?.syncPaths();
  };
  const dateInput=el('input',{type:'date',required:true,value:record.date});
  dateInput.addEventListener('input',()=>{
@@ -187,27 +189,14 @@ export async function createCatchEditor(ctx,{
  const lureField=createAutocomplete('lureOrBait','Lure or bait',
   lure.suggestions);
  generateId();
- const noteInput=el('textarea',{rows:12,
-  placeholder:'Optional field notes in Markdown',value:notesText});
- noteInput.addEventListener('input',()=>{
-  notesText=noteInput.value;updated();
- });
- const preview=el('div',{class:'markdown-preview',hidden:true});
- let showingPreview=false;
- const previewButton=button('Preview Markdown',()=>{
-  try{
-   const notesPath=record.notes||narrativePath('catches',record);
-   const parsed=parseMarkdown(notesText,{
-    owner:notesPath,maps:ctx.maps,exists:ctx.v3.source.files,
-    pathRoutes:markdownRouteMap(ctx.data),assetBase:ctx.base,
-    allowMissing:true,
-   });
-   preview.innerHTML=sanitizeHtml(parsed.html,window);
-   showingPreview=!showingPreview;
-   preview.hidden=!showingPreview;noteInput.hidden=showingPreview;
-   previewButton.textContent=showingPreview?'Edit Markdown':'Preview Markdown';
-   status(notice,'Markdown preview is local and has not been saved.','info');
-  }catch(error){status(notice,error.message,'error');}
+ notesEditor=createNotesMarkdownEditor({
+  domain:'catches',getRecord:()=>record,value:notesText,
+  label:'Notes (Markdown, optional)',
+  onChange:value=>{notesText=value;updated();},
+  knownPaths:()=>ctx.v3.source.files,
+  allowUpload:typeof ctx.v3.stageMedia==='function',
+  previewOptions:()=>({owner:record.notes||narrativePath('catches',record),
+   maps:ctx.maps,pathRoutes:markdownRouteMap(ctx.data),assetBase:ctx.base}),
  });
   const submit=el('button',{type:'submit',class:'btn primary'},'Save and Publish');
  const actions=toolbar(submit,button('Cancel',onBack));
@@ -216,7 +205,7 @@ export async function createCatchEditor(ctx,{
   field('Date',dateInput),field('Time (optional)',timeInput),
   field('Size (optional)',sizeInput),
   speciesField,locationField,lureField,
-  field('Notes (Markdown, optional)',noteInput),previewButton,preview,
+  notesEditor.element,
   actions,actionNotice,
  );
  form.addEventListener('submit',async event=>{
@@ -225,11 +214,17 @@ export async function createCatchEditor(ctx,{
   pending=true;submit.disabled=true;
   notice.replaceChildren();actionNotice.replaceChildren();
   try{
-   const pkg=await prepareCatchPackage({
+   notesEditor.syncPaths();
+    notesText=notesEditor.value();
+    const notesUploads=notesEditor.uploads();
+    if(notesUploads.length&&typeof ctx.v3?.stageMedia!=='function')
+     throw Error('Direct Notes image publishing requires the D4 media service.');
+    const pkg=await prepareCatchPackage({
     ctx,record,baseRecord,text:notesText,baseText:initialText,baseHash,
+     notesImages:notesUploads.map(x=>({path:x.path,bytes:x.bytes,sha256:x.sha256})),
    });
    // No local queuing, retrying, or optimistic publication confirmation.
-   const receipt=await publishChange(pkg);
+   const receipt=await publishChange(pkg,notesUploads.map(x=>({path:x.path,file:x.file})));
    if(!validReceipt(receipt))
     throw new Error('A durable Catch publication receipt was not confirmed.');
    accepted=true;
@@ -256,5 +251,5 @@ export async function createCatchEditor(ctx,{
   host.append(text('p',
    'Private sandbox: use fabricated test Catch data only. Real catches belong in the eventual production release.','hint'));
  host.append(notice,form,output);
- return {element:host,isDirty:dirty,dispose:()=>{},record};
+ return {element:host,isDirty:dirty,dispose:()=>notesEditor.dispose(),record};
 }

@@ -6,6 +6,7 @@ import {prepareChange,narrativePath,picturePath,equal} from './handoff.mjs';
 import {changePackageClipboardText} from './change-prompt.mjs';
 import {openViewer,openSequenceViewer} from './viewer.mjs';
 import {validateBrowserImage} from './image-validation.mjs';
+import {createNotesMarkdownEditor} from './notes-markdown-editor.mjs';
 
 const clone=value=>structuredClone(value);
 function serialize(record){return JSON.stringify(record);}
@@ -28,7 +29,7 @@ const acceptedImages='.jpg,.jpeg,.png,.webp,.gif,image/jpeg,image/png,image/webp
 export async function createEditor(ctx,{domain,baseRecord=null,category=null,type=null,onBack,onExit,onPrepared,onDirty,publishChange=null}){
  const editing=Boolean(baseRecord),key=domain==='gear'?'notes':'content',record=baseRecord?clone(baseRecord):{id:'',name:'',...(domain==='gear'?{category:category||'lures',type:'',specifications:[],links:[]}:{type:type||'technique',content:''})};
  if(!editing&&domain==='gear')record.type=(record.category==='rods-reels'?ROD_TYPES:record.category==='accessories'?EQUIPMENT_TYPES:TAXONOMY[record.category])[0];
- let baseText='',body='',baseHash=null,mediaAction='keep',fileInfo=null,previewUrl=null,sequenceInfos=[],sequenceUrls=[],prepared=null,savePending=false,saveAccepted=false;
+ let baseText='',body='',baseHash=null,mediaAction='keep',fileInfo=null,previewUrl=null,sequenceInfos=[],sequenceUrls=[],prepared=null,savePending=false,saveAccepted=false,notesEditor=null;
  if(baseRecord?.[key]){
   let bytes;
   if(ctx.v3?.source?.markdown instanceof Map){
@@ -62,6 +63,7 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
      new Set(ctx.data[domain][DOMAIN[domain].array].map(x=>x.id)),
      {sandboxOnly:ctx.v3?.source?.sandboxOnly===true}):'';
     idInput.value=record.id;
+    notesEditor?.syncPaths();
     recalcSequencePaths();
     // An unsubmitted new record's image and Knot paths follow its
     // generated ID when the owner changes Name after selecting files.
@@ -169,12 +171,42 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
  renderActionOptions(false);renderPicture();
  form.insertBefore(section('Picture',pictureHost),nameField.nextElementSibling.nextElementSibling);
 
- const textArea=el('textarea',{rows:14,class:'markdown-editor',value:body,spellcheck:true});textArea.addEventListener('input',()=>{body=textArea.value;changed();});
- const preview=el('div',{class:'markdown-preview',hidden:true});let showPreview=false;
- const previewButton=button('Preview Markdown',()=>{
-  try{const owner=record[key]||narrativePath(domain,record),previewRecord=clone(record);if(!previewRecord[key])previewRecord[key]=owner;const {maps,routes}=editorMaps(ctx,domain,previewRecord);const parsed=parseMarkdown(body,{owner,maps,assetBase:ctx.base,exists:knownPaths(ctx),pathRoutes:routes,allowMissing:true});const unresolved=parsed.references.filter(r=>r.local&&!knownPaths(ctx).has(r.local));if(unresolved.length)throw new Error('Upload referenced local files first: '+unresolved.map(r=>r.local).join(', '));preview.innerHTML=sanitizeHtml(parsed.html,window);showPreview=!showPreview;preview.hidden=!showPreview;textArea.hidden=showPreview;previewButton.textContent=showPreview?'Edit Markdown':'Preview Markdown';status(notice,'Markdown preview is local and has not been saved.','info');}catch(error){status(notice,error.message,'error');}
- });
- form.append(section('Notes',field('Markdown',textArea),previewButton,preview));
+ const v3Notes=Boolean(publishChange&&ctx.v3?.source);
+ if(v3Notes){
+  notesEditor=createNotesMarkdownEditor({
+   domain,getRecord:()=>record,value:body,label:'Markdown',
+   onChange:value=>{body=value;changed();},
+   knownPaths:()=>knownPaths(ctx),allowUpload:typeof ctx.v3?.stageMedia==='function',
+   previewOptions:()=>{
+    const owner=record[key]||narrativePath(domain,record);
+    const previewRecord=clone(record);
+    if(!previewRecord[key])previewRecord[key]=owner;
+    const {maps,routes}=editorMaps(ctx,domain,previewRecord);
+    return {owner,maps,assetBase:ctx.base,pathRoutes:routes};
+   },
+  });
+  form.append(section('Notes',notesEditor.element));
+ }else{
+  const textArea=el('textarea',{rows:14,class:'markdown-editor',value:body,spellcheck:true});
+  textArea.addEventListener('input',()=>{body=textArea.value;changed();});
+  const preview=el('div',{class:'markdown-preview',hidden:true});let showPreview=false;
+  const previewButton=button('Preview Markdown',()=>{
+   try{
+    const owner=record[key]||narrativePath(domain,record),previewRecord=clone(record);
+    if(!previewRecord[key])previewRecord[key]=owner;
+    const {maps,routes}=editorMaps(ctx,domain,previewRecord);
+    const parsed=parseMarkdown(body,{owner,maps,assetBase:ctx.base,
+     exists:knownPaths(ctx),pathRoutes:routes,allowMissing:true});
+    const unresolved=parsed.references.filter(r=>r.local&&!knownPaths(ctx).has(r.local));
+    if(unresolved.length)throw Error('Upload referenced local files first: '+unresolved.map(r=>r.local).join(', '));
+    preview.innerHTML=sanitizeHtml(parsed.html,window);showPreview=!showPreview;
+    preview.hidden=!showPreview;textArea.hidden=showPreview;
+    previewButton.textContent=showPreview?'Edit Markdown':'Preview Markdown';
+    status(notice,'Markdown preview is local and has not been saved.','info');
+   }catch(error){status(notice,error.message,'error');}
+  });
+  form.append(section('Notes',field('Markdown',textArea),previewButton,preview));
+ }
  const actionNotice=el('div',{class:'editor-notice','aria-live':'assertive'});
  const prepareButton=button(publishChange?'Save and Publish':'Prepare Changes',()=>form.requestSubmit(),{variant:'primary'});
  form.addEventListener('submit',async event=>{
@@ -189,6 +221,9 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
    if(!editing&&ctx.v3?.source?.sandboxOnly===true&&
       !record.id.startsWith('p3-'))
     throw new Error('Private sandbox IDs must begin with p3-. Update the ID before publishing.');
+   notesEditor?.syncPaths();
+   body=notesEditor?.value()??body;
+   const notesUploads=notesEditor?.uploads()??[];
    const candidate=clone(record),sequenceSet=SEQUENCE_ACTIONS.has(mediaAction);
    // Keep can restore undefined optional properties. Strict schema forbids
    // pictureSequence on Gear even when its value is undefined.
@@ -209,22 +244,23 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
    if(!editing){if(body)candidate[key]=narrativePath(domain,candidate);else delete candidate[key];}
    if(domain==='kb'&&!body.trim())throw new Error('Knowledge Base Notes are required.');
    const result=editorMaps(ctx,domain,candidate);validateRecord(candidate,domain,ctx.data);
-   const owner=candidate[key]||narrativePath(domain,candidate),parsed=parseMarkdown(body,{owner,maps:result.maps,assetBase:ctx.base,exists:knownPaths(ctx),pathRoutes:result.routes});void parsed;
+   const owner=candidate[key]||narrativePath(domain,candidate),parsed=parseMarkdown(body,{owner,maps:result.maps,assetBase:ctx.base,exists:new Set([...knownPaths(ctx),...notesUploads.map(x=>x.path)]),pathRoutes:result.routes});void parsed;
    if(candidate.picture&&!knownPaths(ctx).has(candidate.picture.src)&&!fileInfo&&!sequenceSet)throw new Error('The picture is not in this release. Select its local file before preparing or upload the original to the repository first.');
    if(fileInfo&&candidate.picture.src!==picturePath(domain,candidate,fileInfo.name))throw new Error('The selected file must use its proposed repository path.');
    if(fileInfo&&knownPaths(ctx).has(candidate.picture.src)){const existingFile=knownFiles(ctx).get(candidate.picture.src);if(existingFile.sha256!==fileInfo.sha256&&!['replace-static','replace-with-static'].includes(mediaAction))throw new Error('A different file already exists at this path. Use an explicit replacement.');}
    if(sequenceSet){for(const info of sequenceInfos){const existingFile=knownFiles(ctx).get(info.path);if(existingFile&&existingFile.sha256!==info.sha256&&mediaAction==='add-sequence')throw new Error(`A different file already exists at ${info.path}. Use an explicit replacement.`);}}
    let pictureAction='keep';if(mediaAction==='remove-picture')pictureAction=baseRecord?.picture?'remove':'keep';else if(sequenceSet||STATIC_FILE_ACTIONS.has(mediaAction))pictureAction=editing&&baseRecord?.picture?'replace':'add';else if(editing&&!equal(baseRecord.picture,candidate.picture))pictureAction=candidate.picture?'replace':'remove';
    let pictureSequenceAction='keep';if(sequenceSet)pictureSequenceAction='set';else if(editing&&baseRecord?.pictureSequence&&!candidate.pictureSequence)pictureSequenceAction='remove';
-   prepared??=await prepareChange({domain,operation:editing?'edit':'add',id:candidate.id,baseRecord,record:candidate,baseText,text:body,sourceRevision:ctx.release.sourceRevision,notesPath:candidate[key]||narrativePath(domain,candidate),baseFileHash:baseHash,pictureAction,picturePath:candidate.picture?.src,pictureFile:sequenceSet?null:fileInfo,pictureSequenceAction,pictureSequencePaths:candidate.pictureSequence,pictureSequenceFiles:sequenceSet?sequenceInfos.map(x=>({path:x.path,bytes:x.bytes,sha256:x.sha256})):undefined});
+   prepared??=await prepareChange({domain,operation:editing?'edit':'add',id:candidate.id,baseRecord,record:candidate,baseText,text:body,sourceRevision:ctx.release.sourceRevision,notesPath:candidate[key]||narrativePath(domain,candidate),baseFileHash:baseHash,pictureAction,picturePath:candidate.picture?.src,pictureFile:sequenceSet?null:fileInfo,pictureSequenceAction,pictureSequencePaths:candidate.pictureSequence,pictureSequenceFiles:sequenceSet?sequenceInfos.map(x=>({path:x.path,bytes:x.bytes,sha256:x.sha256})):undefined,notesImages:notesUploads.map(x=>({path:x.path,bytes:x.bytes,sha256:x.sha256}))});
    if(publishChange){
     // Isolated V3 owner-only interface. The server independently verifies
     // authentication, CSRF, canonical source and repository target.
-    if((pictureAction!=='keep'||pictureSequenceAction!=='keep')&&
+    if((pictureAction!=='keep'||pictureSequenceAction!=='keep'||notesUploads.length)&&
       typeof ctx.v3?.stageMedia!=='function')
      throw new Error('Direct picture publishing requires the D4 media service. Your edit is preserved.');
     const files=sequenceSet?sequenceInfos.map(i=>({path:i.path,file:i.file})):
      fileInfo?[{path:candidate.picture.src,file:fileInfo.file}]:[];
+    files.push(...notesUploads.map(x=>({path:x.path,file:x.file})));
     const receipt=await publishChange(prepared,files);
     if(receipt?.accepted!==true||!/^p3_[a-f0-9-]{36}$/.test(receipt.operationId??''))
      throw new Error('A durable publication receipt was not confirmed. Keep your edit.');
@@ -262,5 +298,5 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
   finally{savePending=false;if(!saveAccepted)prepareButton.disabled=false;}
  });
  const actions=toolbar(prepareButton,button('Cancel',onBack));form.append(actions,actionNotice);host.append(notice,form,output);
- return {element:host,isDirty:dirty,dispose:()=>{revokeLocal();},record};
+ return {element:host,isDirty:dirty,dispose:()=>{revokeLocal();notesEditor?.dispose();},record};
 }

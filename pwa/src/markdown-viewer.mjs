@@ -21,7 +21,7 @@ export function bindMarkdownPictureViewer(article,{references,resolveAsset,openV
   }catch{return;}
   if(rendered!==expected)return;
   const alt=img.getAttribute('alt')||'Picture';
-  const caption=img.getAttribute('title')||'';
+  const caption=reference.viewerCaption||'';
   const fallback=()=>{
    const label=article.ownerDocument.createElement('span');
    label.className='markdown-image-unavailable';
@@ -32,6 +32,7 @@ export function bindMarkdownPictureViewer(article,{references,resolveAsset,openV
   if(reference.missing===true){
    img.replaceWith(fallback());return;
   }
+  if(reference.viewerEnabled!==true)return;
   const source=resolveAsset(reference.local);
   // Candidate acceptance uses a loopback secure-context exception. Never
   // permit plaintext remote images, even when the original Markdown target

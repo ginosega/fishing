@@ -118,8 +118,8 @@ export function createD3SandboxGearKBPRAdapter({
       // PR builder re-reads exact original bytes using its own scoped token.
       if(item?.action==='staged'){
         stagedStarted=true;
-        need(['gear','kb'].includes(domain)&&typeof item.path==='string'&&
-         item.path.startsWith('pwa/'+(domain==='gear'?'Gear/':'KB/'))&&
+        need(['gear','kb','catches'].includes(domain)&&typeof item.path==='string'&&
+         item.path.startsWith('pwa/'+(domain==='gear'?'Gear/':domain==='kb'?'KB/':'Catches/'))&&
          item.path.includes('/assets/')&&
          /\.(jpe?g|png|webp|gif)$/i.test(item.path)&&
          SHA.test(item.blobSha??'')&&

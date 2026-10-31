@@ -49,7 +49,7 @@ test('D5-V01 strict writer still rejects missing Markdown images, V3 reader degr
   {allowMissingImages:true}),/Remote or unsafe Markdown image/);
 });
 test('D5-V02 V3 local Markdown pictures open full original with accessible button and caption',()=>{
- const parsed=parsedMarkdown('![Synthetic knot](../assets/step-01.jpg "Step 1")');
+ const parsed=parsedMarkdown('![Synthetic knot](../assets/step-01.jpg "viewer: Step 1")');
  const reference=parsed.references[0];
  assert.equal(reference.kind,'local');
  assert.equal(reference.isImage,true);
@@ -76,7 +76,7 @@ test('D5-V02 V3 local Markdown pictures open full original with accessible butto
   /Picture unavailable: Synthetic knot/);
 });
 test('D5-V03 image inside a normal link keeps link behavior, no contradictory viewer action',()=>{
- const parsed=parsedMarkdown('[![Synthetic knot](../assets/step-01.jpg)](https://example.com)');
+ const parsed=parsedMarkdown('[![Synthetic knot](../assets/step-01.jpg "viewer")](https://example.com)');
  assert.equal(parsed.references.filter(x=>x.isImage===true).length,1);
  const ref=parsed.references.find(x=>x.isImage===true);
  const {article,imageNode}=fixture({src:ref.target,linked:true});
@@ -116,7 +116,7 @@ test('D5-V04 missing image never starts fetch; mismatched sanitized source refus
  assert.equal(resolved,0);
 });
 test('D5-V05 unexpected extra sanitized images do not obtain viewer controls',()=>{
- const parsed=parsedMarkdown('![Synthetic knot](../assets/step-01.jpg)');
+ const parsed=parsedMarkdown('![Synthetic knot](../assets/step-01.jpg "viewer")');
  const ref=parsed.references[0];
  const fake=fixture({src:ref.target});
  fake.article.querySelectorAll=()=>[fake.imageNode,fake.imageNode];
@@ -141,7 +141,7 @@ test('D5-V06 ordinary V2 Markdown reference kinds and fields are unchanged',()=>
  const v3=parsedMarkdown('![Synthetic knot](../assets/step-01.jpg)');
  assert.equal(v3.references[0].kind,'local');
  assert.equal(v3.references[0].isImage,true);
- const linked=parsedMarkdown('[![Synthetic knot](../assets/step-01.jpg)](https://example.com)');
+ const linked=parsedMarkdown('[![Synthetic knot](../assets/step-01.jpg "viewer")](https://example.com)');
  assert.equal(linked.references.filter(x=>x.isImage===true).length,1);
  assert.equal(linked.references.filter(x=>x.kind==='external').length,1);
 });
@@ -153,7 +153,7 @@ test('D5-V07 loopback candidate shows Banks Lake-style local Markdown PNG in ful
  const north='KB/Locations/content/Banks-Lake-Steamboat-Rock-State-Park-North.png';
  const localBase='http://127.0.0.1:4173/fishing/__v3_reader_candidate__/releases/'+'a'.repeat(32)+'/';
  const parsed=parseMarkdown(
-  '| South | North |\n| --- | --- |\n| ![South](./Banks-Lake-Steamboat-Rock-State-Park-South.png) | ![North](./Banks-Lake-Steamboat-Rock-State-Park-North.png) |',
+  '| South | North |\n| --- | --- |\n| ![South](./Banks-Lake-Steamboat-Rock-State-Park-South.png "viewer") | ![North](./Banks-Lake-Steamboat-Rock-State-Park-North.png "viewer") |',
   {owner:banksOwner,maps:{},assetBase:localBase,viewerImages:true,
    exists:new Set([south,north])});
  const imgs=parsed.references.filter(x=>x.isImage===true);
@@ -176,7 +176,7 @@ test('D5-V07 loopback candidate shows Banks Lake-style local Markdown PNG in ful
 });
 
 test('D5-V08 viewer refuses non-loopback plaintext and credential-bearing original assets',()=>{
- const parsed=parsedMarkdown('![Synthetic knot](../assets/step-01.jpg)');
+ const parsed=parsedMarkdown('![Synthetic knot](../assets/step-01.jpg "viewer")');
  for(const url of [
   'http://example.com/original.jpg',
   'http://user:password@127.0.0.1:4173/original.jpg',
@@ -188,4 +188,30 @@ test('D5-V08 viewer refuses non-loopback plaintext and credential-bearing origin
   }),true);
   assert.equal(imageNode.replacement,null,'untrusted asset must not gain viewer');
  }
+});
+
+test('D5-V09 opt-in image viewer leaves untagged photos ordinary',()=>{
+ const regular=parsedMarkdown('![Synthetic knot](../assets/step-01.jpg)');
+ const tagged=parsedMarkdown('![Synthetic knot](../assets/step-01.jpg "viewer")');
+ const captioned=parsedMarkdown('![Synthetic knot](../assets/step-01.jpg "viewer: Caption of fish")');
+ assert.equal(regular.references[0].viewerEnabled,false);
+ assert.equal(tagged.references[0].viewerEnabled,true);
+ assert.equal(captioned.references[0].viewerEnabled,true);
+ assert.equal(captioned.references[0].viewerCaption,'Caption of fish');
+ const item=fixture({src:regular.references[0].target});
+ let called=0;
+ assert.equal(bindMarkdownPictureViewer(item.article,{
+  references:regular.references,resolveAsset:()=>{called++;return 'https://example.test/original.jpg';},
+  openViewer:()=>{called++;},
+ }),true);
+ assert.equal(item.imageNode.replacement,null);
+ assert.equal(called,0);
+ const active=fixture({src:captioned.references[0].target,title:'Caption of fish'});
+ let args;
+ assert.equal(bindMarkdownPictureViewer(active.article,{
+  references:captioned.references,resolveAsset:()=> 'https://example.test/original.jpg',
+  openViewer:(...v)=>{args=v;},
+ }),true);
+ active.imageNode.replacement.handlers.click();
+ assert.equal(args[2],'Caption of fish');
 });

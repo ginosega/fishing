@@ -151,7 +151,7 @@ export function createD3AuthoringClient({
    ['gear','kb','catches'].includes(pkg.domain)&&['add','edit'].includes(pkg.operation),
    'INVALID_CHANGE');
   need(Array.isArray(media)&&media.length<=24,'INVALID_MEDIA_RECEIPTS');
-  const needsMedia=pkg.picture?.action!=='keep'||
+  const needsMedia=(pkg.notes?.images?.length??0)>0||pkg.picture?.action!=='keep'||
    (pkg.pictureSequence?.action??'keep')!=='keep'||media.length>0;
   need(!needsMedia||mediaReady,'MEDIA_UNAVAILABLE');
   let expected;

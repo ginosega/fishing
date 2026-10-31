@@ -6,7 +6,7 @@
  * transfer and durable staging protocol remains a separate D4 gate.
  */
 import {safePath,pathKey,sha256} from '../../../../pwa/src/shared.mjs';
-import {validatePackage} from '../../../../pwa/src/handoff.mjs';
+import {validatePackage,validInlineNoteImagePath} from '../../../../pwa/src/handoff.mjs';
 
 const MAX_FILE=10*1024*1024,MAX_TOTAL=48*1024*1024,MAX_FILES=24;
 const allowed=Object.freeze({
@@ -32,7 +32,7 @@ export const d4ImageMime=bytes=>{
 export function d4MediaPath(raw){
  let path;try{path=safePath(raw);}catch{deny('UNSAFE_MEDIA_PATH');}
  const parts=path.split('/'),ext=parts.at(-1).split('.').at(-1)?.toLowerCase();
- need(allowed[ext]&&['Gear','KB'].includes(parts[0])&&
+ need(allowed[ext]&&['Gear','KB','Catches'].includes(parts[0])&&
   parts.includes('assets')&&parts.length>=4,'UNSAFE_MEDIA_PATH');
  return path;
 }
@@ -41,7 +41,7 @@ const metadata=m=>m&&Number.isSafeInteger(m.bytes)&&m.bytes>0&&
 
 export async function verifyD4MediaManifest({package:pkg,uploads=[]}={}){
  try{validatePackage(pkg);}catch{deny('INVALID_PACKAGE');}
- need(['gear','kb'].includes(pkg.domain)&&Array.isArray(uploads)&&
+ need(['gear','kb','catches'].includes(pkg.domain)&&Array.isArray(uploads)&&
   uploads.length<=MAX_FILES,'INVALID_MEDIA_REQUEST');
  const picture=pkg.picture??{action:'keep'};
  const sequence=pkg.pictureSequence??{action:'keep'};
@@ -68,6 +68,12 @@ export async function verifyD4MediaManifest({package:pkg,uploads=[]}={}){
   const path=d4MediaPath(picture.path);
   need(metadata(picture.file),'MISSING_MEDIA_METADATA');
   expected.set(path,picture.file);
+ }
+ for(const item of pkg.notes.images??[]){
+  const path=d4MediaPath(item.path);
+  need(validInlineNoteImagePath(pkg.domain,pkg.id,path)&&metadata(item)&&!expected.has(path),
+   'INVALID_INLINE_NOTES_IMAGE');
+  expected.set(path,item);
  }
  need(expected.size===uploads.length,'MEDIA_COUNT_MISMATCH');
  const seen=new Set(),files=[];let total=0;

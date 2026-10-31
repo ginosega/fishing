@@ -168,3 +168,38 @@
 
 /* V3: keep one Prepare/Update button compact on narrow screens. */
 .v3-connection-dialog .v3-offline-actions>.btn{flex:0 0 auto}
+
+/* V3 shared Markdown Notes workspace: compact toolbar, full-viewport editing
+   and accessible image insertion. V2 legacy fields use none of these classes. */
+.notes-editor{min-width:0;display:flex;flex-direction:column;gap:12px}
+.notes-toolbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.notes-toolbar .btn,.notes-image-actions .btn{width:auto;max-width:max-content;flex:none;margin:0;padding:8px 12px}
+.notes-toolbar>.btn:last-child{margin-left:auto}
+.notes-editor .field{min-width:0}
+.notes-editor .markdown-editor{width:100%;resize:vertical;min-height:230px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;line-height:1.55}
+.notes-editor .markdown-preview{min-height:230px;overflow:auto;padding:16px}
+.notes-editor.expanded{position:fixed;inset:2.5vh 2.5vw;z-index:1200;
+ background:var(--surface);color:var(--ink);border:1px solid var(--border);
+ border-radius:16px;box-shadow:0 14px 70px #0009;padding:16px;
+ overflow:auto;max-width:none;max-height:none}
+.notes-editor.expanded>.field{display:flex;flex:1;flex-direction:column;min-height:0}
+.notes-editor.expanded .markdown-editor{flex:1;min-height:55vh;resize:none}
+.notes-editor.expanded .markdown-preview{flex:1;min-height:55vh}
+.notes-editor.expanded .notes-toolbar{position:sticky;top:-16px;
+ background:var(--surface);z-index:2;padding:8px 0}
+.notes-image-panel{border:1px solid var(--border);border-radius:12px;
+ padding:15px;display:grid;gap:12px;background:var(--background)}
+.notes-image-panel[hidden]{display:none}
+.notes-image-panel h3{margin:0}
+.notes-image-thumb img{display:block;max-width:min(100%,360px);max-height:230px;object-fit:contain}
+.notes-image-thumb p{margin:4px 0;color:var(--muted)}
+.notes-viewer-checkbox{display:flex;align-items:center;gap:9px}
+.notes-viewer-checkbox input{width:auto}
+.notes-image-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.notes-editor-message:empty{display:none}
+@media(max-width:650px){
+ .notes-editor.expanded{inset:0;border-radius:0;padding:12px}
+ .notes-toolbar{gap:6px}
+ .notes-toolbar .btn{padding:8px}
+ .notes-editor.expanded .markdown-editor{min-height:60vh}
+}

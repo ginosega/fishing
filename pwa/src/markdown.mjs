@@ -35,8 +35,41 @@ export function resolveMarkdownTarget(url,{owner,maps,assetBase,pathRoutes=new M
  if(route)return {target:route+section(fragment),kind:'internal',local};
  return {target:new URL('content/'+encodedPath(local)+query+fragment,assetBase).href,kind:'local',local};
 }
+// Markdown-it deliberately has raw HTML disabled. Permit only <br/>
+// as a table-cell line separator; homogeneous hyphen/number groups become
+// semantic lists. Never interpret arbitrary HTML or enable html:true.
+function tableCellBreaks(tokens){
+ const html=content=>({type:'html_inline',content});
+ for(let i=0;i<tokens.length-2;i++){
+  if(tokens[i].type!=='td_open'||tokens[i+1].type!=='inline'||
+   tokens[i+2].type!=='td_close')continue;
+  const cell=tokens[i+1],parts=cell.content.split(/<br\s*\/>/i);
+  if(parts.length===1)continue;
+  const entries=parts.map(s=>s.trim());
+  const kinds=entries.map(s=>/^[-] +/.test(s)?'ul':/^\d+\. +/.test(s)?'ol':null);
+  const same=kinds[0]&&kinds.every(k=>k===kinds[0]);
+  const children=[];
+  if(same){
+   const tag=kinds[0],start=tag==='ol'?Number(entries[0].match(/^(\d+)\./)[1]):1;
+   children.push(html(tag==='ol'&&start!==1?'<ol start="'+start+'">':'<'+tag+'>'));
+   entries.forEach(entry=>{
+    children.push(html('<li>'));
+    children.push(...(md.parseInline(entry.replace(/^(-|\d+\.) +/,''),{})[0]?.children||[]));
+    children.push(html('</li>'));
+   });
+   children.push(html('</'+tag+'>'));
+  }else{
+   entries.forEach((entry,j)=>{
+    if(j)children.push(html('<br/>'));
+    children.push(...(md.parseInline(entry,{})[0]?.children||[]));
+   });
+  }
+  cell.children=children;
+ }
+}
 export function parseMarkdown(text,{owner,maps,assetBase='https://example.invalid/fishing/releases/test/',exists,pathRoutes=new Map(),ownerRoute,allowMissing=false,allowMissingImages=false,viewerImages=false}={}){
  const tokens=md.parse(text,{}),references=[];
+ tableCellBreaks(tokens);
  function walk(items){for(const token of items){
   if(token.children)walk(token.children);
   if(token.type!=='link_open'&&token.type!=='image')continue;
@@ -46,13 +79,19 @@ export function parseMarkdown(text,{owner,maps,assetBase='https://example.invali
   if(image){
    if(resolved.kind!=='local'||!imageExtension.test(resolved.local)||/[?#]/.test(original))throw new Error(`Remote or unsafe Markdown image: ${owner} -> ${original}`);
   }
+  const pictureTitle=image?token.attrGet('title')||'':'';
+  const viewerMatch=viewerImages&&image?/^viewer(?:\s*:\s*(.*))?$/i.exec(pictureTitle.trim()):null;
+  if(viewerMatch){
+   if(viewerMatch[1])token.attrSet('title',viewerMatch[1]);
+   else token.attrRemove('title');
+  }
   const missing=Boolean(resolved.local&&exists&&!exists.has(resolved.local));
   if(missing&&!allowMissing&&!(image&&allowMissingImages))throw new Error(`Missing Markdown resource: ${owner} -> ${resolved.local}`);
   // Keep the historical `kind` (local/internal/external) unchanged: it is
   // supplied by resolveMarkdownTarget and is part of the V2 contract.
   // Only explicitly opted-in V3 readers need the image-vs-link marker.
   references.push({owner,kind:image?'image':'link',source:original,...resolved,
-   ...(viewerImages&&image?{isImage:true}:{}),
+   ...(viewerImages&&image?{isImage:true,viewerEnabled:Boolean(viewerMatch),viewerCaption:viewerMatch?.[1]||''}:{}),
    ...(image&&missing&&allowMissingImages?{missing:true}:{})});token.attrSet(attr,resolved.target);if(!image&&resolved.kind==='external'){token.attrSet('target','_blank');token.attrSet('rel','noopener noreferrer');}
  }}
  walk(tokens);

@@ -198,7 +198,7 @@ export function createD3GuardedOperationsApi({
         }
         let candidate;
         const pkg=body.snapshot.package,media=body.snapshot.media;
-        const mediaChanged=pkg.picture.action!=='keep'||
+        const mediaChanged=(pkg.notes.images?.length??0)>0||pkg.picture.action!=='keep'||
           (pkg.pictureSequence?.action??'keep')!=='keep'||media.length>0;
         requireTrue(!mediaChanged||mediaEnabled()===true,
           'MEDIA_UNAVAILABLE');

@@ -6,12 +6,12 @@
  * and tree inventory semantics. The trusted loadSnapshot adapter must verify
  * immutable GitHub blob SHAs and ref before AND after using this candidate.
  */
-import {promoteChange,validatePackage,ChangeConflictError,narrativePath,picturePath}
+import {promoteChange,validatePackage,ChangeConflictError,narrativePath,picturePath,validInlineNoteImagePath}
  from '../../../../pwa/src/handoff.mjs';
 import {validateRecords,validateRecord,collectPaths,checkPathCollisions}
  from '../../../../pwa/src/validation.mjs';
 import {parseMarkdown,markdownRouteMap} from '../../../../pwa/src/markdown.mjs';
-import {DOMAIN,fingerprint,safePath,pathKey} from '../../../../pwa/src/shared.mjs';
+import {DOMAIN,fingerprint,safePath,pathKey,categoryFolder} from '../../../../pwa/src/shared.mjs';
 
 const REPO_ID=1430581407,OWNER=265665562;
 const SHA=/^[a-f0-9]{40}$/,HASH=/^[a-f0-9]{64}$/;
@@ -75,13 +75,14 @@ export function createD3TrustedGearKBCandidate({loadSnapshot,enabled=()=>false,
   for(const p of snapshot.files)allKeys.add(pathKey(p));
   for(const item of staged){
    const path=textPath(item.path),key=pathKey(path);
-   check(['gear','kb'].includes(pkg.domain)&&
-    path.startsWith(pkg.domain==='gear'?'Gear/':'KB/')&&
+   check(['gear','kb','catches'].includes(pkg.domain)&&
+    path.startsWith(pkg.domain==='gear'?'Gear/':pkg.domain==='kb'?'KB/':'Catches/')&&
     /^[a-f0-9]{64}$/.test(item.sha256)&&
     /^[a-f0-9]{40}$/.test(item.blobSha)&&
     Number.isSafeInteger(item.bytes)&&item.bytes>0,
     'UNSAFE_MEDIA_CANDIDATE');
-   if(pkg.picture.action==='add')check(!allKeys.has(key),'MEDIA_PATH_COLLISION');
+   if(pkg.picture.action==='add'||(pkg.notes.images??[]).some(x=>x.path===path))
+    check(!allKeys.has(key),'MEDIA_PATH_COLLISION');
    filesWithMedia.add(path);
   }
   const array=DOMAIN[pkg.domain].array;
@@ -131,10 +132,18 @@ export function createD3TrustedGearKBCandidate({loadSnapshot,enabled=()=>false,
     check(snapshot.files.has(pkg.picture.path),'MISSING_EXISTING_PICTURE');
   const previousPaths=new Set([current?.picture?.src,
    ...(current?.pictureSequence??[])].filter(Boolean));
+  const inlinePaths=new Set((pkg.notes.images??[]).map(x=>x.path));
+  const imageRoot=pkg.domain==='catches'?'Catches':
+   categoryFolder(pkg.domain,pkg.domain==='gear'?candidate.record.category:candidate.record.type);
   for(const item of staged){
+   if(inlinePaths.has(item.path)){
+    check(item.path.startsWith(imageRoot+'/assets/'+pkg.id+'/notes/')&&
+     validInlineNoteImagePath(pkg.domain,pkg.id,item.path)&&
+     !snapshot.files.has(item.path),'UNOWNED_MEDIA_PATH');
+    continue;
+   }
    if(snapshot.files.has(item.path))
-    check(pkg.operation==='edit'&&previousPaths.has(item.path),
-     'MEDIA_PATH_COLLISION');
+    check(pkg.operation==='edit'&&previousPaths.has(item.path),'MEDIA_PATH_COLLISION');
    if((pkg.pictureSequence?.action??'keep')!=='set')
     check(item.path===picturePath(pkg.domain,candidate.record,
      item.path.split('/').at(-1)),'UNOWNED_MEDIA_PATH');

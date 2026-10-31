@@ -1,4 +1,4 @@
-import {canonical,fingerprint,sha256,safePath,assert,DOMAIN,categoryFolder,suggestedFilename} from './shared.mjs';
+import {canonical,fingerprint,sha256,safePath,pathKey,assert,DOMAIN,categoryFolder,suggestedFilename} from './shared.mjs';
 export const HANDOFF_FORMAT='fishing-companion-change-v2';
 const ABSENT=Object.freeze({$absent:true});
 const narrativeKey=domain=>domain==='kb'?'content':'notes';
@@ -14,9 +14,20 @@ export function narrativePath(domain,record){
  return categoryFolder(domain,domain==='gear'?record.category:record.type)+'/content/'+suggestedFilename(record.name);
 }
 export function picturePath(domain,record,filename){return safePath(categoryFolder(domain,domain==='gear'?record.category:record.type)+'/assets/'+filename);}
+// Inline Notes images are separate from a record's representative picture.
+export function validInlineNoteImagePath(domain,id,path){
+ if(!['gear','kb','catches'].includes(domain)||!(/^[a-z0-9][a-z0-9-]*$/).test(id))return false;
+ try{safePath(path);}catch{return false;}
+ if(domain==='catches')return path.startsWith('Catches/assets/'+id+'/notes/')&&
+  path.split('/').length===5&&/\.(?:jpe?g|png|webp|gif)$/i.test(path);
+ const root=domain==='gear'?'Gear/':'KB/';
+ return path.startsWith(root)&&
+  new RegExp('^'+root+'[^/]+/assets/'+id+'/notes/[^/]+$').test(path)&&
+  /\.(?:jpe?g|png|webp|gif)$/i.test(path);
+}
 export class ChangeConflictError extends Error{constructor(conflicts){super(`Change requires review: ${conflicts.join(', ')}`);this.name='ChangeConflictError';this.conflicts=conflicts;}}
 function validFileMeta(file){return file&&Number.isSafeInteger(file.bytes)&&file.bytes>0&&/^[a-f0-9]{64}$/.test(file.sha256);}
-export async function prepareChange({domain,operation,id,baseRecord,record,baseText='',text='',sourceRevision,notesPath,pictureAction='keep',picturePath:requestedPicturePath,baseFileHash,pictureFile,pictureSequenceAction='keep',pictureSequencePaths,pictureSequenceFiles}={}){
+export async function prepareChange({domain,operation,id,baseRecord,record,baseText='',text='',sourceRevision,notesPath,pictureAction='keep',picturePath:requestedPicturePath,baseFileHash,pictureFile,pictureSequenceAction='keep',pictureSequencePaths,pictureSequenceFiles,notesImages=[]}={}){
  assert(['gear','kb','catches'].includes(domain),'Unsupported authoring domain');
  assert(['add','edit'].includes(operation),'Unsupported operation');
  if(domain==='catches')assert(!record?.picture&&!record?.pictureSequence&&
@@ -47,6 +58,16 @@ export async function prepareChange({domain,operation,id,baseRecord,record,baseT
   }else if(previous)result.notes={action:'remove',path:previous,baseSha256:baseFileHash||await sha256(baseText)};
   else result.notes={action:'keep'};
  }else result.notes={action:'keep'};
+ assert(Array.isArray(notesImages)&&notesImages.length<=24,'Invalid inline Notes media');
+ if(notesImages.length){
+  assert(['create','replace'].includes(result.notes.action),'Inline media require a Notes change');
+  const seen=new Set();
+  result.notes.images=notesImages.map(item=>{
+   assert(validInlineNoteImagePath(domain,id,item.path)&&validFileMeta(item),'Invalid Notes image');
+   const k=pathKey(item.path);assert(!seen.has(k),'Duplicate Notes image');seen.add(k);
+   return {path:item.path,bytes:item.bytes,sha256:item.sha256};
+  });
+ }
  assert(['keep','add','replace','remove'].includes(pictureAction),'Invalid picture action');
  if(pictureAction==='keep'&&operation==='edit'&&!equal(baseRecord.picture,record.picture))throw new Error('Picture changes require an explicit action');
  if(pictureAction==='keep'&&operation==='add'&&record.picture)throw new Error('New pictures require an explicit action');
@@ -86,6 +107,17 @@ export function validatePackage(pkg){
   'Catch media is not supported');
  const sequence=pkg.pictureSequence||{action:'keep'};assert(['keep','set','remove'].includes(sequence.action),'Invalid picture-sequence action');
  if(pkg.notes.action!=='keep')safePath(pkg.notes.path);
+ if(pkg.notes.images!==undefined){
+  assert(['create','replace'].includes(pkg.notes.action)&&
+   Array.isArray(pkg.notes.images)&&pkg.notes.images.length>0&&
+   pkg.notes.images.length<=24,'Invalid inline Notes media');
+  const seen=new Set();
+  for(const item of pkg.notes.images){
+   assert(item&&validInlineNoteImagePath(pkg.domain,pkg.id,item.path)&&validFileMeta(item),
+    'Invalid Notes image metadata');
+   const k=pathKey(item.path);assert(!seen.has(k),'Duplicate Notes image');seen.add(k);
+  }
+ }
  if(['add','replace'].includes(pkg.picture.action))safePath(pkg.picture.path);
  if(sequence.action==='set'){
   assert(pkg.domain==='kb','Picture sequences are Knowledge Base only');assert(Array.isArray(sequence.paths)&&sequence.paths.length>=2,'Invalid picture sequence paths');

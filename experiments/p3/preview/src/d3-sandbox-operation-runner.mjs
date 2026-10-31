@@ -50,8 +50,8 @@ function expectedPaths(pkg,media=[]){
   for(const m of media){
     let relative;
     try{relative=safePath(m.path);}catch{fail('UNSAFE_MEDIA_PATH');}
-    need(['gear','kb'].includes(pkg.domain)&&
-      relative.startsWith(pkg.domain==='gear'?'Gear/':'KB/')&&
+    need(['gear','kb','catches'].includes(pkg.domain)&&
+      relative.startsWith(pkg.domain==='gear'?'Gear/':pkg.domain==='kb'?'KB/':'Catches/')&&
       relative.includes('/assets/')&&
       /\.(jpe?g|png|webp|gif)$/i.test(relative),
       'UNSAFE_MEDIA_PATH');

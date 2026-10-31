@@ -5,7 +5,7 @@
  */
 import {d4MediaPath} from './d4-media-integrity.mjs';
 import {pathKey} from '../../../../pwa/src/shared.mjs';
-import {validatePackage} from '../../../../pwa/src/handoff.mjs';
+import {validatePackage,validInlineNoteImagePath} from '../../../../pwa/src/handoff.mjs';
 const SHA=/^[a-f0-9]{64}$/,MAX_FILE=10*1024*1024;
 const MAX_TOTAL=48*1024*1024,MAX_FILES=24;
 export class D4TicketError extends Error{
@@ -21,7 +21,6 @@ export function expectedD4Media(pkg){
  if(pkg.domain==='catches'){
   need(pkg.picture.action==='keep'&&
    (pkg.pictureSequence?.action??'keep')==='keep','CATCH_MEDIA_DENIED');
-  return Object.freeze([]);
  }
  const picture=pkg.picture,sequence=pkg.pictureSequence??{action:'keep'};
  const expected=[];
@@ -43,6 +42,10 @@ export function expectedD4Media(pkg){
   need(fileMeta(picture.file),'INVALID_PICTURE_METADATA');
   expected.push(Object.freeze({path:d4MediaPath(picture.path),
    bytes:picture.file.bytes,sha256:picture.file.sha256}));
+ }
+ for(const item of pkg.notes.images??[]){
+  need(validInlineNoteImagePath(pkg.domain,pkg.id,item.path)&&fileMeta(item),'INVALID_INLINE_NOTES_IMAGE');
+  expected.push(Object.freeze({path:d4MediaPath(item.path),bytes:item.bytes,sha256:item.sha256}));
  }
  need(expected.length<=MAX_FILES,'TOO_MANY_FILES');
  const keys=new Set();let total=0;
