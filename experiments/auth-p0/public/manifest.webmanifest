@@ -1,0 +1,15 @@
+{
+  "name": "Fishing AUTH-P0 Test — Not Production",
+  "short_name": "Fishing P0 Test",
+  "description": "Isolated GitHub login and installed PWA session experiment",
+  "id": "/?pwa-test=1",
+  "start_url": "/?pwa-test=1",
+  "scope": "/",
+  "display": "standalone",
+  "theme_color": "#0e4335",
+  "background_color": "#ffffff",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

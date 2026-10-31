@@ -1,0 +1,19 @@
+# COPY to wrangler.toml only in your private working directory.
+# Replace the account-specific values; never add secrets to this file.
+name = "fishing-auth-p0"
+main = "src/worker.mjs"
+compatibility_date = "2026-10-21"
+workers_dev = true
+
+[vars]
+APP_ORIGIN = "https://fishing-auth-p0.YOUR_WORKERS_SUBDOMAIN.workers.dev"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "fishing-auth-p0"
+database_id = "YOUR_D1_DATABASE_UUID"
+migrations_dir = "migrations"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
