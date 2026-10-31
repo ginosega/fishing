@@ -1,5 +1,10 @@
 # Fishing Context
 
+### October 31 — Publishing disclosure field acceptance recorded
+
+**October 31, 2026 — owner Edge acceptance PASSED (deployed private V3 pilot).** Owner confirmed the Publishing Status disclosure behavior works as requested: the default expanded/collapsed state is applied when Connection Status opens; a publishing-completed transition while the screen is already open preserves its existing disclosure state; close and reopen recalculates the default. Mark this specific issue **CLOSED / field accepted**. Owner separately accepted the two Notes insertion confirmation labels (both **Insert**) and missing-Name behavior. This acceptance is specific to the private Edge pilot, not Android installed PWA or public V3. The precise post-deploy Worker version was not supplied; do not infer it. **Next acceptance priority:** publish a disposable private Gear/KB Notes image and verify saved/reopened hosted image, viewer opt-in, caption, internal/external links; then a Catch Notes image with species-based cover unchanged. Follow with Android Chrome and separate integrated installed PWA/offline checks. D6 recurring ≤60-second public save-to-Live, negative media/rollback and public cutover still open.
+
+
 ### October 31 — Private publishing disclosure release preparation
 
 Owner reported private `fishing-auth-p0-test` deployed version `9570feaa-2731-4b29-8d95-4503c1e5056c`. This follows Edge acceptance of latest Notes preview and `Insert` copy fixes. The next pending functionality is preserving Publishing Status accordion expansion while Connection Status stays open, now source committed and source-CI green at `f52f7ba7e22d3eb71af348176531ee1ea502666c`. New script `deploy-d3-publishing-state-private.ps1` is default preflight only and includes exact Worker version, previous private bundle fingerprints, source JS-only CSS parity, immutable source config, anonymous denials, and public V2 proxy verification. No deployment performed on assistant side. Owner deployment and real field acceptance needed.

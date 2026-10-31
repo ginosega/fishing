@@ -1,5 +1,10 @@
 # Fishing TODO
 
+## October 31 — Publishing Status owner acceptance PASSED; next media publishing
+
+**October 31, 2026 — owner Edge acceptance PASSED (deployed private V3 pilot).** Owner confirmed the Publishing Status disclosure behavior works as requested: the default expanded/collapsed state is applied when Connection Status opens; a publishing-completed transition while the screen is already open preserves its existing disclosure state; close and reopen recalculates the default. Mark this specific issue **CLOSED / field accepted**. Owner separately accepted the two Notes insertion confirmation labels (both **Insert**) and missing-Name behavior. This acceptance is specific to the private Edge pilot, not Android installed PWA or public V3. The precise post-deploy Worker version was not supplied; do not infer it. **Next acceptance priority:** publish a disposable private Gear/KB Notes image and verify saved/reopened hosted image, viewer opt-in, caption, internal/external links; then a Catch Notes image with species-based cover unchanged. Follow with Android Chrome and separate integrated installed PWA/offline checks. D6 recurring ≤60-second public save-to-Live, negative media/rollback and public cutover still open.
+
+
 ## October 31 — Private Publishing Status disclosure deployment preparation
 
 The owner confirmed deployed private Worker version `9570feaa-2731-4b29-8d95-4503c1e5056c` and previously accepted the Notes `Insert` buttons and missing-Name corner-case behavior in Edge. **Next:** privately deploy and field-test the Publishing Status disclosure update (open default only; preserve manual disclosure while dialog remains visible). Dedicated, default-prepare-only deployment script: `experiments/p3/preview/tools/deploy-d3-publishing-state-private.ps1`. Prior immutable JS/CSS fingerprints are pinned from the successful Notes-preview-fix source CI, and the script requires an exact currently deployed Worker version, checks D1 binding/flags and anonymous denial, Wrangler dry-runs, and verifies V2 proxy identity before and after. Public V2 and D6 cutover untouched. Field acceptance of this UX behavior remains open.
