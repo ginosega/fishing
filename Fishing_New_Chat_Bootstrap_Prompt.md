@@ -1,3 +1,51 @@
+# FISHING NEW-CHAT BOOTSTRAP — CURRENT RESUME POINT (October 30, 2026)
+
+**This section supersedes earlier October 30 notes saying to stay in the current chat.** The owner explicitly requested a transition and expects the **entire** canonical Bootstrap Prompt to be pasted into a new Fishing Chat conversation. Read this current block first, then honor the complete preserved history and SOP below. Do not compress this file into a short handoff prompt or ask for prior details already recorded here.
+
+## Current task and authority
+
+The owner's **latest message** was: *“I will run this deployment and test the features. In the meantime, please prepare for a transfer to a new chat.”* The owner accepted the V3 Connection Status UX after viewing the six-section isolated Windows Edge reader. The preceding assistant provided a version-pinned **private Cloudflare Worker** deployment PowerShell command. **At this documentation checkpoint, the user had not yet posted the `-Deploy` result or real owner-pilot acceptance feedback. Therefore do NOT declare the new private Worker deployed, guess its new version, count publication as Live, modify provider state or initiate an automatic retry.** First check the owner's actual new-chat report and only then decide the next operation.
+
+The authoritative source repository is `ginosega/fishing`. V3 app code is an open, unmerged **draft** [PR #263](https://github.com/ginosega/fishing/pull/263) on branch `feature/fish118-p3-mock-publisher`, exact HEAD **`e1114b1fe96995344098c30fbc568e3f5b6d3a90`** at handoff. The public V2 site remains unchanged. A separate private sandbox source repo `ginosega/fishing-p3-sandbox` and Cloudflare `fishing-auth-p0-test` Worker / auth and operations D1 databases underpin owner testing. **Do not push, synchronize, merge or update the V3 feature branch while the owner may still be running a command requiring that exact HEAD.** This handoff was committed using a separate docs-only branch off `main` specifically to avoid breaking the pinned command.
+
+## Grounded completion immediately preceding transfer
+
+1. **Design and source approved:** Six sections in Connection Status in order: **Status**, **Mode**, **Offline Library**, **Account**, **Publishing Status**, **Help & Diagnostics** (collapsed by default). Normal indicator exact tooltip `Connection status: Online` or `Connection status: Offline` (green/yellow physical connectivity); active publishing blue tooltip `Publishing: <stage>`; confirmed failure red `Publishing failed` until owner Clear. Mode in reader has Automatic/Work Offline pressed buttons and conditional Retry. The standalone authenticated private publishing pilot is **online-only**, displays disabled Mode buttons, and does not imply installed PWA support. Offline Library uses Update. Signed-in Account shows server-verified `ginosega`, otherwise signed-out; Publishing Status remains visible and shows latest server-backed completed item/change/verified time across sessions/devices or current step, safe failure/unknown guidance, contextual Check again/Clear; diagnostics has Copy diagnostics without secrets/drafts. No blind republish.
+2. **Source integration:** Private pilot serves owner-gated, no-store and strict CSP CSS `/__d3_pilot__/pilot.css` separately SHA-pinned from JS. This fixes a missing V3-styling risk discovered after Edge acceptance. Both `/api/v3/operations/latest` and the operation-specific GET now return owner-only D1 hash-verified immutable publication summary. D4 media, existing D3 watchdog and signed webhook features remain enabled as before, D2 disabled, no new publishing authority or D1 migration.
+3. **Owner's read-only deployment preflight PASSED** at exact source `e1114b1...`: PowerShell syntax, generated bundle, Windows line-ending parity, CSP, Worker bundling, Wrangler **4.153.0 --dry-run**. Final output `PASS: PREPARED ONLY; existing version 40367f0a-0536-44da-91ea-9c0cbc353137` and `No private Worker, D1, GitHub, secret, Cron or public V2 change.` Prepared gitignored config in `$HOME\fishing-d2-deploy\experiments\p3\preview\wrangler.d3-v3-connection-ux.local.jsonc`, from latest existing `wrangler.d4-catch-edit-pilot.local.jsonc`.
+4. **Exact private bundle identities:** JS SHA256 **`cddd65a0454ce58a2e535262f9187d641ce6f63be7ccef642f3e6e44cbb2cabf`**, 323833 bytes; CSS SHA256 **`a0ecc14ca957a62dd217c366f49ed33d3ff887127374effe38ef02388d1f154c`**, 18642 bytes. These are preflight artifacts, **not** deployed/version assertions.
+5. **CI:** The dedicated [P3 isolated source workflow #41143225502](https://github.com/ginosega/fishing/actions/runs/41143225502) completed **SUCCESS** for exact `e1114b1...` including the PowerShell syntax test. The separate broader [production-acceptance workflow #41143225486](https://github.com/ginosega/fishing/actions/runs/41143225486) completed **FAILURE** due to the preview-scope browser regression step, with the full deploy job **skipped**. Preserve this unresolved broader acceptance item; do not incorrectly call all CI green. Earlier 154 PWA/4 Chromium/43 broker/763 private P3 tests passed in prior exact-head source work; latest source workflow similarly passed, but do not use historical counts as proofs of provider deployment.
+
+## Immediate continuation in the new chat
+
+**First:** Obtain the owner's private deployment output/test result (the owner may paste it with or after this bootstrap). The exact deployment command they were given, with the latest preflight-verified SHA, was:
+
+```powershell
+$ErrorActionPreference = 'Stop'
+Set-Location "$HOME\fishing-d2-deploy\experiments\p3\preview"
+
+.\tools\deploy-d3-v3-connection-ux.ps1 `
+    -ExpectedHead 'e1114b1fe96995344098c30fbc568e3f5b6d3a90' `
+    -ExpectedWorkerVersion '40367f0a-0536-44da-91ea-9c0cbc353137' `
+    -ExistingConfig 'wrangler.d4-catch-edit-pilot.local.jsonc' `
+    -Deploy
+```
+
+**If a clear `PASS: PRIVATE owner pilot Connection Status UX deployed: <new version>` appears:** correlate the new version with a freshly observed remote `wrangler deployments status --name fishing-auth-p0-test`, owner postflight safety results and public V2 unchanged; never invent a version. Perform owner manual checks at [private owner pilot](https://fishing-auth-p0-test.ginosega.workers.dev/__d3_pilot__/): signed-in username, stylesheet/section order, latest Gear/KB/Catch publication and verified timestamp, persistence across reload and separately authorized browser/device, active blue header updates, no automatic replay after unknown outcome, conditional failed/red/Clear, collapsed help. Check anonymous 401 for private page/script/CSS (InPrivate); public `/fishing/` digest unchanged. Avoid forced failure creation and avoid writes to public V2.
+
+**If any deployment step fails or the result is ambiguous:** **do not rerun `-Deploy`**. Inspect existing private Cloudflare Worker version, the locally generated gitignored config (without exposing any secrets), anonymous route statuses, and immutable D1 state. Do not misclassify a merely missing postflight printout as a failed deployment. Keep prior D4/Wrangler settings and separate public V2 release safe.
+
+**After owner acceptance:** Update the five canonical project docs with verified postflight/test outcomes; only then reconcile the docs changes to the V3 feature branch once no pinned operator command is in progress. Keep PR #263 as a draft until distinct approval. Next planned D3/D4/D5/D6 acceptance: installed Android OAuth/status/relaunch, complete image/thumbnail/sequence/Catch edit testing, cross-device durable publication history, repeated end-to-end Save→Live target <=60 seconds, production-hosted PWA/release/rollback and separately authorized V3 public cutover. Preserve all other historical fishing knowledge, gear, environmental and TODO context below.
+
+## Important workflow rules
+
+- Use live GitHub connector for current branch/checks; current provider facts must be confirmed from the owner's Wrangler logs or authorized fresh Cloudflare read, **not** inferred from CI or old markdown.
+- No fresh user authorization is required for routine already-approved development/research, but retain explicit safety gates and avoid risking live deployments/changes without the operator's verified state.
+- Keep the *full* historical bootstrap and the five canonical files, not just this current section. The user prefers fewer interim approval pauses and a proper GitHub-based full-document handoff.
+- This docs-only handoff should not modify `feature/fish118-p3-mock-publisher` while the exact-head private rollout is running.
+
+---
+
 ## October 30 verified source checkpoint — stay in this chat
 
 **Final isolated source gate (October 30, supersedes preceding validation-pending language):** [GitHub Actions #41088642846](https://github.com/ginosega/fishing/actions/runs/41088642846) **SUCCESS** on exact application source commit `1bbce127be86525c02e6ad26f32ff08973bea038`. Evidence: **154/154 PWA**, **4/4 real Chromium isolated candidate**, **43/43 broker**, **763/763 private P3 publishing** tests; byte-verified local reader candidate and D3 Worker Wrangler packaging dry-run. The completed test includes the source-verified owner-only D1 latest-publication item summary and name sanitization. Earlier failing runs were caused by a stale removed-text browser assertion and an overbroad item-name cleanup regex; both were corrected and independently retested. **No private Worker deployment, no real signed-in owner UI field test, and no public V3 release/cutover.** V3 remains on draft [PR #263](https://github.com/ginosega/fishing/pull/263). The owner is continuing in the same conversation; do not initiate a new-chat handoff. Final next gate: owner Edge review of the newly built isolated reader layout; then deliberate private authenticated pilot build/deployment and Windows/Android owner acceptance of Account, server-backed latest Live item/time, and failure-recovery UI. The PWA device/hosting/speed/D6 gates remain open.
