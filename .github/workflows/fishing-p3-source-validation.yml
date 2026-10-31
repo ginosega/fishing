@@ -133,7 +133,8 @@ jobs:
             'experiments/p3/preview/tools/activate-d3-fast-webhook.ps1',
             'experiments/p3/preview/tools/deploy-d3-fast-merge-recovery.ps1',
             'experiments/p3/preview/tools/deploy-d3-v3-connection-ux.ps1',
-            'experiments/p3/preview/tools/deploy-d3-alpine-mist.ps1'
+            'experiments/p3/preview/tools/deploy-d3-alpine-mist.ps1',
+            'experiments/p3/preview/tools/deploy-d3-publishing-disclosure.ps1'
           )
           foreach ($scriptFile in $operatorScripts) {
           $tokens = $null

@@ -5,7 +5,7 @@ import {displayPublicationSummary,publicationGuidance,
 
 class E{
  constructor(tag){this.tagName=tag;this.className='';this.textContent='';
-  this.children=[];this.handlers={};this.href='';this.dataset={};this.hidden=false;}
+  this.children=[];this.handlers={};this.href='';this.dataset={};this.hidden=false;this.open=false;}
  append(...children){this.children.push(...children);}
  appendChild(child){this.children.push(child);return child;}
  replaceChildren(...children){this.children=children;}
@@ -89,17 +89,23 @@ test('V3-UX05 unknown failures are never called correctable or auto retried',()=
 test('V3-UX06 publication dot mirrors header only while active or failed',()=>{
  const x=screen({phase:'Owner',authorized:true,ownerLogin:'ginosega',
   publication:'Live',sandboxVerified:true,summary,operationId:OP});
- const header=x.publishing.children[0],dot=header.children[1];
+ const header=x.publishing.children[0],dot=header.children[0].children[0];
+ assert.equal(x.publishing.tagName,'details');
+ assert.equal(header.tagName,'summary');
  assert.equal(header.children[0].tagName,'h2');
+ assert.equal(x.publishing.open,false);
  assert.equal(dot.hidden,true);
  x.view.paintIndicator({tone:'publishing',title:'Publishing: Checking'});
  assert.equal(dot.hidden,false);
  assert.equal(dot.dataset.tone,'publishing');
  assert.equal(dot.title,'Publishing: Checking');
+ assert.equal(x.publishing.open,true);
  x.view.paintIndicator({tone:'error',title:'Publishing failed'});
  assert.equal(dot.hidden,false);
  assert.equal(dot.dataset.tone,'error');
+ assert.equal(x.publishing.open,true);
  x.view.paintIndicator({tone:'network',title:'Connection status: Online'});
+ assert.equal(x.publishing.open,false);
  assert.equal(dot.hidden,true);
  assert.equal(dot.title,'');
  x.view.remove();
@@ -114,3 +120,44 @@ test('V3-UX07 headings remain H2s and values are strong text',()=>{
  x.view.remove();
 });
 
+
+test('V3-UX08 completed publishing defaults collapsed; manual view survives network refresh',()=>{
+ const x=screen({phase:'Owner',authorized:true,ownerLogin:'ginosega',
+  publication:'Live',sandboxVerified:true,summary,operationId:OP});
+ const dot=x.publishing.children[0].children[0].children[0];
+ x.view.paintIndicator({tone:'network',title:'Connection status: Online'});
+ assert.equal(x.publishing.open,false);
+ assert.equal(dot.hidden,true);
+ assert.match(texts(x.publishing),/Completed · Sandbox Live/);
+ // The browser's native disclosure control lets the owner inspect history.
+ x.publishing.open=true;
+ x.view.paintIndicator({tone:'network',title:'Connection status: Online'});
+ assert.equal(x.publishing.open,true);
+ x.view.remove();
+});
+test('V3-UX09 active or failed operations expand; Live/Cleared/signout collapse',()=>{
+ const x=screen({phase:'Owner',authorized:true,publication:'Checking',
+  summary,operationId:OP});
+ for(const tone of ['publishing','error']){
+  x.view.paintIndicator({tone,title:tone==='error'?'Publishing failed':'Publishing: Checking'});
+  assert.equal(x.publishing.open,true);
+  x.publishing.open=false; // Next live status refresh enforces auto-expansion.
+  x.view.paintIndicator({tone,title:'Update'});
+  assert.equal(x.publishing.open,true);
+ }
+ for(const outcome of ['Live','Cleared','None']){
+  x.update({publication:outcome,sandboxVerified:outcome==='Live'});
+  x.view.paintIndicator({tone:'network',title:'Connection status: Online'});
+  assert.equal(x.publishing.open,false);
+ }
+ x.view.remove();
+});
+test('V3-UX10 unknown read failure never falsely expands or claims publishing failure',()=>{
+ const x=screen({phase:'Owner',authorized:true,publication:'Unknown',
+  summary,operationId:OP,statusReadError:true});
+ x.view.paintIndicator({tone:'network',title:'Connection status: Offline'});
+ assert.equal(x.publishing.open,false);
+ assert.match(texts(x.publishing),/outcome could not be verified/);
+ assert.match(texts(x.publishing),/Check again/);
+ x.view.remove();
+});

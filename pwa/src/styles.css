@@ -143,3 +143,25 @@
  .v3-connection-dialog .v3-connection-section{padding:10px 0}
  .v3-connection-dialog #connection-close{margin:12px auto 0}
 }
+
+/* FISH118: Publishing Status is a native accordion like Help & Diagnostics.
+   Native summary marker is retained for keyboard and assistive technology. */
+.v3-connection-dialog .v3-publishing{padding:14px 0}
+.v3-connection-dialog .v3-publishing>.v3-publishing-toggle{
+ display:list-item;position:relative;list-style-position:inside;
+ cursor:pointer;color:var(--ink);font-weight:650;line-height:1.45;
+ padding-right:24px
+}
+.v3-connection-dialog .v3-publishing-toggle>h2{
+ display:inline;font-size:1rem;font-weight:700;line-height:1.35;
+ color:var(--ink);margin:0
+}
+.v3-connection-dialog .v3-publishing-toggle .v3-publication-dot{
+ position:absolute;right:4px;top:50%;transform:translateY(-50%)
+}
+.v3-connection-dialog .v3-publishing[open] .v3-publication-body{
+ padding-top:12px
+}
+@media(max-width:520px){
+ .v3-connection-dialog .v3-publishing{padding:14px 0}
+}

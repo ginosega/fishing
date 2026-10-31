@@ -38,14 +38,17 @@ export function mountV3ConnectionExperience({
  const account=mk('section','v3-connection-section v3-account');
  account.append(mk('h2','','Account'));
  const accountBody=mk('div','v3-account-body');account.append(accountBody);
- const publishing=mk('section','v3-connection-section v3-publishing');
- const publishingHeading=mk('div','v3-publishing-heading');
- publishingHeading.append(mk('h2','','Publishing Status'));
+ // Native details/summary matches Help & Diagnostics and keeps completed
+ // publication history accessible without occupying space by default.
+ const publishing=mk('details','v3-connection-section v3-publishing');
+ const publishingToggle=mk('summary','v3-publishing-toggle');
+ const publishingHeading=mk('h2','','Publishing Status');
  const publishingDot=mk('span','v3-publication-dot');
  publishingDot.hidden=true;
  publishingDot.setAttribute('aria-hidden','true');
  publishingHeading.append(publishingDot);
- publishing.append(publishingHeading);
+ publishingToggle.append(publishingHeading);
+ publishing.append(publishingToggle);
  const publicationBody=mk('div','v3-publication-body');
  publicationBody.setAttribute('aria-live','polite');
  publishing.append(publicationBody);
@@ -73,17 +76,26 @@ export function mountV3ConnectionExperience({
   if(includeTime&&info.completedAt&&!Number.isNaN(info.completedAt.getTime()))
    body.append(caption('Completed '+info.completedAt.toLocaleString()));
  };
+ let previousIndicatorActive=false;
  function paintIndicator(display){
+  // The caller supplies the same authoritative tone used for the header dot.
+  // Keep this accordion open for active or failed work; collapse as soon as
+  // the header dot returns to network green/yellow (Live or cleared).
+  // Manual expansion of a completed record remains available between
+  // indicator changes; normal network repaint must not undo user choice.
   const tone=display?.tone;
-  const visible=tone==='publishing'||tone==='error';
-  publishingDot.hidden=!visible;
-  if(visible){
+  const active=tone==='publishing'||tone==='error';
+  publishingDot.hidden=!active;
+  if(active){
    publishingDot.dataset.tone=tone;
    publishingDot.title=display.title;
+   publishing.open=true;
   }else{
    delete publishingDot.dataset.tone;
    publishingDot.title='';
+   if(previousIndicatorActive)publishing.open=false;
   }
+  previousIndicatorActive=active;
  }
  function paint(){
   const state=controller.current(),authorized=state.authorized===true;
