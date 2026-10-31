@@ -138,7 +138,8 @@ jobs:
             'experiments/p3/preview/tools/deploy-d3-notes-editor-private.ps1',
             'experiments/p3/preview/tools/deploy-d3-notes-preview-fix-private.ps1',
             'experiments/p3/preview/tools/deploy-d3-publishing-state-private.ps1',
-            'experiments/p3/preview/tools/deploy-d4-notes-image-private.ps1'
+            'experiments/p3/preview/tools/deploy-d4-notes-image-private.ps1',
+            'experiments/p3/preview/tools/deploy-d4-catch-picker-private.ps1'
           )
           foreach ($scriptFile in $operatorScripts) {
           $tokens = $null
