@@ -145,7 +145,7 @@ try{
   Need ($before -eq $ExpectedWorkerVersion) 'Deployed Worker version changed. Stop.'
   Proof $true
   $public=PublicDigest
-  $dir=Join-Path $env:TEMP ('fishing-v3-notes-editor-+[guid]::NewGuid().ToString('N'))
+  $dir=Join-Path $env:TEMP ('fishing-v3-notes-editor-'+[guid]::NewGuid().ToString('N'))
   try {
    & npx.cmd --yes wrangler@4.153.0 deploy --dry-run --config $nextConfig --outdir $dir
    Need ($LASTEXITCODE -eq 0) 'Wrangler private Worker dry-run failed'
