@@ -222,3 +222,24 @@
 .notes-link-kind input{width:auto}
 .notes-link-site{display:grid;gap:10px}
 .notes-link-external{display:grid;gap:10px}
+
+
+/* Catch lure/bait picker: bounded searchable list, matching Notes Insert link.
+   The large Gear catalog never expands the native datalist on the form. */
+.catch-lure-summary{display:flex;align-items:end;gap:10px}
+.catch-lure-summary>.field{flex:1;min-width:0}
+.catch-lure-summary>.btn{flex:none}
+.catch-lure-picker{display:grid;gap:10px}
+.catch-lure-panel{border:1px solid var(--border);border-radius:12px;
+ padding:15px;display:grid;gap:12px;background:var(--background)}
+.catch-lure-panel[hidden],.catch-lure-catalog[hidden],
+.catch-lure-custom[hidden]{display:none}
+.catch-lure-panel h3{margin:0}
+.catch-lure-catalog{display:grid;gap:10px}
+.catch-lure-panel .field{display:flex;flex-direction:column;gap:6px}
+.catch-lure-panel input,.catch-lure-panel select{max-width:100%;min-width:0}
+.catch-lure-panel select[size]{height:auto;max-height:240px;overflow:auto}
+.catch-lure-kind{border:0;padding:0;margin:0;display:flex;gap:16px;flex-wrap:wrap}
+.catch-lure-kind legend{font-weight:600;margin-bottom:7px}
+.catch-lure-kind label{display:inline-flex;align-items:center;gap:6px}
+.catch-lure-kind input{width:auto}

@@ -425,3 +425,36 @@ test('D3-L16 acknowledgement never suppresses different, pending or unacknowledg
  });
  assert.equal((await rollback.discover()).operationId,old);
 });
+
+test('D3-L19 recognized rejected 409 frees only that rejected request for explicit correction',async()=>{
+ let n=0,issued=0;
+ const seen=[];
+ const flow=createD3PublicationLifecycle({
+  enabled:()=>true,
+  makeKey:()=>('owner-manual-'+String(++issued)+'-safe'),
+  client:{
+   status:async()=>{throw Error('No prior published operation');},
+   publish:async row=>{
+    seen.push(row);
+    n++;
+    if(n===1)throw Object.assign(new Error('Source conflict'),{code:'UNVERIFIED_SOURCE'});
+    return success;
+   },
+  },
+ });
+ const different={...pkg,changes:{set:{name:'corrected record'}}};
+ await assert.rejects(flow.submit(pkg),/Source conflict/);
+ assert.equal(flow.tracking().phase,'Blocked');
+ assert.equal(seen.length,1,'Do not automatically retry a known rejected POST');
+ const receipt=await flow.submit(different); // A separate deliberate owner click.
+ assert.equal(receipt.phase,'Accepted');
+ assert.equal(seen.length,2);
+ assert.notEqual(seen[0].idempotencyKey,seen[1].idempotencyKey);
+});
+test('D3-L20 lifecycle errors explain unresolved outcome without exposing package contents',()=>{
+ const changed=new D3LifecycleError('PAYLOAD_CHANGED_AFTER_SUBMIT');
+ assert.match(changed.message,/unresolved outcome/i);
+ assert.match(changed.message,/do not resubmit/i);
+ assert.match(new D3LifecycleError('UNTRUSTED_STATUS').message,/could not be verified/i);
+ assert.match(new D3LifecycleError('INVALID_PACKAGE').message,/Keep this draft/i);
+});

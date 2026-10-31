@@ -10,6 +10,8 @@ import {parseMarkdown,markdownRouteMap,sanitizeHtml} from './markdown.mjs';
 import {applyCatchField,catchFieldValue,speciesCatchChoices,lureCatchChoices} from './catch-fields.mjs';
 import {prepareChange,narrativePath} from './handoff.mjs';
 import {createNotesMarkdownEditor} from './notes-markdown-editor.mjs';
+import {catchLureTargets,filterCatchLureTargets,applyCatchLureSelection}
+ from './catch-lure-picker.mjs';
 
 const clone=value=>structuredClone(value);
 const str=value=>typeof value==='string'?value.trim():'';
@@ -18,6 +20,15 @@ const allowed=new Set(['id','date','time','size','speciesId',
  'lureOrBaitId','lureOrBaitName','notes']);
 const validReceipt=r=>r?.accepted===true&&
  /^p3_[a-f0-9-]{36}$/.test(r.operationId??'');
+// Show only a bounded, machine-generated error code. Never surface raw server
+// responses, authentication data, request packages or staged image bytes.
+export function catchPublicationErrorText(error){
+ const message=typeof error?.message==='string'&&error.message.length<=450?
+  error.message:'Catch publication not confirmed. Keep this edit and check Connection Status.';
+ const code=typeof error?.code==='string'&&/^[A-Z][A-Z0-9_]{2,63}$/.test(error.code)?
+  error.code:null;
+ return message+(code?' (code: '+code+')':'');
+}
 
 export function suggestedCatchId(record,existing,{sandboxOnly=false}={}){
  const location=(record.locationId??record.locationName??'')
@@ -186,8 +197,97 @@ export async function createCatchEditor(ctx,{
   generateId();updated();
  });
  const locationField=field('Location',locationEntry);
- const lureField=createAutocomplete('lureOrBait','Lure or bait',
-  lure.suggestions);
+ // The native datalist becomes very tall and hard to scan as the Gear
+ // catalog grows. Use the same search/filter/bounded list pattern as
+ // Insert link, but leave the Catch form compact until Choose is pressed.
+ const lureDisplay=el('input',{type:'text',readonly:true,
+  value:catchFieldValue(record,'lureOrBait',lure.linked),
+  placeholder:'No lure or bait selected'});
+ const lurePickButton=button('Choose',openLurePicker);
+ const lureSummary=el('div',{class:'catch-lure-summary'},
+  field('Lure or bait',lureDisplay),lurePickButton);
+ const lurePanel=el('div',{class:'catch-lure-panel',hidden:true});
+ const lureKinds='catch-lure-kind-'+Math.random().toString(36).slice(2);
+ const gearRadio=el('input',{type:'radio',name:lureKinds,checked:true});
+ const customRadio=el('input',{type:'radio',name:lureKinds});
+ const lureSearch=el('input',{type:'search',placeholder:'Search Gear by name or type',
+  'aria-label':'Search lures and bait'});
+ const targets=catchLureTargets(ctx.data);
+ const groups=[...new Set(targets.map(x=>x.group))].sort((a,b)=>a.localeCompare(b));
+ const lureFilter=el('select',{},
+  el('option',{value:'all'},'All types'),
+  groups.map(group=>el('option',{value:group},group)));
+ const lureList=el('select',{size:7,'aria-label':'Matching lure or bait items'});
+ const customInput=el('input',{type:'text',maxlength:160,
+  placeholder:'Enter a custom lure or bait'});
+ const gearFields=el('div',{class:'catch-lure-catalog'},
+  field('Search catalog',lureSearch),field('Gear type',lureFilter),
+  field('Matching items',lureList));
+ const customFields=el('div',{class:'catch-lure-custom',hidden:true},
+  field('Custom lure or bait',customInput));
+ const lureMessage=el('div',{'aria-live':'polite'});
+ let visibleTargets=[];
+ function renderLureList(){
+  const old=lureList.value;
+  visibleTargets=filterCatchLureTargets(targets,{
+   query:lureSearch.value,group:lureFilter.value});
+  lureList.replaceChildren(...(visibleTargets.length?
+   visibleTargets.map(x=>el('option',{value:x.key},
+    x.group+' · '+x.name)):
+   [el('option',{value:'',disabled:true},'No matching items')]));
+  if(visibleTargets.some(x=>x.key===old))lureList.value=old;
+  else if(visibleTargets.length)lureList.value=visibleTargets[0].key;
+ }
+ function updateLureMode(){
+  gearFields.hidden=!gearRadio.checked;
+  customFields.hidden=gearRadio.checked;
+ }
+ function closeLurePicker(){lurePanel.hidden=true;lureMessage.replaceChildren();}
+ function openLurePicker(){
+  closeLurePicker();
+  lureSearch.value='';lureFilter.value='all';customInput.value='';
+  gearRadio.checked=true;customRadio.checked=false;
+  const current=record.lureOrBaitId;
+  renderLureList();
+  if(current&&visibleTargets.some(x=>x.key==='gear:'+current))
+   lureList.value='gear:'+current;
+  else if(record.lureOrBaitName){
+   const item=visibleTargets.find(x=>x.kind==='name'&&
+    x.name.toLocaleLowerCase()===record.lureOrBaitName.toLocaleLowerCase());
+   if(item)lureList.value=item.key;
+   else{
+    customRadio.checked=true;gearRadio.checked=false;
+    customInput.value=record.lureOrBaitName;
+   }
+  }
+  updateLureMode();lurePanel.hidden=false;
+  lurePanel.scrollIntoView({block:'nearest'});
+  if(gearRadio.checked)lureSearch.focus();else customInput.focus();
+ }
+ lureSearch.addEventListener('input',renderLureList);
+ lureFilter.addEventListener('change',renderLureList);
+ gearRadio.addEventListener('change',updateLureMode);
+ customRadio.addEventListener('change',updateLureMode);
+ const selectLure=button('Select',()=>{
+  const item=gearRadio.checked?
+   visibleTargets.find(x=>x.key===lureList.value):
+   {kind:'name',name:customInput.value.trim()};
+  try{
+   if(!item?.name?.trim())throw Error('Choose a lure or bait or enter a custom name.');
+   applyCatchLureSelection(record,item);
+   lureDisplay.value=catchFieldValue(record,'lureOrBait',lure.linked);
+   updated();closeLurePicker();
+  }catch(error){status(lureMessage,error.message,'error');}
+ });
+ lurePanel.append(el('h3',{},'Choose lure or bait'),
+  el('fieldset',{class:'catch-lure-kind'},
+   el('legend',{},'Source'),
+   el('label',{},gearRadio,' Gear catalog or previous entries'),
+   el('label',{},customRadio,' Custom name')),
+  gearFields,customFields,lureMessage,
+  el('div',{class:'notes-image-actions'},
+   button('Cancel',closeLurePicker),selectLure));
+ const lureField=el('div',{class:'catch-lure-picker'},lureSummary,lurePanel);
  generateId();
  notesEditor=createNotesMarkdownEditor({
   domain:'catches',getRecord:()=>record,value:notesText,
@@ -242,7 +342,7 @@ export async function createCatchEditor(ctx,{
    onDirty(false);
    try{onPrepared(receipt);}catch{ /* Cannot undo a durable receipt. */ }
   }catch(error){
-   status(notice,error?.message||'Catch publication not confirmed. Your edit is retained.','error');
+   status(notice,catchPublicationErrorText(error),'error');
    status(actionNotice,'Nothing was confirmed as published. Your edit is retained.','error');
   }finally{
    pending=false;if(!accepted)submit.disabled=false;

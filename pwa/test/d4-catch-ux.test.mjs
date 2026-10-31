@@ -4,8 +4,10 @@ import {readFileSync} from 'node:fs';
 import {applyCatchField,catchFieldValue,speciesCatchChoices,
  lureCatchChoices} from '../src/catch-fields.mjs';
 import {validateRecords} from '../src/validation.mjs';
-import {suggestedCatchId,validatePrivateSandboxCatch} from '../src/catch-editor.mjs';
+import {suggestedCatchId,validatePrivateSandboxCatch,catchPublicationErrorText} from '../src/catch-editor.mjs';
 import {suggestedItemId,ID_PATTERN} from '../src/shared.mjs';
+import {catchLureTargets,filterCatchLureTargets,applyCatchLureSelection}
+ from '../src/catch-lure-picker.mjs';
 const entries=[
  {id:'species-test-bass',name:'Test Bass',type:'species',
   content:'KB/Species/content/Test Bass.md'},
@@ -203,4 +205,70 @@ test('D4-UX16 sandbox Catch edit retains original ID, capacity does not deny edi
   editor.indexOf('const candidate=clone(record);'));
  assert(editor.indexOf('validatePrivateSandboxCatch(candidate,')<
   editor.indexOf("return prepareChange({"));
+});
+
+test('D4-UX16 searchable catalog picker bounds rendered options for 600 Gear records',()=>{
+ const many=Array.from({length:600},(_,i)=>({
+  id:'lure-'+String(i).padStart(4,'0'),
+  name:'Sample lure '+String(i).padStart(4,'0'),
+  category:'lures',type:i%2?'Crankbaits':'Soft plastics',
+ }));
+ const data={gear:{items:many},catches:{catches:[]}};
+ const targets=catchLureTargets(data);
+ assert.equal(targets.length,601,'600 items plus Other; filtering is user-initiated');
+ assert.equal(filterCatchLureTargets(targets,{query:'Sample lure 0342'}).length,1);
+ const crank=filterCatchLureTargets(targets,{group:'Crankbaits'});
+ assert.equal(crank.length,300);
+ assert(crank.every(x=>x.group==='Crankbaits'));
+ assert.equal(filterCatchLureTargets(targets,{query:'missing thing'}).length,0);
+ const original=targets.find(x=>x.id==='lure-0342');
+ const record={id:'p3-test-catch-synthetic'};
+ applyCatchLureSelection(record,original);
+ assert.equal(record.lureOrBaitId,'lure-0342');
+ assert.equal(record.lureOrBaitName,undefined);
+ applyCatchLureSelection(record,{kind:'name',name:'Synthetic custom bait'});
+ assert.equal(record.lureOrBaitId,undefined);
+ assert.equal(record.lureOrBaitName,'Synthetic custom bait');
+});
+test('D4-UX17 picker distinguishes identical Gear names and preserves explicit selected ID',()=>{
+ const data={gear:{items:[
+  {id:'a',name:'Same spinner',category:'lures',type:'Spinners'},
+  {id:'b',name:'Same spinner',category:'lures',type:'Spinners'},
+ ]},catches:{catches:[{lureOrBaitName:'Synthetic worm'}]}};
+ const targets=catchLureTargets(data);
+ assert.equal(targets.filter(x=>x.name==='Same spinner').length,2);
+ const record={};
+ applyCatchLureSelection(record,targets.find(x=>x.id==='b'));
+ assert.equal(record.lureOrBaitId,'b');
+ assert.equal(record.lureOrBaitName,undefined);
+ applyCatchLureSelection(record,targets.find(x=>x.name==='Synthetic worm'));
+ assert.equal(record.lureOrBaitName,'Synthetic worm');
+ assert.equal(targets.find(x=>x.name==='Other')?.kind,'name');
+});
+test('D4-UX18 Catch editor uses searchable chooser rather than bulky native lure datalist',()=>{
+ const editor=readFileSync(new URL('../src/catch-editor.mjs',import.meta.url),'utf8');
+ const css=readFileSync(new URL('../src/styles.css',import.meta.url),'utf8');
+ assert.match(editor,/filterCatchLureTargets\(targets,/);
+ assert.match(editor,/size:7,'aria-label':'Matching lure or bait items'/);
+ assert.match(editor,/catch-lure-panel/);
+ assert.match(editor,/Custom name/);
+ assert.doesNotMatch(editor,/createAutocomplete\('lureOrBait'/);
+ assert.match(css,/\.catch-lure-panel\[hidden\]/);
+});
+
+test('D4-UX19 Catch publish errors report a bounded safe code, preserving a draft',()=>{
+ assert.equal(catchPublicationErrorText({
+  message:'Fishing publication lifecycle is unavailable',
+  code:'PAYLOAD_CHANGED_AFTER_SUBMIT',
+ }), 'Fishing publication lifecycle is unavailable (code: PAYLOAD_CHANGED_AFTER_SUBMIT)');
+ assert.match(catchPublicationErrorText({
+  message:'The previous operation is not verified.',
+  code:'UNTRUSTED_STATUS',
+ }),/UNTRUSTED_STATUS/);
+ assert.doesNotMatch(catchPublicationErrorText({
+  message:'x'.repeat(500),code:'UNTRUSTED_STATUS',
+ }),/x{450}/);
+ assert.doesNotMatch(catchPublicationErrorText({
+  message:'Publishing stopped.',code:'INVALID\\nTOKEN',
+ }),/TOKEN/);
 });

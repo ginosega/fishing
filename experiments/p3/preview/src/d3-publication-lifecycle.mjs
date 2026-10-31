@@ -21,8 +21,20 @@ export class D3LifecycleError extends Error{
    PREVIOUS_PUBLICATION_NOT_LIVE:'The previous publication is not Live. Open Connection Status and check its status. If it Failed or Conflict, select Dismiss failed publication before saving this edit.',
    UNRESOLVED_SUBMISSION:'A previous submission has an uncertain result. Check Connection Status and preserve the original submission before retrying.',
    ALREADY_ACCEPTED:'A previous publication is still being tracked. Check Connection Status before publishing another edit.',
+   PAYLOAD_CHANGED_AFTER_SUBMIT:'The previous publishing attempt has an unresolved outcome and this draft differs from it. Do not resubmit or discard this draft. Check Connection Status and Copy diagnostics before proceeding.',
+   UNTRUSTED_STATUS:'The previous publication status could not be verified. Nothing new was submitted. Check Connection Status and Copy diagnostics before proceeding.',
+   INVALID_PACKAGE:'The Catch change could not be prepared for publication. Nothing new was submitted. Keep this draft and use Copy diagnostics in Connection Status.',
+   INVALID_IDEMPOTENCY_KEY:'The publishing request could not be safely identified. Nothing new was submitted. Keep this draft and use Copy diagnostics.',
+   STORAGE_UNAVAILABLE:'The saved publication receipt could not be cleared safely. Nothing new was submitted. Check Connection Status before proceeding.',
+   NOT_ENABLED:'Publishing is not enabled in this private pilot. Nothing was submitted.',
+   MEDIA_REQUIRES_D4:'Notes image publishing is not enabled. Nothing was submitted. Preserve this draft and check Connection Status.',
+   SUBMISSION_IN_PROGRESS:'A publication request is already in progress. Do not resubmit until Connection Status confirms its outcome.',
+   STATUS_LOOKUP_UNAVAILABLE:'The previous publication could not be looked up. Nothing new was submitted. Check Connection Status before proceeding.',
+   NO_DURABLE_OPERATION:'No verified prior publication receipt exists to inspect. Do not retry blindly.',
+   UNVERIFIED_TERMINAL_STATUS:'A publication cannot be cleared until its final server status is verified.',
+   INVALID_CONFIGURATION:'The publishing lifecycle is not configured. Nothing was submitted.',
   };
-  super(messages[code]??'Fishing publication lifecycle is unavailable');
+  super(messages[code]??'The publishing lifecycle returned an unexpected status. No successful submission is confirmed. Keep this draft and use Copy diagnostics in Connection Status.');
   this.name='D3LifecycleError';this.code=code;
  }
 }
@@ -162,11 +174,17 @@ export function createD3PublicationLifecycle({
     attempt=null;report=null;
     return tracking();
    }catch(error){
-    // Unknown acknowledgements retain the exact in-memory key and
-    // package. Never create another request with changed bytes.
-    phase=['MEDIA_REQUIRES_D4','INVALID_PACKAGE','INVALID_CHANGE','INVALID_IDEMPOTENCY_KEY',
-     'OWNER_SESSION_REQUIRED','OFFLINE_DENIED','SESSION_EXPIRED',
-     'NOT_ENABLED'].includes(error?.code)?'Blocked':'Unknown';
+    // Only an explicit, recognized server 409 proves this particular POST
+    // was rejected without acceptance. An owner may then fix the form and
+    // submit a NEW request deliberately; no silent retry is permitted.
+    // A lost/ambiguous POST retains the original package + key unchanged.
+    const knownRejected=['SOURCE_CONFLICT','UNVERIFIED_SOURCE',
+     'SUBMISSION_CONFLICT'].includes(error?.code);
+    if(knownRejected)attempt=null;
+    phase=(knownRejected||['MEDIA_REQUIRES_D4','INVALID_PACKAGE',
+     'INVALID_CHANGE','INVALID_IDEMPOTENCY_KEY','OWNER_SESSION_REQUIRED',
+     'OFFLINE_DENIED','SESSION_EXPIRED','NOT_ENABLED'].includes(error?.code))?
+     'Blocked':'Unknown';
     throw error;
    }
   })();
