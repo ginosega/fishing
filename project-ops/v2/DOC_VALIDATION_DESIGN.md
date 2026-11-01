@@ -111,7 +111,7 @@ Existing `.github/workflows/fishing-production.yml` has `validate-docs` for Mark
 
 ## 8. P1 acceptance for documentation validation
 
-- [ ] Owner agrees to **automated + human**, not manual-only.
+- [ ] Owner agrees to **automated structural checks + triggered assistant-performed semantic/evidence review**, with actual owner sign-off only when an existing authorization or acceptance gate requires it.
 - [ ] Owner agrees to the staged **docs-only PR → separate full-lane tooling PR → docs-only end-to-end CI proof** sequence.
 - [ ] Owner agrees to the scope, soft/hard budgets, failure-vs-warning policy and explicit allowance for unknown status.
 - [ ] Issue #284 remains open as a mandatory P3 gate until validator, fixtures, workflow and CI evidence are accepted.
