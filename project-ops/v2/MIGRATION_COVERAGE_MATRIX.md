@@ -1,7 +1,7 @@
 # FISH-OPS-V2 — Migration and Authority Coverage Matrix
 
-**Baseline:** `ginosega/fishing@406723f880960d33d40bd07984559432c8caa233`, source branch `feature/fish118-p3-mock-publisher`  
-**Tracker:** [#282](https://github.com/ginosega/fishing/issues/282) · **PR:** [#283](https://github.com/ginosega/fishing/pull/283)  
+**Baseline:** `ginosega/fishing@406723f880960d33d40bd07984559432c8caa233`, source branch `feature/fish118-p3-mock-publisher`
+**Tracker:** [#282](https://github.com/ginosega/fishing/issues/282) · **PR:** [#283](https://github.com/ginosega/fishing/pull/283)
 **Status:** P0 coverage inventory; no content has been migrated. Row action = recommendation for P1/P2 approval, not authorization to rewrite approved records.
 
 ## 1. Primary document ownership and disposition
