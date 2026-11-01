@@ -1,16 +1,18 @@
 # Fishing Project — start here
 
-**Status:** Candidate under [Operating Model v2 #282](https://github.com/ginosega/fishing/issues/282); **not yet active** until P3/P4/P5 gates.
+**Status:** P4 recovery tests passed and owner directed completing automatic governance enforcement before activation. **Adoption is verified by the presence of the root router on default `main` and protection of this governance branch, not by the date of this file.** [Current integration](P5_CANONICAL_BRANCH_IMPLEMENTATION_2026-11-01.md).
 
 ## Read order
-1. Check the repository default-branch `PROJECT_ROUTER.md` **after adoption** (before adoption, [initiative #282](https://github.com/ginosega/fishing/issues/282) and [draft PR #288](https://github.com/ginosega/fishing/pull/288) identify the candidate docs). Confirm GitHub ref and whether this is an approved entry rather than a draft.
-2. Read [CURRENT_STATE.md](CURRENT_STATE.md), then [WORK_QUEUE.md](WORK_QUEUE.md) for the requested workstream only.
-3. Read [OPERATING_RULES.md](OPERATING_RULES.md) before a consequential GitHub/provider action.
-4. For a material proposal, consult [DECISIONS_INDEX.md](DECISIONS_INDEX.md), select one topic catalog and read the matching decision/approval evidence, **including rejected alternatives**. Read only applicable source/spec/code sections.
+
+1. Read `PROJECT_ROUTER.md` from repository default `main`; verify the routed branch and approved entry point against GitHub. If absent while [router PR #292](https://github.com/ginosega/fishing/pull/292) is unmerged, follow README/current issue/PR fallback, identifying the candidate explicitly.
+2. On `governance/project-ops`, read [CURRENT_STATE.md](CURRENT_STATE.md), then relevant [WORK_QUEUE.md](WORK_QUEUE.md) entries. Do not bulk-read the historical root files.
+3. Read [OPERATING_RULES.md](OPERATING_RULES.md) before consequential source, merge, deployment or publication actions.
+4. Before proposing a substantive choice, use [DECISIONS_INDEX.md](DECISIONS_INDEX.md), then selected topic and record/original approval only, including **rejected, deferred and superseded** approaches.
 
 ## Evidence boundaries
-GitHub records code, commits, specifications and references; it cannot by itself confirm actual Cloudflare/Pages deployment or owner device acceptance. Source, exact-head CI, private hosted, public hosted and field acceptance are **distinct**. Unknown or stale proof stays unknown. Never blindly retry an ambiguous publication or discard a pending draft/receipt.
 
-The root `Fishing_Context.md`, `Fishing_TODO.md`, `Fishing_Decision_Log.md` and `Fishing_New_Chat_Bootstrap_Prompt.md` are **historical sources**, not startup inputs after cutover. Preserve their original Git refs and use a targeted search only where the index lacks a needed prior lesson.
+Source implementation, exact-head GitHub CI, private Cloudflare deployment, public hosted bytes and owner field acceptance are **distinct**. Unknown means unknown. Preserve interrupted publishing receipts and drafts, and do not retry ambiguous writes without server-side reconciliation.
 
-Use [NEW_CHAT_PROMPT.md](../../NEW_CHAT_PROMPT.md) for normal or emergency chat transfers; it is a static retrieval instruction, not a snapshot.
+Legacy root `Fishing_Context.md`, `Fishing_TODO.md`, `Fishing_Decision_Log.md`, and `Fishing_New_Chat_Bootstrap_Prompt.md` remain intact as historical provenance, not startup bulk payload.
+
+Normal transfer trigger: **"Prepare to transfer to a new chat"**. Always copy the entire unchanged fenced text from [NEW_CHAT_PROMPT.md](../../NEW_CHAT_PROMPT.md); emergency recovery uses the same prompt from default `main` after activation.
