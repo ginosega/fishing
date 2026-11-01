@@ -115,3 +115,49 @@ P1 is ready for owner approval once these are clear:
 - Approve minimal new-chat startup and cold-start acceptance as the cutover gate?
 
 **No implementation policy change or document deprecation takes effect until owner sign-off and P2/P3/P4 validation.**
+
+## 8. P1 owner clarification — exact normal and emergency chat transfer
+
+**Static copy/paste prompt:** [`NEW_CHAT_PROMPT.md`](../../NEW_CHAT_PROMPT.md), maintained in GitHub and ultimately discoverable via root `README.md` on the default `main` branch after adoption. It contains **the same first message for both normal and emergency transfers**. Dynamic branch/source state lives in a small GitHub routing file, not in a constantly rewritten multi-page prompt.
+
+**Normal:** (1) owner says **"Prepare to transfer to a new chat."** (2) Assistant stops consequential new work, safely checkpoints any ongoing operation, commits/verifies durable state and exact refs, then **prints the complete copyable GitHub prompt in its reply** (not just a link). (3) Owner starts a new chat in the Fishing ChatGPT project, pastes the prompt, and (4) new assistant reads only active router/state/task docs and reconciles actual source/CI/provider uncertainties before continuing. Do **not** demand owner approval for routine source-only documentation bookkeeping.
+
+**Emergency:** If the old chat errors, freezes or declares itself too long, no old-chat interaction or prepared handoff is necessary. Owner opens the static `NEW_CHAT_PROMPT.md` on GitHub, copies the prompt, starts a new Fishing-project chat and pastes it as the first message. New assistant **assumes the previous turn may have failed mid-operation**, retrieves last durable GitHub checkpoint, checks pending operations and provider records where possible, preserves unsaved drafts and receipts, does not blindly repeat accepted/ambiguous writes, and distinguishes unknown/in-flight state from confirmed completion. Missing chat-only decisions cannot be recovered automatically: seek evidence first, then ask one narrow question only if necessary.
+
+**Cold-start acceptance:** Test both normal and unprepared emergency transfers using the static file verbatim. Demonstrate discovery of active vs draft docs, branch and approval status, critical rejected approaches, and unknown hosted-state handling. Do not activate the new handoff convention until it passes and the owner approves.
+
+## 9. P1 owner clarification — semantic/evidence review triggers and responsibility
+
+"Tier 2" is **semantic and evidence verification** by the assistant, plus owner sign-off only where mandatory. Do **not** describe assistant-only analysis as independent human verification. Trigger by defined operations rather than intuition:
+
+| Trigger | Mandatory analysis before status/decision is changed | Owner input |
+| --- | --- | --- |
+| Requirement, architecture, UX or scope proposal | Query relevant accepted/rejected/superseded decisions; check original approval and specific later amendment; evaluate change impact | For material new/changed approval |
+| Permission, credentials, service, cost, deployment, merge, schema, public cutover or rollback | Verify allowed scope, exact refs/CI, real provider version and safety/rollback gates; no evidence = halt consequential action | Only when existing gate requires authorization |
+| Claim moves to `deployed`, `verified`, `field accepted`, `closed` | Validate direct evidence for exact environment and date; do not infer from source CI | For tests only owner can perform and explicit acceptance gates |
+| Conflict, provider failure, unknown/out-of-band operation | Inspect independent status/receipts; preserve user drafts and recover safely | If evidence cannot be accessed and decision cannot be made safely |
+| Significant new approach or repeating a previous rejected solution | Mandatory topic/constraint search in `DECISIONS_INDEX` and linked ADRs/lessons; explain new evidence before reconsidering | If reversing material decision |
+| Chat handoff, milestone closeout, or material docs authority change | Check branch, state, work ownership, source/host evidence and completeness | No routine approval; final operating-model acceptance separately required |
+
+Each triggered review records a compact **review trigger, evidence link(s), outcome and any owner authorization** in the relevant PR/issue or decision; do not create another growing narrative in active state. A normal small content release stays governed by FISH108 and does not trigger a heavyweight project-wide Tier 2 exercise.
+
+The assistant is accountable for preparing/checking docs, links, CI evidence, ambiguity flags and handoff text. The owner is **not** responsible for routine doc administration, validator runs, GitHub reconciliation or re-explaining approved decisions.
+
+## 10. P1 owner clarification — retention of hard-earned project memory
+
+**The point is to move historical reasoning out of the startup payload, not to lose it.** Four layers preserve the benefit:
+
+1. **Always-on "do not repeat" guardrails:** Concise, high-impact constraints and already-rejected dangerous approaches are referenced from `OPERATING_RULES` in every operationally relevant chat, without the full historical transcripts.
+2. **Decision index for accepted, rejected, superseded and deferred options:** Every significant decision is searchable by **topic, affected component, alternatives considered, why rejected, prerequisites for reconsideration, approval evidence and supersession ID**. Link the original approval and technical analysis rather than copying it. An abandoned approach cannot silently become "new" because its PR is old.
+3. **Required pre-proposal historical check:** Before suggesting a substantive design/technology/product-path change, search the decision index **by problem and alternatives**, retrieve only relevant records, and state if/how a new proposal differs. A rejected approach may be reconsidered **only if constraints or evidence materially changed**, with explicit rationale and owner approval where required.
+4. **Regression/cold-start tests:** Include one or more prior rejected V3 approaches as adversarial tests. A fresh assistant must recognize the historical rejection and explain it without having to load the five original root files.
+
+This approach cannot guarantee perfect recall: an undocumented conversation-only choice or poor topic indexing can still be missed. P2 must explicitly preserve a **coverage inventory of negative decisions and lessons learned**, not merely the final approved requirements. The owner should not have to supervise us into relearning discarded ideas.
+
+## 11. P1 owner clarification — prevent drift continuously
+
+**Primary prevention occurs on each change, not at periodic audit:** single active-owner rules, in-place status editing (no prepend-only active logs), size budgets, bounded document ownership, verified evidence fields, static-link checks and duplicate-ID checks all run when relevant PRs are prepared. The assistant also performs a **semantic duplicate/supersession check** on each substantive update, because CI cannot prove all paraphrased contradictions.
+
+Once P3 validation is operational, doc CI must reject structural violations **before the PR is accepted**, with explicit failure fixtures; before then use the identical manual checklist and keep PR #283 draft. At milestones, a broader reconciliation remains a secondary backstop for subtler authority drift; it is not the primary sprawl-control mechanism. Historical archive growth is permitted and expected, but it must be linked and excluded from routine context.
+
+**P1 acceptance additional gates:** Static normal/emergency recovery prompt exists and is tested; required pre-proposal rejected-decision lookup is included; Tier 2 triggers, owner involvement and continuous per-change checks are explicitly tested. Owner acceptance of these clarifications does not by itself activate the operating model before P2/P3/P4 checks.
