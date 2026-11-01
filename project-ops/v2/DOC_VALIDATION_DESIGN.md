@@ -7,7 +7,7 @@
 
 ## 1. Explicit decision to make in P1
 
-**Recommend automated local + CI structural validation, plus mandatory human approval/evidence reconciliation.** Manual-only checks are insufficient to prevent repeated file sprawl, broken routing, or missing required status. Automated checks alone cannot determine whether a Cloudflare deployment is real or a product decision has legitimate owner authorization.
+**Recommend automated local + CI structural validation, plus mandatory assistant-performed semantic/evidence review and owner authorization only where required.** The earlier phrase "manual-only checks" referred to the former assistant-maintained, ad hoc comparison of root files and `git diff --check`; it did **not** mean the user was responsible for formal manual validation. Such checks were insufficient to prevent repeated file sprawl, broken routing, or missing required status. Automated checks alone cannot determine whether a Cloudflare deployment is real or a product decision has legitimate owner authorization. Assistant analysis is **not** a substitute for a specifically required independent human sign-off.
 
 This issue is **not optional backlog**: the new operating model is **not adopted** until the validator is implemented, its positive/negative cases are exercised, and an actual docs-only PR runs the check. Do not start it prematurely while the P2 document formats are still changing.
 
@@ -115,3 +115,25 @@ Existing `.github/workflows/fishing-production.yml` has `validate-docs` for Mark
 - [ ] Owner agrees to the staged **docs-only PR → separate full-lane tooling PR → docs-only end-to-end CI proof** sequence.
 - [ ] Owner agrees to the scope, soft/hard budgets, failure-vs-warning policy and explicit allowance for unknown status.
 - [ ] Issue #284 remains open as a mandatory P3 gate until validator, fixtures, workflow and CI evidence are accepted.
+
+## 9. Continuous prevention, Tier 2 triggers and rejected-decision coverage
+
+**Prevent, then audit:** Every operating-doc PR runs objective validation; it does not wait for a periodic reconciliation. Every substantive modification also receives a short semantic review **before merge**, checking that the authoritative state owner has been updated *in place* and that no new "current/latest" prose duplicates or contradicts an existing active record. Milestone audits are secondary backstops, not the basic sprawl-control process.
+
+**Triggered semantic/evidence checks:** Before material requirement/UX/architecture changes, independently inspect accepted, rejected and superseded decisions; before deployment/permissions/merge/cutover, inspect authorization plus exact source/provider gates; before marking deployed/accepted/closed, inspect direct time-stamped evidence; when a provider outcome is ambiguous, preserve receipts and avoid blind retries. The assistant records the trigger and evidence link in its PR/issue. Owner participation is required only for consequential approval, unavailable owner-device observations, or designated project acceptance.
+
+**Validator requirements extended for historical lessons:** Decision records/index must declare `status: accepted | rejected | superseded | deferred | proposed`, topic/component tags, original rationale or a durable pointer, `alternatives_considered`, and `reconsider_only_if` for a known rejected approach where applicable. Avoid pretending all prior chat-only decisions were recorded; migration must mark missing negative-decision coverage as unresolved for curator review. The pre-proposal decision lookup is a **Tier 2 semantic rule**; structural CI checks the index and link presence, but cannot guarantee correct semantic retrieval.
+
+**Additional fixtures:**
+- Repeating a long obsolete "latest checkpoint" in two active files: automated fail for deterministic duplicate text, manual semantic fail for paraphrased duplication.
+- Duplicate effective status owners with different words: schema failure where authority IDs disagree; manual review otherwise.
+- New ADR tagged `rejected` without rationale/reconsideration link: fail.
+- Significant technical proposal that reintroduces a previously rejected architecture without discussing its rejection: Tier 2 review failure and cold-start adversarial test.
+- Normal owner content publication with no operational-model change: must not require an irrelevant current-state update or full-document audit.
+- Emergency-start scenario with draft model files: new chat must distinguish proposed vs adopted docs, not silently promote a draft.
+
+**Owner burden:** Routine validator failures, source reconciliation, duplication corrections and handoff preparation are maintained by the assistant. Owner is asked for only (a) material approvals, (b) evidence solely available to owner, (c) final P1/P5 acceptance. Do not add a second per-PR human certification ceremony for the owner.
+
+**Static recovery prompt:** [`NEW_CHAT_PROMPT.md`](../../NEW_CHAT_PROMPT.md) is a required P2/P4 acceptance artifact, with the *same prompt* for a planned transfer or unexpected failed chat. CI should verify its presence, length budget, required GitHub routing content, explicit unknown in-flight operations policy and absence of the legacy full-bootstrap paste requirement. A normal transfer reply must reproduce the exact prompt, not a manually rewritten variant.
+
+**Separate work item:** These validator requirements are tracked by [#284](https://github.com/ginosega/fishing/issues/284), with the same FISH108 full-lane safety constraint for executable/workflow changes. The implementation may not be marked complete before documented fixture results and a real docs-only PR CI run.
