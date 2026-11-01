@@ -171,6 +171,22 @@ def validate(root: Path, *, allow_uninstalled=True):
                 errors.append(f"Active docs {n} and {other} duplicate substantial paragraphs")
     return errors, warnings
 
+def check_governance_scope(paths):
+    """Prevent unrelated PWA/runtime/workflow files from entering the governance branch."""
+    allowed_files = {
+        "PROJECT_ROUTER.md",
+        "NEW_CHAT_PROMPT.md",
+        "tools/check_project_ops.py",
+        "tools/test_project_ops.py",
+        ".github/workflows/governance-docs.yml",
+    }
+    return [
+        f"{name}: non-governance change not permitted on governance/project-ops"
+        for name in paths
+        if name not in allowed_files and not name.startswith("project-ops/v2/")
+    ]
+
+
 def check_approval_diffs(root):
     base = os.environ.get("PR_BASE_SHA")
     if not base:
@@ -178,7 +194,11 @@ def check_approval_diffs(root):
     result = subprocess.run(["git", "diff", "--name-only", base + "...HEAD"], cwd=root, capture_output=True, text=True)
     if result.returncode:
         return ["Could not verify approved-source protection against PR base: " + result.stderr.strip()]
-    return [f"{name}: edit to original approved source requires separate owner-scoped review" for name in result.stdout.splitlines() if re.fullmatch(r"pwa/docs/Fishing_Companion_v3_(?:Requirements|Technical_Design|Implementation_Plan|.*Approval_2026-10-19)\.md", name)]
+    changed = result.stdout.splitlines()
+    failures = [f"{name}: edit to original approved source requires separate owner-scoped review" for name in changed if re.fullmatch(r"pwa/docs/Fishing_Companion_v3_(?:Requirements|Technical_Design|Implementation_Plan|.*Approval_2026-10-19)\.md", name)]
+    if os.environ.get("GITHUB_BASE_REF") == "governance/project-ops":
+        failures.extend(check_governance_scope(changed))
+    return failures
 
 def main():
     root = Path(__file__).resolve().parent.parent
