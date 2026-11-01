@@ -1,6 +1,6 @@
 # FISH-OPS-V2 — P1 Documentation Validation Design and Rollout
 
-**Status:** P1 proposal, not implemented and not yet accepted
+**Status:** **P1 design accepted on 2026-11-01** ([sign-off](P1_DESIGN_APPROVAL_2026-11-01.md)); validator implementation/proof and P5 activation still separate gates.
 **Tracked action:** [FISH-OPS-V2 P3 documentation validator — issue #284](https://github.com/ginosega/fishing/issues/284)
 **Parent:** [initiative #282](https://github.com/ginosega/fishing/issues/282) · [draft PR #283](https://github.com/ginosega/fishing/pull/283)
 **Inputs:** [P1 operating-model design](P1_OPERATING_MODEL_DESIGN.md), [audit](AUDIT_2026-10-31.md), and `.github/workflows/fishing-production.yml` in the verified V3 source baseline.
@@ -118,9 +118,9 @@ Existing `.github/workflows/fishing-production.yml` has `validate-docs` for Mark
 
 ## 8. P1 acceptance for documentation validation
 
-- [ ] Owner agrees to **automated structural checks + triggered assistant-performed semantic/evidence review**, with actual owner sign-off only when an existing authorization or acceptance gate requires it.
-- [ ] Owner agrees to the staged **docs-only PR → separate full-lane tooling PR → docs-only end-to-end CI proof** sequence.
-- [ ] Owner agrees to the scope, soft/hard budgets, failure-vs-warning policy and explicit allowance for unknown status.
+- [x] Owner agrees to **automated structural checks + triggered assistant-performed semantic/evidence review**, with actual owner sign-off only when an existing authorization or acceptance gate requires it.
+- [x] Owner agrees to the staged **docs-only PR → separate full-lane tooling PR → docs-only end-to-end CI proof** sequence.
+- [x] Owner agrees to the scope, soft/hard budgets, failure-vs-warning policy and explicit allowance for unknown status.
 - [ ] Issue #284 remains open as a mandatory P3 gate until validator, fixtures, workflow and CI evidence are accepted.
 
 ## 9. Continuous prevention, Tier 2 triggers and rejected-decision coverage
