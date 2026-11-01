@@ -1,6 +1,6 @@
 # P4 — Independent governance cold-start acceptance
 
-**Status:** Candidate; requires owner to launch genuinely fresh Fishing-project conversations. Not yet passed or adopted.
+**Status:** **P4 A/B/C/D completed and passed**, based on actual owner-supplied responses from fresh Fishing-project chats; [acceptance evidence](P4_RECOVERY_ACCEPTANCE_2026-11-01.md). This does not constitute P5 adoption.
 **Authority:** [P1 approved design](P1_DESIGN_APPROVAL_2026-11-01.md), [independent-governance amendment](OWNER_AMENDMENT_INDEPENDENT_GOVERNANCE_2026-11-01.md).
 **Review:** [governance docs-only PR #288](https://github.com/ginosega/fishing/pull/288). **No V3 application CI prerequisite.**
 
