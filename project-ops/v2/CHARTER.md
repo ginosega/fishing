@@ -1,11 +1,12 @@
 # Fishing Project Operating Model v2 — initiative charter
 
 **ID:** FISH-OPS-V2
-**Status:** P0 audit completed; P1 owner-approved 2026-11-01; P2 documentation candidate populated; P3 CI/tooling verification in progress; P4/P5 adoption pending
+**Status:** P0 audit completed; P1 owner-approved, then amended to independent governance; P2 complete as draft; P3 independent document verification and P4/P5 adoption pending
 **Owner:** Fishing Companion project owner
 **Authorized:** 2026-10-31
 **Tracker:** [GitHub issue #282](https://github.com/ginosega/fishing/issues/282)
-**V3 source baseline:** `feature/fish118-p3-mock-publisher` at `406723f880960d33d40bd07984559432c8caa233`
+**Historical V3 evidence baseline:** `feature/fish118-p3-mock-publisher@406723f880960d33d40bd07984559432c8caa233` (historical references only).
+**Independent governance baseline:** `main@5d47b28d4e0908f5c796927b3d074911cc1881b8` → [docs-only PR #288](https://github.com/ginosega/fishing/pull/288). [Effective owner amendment](OWNER_AMENDMENT_INDEPENDENT_GOVERNANCE_2026-11-01.md).
 **Working branch:** `docs/fish-ops-v2-2026-10-31` (documentation-only, from that exact commit)
 
 ## Decision
