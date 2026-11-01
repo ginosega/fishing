@@ -80,6 +80,24 @@ def validate(root: Path, *, allow_uninstalled=True):
                 errors.append("NEW_CHAT_PROMPT.md: missing router/repository/uncertainty/negative-decision instructions")
             if re.search(r"\bfeature/[\w/-]+|#[0-9]{2,}|(?<![0-9a-f])[0-9a-f]{40}(?![0-9a-f])", copy):
                 errors.append("NEW_CHAT_PROMPT.md: stale SHA, branch, or issue ID in static text")
+    # Evidence-bearing environment status must not claim deployed/accepted
+    # without a dated pointer. The checker never verifies the pointer's truth.
+    current = (active / "CURRENT_STATE.md").read_text(encoding="utf-8")
+    for ln, line in enumerate(current.splitlines(), 1):
+        if not (line.startswith("|") and not line.startswith("| ---")):
+            continue
+        cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
+        if len(cells) < 7 or cells[0] == "Environment":
+            continue
+        observed = cells[6]
+        for field in cells[3:6]:
+            positive = re.search(r"\b(verified|deployed|accepted)\b", field, re.I)
+            negated = re.search(r"\b(not|un|never|unknown|pending)\s+(?:yet\s+)?(?:verified|deployed|accepted)\b", field, re.I)
+            if positive and not negated:
+                if not re.search(r"20\d{2}-\d{2}-\d{2}", observed):
+                    errors.append(f"CURRENT_STATE.md:{ln}: claimed hosted/field status missing observed_at date")
+                if not re.search(r"\[[^\]]+\]\((?:https?://|[^)#]+)", observed):
+                    errors.append(f"CURRENT_STATE.md:{ln}: claimed hosted/field status missing evidence link")
     work = (active / "WORK_QUEUE.md").read_text(encoding="utf-8")
     hs = list(WORK_HEADING.finditer(work))
     seen_work = set()
