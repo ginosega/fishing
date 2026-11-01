@@ -110,6 +110,23 @@ class OpsDocuments(unittest.TestCase):
         errors, _ = validator.validate(self.root)
         self.assertEqual([], errors)
 
+    def test_governance_scope_valid_docs_and_validator(self):
+        allowed = [
+            "PROJECT_ROUTER.md", "NEW_CHAT_PROMPT.md",
+            "project-ops/v2/START_HERE.md",
+            "project-ops/v2/decisions/topics/publishing.md",
+            ".github/workflows/governance-docs.yml",
+            "tools/check_project_ops.py",
+            "tools/test_project_ops.py",
+        ]
+        self.assertEqual([], validator.check_governance_scope(allowed))
+
+    def test_governance_scope_rejects_pwa_and_production_workflow(self):
+        bad = ["pwa/src/index.js", "pwa/Gear/items.json", ".github/workflows/fishing-production.yml", "README.md"]
+        errors = validator.check_governance_scope(bad)
+        self.assertEqual(4, len(errors))
+        self.assertTrue(all("non-governance change" in msg for msg in errors))
+
     def test_silent_uninstalled_no_error(self):
         empty = self.root / "no-docs"
         empty.mkdir()
