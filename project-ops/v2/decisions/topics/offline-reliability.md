@@ -1,0 +1,14 @@
+# Decision topic: offline reliability
+
+**Status:** Candidate P2 topic catalog; each source link points to historical evidence, not a new approval. `accepted` describes historical decision provenance; check supersession and current scope. New full records are created only for consequential cross-cutting choices.
+
+| ID | Decision / approach | Status | Search terms | Rationale / constraint | Original evidence |
+| --- | --- | --- | --- | --- | --- |
+| REL-001 | Offline library explicitly provisioned | accepted | FISH091; offline; cache | No full library automatically on ordinary online use; explicit verified Update Offline Library. Avoid implicit offline downloads. | [Source](https://github.com/ginosega/fishing/blob/406723f880960d33d40bd07984559432c8caa233/Fishing_Decision_Log.md#L421-L428) |
+| REL-002 | Provisional removable local draft support | deferred | IndexedDB; draft; local offline editing | Local recovery/continuation is conditional and removable if reliability degrades. No fully offline queued sync. | [Source](https://github.com/ginosega/fishing/blob/406723f880960d33d40bd07984559432c8caa233/pwa/docs/Fishing_Companion_v3_Requirements.md#L204-L222) |
+| REL-003 | A new release supersedes old stale assets | accepted | P0-A; stale session; service worker | Don't keep older hosted release assets indefinitely; coherent release transitions. Avoid accidental stale mixed versions. | [Source](https://github.com/ginosega/fishing/blob/406723f880960d33d40bd07984559432c8caa233/Fishing_Decision_Log.md#L252-L259) |
+| REL-004 | Use bounded deterministic WebP card thumbnails | accepted | P0-B; thumbnail; 512x270 | Generate card thumbnails; retain originals on detail/viewer. Do not replace originals with thumbnails. | [Source](https://github.com/ginosega/fishing/blob/406723f880960d33d40bd07984559432c8caa233/Fishing_Decision_Log.md#L274-L279) |
+| REL-005 | Installed Chrome PWA external-window behavior accepted | accepted | Android; external; target blank; links | Accept documented Chrome platform external-navigation behavior; retain correct link safety. Do not invent custom window behavior unnecessarily. | [Source](https://github.com/ginosega/fishing/blob/406723f880960d33d40bd07984559432c8caa233/Fishing_Decision_Log.md#L280-L285) |
+| REL-006 | Release checks protect source/host distinction | accepted | FISH109; exact-main; hosted identity | Bounded propagation retry but no false deploy result. No bypass when host unavailable. | [Source](https://github.com/ginosega/fishing/blob/406723f880960d33d40bd07984559432c8caa233/Fishing_Decision_Log.md#L318-L321) |
+
+**Retrieval:** choose matching topic/tag/alternative, open only the linked source section (or an applicable detailed ADR), and check later owner-approved amendments. Rejected/deferred choices are not automatically eligible for implementation. Historical links use a pinned repository commit wherever available; `OPS-004` points to its active initiative authority.
