@@ -1,6 +1,6 @@
 # P2 non-destructive migration — coverage and risk reconciliation
 
-**Evidence date:** 2026-11-01 · **Status:** P2 working corpus populated on unmerged draft [PR #283](https://github.com/ginosega/fishing/pull/283); structural/manual validation in progress, P3/P4/P5 adoption gates still open. No live Cloudflare or public GitHub Pages state queried.
+**Evidence date:** 2026-11-01 · **Historical snapshot:** The original P2 corpus was populated on V3-dependent draft [PR #283](https://github.com/ginosega/fishing/pull/283). Its implementation route was later **superseded** by the [owner-approved independent amendment](OWNER_AMENDMENT_INDEPENDENT_GOVERNANCE_2026-11-01.md) and main-based [draft PR #288](https://github.com/ginosega/fishing/pull/288). This file retains original P2 provenance; consult [current state](CURRENT_STATE.md) and [independent validation](P3_INDEPENDENT_VALIDATION_2026-11-01.md) for latest results. No Cloudflare or public Pages state queried.
 
 ## Source preservation / tracked changes
 - Migration starts from fixed V3 development baseline `406723f880960d33d40bd07984559432c8caa233`; [charter](CHARTER.md) and [P1 owner approval](P1_DESIGN_APPROVAL_2026-11-01.md).
