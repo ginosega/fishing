@@ -44,8 +44,14 @@ Additional *reference-only* files may include `project-ops/v2/decisions/ADR-NNNN
 
 ## 3. Exact document contracts
 
+### PROJECT_ROUTER.md and NEW_CHAT_PROMPT.md — stable default-branch entry (outside the five active work files)
+- `PROJECT_ROUTER.md` must be reachable from the repository's **current default branch**, independently of any unmerged V3 development branch. It declares the **active workstream(s)**, primary workstream for a generic "resume" request, GitHub branch and approved operating-doc entry path, routing update date and supporting issue/PR pointers. It is a locator, **not** a second `CURRENT_STATE`.
+- Update the router **when a workstream or its branch/approved docs entry changes**, not after every commit or status transition. On each chat start, verify the pointers against current refs, open/merged PR state and approval evidence; if stale or missing, inspect root README/relevant GitHub issues/PRs and state uncertainty before consequential action.
+- `NEW_CHAT_PROMPT.md` is a **static copyable instruction** on the default branch and contains **no time-bound branches, commits, issue IDs or statuses**. Both normal and emergency transfers use exactly that text. It can remain valid for months. The file's description outside its copyable block may label its adoption status.
+- Following the router must never allow an unmerged draft operating model to be silently treated as approved. The final docs activation requires separately reviewed, documentation-only root/default-branch routing changes and owner acceptance. Do not merge V3 app PR or deploy to add a router.
+
 ### START_HERE.md
-- Project/repository identity, the currently relevant **working branch** and active-doc location. Clarify that public `main`, development branch and docs PR can differ.
+- Stable purpose/scope and short read protocol for its routed workstream. Its contents do not duplicate the root router or track every source commit.
 - Minimal read order: `START_HERE` -> `CURRENT_STATE`; read `WORK_QUEUE` when an action is requested and `OPERATING_RULES` when an operational gate matters. Read only targeted design/decision/code sections when required.
 - One-paragraph rules for uncertainty, bounded retrieval, source/host evidence, and historical-file treatment.
 - Links to authoritative indexes; **no project transcript, repeated status paragraphs, entire bootstrap, or environment secrets**.
@@ -70,11 +76,14 @@ Additional *reference-only* files may include `project-ops/v2/decisions/ADR-NNNN
 - Document workflow: one state owner, current updates in place, decision amendments by ID, proof links; stop on unresolved conflicting authority.
 - Bounded new-chat entry and session closeout; zero production credentials, personal secrets, or private drafts stored in operational docs.
 
-### DECISIONS_INDEX.md and ADRs
-- Index fields: `ID | topic | status | effective scope | approved date | canonical record | supersedes`.
-- An ADR has `ID`, `status` (`proposed`, `accepted`, `superseded`, `rejected`), `decision`, `scope`, `rationale`, `approval evidence`, `supersedes/superseded by`, and relevant requirements.
-- For historical approvals, **link to exact October 19 approval records and original blob**; do not rewrite a record as if it approved October 27/31 changes. Use standalone amendment references where owner acceptance actually exists.
-- Decision indexes are curated; they cannot manufacture or expand authorizations. A choice made by an assistant alone is a proposal until authorized by the owner where needed.
+### DECISIONS_INDEX.md, topic catalogs and ADRs — scalable lazy loading
+- `DECISIONS_INDEX.md` is a **small table of contents of topics**, not a growing table of every project decision. It points to topic catalogs beneath `project-ops/v2/decisions/topics/` (e.g. `publishing.md`, `security-auth.md`, `editor-ux.md`, `architecture.md`, `offline-reliability.md`, `project-operations.md`, `content-and-gear.md`). A new domain is introduced only when needed.
+- Topic catalogs carry **one short entry per consequential decision or amendment**: `ID | title | component/tags/aliases | status | short rationale/rejection reason | effective/superseded relationship | canonical detail link`. Organize by subsystem/problem, not purely by date. Synonyms make searches robust to changed terminology.
+- Canonical individual decision records live in `project-ops/v2/decisions/records/ADR-NNNN-*.md` where new records are warranted. Each includes stable ID, scope, status (`proposed`, `accepted`, `rejected`, `deferred`, `superseded`), problem, decision, alternatives considered, **why options were rejected**, evidence/owner approval, `reconsider_only_if` condition for negative decisions, and supersession links. **Do not create an ADR for each ordinary bug fix, CI run or status update.**
+- The **original** `Fishing_Decision_Log.md`, exact October 19 approvals and later signed amendments remain preserved at their historical Git refs and paths. For an old decision, the topic catalog may link straight to its authoritative legacy section or original approval rather than duplicate the text or fabricate a new approval.
+- **Query algorithm before substantive proposals:** (1) read only `DECISIONS_INDEX` (~5 KB target), (2) choose the relevant topic catalog(s) by subsystem, keywords, synonyms and rejected alternatives, (3) open only matching ADRs/legacy records and any supersessions, (4) test the proposal against the identified prior rationale and changed constraints. If no topic is obvious, search catalog/record filenames and titles or conduct bounded GitHub content search; never default to ingesting the whole historical log.
+- **Growth control:** Topic catalogs target <= 8 KB and hard-limit at 12 KB; split a growing topic by meaningful subtopic and update only the compact index link. `DECISIONS_INDEX` retains a <= 5 KB soft target / 8 KB hard cap. Each new/changed ADR must update exactly one topic catalog and its supersession references in the **same PR**. Validation verifies links, unique IDs, status/relationship consistency and budgets; human review checks relevance/semantic coverage.
+- The objective is to preserve **negative lessons** and rationale without putting all historical reasoning in routine context. Decision indexes never create owner authorization or override explicitly approved original records.
 
 ## 4. Maintenance transaction: one work item, one source of truth
 
@@ -118,7 +127,7 @@ P1 is ready for owner approval once these are clear:
 
 ## 8. P1 owner clarification — exact normal and emergency chat transfer
 
-**Static copy/paste prompt:** [`NEW_CHAT_PROMPT.md`](../../NEW_CHAT_PROMPT.md), maintained in GitHub and ultimately discoverable via root `README.md` on the default `main` branch after adoption. It contains **the same first message for both normal and emergency transfers**. Dynamic branch/source state lives in a small GitHub routing file, not in a constantly rewritten multi-page prompt.
+**Static copy/paste prompt:** [`NEW_CHAT_PROMPT.md`](../../NEW_CHAT_PROMPT.md) is deliberately free of temporary branches, commit IDs and issue numbers. After adoption, it and **`PROJECT_ROUTER.md`** must be discoverable on the repository's default branch. The prompt never needs updating just because project work advances; only the router changes when the workstream/ref changes, while `CURRENT_STATE` changes as needed. Both planned and emergency transfers use **the exact same static first message**, and both require verification that the routed documents are approved, not merely in a draft PR.
 
 **Normal:** (1) owner says **"Prepare to transfer to a new chat."** (2) Assistant stops consequential new work, safely checkpoints any ongoing operation, commits/verifies durable state and exact refs, then **prints the complete copyable GitHub prompt in its reply** (not just a link). (3) Owner starts a new chat in the Fishing ChatGPT project, pastes the prompt, and (4) new assistant reads only active router/state/task docs and reconciles actual source/CI/provider uncertainties before continuing. Do **not** demand owner approval for routine source-only documentation bookkeeping.
 
