@@ -1,8 +1,8 @@
 # FISH-OPS-V2 — P1 Operating-Model Design Proposal
 
-**Status:** P1 design proposal, **not yet accepted** as the active project operating policy  
-**Prepared:** 2026-10-31 · **Initiative:** [#282](https://github.com/ginosega/fishing/issues/282) · **Draft PR:** [#283](https://github.com/ginosega/fishing/pull/283)  
-**Audit and traceability:** [AUDIT_2026-10-31.md](AUDIT_2026-10-31.md) · [MIGRATION_COVERAGE_MATRIX.md](MIGRATION_COVERAGE_MATRIX.md)  
+**Status:** P1 design proposal, **not yet accepted** as the active project operating policy
+**Prepared:** 2026-10-31 · **Initiative:** [#282](https://github.com/ginosega/fishing/issues/282) · **Draft PR:** [#283](https://github.com/ginosega/fishing/pull/283)
+**Audit and traceability:** [AUDIT_2026-10-31.md](AUDIT_2026-10-31.md) · [MIGRATION_COVERAGE_MATRIX.md](MIGRATION_COVERAGE_MATRIX.md)
 **Reference source:** `feature/fish118-p3-mock-publisher@406723f880960d33d40bd07984559432c8caa233`. Never infer a live deployment from a Git commit.
 
 ## 1. Objectives, boundaries and decision
