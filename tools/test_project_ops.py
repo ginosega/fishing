@@ -90,6 +90,26 @@ class OpsDocuments(unittest.TestCase):
         (records / "ADR-0001.md").write_text("# ADR\n**ID:** ADR-0001\n**Status:** accepted\n**Original evidence / approval:** source\n**Alternative considered / why rejected:** x\n**Reconsider only if:** x\n", encoding="utf-8")
         self.assert_error("no catalog links")
 
+    def test_verified_hosted_without_date_or_link_fails(self):
+        p = self.base / "CURRENT_STATE.md"
+        p.write_text(p.read_text(encoding="utf-8") +
+            "\n| Environment | Source | CI | Private hosted | Public hosted | Field acceptance | Observed at / evidence |\n"
+            "| --- | --- | --- | --- | --- | --- | --- |\n"
+            "| sandbox | code | pass | verified | unknown | unknown | no evidence |\n",
+            encoding="utf-8")
+        self.assert_error("claimed hosted/field status missing observed_at date")
+        self.assert_error("claimed hosted/field status missing evidence link")
+
+    def test_verified_hosted_with_dated_link_passes(self):
+        p = self.base / "CURRENT_STATE.md"
+        p.write_text(p.read_text(encoding="utf-8") +
+            "\n| Environment | Source | CI | Private hosted | Public hosted | Field acceptance | Observed at / evidence |\n"
+            "| --- | --- | --- | --- | --- | --- | --- |\n"
+            "| sandbox | code | pass | verified | unknown | unknown | 2026-11-01 [proof](https://example.org/proof) |\n",
+            encoding="utf-8")
+        errors, _ = validator.validate(self.root)
+        self.assertEqual([], errors)
+
     def test_silent_uninstalled_no_error(self):
         empty = self.root / "no-docs"
         empty.mkdir()
