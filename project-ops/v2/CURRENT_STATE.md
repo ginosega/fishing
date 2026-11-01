@@ -2,7 +2,7 @@
 
 Last reconciled (UTC): **2026-11-01 (repository source only; no live provider query)**
 Source baseline: `ginosega/fishing` V3 draft branch `feature/fish118-p3-mock-publisher@406723f880960d33d40bd07984559432c8caa233`; ops draft branch tracked by [PR #283](https://github.com/ginosega/fishing/pull/283). **Re-check branch HEAD every session**.
-**Status:** P1 operating-model design approved; P2 documentation migration in progress; P3 CI/tooling not implemented; P4 cold-start and P5 adoption pending.
+**Status:** P1 approved. P2 bounded corpus and indexed decision migration populated on draft PR #283; cross-reference/manual checks completed, **strict P3 CI not yet verified**. P3 tooling PR #285 under full-suite validation; P4/P5 pending.
 
 ## Environments
 
@@ -14,7 +14,7 @@ Source baseline: `ginosega/fishing` V3 draft branch `feature/fish118-p3-mock-pub
 
 ## Active workstreams
 
-**OPS-V2 / source:** P0 audit completed, P1 owner-approved, P2 in progress. **CI:** prior docs lane checks whitespace only; P3 checker issue [#284](https://github.com/ginosega/fishing/issues/284) open. **Private hosted:** not-applicable. **Public hosted:** not adopted. **Field acceptance:** P4 not performed. **Next:** populate and reconcile current docs, complete historical decisions, prepare isolated validator.
+**OPS-V2 / source:** P0 audit and P1 owner-approved. P2 new five-doc corpus, static prompt/router, seven decision topic catalogs (48 entries), eight rationale ADRs, 56 legacy Decision Log headings and independent fishing backlog index created. [P2 source reconciliation](P2_MIGRATION_RECONCILIATION_2026-11-01.md). **CI:** P3 [tooling PR #285](https://github.com/ginosega/fishing/pull/285) in full validation; docs-only strict CI still pending. **Private hosted:** not-applicable. **Public hosted:** router not adopted. **Field acceptance:** P4 not performed. **Next:** complete tooling CI and prove strict docs-lane PR validation.
 
 **V3 / Gear Notes original-image defect:** Source fix described as validated by historical CI [#41243971222](https://github.com/ginosega/fishing/actions/runs/41243971222), **not proof of present HEAD CI**. Private Worker deployment/version **unknown**; previously observed owner field test failed with `Picture unavailable`. Next after V3 resumes: reconcile actual Worker version and exact source before guarded fix or recheck; do not republish as a diagnostic.
 
