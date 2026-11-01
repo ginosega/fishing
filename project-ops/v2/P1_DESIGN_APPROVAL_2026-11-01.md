@@ -1,8 +1,8 @@
 # FISH-OPS-V2 — P1 Design Acceptance
 
-**Date:** 2026-11-01  
-**Initiative:** [#282](https://github.com/ginosega/fishing/issues/282)  
-**Design PR:** [#283](https://github.com/ginosega/fishing/pull/283)  
+**Date:** 2026-11-01
+**Initiative:** [#282](https://github.com/ginosega/fishing/issues/282)
+**Design PR:** [#283](https://github.com/ginosega/fishing/pull/283)
 **Gate outcome:** **P1 OPERATING-MODEL DESIGN APPROVED; P2 NON-DESTRUCTIVE MIGRATION AUTHORIZED.** This approval does not activate the new workflow, merge a PR, deploy an application, or waive future acceptance gates.
 
 ## Owner decision
