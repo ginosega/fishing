@@ -125,6 +125,8 @@ jobs:
           node-version: '24'
           cache: npm
           cache-dependency-path: pwa/package-lock.json
+      - name: Exercise isolated operating-document validation fixtures
+        run: python3 -m unittest discover -s tools -p 'test_project_ops.py' -v
       - name: Verify durable v1 recovery and prepare actual cutover fixture
         run: |
           git show 4aafcd2f88b35bb34b608e2f85dec1daffc6c1d1:recovery/v1-production.zip > /tmp/v1-production.zip
@@ -203,6 +205,10 @@ jobs:
         run: |
           set -euo pipefail
           git diff --check "$PR_BASE_SHA"...HEAD
+      - name: Validate bounded operating model and decision references
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: python3 tools/check_project_ops.py
 
   merge-ready:
     name: fishing-merge-ready
