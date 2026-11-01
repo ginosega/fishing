@@ -42,3 +42,5 @@ Each review adds a small dated evidence file or issue comment containing:
 **Failure policy:** Correct the docs or tests, re-run checks on the **new** head and do not re-label a previous green run as valid for a changed SHA. Do not substitute the failing PWA offline-library browser suite for these governance checks.
 
 **Required enforcement:** [#284](https://github.com/ginosega/fishing/issues/284) stays open until GitHub branch ruleset actively requires both `governance-docs` and existing `fishing-merge-ready` on `governance/project-ops`, with real negative merge-blocking proof. Automatic CI itself is installed on this branch; no separate vendor or public application deployment is required. Owner participation is limited to the GitHub ruleset edit, which the connected GitHub tool cannot perform.
+
+<!-- exact canonical-governance CI proof; remove by closing PR unmerged -->
