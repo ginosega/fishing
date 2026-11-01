@@ -1,43 +1,43 @@
 # Fishing Project — active work queue (candidate)
 
-**Status:** P1 approved, P2 in progress; V3 feature development paused. Owner is the Fishing Companion project owner; assistant performs routine source/document work.
+**Governance status:** Independent of V3 PWA application tests by owner-approved [amendment](OWNER_AMENDMENT_INDEPENDENT_GOVERNANCE_2026-11-01.md). Assistant owns routine documentation/validation; project owner authorizes consequential decisions and runs fresh-chat acceptance.
 
-## FISH-OPS-V2 — Operating-model migration
+## FISH-OPS-V2 — Independent operating-model migration
 
 State: review
 Owner: project owner / assistant implementer
-Next safe action: Verify strict P3 validator against populated draft docs and cross-check complete retained historical sources; do not merge before P4 acceptance.
-Prerequisites: [P1 approval](P1_DESIGN_APPROVAL_2026-11-01.md), [source crosswalk](MIGRATION_COVERAGE_MATRIX.md), verified docs-only branch.
-Acceptance: Five active docs bounded; rejected-approach coverage; link/source provenance; no pre-existing code, approvals or public V2 changed; [issue #282](https://github.com/ginosega/fishing/issues/282).
-Evidence: [draft PR #283](https://github.com/ginosega/fishing/pull/283).
+Next safe action: Verify docs-only [PR #288](https://github.com/ginosega/fishing/pull/288), structural/semantic decision coverage and exact links, then conduct owner-run P4 cold-start before adoption.
+Prerequisites: [P1 design approval](P1_DESIGN_APPROVAL_2026-11-01.md); [independence amendment](OWNER_AMENDMENT_INDEPENDENT_GOVERNANCE_2026-11-01.md); migration [reconciliation](P2_MIGRATION_RECONCILIATION_2026-11-01.md).
+Acceptance: Preserved old canonical records and historical approved/rejected options, bounded working docs, static prompt, clean-chat test, final owner adoption; **no PWA test dependency**.
+Evidence: [governance PR #288](https://github.com/ginosega/fishing/pull/288) · [issue #282](https://github.com/ginosega/fishing/issues/282).
 
-## FISH-OPS-V2-VALIDATION — Documentation CI
+## FISH-OPS-V2-VALIDATION — Independent documentation verification
 
-State: blocked
+State: in-progress
 Owner: assistant implementer
-Next safe action: Resolve [pre-existing V3 full-lane offline-library CI blocker #287](https://github.com/ginosega/fishing/issues/287) through separately authorized investigation/remediation without bypassing required tests. Tooling PR #285 remains draft/unmerged until full-suite PASS.
-Prerequisites: P2 document contracts finalized; [#284](https://github.com/ginosega/fishing/issues/284); no implicit public merge/deploy.
-Acceptance: Valid and invalid fixtures tested; docs-only PR runs strict checks; exact-source CI evidence; preserve existing FISH108 classifier, checks and production safeguards.
-Evidence: [validator design](DOC_VALIDATION_DESIGN.md).
+Next safe action: Run docs-only GitHub checks on #288 and independently verify the full changed corpus's local links/limits/IDs/evidence/ADR references, with negative fixtures. Record exact ref/results and known limits.
+Prerequisites: Document contract from [validation design](DOC_VALIDATION_DESIGN.md), approved amendment; do not alter PWA-owned FISH108 workflow.
+Acceptance: Tests are repeatable and evidence-backed; **permanent always-on CI automation explicitly tracked separately**, never claimed installed if absent.
+Evidence: [Issue #284](https://github.com/ginosega/fishing/issues/284) · [previous isolated strict docs-only run #41332302407](https://github.com/ginosega/fishing/actions/runs/41332302407), before this branch move.
 
-## FISH-OPS-V2-RECOVERY — Cold-start and adoption
-
-State: blocked
-Owner: project owner at final acceptance; assistant prepares checks
-Next safe action: Run separate normal and unprepared-emergency chat tests **after** P3; confirm rejected-decision retrieval and ambiguous in-flight safety.
-Prerequisites: P2 docs/decision index and P3 validator evidence.
-Acceptance: New chat locates default-branch router, distinguishes draft/active, reads bounded state and prior negative decisions; final owner approval; activate docs-only router on `main` without V3 deployment.
-Evidence: [static recovery prompt](../../NEW_CHAT_PROMPT.md), [P1 design](P1_OPERATING_MODEL_DESIGN.md).
-
-## FISH-TODO-118 — Fishing Companion V3 (paused)
+## FISH-OPS-V2-RECOVERY — Owner-run cold-start / adoption
 
 State: blocked
-Owner: project owner / assistant implementer
-Next safe action: **Only after operating-model adoption**, refresh current private Worker, GitHub HEAD/CI, Gear Notes fix and Catch publication/UX gates.
-Prerequisites: FISH-OPS-V2 P5; existing scoped security/provider/cutover approvals.
-Acceptance: D6 real-device and hosted proof, 60-second ordinary text-only verified-Live requirement, separate explicit V3 production cutover approval; never infer from source CI.
-Evidence: [PR #263](https://github.com/ginosega/fishing/pull/263), [requirements](../../pwa/docs/Fishing_Companion_v3_Requirements.md).
+Owner: project owner for independent new-chat observations; assistant supplies exact instructions and evaluates evidence
+Next safe action: After independent governance validation, use [static prompt](../../NEW_CHAT_PROMPT.md) in two fresh Fishing ChatGPT conversations for normal and emergency scenarios.
+Prerequisites: Verified docs PR #288 source, current `main` router absence safely handled, prior rejected decision indexed and testable.
+Acceptance: New chats retrieve approved status and negative-decision reasons without history dump, distinguish Git/CI/provider/device and do not retry ambiguous writes; P5 owner accepts limitations and deployment-independent plan.
+Evidence: [P4 test plan](P4_COLD_START_TEST_PLAN.md).
+
+## FISH-TODO-118 — Fishing Companion V3 (separate, paused)
+
+State: blocked
+Owner: project owner / assistant developer
+Next safe action: On independent resumption, verify V3 branch and private Worker/source/CI, Gear Notes and Catch issues, and original security/provider release gates.
+Prerequisites: V3 product/owner authorization; **not** necessary for governance P4/P5.
+Acceptance: All V3 security/latency/deployment/field acceptance and separate public cutover gates remain unchanged.
+Evidence: [PR #263](https://github.com/ginosega/fishing/pull/263), [PWA Playwright defect #287](https://github.com/ginosega/fishing/issues/287).
 
 ## Independent fishing equipment and editorial backlog
 
-These tasks remain separate from V3 and the operating-model milestone, and **must not be silently closed or forgotten**. See [FISHING_BACKLOG_INDEX.md](FISHING_BACKLOG_INDEX.md) for currently open, closed, and expressly deleted items with source links.
+Preserve all open/deleted/closed tasks in [FISHING_BACKLOG_INDEX.md](FISHING_BACKLOG_INDEX.md); not subsumed by V3 feature scope or governance tasks.
