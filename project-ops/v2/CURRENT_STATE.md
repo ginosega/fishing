@@ -2,7 +2,7 @@
 
 Last reconciled (UTC): **2026-11-01 (GitHub project governance source and CI; no provider query)**
 Source baseline: `main@5d47b28d4e0908f5c796927b3d074911cc1881b8` when independent governance was branched. Governance changes are on [draft PR #288](https://github.com/ginosega/fishing/pull/288), branch `governance/fish-ops-v2-independent`. **Refresh heads and evidence at each session; do not treat this SHA as current forever.**
-**Status:** P0 audit completed, P1 approved, P2 governance documents populated; P3 independent documentation verification in progress; P4 independent new-chat tests and P5 adoption remain to be accepted. V3 application tests are **not a governance dependency**.
+**Status:** P0 audit complete, P1 approved and independently amended; P2 docs populated; P3 structural verification and 12 adversarial fixtures completed on governance source with **exact final-head docs CI pending**. P4 new-chat tests and P5 adoption are not complete. V3 application tests are **not a governance dependency**.
 
 ## Environments
 
@@ -14,7 +14,7 @@ Source baseline: `main@5d47b28d4e0908f5c796927b3d074911cc1881b8` when independen
 
 ## Active workstreams
 
-**FISH-OPS-V2 / governance:** P2 transferred 33 Markdown-only docs by **identical Git blobs** to main-based PR #288; [owner amendment](OWNER_AMENDMENT_INDEPENDENT_GOVERNANCE_2026-11-01.md) confirms independence. Topic catalogs retain 48 curated decisions, 8 rationale ADRs, 56 historical Decision Log headings, plus separate fishing backlog. The old V3-based governance PR #283 and attached validator #285 are superseded for this implementation and must not be merged. **Next safe action:** run/check the main-based docs-only PR, independent structural/negative fixtures, then request the owner-led *fresh-chat* test. Permanent automatic governance-only CI enforcement is a separately disclosed follow-up, not silently considered installed.
+**FISH-OPS-V2 / governance:** P2 transferred 33 Markdown-only docs by **identical Git blobs** to main-based PR #288; [owner amendment](OWNER_AMENDMENT_INDEPENDENT_GOVERNANCE_2026-11-01.md) confirms independence. Topic catalogs now contain **49** curated decision entries, **9** rationale ADRs (including the governance decoupling decision), 56 historical Decision Log headings, plus a separate fishing backlog. The old V3-based governance PR #283 and attached validator #285 are superseded for this implementation and must not be merged. **P3 evidence:** [independent source/fixture review](P3_INDEPENDENT_VALIDATION_2026-11-01.md) passed, plus an earlier GitHub docs-only CI run; **permanent structural CI not installed**. **Next safe action:** verify final exact-head GitHub docs-only PR status, then request owner-led fresh-chat recovery test. Permanent automatic governance-only CI enforcement is a separately disclosed follow-up, not silently considered installed.
 
 **PWA V3 / Gear Notes image:** Historic source fix exists; exact private Worker deployment/version **unknown**. Past field observation failed. No republishing as diagnosis.
 
