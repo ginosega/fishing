@@ -1,7 +1,7 @@
 # Fishing Project Operating Model v2 — initiative charter
 
 **ID:** FISH-OPS-V2
-**Status:** Established; audit and operating-model specification in progress
+**Status:** P0 audit completed; P1 owner-approved 2026-11-01; P2 documentation candidate populated; P3 CI/tooling verification in progress; P4/P5 adoption pending
 **Owner:** Fishing Companion project owner
 **Authorized:** 2026-10-31
 **Tracker:** [GitHub issue #282](https://github.com/ginosega/fishing/issues/282)
