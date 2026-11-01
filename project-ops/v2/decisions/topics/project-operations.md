@@ -13,4 +13,6 @@
 
 | OPS-007 | Governance checks independent of PWA full browser CI | accepted | decoupling; FISH108; CI; governance; test timeout | Governance documents and source checks do not depend on V3 app tests; avoid changing existing release workflow. Permanent required CI remains an explicit future gate. | [Decision](../records/ADR-0009.md) · [Owner approval](../../OWNER_AMENDMENT_INDEPENDENT_GOVERNANCE_2026-11-01.md) |
 
+| OPS-008 | Canonical governance branch with default main router | proposed | dedicated branch; governance-docs; no Pages redeploy; branch rules | One active docs branch and lightweight default router; reject dual authority and unapproved V2 deployment; required check pending P5. | [Decision](../records/ADR-0010.md) · [Plan](../../P5_CANONICAL_BRANCH_IMPLEMENTATION_2026-11-01.md) |
+
 **Retrieval:** choose matching topic/tag/alternative, open only the linked source section (or an applicable detailed ADR), and check later owner-approved amendments. Rejected/deferred choices are not automatically eligible for implementation. Historical links use a pinned repository commit wherever available; `OPS-004` points to its active initiative authority.
