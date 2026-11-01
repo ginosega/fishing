@@ -13,12 +13,12 @@ Evidence: [governance PR #288](https://github.com/ginosega/fishing/pull/288) · 
 
 ## FISH-OPS-V2-VALIDATION — Independent documentation verification
 
-State: in-progress
+State: review
 Owner: assistant implementer
-Next safe action: Run docs-only GitHub checks on #288 and independently verify the full changed corpus's local links/limits/IDs/evidence/ADR references, with negative fixtures. Record exact ref/results and known limits.
+Next safe action: Confirm exact-head docs-only CI on #288 and independent structural/negative-fixture evidence; prepare owner P4 fresh-chat test. Permanent structural CI enforcement remains separate.
 Prerequisites: Document contract from [validation design](DOC_VALIDATION_DESIGN.md), approved amendment; do not alter PWA-owned FISH108 workflow.
 Acceptance: Tests are repeatable and evidence-backed; **permanent always-on CI automation explicitly tracked separately**, never claimed installed if absent.
-Evidence: [Issue #284](https://github.com/ginosega/fishing/issues/284) · [previous isolated strict docs-only run #41332302407](https://github.com/ginosega/fishing/actions/runs/41332302407), before this branch move.
+Evidence: [Issue #284](https://github.com/ginosega/fishing/issues/284) · [independent P3 validation](P3_INDEPENDENT_VALIDATION_2026-11-01.md) · [PR #288](https://github.com/ginosega/fishing/pull/288).
 
 ## FISH-OPS-V2-RECOVERY — Owner-run cold-start / adoption
 
