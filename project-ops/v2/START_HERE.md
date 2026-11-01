@@ -3,7 +3,7 @@
 **Status:** Candidate under [Operating Model v2 #282](https://github.com/ginosega/fishing/issues/282); **not yet active** until P3/P4/P5 gates.
 
 ## Read order
-1. Check the repository default-branch `PROJECT_ROUTER.md` **after adoption** (before adoption, #282 + PR #283 identify the candidate docs). Confirm GitHub ref and whether this is an approved entry rather than a draft.
+1. Check the repository default-branch `PROJECT_ROUTER.md` **after adoption** (before adoption, [initiative #282](https://github.com/ginosega/fishing/issues/282) and [draft PR #288](https://github.com/ginosega/fishing/pull/288) identify the candidate docs). Confirm GitHub ref and whether this is an approved entry rather than a draft.
 2. Read [CURRENT_STATE.md](CURRENT_STATE.md), then [WORK_QUEUE.md](WORK_QUEUE.md) for the requested workstream only.
 3. Read [OPERATING_RULES.md](OPERATING_RULES.md) before a consequential GitHub/provider action.
 4. For a material proposal, consult [DECISIONS_INDEX.md](DECISIONS_INDEX.md), select one topic catalog and read the matching decision/approval evidence, **including rejected alternatives**. Read only applicable source/spec/code sections.
