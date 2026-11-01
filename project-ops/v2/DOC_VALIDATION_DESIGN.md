@@ -1,8 +1,8 @@
 # FISH-OPS-V2 — P1 Documentation Validation Design and Rollout
 
-**Status:** P1 proposal, not implemented and not yet accepted  
-**Tracked action:** [FISH-OPS-V2 P3 documentation validator — issue #284](https://github.com/ginosega/fishing/issues/284)  
-**Parent:** [initiative #282](https://github.com/ginosega/fishing/issues/282) · [draft PR #283](https://github.com/ginosega/fishing/pull/283)  
+**Status:** P1 proposal, not implemented and not yet accepted
+**Tracked action:** [FISH-OPS-V2 P3 documentation validator — issue #284](https://github.com/ginosega/fishing/issues/284)
+**Parent:** [initiative #282](https://github.com/ginosega/fishing/issues/282) · [draft PR #283](https://github.com/ginosega/fishing/pull/283)
 **Inputs:** [P1 operating-model design](P1_OPERATING_MODEL_DESIGN.md), [audit](AUDIT_2026-10-31.md), and `.github/workflows/fishing-production.yml` in the verified V3 source baseline.
 
 ## 1. Explicit decision to make in P1
