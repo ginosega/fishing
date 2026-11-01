@@ -1,14 +1,14 @@
-# Fishing project router — candidate (NOT YET ACTIVE)
+# Fishing project — stable default-branch router
 
-**Routing status:** DRAFT under operating-model initiative [#282](https://github.com/ginosega/fishing/issues/282). Do not promote to default `main` or treat as adopted before P3 CI, P4 cold-start and P5 owner sign-off.
+**Status:** Candidate on [independent draft PR #288](https://github.com/ginosega/fishing/pull/288). This file becomes the approved project router on default `main` **only after P4 testing and P5 owner sign-off**.
 
-Primary workstream: FISH-OPS-V2 (docs refactor), [#282](https://github.com/ginosega/fishing/issues/282)
-Active workstreams: Operating Model v2; Fishing Companion V3 (paused)
-Routed branch: `docs/fish-ops-v2-2026-10-31`
+Primary workstream: Fishing Project Operating Model v2 / [#282](https://github.com/ginosega/fishing/issues/282)
+Active workstreams: Project governance; Fishing Companion V3 (separate, paused for governance transition)
+Routed branch: `main` after adoption; until then read the proposed documents on `governance/fish-ops-v2-independent` only after confirming draft status.
 Entry point: `project-ops/v2/START_HERE.md`
 Routing reviewed at: 2026-11-01
-Evidence: [draft PR #283](https://github.com/ginosega/fishing/pull/283), [P1 approval](project-ops/v2/P1_DESIGN_APPROVAL_2026-11-01.md)
+Evidence: [Owner-approved independent governance amendment](project-ops/v2/OWNER_AMENDMENT_INDEPENDENT_GOVERNANCE_2026-11-01.md) · [PR #288](https://github.com/ginosega/fishing/pull/288)
 
-**Read path:** verify branch/ref and approval from GitHub → START_HERE → CURRENT_STATE → relevant WORK_QUEUE and topic catalog on demand. The current branch is a **proposal**; original V3 branch `feature/fish118-p3-mock-publisher` and PR #263 remain paused and unmerged.
+**Current application source is separately routed:** V3 experimental work resides in [draft PR #263](https://github.com/ginosega/fishing/pull/263). Verify current branch/CI and deployed reality when resuming it. Neither governance approval nor a successful governance check authorizes V3 application merge or deployment.
 
-**Default-branch installation at P5:** Publish a router on `main` through a *separate docs-only PR* with owner-reviewed workstream routing; update it only when the active workstream or authoritative branch changes. Keep `NEW_CHAT_PROMPT.md` static and also visible on `main`.
+**In a new chat:** read this tiny router on `main`; if absent because PR #288 remains draft, find the latest **approved** issue/PR from [#282](https://github.com/ginosega/fishing/issues/282) and read only its bounded docs. A draft does not override currently adopted project instructions. Never load full historical bootstrap automatically.
