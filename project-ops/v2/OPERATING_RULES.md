@@ -1,6 +1,6 @@
 # Fishing Project — operating rules (candidate)
 
-**Applies only after P3/P4/P5 adoption.** Until then the approved historical product/release requirements remain controlling. [P1 owner approval](P1_DESIGN_APPROVAL_2026-11-01.md).
+**Applies only after independent governance verification, P4 and P5 adoption.** PWA application behavior and release requirements retain their separate original authority. [P1 approval](P1_DESIGN_APPROVAL_2026-11-01.md) · [owner-approved decoupling](OWNER_AMENDMENT_INDEPENDENT_GOVERNANCE_2026-11-01.md).
 
 ## Authority and evidence
 
@@ -20,7 +20,7 @@ A submitted/unknown publish must not be blindly retried; preserve authoring draf
 
 ## Release validation
 
-Doc-only PRs currently run whitespace validation only; [#284](https://github.com/ginosega/fishing/issues/284) adds deterministic validation through a **separate full-lane-reviewed tooling PR**, preserving the existing workflow classifier. This draft model remains unactivated until that validator passes a docs-only PR. All significant source/deploy/field transitions require the appropriate evidence record, not a prose assertion.
+Governance docs-only PRs use the existing GitHub Markdown lane (whitespace and merge-ready) **and independent structural validation** documented at [VALIDATION_RUNBOOK.md](VALIDATION_RUNBOOK.md). The historical V3-based tooling PR #285 is not an accepted dependency: **do not** change `.github/workflows/fishing-production.yml` or weaken FISH108 to install governance checks. [#284](https://github.com/ginosega/fishing/issues/284) tracks repeatable independent validation and separate future permanent enforcement. Distinguish a passing one-time check from permanently installed CI enforcement; any change to the PWA-owned release workflow has its own reviewed application gate.
 
 ## Decision memory and proposal safeguards
 
