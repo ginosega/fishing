@@ -1,6 +1,6 @@
 # Fishing Project — operating rules (candidate)
 
-**Applies only after independent governance verification, P4 and P5 adoption.** PWA application behavior and release requirements retain their separate original authority. [P1 approval](P1_DESIGN_APPROVAL_2026-11-01.md) · [owner-approved decoupling](OWNER_AMENDMENT_INDEPENDENT_GOVERNANCE_2026-11-01.md).
+**Applies after the default-main router is installed and the governance branch's required status check is verified; pending that gate, this is approved design awaiting activation.** PWA application behavior and release requirements retain their separate original authority. [P1 approval](P1_DESIGN_APPROVAL_2026-11-01.md) · [owner-approved decoupling](OWNER_AMENDMENT_INDEPENDENT_GOVERNANCE_2026-11-01.md).
 
 ## Authority and evidence
 
@@ -20,7 +20,7 @@ A submitted/unknown publish must not be blindly retried; preserve authoring draf
 
 ## Release validation
 
-Governance docs-only PRs use the existing GitHub Markdown lane (whitespace and merge-ready) **and independent structural validation** documented at [VALIDATION_RUNBOOK.md](VALIDATION_RUNBOOK.md). The historical V3-based tooling PR #285 is not an accepted dependency: **do not** change `.github/workflows/fishing-production.yml` or weaken FISH108 to install governance checks. [#284](https://github.com/ginosega/fishing/issues/284) tracks repeatable independent validation and separate future permanent enforcement. Distinguish a passing one-time check from permanently installed CI enforcement; any change to the PWA-owned release workflow has its own reviewed application gate.
+All governance docs, decision records, validator and tests live under the **single canonical branch** `governance/project-ops`, discovered through the default `main` [router](../../PROJECT_ROUTER.md). Future docs-only PRs **target that branch** and run independent `governance-docs` structural validation and the existing FISH108 `validate-docs`/`fishing-merge-ready`. [Runbook](VALIDATION_RUNBOOK.md). **The structural status is automatically reported but must also be configured as required** under [#284](https://github.com/ginosega/fishing/issues/284) before full adoption. Never modify the public PWA release workflow or silently weaken FISH108 to enable governance checks. Do not treat an optional check as an enforced one.
 
 ## Decision memory and proposal safeguards
 
@@ -28,10 +28,10 @@ Before substantial engineering/product recommendations, consult the topic direct
 
 ## State maintenance
 
-Update the single applicable work item and current-state field **in place**, not by prepending dated progress paragraphs. Link the commit/PR/CI/provider evidence. Do not duplicate long status narratives in requirements, README or decision catalog. Each changed document triggers objective CI checks (once available) and an assistant semantic authority/duplicate review. Milestone audits are a secondary backstop.
+Update the single applicable work item and current-state field **in place**, not by prepending dated progress paragraphs. Link the commit/PR/CI/provider evidence. Do not duplicate long status narratives in requirements, README or decision catalog. Each governance PR triggers automated structural CI on the protected governance branch, and a separate assistant semantic authority/duplicate review. Do not claim enforcement until required-check branch rules are confirmed. Milestone audits are a secondary backstop.
 
 ## Project handoff
 
 Normal: owner says **"Prepare to transfer to a new chat."** Assistant safely checkpoints and reproduces the **exact** static text from [NEW_CHAT_PROMPT.md](../../NEW_CHAT_PROMPT.md), ready to paste in a new Fishing-project conversation. Emergency: owner retrieves the same prompt on default GitHub `main`; old chat is not needed. Both paths verify the default-branch router, exact refs, latest known state and relevant prior rejected decisions without full-chat reconstruction. Ask owner only for mandatory approvals or inaccessible evidence.
 
-**Not yet active:** during P2/P3, draft router and prompt are candidates; final owner P5 sign-off is required before retiring full-bootstrap instructions.
+**Activation gate:** P4 passed and owner directed complete governance; the historic full-bootstrap procedure is superseded **only when** default `main` router exists and `governance-docs` is required on `governance/project-ops`. [Current P5 installation plan](P5_CANONICAL_BRANCH_IMPLEMENTATION_2026-11-01.md).
