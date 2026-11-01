@@ -13,9 +13,9 @@ Evidence: [draft PR #283](https://github.com/ginosega/fishing/pull/283).
 
 ## FISH-OPS-V2-VALIDATION — Documentation CI
 
-State: in-progress
+State: blocked
 Owner: assistant implementer
-Next safe action: Complete full-lane CI on [PR #285](https://github.com/ginosega/fishing/pull/285), then integrate only to the V3 development branch and prove docs-only PR #283 runs strict structural validation.
+Next safe action: Resolve [pre-existing V3 full-lane offline-library CI blocker #287](https://github.com/ginosega/fishing/issues/287) through separately authorized investigation/remediation without bypassing required tests. Tooling PR #285 remains draft/unmerged until full-suite PASS.
 Prerequisites: P2 document contracts finalized; [#284](https://github.com/ginosega/fishing/issues/284); no implicit public merge/deploy.
 Acceptance: Valid and invalid fixtures tested; docs-only PR runs strict checks; exact-source CI evidence; preserve existing FISH108 classifier, checks and production safeguards.
 Evidence: [validator design](DOC_VALIDATION_DESIGN.md).
