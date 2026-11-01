@@ -1,43 +1,41 @@
-# Fishing Project — active work queue (candidate)
+# Fishing Project — active work queue
 
-**Governance status:** Independent of V3 PWA application tests by owner-approved [amendment](OWNER_AMENDMENT_INDEPENDENT_GOVERNANCE_2026-11-01.md). Assistant owns routine documentation/validation; project owner authorizes consequential decisions and runs fresh-chat acceptance.
+**Authority:** `governance/project-ops` is the single maintained governance source; default-`main` router PR #292 is separate from this branch. [P5 canonical installation plan](P5_CANONICAL_BRANCH_IMPLEMENTATION_2026-11-01.md).
 
-## FISH-OPS-V2 — Independent operating-model migration
+## FISH-OPS-V2 — Complete safe governance adoption
 
 State: blocked
-Owner: project owner / assistant implementer
-Next safe action: Owner has [directed finishing permanent governance CI before activation](P5_OWNER_DIRECTIVE_COMPLETE_GOVERNANCE_2026-11-01.md). Complete #284, verify required check and safe no-unapproved-deployment integration, then merge docs-only PR #288 and inspect default router.
-Prerequisites: [P1 design approval](P1_DESIGN_APPROVAL_2026-11-01.md); [independence amendment](OWNER_AMENDMENT_INDEPENDENT_GOVERNANCE_2026-11-01.md); migration [reconciliation](P2_MIGRATION_RECONCILIATION_2026-11-01.md).
-Acceptance: Preserved old canonical records and historical approved/rejected options, bounded working docs, static prompt, clean-chat test, final owner adoption; **no PWA test dependency**.
-Evidence: [governance PR #288](https://github.com/ginosega/fishing/pull/288) · [issue #282](https://github.com/ginosega/fishing/issues/282).
+Owner: assistant implementer / project owner for GitHub required-check rule
+Next safe action: Finish [#284](https://github.com/ginosega/fishing/issues/284): verify `governance-docs` is required on `governance/project-ops` and invalid PR cannot merge; after owner-only ruleset change, merge the docs-only main router [PR #292](https://github.com/ginosega/fishing/pull/292), verify static prompt/router on default branch and mark P5 complete.
+Prerequisites: [P1 approval](P1_DESIGN_APPROVAL_2026-11-01.md), [independent amendment](OWNER_AMENDMENT_INDEPENDENT_GOVERNANCE_2026-11-01.md), [owner P5 direction](P5_OWNER_DIRECTIVE_COMPLETE_GOVERNANCE_2026-11-01.md), [P4 pass](P4_RECOVERY_ACCEPTANCE_2026-11-01.md), [canonical branch plan](P5_CANONICAL_BRANCH_IMPLEMENTATION_2026-11-01.md).
+Acceptance: Exactly one authoritative governance branch with automated required structural CI; small root router/static prompt on `main`; no PWA workflow/source changes, no public V2 deployment or V3 rollout; old approved documents preserved.
+Evidence: [Issue #282](https://github.com/ginosega/fishing/issues/282), [#284](https://github.com/ginosega/fishing/issues/284).
 
-## FISH-OPS-V2-VALIDATION — Independent documentation verification
+## FISH-OPS-V2-VALIDATION — Enforce independent checks
 
 State: in-progress
-Owner: assistant implementer
-Next safe action: Reconcile separate [tooling PR #289](https://github.com/ginosega/fishing/pull/289) Full Application Release CI, valid proof [#290](https://github.com/ginosega/fishing/pull/290) and negative proof [#291](https://github.com/ginosega/fishing/pull/291). Install independent check without V3 dependency or unapproved public V2 deployment, ensure its status is actually required, then close [#284](https://github.com/ginosega/fishing/issues/284).
-Prerequisites: Document contract from [validation design](DOC_VALIDATION_DESIGN.md), approved amendment; do not alter PWA-owned FISH108 workflow.
-Acceptance: Tests are repeatable and evidence-backed; **permanent always-on CI automation explicitly tracked separately**, never claimed installed if absent.
-Evidence: [Issue #284](https://github.com/ginosega/fishing/issues/284) · [independent P3 validation](P3_INDEPENDENT_VALIDATION_2026-11-01.md) · [PR #288](https://github.com/ginosega/fishing/pull/288).
+Owner: assistant implementer; project owner for GitHub ruleset edit
+Next safe action: Validate actual canonical branch with successful [PR #293](https://github.com/ginosega/fishing/pull/293) and failing [PR #294](https://github.com/ginosega/fishing/pull/294), close both unmerged. Owner adds **required** `governance-docs` status to a branch ruleset targeting `governance/project-ops`; verify required status as readable GitHub evidence.
+Prerequisites: Dedicated `.github/workflows/governance-docs.yml` already present on canonical branch; old FISH108 release workflow remains unchanged.
+Acceptance: Automated structural validation and negative fixtures run on every governance PR, a missing link produces FAIL, and repository protection **blocks** that PR from merging.
+Evidence: [Validation runbook](VALIDATION_RUNBOOK.md), [Issue #284](https://github.com/ginosega/fishing/issues/284).
 
-## FISH-OPS-V2-RECOVERY — Owner-run cold-start / adoption
+## FISH-OPS-V2-RECOVERY — Preserve tested transfer behavior
 
 State: review
-Owner: project owner for independent new-chat observations; assistant supplies exact instructions and evaluates evidence
-Next safe action: All four [P4 recovery acceptance tests](P4_RECOVERY_ACCEPTANCE_2026-11-01.md) passed in fresh chats. Obtain separate **P5 final adoption decision** before activating main router or retiring old handoff.
-Prerequisites: Independently verified draft PR #288, [P3 structural verification](P3_INDEPENDENT_VALIDATION_2026-11-01.md), [docs-only CI pass #41337909748](https://github.com/ginosega/fishing/actions/runs/41337909748) on reviewed head (refresh latest SHA before accepting), main router **not yet installed**, indexed rejected decisions available.
-Acceptance: New chats retrieve approved status and negative-decision reasons without history dump, distinguish Git/CI/provider/device and do not retry ambiguous writes; P5 owner accepts limitations and deployment-independent plan.
-Evidence: [P4 test plan](P4_COLD_START_TEST_PLAN.md) · [P4 owner-observed pass](P4_RECOVERY_ACCEPTANCE_2026-11-01.md) · [P5 review](P5_ADOPTION_REVIEW.md).
+Owner: assistant for ongoing updates; project owner at any new acceptance gate
+Next safe action: After default router installation, perform a bounded read-only router smoke check and maintain static prompt; P4 already passed all four owner-executed tests.
+Prerequisites: [P4 acceptance](P4_RECOVERY_ACCEPTANCE_2026-11-01.md).
+Acceptance: Same static prompt, small default-branch router, indexed historical decisions on canonical governance branch; no full-bootstrap startup.
+Evidence: [P4 acceptance](P4_RECOVERY_ACCEPTANCE_2026-11-01.md).
 
-## FISH-TODO-118 — Fishing Companion V3 (separate, paused)
+## FISH-TODO-118 — V3 application development (separate)
 
 State: blocked
 Owner: project owner / assistant developer
-Next safe action: On independent resumption, verify V3 branch and private Worker/source/CI, Gear Notes and Catch issues, and original security/provider release gates.
-Prerequisites: V3 product/owner authorization; **not** necessary for governance P4/P5.
-Acceptance: All V3 security/latency/deployment/field acceptance and separate public cutover gates remain unchanged.
-Evidence: [PR #263](https://github.com/ginosega/fishing/pull/263), [PWA Playwright defect #287](https://github.com/ginosega/fishing/issues/287).
+Next safe action: After governance adoption, independently reconcile source HEAD/CI and private Worker/owner acceptance, Gear Notes image and Catch failed operation before returning to V3.
+Prerequisites: P5 adoption and original V3 approvals/security/provider gates. Governance CI does **not** require V3 browser-test success.
+Acceptance: V3 D1–D6 technical, latency, source/provider/field and explicit public cutover gates unchanged.
+Evidence: [V3 draft #263](https://github.com/ginosega/fishing/pull/263), [PWA issue #287](https://github.com/ginosega/fishing/issues/287).
 
-## Independent fishing equipment and editorial backlog
-
-Preserve all open/deleted/closed tasks in [FISHING_BACKLOG_INDEX.md](FISHING_BACKLOG_INDEX.md); not subsumed by V3 feature scope or governance tasks.
+The independent fishing gear/knowledge backlog remains indexed in [FISHING_BACKLOG_INDEX.md](FISHING_BACKLOG_INDEX.md); deleted or completed historical items are not reopened by inference.
