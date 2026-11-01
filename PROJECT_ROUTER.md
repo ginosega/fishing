@@ -1,14 +1,19 @@
-# Fishing project — stable default-branch router
+# Fishing project router — durable workstream pointer
 
-**Status:** Candidate on [independent draft PR #288](https://github.com/ginosega/fishing/pull/288). This file becomes the approved project router on default `main` **only after P4 testing and P5 owner sign-off**.
+**Scope:** This small router is published on repository default `main` when the P5 owner-authorized operating-model activation is complete. The exact same text also exists on the canonical governance branch. **If encountered only on a non-default draft branch, it does not itself establish adoption.**
 
-Primary workstream: Fishing Project Operating Model v2 / [#282](https://github.com/ginosega/fishing/issues/282)
-Active workstreams: Project governance; Fishing Companion V3 (separate, paused for governance transition)
-Routed branch: `main` after adoption; until then read the proposed documents on `governance/fish-ops-v2-independent` only after confirming draft status.
+Primary workstream: Fishing Project Operating Model v2 completion ([issue #282](https://github.com/ginosega/fishing/issues/282)); next Fishing Companion V3 ([PR #263](https://github.com/ginosega/fishing/pull/263)).
+Active workstreams: Project governance and Fishing Companion V3 (separate; V3 resumes only with its own technical gates).
+Routed branch: `governance/project-ops`
 Entry point: `project-ops/v2/START_HERE.md`
 Routing reviewed at: 2026-11-01
-Evidence: [Owner-approved independent governance amendment](project-ops/v2/OWNER_AMENDMENT_INDEPENDENT_GOVERNANCE_2026-11-01.md) · [PR #288](https://github.com/ginosega/fishing/pull/288)
+Evidence: [P1 owner design acceptance](project-ops/v2/P1_DESIGN_APPROVAL_2026-11-01.md) · [independent governance amendment](project-ops/v2/OWNER_AMENDMENT_INDEPENDENT_GOVERNANCE_2026-11-01.md) · [P4 passed](project-ops/v2/P4_RECOVERY_ACCEPTANCE_2026-11-01.md) · [P5 owner directive](project-ops/v2/P5_OWNER_DIRECTIVE_COMPLETE_GOVERNANCE_2026-11-01.md).
 
-**Current application source is separately routed:** V3 experimental work resides in [draft PR #263](https://github.com/ginosega/fishing/pull/263). Verify current branch/CI and deployed reality when resuming it. Neither governance approval nor a successful governance check authorizes V3 application merge or deployment.
+## Safe routing
 
-**In a new chat:** read this tiny router on `main`; if absent because PR #288 remains draft, find the latest **approved** issue/PR from [#282](https://github.com/ginosega/fishing/issues/282) and read only its bounded docs. A draft does not override currently adopted project instructions. Never load full historical bootstrap automatically.
+1. Verify this file is on the repository's actual default branch, not a draft or stale worktree.
+2. Verify `governance/project-ops` exists in current GitHub refs; then read only its `START_HERE.md`, `CURRENT_STATE.md` and relevant `WORK_QUEUE.md`.
+3. Retrieve `OPERATING_RULES.md` before consequential action, and consult applicable accepted/rejected/deferred/superseded topic catalogs before substantive proposals.
+4. If branch, issue/PR or evidence is stale, explicitly state uncertainty and use current GitHub issue/PR and original approval evidence; do not bulk-load historic bootstrap.
+
+The independent governance branch carries its own [automated governance CI](https://github.com/ginosega/fishing/blob/governance/project-ops/.github/workflows/governance-docs.yml). The original FISH108 PWA release workflow and application V3 PR remain separate. A passing GitHub source check is never proof of Cloudflare deployment or owner field acceptance.
