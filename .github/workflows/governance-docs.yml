@@ -1,0 +1,30 @@
+name: Fishing governance document integrity
+
+on:
+  pull_request:
+    # Always emit a stable governance check so it can be made required.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: governance-validation-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  governance-docs:
+    name: governance-docs
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify governance validator regression fixtures
+        run: python3 -m unittest discover -s tools -p 'test_project_ops.py' -v
+      - name: Validate governance documents and original-approval integrity
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: python3 tools/check_project_ops.py
