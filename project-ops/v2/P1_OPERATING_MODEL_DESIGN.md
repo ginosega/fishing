@@ -3,7 +3,7 @@
 **Status:** **P1 design accepted by owner on 2026-11-01** ([sign-off](P1_DESIGN_APPROVAL_2026-11-01.md)); **not yet activated** as operating policy until P3/P4/P5.
 **Prepared:** 2026-10-31 · **Initiative:** [#282](https://github.com/ginosega/fishing/issues/282) · **Draft PR:** [#283](https://github.com/ginosega/fishing/pull/283)
 **Audit and traceability:** [AUDIT_2026-10-31.md](AUDIT_2026-10-31.md) · [MIGRATION_COVERAGE_MATRIX.md](MIGRATION_COVERAGE_MATRIX.md)
-**Reference source:** `feature/fish118-p3-mock-publisher@406723f880960d33d40bd07984559432c8caa233`. Never infer a live deployment from a Git commit.
+**Original evidence reference:** `feature/fish118-p3-mock-publisher@406723f880960d33d40bd07984559432c8caa233` (historical V3 only). **Current governance implementation:** [independent main-based PR #288](https://github.com/ginosega/fishing/pull/288), authorized by [November 1 amendment](OWNER_AMENDMENT_INDEPENDENT_GOVERNANCE_2026-11-01.md). Never infer a live deployment from a Git commit.
 
 ## 1. Objectives, boundaries and decision
 
@@ -109,10 +109,10 @@ Additional *reference-only* files may include `project-ops/v2/decisions/ADR-NNNN
 ## 6. Versioning and branch convention
 
 - **Current V3 working branch:** `feature/fish118-p3-mock-publisher` (not deployed public by default).
-- **Operating-model draft branch:** `docs/fish-ops-v2-2026-10-31` based on that V3 branch, PR #283. Work only in `project-ops/v2/*.md` through P1.
+- **Independent operating-model draft:** `governance/fish-ops-v2-independent`, based directly on `main`, [PR #288](https://github.com/ginosega/fishing/pull/288). Earlier V3-based PR #283 is a preserved superseded draft and must not be merged.
 - **Public `main`:** separate public V2 and canonical content; any eventual routing changes must be reconciled with it. Do not infer `main` from a feature branch or merge PR #263 as part of docs adoption.
 - Use branch names for current movement and immutable commit SHAs for evidence, with an observation date. Reconcile if source branches advance.
-- Scope future tooling/CI changes to a separate full-lane-reviewed PR, as specified in [DOC_VALIDATION_DESIGN.md](DOC_VALIDATION_DESIGN.md) and [issue #284](https://github.com/ginosega/fishing/issues/284).
+- **Independent governance verification:** [VALIDATION_RUNBOOK.md](VALIDATION_RUNBOOK.md) provides repeatable, source-pinned checks and negative fixtures; FISH108 app tests do not block governance. Permanent automatic CI enforcement is separately tracked under [#284](https://github.com/ginosega/fishing/issues/284) and cannot be falsely represented as installed. Do not modify the PWA workflow to evade its release policy.
 
 ## 7. P1 acceptance questions and decision gate
 
