@@ -14,7 +14,7 @@ This issue is **not optional backlog**: the new operating model is **not adopted
 ## 2. Validator scope
 
 **Validate only:**
-- The five active files under `project-ops/v2/` and the indexed, *declared* ADRs/reference paths they link.
+- The five active files under `project-ops/v2/`, the indexed topic catalogs and declared ADRs, plus the **static** root `NEW_CHAT_PROMPT.md` and default-branch `PROJECT_ROUTER.md` after adoption.
 - Files changed in the current PR when they are inside those active paths, plus historical-approval paths only to confirm no unreviewed modifications.
 - The invariant that there is **one active owner** for each named state/work item/decision; the legacy root documents are explicitly historical.
 - Accepted project Markdown conventions. Do not parse and lint every Gear/KB/Catches content page as a documentation-governance file.
@@ -33,7 +33,11 @@ Use **Markdown headings and fixed field labels**, not a second editable JSON/YAM
 
 `OPERATING_RULES.md`: required sections for `Authority and evidence`, `Owner approval gates`, `Publishing and recovery`, `Release validation`, `Project handoff`. It links to FISH108 and exact approved baseline/amendment records.
 
-`DECISIONS_INDEX.md`: one row per indexed ADR/approval with `ID`, `status`, `document`, `approved date`, `scope` and `superseded-by` where relevant; unique IDs. Historical owner approvals can have existing identifiers/links rather than being silently re-numbered into invented new ADR approvals.
+`DECISIONS_INDEX.md`: **topic directory only**, with unique topic keys, descriptions, search keywords/synonyms and relative links to `decisions/topics/*.md`; it must not accumulate every decision in a single giant table. Each **topic catalog** contains one row per substantive decision with unique ID, topic/tags/aliases, `status` (`accepted`, `rejected`, `deferred`, `superseded`, `proposed`), concise reason and canonical detail link/supersession. Old owner approvals keep their existing record/ID links. `decisions/records/ADR-*.md` have required evidence, alternatives, rationale and reconsideration conditions where applicable.
+
+`PROJECT_ROUTER.md` (default branch, **only after adopted**): stable title, `Primary workstream:`, `Active workstreams:`, `Routed branch:`, `Entry point:`, `Routing reviewed at:` and evidence/PR reference; no page-sized status history. Branch and cross-ref existence are reviewed against GitHub on chat start rather than asserted by local-only CI.
+
+`NEW_CHAT_PROMPT.md`: one short fenced text block containing **no specific current branch, issue/PR number, SHA or date** and instructions to look up the default-branch router, handle absent/stale routing, check prior rejected decisions and avoid ambiguous write retries. CI validates its static contract; any new project state goes in router or current-state, not this prompt.
 
 Standards are **not fixed until the first five working files are drafted and tested**. Define them once in the validator rather than keeping two independent schema specifications.
 
@@ -41,7 +45,10 @@ Standards are **not fixed until the first five working files are drafted and tes
 
 | Check | Behavior after rollout | Why |
 | --- | --- | --- |
-| Mandatory five active docs and essential headings/field labels | **Fail** | Avoid missing routing or unverifiable state |
+| Mandatory five active docs and essential headings/field labels | **Fail** once active | Avoid missing routing or unverifiable state |
+| Static recovery prompt with forbidden temporary identifiers | **Fail** | Prompt must remain usable months later |
+| Adopted default-branch router format and presence | **Fail after activation**; validate sample/contract before activation | Stable discovery despite branch changes |
+| Topic catalog links, unique decision IDs and supersession chain | **Fail** | Bounded searching without losing past rejected options |
 | UTF-8 bytes / docs budgets | **Warn** above soft target; **fail** above hard cap | Prevent a new uncontrolled document monolith |
 | Unique work IDs, ADR IDs and active-authority owners | **Fail** | Prevent contradictory duplicate state |
 | Allowed status vocabulary, unknown/not-verified permitted | **Fail** malformed values | Preserve source/CI/hosted/field truthfulness |
@@ -125,6 +132,10 @@ Existing `.github/workflows/fishing-production.yml` has `validate-docs` for Mark
 **Validator requirements extended for historical lessons:** Decision records/index must declare `status: accepted | rejected | superseded | deferred | proposed`, topic/component tags, original rationale or a durable pointer, `alternatives_considered`, and `reconsider_only_if` for a known rejected approach where applicable. Avoid pretending all prior chat-only decisions were recorded; migration must mark missing negative-decision coverage as unresolved for curator review. The pre-proposal decision lookup is a **Tier 2 semantic rule**; structural CI checks the index and link presence, but cannot guarantee correct semantic retrieval.
 
 **Additional fixtures:**
+- A static recovery prompt without named active branch/issue/commit: PASS, even when workstream changes; a prompt with a hardcoded development branch, PR or SHA: FAIL.
+- A router naming a nonexistent local active-document path: FAIL when same-ref; cross-branch pointer syntax must validate offline and its current target must be confirmed in human/CI integration evidence.
+- A topic catalog with unique IDs and valid canonical links: PASS; broken topic link or unresolved supersession: FAIL.
+- A decision catalog expanded beyond its topic hard cap: FAIL until it is split by meaningful subtopic.
 - Repeating a long obsolete "latest checkpoint" in two active files: automated fail for deterministic duplicate text, manual semantic fail for paraphrased duplication.
 - Duplicate effective status owners with different words: schema failure where authority IDs disagree; manual review otherwise.
 - New ADR tagged `rejected` without rationale/reconsideration link: fail.
@@ -134,6 +145,6 @@ Existing `.github/workflows/fishing-production.yml` has `validate-docs` for Mark
 
 **Owner burden:** Routine validator failures, source reconciliation, duplication corrections and handoff preparation are maintained by the assistant. Owner is asked for only (a) material approvals, (b) evidence solely available to owner, (c) final P1/P5 acceptance. Do not add a second per-PR human certification ceremony for the owner.
 
-**Static recovery prompt:** [`NEW_CHAT_PROMPT.md`](../../NEW_CHAT_PROMPT.md) is a required P2/P4 acceptance artifact, with the *same prompt* for a planned transfer or unexpected failed chat. CI should verify its presence, length budget, required GitHub routing content, explicit unknown in-flight operations policy and absence of the legacy full-bootstrap paste requirement. A normal transfer reply must reproduce the exact prompt, not a manually rewritten variant.
+**Static recovery prompt and routing:** [`NEW_CHAT_PROMPT.md`](../../NEW_CHAT_PROMPT.md) is a required P2/P4 acceptance artifact, with the *same prompt* for a planned transfer or unexpected failed chat. A small `PROJECT_ROUTER.md` on default `main` (after adoption) points to the current workstream branch and approved docs. Validate presence, prompt-block size/bounded instructions, no temporary branch/issue/SHA references, safe stale-router fallback, explicit unknown in-flight operations policy, and no full-bootstrap paste requirement. The router changes only when workstream/branch/entry changes. A normal transfer reply must reproduce the exact prompt, not rewrite it.
 
 **Separate work item:** These validator requirements are tracked by [#284](https://github.com/ginosega/fishing/issues/284), with the same FISH108 full-lane safety constraint for executable/workflow changes. The implementation may not be marked complete before documented fixture results and a real docs-only PR CI run.
