@@ -1,11 +1,11 @@
 # Fishing Project Operating Model v2 — initiative charter
 
-**ID:** FISH-OPS-V2  
-**Status:** Established; audit and operating-model specification in progress  
-**Owner:** Fishing Companion project owner  
-**Authorized:** 2026-10-31  
-**Tracker:** [GitHub issue #282](https://github.com/ginosega/fishing/issues/282)  
-**V3 source baseline:** `feature/fish118-p3-mock-publisher` at `406723f880960d33d40bd07984559432c8caa233`  
+**ID:** FISH-OPS-V2
+**Status:** Established; audit and operating-model specification in progress
+**Owner:** Fishing Companion project owner
+**Authorized:** 2026-10-31
+**Tracker:** [GitHub issue #282](https://github.com/ginosega/fishing/issues/282)
+**V3 source baseline:** `feature/fish118-p3-mock-publisher` at `406723f880960d33d40bd07984559432c8caa233`
 **Working branch:** `docs/fish-ops-v2-2026-10-31` (documentation-only, from that exact commit)
 
 ## Decision
