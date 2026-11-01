@@ -7,7 +7,7 @@ Active workstreams: Project governance and Fishing Companion V3 (separate; V3 re
 Routed branch: `governance/project-ops`
 Entry point: `project-ops/v2/START_HERE.md`
 Routing reviewed at: 2026-11-01
-Evidence: [P1 owner design acceptance](project-ops/v2/P1_DESIGN_APPROVAL_2026-11-01.md) · [independent governance amendment](project-ops/v2/OWNER_AMENDMENT_INDEPENDENT_GOVERNANCE_2026-11-01.md) · [P4 passed](project-ops/v2/P4_RECOVERY_ACCEPTANCE_2026-11-01.md) · [P5 owner directive](project-ops/v2/P5_OWNER_DIRECTIVE_COMPLETE_GOVERNANCE_2026-11-01.md).
+Evidence: [P1 owner design acceptance](https://github.com/ginosega/fishing/blob/governance/project-ops/project-ops/v2/P1_DESIGN_APPROVAL_2026-11-01.md) · [independent governance amendment](https://github.com/ginosega/fishing/blob/governance/project-ops/project-ops/v2/OWNER_AMENDMENT_INDEPENDENT_GOVERNANCE_2026-11-01.md) · [P4 passed](https://github.com/ginosega/fishing/blob/governance/project-ops/project-ops/v2/P4_RECOVERY_ACCEPTANCE_2026-11-01.md) · [P5 owner directive](https://github.com/ginosega/fishing/blob/governance/project-ops/project-ops/v2/P5_OWNER_DIRECTIVE_COMPLETE_GOVERNANCE_2026-11-01.md).
 
 ## Safe routing
 
