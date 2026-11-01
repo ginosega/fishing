@@ -1,11 +1,11 @@
 # P3 documentation validation — exact evidence and remaining gate
 
-**Status:** Strict documentation validator and negative fixture **source proof obtained**; full application validation on tooling PR still running at this checkpoint. Do **not** mark P3 accepted or activate operating-model routing until the remaining prerequisites pass.
+**Status:** Strict docs-only validation PASS; full application validation **FAILED on a reproducible, pre-existing V3-branch browser-test issue**. [Blocker #287](https://github.com/ginosega/fishing/issues/287) requires separately scoped owner approval for remediation. No merger, deployment or bypass authorized. Do **not** mark P3 accepted or activate operating-model routing until the remaining prerequisites pass.
 
 ## Separate scoped implementation
 - Tooling branch `tooling/fish-ops-v2-doc-validation` and [draft PR #285](https://github.com/ginosega/fishing/pull/285) target the V3 development branch only, not public `main`.
 - Changed: `tools/check_project_ops.py`, `tools/test_project_ops.py`, and `.github/workflows/fishing-production.yml`. Existing FISH108 release classifier remains unchanged; `validate-docs` retains `git diff --check` and adds a static checker; full lane runs the validator's regression fixtures.
-- Tooling PR source at `05b1743b34fed23178f7838492feb56ed9d41970`. Full [run #41331650515](https://github.com/ginosega/fishing/actions/runs/41331650515) had passed classify, isolated document fixtures, durable recovery prerequisites, dependency audit, and core tests as last inspected; application browser acceptance step was still in progress. **No completion claim until GitHub reports all required checks green.**
+- Tooling PR source at `05b1743b34fed23178f7838492feb56ed9d41970`. Full [run #41331650515](https://github.com/ginosega/fishing/actions/runs/41331650515) **FAILED** after the validator fixtures, durable recovery checks, dependency audit and core tests PASSED; Playwright preview-scope regression timed out after 12 minutes with repeated 120-second waits for offline-library tests. The **same test names and behavior predated this change** on October 30 [run #41143225486](https://github.com/ginosega/fishing/actions/runs/41143225486). Exact current source run also requires recheck; do not mark #285 full-suite accepted.
 
 ## Strict docs-only integration probe (passed)
 
