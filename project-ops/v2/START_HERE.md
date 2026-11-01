@@ -14,3 +14,5 @@ GitHub records code, commits, specifications and references; it cannot by itself
 The root `Fishing_Context.md`, `Fishing_TODO.md`, `Fishing_Decision_Log.md` and `Fishing_New_Chat_Bootstrap_Prompt.md` are **historical sources**, not startup inputs after cutover. Preserve their original Git refs and use a targeted search only where the index lacks a needed prior lesson.
 
 Use [NEW_CHAT_PROMPT.md](../../NEW_CHAT_PROMPT.md) for normal or emergency chat transfers; it is a static retrieval instruction, not a snapshot.
+
+[Deliberately invalid branch protection probe](nonexistent-governance-ci-probe.md)
