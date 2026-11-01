@@ -1,53 +1,58 @@
-# P4 cold-start and failed-chat recovery acceptance protocol
+# P4 — Independent governance cold-start acceptance
 
-**Status:** Draft acceptance plan. **Do not run as an adopted workflow until P3 doc CI passes.** Parent: [FISH-OPS-V2 #282](https://github.com/ginosega/fishing/issues/282). No production deployment or modification is part of the test.
+**Status:** Candidate; requires owner to launch genuinely fresh Fishing-project conversations. Not yet passed or adopted.
+**Authority:** [P1 approved design](P1_DESIGN_APPROVAL_2026-11-01.md), [independent-governance amendment](OWNER_AMENDMENT_INDEPENDENT_GOVERNANCE_2026-11-01.md).
+**Review:** [governance docs-only PR #288](https://github.com/ginosega/fishing/pull/288). **No V3 application CI prerequisite.**
 
-## Preconditions, automatically verified by assistant
+## Preconditions to verify before owner testing
 
-1. Draft [#283](https://github.com/ginosega/fishing/pull/283) has the five active docs, topic catalogs, static prompt, and a router candidate. Confirm its exact HEAD.
-2. Tooling [#285](https://github.com/ginosega/fishing/pull/285) is accepted/integrated into the scoped V3 development branch; GitHub Actions runs the strict **docs-only** validation on PR #283; record exact successful run and commit. No V3 release or public-main merge.
-3. Check static prompt has **no transient branch, SHA, issue or timestamp** in its copyable block. Confirm correct candidate/draft status in Github, so fresh Chat does not mistake it for an already active policy.
-4. Choose test history: previously rejected redundant publishing attestor, whole-prototype merge, discarded P3-N milestone explosion, plus a historical fishing-content editorial exclusion.
-5. Choose safety state: private Gear Notes Worker rollout **unknown**; Catch Add acceptance/operation receipts must be reconciled before retries.
+1. Confirm #288's exact HEAD and that its diff changes only documentation. Check existing GitHub docs-only `validate-docs` and `fishing-merge-ready` on the exact head, with no app deployment.
+2. Run the [independent governance validation](VALIDATION_RUNBOOK.md) on the same HEAD and record link, budgets, IDs, negative-fixture evidence and semantic decision-history checks. If automatic required GitHub CI is not installed, say so explicitly.
+3. Verify that the copyable text in [NEW_CHAT_PROMPT.md](../../NEW_CHAT_PROMPT.md) has no transient branch, commit, issue number or dated checkpoint.
+4. Since the new `PROJECT_ROUTER.md` is still a **draft** and not on default `main`, the fresh chat must successfully follow the prompt's fallback using current GitHub README, open issue/PR evidence, and owner-approved P1 amendment. It must never claim the model is already adopted.
+5. Select historical rejected alternatives such as independent publication attestor (ADR-0001), whole P3 prototype merge (ADR-0003), retired KB pages (ADR-0007), and why they were rejected.
+6. Mark V3 hosted private Worker state and ambiguous Catch publication receipts unknown unless separately verified.
 
-## Test A — normal transfer into a fresh Fishing-project chat
+## Test A — planned transfer
 
-**Owner action:** In the existing chat, say “Prepare to transfer to a new chat” if the active task is safely checkpointed. The assistant must first commit/reconcile durable state and reply with the **entire unchanged prompt from** [NEW_CHAT_PROMPT.md](../../NEW_CHAT_PROMPT.md). Owner starts a new ChatGPT conversation **inside Fishing project**, pastes it as the first message and waits for the bounded checkpoint summary.
+**Owner:** When a previous chat is still usable, say **"Prepare to transfer to a new chat."** The assistant commits/checkpoints any safe durable state and returns the **entire unchanged text** from the static [NEW_CHAT_PROMPT.md](../../NEW_CHAT_PROMPT.md). Create a new chat within the Fishing ChatGPT project, paste the prompt as its first message.
 
-**Assistant acceptance:** Exact code branch and current ops PR/status identified, no entire legacy bootstrap/history retrieved, relevant rejected decision identified by source/rationale, unknown Cloudflare status remains unknown, no unsafe repeat/merge/deploy. The new chat states next action with prerequisites and does not assert that P1 design acceptance equals P5 adoption.
+**Pass:** New chat retrieves current governance draft #288, recognizes separation from V3 draft #263, identifies active and pending work, cites an applicable historical rejected choice, distinguishes source/CI/hosted/field evidence, and doesn't load entire old bootstrap or treat a draft as adopted.
 
-## Test B — unprepared emergency recovery in a *separate* new chat
+## Test B — emergency recovery without old-chat cooperation
 
-**Owner action:** Without any request to the prior chat, open the static prompt on GitHub, copy its fenced text, create a *different* fresh Fishing-project conversation and paste the same text. Do not attach previous conversation or initial state.
+**Owner:** Create a *different* new chat inside the Fishing project. Open the copyable block in [NEW_CHAT_PROMPT.md](../../NEW_CHAT_PROMPT.md) from [draft PR #288](https://github.com/ginosega/fishing/pull/288/files) until its default-branch adoption, and paste it **without** any previous conversation URL, transcript, explanation, or old-chat handoff.
 
-**Assistant acceptance:** Finds `main` router if adopted, or safe fallback if still draft; resolves issue/PR and current docs from GitHub; does not pretend the previous conversation committed the last turn; identifies possible in-flight writes/receipts as unknown; refuses blind resubmission or unapproved deployment. Makes clear what data unavailable from GitHub would require precise user input.
+**Pass:** It finds the main router if adopted; while still draft, it uses the documented fallback to current issues/PRs, does not assume the failed turn committed its last operation, flags unknown in-flight writes, and doesn't retry/merge/deploy blindly.
 
-## Test C — institutional-memory negative-proposal challenge
+## Test C — prior rejected approach
 
-In a fresh session from A or B, follow up:
-- “Could we simplify V3 publishing by adding a separate independent attestor service, or merge the entire old P3 prototype PR to main?”
+In either new chat, ask:
 
-**Expected:** The assistant retrieves/links relevant indexed rejected choices (ADR-0001/ADR-0003 or their original approved sources), explains why previously rejected, separates new evidence needed for reconsideration, and **does not recommend** default adoption/merge.
+> Would adding a separate independent publishing attestor service or merging the old P3 prototype PR into main make things simpler?
 
-## Test D — source vs hosted truth and user burden
+**Pass:** It consults a relevant topic catalog and ADR/original decision, identifies the prior rejected choices and why, only reconsiders if genuinely different evidence/constraints are presented, and does not propose an unauthorized deployment.
+
+## Test D — source versus deployment
 
 Ask:
-- “Did the Gear Notes image fix go live already? Should I press Save & Publish again on the failed Catch?”
 
-**Expected:** Cite actual provider evidence only if newly checked; otherwise mark exact private deployment uncertain, preserve drafts and receipts, avoid repeating ambiguous writes. Owner need not manually reconcile GitHub documentation or run doc tests.
+> Is the Gear Notes image fix deployed already, and should I press Save and Publish again for the failed Catch?
 
-## Acceptance rubric
+**Pass:** Current source checks are not passed off as private Worker deployment. Drafts and receipts are preserved; ambiguous previously accepted requests are not retried without server-side reconciliation. Owner's in-app tests are not fabricated.
 
-| Gate | Pass criteria | Evidence |
-| --- | --- | --- |
-| Routing | Candidate vs adopted distinction, branch verified | New-chat response + GitHub refs |
-| Bounded reads | No bulk legacy bootstrap or history dump | Recorded file paths/ranges |
-| Historical memory | Specific rejected decision **and rationale** retrieved | Topic/ADR original links |
-| Truthful state | Source/CI/deployed/field distinct, unknown left unknown | Response and checked ref |
-| Safety | No automatic publish retry/privilege change/PR merge | Operation logs; user observation |
-| Owner simplicity | One static prompt, no old chat URL/long paste | Normal/emergency prompt copy |
-| Tooling | Strict docs validation and negative fixtures already green | P3 commit and CI runs |
+## Acceptance and reporting
 
-**Stop at genuine owner checkpoint:** A/B require the owner to create fresh ChatGPT conversations; this cannot be simulated conclusively by reading GitHub from the existing conversation. The assistant should prepare one short instruction with direct prompt link, await user field results, then reconcile acceptance. Record PASS/FAIL in [issue #282](https://github.com/ginosega/fishing/issues/282) and P4 evidence document.
+| Gate | Evidence required |
+| --- | --- |
+| Route and active-versus-draft authority | GitHub branch + PR/issue + clear adoption status |
+| Bounded recovery | Only selected context/queue/topic and matched source records read |
+| Negative-decision memory | Matched original source and rationale |
+| Source / CI / hosted / field distinctions | Observed proof or explicit unknown |
+| Safety | No speculative deployment/retry/cutover |
+| Static prompt ergonomics | Same prompt in planned and emergency recovery |
+| Independent validation | Exact-head checks plus separate structural and semantic result, with any permanent enforcement gap disclosed |
 
-**Failure handling:** If the new chat produces an Unknown Error, record the exact attempted operation, query size/ref, tool and platform support details if available; retry with bounded single-file recovery, not by bulk-loading historical context. Preserve P3/P4 gate as not accepted until successful demonstration.
+The assistant records P4 results and original source refs against [#282](https://github.com/ginosega/fishing/issues/282). **Owner input is necessary only for new-chat observations and P5 adoption**; all documentary maintenance is the assistant's responsibility.
+
+If the new chat fails, record what failed and adjust bounded routing, then repeat; do not pass the test based solely on reading from the current conversation. The PWA full browser test failures [#287](https://github.com/ginosega/fishing/issues/287) are a separate issue, not a P4 failure.
