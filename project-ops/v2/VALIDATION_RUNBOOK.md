@@ -42,3 +42,5 @@ Each review adds a small dated evidence file or issue comment containing:
 **Failure policy:** Correct the docs or tests, re-run checks on the **new** head and do not re-label a previous green run as valid for a changed SHA. Do not substitute the failing PWA offline-library browser suite for these governance checks.
 
 **Future enforcement:** #284 stays open until an actually independent, continuously triggered governance validation service/CI is implemented, evidenced and reviewed. Avoid a second, contradictory authority store. Owner participation is not required for routine checks, but is required to accept a temporary enforcement limitation at P5.
+
+<!-- CI proof only: no change of governed policy. -->
