@@ -1,29 +1,29 @@
-# Fishing Companion — new chat and emergency recovery prompt
+# Fishing Companion — static new-chat and emergency recovery prompt
 
-**Status:** Proposed under [FISH-OPS-V2 #282](https://github.com/ginosega/fishing/issues/282); this draft copy is **not yet the adopted project handoff procedure**. After P4 cold-start acceptance and owner approval, make this file discoverable on the repository default branch `main`, linked prominently from root README. Keep this prompt short and update branch routing in GitHub instead of embedding large histories.
+**Status:** Candidate for Operating Model v2; not yet adopted. The **prompt text below is deliberately free of current branch names, commit hashes, issue numbers and dates.** After acceptance it must be accessible on the repository's default branch. Dynamic context and the active docs branch live in the short `PROJECT_ROUTER.md`, also on the default branch. The old five-file bootstrap is historical.
 
-## Copy everything in this prompt block into a new ChatGPT chat
+## Copy only the contents of this prompt block
 
 ```text
-Continue my Fishing Companion project from the last durable GitHub checkpoint. This may be recovery after a failed or overlong chat; do not assume the previous conversation completed its last operation.
+Continue my Fishing Companion project from the latest durable GitHub state. The previous chat might have failed mid-operation.
 
-Use the connected GitHub repository `ginosega/fishing`. Read the operating-model routing instructions in `README.md` on `main`, then the designated `project-ops/v2/START_HERE.md` on the branch that routing identifies. If that routing is not yet installed, consult initiative issue #282, draft PR #283, and development branch `feature/fish118-p3-mock-publisher` to establish which operating documents are **approved and active**, not merely proposed.
+Use the connected repository ginosega/fishing. On its default branch, first read PROJECT_ROUTER.md to locate the active workstream, working branch, and approved operating-model entry point. Verify those pointers against current GitHub refs and PRs. If the router is absent, stale, or unclear, inspect the repository's README and relevant open issues/PRs to establish the latest approved source of truth; explicitly identify uncertainty rather than adopting a draft or guessing.
 
-Use bounded reads of current state and work queue; retrieve relevant requirements, decision records and evidence only as needed. Do not bulk-load the legacy bootstrap or previous conversations.
+Follow the entry point's bounded-reading instructions. Read only the current state and relevant work queue, then retrieve applicable operating rules and decision history on demand. Before suggesting a substantive approach, check the indexed accepted, rejected, deferred, and superseded decisions for prior lessons and constraints. Do not bulk-read old chat histories or the legacy full bootstrap.
 
-Reconcile latest Git refs and CI, and distinguish source validation from private/public deployment and owner field acceptance. Treat an interrupted publish or provider operation as **unknown until independently verified**; do not blindly retry it, discard drafts/receipts, merge or deploy.
+Independently reconcile code/CI evidence with private or public deployment and owner field acceptance. Treat possibly in-flight or interrupted writes as unknown until proven; never blindly repeat them or discard drafts/receipts.
 
-Before making changes, briefly report: (1) last durable checkpoint, (2) current work and unresolved or potentially in-flight operations, (3) relevant previous rejected approaches or safety decisions, and (4) the next safe action and its prerequisites. Ask me only for essential information that cannot be recovered independently.
+Before continuing work, briefly report the last verified checkpoint, unresolved operations, relevant historical decisions, and next safe action. Ask me only for essential information that cannot be recovered from the available evidence.
 ```
 
-## User instructions (normal or emergency)
+## Use this prompt for either kind of chat transfer
 
-**Normal transfer:** Tell the current chat **"Prepare to transfer to a new chat."** The assistant commits/verifies durable state and replies with the **entire exact prompt above**, ready to copy. Start a new chat **inside the Fishing project** and paste it.
+**Planned:** In the old chat, say **"Prepare to transfer to a new chat."** The assistant checkpoints safe durable state and reproduces the **exact prompt block above** in its final response so you can paste it into a new Fishing-project conversation.
 
-**If the old chat fails or becomes unusable:** Do **not** return to the failed chat or wait for it to prepare a handoff. Open this file in GitHub, copy the same prompt above, start a fresh chat inside the Fishing project, and paste it as the first message. No previous chat URL, full transcript, large bootstrap, screenshots or additional instructions are routinely required. If necessary, the new assistant will ask narrowly for a fact that never reached GitHub or an inaccessible provider/device result.
+**Emergency:** If the old chat crashes or becomes too long, do not require it to prepare anything. Open this file on GitHub's default branch, copy the same prompt block, create a new Fishing-project chat, and paste it. You do not have to provide a chat URL, transcript or old bootstrap.
 
-**Recovery limitation:** Uncommitted chat-only decisions, local unsaved editor content and ambiguous provider operations may not be reconstructable from GitHub. The new assistant must mark them unknown, consult available evidence and **avoid re-submitting ambiguous operations**.
+**Limits:** If a fact never reached GitHub or an external provider/device cannot be queried, the assistant must report the gap, avoid unsafe assumptions and request only the narrow missing information.
 
-**During migration (before Operating Model v2 acceptance):** This prompt is a *candidate*; check issue #282 and PR #283 to distinguish draft from adopted files. Do not treat the unmerged docs branch as active authority until approved.
+**While this file is a draft:** This candidate alone does not activate Operating Model v2. The default-branch router and approved operating docs must be published and cold-start-tested at P4/P5 before replacing the historical transfer process.
 
-**Maintainer rule:** The normal-transfer response must include the exact current copyable prompt from this file, not merely a link or the instruction "read the bootstrap." Do not require the user to create or transcribe custom handoff content.
+**Maintenance:** The prompt text changes only when the recovery protocol changes. Never embed current task status, branch names, source SHAs or temporary initiative IDs here. Maintain dynamic routing in `PROJECT_ROUTER.md` and status in `CURRENT_STATE.md` instead.
