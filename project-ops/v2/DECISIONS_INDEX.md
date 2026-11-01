@@ -16,4 +16,4 @@ For each topic: review a compact catalog row (decision ID, status, alternatives,
 
 For a new substantial proposal, search synonyms and rejected/deferred decisions **before** recommending an approach. For ambiguous cross-topic issues, open at most two relevant catalogs first; expand only as evidence requires. Legacy historical sections are indexed in [LEGACY_DECISION_CROSSWALK.md](LEGACY_DECISION_CROSSWALK.md).
 
-**Growth policy:** This file targets <= 5 KB (8 KB hard cap). Topic catalogs target <= 8 KB (12 KB hard). Split by meaningful subtopic, add its link here, and keep previous canonical records stable. Update index/catalog/record references in the same PR; never fabricate an approval. 
+**Growth policy:** This file targets <= 5 KB (8 KB hard cap). Topic catalogs target <= 8 KB (12 KB hard). Split by meaningful subtopic, add its link here, and keep previous canonical records stable. Update index/catalog/record references in the same PR; never fabricate an approval.
