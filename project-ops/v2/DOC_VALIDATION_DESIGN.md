@@ -2,7 +2,7 @@
 
 **Status:** **P1 design accepted on 2026-11-01** ([sign-off](P1_DESIGN_APPROVAL_2026-11-01.md)); validator implementation/proof and P5 activation still separate gates.
 **Tracked action:** [FISH-OPS-V2 P3 documentation validator — issue #284](https://github.com/ginosega/fishing/issues/284)
-**Parent:** [initiative #282](https://github.com/ginosega/fishing/issues/282) · [draft PR #283](https://github.com/ginosega/fishing/pull/283)
+**Parent:** [initiative #282](https://github.com/ginosega/fishing/issues/282) · [independent governance PR #288](https://github.com/ginosega/fishing/pull/288) · [owner-approved decoupling](OWNER_AMENDMENT_INDEPENDENT_GOVERNANCE_2026-11-01.md)
 **Inputs:** [P1 operating-model design](P1_OPERATING_MODEL_DESIGN.md), [audit](AUDIT_2026-10-31.md), and `.github/workflows/fishing-production.yml` in the verified V3 source baseline.
 
 ## 1. Explicit decision to make in P1
@@ -92,25 +92,25 @@ Automated tests should cover:
 
 Run the same fixture suite locally and in CI. Errors must include filename, field/line where practical, and a brief resolution path.
 
-## 6. Implementation and merge sequencing (important FISH108 boundary)
+## 6. Amended P3–P5 sequence — governance independent of V3
 
-Existing `.github/workflows/fishing-production.yml` has `validate-docs` for Markdown-only PRs, but **currently checks only `git diff --check`**. It always classifies workflow changes or executable scripts as **Full Application Release validation**, not a documentation-only change. **Do not bypass or weaken this.**
+**Owner-approved replacement:** [November 1 independent-governance amendment](OWNER_AMENDMENT_INDEPENDENT_GOVERNANCE_2026-11-01.md) supersedes the original V3-based tooling and merge sequence. Earlier design discussions remain historical evidence but **must not be executed**. [Validation runbook](VALIDATION_RUNBOOK.md) defines the effective independent checks.
 
-**Stage V0 — P1 design** (now): approve this policy and document schema; no code/workflow change.
+**P2 — completed as a draft:** Copy the governed Markdown docs by identical Git blobs onto a branch based directly on `main`; preserve legacy approvals, source and full V3 separation. Working [PR #288](https://github.com/ginosega/fishing/pull/288) remains draft.
 
-**Stage V1 — P2 non-destructive working documents:** populate five active Markdown docs on **still-draft, unmerged** PR #283. Perform structured manual validation and full provenance/approval coverage review. Do **not** activate the new handoff protocol, deprecate historical records or merge the docs PR yet.
+**P3 — independent verification:** (a) existing `main` docs-only GitHub Actions checks (whitespace + `fishing-merge-ready`); (b) deterministic standalone governance-document validation, using pinned source, required fields, local links, budgets, decision IDs/provenance and negative fixtures; (c) triggered semantic/evidence review. Record reproducible results in a dated audit document, not a claim of application release readiness. The earlier [isolated strict docs run #41332302407](https://github.com/ginosega/fishing/actions/runs/41332302407) is supplementary historical proof, not the new branch's exact-head result.
 
-**Stage V2 — P3 separate tooling PR** (issue #284): independently branch from the V3 feature branch (not from PR #283) to add a small deterministic standard-Node `tools/check-project-ops.mjs` (path provisional), fixtures and a workflow invocation from `validate-docs`. It must operate in a fixture/contract mode while the new five active docs are still pending in PR #283, without falsely passing an active-but-incomplete document set. Keep existing `git diff --check` and lane classifier. Because that PR changes `.github/workflows/**` and executable `tools/**`, it **must** pass the existing **full application** PR-validation lane. Merge tooling only to the reviewed V3 development branch, after its own proper approval; do **not** push to public `main` or deploy. A PR full test is not deployment authorization.
+**P4 — owner fresh-chat recovery:** Test the **static prompt** twice in fresh Fishing-project conversations while PR #288 remains draft: verify safe fallback when the default-branch router is absent, topic-specific rejected-decision retrieval, precise source vs hosted truth, and no blind retry. This requires no PWA browser suite.
 
-**Stage V3 — P3 end-to-end proof on PR #283:** reconcile/rebase the draft documentation branch with the tooling commit on the V3 branch. With the five active docs present, require **strict** checks (no fixture-only bypass). Confirm the draft docs-only PR runs the new validator and existing `fishing-merge-ready` in the **docs** lane, with positive/negative test fixtures already proven in the separate tooling PR. Record exact CI SHA and results on #284. If this cannot be demonstrated, keep PR #283 draft/unmerged and #284 open.
+**P5 — owner adoption:** Present full P3 and P4 evidence and clearly state whether structural validation runs are **assistant-executed per change**, versus an **automatically enforced required GitHub CI check**. The latter is **not yet installed**. Owner explicitly accepts or declines that remaining enforcement limitation before activation. Only after approval may the docs-only PR merge into `main` and the static prompt/router become discoverable on the default branch; recheck no published application changes.
 
-**Stage V4 — P4 cold-start and P5 adoption:** cold-start test the **draft docs branch**, using only bounded reads, before final owner sign-off. After passing and owner acceptance, merge documentation PR #283 to the intended reviewed development branch, update project instructions, and formally supersede the old full-bootstrap transfer protocol. Reconcile new refs after merges. Only then resume V3 feature development with fresh real-provider state checks; existing PR #263 remains subject to its own gates.
+**Future automatic enforcement:** Keep [issue #284](https://github.com/ginosega/fishing/issues/284) open for a truly independent governance validation integration. Do not add executable code or change `.github/workflows/fishing-production.yml` in the docs-only PR, relax FISH108 or invent a CI exemption. A later approved architecture must preserve application release gates and may require a separate execution environment.
 
-**Important public-main boundary:** eventually bringing the executable tooling/workflow change into public `main` can invoke **Full Application Release** and Pages deployment. That is a separately controlled integration/release under FISH108; neither issue #284 nor the docs-only PR preauthorizes a public merge or hosted change.
+**Historical abandoned path:** V3-targeted PR #285 is unmerged and is not a prerequisite. Existing PWA browser timeout issue #287 remains solely an application workstream.
 
 ## 7. Operational maintenance after rollout
 
-- Any active-doc change runs the validator automatically in the PR docs lane; content-only release changes are not required to update active docs.
+- Every active-doc change **must receive independent deterministic validation** per [VALIDATION_RUNBOOK.md](VALIDATION_RUNBOOK.md) before acceptance; the existing PR docs lane currently checks whitespace only. Permanent automated-on-every-PR enforcement is not installed and remains tracked in #284. Content-only PWA releases do not require a governance-doc update.
 - If validators fail, correct the underlying state or explicitly mark unknown; never mask missing proof with fake SHA/timestamps or downgrade security checks.
 - Review validators alongside schema changes; expanded project docs must preserve small entry and ownership rules.
 - The human closeout review still verifies current Git/CI/provider/device facts, owner decisions and legal branch/merge boundaries.
@@ -119,9 +119,9 @@ Existing `.github/workflows/fishing-production.yml` has `validate-docs` for Mark
 ## 8. P1 acceptance for documentation validation
 
 - [x] Owner agrees to **automated structural checks + triggered assistant-performed semantic/evidence review**, with actual owner sign-off only when an existing authorization or acceptance gate requires it.
-- [x] Owner agrees to the staged **docs-only PR → separate full-lane tooling PR → docs-only end-to-end CI proof** sequence.
+- [x] Owner approved the initial staged sequence; **later superseded** by [decoupling amendment](OWNER_AMENDMENT_INDEPENDENT_GOVERNANCE_2026-11-01.md): independent governance validation without V3 browser-suite dependency.
 - [x] Owner agrees to the scope, soft/hard budgets, failure-vs-warning policy and explicit allowance for unknown status.
-- [ ] Issue #284 remains open as a mandatory P3 gate until validator, fixtures, workflow and CI evidence are accepted.
+- [ ] Owner must review the disclosed distinction between **passing independent per-change checks** and **permanent CI enforcement** at P5; issue #284 remains open until an independently integrated, automatically enforced governance check exists.
 
 ## 9. Continuous prevention, Tier 2 triggers and rejected-decision coverage
 
