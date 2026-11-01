@@ -1,7 +1,7 @@
 # P3 independent governance verification — November 1, 2026
 
-**Scope:** Operating Model v2 draft under [governance PR #288](https://github.com/ginosega/fishing/pull/288), separate from V3 [PR #263](https://github.com/ginosega/fishing/pull/263), its PWA browser tests and FISH108 application release.  
-**Basis:** [Owner-approved decoupling](OWNER_AMENDMENT_INDEPENDENT_GOVERNANCE_2026-11-01.md) · [verification procedure](VALIDATION_RUNBOOK.md).  
+**Scope:** Operating Model v2 draft under [governance PR #288](https://github.com/ginosega/fishing/pull/288), separate from V3 [PR #263](https://github.com/ginosega/fishing/pull/263), its PWA browser tests and FISH108 application release.
+**Basis:** [Owner-approved decoupling](OWNER_AMENDMENT_INDEPENDENT_GOVERNANCE_2026-11-01.md) · [verification procedure](VALIDATION_RUNBOOK.md).
 **Evidence status:** Source-based and GitHub CI checks run on the independent governance branch; **not** installed always-on structural CI, no application/provider deployments, **P4/P5 not passed**.
 
 ## Evidence and checks
