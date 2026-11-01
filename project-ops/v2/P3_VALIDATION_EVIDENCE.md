@@ -1,6 +1,6 @@
 # P3 documentation validation — exact evidence and remaining gate
 
-**Status:** Strict docs-only validation PASS; full application validation **FAILED on a reproducible, pre-existing V3-branch browser-test issue**. [Blocker #287](https://github.com/ginosega/fishing/issues/287) requires separately scoped owner approval for remediation. No merger, deployment or bypass authorized. Do **not** mark P3 accepted or activate operating-model routing until the remaining prerequisites pass.
+**Status:** HISTORICAL VALIDATION EXPERIMENT, superseded by [owner-approved independent governance amendment](OWNER_AMENDMENT_INDEPENDENT_GOVERNANCE_2026-11-01.md). The V3 full-suite failure is not a governance blocker; no tooling or application merge occurred. Do **not** mark P3 accepted or activate operating-model routing until the remaining prerequisites pass.
 
 ## Separate scoped implementation
 - Tooling branch `tooling/fish-ops-v2-doc-validation` and [draft PR #285](https://github.com/ginosega/fishing/pull/285) target the V3 development branch only, not public `main`.
@@ -15,11 +15,14 @@
 - PR #286 was **closed unmerged** after the probe; no production/app merge or site deployment.
 - Prior docs-only run [#41332122280](https://github.com/ginosega/fishing/actions/runs/41332122280) failed on whitespace trailing double-spaces in seven newly added markdown files. All reported whitespace lines were fixed on the documentation branch. The passing later probe is stronger evidence, but #283 requires a final exact-head run after final source reconciliation.
 
-## Remaining mandatory P3 steps
-1. Confirm **full application validation** on #285 completed success on exact tool head; if failed, diagnose and correct without dropping required checks.
-2. Independently review/change scope and merge **only the tooling PR into the V3 development branch** after full CI. Do not merge to public `main`.
-3. Re-run docs-only PR #283 against the now-updated feature branch, checking exact current head, strict `validate-docs`, `fishing-merge-ready` and no unrelated source modification.
-4. Record negative fixture result, link integrity and original approval preservation. Keep docs PR draft/unmerged until P4 new-chat owner test and P5 final approval.
-5. Do not mistake structural docs CI for verified Cloudflare Worker status or completed historical semantic coverage; those remain separate.
+## Current governance interpretation (2026-11-01 owner amendment)
 
-**Owner responsibility:** No routine action. Stop only for P4's genuinely fresh ChatGPT project-chat test or an unresolved material safety/authorization issue.
+This is a preserved **historical V3-dependent P3 experiment**. Its remaining application-CI/merge steps are **superseded**, not mandatory. See [independence amendment](OWNER_AMENDMENT_INDEPENDENT_GOVERNANCE_2026-11-01.md), [current state](CURRENT_STATE.md), and [independent validation runbook](VALIDATION_RUNBOOK.md).
+
+- The old full PWA test failure was a valid reason not to merge executable tooling into the existing PWA-owned workflow, but **not a reason to block governance documentation work**.
+- [PR #285](https://github.com/ginosega/fishing/pull/285) should remain unmerged; [PR #283](https://github.com/ginosega/fishing/pull/283) is superseded by the independent main-based [PR #288](https://github.com/ginosega/fishing/pull/288).
+- The successful strict-docs demonstration [run #41332302407](https://github.com/ginosega/fishing/actions/runs/41332302407) is valid as a historical verification of the *former* candidate corpus, **not** an installed check on the new governance branch.
+- New governance validation must verify the exact current #288 HEAD and record the distinction between GitHub's existing whitespace checks and separate deterministic governance structural tests; no permanent CI integration should be claimed until independently installed and verified.
+- P4 fresh-chat tests and P5 owner acceptance proceed independently of application test issue [#287](https://github.com/ginosega/fishing/issues/287).
+
+**No public PWA application release, Cloudflare/D1 operation, authoring retry or V3 merge is authorized by this document.**
