@@ -22,10 +22,10 @@ Evidence: [Issue #284](https://github.com/ginosega/fishing/issues/284) · [indep
 
 ## FISH-OPS-V2-RECOVERY — Owner-run cold-start / adoption
 
-State: blocked
+State: ready
 Owner: project owner for independent new-chat observations; assistant supplies exact instructions and evaluates evidence
-Next safe action: After independent governance validation, use [static prompt](../../NEW_CHAT_PROMPT.md) in two fresh Fishing ChatGPT conversations for normal and emergency scenarios.
-Prerequisites: Verified docs PR #288 source, current `main` router absence safely handled, prior rejected decision indexed and testable.
+Next safe action: Owner opens **two separate new Fishing ChatGPT conversations** and pastes the exact [static prompt](../../NEW_CHAT_PROMPT.md); capture the returned summaries for P4 review. No old-chat transcript is needed.
+Prerequisites: Independently verified draft PR #288, [P3 structural verification](P3_INDEPENDENT_VALIDATION_2026-11-01.md), [docs-only CI pass #41337909748](https://github.com/ginosega/fishing/actions/runs/41337909748) on reviewed head (refresh latest SHA before accepting), main router **not yet installed**, indexed rejected decisions available.
 Acceptance: New chats retrieve approved status and negative-decision reasons without history dump, distinguish Git/CI/provider/device and do not retry ambiguous writes; P5 owner accepts limitations and deployment-independent plan.
 Evidence: [P4 test plan](P4_COLD_START_TEST_PLAN.md).
 
