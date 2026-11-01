@@ -6,7 +6,7 @@
 
 State: review
 Owner: project owner / assistant implementer
-Next safe action: Verify docs-only [PR #288](https://github.com/ginosega/fishing/pull/288), structural/semantic decision coverage and exact links, then conduct owner-run P4 cold-start before adoption.
+Next safe action: Present [P5 adoption package](P5_ADOPTION_REVIEW.md) and get explicit owner approval to activate independent governance with interim structural validation, or defer until continuous CI is installed.
 Prerequisites: [P1 design approval](P1_DESIGN_APPROVAL_2026-11-01.md); [independence amendment](OWNER_AMENDMENT_INDEPENDENT_GOVERNANCE_2026-11-01.md); migration [reconciliation](P2_MIGRATION_RECONCILIATION_2026-11-01.md).
 Acceptance: Preserved old canonical records and historical approved/rejected options, bounded working docs, static prompt, clean-chat test, final owner adoption; **no PWA test dependency**.
 Evidence: [governance PR #288](https://github.com/ginosega/fishing/pull/288) · [issue #282](https://github.com/ginosega/fishing/issues/282).
@@ -22,12 +22,12 @@ Evidence: [Issue #284](https://github.com/ginosega/fishing/issues/284) · [indep
 
 ## FISH-OPS-V2-RECOVERY — Owner-run cold-start / adoption
 
-State: ready
+State: review
 Owner: project owner for independent new-chat observations; assistant supplies exact instructions and evaluates evidence
-Next safe action: Owner opens **two separate new Fishing ChatGPT conversations** and pastes the exact [static prompt](../../NEW_CHAT_PROMPT.md); capture the returned summaries for P4 review. No old-chat transcript is needed.
+Next safe action: All four [P4 recovery acceptance tests](P4_RECOVERY_ACCEPTANCE_2026-11-01.md) passed in fresh chats. Obtain separate **P5 final adoption decision** before activating main router or retiring old handoff.
 Prerequisites: Independently verified draft PR #288, [P3 structural verification](P3_INDEPENDENT_VALIDATION_2026-11-01.md), [docs-only CI pass #41337909748](https://github.com/ginosega/fishing/actions/runs/41337909748) on reviewed head (refresh latest SHA before accepting), main router **not yet installed**, indexed rejected decisions available.
 Acceptance: New chats retrieve approved status and negative-decision reasons without history dump, distinguish Git/CI/provider/device and do not retry ambiguous writes; P5 owner accepts limitations and deployment-independent plan.
-Evidence: [P4 test plan](P4_COLD_START_TEST_PLAN.md).
+Evidence: [P4 test plan](P4_COLD_START_TEST_PLAN.md) · [P4 owner-observed pass](P4_RECOVERY_ACCEPTANCE_2026-11-01.md) · [P5 review](P5_ADOPTION_REVIEW.md).
 
 ## FISH-TODO-118 — Fishing Companion V3 (separate, paused)
 
