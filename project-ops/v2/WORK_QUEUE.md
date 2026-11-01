@@ -4,18 +4,18 @@
 
 ## FISH-OPS-V2 — Operating-model migration
 
-State: in-progress
+State: review
 Owner: project owner / assistant implementer
-Next safe action: Complete P2 bounded working files and historical accepted/rejected/deferred/superseded decision catalogs; preserve original documents and reconcile coverage.
+Next safe action: Verify strict P3 validator against populated draft docs and cross-check complete retained historical sources; do not merge before P4 acceptance.
 Prerequisites: [P1 approval](P1_DESIGN_APPROVAL_2026-11-01.md), [source crosswalk](MIGRATION_COVERAGE_MATRIX.md), verified docs-only branch.
 Acceptance: Five active docs bounded; rejected-approach coverage; link/source provenance; no pre-existing code, approvals or public V2 changed; [issue #282](https://github.com/ginosega/fishing/issues/282).
 Evidence: [draft PR #283](https://github.com/ginosega/fishing/pull/283).
 
 ## FISH-OPS-V2-VALIDATION — Documentation CI
 
-State: blocked
+State: in-progress
 Owner: assistant implementer
-Next safe action: On a separate branch and PR, build deterministic structural validator, negative fixtures, and CI wiring; use full-lane validation for code/workflow changes.
+Next safe action: Complete full-lane CI on [PR #285](https://github.com/ginosega/fishing/pull/285), then integrate only to the V3 development branch and prove docs-only PR #283 runs strict structural validation.
 Prerequisites: P2 document contracts finalized; [#284](https://github.com/ginosega/fishing/issues/284); no implicit public merge/deploy.
 Acceptance: Valid and invalid fixtures tested; docs-only PR runs strict checks; exact-source CI evidence; preserve existing FISH108 classifier, checks and production safeguards.
 Evidence: [validator design](DOC_VALIDATION_DESIGN.md).
