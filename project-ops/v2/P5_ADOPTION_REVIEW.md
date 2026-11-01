@@ -1,6 +1,6 @@
 # P5 — Fishing Project Operating Model v2 adoption decision package
 
-**Status:** **AWAITING EXPLICIT OWNER DECISION. NOT ADOPTED.** No merge, router activation, alteration of old approvals, or public V3 cutover is authorized by this file.
+**Status:** **HISTORICAL/ SUPERSEDED P5 interim-acceptance proposal.** The owner instead directed **full required governance enforcement before activation** and a single canonical branch, documented in [P5 current implementation plan](P5_CANONICAL_BRANCH_IMPLEMENTATION_2026-11-01.md) and [owner directive](P5_OWNER_DIRECTIVE_COMPLETE_GOVERNANCE_2026-11-01.md). The below options and full-docs `main` PR #288 are no longer the live implementation route. No public application changes are authorized.
 **Proposed integration:** [Independent governance PR #288](https://github.com/ginosega/fishing/pull/288), `governance/fish-ops-v2-independent` → `main`, docs-only.
 **Previous stages:** [P1 design approval](P1_DESIGN_APPROVAL_2026-11-01.md), [independence amendment](OWNER_AMENDMENT_INDEPENDENT_GOVERNANCE_2026-11-01.md), [P2 migration reconciliation](P2_MIGRATION_RECONCILIATION_2026-11-01.md), [P3 independent verification](P3_INDEPENDENT_VALIDATION_2026-11-01.md), [P4 owner-observed PASS](P4_RECOVERY_ACCEPTANCE_2026-11-01.md).
 
