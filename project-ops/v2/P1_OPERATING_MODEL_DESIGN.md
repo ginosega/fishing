@@ -1,6 +1,6 @@
 # FISH-OPS-V2 — P1 Operating-Model Design Proposal
 
-**Status:** P1 design proposal, **not yet accepted** as the active project operating policy
+**Status:** **P1 design accepted by owner on 2026-11-01** ([sign-off](P1_DESIGN_APPROVAL_2026-11-01.md)); **not yet activated** as operating policy until P3/P4/P5.
 **Prepared:** 2026-10-31 · **Initiative:** [#282](https://github.com/ginosega/fishing/issues/282) · **Draft PR:** [#283](https://github.com/ginosega/fishing/pull/283)
 **Audit and traceability:** [AUDIT_2026-10-31.md](AUDIT_2026-10-31.md) · [MIGRATION_COVERAGE_MATRIX.md](MIGRATION_COVERAGE_MATRIX.md)
 **Reference source:** `feature/fish118-p3-mock-publisher@406723f880960d33d40bd07984559432c8caa233`. Never infer a live deployment from a Git commit.
@@ -116,7 +116,7 @@ Additional *reference-only* files may include `project-ops/v2/decisions/ADR-NNNN
 
 ## 7. P1 acceptance questions and decision gate
 
-P1 is ready for owner approval once these are clear:
+P1 design questions considered in the approved November 1 decision (these are recorded for provenance, not new approval requests):
 - Approve five active roles under `project-ops/v2/` and proposed byte targets/hard caps?
 - Approve maintaining state *in place* and freezing historical root files, retaining approvals and uniquely owned independent non-V3 backlog?
 - Approve explicit immutable-approval vs later-owner-amendment indexing, with source/CI/deploy/field evidence separate?
