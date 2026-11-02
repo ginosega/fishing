@@ -192,6 +192,7 @@ test('D4-C10 ID generator and Catch route parsing preserve existing links',()=>{
 test('D4-DISPLAY-01 Catch Notes-only and data-only edits carry canonical display identity',async()=>{
  const old=source.catches.catches[0],item={...old,speciesName:'Synthetic bluegill',
   date:'2026-10-16'};
+ delete item.speciesId; // This fixture represents an unlinked, free-text species.
  const updated=structuredClone(source);
  updated.catches.catches[0]=item;
  const ctx=makeContext(updated);
