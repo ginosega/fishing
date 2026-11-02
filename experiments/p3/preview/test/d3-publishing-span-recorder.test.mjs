@@ -44,9 +44,17 @@ test('SPAN-04 telemetry sink failure does not affect publication correctness',as
  assert.equal(await x.measure('state_to_live',async()=>true),true);
  assert.equal(x.summary().droppedSinkEvents,1);
 });
-test('SPAN-05 unknown phase and operation refused without sink',async()=>{
- const x=createD3PublishingSpanRecorder({enabled:true,operationId:id});
- await assert.rejects(x.measure('cookie',async()=>1),/Invalid D3 stage span/);
+test('SPAN-05 unknown phase bypasses telemetry but never suppresses trusted work',async()=>{
+ const events=[];
+ const x=createD3PublishingSpanRecorder({enabled:true,operationId:id,
+  sink:async e=>events.push(e)});
+ let called=0;
+ assert.equal(await x.measure('cookie',async()=>++called),1);
+ assert.equal(called,1);
+ assert.equal(events.length,0);
+ await assert.rejects(x.measure('unknown_phase',async()=>{
+  throw Error('original trusted error');
+ }),/original trusted error/);
  assert.throws(()=>createD3PublishingSpanRecorder({
   enabled:true,operationId:'bad-id'}));
 });
@@ -72,6 +80,50 @@ test('SPAN-07 allow fixed path-free source phases and deny arbitrary labels',asy
  }
  assert.equal(events.length,8);
  assert(events.every(e=>e.outcome==='ok'));
- await assert.rejects(recorder.measure('source_path_private',async()=>true),
-  /Invalid D3 stage span/);
+ assert.equal(await recorder.measure('source_path_private',async()=>true),true);
+ assert.equal(events.length,8,'unknown phase is not emitted');
+});
+
+test('SPAN-08 same-lease independent merge proof works with tracing ON',async()=>{
+ const events=[];
+ const recorder=createD3PublishingSpanRecorder({enabled:true,operationId:id,
+  sink:async e=>events.push(e)});
+ let proofs=0;
+ const result=await recorder.measure('merge_fast_independent_proof',async()=>{
+  proofs++;return {verified:true,sha:'a'.repeat(40)};
+ });
+ assert.equal(proofs,1);
+ assert.equal(result.verified,true);
+ assert.equal(events.length,1);
+ assert.equal(events[0].phase,'merge_fast_independent_proof');
+ assert.equal(events[0].outcome,'ok');
+});
+
+test('SPAN-09 exhausted telemetry and unavailable clock never fail publishing',async()=>{
+ const recorder=createD3PublishingSpanRecorder({enabled:true,operationId:id,
+  monotonic:()=>{throw Error('clock unavailable');}});
+ assert.equal(await recorder.measure('github_protected_merge',async()=>29),29);
+ const events=[];
+ const capped=createD3PublishingSpanRecorder({enabled:true,operationId:id,
+  sink:async e=>events.push(e)});
+ for(let i=0;i<80;i++)await capped.measure('lease_claim',async()=>true);
+ assert.equal(events.length,80);
+ assert.equal(await capped.measure('merge_fast_independent_proof',async()=>42),42);
+ assert.equal(events.length,80);
+});
+
+test('SPAN-10 all literal publisher phase names are recognized, no silent blind spots',async()=>{
+ const {readFile}=await import('node:fs/promises');
+ const {fileURLToPath}=await import('node:url');
+ const source=new URL('../src/d3-sandbox-operation-runner.mjs',import.meta.url);
+ const code=await readFile(fileURLToPath(source),'utf8');
+ const phaseNames=[...code.matchAll(/measure\(\s*['"]([^'"]+)['"]/g)].map(m=>m[1]);
+ assert(phaseNames.includes('merge_fast_independent_proof'));
+ const emitted=[];
+ const recorder=createD3PublishingSpanRecorder({enabled:true,operationId:id,
+  sink:async e=>emitted.push(e)});
+ for(const phase of new Set(phaseNames)){
+  await recorder.measure(phase,async()=>true);
+ }
+ assert.deepEqual(emitted.map(e=>e.phase),[...new Set(phaseNames)]);
 });
