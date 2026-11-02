@@ -74,12 +74,9 @@ export function createSandboxCheckObserver({
   ensure(repo?.id===ID&&repo?.full_name===REPO&&repo?.private===true,
    'REPOSITORY_DENIED');
   const mainUrl=API+'/git/ref/heads/main',prUrl=API+'/pulls/'+prNumber;
-  // Independent GETs can overlap, but both must pass before reading CI.
-  // The final checks still occur only AFTER observing the CI result.
-  const [firstMain,firstPR]=await Promise.all([
-   read(token,mainUrl),read(token,prUrl),
-  ]);
+  const firstMain=await read(token,mainUrl);
   ensure(firstMain?.object?.sha===expectedBaseSha,'MAIN_MOVED');
+  const firstPR=await read(token,prUrl);
   validatePR(firstPR,{number:prNumber,head:expectedHeadSha,
    base:expectedBaseSha,branch:expectedBranch});
   const checks=await read(token,API+'/commits/'+expectedHeadSha+
@@ -109,10 +106,9 @@ export function createSandboxCheckObserver({
     'WORKFLOW_PROVENANCE_DENIED');
   // Recheck both mutable objects after reading CI so an intervening push or
   // PR head/base movement never becomes an accepted snapshot.
-  const [lastMain,lastPR]=await Promise.all([
-   read(token,mainUrl),read(token,prUrl),
-  ]);
+  const lastMain=await read(token,mainUrl);
   ensure(lastMain?.object?.sha===expectedBaseSha,'MAIN_MOVED');
+  const lastPR=await read(token,prUrl);
   validatePR(lastPR,{number:prNumber,head:expectedHeadSha,
    base:expectedBaseSha,branch:expectedBranch});
   ensure(check?.conclusion==='success','CHECK_NOT_SUCCESSFUL');

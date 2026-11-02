@@ -13,10 +13,9 @@ function setup({
  mainMovedInitially=false,mainMovedFinally=false,
  prOverride=null,prMovedFinally=false,checkOverride=null,
  checksOverride=null,missingReadToken=false,httpError=null,
- networkFailure=null,invalidJson=null,delayReads=false,
+ networkFailure=null,invalidJson=null,
 }={}){
  const calls=[];let mainReads=0,prReads=0,issued=0;
- let activeReads=0,maxActiveReads=0;
  const pr=()=>({number:PR,state:'open',draft:true,merged:false,
   merged_at:null,head:{sha:HEAD,ref:BRANCH,repo:{id:ID}},
   base:{sha:BASE,ref:'main',repo:{id:ID}}});
@@ -29,12 +28,6 @@ function setup({
   assert(url===API||url.startsWith(API+'/'));
   assert.equal(init.method,'GET');
   assert.equal(init.headers['User-Agent'],'fishing-p3-sandbox-publisher');
-  if(delayReads){
-   activeReads++;
-   maxActiveReads=Math.max(maxActiveReads,activeReads);
-   await Promise.resolve();
-   activeReads--;
-  }
   if(httpError&&url.includes(httpError))return json({message:'denied'},403);
   if(networkFailure&&url.includes(networkFailure))throw Error('connection refused');
   if(invalidJson&&url.includes(invalidJson))return {ok:true,status:200,json:async()=>{throw Error('bad JSON');}};
@@ -63,8 +56,7 @@ function setup({
    permissions:scopeOverride??scope,token:'read-only-p3-checks-example-token'};
  };
  const observer=createSandboxCheckObserver({request,issueCheckReadToken,enabled:()=>enabled});
- return {observer,calls,get issued(){return issued;},
-  get maxActiveReads(){return maxActiveReads;}};
+ return {observer,calls,get issued(){return issued;}};
 }
 test('P3-C01 inactive observer cannot request token or contact GitHub',async()=>{
  const s=setup({enabled:false});
@@ -182,16 +174,4 @@ test('P3-C11 positive observation has no git mutation, deployment or merge metho
  assert.equal(proof.canDeploy,false);
  assert.deepEqual(Object.keys(s.observer),['observe']);
  assert.equal(Object.isFrozen(proof),true);
-});
-
-test('P3-C12 independent main/PR reads overlap, but still bracket exact CI proof',async()=>{
- const s=setup({delayReads:true});
- await s.observer.observe(receipt());
- assert.equal(s.maxActiveReads,2);
- assert.deepEqual(s.calls.map(c=>c.url),[
-  API,API+'/git/ref/heads/main',API+'/pulls/'+PR,
-  API+'/commits/'+HEAD+'/check-runs?per_page=100&filter=latest',
-  API+'/git/ref/heads/main',API+'/pulls/'+PR,
- ]);
- assert(s.calls.every(c=>c.method==='GET'));
 });
