@@ -147,11 +147,11 @@ test('D2-M06 browser-selected repo ID, head and branch are not trusted',async()=
  }
 });
 
-test('D2-M07 overlaps only independent GETs while preserving the complete merge gate',async()=>{
+test('D2-M07 overlaps pre-mutation GETs, retains sequential final main check',async()=>{
  const x=fixture({enabled:true,delayReads:true});
  await x.instance.merge(receipt);
  assert.equal(x.maxActiveReads,2);
- assert.equal(x.overlapPairs,2);
+ assert.equal(x.overlapPairs,1);
  // All original REST checks remain, including ready-state and final PR checks.
  const reads=x.trace.filter(e=>e.method==='GET').map(e=>e.url);
  assert.deepEqual(reads,[
