@@ -99,7 +99,24 @@ export class D3FastWakeAlarm {
   // D1 coordinator reconciles ambiguous merge outcomes read-only.
   const stalled=await this.ctx.storage.get('stallCount');
   const count=Number.isSafeInteger(stalled)&&stalled>=0?stalled:0;
-  const result=await watch.onAlarm(operationId,{stallCount:count});
+  console.info('FISH118_D3_DO_ALARM_START',JSON.stringify({
+   operationId,stallCount:count,
+  }));
+  let result;
+  try{result=await watch.onAlarm(operationId,{stallCount:count});}
+  catch(error){
+   const code=typeof error?.code==='string'&&
+    /^[A-Z0-9_]{3,64}$/.test(error.code)?
+    error.code:'INTERNAL_FAILURE';
+   console.error('FISH118_D3_DO_ALARM_FAILURE',JSON.stringify({
+    operationId,code,
+   }));
+   throw error; // Preserve Cloudflare alarm redelivery semantics.
+  }
+  console.info('FISH118_D3_DO_ALARM_STEP',JSON.stringify({
+   operationId,state:result.state??null,
+   terminal:result.terminal===true,progressed:result.progressed===true,
+  }));
   // Re-arm happens before recording this optional backoff counter.
   if(result.terminal)await this.ctx.storage.delete('stallCount');
   else await this.ctx.storage.put('stallCount',result.progressed?0:Math.min(1000,count+1));
