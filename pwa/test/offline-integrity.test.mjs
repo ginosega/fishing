@@ -97,7 +97,7 @@ test('FISH287 bounded offline staging is concurrent, verified, monotonic and ato
  const denied=await nextRuntime.message('PREPARE');
  assert.equal(denied.status.releaseId,old.id);
  assert.equal((await markers(caches)).length,1);
- assert.match(denied.status.message,/Update incomplete/);
+ assert.match(denied.status.message,/Asset unavailable/);
 });
 
 test('missing and corrupt explicit updates retain the selected previous complete release',async()=>{
