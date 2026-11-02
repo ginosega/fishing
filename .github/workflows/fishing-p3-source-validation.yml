@@ -145,7 +145,8 @@ jobs:
             'experiments/p3/preview/tools/deploy-d3-fast-cron-rearm-private.ps1',
             'experiments/p3/preview/tools/deploy-d3-validating-snapshot-reuse-private.ps1',
             'experiments/p3/preview/tools/deploy-d4-kb-notes-merge-proof-private.ps1',
-            'experiments/p3/preview/tools/deploy-d3-stale-alarm-rearm-private.ps1'
+            'experiments/p3/preview/tools/deploy-d3-stale-alarm-rearm-private.ps1',
+            'experiments/p3/preview/tools/deploy-d4-saved-notes-preview-catch-summary-private.ps1'
           )
           foreach ($scriptFile in $operatorScripts) {
           $tokens = $null
