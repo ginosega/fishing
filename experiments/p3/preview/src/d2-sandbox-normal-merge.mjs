@@ -85,9 +85,12 @@ export function createD2SandboxNormalMerge({
   const repo=await api(token,'GET',API);
   need(repo?.id===ID&&repo.full_name===REPO&&repo.private===true,
    'REPOSITORY_DENIED');
-  const main=await api(token,'GET',API+'/git/ref/heads/main');
+  // Independent read-only requests overlap; verify both before mutation.
+  const [main,pr]=await Promise.all([
+   api(token,'GET',API+'/git/ref/heads/main'),
+   api(token,'GET',API+'/pulls/'+info.prNumber),
+  ]);
   need(main?.object?.sha===info.expectedBaseSha,'MAIN_MOVED');
-  const pr=await api(token,'GET',API+'/pulls/'+info.prNumber);
   verifyPR(pr,info,true);
   // GitHub exposes draft -> ready-for-review via its GraphQL mutation,
   // NOT a REST /pulls/{number}/ready_for_review endpoint.
@@ -116,11 +119,14 @@ export function createD2SandboxNormalMerge({
    commit_message:commitMessage,
   });
   need(result?.merged===true&&SHA.test(result.sha),'WRITE_RESULT_UNKNOWN');
-  const merged=await api(token,'GET',API+'/pulls/'+info.prNumber);
+  // Both independent post-merge reads must pass before the durable receipt.
+  const [merged,finalMain]=await Promise.all([
+   api(token,'GET',API+'/pulls/'+info.prNumber),
+   api(token,'GET',API+'/git/ref/heads/main'),
+  ]);
   need(merged?.merged_at!=null&&merged?.merge_commit_sha===result.sha&&
    merged.head?.sha===info.expectedHeadSha&&
    merged.base?.repo?.id===ID,'MERGE_EVIDENCE_DENIED');
-  const finalMain=await api(token,'GET',API+'/git/ref/heads/main');
   need(finalMain?.object?.sha===result.sha,'MERGE_EVIDENCE_DENIED');
   let durable;
   try{
