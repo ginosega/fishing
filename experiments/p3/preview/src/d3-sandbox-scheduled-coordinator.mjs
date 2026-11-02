@@ -147,7 +147,7 @@ export function createD3SandboxScheduledCoordinator({
     // Exception is strictly tied to a trusted, durable Notes EDIT.
     // An ADD or non-Notes operation still requires every expected file.
     allowUnchangedCatalog:saved.package.operation==='edit'&&
-      saved.package.notes?.action!=='keep',
+      saved.package.notes?.action==='replace',
    });
   },
   verifyHosted:async info=>{
@@ -187,7 +187,7 @@ export function createD3SandboxScheduledCoordinator({
     prHeadSha:record.prHeadSha,mainBaseSha:record.mainBaseSha,
     workflowRunId:record.workflowRunId,expectedPaths:paths,
     allowUnchangedCatalog:saved.package.operation==='edit'&&
-      saved.package.notes?.action!=='keep'});
+      saved.package.notes?.action==='replace'});
    need(proof.verified===true&&proof.operationId===blocked&&
     proof.canonicalLive===false,'RECOVERY_EVIDENCE_DENIED');
    const restored=await store.reconcileVerifiedMerge(proof);
