@@ -63,12 +63,13 @@ export function createD3MergedReceiptVerifier({request,issueReadToken,
    response.redirected!==true,'PR_MERGE_STATUS_UNVERIFIED');
  }
  async function verify({operationId,repositoryId,prNumber,prHeadSha,
-   mainBaseSha,workflowRunId,expectedPaths}={}){
+   mainBaseSha,workflowRunId,expectedPaths,
+   allowUnchangedCatalog=false}={}){
   need(enabled()===true,'RECOVERY_DISABLED');
   need(repositoryId===ID&&OP.test(operationId??'')&&
    success(prNumber)&&SHA.test(prHeadSha??'')&&
    SHA.test(mainBaseSha??'')&&prHeadSha!==mainBaseSha&&
-   success(workflowRunId)&&
+   success(workflowRunId)&&typeof allowUnchangedCatalog==='boolean'&&
    Array.isArray(expectedPaths)&&expectedPaths.length>=1&&
    expectedPaths.length<=26&&
    new Set(expectedPaths).size===expectedPaths.length&&
@@ -135,10 +136,22 @@ export function createD3MergedReceiptVerifier({request,issueReadToken,
    commit.commit?.tree?.sha===headCommit.tree.sha&&
    Array.isArray(commit.parents)&&commit.parents.length===1&&
    commit.parents[0]?.sha===mainBaseSha&&
-   Array.isArray(commit.files)&&commit.files.length===expectedPaths.length&&
+   Array.isArray(commit.files)&&commit.files.length>=1&&
+   commit.files.length<=expectedPaths.length&&
    commit.files.every(f=>f?.status==='modified'||f?.status==='added')&&
    new Set(commit.files.map(f=>f.filename)).size===commit.files.length&&
-   expectedPaths.every(p=>commit.files.some(f=>f.filename===p))&&
+   // Canonical JSON can legitimately remain byte-identical for a Notes-only
+   // EDIT. Every changed file MUST still be in the exact approved path set,
+   // and ONLY that JSON path may be absent. No missing markdown or media.
+   commit.files.every(f=>expectedPaths.includes(f.filename))&&
+   (expectedPaths.every(p=>commit.files.some(f=>f.filename===p))||
+    (allowUnchangedCatalog&&
+     expectedPaths.filter(p=>!commit.files.some(f=>f.filename===p)).length===1&&
+     expectedPaths.filter(p=>!commit.files.some(f=>f.filename===p))[0]===
+       (expectedPaths.includes('pwa/KB/kb.json')?'pwa/KB/kb.json':
+        expectedPaths.includes('pwa/Gear/gear.json')?'pwa/Gear/gear.json':
+         'pwa/Catches/catches.json')&&
+     commit.files.some(f=>f.filename.endsWith('.md'))))&&
    commit.commit?.message?.startsWith(
     'FISH118 D3 isolated sandbox Gear/KB publication'),
    'MERGE_COMMIT_NOT_EXACT');
