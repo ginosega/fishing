@@ -150,7 +150,8 @@ jobs:
             'experiments/p3/preview/tools/deploy-d3-publishing-read-optimization-private.ps1',
             'experiments/p3/preview/tools/deploy-d3-sequential-check-merge-restore-private.ps1',
             'experiments/p3/preview/tools/deploy-d3-snapshot-timing-private.ps1',
-            'experiments/p3/preview/tools/deploy-d3-tracing-safe-merge-recovery-private.ps1'
+            'experiments/p3/preview/tools/deploy-d3-tracing-safe-merge-recovery-private.ps1',
+            'experiments/p3/preview/tools/deploy-d3-check-merge-diagnostics-private.ps1'
           )
           foreach ($scriptFile in $operatorScripts) {
           $tokens = $null
