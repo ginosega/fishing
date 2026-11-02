@@ -140,5 +140,7 @@ test('SPAN-11 fixed CI/merge diagnostic phases are recognized and redacted',asyn
  assert.deepEqual(events.map(event=>event.phase),phases);
  assert(events.every(event=>event.outcome==='ok'));
  assert(!JSON.stringify(events).includes('github.com'));
- assert(!JSON.stringify(events).includes('token'));
+ assert(events.every(event=>Object.keys(event).every(key=>
+  ['schema','operationId','phase','outcome','durationMs',
+   'startedAt','finishedAt','clockScope'].includes(key))));
 });
