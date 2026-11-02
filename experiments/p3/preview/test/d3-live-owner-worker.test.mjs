@@ -91,3 +91,93 @@ test('D3-W04 fetch delegates unchanged to owner gateway even with publisher OFF'
  assert.equal(f.calls.routes,1);
  assert.equal(f.calls.github,0);
 });
+
+const recoveryId='p3_4c5f68ec-aad0-4ee5-b33b-1ee812b9e970';
+function cronRecovery({state='Deploying',progressed=true,fast=true,
+  operationId=recoveryId,ack=200}={}){
+ const calls={ticks:0,alarms:[],failures:[]};
+ const worker=createD3LiveOwnerWorker({
+  route:{fetch:async()=>new Response('unchanged')},
+  requestGitHub:async()=>{throw Error('No GitHub writes or reads in this fixture');},
+  requestHosted:async()=>{throw Error('No hosted request in this fixture');},
+  coordinatorFactory:()=>({tick:async()=>{
+   calls.ticks++;return {operationId,state,progressed,canonicalLive:false};
+  }}),
+  onScheduledFailure:code=>calls.failures.push(code),
+ });
+ const env={...base,D3_WRITE_ENABLED:'true',D3_RUNNER_ENABLED:'true',
+  D3_READ_TOKENS_ENABLED:'true',D3_TEST_HOST_ENABLED:'true',
+  D3_FAST_WATCHDOG_ENABLED:fast?'true':'false',
+  DB:{prepare(){}},OPERATIONS_DB:{prepare(){},batch(){}},
+  D3_FAST_WAKE_DO:{getByName:name=>{
+   calls.alarms.push({name});
+   return {fetch:async req=>{
+    const body=JSON.parse(await req.text());
+    calls.alarms.at(-1).body=body;
+    calls.alarms.at(-1).path=new URL(req.url).pathname;
+    return new Response(null,{status:ack});
+   }};
+  }},
+ };
+ const tick=async()=>{
+  const tasks=[];
+  await worker.scheduled({},env,{waitUntil:promise=>tasks.push(promise)});
+  assert.equal(tasks.length,1);
+  await Promise.all(tasks);
+ };
+ return {calls,env,tick};
+}
+test('D3-W05 Cron read-only reconciliation re-arms exact fast wake after merge',async()=>{
+ const f=cronRecovery({state:'Deploying'});
+ await f.tick();
+ assert.equal(f.calls.ticks,1);
+ assert.equal(f.calls.alarms.length,1);
+ assert.equal(f.calls.alarms[0].name,recoveryId);
+ assert.equal(f.calls.alarms[0].path,'/arm');
+ assert.equal(f.calls.alarms[0].body.operationId,recoveryId);
+ assert.ok(Math.abs(f.calls.alarms[0].body.deadlineMs-Date.now())<15000);
+ assert.deepEqual(f.calls.failures,[]);
+});
+test('D3-W06 Cron also re-arms deterministic Deploying-to-Verifying recovery',async()=>{
+ const f=cronRecovery({state:'Verifying'});
+ await f.tick();
+ assert.equal(f.calls.alarms.length,1);
+ assert.equal(f.calls.alarms[0].name,recoveryId);
+});
+test('D3-W07 no fast wake for disabled, no progress, terminal state',async()=>{
+ for(const settings of [
+  {fast:false,state:'Deploying'},
+  {progressed:false,state:'Deploying'},
+  {state:'Live'},
+  {state:'Failed'},
+  {state:'Conflict'},
+ ]){
+  const f=cronRecovery(settings);
+  await f.tick();
+  assert.equal(f.calls.ticks,1);
+  assert.equal(f.calls.alarms.length,0);
+  assert.deepEqual(f.calls.failures,[]);
+ }
+});
+test('D3-W08 invalid durable recovery receipt denied before DO signaling',async()=>{
+ const f=cronRecovery({operationId:'p3_invalid'});
+ await assert.rejects(f.tick(),/D3_SCHEDULED_FAILURE/);
+ assert.equal(f.calls.ticks,1);
+ assert.equal(f.calls.alarms.length,0);
+ assert.deepEqual(f.calls.failures,['D3_FAST_REARM_UNAVAILABLE']);
+});
+test('D3-W09 unacknowledged DO arm surfaces uncertainty without repeating coordinator step',async()=>{
+ const f=cronRecovery({ack:503});
+ await assert.rejects(f.tick(),/D3_SCHEDULED_FAILURE/);
+ assert.equal(f.calls.ticks,1);
+ assert.equal(f.calls.alarms.length,1);
+ assert.deepEqual(f.calls.failures,['D3_FAST_REARM_UNCERTAIN']);
+});
+test('D3-W10 missing fast DO binding is reported without changing D1 receipt',async()=>{
+ const f=cronRecovery();
+ delete f.env.D3_FAST_WAKE_DO;
+ await assert.rejects(f.tick(),/D3_SCHEDULED_FAILURE/);
+ assert.deepEqual(f.calls.failures,['D3_FAST_REARM_UNAVAILABLE']);
+ assert.equal(f.calls.alarms.length,0);
+ assert.equal(f.calls.ticks,1);
+});
