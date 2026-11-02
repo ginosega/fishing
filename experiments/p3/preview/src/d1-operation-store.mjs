@@ -82,8 +82,21 @@ function verifySubmission(snapshot){
    /^[A-Za-z0-9_-]{43}$/.test(t.signature)&&
    Number.isSafeInteger(t.expiresAt)&&
    typeof t.mime==='string'&&t.mime.length<=40),'MEDIA_STAGING_REQUIRED');
+ // Catch representative pictures stay forbidden; the approved Catch Notes
+ // extension permits only exact inline-original media tickets. Both first
+ // submission and lost-202 lookup use this same immutable envelope guard.
+ const notes=snapshot.package.notes;
+ const catchNotesOnly=snapshot.package.domain==='catches'&&
+  snapshot.package.picture?.action==='keep'&&
+  (snapshot.package.pictureSequence?.action??'keep')==='keep'&&
+  ['create','replace'].includes(notes?.action)&&
+  Array.isArray(notes.images)&&notes.images.length===snapshot.media.length&&
+  snapshot.media.every(ticket=>notes.images.some(image=>
+   image.path===ticket.path&&image.bytes===ticket.bytes&&
+   image.sha256===ticket.sha256));
  check(snapshot.media.length===0||
-  ['gear','kb'].includes(snapshot.package.domain),'MEDIA_STAGING_REQUIRED');
+  ['gear','kb'].includes(snapshot.package.domain)||catchNotesOnly,
+  'MEDIA_STAGING_REQUIRED');
  // This is an envelope check, NOT full source-aware or canonical validation.
 }
 function requireDetails(from,to,fields){

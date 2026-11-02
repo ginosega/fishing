@@ -93,3 +93,56 @@ test('P3-D latest receipt is read-only, owner scoped and most recently accepted'
  assert.equal(await foreign.latest(),null);
  assert.equal(x.sql.prepare('SELECT count(*) AS n FROM p3_events').get().n,2);
 });
+const catchId='p3-test-catch-2026-11-01-synthetic-test-lake-synthetic-bass';
+const catchImagePath='Catches/assets/'+catchId+'/notes/step-02.jpg';
+function catchNotesSnapshot(){
+ const image={path:catchImagePath,bytes:6145,sha256:'b'.repeat(64)};
+ return {package:{
+  format:'fishing-companion-change-v2',domain:'catches',operation:'add',
+  id:catchId,base:{schemaVersion:2,sourceRevision:'a'.repeat(40),recordHash:null},
+  record:{id:catchId,date:'2026-11-01',speciesName:'Synthetic bass'},
+  picture:{action:'keep'},pictureSequence:{action:'keep'},
+  notes:{action:'create',path:'Catches/content/'+catchId+'.md',
+   body:'![step 02](../assets/'+catchId+'/notes/step-02.jpg)',
+   baseSha256:null,images:[image]},
+ },media:[{...image,blobSha:'c'.repeat(40),expiresAt:1800001000,
+  mime:'image/jpeg',signature:'A'.repeat(43)}]};
+}
+
+test('P3-D08 Catch Notes media permits read-only recovery and one atomic acceptance',async()=>{
+ const e=sandbox(),store=e.store(),snapshot=catchNotesSnapshot();
+ // The former Gear/KB-only restriction threw MEDIA_STAGING_REQUIRED here,
+ // surfaced as HTTP 503 before a durable operation could be created.
+ assert.equal(await store.lookupReceipt({idempotencyKey:e.key,snapshot}),null);
+ const accepted=await store.accept({idempotencyKey:e.key,snapshot});
+ assert.equal(accepted.state,'Accepted');
+ assert.deepEqual(await store.readSnapshot(accepted.operationId),snapshot);
+ const recovered=await e.store().lookupReceipt({idempotencyKey:e.key,
+  snapshot:structuredClone(snapshot)});
+ assert.equal(recovered.operationId,accepted.operationId);
+ assert.equal(recovered.inserted,false);
+ assert.equal(e.sql.prepare('SELECT count(*) AS n FROM p3_operations').get().n,1);
+ assert.equal(e.sql.prepare('SELECT count(*) AS n FROM p3_requests').get().n,1);
+ assert.equal((await store.events(accepted.operationId)).length,1);
+});
+
+test('P3-D09 Catch cover, picture sequence and unlinked media still fail closed',async()=>{
+ const e=sandbox(),store=e.store();
+ const cases=[
+  s=>{s.package.picture={action:'add',path:'Catches/assets/cover.jpg'};},
+  s=>{s.package.pictureSequence={action:'set',paths:[catchImagePath]};},
+  s=>{s.package.notes.action='keep';},
+  s=>{s.package.notes.images=[];},
+  s=>{s.package.notes.images[0].sha256='d'.repeat(64);},
+  s=>{s.media.push({...s.media[0],path:catchImagePath+'-duplicate'});},
+ ];
+ for(const mutate of cases){
+  const invalid=catchNotesSnapshot();mutate(invalid);
+  await assert.rejects(store.lookupReceipt({idempotencyKey:e.key,
+   snapshot:invalid}),errorCode('MEDIA_STAGING_REQUIRED'));
+  await assert.rejects(store.accept({idempotencyKey:e.key,
+   snapshot:invalid}),errorCode('MEDIA_STAGING_REQUIRED'));
+ }
+ assert.equal(e.sql.prepare('SELECT count(*) AS n FROM p3_operations').get().n,0);
+ assert.equal(e.sql.prepare('SELECT count(*) AS n FROM p3_events').get().n,0);
+});
