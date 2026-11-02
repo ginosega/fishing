@@ -1,6 +1,6 @@
 # Fishing Companion — static new-chat and emergency recovery prompt
 
-**Status:** Candidate for Operating Model v2; not yet adopted. The **prompt text below is deliberately free of current branch names, commit hashes, issue numbers and dates.** After acceptance it must be accessible on the repository's default branch. Dynamic context and the active docs branch live in the short `PROJECT_ROUTER.md`, also on the default branch. The old five-file bootstrap is historical.
+**Purpose:** Stable normal and emergency recovery prompt. The **copyable text below intentionally contains no changing branch names, commit hashes, issue numbers or dates.** Determine current operating-model adoption from the default-branch `PROJECT_ROUTER.md` and checked GitHub evidence; a draft copy alone is not approval. The original five-file bootstrap remains preserved as historical evidence.
 
 ## Copy only the contents of this prompt block
 
