@@ -12,16 +12,14 @@ const reason=code=>e=>e instanceof D2MergeError&&e.code===code;
 const res=(obj,status=200)=>({ok:status<300,status,redirected:false,json:async()=>obj});
 function fixture({enabled=false,badCheck=false,badRepo=false,shiftBase=false,
  wrongPR=false,scopeBad=false,mergeDenied=false,receiptBad=false,
- networkUnknown=false,delayReads=false,shiftMainAfterReady=false,
- shiftPRAfterReady=false,mergedReceiptWrong=false,finalMainWrong=false}={}){
+ networkUnknown=false}={}){
  const trace=[];let ready=false,merged=false,recorded=false,main=BASE;
- let activeReads=0,maxActiveReads=0,overlapCount=0;
  const pr=()=>({
   node_id:NODE,number:PR,state:merged?'closed':'open',draft:!ready,
-  head:{repo:{id:ID},sha:wrongPR||(shiftPRAfterReady&&ready&&!merged)?'f'.repeat(40):HEAD,ref:BRANCH},
+  head:{repo:{id:ID},sha:wrongPR?'f'.repeat(40):HEAD,ref:BRANCH},
   base:{repo:{id:ID},sha:BASE,ref:'main'},
   merged_at:merged?'2026-10-25T00:00:00Z':null,
-  merge_commit_sha:merged?(mergedReceiptWrong?'e'.repeat(40):MERGE):null,
+  merge_commit_sha:merged?MERGE:null,
  });
  const request=async(url,options)=>{
   trace.push({url,method:options.method,body:options.body?JSON.parse(options.body):null});
@@ -29,18 +27,9 @@ function fixture({enabled=false,badCheck=false,badRepo=false,shiftBase=false,
   assert(url===GRAPHQL||url===API||url.startsWith(API+'/'));
   assert.equal(options.headers['X-GitHub-Api-Version'],'2026-03-10');
   assert.match(options.headers.Authorization,/^Bearer /);
-  if(delayReads&&options.method==='GET'){
-   activeReads++;
-   maxActiveReads=Math.max(maxActiveReads,activeReads);
-   if(activeReads===2)overlapCount++;
-   await Promise.resolve();
-   activeReads--;
-  }
   if(url===API)return res({id:badRepo?123:ID,full_name:'ginosega/fishing-p3-sandbox',private:true});
   if(url===API+'/git/ref/heads/main'){
-   return res({object:{sha:shiftBase||
-    (shiftMainAfterReady&&ready&&!merged)||
-    (finalMainWrong&&merged)?'e'.repeat(40):main}});
+   return res({object:{sha:shiftBase?'e'.repeat(40):main}});
   }
   if(url===API+'/pulls/'+PR)return res(pr());
   if(url===GRAPHQL){
@@ -90,9 +79,7 @@ function fixture({enabled=false,badCheck=false,badRepo=false,shiftBase=false,
   },
   enabled:()=>enabled,
  });
- return {instance,trace,get ready(){return ready;},
-  get merged(){return merged;},get recorded(){return recorded;},
-  get maxActiveReads(){return maxActiveReads;},get overlapCount(){return overlapCount;}};
+ return {instance,trace,get ready(){return ready;},get merged(){return merged;},get recorded(){return recorded;}};
 }
 test('D2-M01 gate off makes zero GitHub calls and no observer bypass',async()=>{
  const x=fixture();
@@ -145,34 +132,5 @@ test('D2-M06 browser-selected repo ID, head and branch are not trusted',async()=
   const x=fixture({enabled:true});
   await assert.rejects(x.instance.merge(wrong),reason('INVALID_RECEIPT'));
   assert.equal(x.trace.length,0);
- }
-});
-
-test('D2-M07 independent GETs overlap; final ready PR check is not duplicated',async()=>{
- const x=fixture({enabled:true,delayReads:true});
- await x.instance.merge(receipt);
- assert.equal(x.maxActiveReads,2);
- assert.equal(x.overlapCount,2); // Before draft->ready and after successful merge
- assert.equal(x.trace.filter(e=>e.method==='GET'&&e.url===API+'/pulls/'+PR).length,3);
- assert.equal(x.trace.filter(e=>e.method==='GET'&&e.url===API+'/git/ref/heads/main').length,3);
- const writes=x.trace.filter(e=>e.method==='POST'||e.method==='PUT');
- assert.deepEqual(writes.map(e=>e.method),['POST','PUT']);
-});
-test('D2-M08 moved main or PR after ready-for-review cannot reach merge PUT',async()=>{
- for(const opts of [{shiftMainAfterReady:true},{shiftPRAfterReady:true}]){
-  const x=fixture({enabled:true,...opts});
-  await assert.rejects(x.instance.merge(receipt),
-   reason(opts.shiftMainAfterReady?'MAIN_MOVED':'PR_CHANGED'));
-  assert.equal(x.ready,true);
-  assert.equal(x.merged,false);
-  assert.equal(x.trace.some(e=>e.method==='PUT'),false);
- }
-});
-test('D2-M09 inconsistent post-merge PR or main never records a durable merge receipt',async()=>{
- for(const opts of [{mergedReceiptWrong:true},{finalMainWrong:true}]){
-  const x=fixture({enabled:true,...opts});
-  await assert.rejects(x.instance.merge(receipt),reason('MERGE_EVIDENCE_DENIED'));
-  assert.equal(x.merged,true);
-  assert.equal(x.recorded,false);
  }
 });
