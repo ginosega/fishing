@@ -178,6 +178,7 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
    domain,getRecord:()=>record,value:body,label:'Markdown',
    onChange:value=>{body=value;changed();},
    knownPaths:()=>knownPaths(ctx),allowUpload:typeof ctx.v3?.stageMedia==='function',
+   resolveSavedAsset:path=>ctx.asset(path),
    linkMaps:()=>ctx.maps,
    // Preview must remain available while a new record's required fields are
    // incomplete. Save and Publish retains full validateRecords/validateRecord.
