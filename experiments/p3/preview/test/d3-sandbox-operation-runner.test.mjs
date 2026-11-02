@@ -2,6 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createD3SandboxOperationRunner,D3RunnerError}
   from '../src/d3-sandbox-operation-runner.mjs';
+import {createD3PublishingSpanRecorder}
+  from '../src/d3-publishing-span-recorder.mjs';
 
 const ID=1430581407,OP='p3_01234567-1234-4234-8234-123456789abc';
 const BASE='a'.repeat(40),HEAD='b'.repeat(40),MERGE='c'.repeat(40);
@@ -19,8 +21,12 @@ function fixture({domain='gear',notesAction='keep',enabled=true,
   unknownMerge=false,invalidCheck=false,invalidPaths=false,
   invalidPR=false,stolenLease=false,untrustedHost=false,
   invalidSnapshot=false,pendingCheck=false,failedCheck=false,movedMain=false,fastProof=false,
-  invalidFastProof=false,fastProofThrows=false}={}){
-  const trace=[];let row={operationId:OP,state:'Accepted'};
+  invalidFastProof=false,fastProofThrows=false,instrumented=false}={}){
+  const trace=[],spans=[];
+  const recorder=createD3PublishingSpanRecorder({
+    operationId:OP,enabled:instrumented,sink:async e=>spans.push(e),
+  });
+  let row={operationId:OP,state:'Accepted'};
   const snapshot=()=>invalidSnapshot?{}:{package:pkg(domain,notesAction),media:[]};
   const expected=domain==='gear'?['pwa/Gear/gear.json']:
     domain==='catches'?(notesAction==='keep'?['pwa/Catches/catches.json']:
@@ -55,7 +61,7 @@ function fixture({domain='gear',notesAction='keep',enabled=true,
     },
   };
   const runner=createD3SandboxOperationRunner({
-    enabled:()=>enabled,store,
+    enabled:()=>enabled,store,measure:recorder.measure,
     currentMain:async info=>{
       trace.push('main');assert.equal(info.repositoryId,ID);
       return BASE;
@@ -108,7 +114,7 @@ function fixture({domain='gear',notesAction='keep',enabled=true,
         verifiedReleaseId:'d'.repeat(32),workflowRunId:126};
     },
   });
-  return {runner,trace,expected,
+  return {runner,trace,spans,expected,
     run:()=>runner.run({operationId:OP,leaseOwner:'lease-owner-012345'}),
     get state(){return row.state;}};
 }
@@ -287,4 +293,32 @@ test('D4-R04 stale sandbox main makes Checking terminal Conflict without merging
  assert(x.trace.includes('advance:Checking>Conflict'));
  assert(!x.trace.includes('merge'));
  assert(!x.trace.includes('host'));
+});
+
+test('P1-MF05 tracing ON preserves exact same-lease read-only merge recovery',async()=>{
+ const x=fixture({unknownMerge:true,fastProof:true,instrumented:true});
+ for(let i=0;i<3;i++)await x.run();
+ const result=await x.run();
+ assert.equal(result.state,'Deploying');
+ assert.equal(x.trace.filter(t=>t==='merge').length,1);
+ assert.equal(x.trace.filter(t=>t==='fast-proof').length,1);
+ assert(x.trace.indexOf('fast-proof')<
+  x.trace.indexOf('advance:Merging>Deploying'));
+ assert.deepEqual(x.spans.filter(s=>s.phase==='merge_fast_independent_proof')
+  .map(s=>s.outcome),['ok']);
+ await x.run();await x.run();
+ assert.equal(x.state,'Live');
+ assert.equal(x.trace.filter(t=>t==='merge').length,1);
+});
+
+test('P1-MF06 tracing ON does not bypass ambiguous merge denial or repeat PUT',async()=>{
+ const x=fixture({unknownMerge:true,fastProofThrows:true,instrumented:true});
+ for(let i=0;i<3;i++)await x.run();
+ await assert.rejects(x.run(),/remote merge receipt uncertain/);
+ assert.equal(x.state,'Merging');
+ assert.equal(x.trace.filter(t=>t==='merge').length,1);
+ assert.deepEqual(x.spans.filter(s=>s.phase==='merge_fast_independent_proof')
+  .map(s=>s.outcome),['refused']);
+ await assert.rejects(x.run(),failure('MERGE_RECONCILIATION_REQUIRED'));
+ assert.equal(x.trace.filter(t=>t==='merge').length,1);
 });
