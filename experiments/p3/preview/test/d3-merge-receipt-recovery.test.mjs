@@ -339,3 +339,66 @@ test('D3-RC06 exact merged PR #42 Catch Notes image recovered GET-only',async()=
   assert.equal(calls.length,before);
  }
 });
+
+test('D3-RC07 exact already-merged PR #45 Notes-only KB EDIT recovers GET-only; no JSON mutation required',async()=>{
+ const op='p3_7da1b53f-b357-4986-b326-88f540012d73';
+ const base='00fd6205fde4c5e2ea1817d4df53f73fb6df0a21';
+ const head='d2d67ab3fcfc0c783210e76beb4564d593c36094';
+ const merge='ce36ad5270ec229445b59f41ced19827abed4ed3';
+ const tree='a46ddd28dd2298457881082637d0520c8fcc590e';
+ const json='pwa/KB/kb.json',markdown='pwa/KB/Locations/content/P3 Test Lake.md';
+ const pr={number:45,state:'closed',merged:true,merge_commit_sha:merge,
+  head:{repo:{id:ID},ref:'p3-test-'+op.slice(3),sha:head},
+  base:{repo:{id:ID},ref:'main',sha:base}};
+ const commit={sha:merge,parents:[{sha:base}],
+  files:[{filename:markdown,status:'modified'}],
+  commit:{tree:{sha:tree},message:'FISH118 D3 isolated sandbox Gear/KB publication'}};
+ const responses={
+  [API]:{id:ID,full_name:'ginosega/fishing-p3-sandbox',private:true},
+  [API+'/pulls/45']:pr,
+  [API+'/git/ref/heads/main']:{object:{sha:merge}},
+  [API+'/git/commits/'+head]:{sha:head,tree:{sha:tree},parents:[{sha:base}]},
+  [API+'/commits/'+merge+'?per_page=100']:commit,
+ };
+ const calls=[];
+ const verifier=createD3MergedReceiptVerifier({
+  enabled:()=>true,
+  issueReadToken:async()=>({repositoryId:ID,token:'readonly-test-token-45',
+   permissions:{checks:'read',contents:'read',pull_requests:'read'}}),
+  request:async(url,opts)=>{
+   calls.push(opts.method+' '+url);
+   assert.equal(opts.method,'GET','A recorded merge MUST NEVER be retried');
+   if(url===API+'/pulls/45/merge')return {ok:true,status:204,redirected:false};
+   assert.ok(url in responses);
+   return rj(responses[url]);
+  },
+ });
+ const proof={repositoryId:ID,operationId:op,prNumber:45,prHeadSha:head,
+  mainBaseSha:base,workflowRunId:41394639148,
+  expectedPaths:[json,markdown],allowUnchangedCatalog:true};
+ const observed=await verifier.verify(proof);
+ assert.equal(observed.verified,true);
+ assert.equal(observed.mergeSha,merge);
+ assert.equal(calls.length,9);
+ // The legacy exact-all-path requirement remains for ADD and non-Notes edits.
+ await assert.rejects(verifier.verify({...proof,allowUnchangedCatalog:false}),
+  refused('MERGE_COMMIT_NOT_EXACT'));
+ // No changed files, a missing Markdown, and extra/foreign files fail closed.
+ for(const files of [
+  [],
+  [{filename:json,status:'modified'}],
+  [{filename:'pwa/KB/Locations/content/Other.md',status:'modified'}],
+  [{filename:markdown,status:'modified'},
+   {filename:'src/unrelated.mjs',status:'added'}],
+  [{filename:markdown,status:'removed'}],
+  [{filename:markdown,status:'modified'},
+   {filename:markdown,status:'modified'}],
+ ]){
+  responses[API+'/commits/'+merge+'?per_page=100']={...commit,files};
+  await assert.rejects(verifier.verify(proof),refused('MERGE_COMMIT_NOT_EXACT'));
+ }
+ // A changed canonical JSON plus changed Notes is still valid.
+ responses[API+'/commits/'+merge+'?per_page=100']={...commit,files:[
+  {filename:json,status:'modified'},{filename:markdown,status:'modified'}]};
+ assert.equal((await verifier.verify(proof)).mergeSha,merge);
+});
