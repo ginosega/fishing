@@ -17,13 +17,17 @@ import {createD3PrivateHostProof} from './d3-private-host-proof.mjs';
 import {d3PublishingReady} from './d3-publishing-readiness.mjs';
 import {createD3HostedMediaVerifier} from './d3-hosted-media-verifier.mjs';
 const ID=1430581407,OWNER=265665562;
+const OP=/^p3_[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/;
+const pending=new Set(['Accepted','Validating','Checking','Merging','Deploying','Verifying']);
 const runEnabled=d3PublishingReady;
 export function createD3LiveOwnerWorker({
  route=gateway,requestGitHub=fetch,requestHosted=fetch,
  onScheduledFailure=()=>{},
+ coordinatorFactory=createD3SandboxScheduledCoordinator,
 }={}){
  if(typeof route?.fetch!=='function'||typeof requestGitHub!=='function'||
-  typeof requestHosted!=='function'||typeof onScheduledFailure!=='function')
+  typeof requestHosted!=='function'||typeof onScheduledFailure!=='function'||
+ typeof coordinatorFactory!=='function')
   throw Error('D3 Worker dependencies invalid');
  async function scheduled(event,env,ctx){
   // Never start merely because a Cron was accidentally attached. Every
@@ -45,10 +49,37 @@ export function createD3LiveOwnerWorker({
     origin:env.APP_ORIGIN,key:env.D2_HOST_PROBE_KEY,
     store,issueReadToken,requestGitHub,requestHosted,verifyMedia,
    });
-   return createD3SandboxScheduledCoordinator({
+   const result=await coordinatorFactory({
     env,store,requestGitHub,issueReadToken,issueWriteToken,
     verifyHosted:info=>proof.verifyHosted(info),
    }).tick();
+   // Cron is the conservative fallback if a prior Durable Object alarm
+   // failed (e.g. exact merged-receipt proof was temporarily rejected).
+   // A successful Cron state transition must restart fast per-operation
+   // progression rather than leaving each subsequent stage to the next
+   // five-minute scan. The DO only wakes the existing D1 coordinator;
+   // it never performs a separate GitHub merge or changes authority.
+   if(env.D3_FAST_WATCHDOG_ENABLED==='true'&&result?.progressed===true&&
+      result.state!=='Live'&&result.state!=='Conflict'&&result.state!=='Failed'){
+    if(!OP.test(result.operationId??'')||!pending.has(result.state)||
+       typeof env.D3_FAST_WAKE_DO?.getByName!=='function'){
+     const error=Error('D3 Cron fast wake unavailable');
+     error.code='D3_FAST_REARM_UNAVAILABLE';throw error;
+    }
+    const stub=env.D3_FAST_WAKE_DO.getByName(result.operationId);
+    let response;
+    try{
+     response=await stub.fetch(new Request('https://d3-fast.internal/arm',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({operationId:result.operationId,deadlineMs:Date.now()}),
+     }));
+    }catch{}
+    if(response?.status!==200){
+     const error=Error('D3 Cron fast wake not acknowledged');
+     error.code='D3_FAST_REARM_UNCERTAIN';throw error;
+    }
+   }
+   return result;
   };
   const task=run().catch(error=>{
    const code=typeof error?.code==='string'&&
