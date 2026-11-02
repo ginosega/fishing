@@ -195,3 +195,23 @@ test('D4-S11 a claimed picture without a verified canonical or staged original i
   package:pkg,repositoryId:ID,ownerGitHubId:OWNER,
  }),fail('MISSING_EXISTING_PICTURE'));
 });
+
+test('D3-DISPLAY-01 trusted planner rejects forged name for edited KB and Gear',async()=>{
+ const p=await editKB();
+ assert.equal(p.display.itemName,'P3 Test Lake');
+ const forged={...p,display:{itemName:'Untrusted label'}};
+ const x=fixture();
+ await assert.rejects(x.candidate.plan(opts(forged)),fail('INVALID_DISPLAY_IDENTITY'));
+ const gear=await editGear();
+ assert.equal(gear.display.itemName,'P3 Test Rod D3 Verified');
+ await assert.rejects(x.candidate.plan(opts({...gear,display:{itemName:'Fake Gear'}})),
+  fail('INVALID_DISPLAY_IDENTITY'));
+});
+test('D3-DISPLAY-02 accepted KB Notes-only edit displays verified canonical record',async()=>{
+ const x=fixture(),p=await editKB();
+ const result=await x.candidate.plan(opts(p));
+ assert.equal(result.validated,true);
+ assert.equal(p.display.itemName,'P3 Test Lake');
+ assert.deepEqual(result.changes.map(c=>c.path),
+  ['pwa/KB/kb.json','pwa/'+PATH]);
+});
