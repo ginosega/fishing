@@ -25,7 +25,8 @@ function fixture({enabled=true}={}){
   method:'POST',headers:{'Content-Type':'application/json'},
   body:JSON.stringify({operationId:op,deadlineMs:at}),
  }));
- return {obj,send,changes,get alarm(){return alarm}};
+ return {obj,send,changes,get alarm(){return alarm},
+  setAlarmForTest:at=>{alarm=at;}};
 }
 test('DO-01 default OFF denies all alarm mutations',async()=>{
  const f=fixture({enabled:false});
@@ -71,4 +72,31 @@ test('DO-07 finishing alarm always schedules next even while old alarm is visibl
  await f.obj._schedule(id,now+2500,true);
  assert.equal(f.changes.length,2);
  assert.ok(f.changes[1]>f.changes[0]);
+});
+
+test('DO-08 stale past alarm cannot suppress Cron recovery re-arm',async()=>{
+ const f=fixture(),now=Date.now();
+ // Simulate an exhausted/erroring alarm whose scheduled time still appears
+ // in Durable Object storage while Cron has recovered the D1 operation.
+ f.setAlarmForTest(now-90_000);
+ const r=await f.send(id,now);
+ assert.equal(r.status,200);
+ assert.equal(f.changes.length,1);
+ assert.ok(f.alarm>=now,'must replace an expired alarm');
+ assert.equal((await r.json()).reset,true);
+});
+test('DO-09 duplicate arm preserves a genuinely earlier FUTURE wake',async()=>{
+ const f=fixture(),now=Date.now();
+ f.setAlarmForTest(now+2000);
+ const r=await f.send(id,now+8000);
+ assert.equal(r.status,200);
+ assert.equal(f.changes.length,0,'do not postpone pending earlier alarm');
+ assert.equal(f.alarm,now+2000);
+ assert.equal((await r.json()).reset,false);
+});
+test('DO-10 expired same-millisecond alarm still schedules new wake',async()=>{
+ const f=fixture(),now=Date.now();
+ f.setAlarmForTest(now);
+ assert.equal((await f.send(id,now)).status,200);
+ assert.equal(f.changes.length,1);
 });
