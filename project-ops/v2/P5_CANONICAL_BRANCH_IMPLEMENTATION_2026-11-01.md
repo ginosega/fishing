@@ -1,7 +1,7 @@
 # P5 implementation — one canonical governance branch, no PWA deployment
 
 **Date:** 2026-11-01  
-**Status:** IMPLEMENTATION UNDERWAY — P5 owner directed finishing automatically required governance CI before activation. This file does **not** certify that a GitHub protection rule has been installed or main router merged.
+**Status:** **P5 ADOPTED — completed 2026-11-02 UTC.** GitHub confirmed [governance required-check ruleset #26335925](https://github.com/ginosega/fishing/rules/26335925), [blocked invalid PR #296](https://github.com/ginosega/fishing/pull/296), [hardening PR #297](https://github.com/ginosega/fishing/pull/297) merged, and [router PR #292](https://github.com/ginosega/fishing/pull/292) merged to `main@fc85bd38c4c688026700971b4c2d463c293eebf3`. The numbered steps below document the accepted implementation, not outstanding prerequisites.
 
 ## Rationale / adopted implementation approach
 
@@ -44,7 +44,7 @@ Owner opens repository **Settings → Rules → Rulesets** and creates a branch 
 4. Mark active governance work queue and rules adopted **in place** on governance branch, through required docs PR and mandatory checks. Add a concise `README` pointer on `main` only if new-chat discoverability requires it, via a separate docs-only PR.
 5. Record final P5 merge SHA and acceptance on [issue #282](https://github.com/ginosega/fishing/issues/282), close #284 only after required-check evidence, then resume V3 separately after rechecking current code/CI/Cloudflare/field proof.
 
-**This architecture requires no public V2 application deployment, no V3 browser-suite pass and no external service.** It does require the one GitHub ruleset configuration that cannot be performed through the connected GitHub tool.
+**Result:** No public V2 application deployment or V3 release was performed by governance activation; the owner completed the GitHub ruleset setting, and the assistant verified required CI. Full application tests were separately and successfully run only for the optional validator hardening PR, without publishing.
 
 ## Historic alternatives superseded
 
