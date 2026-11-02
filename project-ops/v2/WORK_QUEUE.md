@@ -40,12 +40,12 @@ Evidence: [Audit procedure](SEMANTIC_AUDIT_SOP.md), [automated governance valida
 
 ## FISH-TODO-118 — Fishing Companion V3 continuation
 
-State: ready
+State: in-progress
 Owner: project owner / assistant implementer
-Next safe action: Verify live V3 source PR/branch/CI and separate private Worker/owner field state; resolve Gear Notes image and failed Catch publication safely before additional V3 changes. Consult indexed decisions for rejected attestor and wholesale prototype merge.
+Next safe action: [Exact-head isolated source CI for `b18471a` passed](https://github.com/ginosega/fishing/actions/runs/41384517121); run guarded **prepare-only** version-locked private backend repair, then deliberate private rollout after preflight checks. Preserve failed Catch draft and reconcile any browser-local unknown submission before new synthetic Catch Notes publication and hosted media/viewer acceptance; never blind-retry. Gear Notes original/viewer and Catch chooser are already owner field-accepted (2026-11-01 PST).
 Prerequisites: Operating Model v2 adoption complete; original V3 security/requirements/experimental build approvals remain controlling. No new public cutover approval inferred.
 Acceptance: Complete remaining scoped D1–D6 functional/security/performance/hosted and owner acceptance tests; explicit separate public V3 cutover gate.
-Evidence: [V3 draft #263](https://github.com/ginosega/fishing/pull/263), [requirements](../../pwa/docs/Fishing_Companion_v3_Requirements.md), [Playwright issue #287](https://github.com/ginosega/fishing/issues/287).
+Evidence: [V3 draft #263](https://github.com/ginosega/fishing/pull/263), [Catch Notes repair and regression `5b55543`](https://github.com/ginosega/fishing/commit/5b5554333506efe0d0a24bfe3396d8b3040b9c1c), [backend-only rollout helper `b18471a`](https://github.com/ginosega/fishing/commit/b18471a8316c42273edd59db5c638955fa7f95b2), [Catch Notes accepted scope](decisions/records/ADR-0005.md), [requirements](../../pwa/docs/Fishing_Companion_v3_Requirements.md), [Playwright issue #287](https://github.com/ginosega/fishing/issues/287).
 
 ## Independent fishing equipment and editorial backlog
 
