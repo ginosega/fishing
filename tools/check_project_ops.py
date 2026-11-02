@@ -147,6 +147,13 @@ def validate(root: Path, *, allow_uninstalled=True):
             errors.append(f"{p.relative_to(root)}: invalid decision status")
         if p.name not in referenced_records:
             errors.append(f"{p.relative_to(root)}: no catalog links to ADR")
+    # Validate all governance Markdown references, not only the five active
+    # documents and indexed decisions. This catches broken links in approvals,
+    # handoff plans and ancillary audit records as the corpus evolves.
+    for p in sorted(active.rglob("*.md")):
+        if p not in checks:
+            checks.append(p)
+
     prior = []
     for p in checks:
         txt = p.read_text(encoding="utf-8")
@@ -202,7 +209,13 @@ def check_approval_diffs(root):
 
 def main():
     root = Path(__file__).resolve().parent.parent
-    errors, warnings = validate(root)
+    # No "not installed" fixture bypass on the protected canonical branch:
+    # deleting every active doc must be a hard failure, including in CI.
+    canonical = (
+        os.environ.get("GITHUB_BASE_REF") == "governance/project-ops"
+        or os.environ.get("GITHUB_REF") == "refs/heads/governance/project-ops"
+    )
+    errors, warnings = validate(root, allow_uninstalled=not canonical)
     errors.extend(check_approval_diffs(root))
     for msg in warnings:
         print("WARN:", msg)
