@@ -78,6 +78,12 @@ export function createD3LiveOwnerWorker({
      const error=Error('D3 Cron fast wake not acknowledged');
      error.code='D3_FAST_REARM_UNCERTAIN';throw error;
     }
+    // Positive status only means the DO accepted an alarm arm request.
+    // Emit an operation-scoped, secret-free receipt so field diagnosis can
+    // distinguish Cron step completion from successful DO progression.
+    console.info('FISH118_D3_CRON_FAST_REARM',JSON.stringify({
+     operationId:result.operationId,state:result.state,status:response.status,
+    }));
    }
    return result;
   };
