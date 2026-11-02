@@ -2,8 +2,8 @@
 
 **Scope:** This small router is published on repository default `main` when the P5 owner-authorized operating-model activation is complete. The exact same text also exists on the canonical governance branch. **If encountered only on a non-default draft branch, it does not itself establish adoption.**
 
-Primary workstream: Fishing Project Operating Model v2 completion ([issue #282](https://github.com/ginosega/fishing/issues/282)); next Fishing Companion V3 ([PR #263](https://github.com/ginosega/fishing/pull/263)).
-Active workstreams: Project governance and Fishing Companion V3 (separate; V3 resumes only with its own technical gates).
+Primary workstream: Fishing Companion V3 development ([draft PR #263](https://github.com/ginosega/fishing/pull/263)); resume only after independently reconciling its current source, CI, hosted and owner acceptance evidence. Operating Model v2 governance is the continuing support workstream ([issue #282](https://github.com/ginosega/fishing/issues/282)).
+Active workstreams: Fishing Companion V3 (development branch `feature/fish118-p3-mock-publisher`, verify current GitHub PR); Project governance (canonical branch `governance/project-ops`).
 Routed branch: `governance/project-ops`
 Entry point: `project-ops/v2/START_HERE.md`
 Routing reviewed at: 2026-11-01
