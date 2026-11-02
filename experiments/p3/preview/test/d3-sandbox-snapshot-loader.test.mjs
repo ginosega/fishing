@@ -6,6 +6,8 @@ import {createD3SandboxSnapshotLoader,D3SnapshotError}
   from '../src/d3-sandbox-snapshot-loader.mjs';
 import {createD3TrustedGearKBCandidate}
   from '../src/d3-trusted-gear-kb-candidate.mjs';
+import {createD3PublishingSpanRecorder}
+  from '../src/d3-publishing-span-recorder.mjs';
 
 const ID=1430581407,OWNER=265665562;
 const API='https://api.github.com/repos/ginosega/fishing-p3-sandbox';
@@ -34,7 +36,7 @@ const denial=code=>err=>err instanceof D3SnapshotError&&err.code===code;
 
 function fixture({enabled=true,badToken=false,repoId=ID,moveMain=false,
   corrupt=false,omitNarrative=false,duplicate=false,largeNarrative=false,
-  redirect=false,inlineGearNotes=false}={}){
+  redirect=false,inlineGearNotes=false,measure}={}){
   const current=structuredClone(sources);
   if(inlineGearNotes){
     const notes='Gear/Lures/content/Rapala Demon Test.md';
@@ -84,6 +86,7 @@ function fixture({enabled=true,badToken=false,repoId=ID,moveMain=false,
   };
   const reader=createD3SandboxSnapshotLoader({
     request,enabled:()=>enabled,
+    ...(measure?{measure}:{}),
     issueReadToken:async args=>{
       issued++;
       assert.deepEqual(args,{repositoryId:ID,permissions:{contents:'read'}});
@@ -209,4 +212,47 @@ test('D3-L08 published Rapala Gear Notes-only picture SHA is pinned to the trust
  // D4 still authorizes every requested image against the current Notes body.
  assert.equal(x.refs,2);
  assert.equal(x.issued,1);
+});
+
+test('D3-L09 opt-in source telemetry preserves GET sequence and excludes secrets',async()=>{
+ const spans=[];
+ const recorder=createD3PublishingSpanRecorder({
+  enabled:true,operationId:OP,sink:async e=>spans.push(e),
+ });
+ const x=fixture({measure:recorder.measure});
+ const result=await load(x);
+ assert.equal(result.sourceRevision,MAIN);
+ assert.deepEqual(spans.map(e=>e.phase),[
+  'source_repository_get','source_main_initial_get',
+  'source_commit_get','source_tree_get','source_canonical_blobs',
+  'source_narrative_blobs','source_main_final_get','source_snapshot_total',
+ ]);
+ assert(spans.every(e=>e.outcome==='ok'&&e.durationMs>=0));
+ assert.deepEqual(x.trace.map(c=>c.url),[
+  API,API+'/git/ref/heads/main',API+'/git/commits/'+MAIN,
+  API+'/git/trees/'+TREE+'?recursive=1',
+  ...['pwa/Gear/gear.json','pwa/KB/kb.json',
+    'pwa/Catches/catches.json','pwa/'+NARRATIVE]
+   .map(path=>API+'/git/blobs/'+blobHash(
+      Buffer.from(typeof sources[path]==='string'?
+       sources[path]:JSON.stringify(sources[path])))),
+  API+'/git/ref/heads/main',
+ ]);
+ const safe=JSON.stringify(spans);
+ for(const forbidden of ['d3-read-token-example','github.com','pwa/','Trusted fixture',
+  MAIN,TREE,NARRATIVE])assert(!safe.includes(forbidden),forbidden);
+ assert.equal(recorder.summary().spans,8);
+});
+
+test('D3-L10 telemetry preserves immutable digest denial and redacts inputs',async()=>{
+ const events=[];
+ const recorder=createD3PublishingSpanRecorder({
+  enabled:true,operationId:OP,sink:async e=>events.push(e),
+ });
+ const x=fixture({corrupt:true,measure:recorder.measure});
+ await assert.rejects(load(x),denial('BLOB_DIGEST_DENIED'));
+ assert.deepEqual(events.filter(e=>e.outcome==='refused').map(e=>e.phase),
+  ['source_canonical_blobs','source_snapshot_total']);
+ assert(!JSON.stringify(events).includes('d3-read-token-example'));
+ assert.equal(x.trace.every(v=>v.method==='GET'),true);
 });
