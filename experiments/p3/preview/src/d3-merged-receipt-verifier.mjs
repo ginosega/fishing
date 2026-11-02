@@ -14,6 +14,13 @@ const OP=/^p3_[0-9a-f-]{36}$/;
 // existing installation-token issuer intentionally denies arbitrary subsets.
 const READ=Object.freeze({checks:'read',contents:'read',pull_requests:'read'});
 const success=x=>Number.isSafeInteger(x)&&x>0;
+// Exact Catch Notes originals only: the image must belong to the same
+// Catch ID as its canonical Markdown in this immutable expected-file set.
+function ownedCatchNotesAsset(path,expectedPaths){
+ const m=/^pwa\\/Catches\\/assets\\/([a-z0-9-]+)\\/notes\\/[^/]+\\.(?:jpe?g|png|webp|gif)$/i.exec(path);
+ return m!==null&&m[1]===m[1].toLowerCase()&&
+  expectedPaths.includes('pwa/Catches/content/'+m[1]+'.md');
+}
 export class D3MergeVerificationError extends Error{
  constructor(code){
   super('D3 sandbox completed-merge evidence refused');
@@ -69,7 +76,8 @@ export function createD3MergedReceiptVerifier({request,issueReadToken,
     p==='pwa/Catches/catches.json'||
     /^pwa\/(Gear|KB)\/[A-Za-z0-9 _./-]+\.md$/.test(p)||
     /^pwa\/Catches\/content\/[a-z0-9-]+\.md$/.test(p)||
-    /^pwa\/(Gear|KB)\/.+\/assets\/.+\.(jpe?g|png|webp|gif)$/i.test(p))&&
+    /^pwa\/(Gear|KB)\/.+\/assets\/.+\.(jpe?g|png|webp|gif)$/i.test(p)||
+     ownedCatchNotesAsset(p,expectedPaths))&&
    expectedPaths.includes(expectedPaths.some(p=>p==='pwa/Gear/gear.json')?
     'pwa/Gear/gear.json':expectedPaths.some(p=>p==='pwa/KB/kb.json')?
      'pwa/KB/kb.json':'pwa/Catches/catches.json'),

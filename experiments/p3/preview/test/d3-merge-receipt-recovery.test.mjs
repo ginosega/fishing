@@ -276,3 +276,66 @@ test('D3-RC05 live PR #18 exact squash and both KB files pass read-only evidence
   await assert.rejects(instance.verify(receipt),refused(errorCode));
  }
 });
+test('D3-RC06 exact merged PR #42 Catch Notes image recovered GET-only',async()=>{
+ const op='p3_4c5f68ec-aad0-4ee5-b33b-1ee812b9e970';
+ const base='1fe65f8d666dabae3fea4eb3b25b8d3a0f2f0371';
+ const head='885b346ca23e3f78100a10984f60623363874cef';
+ const merge='1222729c9d4b0f6ccdd1bb70c4b5d736f5122802';
+ const tree='64a0a3f0abdd8c5bff7591c955a85a9c6a71396b';
+ const id='p3-test-catch-2026-10-14-synthetic-d4-lake-synthetic-perch';
+ const image='pwa/Catches/assets/'+id+'/notes/mountain lake kayak bass leaping jig.png';
+ const paths=['pwa/Catches/catches.json','pwa/Catches/content/'+id+'.md',image];
+ const pr={number:42,state:'closed',merged:true,merge_commit_sha:merge,
+  head:{repo:{id:ID},ref:'p3-test-'+op.slice(3),sha:head},
+  base:{repo:{id:ID},ref:'main',sha:base}};
+ const responses={
+  [API]:{id:ID,full_name:'ginosega/fishing-p3-sandbox',private:true},
+  [API+'/pulls/42']:pr,
+  [API+'/git/ref/heads/main']:{object:{sha:merge}},
+  [API+'/git/commits/'+head]:{sha:head,tree:{sha:tree},parents:[{sha:base}]},
+  [API+'/commits/'+merge+'?per_page=100']:{sha:merge,parents:[{sha:base}],
+   files:[{filename:image,status:'added'},
+    {filename:paths[0],status:'modified'}, {filename:paths[1],status:'added'}],
+   commit:{tree:{sha:tree},
+    message:'FISH118 D3 isolated sandbox Gear/KB publication'}},
+ };
+ const calls=[];
+ const verifier=createD3MergedReceiptVerifier({
+  enabled:()=>true,
+  issueReadToken:async req=>{
+   calls.push('token');
+   assert.deepEqual(req,{repositoryId:ID,
+    permissions:{checks:'read',contents:'read',pull_requests:'read'}});
+   return {repositoryId:ID,token:'readonly-test-token-42',
+    permissions:{checks:'read',contents:'read',pull_requests:'read'}};
+  },
+  request:async(url,options)=>{
+   calls.push(options.method+' '+url);
+   assert.equal(options.method,'GET');
+   if(url===API+'/pulls/42/merge')return {ok:true,status:204,redirected:false};
+   assert.ok(url in responses,'unexpected GitHub URL');
+   return rj(responses[url]);
+  },
+ });
+ const receipt={repositoryId:ID,operationId:op,prNumber:42,prHeadSha:head,
+  mainBaseSha:base,workflowRunId:41385706142,expectedPaths:paths};
+ assert.deepEqual(await verifier.verify(receipt),{
+  verified:true,repositoryId:ID,operationId:op,prNumber:42,
+  prHeadSha:head,mainBaseSha:base,mergeSha:merge,
+  workflowRunId:41385706142,canonicalLive:false});
+ assert.equal(calls.filter(x=>x.startsWith('GET ')).length,9);
+ // No GitHub request may occur for unrelated, unsupported, or unowned paths.
+ for(const invalid of [
+  [paths[0],paths[1],'pwa/Catches/assets/'+id+'/cover.png'],
+  [paths[0],paths[1],'pwa/Catches/assets/other-catch/notes/photo.jpg'],
+  [paths[0],image], // same-ID Markdown omitted
+  [paths[0],paths[1],'pwa/Catches/assets/'+id+'/notes/file.svg'],
+  [paths[0],paths[1],'pwa/Catches/assets/'+id+'/notes/../private.png'],
+  [paths[0],paths[1],'pwa/private/secret.png'],
+ ]){
+  const before=calls.length;
+  await assert.rejects(verifier.verify({...receipt,expectedPaths:invalid}),
+   refused('INVALID_TRUSTED_RECEIPT'));
+  assert.equal(calls.length,before);
+ }
+});
