@@ -141,7 +141,8 @@ jobs:
             'experiments/p3/preview/tools/deploy-d4-notes-image-private.ps1',
             'experiments/p3/preview/tools/deploy-d4-catch-picker-private.ps1',
             'experiments/p3/preview/tools/deploy-d4-catch-notes-receipt-private.ps1',
-            'experiments/p3/preview/tools/deploy-d4-catch-merge-proof-private.ps1'
+            'experiments/p3/preview/tools/deploy-d4-catch-merge-proof-private.ps1',
+            'experiments/p3/preview/tools/deploy-d3-fast-cron-rearm-private.ps1'
           )
           foreach ($scriptFile in $operatorScripts) {
           $tokens = $null
