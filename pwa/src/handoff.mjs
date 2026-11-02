@@ -2,6 +2,20 @@ import {canonical,fingerprint,sha256,safePath,pathKey,assert,DOMAIN,categoryFold
 export const HANDOFF_FORMAT='fishing-companion-change-v2';
 const ABSENT=Object.freeze({$absent:true});
 const narrativeKey=domain=>domain==='kb'?'content':'notes';
+// Presentation only: never a source-authority or GitHub identity field.
+// The trusted server independently compares this claim with the promoted
+// canonical record before accepting a durable publication.
+export function publicationItemName(domain,record){
+ if(!['gear','kb','catches'].includes(domain)||!record||typeof record!=='object')
+  throw Error('Invalid publication display identity');
+ const name=domain==='catches'?
+  String(record.speciesName||record.speciesId||'Catch')+' · '+String(record.date||'Undated'):
+  String(record.name||'');
+ const safe=name.slice(0,160).replace(/[\\x00-\\x1f\\x7f]/g,' ').trim();
+ if(!safe)throw Error('Missing publication display identity');
+ return safe;
+}
+
 const clone=value=>value===undefined?undefined:structuredClone(value);
 export function equal(a,b){return canonical(a)===canonical(b);}
 const previousValue=(object,key)=>Object.hasOwn(object,key)?clone(object[key]):ABSENT;
@@ -36,7 +50,8 @@ export async function prepareChange({domain,operation,id,baseRecord,record,baseT
  assert(record?.id===id,'Identity cannot be edited');
  assert(typeof sourceRevision==='string'&&sourceRevision.length>0,'Source revision required');
  const key=narrativeKey(domain),base={schemaVersion:2,sourceRevision,recordHash:baseRecord?await fingerprint(baseRecord):null};
- const result={format:HANDOFF_FORMAT,domain,operation,id,base};
+ const result={format:HANDOFF_FORMAT,domain,operation,id,base,
+  display:{itemName:publicationItemName(domain,record)}};
  if(operation==='add'){
   assert(!baseRecord,'Add cannot contain a base record');
   result.record=clone(record);delete result.record[key];delete result.record.picture;delete result.record.pictureSequence;
@@ -100,6 +115,15 @@ export function validatePackage(pkg){
  assert(typeof pkg.base.sourceRevision==='string'&&pkg.base.sourceRevision.length>0,'Missing base revision');
  assert(pkg.operation!=='edit'||(pkg.changes&&pkg.changes.baseFields&&typeof pkg.changes.baseFields==='object'),'Missing edit base fields');
  assert(['keep','create','replace','remove'].includes(pkg.notes?.action),'Invalid narrative action');
+ if(pkg.display!==undefined){
+  assert(pkg.display&&Object.getPrototypeOf(pkg.display)===Object.prototype&&
+   Object.keys(pkg.display).length===1&&
+   typeof pkg.display.itemName==='string'&&
+   pkg.display.itemName.length>0&&pkg.display.itemName.length<=160&&
+   !/[\\x00-\\x1f\\x7f]/.test(pkg.display.itemName)&&
+   pkg.display.itemName===pkg.display.itemName.trim(),
+   'Invalid publication display metadata');
+ }
  assert(['keep','add','replace','remove'].includes(pkg.picture?.action),'Invalid picture action');
  if(pkg.domain==='catches')assert(pkg.picture.action==='keep'&&
   (pkg.pictureSequence?.action??'keep')==='keep'&&
