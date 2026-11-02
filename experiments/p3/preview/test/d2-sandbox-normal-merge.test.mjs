@@ -12,14 +12,16 @@ const reason=code=>e=>e instanceof D2MergeError&&e.code===code;
 const res=(obj,status=200)=>({ok:status<300,status,redirected:false,json:async()=>obj});
 function fixture({enabled=false,badCheck=false,badRepo=false,shiftBase=false,
  wrongPR=false,scopeBad=false,mergeDenied=false,receiptBad=false,
- networkUnknown=false}={}){
+ networkUnknown=false,delayReads=false,badPostMergePR=false,badPostMergeMain=false,
+ changedReadyPR=false,changedReadyMain=false}={}){
  const trace=[];let ready=false,merged=false,recorded=false,main=BASE;
+ let activeReads=0,maxActiveReads=0,overlapPairs=0;
  const pr=()=>({
   node_id:NODE,number:PR,state:merged?'closed':'open',draft:!ready,
-  head:{repo:{id:ID},sha:wrongPR?'f'.repeat(40):HEAD,ref:BRANCH},
+  head:{repo:{id:ID},sha:wrongPR||(changedReadyPR&&ready&&!merged)?'f'.repeat(40):HEAD,ref:BRANCH},
   base:{repo:{id:ID},sha:BASE,ref:'main'},
   merged_at:merged?'2026-10-25T00:00:00Z':null,
-  merge_commit_sha:merged?MERGE:null,
+  merge_commit_sha:merged?(badPostMergePR?'e'.repeat(40):MERGE):null,
  });
  const request=async(url,options)=>{
   trace.push({url,method:options.method,body:options.body?JSON.parse(options.body):null});
@@ -27,9 +29,18 @@ function fixture({enabled=false,badCheck=false,badRepo=false,shiftBase=false,
   assert(url===GRAPHQL||url===API||url.startsWith(API+'/'));
   assert.equal(options.headers['X-GitHub-Api-Version'],'2026-03-10');
   assert.match(options.headers.Authorization,/^Bearer /);
+  if(delayReads&&options.method==='GET'){
+   activeReads++;
+   maxActiveReads=Math.max(maxActiveReads,activeReads);
+   if(activeReads===2)overlapPairs++;
+   await Promise.resolve();
+   activeReads--;
+  }
   if(url===API)return res({id:badRepo?123:ID,full_name:'ginosega/fishing-p3-sandbox',private:true});
   if(url===API+'/git/ref/heads/main'){
-   return res({object:{sha:shiftBase?'e'.repeat(40):main}});
+   return res({object:{sha:shiftBase||
+    (changedReadyMain&&ready&&!merged)||
+    (badPostMergeMain&&merged)?'e'.repeat(40):main}});
   }
   if(url===API+'/pulls/'+PR)return res(pr());
   if(url===GRAPHQL){
@@ -79,7 +90,8 @@ function fixture({enabled=false,badCheck=false,badRepo=false,shiftBase=false,
   },
   enabled:()=>enabled,
  });
- return {instance,trace,get ready(){return ready;},get merged(){return merged;},get recorded(){return recorded;}};
+ return {instance,trace,get ready(){return ready;},get merged(){return merged;},get recorded(){return recorded;},
+  get maxActiveReads(){return maxActiveReads;},get overlapPairs(){return overlapPairs;}};
 }
 test('D2-M01 gate off makes zero GitHub calls and no observer bypass',async()=>{
  const x=fixture();
@@ -132,5 +144,43 @@ test('D2-M06 browser-selected repo ID, head and branch are not trusted',async()=
   const x=fixture({enabled:true});
   await assert.rejects(x.instance.merge(wrong),reason('INVALID_RECEIPT'));
   assert.equal(x.trace.length,0);
+ }
+});
+
+test('D2-M07 overlaps only independent GETs while preserving the complete merge gate',async()=>{
+ const x=fixture({enabled:true,delayReads:true});
+ await x.instance.merge(receipt);
+ assert.equal(x.maxActiveReads,2);
+ assert.equal(x.overlapPairs,2);
+ // All original REST checks remain, including ready-state and final PR checks.
+ const reads=x.trace.filter(e=>e.method==='GET').map(e=>e.url);
+ assert.deepEqual(reads,[
+  API,API+'/git/ref/heads/main',API+'/pulls/'+PR,
+  API+'/pulls/'+PR,API+'/git/ref/heads/main',API+'/pulls/'+PR,
+  API+'/pulls/'+PR,API+'/git/ref/heads/main',
+ ]);
+ assert.deepEqual(x.trace.filter(e=>e.method==='POST'||e.method==='PUT')
+  .map(e=>e.method),['POST','PUT']);
+ assert.equal(x.recorded,true);
+});
+test('D2-M08 moved main or PR after draft-to-ready must not reach merge PUT',async()=>{
+ for(const options of [
+  {changedReadyMain:true,code:'MAIN_MOVED'},
+  {changedReadyPR:true,code:'PR_CHANGED'},
+ ]){
+  const x=fixture({enabled:true,...options});
+  await assert.rejects(x.instance.merge(receipt),reason(options.code));
+  assert.equal(x.ready,true);
+  assert.equal(x.merged,false);
+  assert.equal(x.trace.some(e=>e.method==='PUT'),false);
+  assert.equal(x.recorded,false);
+ }
+});
+test('D2-M09 post-merge PR or main discrepancy must not produce durable proof',async()=>{
+ for(const options of [{badPostMergePR:true},{badPostMergeMain:true}]){
+  const x=fixture({enabled:true,...options});
+  await assert.rejects(x.instance.merge(receipt),reason('MERGE_EVIDENCE_DENIED'));
+  assert.equal(x.merged,true);
+  assert.equal(x.recorded,false);
  }
 });
