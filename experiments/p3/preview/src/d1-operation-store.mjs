@@ -71,6 +71,14 @@ function verifySubmission(snapshot){
  check(snapshot.package.format==='fishing-companion-change-v2' &&
   ['gear','kb','catches'].includes(snapshot.package.domain) &&
   ['add','edit'].includes(snapshot.package.operation),'INVALID_SNAPSHOT');
+ const display=snapshot.package.display;
+ check(display===undefined||
+  (display&&Object.getPrototypeOf(display)===Object.prototype&&
+   Object.keys(display).length===1&&
+   typeof display.itemName==='string'&&display.itemName.length>0&&
+   display.itemName.length<=160&&
+   !/[\x00-\x1f\x7f]/.test(display.itemName)&&
+   display.itemName.trim()===display.itemName),'INVALID_SNAPSHOT');
  check(Array.isArray(snapshot.media)&&snapshot.media.length<=24&&
   snapshot.media.every(t=>t&&Object.getPrototypeOf(t)===Object.prototype&&
    Object.keys(t).sort().join(',')===
@@ -356,6 +364,10 @@ export function createD1OperationStore({DB,ownerGitHubId,repositoryId=SANDBOX_ID
     pkg.changes?.baseFields?.speciesName||'Catch';
    name=String(species)+' · '+String(rec?.date||pkg.changes?.baseFields?.date||'Undated');
   }
+  // The guarded owner API source-verified this display name against the
+  // promoted canonical record before immutable D1 acceptance.
+  if(typeof pkg.display?.itemName==='string'&&pkg.display.itemName.trim())
+   name=pkg.display.itemName;
   if(!name)name=typeof pkg.id==='string'?pkg.id:'Item';
   name=name.slice(0,160).replace(/\p{Cc}/gu,' ').trim();
   const time=Number.isSafeInteger(row.updated_at)&&row.updated_at>0?
