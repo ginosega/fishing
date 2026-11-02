@@ -127,3 +127,18 @@ test('SPAN-10 all literal publisher phase names are recognized, no silent blind 
  }
  assert.deepEqual(emitted.map(e=>e.phase),[...new Set(phaseNames)]);
 });
+
+test('SPAN-11 fixed CI/merge diagnostic phases are recognized and redacted',async()=>{
+ const events=[];
+ const recorder=createD3PublishingSpanRecorder({enabled:true,operationId:id,
+  sink:async event=>events.push(event)});
+ const phases=['check_token_issue','check_repository_get',
+  'check_main_initial_get','check_pr_initial_get','check_runs_get',
+  'check_main_final_get','check_pr_final_get',
+  'merge_pr_evidence_get','merge_main_evidence_get'];
+ for(const phase of phases)await recorder.measure(phase,async()=>true);
+ assert.deepEqual(events.map(event=>event.phase),phases);
+ assert(events.every(event=>event.outcome==='ok'));
+ assert(!JSON.stringify(events).includes('github.com'));
+ assert(!JSON.stringify(events).includes('token'));
+});
