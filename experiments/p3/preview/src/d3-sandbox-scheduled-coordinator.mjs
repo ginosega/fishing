@@ -143,7 +143,12 @@ export function createD3SandboxScheduledCoordinator({
    need(Array.isArray(saved?.media),'FAST_MERGE_SNAPSHOT_DENIED');
    const media=await verifyStaged(saved.package,saved.media,{allowExpired:true});
    const expectedPaths=expectedD3HostedPaths(saved.package,media);
-   return mergeVerifier.verify({...info,expectedPaths});
+   return mergeVerifier.verify({...info,expectedPaths,
+    // Exception is strictly tied to a trusted, durable Notes EDIT.
+    // An ADD or non-Notes operation still requires every expected file.
+    allowUnchangedCatalog:saved.package.operation==='edit'&&
+      saved.package.notes?.action!=='keep',
+   });
   },
   verifyHosted:async info=>{
    need(hosted()&&info.repositoryId===ID&&
@@ -180,7 +185,9 @@ export function createD3SandboxScheduledCoordinator({
    const proof=await mergeVerifier.verify({operationId:blocked,
     repositoryId:ID,prNumber:record.prNumber,
     prHeadSha:record.prHeadSha,mainBaseSha:record.mainBaseSha,
-    workflowRunId:record.workflowRunId,expectedPaths:paths});
+    workflowRunId:record.workflowRunId,expectedPaths:paths,
+    allowUnchangedCatalog:saved.package.operation==='edit'&&
+      saved.package.notes?.action!=='keep'});
    need(proof.verified===true&&proof.operationId===blocked&&
     proof.canonicalLive===false,'RECOVERY_EVIDENCE_DENIED');
    const restored=await store.reconcileVerifiedMerge(proof);
