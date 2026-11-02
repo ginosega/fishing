@@ -49,11 +49,28 @@ async function completed(){
  }
  return result;
 }
-async function verifyCache(entry){
- for(const file of entry.entries.values()){
-  const response=await entry.cache.match(absolute(file.path));if(!response)throw new Error('Missing cached asset: '+file.path);
-  await verifyBytes(await response.arrayBuffer(),file);
+// Files are individually verified before use. Limit concurrent work so a large
+// image-heavy release does not serialize hundreds of Cache API round-trips,
+// while keeping memory use bounded and all in-flight writes drained on error.
+async function forEachBounded(items,work){
+ const files=[...items],limit=Math.min(6,files.length);
+ let next=0,failure=null;
+ async function run(){
+  while(!failure&&next<files.length){
+   const item=files[next++];
+   try{await work(item);}
+   catch(error){if(!failure)failure={item,error};}
+  }
  }
+ await Promise.all(Array.from({length:limit},()=>run()));
+ if(failure)throw failure.error;
+}
+async function verifyCache(entry){
+ await forEachBounded(entry.entries.values(),async file=>{
+  const response=await entry.cache.match(absolute(file.path));
+  if(!response)throw new Error('Missing cached asset: '+file.path);
+  await verifyBytes(await response.arrayBuffer(),file);
+ });
  return true;
 }
 async function selectedRecord(){
@@ -117,12 +134,33 @@ async function prepareRelease(){
    const existing=(await completed()).filter(x=>x.meta.releaseId===pointer.id).reverse();
    for(const entry of existing){try{await verifyCache(entry);await writeSelection(entry);await broadcast('FISHING_V2_STATUS',await state());return;}catch{}}
    stageName=prefix+'offline:'+crypto.randomUUID()+':'+pointer.id;const staging=await caches.open(stageName);
-   let completedFiles=0,totalBytes=0;
-   await broadcast('FISHING_V2_PROGRESS',{state:'Downloading',releaseId:pointer.id,files:entries.size,completed:0,bytes:0});
-   for(const file of entries.values()){
-    failed=file.path;const bytes=await network(file.path);await verifyBytes(bytes,file);
-    await staging.put(absolute(file.path),responseFor(bytes,file.path));completedFiles++;totalBytes+=file.bytes;
-    if(completedFiles%8===0||completedFiles===entries.size)await broadcast('FISHING_V2_PROGRESS',{state:'Downloading',releaseId:pointer.id,files:entries.size,completed:completedFiles,bytes:totalBytes});
+   let completedFiles=0,totalBytes=0,failedAsset=null;
+   // One progress queue preserves monotonic counts even when verified files
+   // finish out of order. A failed preparation never sets a complete marker.
+   let progress=Promise.resolve();
+   const announce=(count,bytes)=>{
+    progress=progress.then(()=>broadcast('FISHING_V2_PROGRESS',{
+     state:'Downloading',releaseId:pointer.id,files:entries.size,
+     completed:count,bytes,
+    }));
+    return progress;
+   };
+   await announce(0,0);
+   try{
+    await forEachBounded(entries.values(),async file=>{
+     try{
+      const bytes=await network(file.path);
+      await verifyBytes(bytes,file);
+      await staging.put(absolute(file.path),responseFor(bytes,file.path));
+      completedFiles++;totalBytes+=file.bytes;
+      if(completedFiles%8===0||completedFiles===entries.size)
+       await announce(completedFiles,totalBytes);
+     }catch(error){if(!failedAsset)failedAsset=file.path;throw error;}
+    });
+   }finally{
+    // Drain progress messages before either committing or removing staging.
+    failed=failedAsset||failed;
+    await progress;
    }
    await staging.put(absolute(pointer.manifest),responseFor(manifestBytes,pointer.manifest));
    await staging.put(absolute('release.json'),responseFor(pointerBytes,'release.json'));
