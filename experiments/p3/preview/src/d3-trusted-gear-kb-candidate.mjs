@@ -6,7 +6,7 @@
  * and tree inventory semantics. The trusted loadSnapshot adapter must verify
  * immutable GitHub blob SHAs and ref before AND after using this candidate.
  */
-import {promoteChange,validatePackage,ChangeConflictError,narrativePath,picturePath,validInlineNoteImagePath}
+import {promoteChange,validatePackage,ChangeConflictError,narrativePath,picturePath,validInlineNoteImagePath,publicationItemName}
  from '../../../../pwa/src/handoff.mjs';
 import {validateRecords,validateRecord,collectPaths,checkPathCollisions}
  from '../../../../pwa/src/validation.mjs';
@@ -115,6 +115,12 @@ export function createD3TrustedGearKBCandidate({loadSnapshot,enabled=()=>false,
    if(e instanceof ChangeConflictError)deny('SOURCE_CONFLICT');
    deny('INVALID_PROMOTION');
   }
+  // Do not trust browser-supplied display identity: require it to equal
+  // the exact promoted record from the verified immutable source. Legacy
+  // snapshot packages without a display field remain compatible.
+  if(pkg.display!==undefined)
+   check(pkg.display.itemName===publicationItemName(pkg.domain,candidate.record),
+    'INVALID_DISPLAY_IDENTITY');
   // Catch schema and relationships are validated against the SAME
   // immutable Gear/KB snapshot. No image, GPS or new Catch fields.
   // Existing catches, source IDs and their Markdown are never deleted.
