@@ -60,3 +60,18 @@ test('SPAN-06 nested spans cannot silently use mismatched cross-system wall time
  assert.equal(events[0].durationMs,22);
  assert.notEqual(Date.parse(events[0].finishedAt)-Date.parse(events[0].startedAt),22);
 });
+
+test('SPAN-07 allow fixed path-free source phases and deny arbitrary labels',async()=>{
+ const events=[];
+ const recorder=createD3PublishingSpanRecorder({enabled:true,operationId:id,
+  sink:async e=>events.push(e)});
+ for(const phase of ['source_repository_get','source_main_initial_get',
+  'source_commit_get','source_tree_get','source_canonical_blobs',
+  'source_narrative_blobs','source_main_final_get','source_snapshot_total']){
+  await recorder.measure(phase,async()=>true);
+ }
+ assert.equal(events.length,8);
+ assert(events.every(e=>e.outcome==='ok'));
+ await assert.rejects(recorder.measure('source_path_private',async()=>true),
+  /Invalid D3 stage span/);
+});
