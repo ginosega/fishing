@@ -49,7 +49,7 @@ export function createD3SandboxScheduledCoordinator({
   Number(env.OWNER_GITHUB_ID)===OWNER;
  const hosted=()=>active()&&env.D3_TEST_HOST_ENABLED==='true';
  const reader=createD3SandboxSnapshotLoader({
-  request:requestGitHub,issueReadToken,
+  request:requestGitHub,issueReadToken,measure,
   enabled:()=>active(),
  });
  // Scoped to this single coordinator invocation; never a Worker-global or
