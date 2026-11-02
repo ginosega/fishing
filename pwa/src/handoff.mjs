@@ -11,7 +11,7 @@ export function publicationItemName(domain,record){
  const name=domain==='catches'?
   String(record.speciesName||record.speciesId||'Catch')+' · '+String(record.date||'Undated'):
   String(record.name||'');
- const safe=name.slice(0,160).replace(/[\\x00-\\x1f\\x7f]/g,' ').trim();
+ const safe=name.slice(0,160).replace(/\p{Cc}/gu,' ').trim();
  if(!safe)throw Error('Missing publication display identity');
  return safe;
 }
