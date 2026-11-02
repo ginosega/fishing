@@ -120,7 +120,7 @@ export function validatePackage(pkg){
    Object.keys(pkg.display).length===1&&
    typeof pkg.display.itemName==='string'&&
    pkg.display.itemName.length>0&&pkg.display.itemName.length<=160&&
-   !/[\\x00-\\x1f\\x7f]/.test(pkg.display.itemName)&&
+   !/\p{Cc}/u.test(pkg.display.itemName)&&
    pkg.display.itemName===pkg.display.itemName.trim(),
    'Invalid publication display metadata');
  }
