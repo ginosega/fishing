@@ -1,6 +1,6 @@
 # Decision topic: content and gear
 
-**Status:** Candidate P2 topic catalog; each source link points to historical evidence, not a new approval. `accepted` describes historical decision provenance; check supersession and current scope. New full records are created only for consequential cross-cutting choices.
+**Status:** ACTIVE topical decision index; source links preserve original historical evidence and do not grant new deployment authorization. `accepted` describes historical decision provenance; check supersession and current scope. New full records are created only for consequential cross-cutting choices.
 
 | ID | Decision / approach | Status | Search terms | Rationale / constraint | Original evidence |
 | --- | --- | --- | --- | --- | --- |

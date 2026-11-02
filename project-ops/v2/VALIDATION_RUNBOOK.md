@@ -1,7 +1,7 @@
 # Independent governance-document validation runbook
 
 **Authority:** [Owner-approved operating-model decoupling](OWNER_AMENDMENT_INDEPENDENT_GOVERNANCE_2026-11-01.md) · [Issue #284](https://github.com/ginosega/fishing/issues/284).
-**Status:** Automatically executed by [dedicated workflow](https://github.com/ginosega/fishing/blob/governance/project-ops/.github/workflows/governance-docs.yml) on pull requests against `governance/project-ops`. **Enforced blocking remains pending** until a GitHub branch ruleset makes `governance-docs` required. [P5 plan](P5_CANONICAL_BRANCH_IMPLEMENTATION_2026-11-01.md).
+**Status:** Automatically executed by [dedicated workflow](https://github.com/ginosega/fishing/blob/governance/project-ops/.github/workflows/governance-docs.yml) on pull requests against `governance/project-ops`. **Enforced blocking is ACTIVE:** [governance-project-ops ruleset](https://github.com/ginosega/fishing/rules/26335925) requires `governance-docs` and `fishing-merge-ready` with strict up-to-date checks. [P5 plan](P5_CANONICAL_BRANCH_IMPLEMENTATION_2026-11-01.md).
 
 ## What runs, and what does not
 
@@ -9,7 +9,7 @@
 2. **Dedicated structural CI:** The standard-library `tools/check_project_ops.py` and `tools/test_project_ops.py` on `governance/project-ops` execute automatically as job `governance-docs` for GitHub pull requests. The assistant may independently re-run source-level/semantic verification, but cannot substitute it for the exact required CI status. A `main`-router-only PR receives the existing FISH108 docs lane and does not copy active documents into main.
 3. **Triggered semantic/evidence review:** For approvals, rejected approaches, deployment/field claims, supersession, migration and material decisions, verify the original approved record and actual source/CI/provider evidence. An assistant is not an independent human signatory; the owner approves only those decisions that require owner sign-off.
 
-**Remaining limitation:** The independent governance workflow **is installed and executes automatically on the dedicated branch**; it is **not a required merge check until the owner edits GitHub rulesets** targeting that branch. [#284](https://github.com/ginosega/fishing/issues/284) tracks this exact mandatory enforcement gate. Do not modify FISH108's application workflow or bypass app tests. Owner has approved completing the full governance system before final adoption.
+**Enforcement verified:** The dedicated workflow runs automatically and is a **required protected-branch merge check**. A deliberately broken, non-draft [PR #296](https://github.com/ginosega/fishing/pull/296) failed `governance-docs` and GitHub reported `mergeable_state: blocked`. The [hardening PR #297](https://github.com/ginosega/fishing/pull/297) also passed full existing required validation, protecting all-document deletion and ancillary references. Never alter FISH108 or bypass required checks.
 
 ## Exact-head structural verification (fail unless indicated)
 
@@ -41,4 +41,4 @@ Each review adds a small dated evidence file or issue comment containing:
 
 **Failure policy:** Correct the docs or tests, re-run checks on the **new** head and do not re-label a previous green run as valid for a changed SHA. Do not substitute the failing PWA offline-library browser suite for these governance checks.
 
-**Required enforcement:** [#284](https://github.com/ginosega/fishing/issues/284) stays open until GitHub branch ruleset actively requires both `governance-docs` and existing `fishing-merge-ready` on `governance/project-ops`, with real negative merge-blocking proof. Automatic CI itself is installed on this branch; no separate vendor or public application deployment is required. Owner participation is limited to the GitHub ruleset edit, which the connected GitHub tool cannot perform.
+**Required enforcement COMPLETE:** Active [GitHub ruleset #26335925](https://github.com/ginosega/fishing/rules/26335925) requires both `governance-docs` and `fishing-merge-ready`, with no bypass actors. [Negative PR #296](https://github.com/ginosega/fishing/pull/296) proved actual merge blocking. Ordinary governance docs PRs do not need V3 browser tests or any public PWA deployment.

@@ -1,6 +1,6 @@
-# Fishing Project — decision topics (candidate)
+# Fishing Project — decision topics (active)
 
-**Status:** Draft P2 index. Original owner approvals and decisions remain authoritative; these catalogs are discovery aids, not new authorization. Read **only the topic relevant to the problem**.
+**Status:** ACTIVE decision-discovery index. Original owner approvals and signed source documents remain authoritative; the catalogs are searchable evidence and constraints, not grants of new deployment authorization. Read **only the topic relevant to the problem**.
 
 | Topic | Scope / search terms | Catalog |
 | --- | --- | --- |
