@@ -10,6 +10,7 @@
  * an injected runtime capability; without it, merging and Live are blocked.
  */
 import {createD3SandboxSnapshotLoader} from './d3-sandbox-snapshot-loader.mjs';
+import {createD3OneStepVerifiedSource} from './d3-one-step-verified-source.mjs';
 import {createD3TrustedGearKBCandidate} from './d3-trusted-gear-kb-candidate.mjs';
 import {createD3SandboxGearKBPRAdapter} from './d3-sandbox-gear-kb-pr.mjs';
 import {createSandboxCheckObserver} from './sandbox-check-observer.mjs';
@@ -51,6 +52,12 @@ export function createD3SandboxScheduledCoordinator({
   request:requestGitHub,issueReadToken,
   enabled:()=>active(),
  });
+ // Scoped to this single coordinator invocation; never a Worker-global or
+ // Durable Object cache. Both the first full source proof and the PR adapter's
+ // immutable HEAD-before/after checks remain mandatory.
+ const oneStepSource=createD3OneStepVerifiedSource({
+  loadSnapshot:reader.loadSnapshot,
+ });
  const verifyStaged=async(pkg,media,options={})=>{
   const changed=pkg?.picture?.action!=='keep'||
    (pkg?.pictureSequence?.action??'keep')!=='keep'||media.length>0;
@@ -64,7 +71,7 @@ export function createD3SandboxScheduledCoordinator({
    verifyTicket:tickets.verifyTicket,...options});
  };
  const candidate=createD3TrustedGearKBCandidate({
-  loadSnapshot:reader.loadSnapshot,enabled:()=>active(),
+  loadSnapshot:oneStepSource.loadForCandidate,enabled:()=>active(),
   verifyMediaTickets:verifyStaged,
  });
  const observer=createSandboxCheckObserver({
@@ -122,11 +129,7 @@ export function createD3SandboxScheduledCoordinator({
  });
  const runner=createD3SandboxOperationRunner({
   store,enabled:()=>active(),measure,verifyMedia:verifyStaged,
-  currentMain:async({repositoryId})=>{
-   need(repositoryId===ID,'REPOSITORY_DENIED');
-   const source=await reader.loadSnapshot({repositoryId:ID});
-   return source.sourceRevision;
-  },
+  currentMain:oneStepSource.currentMain,
   createDraft,
   observeCheck:info=>observer.observe(info),
   merge:info=>merger.merge(info),
