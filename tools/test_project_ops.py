@@ -127,6 +127,23 @@ class OpsDocuments(unittest.TestCase):
         self.assertEqual(4, len(errors))
         self.assertTrue(all("non-governance change" in msg for msg in errors))
 
+    def test_missing_all_documents_fails_in_canonical_mode(self):
+        empty = self.root / "all-deleted"
+        empty.mkdir()
+        errors, _ = validator.validate(empty, allow_uninstalled=False)
+        self.assertTrue(any("missing required file" in msg for msg in errors), errors)
+
+    def test_broken_link_in_ancillary_decision_plan_fails(self):
+        p = self.base / "P5_CANONICAL_BRANCH_IMPLEMENTATION_2026-11-01.md"
+        p.write_text("# Supporting plan\n\n[Missing](not-present.md)\n", encoding="utf-8")
+        self.assert_error("broken relative link")
+
+    def test_valid_link_in_ancillary_plan_passes(self):
+        p = self.base / "P5_CANONICAL_BRANCH_IMPLEMENTATION_2026-11-01.md"
+        p.write_text("# Supporting plan\n\n[Entry](START_HERE.md)\n", encoding="utf-8")
+        errors, _ = validator.validate(self.root)
+        self.assertEqual([], errors)
+
     def test_silent_uninstalled_no_error(self):
         empty = self.root / "no-docs"
         empty.mkdir()
