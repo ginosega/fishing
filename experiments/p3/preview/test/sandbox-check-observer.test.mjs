@@ -13,9 +13,9 @@ function setup({
  mainMovedInitially=false,mainMovedFinally=false,
  prOverride=null,prMovedFinally=false,checkOverride=null,
  checksOverride=null,missingReadToken=false,httpError=null,
- networkFailure=null,invalidJson=null,
+ networkFailure=null,invalidJson=null,recordSpans=false,
 }={}){
- const calls=[];let mainReads=0,prReads=0,issued=0;
+ const calls=[],spans=[];let mainReads=0,prReads=0,issued=0;
  const pr=()=>({number:PR,state:'open',draft:true,merged:false,
   merged_at:null,head:{sha:HEAD,ref:BRANCH,repo:{id:ID}},
   base:{sha:BASE,ref:'main',repo:{id:ID}}});
@@ -55,8 +55,13 @@ function setup({
   return missingReadToken?null:{repositoryId:ID,
    permissions:scopeOverride??scope,token:'read-only-p3-checks-example-token'};
  };
- const observer=createSandboxCheckObserver({request,issueCheckReadToken,enabled:()=>enabled});
- return {observer,calls,get issued(){return issued;}};
+ const measure=async(phase,work)=>{
+  if(!recordSpans)return work();
+  try{const result=await work();spans.push({phase,outcome:'ok'});return result;}
+  catch(error){spans.push({phase,outcome:'refused'});throw error;}
+ };
+ const observer=createSandboxCheckObserver({request,issueCheckReadToken,enabled:()=>enabled,measure});
+ return {observer,calls,spans,get issued(){return issued;}};
 }
 test('P3-C01 inactive observer cannot request token or contact GitHub',async()=>{
  const s=setup({enabled:false});
@@ -174,4 +179,22 @@ test('P3-C11 positive observation has no git mutation, deployment or merge metho
  assert.equal(proof.canDeploy,false);
  assert.deepEqual(Object.keys(s.observer),['observe']);
  assert.equal(Object.isFrozen(proof),true);
+});
+
+test('P3-C12 opt-in CI trace measures all existing read-only evidence reads',async()=>{
+ const success=setup({recordSpans:true});
+ await success.observer.observe(receipt());
+ assert.deepEqual(success.spans.map(s=>s.phase),[
+  'check_token_issue','check_repository_get','check_main_initial_get',
+  'check_pr_initial_get','check_runs_get','check_main_final_get',
+  'check_pr_final_get',
+ ]);
+ assert(success.spans.every(s=>s.outcome==='ok'));
+ assert.equal(success.calls.length,6);
+ assert(success.calls.every(c=>c.method==='GET'));
+ const failed=setup({recordSpans:true,httpError:'/check-runs'});
+ await assert.rejects(failed.observer.observe(receipt()),denied('GITHUB_READ_FAILED'));
+ assert.equal(failed.spans.at(-1).phase,'check_runs_get');
+ assert.equal(failed.spans.at(-1).outcome,'refused');
+ assert.equal(failed.calls.filter(c=>c.method!=='GET').length,0);
 });
