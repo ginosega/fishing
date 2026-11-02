@@ -36,9 +36,10 @@ function validatePR(pr,{number,head,base,branch}){
 }
 export function createSandboxCheckObserver({
  request=fetch,issueCheckReadToken,enabled=()=>false,
+ measure=async(_phase,work)=>work(),
 }={}){
  ensure(typeof request==='function'&&typeof issueCheckReadToken==='function'&&
-  typeof enabled==='function','INVALID_CONFIGURATION');
+  typeof enabled==='function'&&typeof measure==='function','INVALID_CONFIGURATION');
  async function read(token,url){
   ensure(url===API||url.startsWith(API+'/'),'REPOSITORY_DENIED');
   let response;
@@ -61,26 +62,26 @@ export function createSandboxCheckObserver({
    isSha(expectedHeadSha)&&isSha(expectedBaseSha)&&
    expectedHeadSha!==expectedBaseSha&&safeBranch(expectedBranch),
    'INVALID_TRUSTED_RECEIPT');
-  const issued=await issueCheckReadToken({
+  const issued=await measure('check_token_issue',()=>issueCheckReadToken({
    repositoryId:ID,permissions:{...READ_ONLY},
-  });
+  }));
   ensure(issued?.repositoryId===ID&&typeof issued?.token==='string'&&
    issued.token.length>=12&&issued?.permissions&&
    Object.keys(issued.permissions).sort().join(',')==='checks,contents,pull_requests'&&
    Object.entries(READ_ONLY).every(([key,value])=>issued.permissions[key]===value),
    'READ_TOKEN_SCOPE_DENIED');
   const token=issued.token;
-  const repo=await read(token,API);
+  const repo=await measure('check_repository_get',()=>read(token,API));
   ensure(repo?.id===ID&&repo?.full_name===REPO&&repo?.private===true,
    'REPOSITORY_DENIED');
   const mainUrl=API+'/git/ref/heads/main',prUrl=API+'/pulls/'+prNumber;
-  const firstMain=await read(token,mainUrl);
+  const firstMain=await measure('check_main_initial_get',()=>read(token,mainUrl));
   ensure(firstMain?.object?.sha===expectedBaseSha,'MAIN_MOVED');
-  const firstPR=await read(token,prUrl);
+  const firstPR=await measure('check_pr_initial_get',()=>read(token,prUrl));
   validatePR(firstPR,{number:prNumber,head:expectedHeadSha,
    base:expectedBaseSha,branch:expectedBranch});
-  const checks=await read(token,API+'/commits/'+expectedHeadSha+
-   '/check-runs?per_page=100&filter=latest');
+  const checks=await measure('check_runs_get',()=>read(token,API+
+   '/commits/'+expectedHeadSha+'/check-runs?per_page=100&filter=latest'));
   ensure(Number.isSafeInteger(checks?.total_count)&&
    checks.total_count>=0&&checks.total_count<=100&&
    Array.isArray(checks.check_runs)&&checks.check_runs.length===checks.total_count,
@@ -106,9 +107,9 @@ export function createSandboxCheckObserver({
     'WORKFLOW_PROVENANCE_DENIED');
   // Recheck both mutable objects after reading CI so an intervening push or
   // PR head/base movement never becomes an accepted snapshot.
-  const lastMain=await read(token,mainUrl);
+  const lastMain=await measure('check_main_final_get',()=>read(token,mainUrl));
   ensure(lastMain?.object?.sha===expectedBaseSha,'MAIN_MOVED');
-  const lastPR=await read(token,prUrl);
+  const lastPR=await measure('check_pr_final_get',()=>read(token,prUrl));
   validatePR(lastPR,{number:prNumber,head:expectedHeadSha,
    base:expectedBaseSha,branch:expectedBranch});
   ensure(check?.conclusion==='success','CHECK_NOT_SUCCESSFUL');
