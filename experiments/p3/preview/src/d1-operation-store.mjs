@@ -77,7 +77,7 @@ function verifySubmission(snapshot){
    Object.keys(display).length===1&&
    typeof display.itemName==='string'&&display.itemName.length>0&&
    display.itemName.length<=160&&
-   !/[\x00-\x1f\x7f]/.test(display.itemName)&&
+   !/\p{Cc}/u.test(display.itemName)&&
    display.itemName.trim()===display.itemName),'INVALID_SNAPSHOT');
  check(Array.isArray(snapshot.media)&&snapshot.media.length<=24&&
   snapshot.media.every(t=>t&&Object.getPrototypeOf(t)===Object.prototype&&
