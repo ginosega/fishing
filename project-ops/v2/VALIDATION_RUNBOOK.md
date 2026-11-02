@@ -24,6 +24,17 @@
 - **Duplication:** Fail repeated large normalized paragraphs in two active files, flag paraphrased competing "current" claims for semantic review. Topic catalogs may grow only within their budgets; split instead of dumping chronology.
 - **Whitespace and source preservation:** Observe GitHub `git diff --check`, and compare the entire PR diff for any unexpected pre-existing source modification.
 
+## Manual chat-transfer acceptance (not a GitHub CI assertion)
+
+When a planned transfer is requested or proactively recommended, check the actual assistant handoff against the [Project handoff contract](OPERATING_RULES.md):
+
+- The current GitHub state, decisions and ambiguous operations are reconciled or explicitly identified as **not yet checkpointed / unknown**.
+- The text offered for the next chat is **byte-for-byte the sole fenced `text` block** in default-main [NEW_CHAT_PROMPT.md](../../NEW_CHAT_PROMPT.md), with no custom introduction, V3 issue/commit/test table or dated context inside the copyable prompt.
+- The new chat is **not** instructed to reconstruct the previous conversation, scan a whole chat, or bulk-load historic documents. Only a specific evidence gap may justify a targeted excerpt after GitHub/provider records are checked.
+- Any optional closing summary is clearly marked **reference only, do not paste** and cannot replace durable source-of-truth updates.
+
+If any check fails, correct the handoff **before asking the owner to open a new chat**. The structural GitHub validator verifies repository files, **not the assistant's user-visible handoff text**; do not claim this manual test is automatically enforced by CI.
+
 ## Negative-fixture regression tests (must visibly fail in memory)
 
 Run tests on **copies/in-memory mutations only**, not on the tracked PR: missing working doc or heading; broken path; escaping repository path; duplicate work ID; duplicate topic decision ID; invalid status; unlinked ADR; oversized entry; stale SHA/branch/PR in the copyable prompt; claimed hosted `verified` without dated evidence; and repeated long active-state paragraph. Run a valid positive fixture containing a permitted `unknown` hosted state.
