@@ -119,14 +119,13 @@ export function createD2SandboxNormalMerge({
    commit_message:commitMessage,
   });
   need(result?.merged===true&&SHA.test(result.sha),'WRITE_RESULT_UNKNOWN');
-  // Both independent post-merge reads must pass before the durable receipt.
-  const [merged,finalMain]=await Promise.all([
-   api(token,'GET',API+'/pulls/'+info.prNumber),
-   api(token,'GET',API+'/git/ref/heads/main'),
-  ]);
+  // Keep the final main SHA check AFTER the merged PR proof so a main
+  // movement during that read remains detectable before recording the receipt.
+  const merged=await api(token,'GET',API+'/pulls/'+info.prNumber);
   need(merged?.merged_at!=null&&merged?.merge_commit_sha===result.sha&&
    merged.head?.sha===info.expectedHeadSha&&
    merged.base?.repo?.id===ID,'MERGE_EVIDENCE_DENIED');
+  const finalMain=await api(token,'GET',API+'/git/ref/heads/main');
   need(finalMain?.object?.sha===result.sha,'MERGE_EVIDENCE_DENIED');
   let durable;
   try{
