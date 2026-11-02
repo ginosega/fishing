@@ -25,17 +25,28 @@ function storage(){
   return {async match(r){return data.get(typeof r==='string'?r:r.url)?.clone();},async keys(){return [...data.keys()].map(url=>({url}));},async delete(r){return data.delete(typeof r==='string'?r:r.url);},async put(r,response){const url=typeof r==='string'?r:r.url;if(fail(name,url))throw new DOMException('Injected storage quota failure','QuotaExceededError');data.set(url,response.clone());}};
  }};
 }
-async function worker(caches,network,{v3=false}={}){
- const handlers={};
- const self={registration:{scope},clients:{async claim(){},async matchAll(){return [];}},skipWaiting:async()=>{},addEventListener:(name,fn)=>handlers[name]=fn};
+async function worker(caches,network,{v3=false,networkDelay=0}={}){
+ const handlers={},messages=[];
+ let inFlight=0,peakInFlight=0;
+ const self={registration:{scope},clients:{
+  async claim(){},
+  async matchAll(){return [{postMessage:message=>messages.push(message)}];},
+ },skipWaiting:async()=>{},addEventListener:(name,fn)=>handlers[name]=fn};
  const bundle=await build({entryPoints:[fileURLToPath(new URL('../src/sw.mjs',import.meta.url))],bundle:true,write:false,format:'iife',define:{__FISHING_V3_READING_MODE__:v3?'true':'false'}});
  const networkRequests=[];
- vm.runInNewContext(bundle.outputFiles[0].text,{self,caches,crypto:webcrypto,URL,Response,TextDecoder,TextEncoder,Uint8Array,DOMException,console,fetch:async url=>{networkRequests.push(url);return network.has(url)?new Response(network.get(url)):new Response('Unavailable',{status:503});}});
+ vm.runInNewContext(bundle.outputFiles[0].text,{self,caches,crypto:webcrypto,URL,Response,TextDecoder,TextEncoder,Uint8Array,DOMException,console,fetch:async url=>{
+  networkRequests.push(url);
+  inFlight++;peakInFlight=Math.max(peakInFlight,inFlight);
+  try{
+   if(networkDelay)await new Promise(resolve=>setTimeout(resolve,networkDelay));
+   return network.has(url)?new Response(network.get(url)):new Response('Unavailable',{status:503});
+  }finally{inFlight--;}
+ }});
  const waited=handler=>new Promise((resolve,reject)=>{let p;try{handler({waitUntil:x=>p=x});}catch(error){reject(error);return;}Promise.resolve(p).then(resolve,reject);});
  return {
   install(){return waited(handlers.install);},activate(){return waited(handlers.activate);},
   async message(type,mode){let result;let p;handlers.message({data:{type,mode},ports:[{postMessage:value=>{result=value;}}],waitUntil:x=>p=x});await p;return result;},
-  networkRequests,
+  networkRequests,messages,get peakInFlight(){return peakInFlight;},
   async fetch(path,mode='cors',clientId='client'){let p;handlers.fetch({request:{method:'GET',url:abs(path),mode},clientId,resultingClientId:mode==='navigate'?clientId:'',respondWith:x=>p=x});return p;}
  };
 }
@@ -58,6 +69,35 @@ test('explicit PREPARE creates a verified complete library that survives an offl
  assert.equal((await offline.fetch('index.html','navigate')).status,200);
  assert.equal((await (await offline.fetch('release.json')).json()).id,old.id);
  assert.equal(await (await offline.fetch(`releases/${old.id}/app.js`)).text(),old.network.get(abs(`releases/${old.id}/app.js`)).toString());
+});
+
+test('FISH287 bounded offline staging is concurrent, verified, monotonic and atomic',async()=>{
+ const caches=storage(),network=new Map(old.network);
+ const runtime=await worker(caches,network,{networkDelay:8});
+ const result=await runtime.message('PREPARE');
+ assert.equal(result.status.state,'Ready');
+ assert.equal(result.status.releaseId,old.id);
+ assert(runtime.peakInFlight>1,'staging must avoid the slow serial network pipeline');
+ assert(runtime.peakInFlight<=6,'parallel staging must remain bounded');
+ const progress=runtime.messages.filter(m=>m.type==='FISHING_V2_PROGRESS').map(m=>m.status);
+ assert(progress.length>=2);
+ assert.equal(progress[0].completed,0);
+ assert.equal(progress.at(-1).completed,old.manifest.files.length);
+ for(let i=1;i<progress.length;i++){
+  assert(progress[i].completed>=progress[i-1].completed,'progress may not regress');
+  assert(progress[i].bytes>=progress[i-1].bytes,'verified bytes may not regress');
+ }
+ const [selected]=await markers(caches);
+ assert.equal(selected.complete,true);
+ assert.equal(selected.files,old.manifest.files.length);
+ // Commit is never visible after an asynchronously failed read.
+ const nextNetwork=new Map(next.network);
+ nextNetwork.delete(abs(`releases/${next.id}/app.js`));
+ const nextRuntime=await worker(caches,nextNetwork,{networkDelay:8});
+ const denied=await nextRuntime.message('PREPARE');
+ assert.equal(denied.status.releaseId,old.id);
+ assert.equal((await markers(caches)).length,1);
+ assert.match(denied.status.message,/Update incomplete/);
 });
 
 test('missing and corrupt explicit updates retain the selected previous complete release',async()=>{
