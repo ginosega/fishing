@@ -16,3 +16,5 @@ Source implementation, exact-head GitHub CI, private Cloudflare deployment, publ
 Legacy root `Fishing_Context.md`, `Fishing_TODO.md`, `Fishing_Decision_Log.md`, and `Fishing_New_Chat_Bootstrap_Prompt.md` remain intact as historical provenance, not startup bulk payload.
 
 Normal transfer trigger: **"Prepare to transfer to a new chat"**. Always copy the entire unchanged fenced text from [NEW_CHAT_PROMPT.md](../../NEW_CHAT_PROMPT.md); emergency recovery uses the same prompt from default `main` after activation.
+
+[Deliberately missing required-link fixture](unavailable-for-required-check-test.md)
