@@ -119,28 +119,11 @@ async function prepareRelease(){
    stageName=prefix+'offline:'+crypto.randomUUID()+':'+pointer.id;const staging=await caches.open(stageName);
    let completedFiles=0,totalBytes=0;
    await broadcast('FISHING_V2_PROGRESS',{state:'Downloading',releaseId:pointer.id,files:entries.size,completed:0,bytes:0});
-   // Download only a small, fixed number of assets concurrently. Every asset
-   // must still pass the original size+digest check before entering staging.
-   // Await ALL workers before any rollback so an in-flight put cannot recreate
-   // a deleted staging cache. Selection remains atomic after full verification.
-   const files=[...entries.values()],workers=Math.min(6,files.length);
-   let nextIndex=0,firstFailure=null;
-   async function fetchAndVerify(){
-    while(nextIndex<files.length&&!firstFailure){
-     const file=files[nextIndex++];
-     try{
-      const bytes=await network(file.path);await verifyBytes(bytes,file);
-      await staging.put(absolute(file.path),responseFor(bytes,file.path));
-      completedFiles++;totalBytes+=file.bytes;
-      if(completedFiles%8===0||completedFiles===files.length)
-       await broadcast('FISHING_V2_PROGRESS',{state:'Downloading',releaseId:pointer.id,files:entries.size,completed:completedFiles,bytes:totalBytes});
-     }catch(error){
-      if(!firstFailure){failed=file.path;firstFailure=error;}
-     }
-    }
+   for(const file of entries.values()){
+    failed=file.path;const bytes=await network(file.path);await verifyBytes(bytes,file);
+    await staging.put(absolute(file.path),responseFor(bytes,file.path));completedFiles++;totalBytes+=file.bytes;
+    if(completedFiles%8===0||completedFiles===entries.size)await broadcast('FISHING_V2_PROGRESS',{state:'Downloading',releaseId:pointer.id,files:entries.size,completed:completedFiles,bytes:totalBytes});
    }
-   await Promise.all(Array.from({length:workers},()=>fetchAndVerify()));
-   if(firstFailure)throw firstFailure;
    await staging.put(absolute(pointer.manifest),responseFor(manifestBytes,pointer.manifest));
    await staging.put(absolute('release.json'),responseFor(pointerBytes,'release.json'));
    const pointerSha256=await crypto.subtle.digest('SHA-256',pointerBytes).then(b=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''));
