@@ -17,7 +17,7 @@ const success=x=>Number.isSafeInteger(x)&&x>0;
 // Exact Catch Notes originals only: the image must belong to the same
 // Catch ID as its canonical Markdown in this immutable expected-file set.
 function ownedCatchNotesAsset(path,expectedPaths){
- const m=/^pwa\\/Catches\\/assets\\/([a-z0-9-]+)\\/notes\\/[^/]+\\.(?:jpe?g|png|webp|gif)$/i.exec(path);
+ const m=/^pwa\/Catches\/assets\/([a-z0-9-]+)\/notes\/[^/]+\.(?:jpe?g|png|webp|gif)$/i.exec(path);
  return m!==null&&m[1]===m[1].toLowerCase()&&
   expectedPaths.includes('pwa/Catches/content/'+m[1]+'.md');
 }
