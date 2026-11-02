@@ -51,3 +51,28 @@ test('P3-R04 no receipt for untrusted request and invalid SHA rejected before SQ
  await assert.rejects(e.store.saveBranchReceipt({operationId:e.operationId,leaseOwner:LEASE1,baseSha:A,headSha:A}),
   err=>err instanceof DurableStoreError&&err.code==='INVALID_RECEIPT');
 });
+
+test('P3-R05 durable Catch Notes-only summary survives reload with complete display name',async()=>{
+ const f=sandbox(),store=f.store();
+ const snapshot={package:{
+  format:'fishing-companion-change-v2',domain:'catches',operation:'edit',
+  id:'p3-test-catch-2026-10-16-synthetic-lake-synthetic-bluegill',
+  changes:{set:{},unset:[],baseFields:{}},
+  display:{itemName:'Synthetic bluegill · 2026-10-16'},
+  picture:{action:'keep'},notes:{action:'replace',
+   path:'Catches/content/p3-test-catch-2026-10-16-synthetic-lake-synthetic-bluegill.md',
+   body:'Updated note',baseSha256:'a'.repeat(64)},
+ },media:[]};
+ const a=await store.accept({idempotencyKey:f.key,snapshot});
+ assert.equal(a.state,'Accepted');
+ const info=await store.summary(a.operationId);
+ assert.equal(info.domain,'catches');
+ assert.equal(info.action,'edit');
+ assert.equal(info.itemName,'Synthetic bluegill · 2026-10-16');
+ assert.equal(info.completedAt,null);
+ assert.equal((await store.lookupReceipt({idempotencyKey:f.key,snapshot})).operationId,
+  a.operationId);
+ await assert.rejects(store.lookupReceipt({idempotencyKey:f.key,
+  snapshot:{...snapshot,package:{...snapshot.package,display:{itemName:'Wrong'}}}}),
+  e=>e instanceof DurableStoreError&&e.code==='IDEMPOTENCY_CONFLICT');
+});
