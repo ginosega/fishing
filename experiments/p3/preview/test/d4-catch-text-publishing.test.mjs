@@ -188,3 +188,25 @@ test('D4-C10 ID generator and Catch route parsing preserve existing links',()=>{
   {page:'catch-edit',id:'catch-test-existing'});
  assert.equal(parseRoute('#/catches/catch-test-existing').page,'catch-detail');
 });
+
+test('D4-DISPLAY-01 Catch Notes-only and data-only edits carry canonical display identity',async()=>{
+ const old=source.catches.catches[0],item={...old,speciesName:'Synthetic bluegill',
+  date:'2026-10-16'};
+ const updated=structuredClone(source);
+ updated.catches.catches[0]=item;
+ const ctx=makeContext(updated);
+ for(const [record,text] of [[item,NOTE+'Extra detail.'],[{...item,time:'14:20'},NOTE]]){
+  const pkg=await prepareCatchPackage({ctx,baseRecord:item,
+   record,text,baseText:NOTE,baseHash:await sha256(NOTE)});
+  assert.equal(pkg.display.itemName,'Synthetic bluegill · 2026-10-16');
+  const result=await candidate(updated).plan({
+   package:pkg,repositoryId:REPO,ownerGitHubId:OWNER,
+  });
+  assert.equal(result.validated,true);
+  assert.equal(result.domain,'catches');
+  await assert.rejects(candidate(updated).plan({
+   package:{...pkg,display:{itemName:'Fake catch · Undated'}},
+   repositoryId:REPO,ownerGitHubId:OWNER,
+  }),fail('INVALID_DISPLAY_IDENTITY'));
+ }
+});
