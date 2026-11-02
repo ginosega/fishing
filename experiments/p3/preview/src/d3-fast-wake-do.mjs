@@ -42,10 +42,22 @@ export class D3FastWakeAlarm {
   // Inside an alarm handler we ALWAYS set the NEXT alarm, even if
   // getAlarm() still reports the currently firing alarm. Otherwise the
   // newly requested wake could be lost when the current alarm completes.
+  const now=Date.now();
   const existing=insideAlarm?null:await this.ctx.storage.getAlarm();
-  if(insideAlarm||existing===null||existing>deadlineMs)
-   await this.ctx.storage.setAlarm(Math.max(Date.now(),deadlineMs));
-  return {armed:true,testOnly:true};
+  // An old alarm timestamp is NOT evidence of a pending future wake.
+  // Cloudflare retries failed alarms only a bounded number of times; after
+  // the recovery Cron makes durable progress, an old alarm must not suppress
+  // a fresh wake. Preserve the previous rule that a genuine future earlier
+  // alarm is never postponed by duplicate notices.
+  const reset=insideAlarm||existing===null||existing<=now||
+    existing>deadlineMs;
+  if(reset)await this.ctx.storage.setAlarm(Math.max(now,deadlineMs));
+  console.info('FISH118_D3_DO_ARM',JSON.stringify({
+   operationId,reset,hadAlarm:existing!==null,
+   staleAlarm:existing!==null&&existing<=now,
+   insideAlarm,
+  }));
+  return {armed:true,testOnly:true,reset};
  }
  async arm({operationId,deadlineMs}={}){
   return this._schedule(operationId,deadlineMs,false);
