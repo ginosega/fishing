@@ -56,9 +56,11 @@ const validEntry=e=>obj(e)&&normalPath(e.path)&&e.type==='blob'&&
  */
 export function createD3SandboxSnapshotLoader({
   request,issueReadToken,enabled=()=>false,
+  measure=async(_phase,work)=>work(),
 }={}){
   need(typeof request==='function'&&typeof issueReadToken==='function'&&
-    typeof enabled==='function','INVALID_CONFIGURATION');
+    typeof enabled==='function'&&typeof measure==='function',
+    'INVALID_CONFIGURATION');
   async function get(token,path){
     need(path===API||path.startsWith(API+'/'),'URL_DENIED');
     let response;
@@ -73,6 +75,10 @@ export function createD3SandboxSnapshotLoader({
     catch{deny('INVALID_GITHUB_RESPONSE');}
   }
   async function loadSnapshot({repositoryId,expectedMainSha,operationId}={}){
+    // Fixed phase groups bound telemetry even with 120+ Markdown files.
+    // No URL, file path, SHA, token or source bytes enter a timing record.
+    // Each original security check and GitHub request remains sequential.
+    return measure('source_snapshot_total',async()=>{
     need(enabled()===true,'DISABLED');
     need(repositoryId===ID&&
       (expectedMainSha===undefined||SHA.test(expectedMainSha))&&
@@ -86,17 +92,20 @@ export function createD3SandboxSnapshotLoader({
       Object.keys(grant.permissions).length===1&&
       grant.permissions.contents==='read','READ_SCOPE_DENIED');
     const token=grant.token;
-    const repo=await get(token,API);
+    const repo=await measure('source_repository_get',()=>get(token,API));
     need(repo?.id===ID&&repo.full_name===REPO&&repo.private===true,
       'REPOSITORY_DENIED');
-    const current=await get(token,API+'/git/ref/heads/main');
+    const current=await measure('source_main_initial_get',
+      ()=>get(token,API+'/git/ref/heads/main'));
     const base=current?.object?.sha;
     need(SHA.test(base)&&(!expectedMainSha||base===expectedMainSha),
       'MAIN_MOVED');
-    const commit=await get(token,API+'/git/commits/'+base);
+    const commit=await measure('source_commit_get',
+      ()=>get(token,API+'/git/commits/'+base));
     need(commit?.sha===base&&SHA.test(commit.tree?.sha),
       'INVALID_COMMIT');
-    const tree=await get(token,API+'/git/trees/'+commit.tree.sha+'?recursive=1');
+    const tree=await measure('source_tree_get',
+      ()=>get(token,API+'/git/trees/'+commit.tree.sha+'?recursive=1'));
     need(tree?.sha===commit.tree.sha&&tree.truncated===false&&
       Array.isArray(tree.tree)&&tree.tree.length<=MAX_ENTRIES,
       'INVALID_TREE');
@@ -130,12 +139,14 @@ export function createD3SandboxSnapshotLoader({
       return value;
     }
     const data={};
-    for(const [domain,path] of Object.entries(SOURCE)){
-      const raw=await readFile(path,MAX_SOURCE_BYTES);
-      try{data[domain]=JSON.parse(raw);}
-      catch{deny('INVALID_CANONICAL_JSON');}
-      need(obj(data[domain]),'INVALID_CANONICAL_JSON');
-    }
+    await measure('source_canonical_blobs',async()=>{
+      for(const [domain,path] of Object.entries(SOURCE)){
+        const raw=await readFile(path,MAX_SOURCE_BYTES);
+        try{data[domain]=JSON.parse(raw);}
+        catch{deny('INVALID_CANONICAL_JSON');}
+        need(obj(data[domain]),'INVALID_CANONICAL_JSON');
+      }
+    });
     let referenced;
     try{
       validateRecords(data);
@@ -158,15 +169,18 @@ export function createD3SandboxSnapshotLoader({
     const hashes=new Map([...entries].map(([path,entry])=>[path,entry.sha]));
     const narratives=new Set(referenced.filter(p=>p.toLowerCase().endsWith('.md')));
     need(narratives.size<=MAX_MD_FILES,'TOO_MANY_NARRATIVES');
-    for(const relative of referenced){
-      const path=ROOT+relative,entry=entries.get(path);
-      need(validEntry(entry),'MISSING_REFERENCED_FILE');
-      hashes.set(path,entry.sha);
-      if(narratives.has(relative)){
-        markdown.set(relative,await readFile(path,MAX_MD_BYTES));
+    await measure('source_narrative_blobs',async()=>{
+      for(const relative of referenced){
+        const path=ROOT+relative,entry=entries.get(path);
+        need(validEntry(entry),'MISSING_REFERENCED_FILE');
+        hashes.set(path,entry.sha);
+        if(narratives.has(relative)){
+          markdown.set(relative,await readFile(path,MAX_MD_BYTES));
+        }
       }
-    }
-    const last=await get(token,API+'/git/ref/heads/main');
+    });
+    const last=await measure('source_main_final_get',
+      ()=>get(token,API+'/git/ref/heads/main'));
     need(last?.object?.sha===base,'MAIN_MOVED');
     return {
       repositoryId:ID,sourceRevision:base,treeSha:commit.tree.sha,
@@ -174,6 +188,7 @@ export function createD3SandboxSnapshotLoader({
       data,files,markdown,blobHashes:hashes,
       operationId:operationId??null,
     };
+    });
   }
   return Object.freeze({loadSnapshot});
 }
