@@ -35,9 +35,30 @@ export function notesImageMarkdown(path,alt,{viewer=false,caption=''}={}){
  if(!name)throw Error('Image alternative text is required.');
  return '!['+name+']('+noteImageReference(path)+viewerMarkdownTitle(viewer,caption)+')';
 }
+// Resolve saved private originals from the already verified source inventory.
+// Newly staged originals use their in-memory object URLs; a missing/foreign
+// source is never substituted with a public V2 release URL.
+export function notesPreviewSource(reference,{staged,knownPaths,resolveSavedAsset}={}){
+ if(reference?.isImage!==true||reference.kind!=='local'||
+    typeof reference.local!=='string')return null;
+ const local=staged?.get(reference.local);
+ if(local?.url)return local.url;
+ if(!knownPaths?.has(reference.local)||typeof resolveSavedAsset!=='function')
+  return null;
+ const url=resolveSavedAsset(reference.local);
+ if(typeof url!=='string')return null;
+ let parsed;
+ try{parsed=new URL(url);}catch{return null;}
+ if(parsed.username||parsed.password||
+    parsed.protocol!=='https:'&&!(parsed.protocol==='http:'&&
+      ['localhost','127.0.0.1','[::1]'].includes(parsed.hostname)))
+  return null;
+ return url;
+}
 export function createNotesMarkdownEditor({
  domain,getRecord,value='',label='Markdown',onChange=()=>{},previewOptions,
  knownPaths=()=>new Set(),allowUpload=false,linkMaps=()=>previewOptions().maps,
+ resolveSavedAsset=null,
 }={}){
  if(!['gear','kb','catches'].includes(domain)||typeof getRecord!=='function'||
   typeof previewOptions!=='function')throw Error('Invalid Markdown editor configuration');
@@ -68,9 +89,18 @@ export function createNotesMarkdownEditor({
    view.innerHTML=sanitizeHtml(parsed.html,window);
    const images=[...view.querySelectorAll('img')];
    const refs=parsed.references.filter(x=>x.isImage);
+   // Do not rebind images unless sanitized DOM still matches the exact
+   // parser references in order. Never infer assets from alt text.
+   if(images.length!==refs.length)throw Error('Markdown image preview mismatch.');
+   const verifiedPaths=knownPaths();
    images.forEach((image,i)=>{
-    const item=staged.get(refs[i]?.local);
-    if(item)image.src=item.url;
+    const ref=refs[i];
+    const actual=new URL(image.getAttribute('src')||'',document.baseURI).href;
+    if(actual!==new URL(ref.target).href)
+     throw Error('Markdown image preview mismatch.');
+    const source=notesPreviewSource(ref,{staged,knownPaths:verifiedPaths,
+     resolveSavedAsset});
+    if(source)image.src=source;
    });
    showPreview=true;view.hidden=false;editorField.hidden=true;input.hidden=true;
    previewButton.textContent='Edit Markdown';
