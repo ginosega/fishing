@@ -294,6 +294,7 @@ export async function createCatchEditor(ctx,{
   label:'Notes (Markdown, optional)',
   onChange:value=>{notesText=value;updated();},
   knownPaths:()=>ctx.v3.source.files,
+  resolveSavedAsset:path=>ctx.asset(path),
   allowUpload:typeof ctx.v3.stageMedia==='function',
   linkMaps:()=>ctx.maps,
   previewOptions:()=>({owner:record.notes||narrativePath('catches',record),
