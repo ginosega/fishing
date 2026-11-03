@@ -59,11 +59,18 @@ test('D5-browser mode control responds after verified offline library preparatio
  await expect(auto).toBeEnabled({timeout:20000});
  await expect(work).toBeEnabled();
  await expect(auto).toHaveAttribute('aria-pressed','true');
+ // Preserve current content and scroll while status is opened and modes change.
+ await page.evaluate(()=>{
+  const marker=document.createElement('span');marker.id='d5-render-stability';
+  document.querySelector('#app .page').append(marker);
+ });
+ await expect(page.locator('#d5-render-stability')).toHaveCount(1);
  await expect(dialog.getByRole('button',{name:'Reload',exact:true})).toHaveCount(0);
  await dialog.getByRole('button',{name:'Prepare',exact:true}).click();
  await expect(page.locator('#offline-status'))
   .toHaveAttribute('data-state','Ready',{timeout:210000});
  await expect(dialog.getByRole('button',{name:'Update',exact:true})).toBeVisible();
+ await expect(page.locator('#d5-render-stability')).toHaveCount(1);
  await expect(work).toBeEnabled();
  await work.click();
  await expect(work).toHaveAttribute('aria-pressed','true',{timeout:200000});
@@ -73,8 +80,11 @@ test('D5-browser mode control responds after verified offline library preparatio
  await expect(page.locator('#connection-status')).toHaveAttribute(
   'data-publication-indicator','network');
  await expect(page.locator('#connection-status')).toHaveAttribute(
-  'title','Connection status: Online');
- await expect(page.locator('#connection-network')).toHaveText('Online');
+  'data-online','false');
+ await expect(page.locator('#connection-status')).toHaveAttribute(
+  'title','Connection status: Offline');
+ await expect(page.locator('#connection-network')).toHaveText('Offline');
+ await expect(page.locator('#d5-render-stability')).toHaveCount(1);
  await dialog.getByRole('button',{name:'Close'}).click();
  await page.reload();
  await expect.poll(()=>page.evaluate(()=>globalThis.__FISHING_V2__?.releaseId),
@@ -89,6 +99,8 @@ test('D5-browser mode control responds after verified offline library preparatio
   .toHaveAttribute('aria-pressed','true',{timeout:20000});
  await expect(page.locator('#connection-status')).toHaveAttribute(
   'data-reading-mode','automatic');
+ await expect(page.locator('#connection-status')).toHaveAttribute('data-online','true');
+ await expect(page.locator('#connection-status')).toHaveAttribute('title','Connection status: Online');
  expect(jsErrors).toEqual([]);
 });
 
