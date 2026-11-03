@@ -262,6 +262,9 @@ test('a failed or corrupt update retains the previous complete release',async({p
 
 test('tampered prepared content is rejected; online retry does not silently repair the complete library',async({page,context})=>{
  await openReady(page);await updateLibrary(page);await expect(page.locator('#offline-status')).toHaveAttribute('data-release-id',initial.id,{timeout:120000});
+ // Do not corrupt a staging cache: the Downloading progress event already carries
+ // the release ID, but only Ready establishes a fully committed offline library.
+ await expect(page.locator('#offline-status')).toHaveAttribute('data-state','Ready',{timeout:120000});
  const target=urlFor(initial,fixture.articlePath);const relative='releases/'+initial.id+'/content/'+fixture.articlePath;
  await page.evaluate(async url=>{const names=await caches.keys();const name=names.find(x=>x.endsWith(window.__FISHING_V2__.releaseId));const cache=await caches.open(name);await cache.put(url,new Response('tampered content',{headers:{'Content-Type':'text/markdown'}}));},target);
  state.fail.add(relative);await disconnect(context,true);
