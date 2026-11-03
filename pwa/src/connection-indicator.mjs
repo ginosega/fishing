@@ -1,13 +1,17 @@
 // FISH118 V3-only Connection Status dot semantics.
-// Color follows publication receipt when a trusted owner operation exists;
-// otherwise it follows physical browser connectivity, never reading mode.
+// Trusted publication failures and active operations take priority. Otherwise,
+// verified Work Offline must be distinguishable from network connectivity.
 const ACTIVE=new Set(['Submitting','Accepted','Validating','Checking',
  'Merging','Deploying','Verifying']);
 const FAILED=new Set(['Failed','Conflict']);
+export function connectionNetworkText({online,readingMode=null}={}){
+ if(readingMode==='Work Offline')return online===true?
+  'Work Offline · network available':'Work Offline · network unavailable';
+ return online===true?'Online':'Offline';
+}
 export function connectionIndicator({online,authorized=false,publication='None',
  statusReadError=false,readingMode=null}={}){
  const network=online===true?'Online':'Offline';
- // Reading preference is deliberately absent from both tooltip and label.
  if(authorized===true&&FAILED.has(publication)){
   return Object.freeze({tone:'error',
    title:'Publishing failed',
@@ -17,6 +21,11 @@ export function connectionIndicator({online,authorized=false,publication='None',
   return Object.freeze({tone:'publishing',
    title:'Publishing: '+publication,
    label:'Publishing: '+publication});
+ }
+ if(readingMode==='Work Offline'){
+  const status=connectionNetworkText({online,readingMode});
+  return Object.freeze({tone:'work-offline',title:'Connection status: '+status,
+   label:'Connection status: '+status});
  }
  return Object.freeze({tone:'network',title:'Connection status: '+network,
   label:'Connection status: '+network});
