@@ -36,7 +36,7 @@ Owner: assistant; weekly ChatGPT scheduled task for independent backstop
 Next safe action: Run bounded semantic review at each major V3 decision, milestone and release/owner-acceptance checkpoint, plus weekly scheduled Fishing Semantic Audit; propose protected in-place governance corrections when evidence shows drift.
 Prerequisites: [SEMANTIC_AUDIT_SOP.md](SEMANTIC_AUDIT_SOP.md) and available connected GitHub source; never treat inaccessible GitHub or unverified provider state as an audit PASS.
 Acceptance: Dated evidence-linked audit summary after successful scheduled/checkpoint review; source, CI, hosted deployment, owner field acceptance and decision supersession remain accurately differentiated; verified corrections use the protected governance branch.
-Evidence: [Audit procedure](SEMANTIC_AUDIT_SOP.md), [automated governance validation](VALIDATION_RUNBOOK.md). Scheduled audit created 2026-11-01; its outcome is not independently verified in this checkpoint. Bounded milestone source/CI-versus-hosted semantic reconciliation after 2026-11-03 01:02 UTC [PR #332](https://github.com/ginosega/fishing/pull/332) merge identified and proposed these in-place status corrections; no scheduled-run PASS is inferred.
+Evidence: [Audit procedure](SEMANTIC_AUDIT_SOP.md), [automated governance validation](VALIDATION_RUNBOOK.md). Scheduled audit created 2026-11-01; its outcome is not independently verified in this checkpoint. Bounded milestone source/CI-versus-hosted semantic reconciliation after 2026-11-03 01:02 UTC [PR #332](https://github.com/ginosega/fishing/pull/332) merge identified these in-place status corrections; no scheduled-run PASS is inferred.
 
 ## FISH-TODO-118 — Fishing Companion V3 continuation
 
