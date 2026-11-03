@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {connectionIndicator} from '../src/connection-indicator.mjs';
+import {connectionIndicator,connectionNetworkText} from '../src/connection-indicator.mjs';
 
-test('D5-IND01 network green/yellow regardless of Work Offline selection',()=>{
- for(const readingMode of ['Automatic','Work Offline','Checking']){
+test('D5-IND01 verified Work Offline visible despite physical connectivity',()=>{
+ for(const readingMode of ['Automatic','Checking',null]){
   const online=connectionIndicator({online:true,readingMode});
   assert.equal(online.tone,'network');
   assert.equal(online.title,'Connection status: Online');
@@ -12,6 +12,16 @@ test('D5-IND01 network green/yellow regardless of Work Offline selection',()=>{
   assert.equal(offline.tone,'network');
   assert.equal(offline.title,'Connection status: Offline');
  }
+ const connected=connectionIndicator({online:true,readingMode:'Work Offline'});
+ assert.equal(connected.tone,'work-offline');
+ assert.equal(connected.title,'Connection status: Work Offline · network available');
+ assert.equal(connected.label,connected.title);
+ const disconnected=connectionIndicator({online:false,readingMode:'Work Offline'});
+ assert.equal(disconnected.tone,'work-offline');
+ assert.equal(disconnected.title,'Connection status: Work Offline · network unavailable');
+ assert.equal(connectionNetworkText({online:true,readingMode:'Work Offline'}),
+  'Work Offline · network available');
+ assert.equal(connectionNetworkText({online:false,readingMode:'Automatic'}),'Offline');
 });
 test('D5-IND02 each publication step turns blue and is the mouse hover title',()=>{
  for(const publication of ['Submitting','Accepted','Validating','Checking',
@@ -55,7 +65,10 @@ test('D5-IND06 V2 CSS untouched; V3 publication precedence and hover wired',()=>
  assert.match(css,/\.connection-status\[data-online="false"\] \.connection-dot/);
  assert.match(css,/data-publication-indicator="publishing"/);
  assert.match(css,/data-publication-indicator="error"/);
- assert.doesNotMatch(css,/data-reading-mode="work-offline"\] \.connection-dot/);
+ assert.match(css,/data-publication-indicator="work-offline"/);
+ assert.match(css,/v3-connection-dialog\\[data-reading-mode="work-offline"\\]/);
+ assert.match(ui,/connectionDialog\\.dataset\\.readingMode=/);
+ assert.match(ui,/connectionNetworkText\\(\\{online:navigator\\.onLine,readingMode:verifiedMode\\}\\)/);
  assert.match(ui,/connection\.title=display\.title/);
  assert.match(ui,/connection\.dataset\.publicationIndicator=display\.tone/);
  assert.match(ui,/paintConnectionIndicator\(\)/);
