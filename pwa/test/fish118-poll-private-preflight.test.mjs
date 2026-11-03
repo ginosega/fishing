@@ -8,7 +8,7 @@ test('FISH118-P2S01 preflight has no live deployment command or deploy switch',(
  assert.doesNotMatch(source,/\[switch\]\s*\$Deploy|\b-Deploy\b/);
  assert.equal((source.match(/wrangler@4\.153\.0 deploy\b/g)||[]).length,1);
  assert.match(source,/wrangler@4\.153\.0 deploy --dry-run --config/);
- assert.doesNotMatch(source,/git push\b|git merge\b|d1 execute[^\n]*--command[^\n]*(?:UPDATE|INSERT|DELETE)/i);
+ assert.doesNotMatch(source,/git push\b|git merge(?!-base)\b|d1 execute[^\n]*--command[^\n]*(?:UPDATE|INSERT|DELETE)/i);
 });
 test('FISH118-P2S02 prior Worker identity and both JS digests are pinned',()=>{
  for(const value of [
