@@ -51,7 +51,14 @@ test('D5-browser mode control responds after verified offline library preparatio
  test.setTimeout(300000);
  const jsErrors=[];page.on('pageerror',err=>jsErrors.push(err.message));
  await loaded(page);
+ // Preserve current content and scroll while status is opened and modes change.
+ await page.evaluate(()=>{
+  const marker=document.createElement('span');marker.id='d5-render-stability';
+  document.querySelector('#app .page').append(marker);
+ });
+ await expect(page.locator('#d5-render-stability')).toHaveCount(1);
  await page.getByRole('button',{name:'Connection status'}).click();
+ await expect(page.locator('#d5-render-stability')).toHaveCount(1);
  const dialog=page.locator('#connection-dialog');
  await expect(dialog.getByRole('heading',{name:'Mode'})).toBeVisible();
  const auto=dialog.getByRole('button',{name:'Automatic',exact:true});
@@ -59,12 +66,6 @@ test('D5-browser mode control responds after verified offline library preparatio
  await expect(auto).toBeEnabled({timeout:20000});
  await expect(work).toBeEnabled();
  await expect(auto).toHaveAttribute('aria-pressed','true');
- // Preserve current content and scroll while status is opened and modes change.
- await page.evaluate(()=>{
-  const marker=document.createElement('span');marker.id='d5-render-stability';
-  document.querySelector('#app .page').append(marker);
- });
- await expect(page.locator('#d5-render-stability')).toHaveCount(1);
  await expect(dialog.getByRole('button',{name:'Reload',exact:true})).toHaveCount(0);
  await dialog.getByRole('button',{name:'Prepare',exact:true}).click();
  await expect(page.locator('#offline-status'))
