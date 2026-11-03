@@ -256,13 +256,13 @@ function pollingFixture(){
  };
 }
 
-test('D3-C11 visible owner polls about every five seconds and stops at Live',async()=>{
+test('D3-C11 visible owner polls every two seconds and stops at Live',async()=>{
  const x=pollingFixture();
  await x.controller.restore();
  await x.controller.refreshPublication();
  const panel=x.mount();
  assert.equal(x.clock.count,1);
- assert.equal(x.clock.delay,5000);
+ assert.equal(x.clock.delay,2000);
  assert.equal(x.controller.current().publication,'Accepted');
  x.setPhase('Checking');
  const refreshing=x.clock.fire();
@@ -377,7 +377,7 @@ test('D3-C16 transient read failure retains progress with bounded backoff',async
  await x.clock.fire();
  assert.equal(x.controller.current().publication,'Verifying');
  assert.equal(x.controller.current().statusReadError,false);
- assert.equal(x.clock.delay,5000);
+ assert.equal(x.clock.delay,2000);
  panel.remove();
 });
 
