@@ -6,7 +6,7 @@ import {createEditor} from './editor.mjs';
 import {createCatchEditor} from './catch-editor.mjs';
 import {openViewer,openSequenceViewer} from './viewer.mjs';
 import {bindMarkdownPictureViewer} from './markdown-viewer.mjs';
-import {connectionIndicator} from './connection-indicator.mjs';
+import {connectionIndicator,connectionNetworkText} from './connection-indicator.mjs';
 import {formatV3Diagnostics} from './diagnostics.mjs';
 import {createOffline} from './offline.mjs';
 import {v3OfflineLibraryActionLabel} from './v3-offline-library-action.mjs';
@@ -282,6 +282,11 @@ export function createApp(ctx){
   details.append(helpBody);
   connectionDialog.insertBefore(details,document.getElementById('connection-close'));
  }
+ function networkStatusText(){
+  const verifiedMode=v3Mode&&!privatePilot&&offline?.getModeAvailable?.()===true?
+   offline.getMode():null;
+  return connectionNetworkText({online:navigator.onLine,readingMode:verifiedMode});
+ }
  function paintReadingMode(feedback={}){
   if(!modeControls)return;
   const selected=offline?.getMode?.()||'Automatic';
@@ -295,8 +300,7 @@ export function createApp(ctx){
   retryModeButton.hidden=available||busy;
   connection.dataset.readingMode=available?
    (selected==='Work Offline'?'work-offline':'automatic'):'checking';
-  document.getElementById('connection-network').textContent=
-   navigator.onLine?'Online':'Offline';
+  document.getElementById('connection-network').textContent=networkStatusText();
   paintConnectionIndicator();
   // Normal selection is conveyed by aria-pressed, not redundant text.
   // Show a short status only during verification or a recoverable fault.
@@ -330,6 +334,8 @@ export function createApp(ctx){
   connection.setAttribute('aria-label',display.label);
   if(v3Mode){
    connectionDialog.dataset.networkOnline=String(navigator.onLine);
+   connectionDialog.dataset.readingMode=reading==='Work Offline'?'work-offline':
+    reading==='Checking'?'checking':'automatic';
    // Same status result as the header; no duplicated publication state logic.
    connectionExperience?.paintIndicator(display);
   }
@@ -338,8 +344,7 @@ export function createApp(ctx){
  const updateConnection=()=>{
   if(modeControls)paintReadingMode();
   else paintConnectionIndicator();
-  if(v3Mode)document.getElementById('connection-network').textContent=
-   navigator.onLine?'Online':'Offline';
+  if(v3Mode)document.getElementById('connection-network').textContent=networkStatusText();
   const current=offline.getStatus();
   document.getElementById('offline-update').disabled=
    privatePilot||Boolean(current?.state==='Downloading')||!navigator.onLine;
