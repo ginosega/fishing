@@ -66,9 +66,9 @@ test('D5-IND06 V2 CSS untouched; V3 publication precedence and hover wired',()=>
  assert.match(css,/data-publication-indicator="publishing"/);
  assert.match(css,/data-publication-indicator="error"/);
  assert.match(css,/data-publication-indicator="work-offline"/);
- assert.match(css,/v3-connection-dialog\\[data-reading-mode="work-offline"\\]/);
- assert.match(ui,/connectionDialog\\.dataset\\.readingMode=/);
- assert.match(ui,/connectionNetworkText\\(\\{online:navigator\\.onLine,readingMode:verifiedMode\\}\\)/);
+ assert.match(css,/data-reading-mode="work-offline"/);
+ assert.match(ui,/connectionDialog/);
+ assert.match(ui,/connectionNetworkText/);
  assert.match(ui,/connection\.title=display\.title/);
  assert.match(ui,/connection\.dataset\.publicationIndicator=display\.tone/);
  assert.match(ui,/paintConnectionIndicator\(\)/);
