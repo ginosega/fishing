@@ -42,7 +42,7 @@ async function worker(caches,network,{v3=false,captureEvents=false}={}){
  return {
   broadcasts,
   install(){return waited(handlers.install);},activate(){return waited(handlers.activate);},
-  async message(type,mode){let result;let p;handlers.message({data:{type,mode},ports:[{postMessage:value=>{result=value;}}],waitUntil:x=>p=x});await p;return result;},
+  async message(type,mode,expectedReleaseId){let result;let p;handlers.message({data:{type,mode,expectedReleaseId},ports:[{postMessage:value=>{result=value;}}],waitUntil:x=>p=x});await p;return result;},
   networkRequests,
   async fetch(path,mode='cors',clientId='client'){let p;handlers.fetch({request:{method:'GET',url:abs(path),mode},clientId,resultingClientId:mode==='navigate'?clientId:'',respondWith:x=>p=x});return p;}
  };
@@ -232,4 +232,21 @@ test('D5-O05 Pages canonical index root permits verified V3 PREPARE without chan
  assert(v2.networkRequests.includes(abs('index.html')),
   'V2 must retain its existing direct index fetch');
  assert(!v2.networkRequests.includes(scope));
+});
+
+test('D5-O06 release mismatch cannot switch current in-memory reader to wrong offline library',async()=>{
+ const caches=storage(),network=new Map(old.network);
+ const runtime=await worker(caches,network,{v3:true});
+ assert.equal((await runtime.message('PREPARE')).status.releaseId,old.id);
+ network.clear();for(const [url,bytes] of next.network)network.set(url,bytes);
+ assert.equal((await runtime.message('PREPARE')).status.releaseId,next.id);
+ const refusal=await runtime.message('V3_SET_MODE','Work Offline',old.id);
+ assert.equal(refusal.mode,'Automatic');
+ assert.match(refusal.error,/different release/);
+ assert.equal((await runtime.message('V3_READ_MODE')).mode,'Automatic');
+ const valid=await runtime.message('V3_SET_MODE','Work Offline',next.id);
+ assert.equal(valid.mode,'Work Offline');
+ runtime.networkRequests.length=0;
+ assert.equal((await runtime.fetch('index.html','navigate')).status,200);
+ assert.equal(runtime.networkRequests.length,0);
 });
