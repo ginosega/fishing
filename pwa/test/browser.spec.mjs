@@ -90,8 +90,16 @@ async function openReady(page,release=initial){
 }
 const heading=(page,name)=>page.locator('#app .page-header h1').filter({hasText:name});
 async function route(page,hash,title){await page.goto(base+hash,{waitUntil:'domcontentloaded'});await expect(heading(page,title)).toBeVisible();}
-async function updateLibrary(page){await page.getByRole('button',{name:'Connection status',exact:true}).click();await page.getByRole('button',{name:'Update offline library',exact:true}).click();await page.locator('#connection-close').click();}
-async function reloadLibrary(page){await page.getByRole('button',{name:'Connection status',exact:true}).click();await page.getByRole('button',{name:'Reload',exact:true}).click();if(await page.locator('#connection-dialog').isVisible())await page.locator('#connection-close').click();}
+// FISH287: the header indicator deliberately exposes the current network state
+// in both its accessible name and tooltip. Do not assert the obsolete static
+// label, or skip the actual browser navigation and offline integrity scenarios.
+async function openConnectionStatus(page){
+ const indicator=page.getByRole('button',{name:'Connection status: Online',exact:true});
+ await expect(indicator).toHaveAttribute('title','Connection status: Online');
+ await indicator.click();
+}
+async function updateLibrary(page){await openConnectionStatus(page);await page.getByRole('button',{name:'Update offline library',exact:true}).click();await page.locator('#connection-close').click();}
+async function reloadLibrary(page){await openConnectionStatus(page);await page.getByRole('button',{name:'Reload',exact:true}).click();if(await page.locator('#connection-dialog').isVisible())await page.locator('#connection-close').click();}
 function parsePackage(value){expect(value).toMatch(/^Fishing Companion change package:/);return JSON.parse(value.slice(value.indexOf('\n\n')+2));}
 async function packageFrom(page){await page.getByRole('button',{name:'Prepare Changes'}).click();await expect(page.locator('.package-text')).toBeVisible();return parsePackage(await page.locator('.package-text').inputValue());}
 async function cacheInfo(page){return page.evaluate(async()=>{const names=(await caches.keys()).filter(x=>x.startsWith('fishing-v2:'));const result=[];for(const name of names){const c=await caches.open(name);const r=await c.match(new URL('__fishing_complete__',location.href));if(r)result.push(await r.json());}return result;});}
@@ -345,8 +353,7 @@ test('reviewed page layouts, missing pictures, forms and copy feedback',async({p
  await page.emulateMedia({colorScheme:'dark'});await openReady(page);
  await expect(page.locator('.site-header nav')).toHaveCount(0);
  if(production){await expect(page.locator('#release-details')).toHaveCount(0);await expect(page.locator('.preview-banner')).toBeHidden();}
- await expect(page.getByRole('button',{name:'Connection status'})).toHaveAttribute('title','Connection status');
- await page.getByRole('button',{name:'Connection status'}).click();
+ await openConnectionStatus(page);
  await expect(page.getByRole('dialog',{name:'Connection status'})).toBeVisible();
  await expect(page.locator('#offline-status')).toContainText('Offline library not prepared');
  await expect(page.getByRole('button',{name:'Update offline library'})).toBeEnabled();

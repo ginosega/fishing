@@ -1,14 +1,29 @@
 import {test,expect} from '@playwright/test';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import os from 'node:os';
+import {spawnSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
 import {startCandidateServer} from '../tools/serve-v3-reader-candidate.mjs';
 import {V3_READER_CANDIDATE_BASE as BASE} from '../src/v3-reader-candidate.mjs';
 
 // Actual browser + actual scoped service worker, not mock DOM or simulated
 // mode messages. The source-only Actions job serves loopback and never deploys.
-const root='/tmp/fishing-v3-reader-candidate';
-let server,base,pointer,banks,garmin;
+// Every browser lane must construct the same independently verified, isolated
+// reader candidate. The P3-only workflow once prepared a fixed /tmp fixture;
+// the required FISH108 full lane does not. Never trust an absent/stale fixture.
+const pwaRoot=fileURLToPath(new URL('..',import.meta.url));
+const run=(script,args)=>{
+ const result=spawnSync(process.execPath,[fileURLToPath(new URL(script,import.meta.url)),...args],
+  {cwd:pwaRoot,encoding:'utf8',maxBuffer:8*1024*1024});
+ if(result.status!==0)throw new Error(result.stdout+'\n'+result.stderr);
+};
+let root,server,base,pointer,banks,garmin;
 test.beforeAll(async()=>{
+ root=await fs.mkdtemp(path.join(os.tmpdir(),'fishing-v3-reader-browser-'));
+ run('../tools/build.mjs',['--v3-reader-candidate','--v3-reading-mode',
+  '--base='+BASE,'--out='+root]);
+ run('../tools/verify.mjs',['--out='+root,'--source='+pwaRoot]);
  pointer=JSON.parse(await fs.readFile(path.join(root,'release.json'),'utf8'));
  const kb=JSON.parse(await fs.readFile(
   path.join(root,'releases',pointer.id,'content/KB/kb.json'),'utf8'));
@@ -24,6 +39,7 @@ test.beforeAll(async()=>{
 });
 test.afterAll(async()=>{
  if(server)await new Promise(resolve=>server.close(resolve));
+ if(root)await fs.rm(root,{recursive:true,force:true});
 });
 async function loaded(page,hash=''){
  await page.goto(base+hash,{waitUntil:'domcontentloaded'});
