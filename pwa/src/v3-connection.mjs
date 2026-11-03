@@ -219,7 +219,7 @@ export function mountD3ConnectionPanel({
   if(!allowed()){suspend();return;}
   if(timer!==null||checking)return;
   // Brief, bounded backoff for failed GETs; never retry a publish.
-  const delay=failures===0?5000:Math.min(30000,5000*2**Math.min(failures,3));
+  const delay=failures===0?2000:Math.min(30000,5000*2**Math.min(failures,3));
   timer=setTimer(()=>tick(),delay);
  }
  async function tick(){
