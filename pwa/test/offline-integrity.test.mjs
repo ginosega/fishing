@@ -30,7 +30,14 @@ async function worker(caches,network,{v3=false,captureEvents=false}={}){
  const self={registration:{scope},clients:{async claim(){},async matchAll(){return captureEvents?[{postMessage:data=>broadcasts.push(data)}]:[];}},skipWaiting:async()=>{},addEventListener:(name,fn)=>handlers[name]=fn};
  const bundle=await build({entryPoints:[fileURLToPath(new URL('../src/sw.mjs',import.meta.url))],bundle:true,write:false,format:'iife',define:{__FISHING_V3_READING_MODE__:v3?'true':'false'}});
  const networkRequests=[];
- vm.runInNewContext(bundle.outputFiles[0].text,{self,caches,crypto:webcrypto,URL,Response,TextDecoder,TextEncoder,Uint8Array,DOMException,console,fetch:async url=>{networkRequests.push(url);return network.has(url)?new Response(network.get(url)):new Response('Unavailable',{status:503});}});
+ vm.runInNewContext(bundle.outputFiles[0].text,{self,caches,crypto:webcrypto,URL,Response,TextDecoder,TextEncoder,Uint8Array,DOMException,console,fetch:async url=>{
+  networkRequests.push(url);
+  // Model Pages' 308 clean-URL redirect: /index.html fails the strict
+  // redirect:error fetch; its canonical scope root returns the same bytes.
+  if(v3&&url===abs('index.html'))throw new TypeError('Failed to fetch (Pages 308 redirect)');
+  const key=v3&&url===scope?abs('index.html'):url;
+  return network.has(key)?new Response(network.get(key)):new Response('Unavailable',{status:503});
+ }});
  const waited=handler=>new Promise((resolve,reject)=>{let p;try{handler({waitUntil:x=>p=x});}catch(error){reject(error);return;}Promise.resolve(p).then(resolve,reject);});
  return {
   broadcasts,
@@ -208,4 +215,21 @@ test('D5-O04 corruption and quota failure cannot select or strand Work Offline',
  assert.match(failed.error,/Unable to save/);
  assert.equal((await runtime.message('V3_READ_MODE')).mode,'Automatic');
  caches.setFailure(()=>false);
+});
+
+test('D5-O05 Pages canonical index root permits verified V3 PREPARE without changing V2',async()=>{
+ const v3Cache=storage(),v3Network=new Map(old.network);
+ const v3=await worker(v3Cache,v3Network,{v3:true});
+ const prepared=await v3.message('PREPARE');
+ assert.equal(prepared.status.state,'Ready');
+ assert.equal(prepared.status.releaseId,old.id);
+ assert(v3.networkRequests.includes(scope),'V3 must request canonical directory URL');
+ assert(!v3.networkRequests.includes(abs('index.html')),
+  'V3 must not request Pages-redirected /index.html');
+ assert.equal((await v3.fetch('index.html','navigate')).status,200);
+ const v2=await worker(storage(),new Map(old.network));
+ assert.equal((await v2.message('PREPARE')).status.state,'Ready');
+ assert(v2.networkRequests.includes(abs('index.html')),
+  'V2 must retain its existing direct index fetch');
+ assert(!v2.networkRequests.includes(scope));
 });
