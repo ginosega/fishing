@@ -67,8 +67,8 @@ test('D5-IND06 V2 CSS untouched; V3 publication precedence and hover wired',()=>
  assert.match(css,/data-publication-indicator="publishing"/);
  assert.match(css,/data-publication-indicator="error"/);
  assert.doesNotMatch(css,/data-publication-indicator="work-offline"/);
- assert.match(ui,/connection\\.dataset\\.online=String\\(onlineForEditing\\(\\)\\)/);
- assert.match(ui,/connectionDialog\\.dataset\\.networkOnline=String\\(onlineForEditing\\(\\)\\)/);
+ assert(ui.includes('connection.dataset.online=String(onlineForEditing())'));
+ assert(ui.includes('connectionDialog.dataset.networkOnline=String(onlineForEditing())'));
  assert.match(ui,/Never rerender the current page for a mode command or status refresh/);
  assert.match(ui,/connection\.dataset\.publicationIndicator=display\.tone/);
  assert.match(ui,/paintConnectionIndicator\(\)/);
