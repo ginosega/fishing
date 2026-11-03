@@ -50,7 +50,7 @@ export function createOffline({root,releaseId,onStatus,isDirty,notify,
     resolve(value?.type==='FISHING_V3_MODE'&&
      ['Automatic','Work Offline'].includes(value.mode)?value:null);
    };
-   try{worker.postMessage({type,mode:newMode},[channel.port2]);}
+   try{worker.postMessage({type,mode:newMode,expectedReleaseId:releaseId},[channel.port2]);}
    catch{clearTimeout(timeout);channel.port1.close();resolve(null);}
   });
  }

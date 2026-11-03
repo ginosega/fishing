@@ -76,7 +76,7 @@ async function readingMode(){
    'Work Offline':'Automatic';
  }catch{return 'Automatic';}
 }
-async function setReadingMode(mode){
+async function setReadingMode(mode,expectedReleaseId){
  if(!v3ReadingMode)return {mode:'Automatic',available:false};
  if(!['Automatic','Work Offline'].includes(mode))
   return {mode:await readingMode(),available:true,error:'Invalid reading mode.'};
@@ -84,6 +84,12 @@ async function setReadingMode(mode){
   const {entry}=await resolveSelected({verify:true});
   if(!entry)return {mode:await readingMode(),available:true,
    error:'Prepare a complete verified offline library before selecting Work Offline.'};
+  // A live tab can hold release A while the selected offline library is B.
+  // Without a reload, using B for A's pinned assets would break integrity.
+  if(expectedReleaseId!==undefined&&
+     (!isReleaseId(expectedReleaseId)||entry.pointer.id!==expectedReleaseId))
+   return {mode:await readingMode(),available:true,
+    error:'The offline library is for a different release. Update the offline library or reopen the app before switching to Work Offline.'};
  }
  try{
   const cache=await caches.open(metadataName);
@@ -182,7 +188,7 @@ self.addEventListener('message',event=>{
   readingMode().then(mode=>event.ports[0]?.postMessage({
    type:'FISHING_V3_MODE',mode,available:true})));
  if(message.type==='V3_SET_MODE'&&v3ReadingMode)event.waitUntil(
-  setReadingMode(message.mode).catch(async()=>({
+  setReadingMode(message.mode,message.expectedReleaseId).catch(async()=>({
    mode:await readingMode(),available:true,
    error:'The offline library could not be verified. Previous mode retained.',
   })).then(result=>event.ports[0]?.postMessage({

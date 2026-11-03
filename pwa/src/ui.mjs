@@ -6,7 +6,7 @@ import {createEditor} from './editor.mjs';
 import {createCatchEditor} from './catch-editor.mjs';
 import {openViewer,openSequenceViewer} from './viewer.mjs';
 import {bindMarkdownPictureViewer} from './markdown-viewer.mjs';
-import {connectionIndicator} from './connection-indicator.mjs';
+import {connectionIndicator,effectiveConnectionOnline} from './connection-indicator.mjs';
 import {formatV3Diagnostics} from './diagnostics.mjs';
 import {createOffline} from './offline.mjs';
 import {v3OfflineLibraryActionLabel} from './v3-offline-library-action.mjs';
@@ -51,15 +51,24 @@ export function createApp(ctx){
  if(v3Mode)ctx.v3.authorized=false; // do not trust stale browser state
  const workOffline=()=>v3Mode&&!privatePilot&&
   offline?.getMode?.()==='Work Offline';
+ // UI editing and status use the SAME effective connection, never merely
+ // the device's physical network availability. Unknown V3 mode fails closed.
+ const onlineForEditing=()=>effectiveConnectionOnline({online:navigator.onLine,
+  readingMode:v3Mode&&!privatePilot?
+   (offline?.getModeAvailable?.()===true?offline.getMode():'Checking'):null});
  const canAuthor=()=>!v3Mode||(ctx.v3?.authorized===true&&
-  typeof ctx.v3?.publish==='function'&&!workOffline());
+  typeof ctx.v3?.publish==='function'&&onlineForEditing());
+ const EDITING_OFFLINE_MESSAGE='Editing is only available when Online. Switch to Automatic mode and connect to the internet to add or edit items.';
+ const EDITOR_ROUTES=new Set(['gear-add','gear-edit','kb-add','kb-edit','catch-add','catch-edit']);
+ const isEditorRoute=hash=>EDITOR_ROUTES.has(parseRoute(hash).page);
  const guardedPublish=async(...args)=>{
   // A different tab may have switched the persisted SW reading preference.
   // Recheck it immediately before any owner publish request.
+  if(v3Mode&&!onlineForEditing())throw new Error(EDITING_OFFLINE_MESSAGE);
   if(v3Mode&&!privatePilot&&await offline?.refreshMode?.()!==true)
    throw new Error('Reading mode could not be verified. Publishing is paused; reopen Connection Status and retry.');
-  if(workOffline())throw new Error('Work Offline is reading-only. Switch to Automatic in Connection Status before publishing.');
-  if(!navigator.onLine)throw new Error('Reconnect to publish your changes.');
+  // A different tab may have changed the preference since this form opened.
+  if(v3Mode&&!onlineForEditing())throw new Error(EDITING_OFFLINE_MESSAGE);
   savingPublication=true;
   paintConnectionIndicator();
   try{return await ctx.v3.publish(...args);}
@@ -69,7 +78,16 @@ export function createApp(ctx){
  function dirty(){return Boolean(editor?.isDirty());}
  function canLeave(){return !dirty()||confirm('Your changes have not been saved. Discard this edit and leave?');}
  function disposeEditor(){editor?.dispose?.();editor=null;}
- function navigate(hash){if(hash===currentHash){if(!dirty())render();return;}if(!canLeave())return;disposeEditor();approvedNavigation=hash;location.hash=hash;if(privatePilot)void refreshPublishedContent();}
+ function navigate(hash){
+  // Existing Add/Edit links may remain in the DOM after a mode/network change.
+  // Reject their click in place without disturbing route, scroll or edit state.
+  if(v3Mode&&isEditorRoute(hash)&&!onlineForEditing()){
+   notify(EDITING_OFFLINE_MESSAGE,'warning');return;
+  }
+  if(hash===currentHash){if(!dirty())render();return;}
+  if(!canLeave())return;disposeEditor();approvedNavigation=hash;
+  location.hash=hash;if(privatePilot)void refreshPublishedContent();
+ }
  function anchor(label,href,cls=''){const a=link(label,href,cls);if(href.startsWith('#/'))a.addEventListener('click',event=>{event.preventDefault();navigate(href);});return a;}
  function copyLink(domain,id){const uri=domain+'://'+id;const full=new URL(routeFor(domain,id),ctx.root).href;const box=el('div',{class:'copy-dialog'},text('p','Internal link'),el('code',{},uri),text('p','Shareable browser URL'),el('code',{},full),toolbar(button('Copy internal link',()=>copy(uri)),button('Copy browser URL',()=>copy(full))));const dialog=el('dialog',{class:'small-dialog','aria-label':'Create Link'},box,button('Close',()=>dialog.close()));dialog.addEventListener('close',()=>dialog.remove());document.body.append(dialog);dialog.showModal();}
  async function copy(value){try{await navigator.clipboard.writeText(value);notify('Copied to clipboard.','success');}catch{const area=el('textarea',{readonly:true,value});alertHost.replaceChildren(text('p','Select and copy this text:'),area);area.focus();area.select();}}
@@ -160,10 +178,11 @@ export function createApp(ctx){
   const history=historySection(domain,record);if(history)page.append(history);if(canAuthor()&&(domain!=='catches'||v3Mode))page.append(anchor('Edit item',domain==='gear'?`#/inventory/edit/${record.id}`:domain==='kb'?`#/kb/edit/${record.id}`:`#/catches/edit/${record.id}`,'page-edit-link'));return page;
  }
  function renderCatches(){const page=frame('Recorded catches','#/');if(v3Mode&&canAuthor())page.querySelector('.page-actions').prepend(anchor('Add Catch','#/catches/add','page-edit-link'));page.append(el('div',{class:'record-grid'},...sortCatches(ctx.data.catches.catches).map(c=>recordCard('catches',c))));return page;}
- async function renderEditor(domain,id,category,type){if(!canAuthor())return missing('Owner sign-in is required to edit. Open Connection Status to sign in.',rootRoute(domain));const record=id?ctx.maps[domain].get(id):null;if(id&&!record)return missing('This item does not exist or its ID has been retired.',rootRoute(domain));const fallback=categoryRoute(domain,domain==='gear'?category:type);const origin=previousHash===rootRoute(domain)||previousHash===fallback?previousHash:fallback;const parent=record?routeFor(domain,record.id):fallback;const exitTarget=record?parent:origin;
+ async function renderEditor(domain,id,category,type){if(v3Mode&&!onlineForEditing())return missing(EDITING_OFFLINE_MESSAGE,rootRoute(domain));if(!canAuthor())return missing('Owner sign-in is required to edit. Open Connection Status to sign in.',rootRoute(domain));const record=id?ctx.maps[domain].get(id):null;if(id&&!record)return missing('This item does not exist or its ID has been retired.',rootRoute(domain));const fallback=categoryRoute(domain,domain==='gear'?category:type);const origin=previousHash===rootRoute(domain)||previousHash===fallback?previousHash:fallback;const parent=record?routeFor(domain,record.id):fallback;const exitTarget=record?parent:origin;
   const page=frame(record?'Edit '+record.name:domain==='gear'?'Add Gear':'Add Entry',parent,record?[button('Create Link',()=>copyLink(domain,record.id))]:[]);const created=await createEditor(ctx,{domain,baseRecord:record,category,type,onBack:()=>navigate(parent),onExit:()=>{disposeEditor();navigate(exitTarget);},onDirty:()=>{},publishChange:v3Mode?guardedPublish:null,onPrepared:v3Mode?(receipt)=>ctx.v3.onPublicationReceipt?.(receipt):null});editor=created;page.append(created.element);return page;
  }
  async function renderCatchEditor(id=null){
+  if(v3Mode&&!onlineForEditing())return missing(EDITING_OFFLINE_MESSAGE,'#/catches');
   if(!v3Mode||!canAuthor())return missing('Owner sign-in is required to edit Catches. Open Connection Status to sign in.','#/catches');
   const record=id?ctx.maps.catches.get(id):null;
   if(id&&!record)return missing('This Catch does not exist.','#/catches');
@@ -186,11 +205,12 @@ export function createApp(ctx){
  window.addEventListener('beforeunload',event=>{if(dirty()){event.preventDefault();event.returnValue='';}});
  for(const a of document.querySelectorAll('[data-nav]'))a.addEventListener('click',event=>{event.preventDefault();navigate(a.getAttribute('href'));});
  offline=createOffline({root:ctx.root,releaseId:ctx.release.id,onlineOnly:privatePilot,
-  v3ReadingMode:v3Mode&&!privatePilot,onMode:(_mode,_available,feedback)=>{paintReadingMode(feedback);
+  v3ReadingMode:v3Mode&&!privatePilot,onMode:(_mode,_available,feedback)=>{
+   paintReadingMode(feedback);
    if(workOffline())ownerPanel?.suspend();
    else ownerPanel?.paint();
-   const page=parseRoute(location.hash||'#/').page;
-   if(!dirty()&&!['gear-edit','gear-add','kb-edit','kb-add','catch-edit','catch-add'].includes(page))void render();
+   // Never rerender the current page for a mode command or status refresh.
+   // Existing edit links remain but navigation checks the current mode.
   },onStatus:state=>{const needsUpdate=state.state==='Incomplete'&&Boolean(state.message);const label=state.state==='Ready'?(navigator.onLine?(state.releaseId===ctx.release.id?`Offline library ready · current · ${state.files||0} files`:`Offline library ready · update available · ${state.files||0} files`):`Offline library ready · ${state.files||0} files`):state.state==='Downloading'?`Preparing offline library · ${state.completed||0}/${state.files||'?'} files`:needsUpdate?'Offline library needs update':'Offline library not prepared';offlineHost.replaceChildren(text('span',label),...(state.message&&!(privatePilot&&state.state==='OnlineOnly')?[text('span',state.message,'hint')]:[]));offlineHost.dataset.state=state.state;offlineHost.dataset.releaseId=state.releaseId||'';if(v3Mode)document.getElementById('offline-update').textContent=v3OfflineLibraryActionLabel(state);else document.getElementById('offline-reload').disabled=privatePilot||Boolean(state.updating)||state.state==='Downloading';document.getElementById('offline-update').disabled=privatePilot||Boolean(state.updating)||state.state==='Downloading'||!navigator.onLine;},isDirty:dirty,notify});
  globalThis.__FISHING_SHELL_CLEANUP__?.();
  const connection=document.getElementById('connection-status'),connectionDialog=document.getElementById('connection-dialog');
@@ -282,6 +302,7 @@ export function createApp(ctx){
   details.append(helpBody);
   connectionDialog.insertBefore(details,document.getElementById('connection-close'));
  }
+ function networkStatusText(){return onlineForEditing()?'Online':'Offline';}
  function paintReadingMode(feedback={}){
   if(!modeControls)return;
   const selected=offline?.getMode?.()||'Automatic';
@@ -295,8 +316,7 @@ export function createApp(ctx){
   retryModeButton.hidden=available||busy;
   connection.dataset.readingMode=available?
    (selected==='Work Offline'?'work-offline':'automatic'):'checking';
-  document.getElementById('connection-network').textContent=
-   navigator.onLine?'Online':'Offline';
+  document.getElementById('connection-network').textContent=networkStatusText();
   paintConnectionIndicator();
   // Normal selection is conveyed by aria-pressed, not redundant text.
   // Show a short status only during verification or a recoverable fault.
@@ -324,12 +344,12 @@ export function createApp(ctx){
   const display=connectionIndicator({online:navigator.onLine,
    authorized:state?.authorized===true,publication,
    statusReadError:state?.statusReadError===true,readingMode:reading});
-  connection.dataset.online=String(navigator.onLine);
+  connection.dataset.online=String(onlineForEditing());
   if(v3Mode)connection.dataset.publicationIndicator=display.tone;
   connection.title=display.title;
   connection.setAttribute('aria-label',display.label);
   if(v3Mode){
-   connectionDialog.dataset.networkOnline=String(navigator.onLine);
+   connectionDialog.dataset.networkOnline=String(onlineForEditing());
    // Same status result as the header; no duplicated publication state logic.
    connectionExperience?.paintIndicator(display);
   }
@@ -338,8 +358,7 @@ export function createApp(ctx){
  const updateConnection=()=>{
   if(modeControls)paintReadingMode();
   else paintConnectionIndicator();
-  if(v3Mode)document.getElementById('connection-network').textContent=
-   navigator.onLine?'Online':'Offline';
+  if(v3Mode)document.getElementById('connection-network').textContent=networkStatusText();
   const current=offline.getStatus();
   document.getElementById('offline-update').disabled=
    privatePilot||Boolean(current?.state==='Downloading')||!navigator.onLine;

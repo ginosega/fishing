@@ -1,16 +1,27 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {connectionIndicator} from '../src/connection-indicator.mjs';
+import {connectionIndicator,effectiveConnectionOnline} from '../src/connection-indicator.mjs';
 
-test('D5-IND01 network green/yellow regardless of Work Offline selection',()=>{
- for(const readingMode of ['Automatic','Work Offline','Checking']){
+test('D5-IND01 only verified Automatic with a connection is Online',()=>{
+ for(const readingMode of ['Automatic',null]){
   const online=connectionIndicator({online:true,readingMode});
   assert.equal(online.tone,'network');
   assert.equal(online.title,'Connection status: Online');
+  assert.equal(online.label,online.title);
+  assert(effectiveConnectionOnline({online:true,readingMode}));
   const offline=connectionIndicator({online:false,readingMode});
   assert.equal(offline.tone,'network');
   assert.equal(offline.title,'Connection status: Offline');
+ }
+ for(const readingMode of ['Work Offline','Checking']){
+  for(const online of [true,false]){
+   const status=connectionIndicator({online,readingMode});
+   assert.equal(status.tone,'network');
+   assert.equal(status.title,'Connection status: Offline');
+   assert.equal(status.label,status.title);
+   assert.equal(effectiveConnectionOnline({online,readingMode}),false);
+  }
  }
 });
 test('D5-IND02 each publication step turns blue and is the mouse hover title',()=>{
@@ -55,8 +66,10 @@ test('D5-IND06 V2 CSS untouched; V3 publication precedence and hover wired',()=>
  assert.match(css,/\.connection-status\[data-online="false"\] \.connection-dot/);
  assert.match(css,/data-publication-indicator="publishing"/);
  assert.match(css,/data-publication-indicator="error"/);
- assert.doesNotMatch(css,/data-reading-mode="work-offline"\] \.connection-dot/);
- assert.match(ui,/connection\.title=display\.title/);
+ assert.doesNotMatch(css,/data-publication-indicator="work-offline"/);
+ assert(ui.includes('connection.dataset.online=String(onlineForEditing())'));
+ assert(ui.includes('connectionDialog.dataset.networkOnline=String(onlineForEditing())'));
+ assert.match(ui,/Never rerender the current page for a mode command or status refresh/);
  assert.match(ui,/connection\.dataset\.publicationIndicator=display\.tone/);
  assert.match(ui,/paintConnectionIndicator\(\)/);
  assert.match(ui,/ownerPanel\?\.paint\(\);\s*connectionExperience\?\.paint\(\);\s*paintConnectionIndicator\(\)/);
