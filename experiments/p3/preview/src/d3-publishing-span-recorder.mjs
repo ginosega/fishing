@@ -17,7 +17,11 @@ const PHASES=new Set([
  // Fixed path-free groups bound event count regardless of Markdown inventory.
  'source_snapshot_total','source_repository_get','source_main_initial_get',
  'source_commit_get','source_tree_get','source_canonical_blobs',
- 'source_narrative_blobs','source_main_final_get'
+ 'source_narrative_blobs','source_main_final_get',
+ // Each phase is a path-free, payload-free label; no request metadata.
+ 'check_token_issue','check_repository_get','check_main_initial_get',
+ 'check_pr_initial_get','check_runs_get','check_main_final_get',
+ 'check_pr_final_get','merge_pr_evidence_get','merge_main_evidence_get'
 ]);
 const ID=/^p3_[0-9a-f-]{36}$/;
 const outcome=s=>['ok','refused','unavailable','unknown'].includes(s);

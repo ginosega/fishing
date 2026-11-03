@@ -76,7 +76,7 @@ export function createD3SandboxScheduledCoordinator({
  });
  const observer=createSandboxCheckObserver({
   request:requestGitHub,issueCheckReadToken:issueReadToken,
-  enabled:()=>active(),
+  enabled:()=>active(),measure,
  });
  async function createDraft({operationId,repositoryId,domain,
   expectedMainSha,package:pkg,media=[],leaseOwner}={}){
@@ -120,7 +120,7 @@ export function createD3SandboxScheduledCoordinator({
   request:requestGitHub,issueWriteToken,
   observeCheck:info=>observer.observe(info),
   recordMerge:info=>store.saveMergeReceipt(info),
-  enabled:()=>hosted(),
+  enabled:()=>hosted(),measure,
   commitTitle:'FISH118 D3 isolated sandbox Gear/KB publication',
   commitMessage:'Owner-authorized sandbox-only text; no public canonical content',
  });

@@ -12,14 +12,14 @@ const reason=code=>e=>e instanceof D2MergeError&&e.code===code;
 const res=(obj,status=200)=>({ok:status<300,status,redirected:false,json:async()=>obj});
 function fixture({enabled=false,badCheck=false,badRepo=false,shiftBase=false,
  wrongPR=false,scopeBad=false,mergeDenied=false,receiptBad=false,
- networkUnknown=false}={}){
- const trace=[];let ready=false,merged=false,recorded=false,main=BASE;
+ networkUnknown=false,postMergePrMismatch=false,postMergeMainMismatch=false}={}){
+ const trace=[],spans=[];let ready=false,merged=false,recorded=false,main=BASE;
  const pr=()=>({
   node_id:NODE,number:PR,state:merged?'closed':'open',draft:!ready,
   head:{repo:{id:ID},sha:wrongPR?'f'.repeat(40):HEAD,ref:BRANCH},
   base:{repo:{id:ID},sha:BASE,ref:'main'},
   merged_at:merged?'2026-10-25T00:00:00Z':null,
-  merge_commit_sha:merged?MERGE:null,
+  merge_commit_sha:merged?(postMergePrMismatch?'f'.repeat(40):MERGE):null,
  });
  const request=async(url,options)=>{
   trace.push({url,method:options.method,body:options.body?JSON.parse(options.body):null});
@@ -29,7 +29,8 @@ function fixture({enabled=false,badCheck=false,badRepo=false,shiftBase=false,
   assert.match(options.headers.Authorization,/^Bearer /);
   if(url===API)return res({id:badRepo?123:ID,full_name:'ginosega/fishing-p3-sandbox',private:true});
   if(url===API+'/git/ref/heads/main'){
-   return res({object:{sha:shiftBase?'e'.repeat(40):main}});
+   return res({object:{sha:shiftBase?'e'.repeat(40):
+    (merged&&postMergeMainMismatch?'f'.repeat(40):main)}});
   }
   if(url===API+'/pulls/'+PR)return res(pr());
   if(url===GRAPHQL){
@@ -78,8 +79,12 @@ function fixture({enabled=false,badCheck=false,badRepo=false,shiftBase=false,
    };
   },
   enabled:()=>enabled,
+  measure:async(phase,work)=>{
+   try{const result=await work();spans.push({phase,outcome:'ok'});return result;}
+   catch(error){spans.push({phase,outcome:'refused'});throw error;}
+  },
  });
- return {instance,trace,get ready(){return ready;},get merged(){return merged;},get recorded(){return recorded;}};
+ return {instance,trace,spans,get ready(){return ready;},get merged(){return merged;},get recorded(){return recorded;}};
 }
 test('D2-M01 gate off makes zero GitHub calls and no observer bypass',async()=>{
  const x=fixture();
@@ -133,4 +138,27 @@ test('D2-M06 browser-selected repo ID, head and branch are not trusted',async()=
   await assert.rejects(x.instance.merge(wrong),reason('INVALID_RECEIPT'));
   assert.equal(x.trace.length,0);
  }
+});
+
+// The narrow labels identify the failing readback without changing the
+// existing denial code, recording GitHub response values or retrying PUT.
+test('D2-M07 source-only spans distinguish PR vs main post-merge readback refusal',async()=>{
+ for(const [config,expected] of [
+  [{postMergePrMismatch:true},'merge_pr_evidence_get'],
+  [{postMergeMainMismatch:true},'merge_main_evidence_get'],
+ ]){
+  const x=fixture({enabled:true,...config});
+  await assert.rejects(x.instance.merge(receipt),reason('MERGE_EVIDENCE_DENIED'));
+  const reads=x.spans.filter(s=>s.phase.startsWith('merge_'));
+  assert.equal(reads.at(-1).phase,expected);
+  assert.equal(reads.at(-1).outcome,'refused');
+  assert.equal(x.trace.filter(s=>s.method==='PUT').length,1);
+  assert.equal(x.recorded,false);
+ }
+ const ok=fixture({enabled:true});
+ await ok.instance.merge(receipt);
+ assert.deepEqual(ok.spans,[
+  {phase:'merge_pr_evidence_get',outcome:'ok'},
+  {phase:'merge_main_evidence_get',outcome:'ok'},
+ ]);
 });

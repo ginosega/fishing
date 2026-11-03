@@ -25,13 +25,13 @@ const hdr=t=>({
 });
 export function createD2SandboxNormalMerge({
  request,issueWriteToken,observeCheck,recordMerge,
- enabled=()=>false,
+ enabled=()=>false,measure=async(_phase,work)=>work(),
  commitTitle='FISH118 D2 isolated sandbox Gear verification',
  commitMessage='Single owned sandbox test operation; no public fishing content',
 }={}){
  need(typeof request==='function'&&typeof issueWriteToken==='function'&&
   typeof observeCheck==='function'&&typeof recordMerge==='function'&&
-  typeof enabled==='function'&&
+  typeof enabled==='function'&&typeof measure==='function'&&
   typeof commitTitle==='string'&&commitTitle.length>=12&&
   commitTitle.length<=120&&
   typeof commitMessage==='string'&&commitMessage.length>=12&&
@@ -116,12 +116,19 @@ export function createD2SandboxNormalMerge({
    commit_message:commitMessage,
   });
   need(result?.merged===true&&SHA.test(result.sha),'WRITE_RESULT_UNKNOWN');
-  const merged=await api(token,'GET',API+'/pulls/'+info.prNumber);
-  need(merged?.merged_at!=null&&merged?.merge_commit_sha===result.sha&&
-   merged.head?.sha===info.expectedHeadSha&&
-   merged.base?.repo?.id===ID,'MERGE_EVIDENCE_DENIED');
-  const finalMain=await api(token,'GET',API+'/git/ref/heads/main');
-  need(finalMain?.object?.sha===result.sha,'MERGE_EVIDENCE_DENIED');
+  // Timing spans include the corresponding existing evidence guard, so a
+  // refused phase identifies which readback did not match. Never log the
+  // mismatched fields or raw GitHub response; never issue another PUT.
+  await measure('merge_pr_evidence_get',async()=>{
+   const merged=await api(token,'GET',API+'/pulls/'+info.prNumber);
+   need(merged?.merged_at!=null&&merged?.merge_commit_sha===result.sha&&
+    merged.head?.sha===info.expectedHeadSha&&
+    merged.base?.repo?.id===ID,'MERGE_EVIDENCE_DENIED');
+  });
+  await measure('merge_main_evidence_get',async()=>{
+   const finalMain=await api(token,'GET',API+'/git/ref/heads/main');
+   need(finalMain?.object?.sha===result.sha,'MERGE_EVIDENCE_DENIED');
+  });
   let durable;
   try{
    durable=await recordMerge({...info,mergeSha:result.sha,
