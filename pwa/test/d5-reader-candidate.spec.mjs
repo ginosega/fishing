@@ -51,6 +51,7 @@ test('D5-browser mode control responds after verified offline library preparatio
  test.setTimeout(300000);
  const jsErrors=[];page.on('pageerror',err=>jsErrors.push(err.message));
  await loaded(page);
+ await expect(page.locator('#app .page')).toBeVisible({timeout:45000});
  // Preserve current content and scroll while status is opened and modes change.
  await page.evaluate(()=>{
   const marker=document.createElement('span');marker.id='d5-render-stability';
