@@ -25,14 +25,15 @@ function storage(){
   return {async match(r){return data.get(typeof r==='string'?r:r.url)?.clone();},async keys(){return [...data.keys()].map(url=>({url}));},async delete(r){return data.delete(typeof r==='string'?r:r.url);},async put(r,response){const url=typeof r==='string'?r:r.url;if(fail(name,url))throw new DOMException('Injected storage quota failure','QuotaExceededError');data.set(url,response.clone());}};
  }};
 }
-async function worker(caches,network,{v3=false}={}){
- const handlers={};
- const self={registration:{scope},clients:{async claim(){},async matchAll(){return [];}},skipWaiting:async()=>{},addEventListener:(name,fn)=>handlers[name]=fn};
+async function worker(caches,network,{v3=false,captureEvents=false}={}){
+ const handlers={},broadcasts=[];
+ const self={registration:{scope},clients:{async claim(){},async matchAll(){return captureEvents?[{postMessage:data=>broadcasts.push(data)}]:[];}},skipWaiting:async()=>{},addEventListener:(name,fn)=>handlers[name]=fn};
  const bundle=await build({entryPoints:[fileURLToPath(new URL('../src/sw.mjs',import.meta.url))],bundle:true,write:false,format:'iife',define:{__FISHING_V3_READING_MODE__:v3?'true':'false'}});
  const networkRequests=[];
  vm.runInNewContext(bundle.outputFiles[0].text,{self,caches,crypto:webcrypto,URL,Response,TextDecoder,TextEncoder,Uint8Array,DOMException,console,fetch:async url=>{networkRequests.push(url);return network.has(url)?new Response(network.get(url)):new Response('Unavailable',{status:503});}});
  const waited=handler=>new Promise((resolve,reject)=>{let p;try{handler({waitUntil:x=>p=x});}catch(error){reject(error);return;}Promise.resolve(p).then(resolve,reject);});
  return {
+  broadcasts,
   install(){return waited(handlers.install);},activate(){return waited(handlers.activate);},
   async message(type,mode){let result;let p;handlers.message({data:{type,mode},ports:[{postMessage:value=>{result=value;}}],waitUntil:x=>p=x});await p;return result;},
   networkRequests,
@@ -91,6 +92,29 @@ test('tampered prepared content is rejected and only an explicit PREPARE replace
  for(const [url,bytes] of old.network)network.set(url,bytes);
  const repaired=await offline.message('PREPARE');assert.equal(repaired.status.state,'Ready');assert.equal(repaired.status.releaseId,old.id);assert.equal((await markers(caches)).length,2);
  network.clear();const restarted=await worker(caches,network);assert.equal(await (await restarted.fetch(target)).text(),old.network.get(abs(target)).toString());
+});
+
+test('corrupt offline asset refusal promptly broadcasts independently verified Incomplete state',async()=>{
+ const caches=storage(),network=new Map(old.network),initial=await worker(caches,network);
+ assert.equal((await initial.message('PREPARE')).status.state,'Ready');
+ const [selected]=await markers(caches),target=`releases/${old.id}/app.js`;
+ await (await caches.open(selected.name)).put(abs(target),new Response('tampered'));
+ network.clear();
+ const offline=await worker(caches,network,{captureEvents:true});
+ const refused=await offline.fetch(target);
+ assert.equal(refused.status,503,'tampered bytes never reach the reader');
+ const signal=offline.broadcasts.at(-1);
+ assert.equal(signal?.type,'FISHING_V2_STATUS');
+ assert.equal(signal?.status.state,'Incomplete',
+  'the page must not retain a stale Ready indicator after corrupt cache rejection');
+ assert.match(signal.status.message,/Update the offline library/);
+ assert.deepEqual(signal.status.failed,[abs(target)]);
+ assert.equal((await offline.message('STATUS')).status.state,'Incomplete');
+ for(const [url,bytes] of old.network)network.set(url,bytes);
+ assert.equal((await offline.message('STATUS')).status.state,'Incomplete',
+  'restored network cannot silently repair the selected offline cache');
+ assert.equal((await offline.message('PREPARE')).status.state,'Ready',
+  'only an explicit PREPARE restores fully verified offline readiness');
 });
 
 test('release icon rename accepts cached historical names and still requires an icon',()=>{
