@@ -74,7 +74,7 @@ try{
  $originalDigest=(Get-FileHash -LiteralPath $sourceConfig -Algorithm SHA256).Hash
  # Require the accepted field-verified repair as base and exactly the
  # nine reviewed code/test/operator/CI paths. Never accept unrelated sources.
- $baseline='077ba3f783afb2ab93aa2b7f33cbbb6132716af1'
+ $baseline='e25cd6514b8dd3c494502508bb331cac71f65dd7'
  & git merge-base --is-ancestor $baseline HEAD
  Need ($LASTEXITCODE -eq 0) 'Accepted private repair source is not an ancestor'
  $allowed=@(
