@@ -145,6 +145,17 @@ async function cachedFile(entry,path){
  const response=await entry.cache.match(absolute(path));if(!response)return null;
  return responseFor(await verifyBytes(await response.arrayBuffer(),file),file.path);
 }
+// A failed cached read must invalidate the visible library status too.
+// Do not claim Ready after refusing bytes; independently re-verify the full
+// selected library, preserving a different still-complete fallback if one exists.
+async function offlineCachedOrUnavailable(entry,path,url,label='Verified offline asset unavailable'){
+ try{const valid=await cachedFile(entry,path);if(valid)return valid;}catch{}
+ await broadcast('FISHING_V2_STATUS',await state({
+  message:'A release asset failed integrity verification. Update the offline library before relying on offline access.',
+  failed:[url],
+ }));
+ return new Response(label,{status:503});
+}
 async function networkFile(context,path){const file=context.entries.get(path);if(!file)throw new Error('Resource is not part of the selected release: '+path);const bytes=await network(path);await verifyBytes(bytes,file);return responseFor(bytes,file.path);}
 function remember(event,context){for(const key of [event.clientId,event.resultingClientId])if(key)clientContexts.set(key,context);return context;}
 async function fallbackContext(){const {entry}=await resolveSelected();return entry;}
@@ -208,19 +219,19 @@ self.addEventListener('fetch',event=>{
   const pinned=/^releases\/([a-f0-9]{32})\//.exec(target);
   if(pinned){
    if(context.pointer.id!==pinned[1]){
-    const fallback=await fallbackContext();if(fallback?.pointer.id===pinned[1])try{return await cachedFile(fallback,target)||new Response('Release asset unavailable',{status:503});}catch{return new Response('Release asset unavailable',{status:503});}
+    const fallback=await fallbackContext();if(fallback?.pointer.id===pinned[1])return offlineCachedOrUnavailable(fallback,target,event.request.url,'Release asset unavailable');
     return new Response('Release unavailable for this session',{status:503});
    }
-   if(context.source==='offline')try{return await cachedFile(context,target)||new Response('Verified offline asset unavailable',{status:503});}catch{return new Response('Verified offline asset unavailable',{status:503});}
+   if(context.source==='offline')return offlineCachedOrUnavailable(context,target,event.request.url);
    try{return await networkFile(context,target);}catch{
-    const fallback=await fallbackContext();if(fallback?.pointer.id===context.pointer.id)try{return await cachedFile(fallback,target)||new Response('Verified release asset unavailable',{status:503});}catch{}
+    const fallback=await fallbackContext();if(fallback?.pointer.id===context.pointer.id)return offlineCachedOrUnavailable(fallback,target,event.request.url,'Verified release asset unavailable');
     return new Response('Verified release asset unavailable',{status:503});
    }
   }
   if(context.entries.has(target)){
-   if(context.source==='offline')try{return await cachedFile(context,target)||new Response('Verified offline asset unavailable',{status:503});}catch{return new Response('Verified offline asset unavailable',{status:503});}
+   if(context.source==='offline')return offlineCachedOrUnavailable(context,target,event.request.url);
    try{return await networkFile(context,target);}catch{
-    const fallback=await fallbackContext();if(fallback?.pointer.id===context.pointer.id)try{return await cachedFile(fallback,target)||new Response('Verified release asset unavailable',{status:503});}catch{}
+    const fallback=await fallbackContext();if(fallback?.pointer.id===context.pointer.id)return offlineCachedOrUnavailable(fallback,target,event.request.url,'Verified release asset unavailable');
     return new Response('Verified release asset unavailable',{status:503});
    }
   }
