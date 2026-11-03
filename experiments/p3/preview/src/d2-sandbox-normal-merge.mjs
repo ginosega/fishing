@@ -116,14 +116,30 @@ export function createD2SandboxNormalMerge({
    commit_message:commitMessage,
   });
   need(result?.merged===true&&SHA.test(result.sha),'WRITE_RESULT_UNKNOWN');
-  // Timing spans include the corresponding existing evidence guard, so a
-  // refused phase identifies which readback did not match. Never log the
-  // mismatched fields or raw GitHub response; never issue another PUT.
+  // Preserve exact PR identity. Missing (not contradictory) post-merge
+  // projection fields may be completed with GitHub's dedicated read-only
+  // merged-status endpoint. It returns 204 only when this PR was merged.
+  // The returned merge SHA still has to match the current sandbox main
+  // in merge_main_evidence_get below. Never issue a second PUT.
   await measure('merge_pr_evidence_get',async()=>{
    const merged=await api(token,'GET',API+'/pulls/'+info.prNumber);
-   need(merged?.merged_at!=null&&merged?.merge_commit_sha===result.sha&&
+   need(merged?.number===info.prNumber&&merged.state==='closed'&&
+    merged.head?.repo?.id===ID&&
     merged.head?.sha===info.expectedHeadSha&&
-    merged.base?.repo?.id===ID,'MERGE_EVIDENCE_DENIED');
+    merged.head?.ref===info.expectedBranch&&
+    merged.base?.repo?.id===ID&&merged.base?.ref==='main'&&
+    merged.base?.sha===info.expectedBaseSha,'MERGE_EVIDENCE_DENIED');
+   // A conflicting SHA is NOT eventual-consistency lag and must fail closed.
+   need(merged.merge_commit_sha==null||
+    merged.merge_commit_sha===result.sha,'MERGE_EVIDENCE_DENIED');
+   if(merged.merged_at==null||merged.merge_commit_sha==null){
+    let status;
+    try{status=await request(API+'/pulls/'+info.prNumber+'/merge',{
+     method:'GET',redirect:'manual',headers:hdr(token),
+    });}catch{deny('MERGE_EVIDENCE_DENIED');}
+    need(status?.status===204&&status.ok===true&&
+     status.redirected===false,'MERGE_EVIDENCE_DENIED');
+   }
   });
   await measure('merge_main_evidence_get',async()=>{
    const finalMain=await api(token,'GET',API+'/git/ref/heads/main');

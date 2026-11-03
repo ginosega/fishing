@@ -12,14 +12,18 @@ const reason=code=>e=>e instanceof D2MergeError&&e.code===code;
 const res=(obj,status=200)=>({ok:status<300,status,redirected:false,json:async()=>obj});
 function fixture({enabled=false,badCheck=false,badRepo=false,shiftBase=false,
  wrongPR=false,scopeBad=false,mergeDenied=false,receiptBad=false,
- networkUnknown=false,postMergePrMismatch=false,postMergeMainMismatch=false}={}){
+ networkUnknown=false,postMergePrMismatch=false,postMergeMainMismatch=false,
+ postMergePrMissingAt=false,postMergePrMissingSha=false,
+ postMergePrOpen=false,postMergeWrongHead=false,
+ postMergeStatusDenied=false,postMergeStatusNetworkUnknown=false}={}){
  const trace=[],spans=[];let ready=false,merged=false,recorded=false,main=BASE;
  const pr=()=>({
-  node_id:NODE,number:PR,state:merged?'closed':'open',draft:!ready,
-  head:{repo:{id:ID},sha:wrongPR?'f'.repeat(40):HEAD,ref:BRANCH},
+  node_id:NODE,number:PR,state:merged&&!postMergePrOpen?'closed':'open',draft:!ready,
+  head:{repo:{id:ID},sha:wrongPR||(merged&&postMergeWrongHead)?'f'.repeat(40):HEAD,ref:BRANCH},
   base:{repo:{id:ID},sha:BASE,ref:'main'},
-  merged_at:merged?'2026-10-25T00:00:00Z':null,
-  merge_commit_sha:merged?(postMergePrMismatch?'f'.repeat(40):MERGE):null,
+  merged_at:merged&&!postMergePrMissingAt?'2026-10-25T00:00:00Z':null,
+  merge_commit_sha:merged&&!postMergePrMissingSha?
+   (postMergePrMismatch?'f'.repeat(40):MERGE):null,
  });
  const request=async(url,options)=>{
   trace.push({url,method:options.method,body:options.body?JSON.parse(options.body):null});
@@ -44,6 +48,10 @@ function fixture({enabled=false,badCheck=false,badRepo=false,shiftBase=false,
    }}}});
   }
   if(url===API+'/pulls/'+PR+'/merge'){
+   if(options.method==='GET'){
+    if(postMergeStatusNetworkUnknown)throw Error('unavailable merge status');
+    return res(null,postMergeStatusDenied?404:204);
+   }
    assert.equal(options.method,'PUT');
    assert.deepEqual(JSON.parse(options.body),{
     sha:HEAD,merge_method:'squash',
@@ -161,4 +169,69 @@ test('D2-M07 source-only spans distinguish PR vs main post-merge readback refusa
   {phase:'merge_pr_evidence_get',outcome:'ok'},
   {phase:'merge_main_evidence_get',outcome:'ok'},
  ]);
+});
+
+test('D2-M08 incomplete but non-contradictory PR summary needs a trusted merged-status 204',async()=>{
+ for(const cfg of [
+  {postMergePrMissingAt:true},
+  {postMergePrMissingSha:true},
+  {postMergePrMissingAt:true,postMergePrMissingSha:true},
+ ]){
+  const x=fixture({enabled:true,...cfg});
+  const out=await x.instance.merge(receipt);
+  assert.equal(out.mergeSha,MERGE);
+  assert.equal(x.recorded,true);
+  assert.equal(x.trace.filter(e=>e.method==='PUT').length,1);
+  assert.equal(x.trace.filter(e=>e.url===API+'/pulls/'+PR+'/merge'&&e.method==='GET').length,1);
+  assert.deepEqual(x.spans.filter(s=>s.phase.startsWith('merge_')),[
+   {phase:'merge_pr_evidence_get',outcome:'ok'},
+   {phase:'merge_main_evidence_get',outcome:'ok'},
+  ]);
+ }
+});
+
+test('D2-M09 complete PR summary stays on the original fast path with no extra GET',async()=>{
+ const x=fixture({enabled:true});
+ await x.instance.merge(receipt);
+ assert.equal(x.trace.filter(e=>e.url===API+'/pulls/'+PR+'/merge'&&e.method==='GET').length,0);
+ assert.equal(x.trace.filter(e=>e.method==='PUT').length,1);
+});
+
+test('D2-M10 a denied or unavailable merged-status 204 never records a merge',async()=>{
+ for(const cfg of [{postMergeStatusDenied:true},{postMergeStatusNetworkUnknown:true}]){
+  const x=fixture({enabled:true,postMergePrMissingAt:true,...cfg});
+  await assert.rejects(x.instance.merge(receipt),reason('MERGE_EVIDENCE_DENIED'));
+  assert.equal(x.merged,true); // An acknowledged write may have occurred.
+  assert.equal(x.recorded,false); // Never classify it as safely merged.
+  assert.equal(x.trace.filter(e=>e.method==='PUT').length,1); // No repeat PUT.
+ }
+});
+
+test('D2-M11 contradictory PR SHA, wrong head and stale open PR never use the 204 fallback',async()=>{
+ for(const cfg of [
+  {postMergePrMismatch:true,postMergePrMissingAt:true},
+  {postMergeWrongHead:true,postMergePrMissingAt:true},
+  {postMergePrOpen:true,postMergePrMissingSha:true},
+ ]){
+  const x=fixture({enabled:true,...cfg});
+  await assert.rejects(x.instance.merge(receipt),reason('MERGE_EVIDENCE_DENIED'));
+  assert.equal(x.trace.filter(e=>e.url===API+'/pulls/'+PR+'/merge'&&e.method==='GET').length,0);
+  assert.equal(x.trace.filter(e=>e.method==='PUT').length,1);
+  assert.equal(x.recorded,false);
+ }
+});
+
+test('D2-M12 even with a confirmed 204, a moved sandbox main prevents a durable receipt',async()=>{
+ const x=fixture({enabled:true,postMergePrMissingAt:true,postMergeMainMismatch:true});
+ await assert.rejects(x.instance.merge(receipt),reason('MERGE_EVIDENCE_DENIED'));
+ assert.equal(x.trace.filter(e=>e.url===API+'/pulls/'+PR+'/merge'&&e.method==='GET').length,1);
+ assert.equal(x.trace.filter(e=>e.method==='PUT').length,1);
+ assert.equal(x.recorded,false);
+});
+
+test('D2-M13 forged CI never reaches a merge or merged-status 204',async()=>{
+ const x=fixture({enabled:true,badCheck:true,postMergePrMissingAt:true});
+ await assert.rejects(x.instance.merge(receipt),reason('CHECK_DENIED'));
+ assert.equal(x.trace.filter(e=>e.method==='PUT').length,0);
+ assert.equal(x.trace.filter(e=>e.url===API+'/pulls/'+PR+'/merge'&&e.method==='GET').length,0);
 });
