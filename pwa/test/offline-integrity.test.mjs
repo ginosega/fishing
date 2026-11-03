@@ -108,7 +108,7 @@ test('corrupt offline asset refusal promptly broadcasts independently verified I
  assert.equal(signal?.status.state,'Incomplete',
   'the page must not retain a stale Ready indicator after corrupt cache rejection');
  assert.match(signal.status.message,/Update the offline library/);
- assert.deepEqual(signal.status.failed,[abs(target)]);
+ assert.equal(JSON.stringify(signal.status.failed),JSON.stringify([abs(target)]));
  assert.equal((await offline.message('STATUS')).status.state,'Incomplete');
  for(const [url,bytes] of old.network)network.set(url,bytes);
  assert.equal((await offline.message('STATUS')).status.state,'Incomplete',
