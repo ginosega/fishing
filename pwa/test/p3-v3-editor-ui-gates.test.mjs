@@ -25,10 +25,13 @@ test('FISH118 D3 beta editor Save/Publish is strictly opt-in; v2 manual authorin
 
 test('FISH118 D3 inactive owner UI hides Add/Edit and rejects deep-link editor when anonymous',()=>{
  assert.match(ui,/const v3Mode=ctx\.v3\?\.enabled===true/);
- assert.match(ui,/const canAuthor=\(\)=>!v3Mode\|\|\(ctx\.v3\?\.authorized===true&&\s*typeof ctx\.v3\?\.publish==='function'&&!workOffline\(\)\)/);
- assert.match(ui,/if\(workOffline\(\)\)throw new Error\('Work Offline is reading-only/);
+ assert.match(ui,/const canAuthor=/);
+ assert.match(ui,/typeof ctx\.v3\?\.publish==='function'&&onlineForEditing\(\)/);
+ assert.match(ui,/if\(v3Mode&&!onlineForEditing\(\)\)throw new Error\(EDITING_OFFLINE_MESSAGE\)/);
  assert.match(ui,/await offline\?\.refreshMode\?\.\(\)/);
  assert.match(ui,/if\(!canAuthor\(\)\)return missing\('Owner sign-in is required to edit/);
+ assert.match(ui,/if\(v3Mode&&!onlineForEditing\(\)\)return missing\(EDITING_OFFLINE_MESSAGE/);
+ assert.match(ui,/if\(v3Mode&&isEditorRoute\(hash\)&&!onlineForEditing\(\)\)/);
  assert.match(ui,/page\.append\(categories,searchResults,\.\.\.\(canAuthor\(\)\?/);
  assert.match(ui,/page\.append\(list\.element,\.\.\.\(canAuthor\(\)\?/);
  assert.match(ui,/if\(canAuthor\(\)&&\(domain!==\x27catches\x27\|\|v3Mode\)\)page\.append\(anchor\('Edit item'/);
@@ -39,4 +42,11 @@ test('FISH118 D3 inactive owner UI hides Add/Edit and rejects deep-link editor w
  assert.match(ui,/ownerController\.refreshPublication\(\)/);
  assert(!app.includes('ctx.v3='));
  assert(!entry.includes('v3:{enabled:true'));
+});
+
+test('D5-EDIT01 mode and network repaint never rerender an active page',()=>{
+ assert.match(ui,/Never rerender the current page for a mode command or status refresh/);
+ assert.doesNotMatch(ui,/if\(!dirty\(\)&&!\['gear-edit'/);
+ assert.match(ui,/const EDITOR_ROUTES=new Set/);
+ assert.match(ui,/Editing is only available when Online\. Switch to Automatic mode/);
 });
