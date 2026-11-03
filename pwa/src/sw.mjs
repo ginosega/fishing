@@ -18,7 +18,10 @@ let operation=null;
 const mime=p=>p.endsWith('.json')?'application/json':p.endsWith('.js')?'text/javascript':p.endsWith('.css')?'text/css':p.endsWith('.html')?'text/html; charset=utf-8':p.endsWith('.svg')?'image/svg+xml':p.endsWith('.png')?'image/png':p.endsWith('.webp')?'image/webp':p.endsWith('.gif')?'image/gif':p.endsWith('.jpg')||p.endsWith('.jpeg')?'image/jpeg':'application/octet-stream';
 const responseFor=(bytes,path,status=200)=>new Response(bytes,{status,headers:{'Content-Type':mime(path),'Cache-Control':'no-store'}});
 async function broadcast(type,status){for(const client of await self.clients.matchAll({includeUncontrolled:true,type:'window'}))client.postMessage({type,status});}
-async function network(path){const response=await fetch(absolute(path),{cache:'no-store',redirect:'error'});if(!response.ok||response.type==='opaque')throw new Error(`Asset unavailable: ${path} (HTTP ${response.status})`);return response.arrayBuffer();}
+// Cloudflare Pages redirects /index.html (308) to the canonical scope root.
+// V3 reads that exact root without allowing redirects or weakening byte checks.
+const networkUrl=path=>v3ReadingMode&&path==='index.html'?scope:absolute(path);
+async function network(path){const response=await fetch(networkUrl(path),{cache:'no-store',redirect:'error'});if(!response.ok||response.type==='opaque')throw new Error(`Asset unavailable: ${path} (HTTP ${response.status})`);return response.arrayBuffer();}
 async function loadOnlineContext(){
  const pointerBytes=await network('release.json');
  const pointer=validatePointer(JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(pointerBytes)));
