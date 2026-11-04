@@ -59,12 +59,29 @@ try{
  Need ($found.Count -ge 1) 'Could not identify immutable Pages URL; inspect the deployment, do not redeploy.'
  $pagesOrigin=$found[$found.Count-1].Value
  $url=$pagesOrigin+'/fishing/__v3_owner_candidate__/'
- foreach($asset in @('release.json',[string]$release.manifest)){
-  $http=Invoke-WebRequest -Uri ($url+$asset) -UseBasicParsing -MaximumRedirection 0 -TimeoutSec 45 -Headers @{'Cache-Control'='no-store'}
-  Need ([int]$http.StatusCode -eq 200) 'Hosted owner Pages asset unavailable'
-  $local=Get-Content -LiteralPath (Join-Path $candidate $asset) -Raw
-  Need ((HashString ([string]$http.Content)) -ceq (HashString $local)) ('Hosted asset byte mismatch: '+$asset)
+ $samples=@(
+  'release.json',[string]$release.manifest,'index.html','loader.js','sw.js',
+  'manifest.webmanifest','icon.png','icon-maskable.png',
+  ('releases/'+$release.id+'/app.js'),
+  ('releases/'+$release.id+'/styles.css'),
+  ('releases/'+$release.id+'/content/Gear/gear.json'),
+  ('releases/'+$release.id+'/content/KB/kb.json'),
+  ('releases/'+$release.id+'/content/Catches/catches.json')
+ )
+ $checked=0
+ foreach($asset in $samples){
+  $relative=if($asset -ceq 'index.html'){''}else{$asset}
+  $remoteUrl=$url+$relative
+  $tempFile=Join-Path $stage ('hosted-sample-'+$checked+'.bytes')
+  Invoke-WebRequest -Uri $remoteUrl -UseBasicParsing -OutFile $tempFile -MaximumRedirection 0 -TimeoutSec 60 -Headers @{'Cache-Control'='no-store'} | Out-Null
+  Need (Test-Path -LiteralPath $tempFile) ('Missing remote sample: '+$asset)
+  $localFile=Join-Path $candidate $asset
+  Need ((Get-FileHash -LiteralPath $tempFile -Algorithm SHA256).Hash -ceq
+   (Get-FileHash -LiteralPath $localFile -Algorithm SHA256).Hash) ('Hosted asset SHA-256 mismatch: '+$asset)
+  $checked++
  }
+ Need ($checked -eq 13) 'Hosted sample coverage incomplete'
+ Write-Output ('HOSTED_SAMPLE_HASHES: '+$checked+'/'+$samples.Count)
  Write-Output ('PASS: OWNER PAGES DEPLOYED AND HOSTED VERIFIED: '+$pagesOrigin)
  Write-Output ('SOURCE_HEAD: '+$ExpectedHead)
  Write-Output ('RELEASE_ID: '+$release.id)
