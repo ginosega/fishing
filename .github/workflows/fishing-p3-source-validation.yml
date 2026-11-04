@@ -6,6 +6,7 @@ on:
   push:
     branches:
       - 'feature/fish118-p3-mock-publisher'
+      - 'feature/fish118-d5-owner-integration'
     paths:
       - 'pwa/src/**'
       - 'pwa/test/**'

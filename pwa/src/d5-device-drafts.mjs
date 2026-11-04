@@ -78,7 +78,15 @@ export function createD5DeviceDraftStore({
   url.search||url.hash||url.username||url.password)
   throw Error('DEVICE_DRAFT_SCOPE_DENIED');
  // A separate IndexedDB object store, not a Service Worker or release cache.
- const backend=io??indexedDbIO(indexedDB);
+ // Storage denial must never prevent ordinary online owner editing.
+ let backend=io;
+ if(!backend){
+  try{backend=indexedDbIO(indexedDB);}
+  catch{
+   const unavailable=async()=>{throw Error('DEVICE_DRAFT_STORAGE_UNAVAILABLE');};
+   backend={get:unavailable,put:unavailable,delete:unavailable};
+  }
+ }
  const scoped=key=>url.origin+OWNER_SCOPE+key;
  const queues=new Map();
  const enqueue=(key,operation)=>{
