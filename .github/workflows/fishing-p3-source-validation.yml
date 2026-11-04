@@ -175,6 +175,30 @@ jobs:
           }
             Write-Output "PASS: D3 PowerShell parsed (never executed): $scriptFile"
           }
+      - name: D5 Pages operator optional manifest marker under StrictMode (no deployment)
+        shell: pwsh
+        run: |
+          Set-StrictMode -Version Latest
+          $operator = Get-Content -LiteralPath 'experiments/p3/preview/tools/deploy-d5-owner-pages-test.ps1' -Raw
+          if ($operator.Contains('$manifest.v3ReaderCandidate')) {
+            throw 'Unsafe direct access to optional reader marker'
+          }
+          if (-not $operator.Contains('$manifest.PSObject.Properties[''v3ReaderCandidate'']')) {
+            throw 'Pages operator missing safe optional reader-marker lookup'
+          }
+          foreach ($example in @(
+            @{ json = '{"v3OwnerCandidate":true}'; denied = $false },
+            @{ json = '{"v3OwnerCandidate":true,"v3ReaderCandidate":false}'; denied = $false },
+            @{ json = '{"v3OwnerCandidate":true,"v3ReaderCandidate":true}'; denied = $true }
+          )) {
+            $manifest = $example.json | ConvertFrom-Json
+            $readerMarker = $manifest.PSObject.Properties['v3ReaderCandidate']
+            $readerOnly = ($null -ne $readerMarker -and $readerMarker.Value -eq $true)
+            if ($readerOnly -ne $example.denied) {
+              throw 'D5 optional reader marker StrictMode fixture failed'
+            }
+          }
+          Write-Output 'PASS: D5 optional reader marker absent, false, true under PowerShell StrictMode'
       - name: Verify browser-paste Worker bundle matches source exactly
         run: node experiments/p3/preview/tools/build-dashboard.mjs
       - name: Exercise unpublished Cloudflare sandbox deny-by-default worker

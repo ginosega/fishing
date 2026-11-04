@@ -43,7 +43,9 @@ try{
  }finally{Pop-Location}
  $release=Get-Content -LiteralPath (Join-Path $candidate 'release.json') -Raw | ConvertFrom-Json
  $manifest=Get-Content -LiteralPath (Join-Path $candidate $release.manifest) -Raw | ConvertFrom-Json
- Need ($manifest.v3OwnerCandidate -eq $true -and $manifest.v3ReaderCandidate -ne $true -and
+ $readerMarker=$manifest.PSObject.Properties['v3ReaderCandidate']
+ $readerOnly=($null -ne $readerMarker -and $readerMarker.Value -eq $true)
+ Need ($manifest.v3OwnerCandidate -eq $true -and -not $readerOnly -and
   $manifest.base -ceq '/fishing/__v3_owner_candidate__/' -and
   $manifest.sourceRevision -ceq $ExpectedHead -and $manifest.files.Count -ge 500) 'Incorrect staged source/release'
  Write-Output ('PASS: local all-byte verification and staging; source '+$ExpectedHead+', assets '+$manifest.files.Count)
