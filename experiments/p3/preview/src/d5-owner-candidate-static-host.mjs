@@ -11,6 +11,8 @@ const GUARD={
  'Referrer-Policy':'no-referrer',
  'X-Frame-Options':'DENY',
  'X-Robots-Tag':'noindex, nofollow, noarchive',
+ 'Permissions-Policy':'camera=(), microphone=(), geolocation=()',
+ 'Content-Security-Policy':"default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; font-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; object-src 'none'",
 };
 const forbidden=url=>/%(?:2f|5c|00)/i.test(url.pathname)||
  url.pathname.includes('\\')||url.pathname.split('/').some(p=>p==='..'||p==='.');

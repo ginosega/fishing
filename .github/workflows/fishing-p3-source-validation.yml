@@ -68,6 +68,7 @@ jobs:
         run: |
           node tools/build.mjs --base=/fishing/__v3_owner_candidate__/ --v3-reading-mode --v3-owner-candidate --out=/tmp/fishing-v3-owner-candidate
           node tools/verify.mjs --out=/tmp/fishing-v3-owner-candidate
+          node tools/stage-v3-owner-pages.mjs --candidate=/tmp/fishing-v3-owner-candidate --out=/tmp/fishing-v3-owner-pages --expected-source="$GITHUB_SHA"
           node --input-type=module -e "import fs from 'node:fs';const p='/tmp/fishing-v3-owner-candidate/';const r=JSON.parse(fs.readFileSync(p+'release.json'));const m=JSON.parse(fs.readFileSync(p+r.manifest));if(m.base!=='/fishing/__v3_owner_candidate__/'||m.v3OwnerCandidate!==true||m.v3ReaderCandidate===true||m.releaseId!==r.id)process.exit(1);console.log('PASS: isolated owner candidate release/scope match')"
       - name: Real Chromium V3 reader-mode and Banks Lake viewer acceptance (loopback only)
         working-directory: pwa
