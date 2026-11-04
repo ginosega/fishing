@@ -195,3 +195,29 @@ test('V3-UX12 the real Connection Status entry initializes disclosure after open
  assert.match(presentation,/function onDialogOpen\(\)\{/);
  assert.doesNotMatch(presentation,/previousIndicatorActive/);
 });
+
+test('V3-UX13 visible Account sign-in returns to exact isolated D5 owner scope',()=>{
+ const prior=Object.getOwnPropertyDescriptor(globalThis,'location');
+ try{
+  for(const [pathname,expected] of [
+   ['/fishing/__v3_owner_candidate__/',
+    '/auth/start?return=%2Ffishing%2F__v3_owner_candidate__%2F'],
+   ['/fishing/__d3_pilot__/',
+    '/auth/start?return=%2Ffishing%2F__d3_pilot__%2F'],
+   ['/__d3_pilot__/',
+    '/auth/start?return=%2F__d3_pilot__%2F'],
+   ['/fishing/','/auth/start?return=%2Ffishing%2F'],
+  ]){
+   Object.defineProperty(globalThis,'location',{configurable:true,value:{pathname}});
+   const x=screen({phase:'Anonymous',authorized:false,publication:'None'});
+   const link=x.account.children[1].children.find(child=>
+    child.tagName==='a'&&child.textContent==='Sign in with GitHub');
+   assert(link,'Visible Account sign-in link should exist');
+   assert.equal(link.href,expected);
+   x.view.remove();
+  }
+ }finally{
+  if(prior)Object.defineProperty(globalThis,'location',prior);
+  else delete globalThis.location;
+ }
+});

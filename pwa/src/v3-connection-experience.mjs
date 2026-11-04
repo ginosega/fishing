@@ -119,6 +119,8 @@ export function mountV3ConnectionExperience({
      '/auth/start?return=%2F__d3_pilot__%2F':
      globalThis.location?.pathname==='/fishing/__d3_pilot__/'?
      '/auth/start?return=%2Ffishing%2F__d3_pilot__%2F':
+     globalThis.location?.pathname==='/fishing/__v3_owner_candidate__/'?
+     '/auth/start?return=%2Ffishing%2F__v3_owner_candidate__%2F':
      '/auth/start?return=%2Ffishing%2F';
     a.addEventListener('click',onSignIn);
     accountBody.append(a);
