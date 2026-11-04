@@ -41,6 +41,7 @@ export function createApp(ctx){
   new Set(ctx.manifest.files.filter(x=>x.path.startsWith(`releases/${ctx.release.id}/content/`)).map(x=>x.path.slice(`releases/${ctx.release.id}/content/`.length)));
  let currentHash=location.hash||'#/',route=parseRoute(currentHash),editor=null,serial=0,offline=null,approvedNavigation=null,previousHash=null;
  let ownerController=null,savingPublication=false;
+ const acceptedDraftKeys=new Map();
  // V2 stays unchanged. V3 owner controls are strictly opt-in via an
  // authenticated, same-origin integration; server authorization is still
  // mandatory for every actual write, regardless of client-side visibility.
@@ -406,6 +407,14 @@ export function createApp(ctx){
     ownerPanel?.paint();
     connectionExperience?.paint();
     paintConnectionIndicator();
+    if(state.publication==='Live'&&state.sandboxVerified===true&&
+     state.operationId&&acceptedDraftKeys.has(state.operationId)){
+     const draftKey=acceptedDraftKeys.get(state.operationId);
+     acceptedDraftKeys.delete(state.operationId);
+     // Only a verified sandbox Live result can clear a device draft.
+     // Storage failure leaves the draft available for explicit recovery.
+     void ctx.v3.drafts?.discard(draftKey).catch(()=>{});
+    }
     if((state.publication==='Live'&&state.sandboxVerified===true)||
      ['Failed','Conflict'].includes(state.publication))
      void refreshPublishedContent();
@@ -442,6 +451,8 @@ export function createApp(ctx){
   ctx.v3.onPublicationReceipt=receipt=>{
    if(!/^p3_[0-9a-f-]{36}$/.test(receipt?.operationId??'')||
     receipt?.canonicalLive!==false)return;
+   if(typeof receipt.draftKey==='string'&&ctx.v3?.drafts)
+    acceptedDraftKeys.set(receipt.operationId,receipt.draftKey);
    // The server accepted this operation, but Live still requires a read.
    paintConnectionIndicator();
    void ownerController.refreshPublication().then(

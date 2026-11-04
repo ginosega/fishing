@@ -148,14 +148,16 @@ export default {
         const integrated = destination === '/fishing/__d3_pilot__/' &&
           env.D3_PILOT_ENABLED === 'true' &&
           env.D3_INTEGRATED_PWA_ENABLED === 'true';
+        const ownerCandidate = destination === '/fishing/__v3_owner_candidate__/' &&
+          env.D5_OWNER_CANDIDATE_ENABLED === 'true';
         if (destination !== null && destination !== '/fishing/' &&
             !(destination === '/__d3_pilot__/' &&
-              env.D3_PILOT_ENABLED === 'true') && !integrated)
+              env.D3_PILOT_ENABLED === 'true') && !integrated && !ownerCandidate)
           return error(400, 'Invalid return target');
         const state = nonce() +
           (destination === '/fishing/' ? '.f' :
            destination === '/__d3_pilot__/' ? '.p' :
-           integrated ? '.i' : '');
+           integrated ? '.i' : ownerCandidate ? '.o' : '');
         const verifier = nonce();
         await env.DB.prepare('INSERT INTO auth_flows (state_hash, code_verifier, expires_at) VALUES (?, ?, ?)')
           .bind(await hash(state), verifier, nowSeconds() + FLOW_SECONDS).run();
@@ -173,11 +175,12 @@ export default {
         const state = url.searchParams.get('state');
         const code = url.searchParams.get('code');
         const flow = cookies(req)[FLOW_COOKIE];
-        if (!state || !code || !flow || state !== flow || !/^[A-Za-z0-9_-]{43}(?:\.[fpi])?$/.test(state) ||
+        if (!state || !code || !flow || state !== flow || !/^[A-Za-z0-9_-]{43}(?:\.[fpio])?$/.test(state) ||
             (state.endsWith('.p') && env.D3_PILOT_ENABLED !== 'true') ||
             (state.endsWith('.i') &&
              (env.D3_PILOT_ENABLED !== 'true' ||
-              env.D3_INTEGRATED_PWA_ENABLED !== 'true')))
+              env.D3_INTEGRATED_PWA_ENABLED !== 'true')) ||
+            (state.endsWith('.o') && env.D5_OWNER_CANDIDATE_ENABLED !== 'true'))
           return withCookies(error(400, 'Invalid OAuth callback'), [clearFlow]);
         // Atomic, single-use state. Parallel callbacks cannot both consume the row.
         const pending = await env.DB.prepare('DELETE FROM auth_flows WHERE state_hash = ? AND expires_at > ? RETURNING code_verifier')
@@ -194,6 +197,8 @@ export default {
           state.endsWith('.i') && env.D3_PILOT_ENABLED === 'true' &&
           env.D3_INTEGRATED_PWA_ENABLED === 'true'
           ? '/fishing/__d3_pilot__/' :
+          state.endsWith('.o') && env.D5_OWNER_CANDIDATE_ENABLED === 'true'
+          ? '/fishing/__v3_owner_candidate__/' :
           state.endsWith('.f') ? '/fishing/' : '/',
           [clearFlow, setCookie(SESSION_COOKIE, sid, SESSION_SECONDS)]);
       }

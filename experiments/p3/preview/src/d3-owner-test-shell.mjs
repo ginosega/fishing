@@ -10,6 +10,7 @@
 import {createD3AuthoringClient} from './d3-authoring-client.mjs';
 import {createD3PublicationLifecycle} from './d3-publication-lifecycle.mjs';
 import {createD3SandboxSourceClient} from './d3-sandbox-source-client.mjs';
+import {createD5DeviceDraftStore} from '../../../../pwa/src/d5-device-drafts.mjs';
 
 export class D3OwnerShellError extends Error{
  constructor(code){
@@ -22,7 +23,7 @@ const need=(v,code)=>{if(!v)deny(code);};
 export function createD3OwnerTestShell({
  origin,request,bootstrap,enabled=()=>false,online=()=>true,
  storage=null,makeKey=()=>crypto.randomUUID(),
- publishingEnabled=()=>false,
+ publishingEnabled=()=>false,draftRecovery=false,
 }={}){
  need(typeof request==='function'&&typeof bootstrap==='function'&&
   [enabled,online,makeKey,publishingEnabled].every(x=>typeof x==='function'),
@@ -68,10 +69,13 @@ export function createD3OwnerTestShell({
    snapshot.repositoryId===1430581407&&
    /^[a-f0-9]{40}$/.test(snapshot.sourceRevision??''),
    'UNTRUSTED_SANDBOX_SOURCE');
+  const drafts=draftRecovery===true?
+   createD5DeviceDraftStore({enabled:true,root:settings.root}):null;
   const staged=new WeakMap();
   const v3={
    enabled:true,authorized:false,
    auth:owner,lifecycle,
+   ...(drafts?{drafts}:{}),
    // Owner-only revision check. The UI reloads its validated private
    // snapshot only AFTER durable Live and after leaving any open editor.
    refreshSandboxSource:async()=>(

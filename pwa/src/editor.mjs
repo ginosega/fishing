@@ -8,6 +8,7 @@ import {openViewer,openSequenceViewer} from './viewer.mjs';
 import {validateBrowserImage} from './image-validation.mjs';
 import {createNotesMarkdownEditor} from './notes-markdown-editor.mjs';
 import {draftNotesPreviewOptions} from './editor-preview.mjs';
+import {restoreD5EditorDraft,saveD5EditorDraft} from './d5-editor-recovery.mjs';
 
 const clone=value=>structuredClone(value);
 function serialize(record){return JSON.stringify(record);}
@@ -47,10 +48,33 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
   body=baseText;baseHash=await sha256(bytes);
  }
  if(!editing&&domain==='kb')body='';
- const host=el('div',{class:'editor'}),notice=el('div',{class:'editor-notice','aria-live':'polite'}),form=el('form',{class:'editor-form'}),output=el('div',{class:'handoff-output'});
+ // Keep pristine server data distinct from a restored local draft.
  const original=serialize(record),initialBody=body;
+ const draftStore=publishChange?ctx.v3?.drafts??null:null;
+ const draftKey=domain+':'+(editing?'edit:'+baseRecord.id:
+  'add:'+(domain==='gear'?record.category:record.type));
+ const recovery=await restoreD5EditorDraft({store:draftStore,key:draftKey,
+  sourceRevision:ctx.release.sourceRevision,baseHash});
+ if(recovery.status==='restored'){
+  for(const fieldName of Object.keys(record))delete record[fieldName];
+  Object.assign(record,recovery.record);body=recovery.notes;
+ }
+ const draftWritable=!['stale','corrupt','unavailable'].includes(recovery.status);
+ const restoredMediaMissing=recovery.status==='restored'&&recovery.requiresMedia===true;
+ const host=el('div',{class:'editor'}),notice=el('div',{class:'editor-notice','aria-live':'polite'}),form=el('form',{class:'editor-form'}),output=el('div',{class:'handoff-output'});
+ if(recovery.message)status(notice,recovery.message,
+  recovery.status==='restored'||recovery.status==='discarded'?'info':'warning');
+ const persistDraft=()=>{
+  if(!draftStore||!draftWritable||saveAccepted||!dirty())return;
+  void saveD5EditorDraft({store:draftStore,key:draftKey,domain,
+   sourceRevision:ctx.release.sourceRevision,baseHash,
+   record,notes:body,requiresMedia:mediaAction!=='keep'||
+    Boolean(notesEditor?.uploads().length)}).catch(()=>{
+   status(notice,'Device draft could not be saved. Keep this editor open until the changes are safely submitted.','warning');
+  });
+ };
  const dirty=()=>!saveAccepted&&(serialize(record)!==original||body!==initialBody||mediaAction!=='keep');
- function changed(){if(saveAccepted)return;prepared=null;output.replaceChildren();onDirty?.(dirty());}
+ function changed(){if(saveAccepted)return;prepared=null;output.replaceChildren();onDirty?.(dirty());persistDraft();}
  function update(fieldName,value){optional(record,fieldName,value);changed();}
  function revokeLocal(clearInput=true){if(previewUrl){URL.revokeObjectURL(previewUrl);previewUrl=null;}for(const url of sequenceUrls)URL.revokeObjectURL(url);sequenceUrls=[];fileInfo=null;sequenceInfos=[];if(clearInput)fileInput.value='';}
  function recalcSequencePaths(){if(!sequenceInfos.length||!ID_PATTERN.test(record.id))return;for(const info of sequenceInfos)info.path=sequencePicturePath(record,info.name);record.pictureSequence=sequenceInfos.map(x=>x.path);picturePathInput.value=record.pictureSequence.at(-1);record.picture={src:picturePathInput.value,...(captionInput.value?{caption:captionInput.value}:{})};}
@@ -213,6 +237,7 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
   savePending=true;prepareButton.disabled=true;
   notice.replaceChildren();actionNotice.replaceChildren();
   try{
+   if(restoredMediaMissing)throw new Error('This restored draft referenced local media that was not saved on this device. Copy the recovered text to a fresh edit and reselect the originals before publishing.');
    if(!ID_PATTERN.test(record.id))throw new Error('The ID must use lowercase letters, numbers and hyphens.');
    const existing=ctx.data[domain][DOMAIN[domain].array];if(!editing&&existing.some(x=>x.id===record.id))throw new Error('This ID already exists.');
    // Sandbox source is exclusively synthetic. Refuse production-like IDs
@@ -278,7 +303,7 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
     notice.replaceChildren();
     actionNotice.replaceChildren();
     onDirty?.(false);
-    try{onPrepared?.(receipt);}catch{ /* Callback cannot undo server acceptance. */ }
+    try{onPrepared?.(draftStore?{...receipt,draftKey}:receipt);}catch{ /* Callback cannot undo server acceptance. */ }
     return;
    }
    const copyNotice=el('div',{'aria-live':'polite',class:'copy-notice'}),clipboardText=changePackageClipboardText(prepared),area=el('textarea',{rows:12,readonly:true,class:'package-text',value:clipboardText}),exit=button('Exit',onExit);exit.hidden=true;

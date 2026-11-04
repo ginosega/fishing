@@ -10,6 +10,7 @@ import {parseMarkdown,markdownRouteMap,sanitizeHtml} from './markdown.mjs';
 import {applyCatchField,catchFieldValue,speciesCatchChoices,lureCatchChoices} from './catch-fields.mjs';
 import {prepareChange,narrativePath} from './handoff.mjs';
 import {createNotesMarkdownEditor} from './notes-markdown-editor.mjs';
+import {restoreD5EditorDraft,saveD5EditorDraft} from './d5-editor-recovery.mjs';
 import {catchLureTargets,filterCatchLureTargets,applyCatchLureSelection}
  from './catch-lure-picker.mjs';
 
@@ -138,6 +139,16 @@ export async function createCatchEditor(ctx,{
   notesText=initialText;
   baseHash=await sha256(new TextEncoder().encode(initialText));
  }
+ const draftStore=ctx.v3?.drafts??null;
+ const draftKey='catches:'+(editing?'edit:'+baseRecord.id:'add:catch');
+ const recovery=await restoreD5EditorDraft({store:draftStore,key:draftKey,
+  sourceRevision:ctx.release.sourceRevision,baseHash});
+ if(recovery.status==='restored'){
+  for(const name of Object.keys(record))delete record[name];
+  Object.assign(record,recovery.record);notesText=recovery.notes;
+ }
+ const draftWritable=!['stale','corrupt','unavailable'].includes(recovery.status);
+ const restoredMediaMissing=recovery.status==='restored'&&recovery.requiresMedia===true;
  let pending=false,accepted=false,notesEditor=null;
  const dirty=()=>!accepted&&
   (JSON.stringify(record)!==original||notesText!==initialText);
@@ -145,7 +156,17 @@ export async function createCatchEditor(ctx,{
   notice=el('div',{class:'editor-notice','aria-live':'polite'}),
   actionNotice=el('div',{'aria-live':'polite'}),
   output=el('div',{class:'handoff-output'});
- const updated=()=>{if(!accepted){output.replaceChildren();onDirty(dirty());}};
+ if(recovery.message)status(notice,recovery.message,
+  recovery.status==='restored'||recovery.status==='discarded'?'info':'warning');
+ const updated=()=>{
+  if(accepted)return;
+  output.replaceChildren();onDirty(dirty());
+  if(!draftStore||!draftWritable||!dirty())return;
+  void saveD5EditorDraft({store:draftStore,key:draftKey,domain:'catches',
+   sourceRevision:ctx.release.sourceRevision,baseHash,record,
+   notes:notesText,requiresMedia:Boolean(notesEditor?.uploads().length)})
+   .catch(()=>status(notice,'Device draft could not be saved. Keep this editor open until the changes are safely submitted.','warning'));
+ };
  const ids=new Set(ctx.data.catches.catches.map(x=>x.id));
  const idInput=el('input',{type:'text',readonly:true,value:record.id});
  const generateId=()=>{
@@ -316,6 +337,7 @@ export async function createCatchEditor(ctx,{
   pending=true;submit.disabled=true;
   notice.replaceChildren();actionNotice.replaceChildren();
   try{
+   if(restoredMediaMissing)throw Error('This restored draft referenced local pictures that were not saved on this device. Copy the recovered notes to a fresh edit and reselect the originals before publishing.');
    notesEditor.syncPaths();
     notesText=notesEditor.value();
     const notesUploads=notesEditor.uploads();
@@ -341,7 +363,7 @@ export async function createCatchEditor(ctx,{
    notice.replaceChildren();
    actionNotice.replaceChildren();
    onDirty(false);
-   try{onPrepared(receipt);}catch{ /* Cannot undo a durable receipt. */ }
+   try{onPrepared(draftStore?{...receipt,draftKey}:receipt);}catch{ /* Cannot undo a durable receipt. */ }
   }catch(error){
    status(notice,catchPublicationErrorText(error),'error');
    status(actionNotice,'Nothing was confirmed as published. Your edit is retained.','error');
