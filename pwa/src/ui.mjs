@@ -413,7 +413,7 @@ export function createApp(ctx){
  ownerController=v3Mode&&ctx.v3?.auth&&ctx.v3?.lifecycle?
   createD3ConnectionController({
    auth:ctx.v3.auth,lifecycle:ctx.v3.lifecycle,
-   enabled:()=>v3Mode,online:()=>navigator.onLine&&!workOffline(),
+   enabled:()=>v3Mode,online:()=>onlineForEditing(),
    onChange:state=>{
     const prior=ctx.v3.authorized;
     ctx.v3.authorized=state.authorized;
@@ -439,7 +439,7 @@ export function createApp(ctx){
   }):null;
  if(ownerController)ownerPanel=mountD3ConnectionPanel({
   dialog:connectionDialog,controller:ownerController,documentObject:document,
-  online:()=>navigator.onLine&&!workOffline(),windowObject:window,
+  online:()=>onlineForEditing(),windowObject:window,
   trackInHeader:true,headless:true,
  });
  if(ownerController)connectionExperience=mountV3ConnectionExperience({
@@ -489,8 +489,10 @@ export function createApp(ctx){
   // The Publishing Status disclosure chooses its initial state exactly once
   // per opening; ongoing polling preserves the owner's expanded/collapsed choice.
   connectionExperience?.onDialogOpen();
-  if(modeControls)void offline.refreshMode();
-  if(ownerController&&!workOffline())void refreshOwner();
+  if(modeControls)void offline.refreshMode().then(()=>{
+   if(ownerController&&onlineForEditing())void refreshOwner();
+  });
+  else if(ownerController&&onlineForEditing())void refreshOwner();
  });document.getElementById('connection-close').addEventListener('click',()=>{
   // Header mode continues read-only tracking while visible and in progress.
   connectionDialog.close();
@@ -502,7 +504,7 @@ export function createApp(ctx){
  render();
  void offline.start().then(()=>{
   // Work Offline must not automatically restore online owner/auth services.
-  if(ownerController&&!workOffline())void refreshOwner();
+  if(ownerController&&onlineForEditing())void refreshOwner();
  });
  return {navigate,isDirty:dirty,render};
 }

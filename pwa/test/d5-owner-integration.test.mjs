@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import {createD5DeviceDraftStore} from '../src/d5-device-drafts.mjs';
 import {restoreD5EditorDraft,saveD5EditorDraft}
  from '../src/d5-editor-recovery.mjs';
-import {D5_OWNER_CANDIDATE_BASE,selectD5OwnerCandidate}
+import {D5_OWNER_CANDIDATE_BASE,selectD5OwnerCandidate,readD5CandidateMode,startD5OwnerCandidate}
  from '../src/d5-owner-candidate.mjs';
 
 const release={id:'a'.repeat(32),sourceRevision:'b'.repeat(40)};
@@ -126,4 +126,44 @@ test('D5-O09 authenticated candidate refreshes verified sandbox source but retai
  assert.match(ui,/onlineOnly:privatePilot/);
  assert.match(ui,/v3ReadingMode:v3Mode&&!privatePilot/);
  assert.match(ui,/if\(!sandboxRefresh\|\|typeof ctx\.v3\?\.refreshSandboxSource/);
+});
+
+test('D5-O10 persisted Work Offline is checked before any owner session request',async()=>{
+ const root=url;
+ const ports={port1:{onmessage:null,close(){}},port2:{}};
+ const fake={
+  getRegistration:async()=>({scope:root,active:{postMessage(message){
+   assert.equal(message.type,'V3_READ_MODE');
+   queueMicrotask(()=>ports.port1.onmessage({data:{
+    type:'FISHING_V3_MODE',available:true,mode:'Work Offline'}}));
+  }}}),
+ };
+ assert.equal(await readD5CandidateMode(root,{
+  serviceWorker:fake,openChannel:()=>ports
+ }),'Work Offline');
+ assert.equal(await readD5CandidateMode(root,{serviceWorker:{
+  getRegistration:async()=>null}}),'Automatic');
+ assert.equal(await readD5CandidateMode(root,{serviceWorker:null}),'Unknown');
+});
+test('D5-O11 offline-mode cold relaunch leaves the owner service untouched',async()=>{
+ const prior=Object.getOwnPropertyDescriptor(globalThis,'navigator');
+ Object.defineProperty(globalThis,'navigator',{configurable:true,value:{onLine:true}});
+ let count=0;
+ const output=await startD5OwnerCandidate({
+  root:url,release,manifest
+ },{
+  readMode:async()=> 'Work Offline',
+  request:async()=>{count++;throw Error('Owner service invoked while Work Offline');},
+  bootstrapApp:async(_settings,options)=>options,
+ });
+ assert.equal(count,0);
+ assert.equal(output.v3.readerOnly,true);
+ assert.equal(output.v3.publish,undefined);
+ if(prior)Object.defineProperty(globalThis,'navigator',prior);
+ else delete globalThis.navigator;
+});
+test('D5-O12 owner session polling uses verified effective reading mode',()=>{
+ const ui=readFileSync(new URL('../src/ui.mjs',import.meta.url),'utf8');
+ assert.match(ui,/online:\(\)=>onlineForEditing\(\)/);
+ assert.doesNotMatch(ui,/online:\(\)=>navigator\.onLine&&!workOffline\(\)/);
 });
