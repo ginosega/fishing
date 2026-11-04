@@ -20,7 +20,8 @@ test('FISH118 D3 beta editor Save/Publish is strictly opt-in; v2 manual authorin
  assert.match(editor,/Publication accepted\. Verification and publishing are in progress\./);
  assert.match(editor,/actions\.replaceChildren\(button\('Exit'/);
  assert.match(editor,/Copy Changes/); // historic v2 remains for current public app
- assert.match(editor,/onPrepared\?\.\(receipt\)/);
+ // Owner draft linkage is optional and only changes the accepted callback envelope.
+ assert.match(editor,/onPrepared\?\.\(draftStore\?\{\.\.\.receipt,draftKey\}:receipt\)/);
 });
 
 test('FISH118 D3 inactive owner UI hides Add/Edit and rejects deep-link editor when anonymous',()=>{
