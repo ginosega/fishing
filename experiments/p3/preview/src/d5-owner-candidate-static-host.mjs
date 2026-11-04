@@ -23,7 +23,7 @@ const validOrigin=(origin,internal=false)=>{
   return parsed.protocol==='https:'&&parsed.origin===origin&&
    parsed.pathname==='/'&&!parsed.search&&!parsed.hash&&
    !parsed.username&&!parsed.password&&
-   (internal||/^[a-z0-9-]+\.pages\.dev$/.test(parsed.hostname));
+   (internal||/^[a-f0-9]{8,32}\.[a-z0-9-]+\.pages\.dev$/.test(parsed.hostname));
  }catch{return false;}
 };
 export function createD5OwnerCandidateStaticHost({

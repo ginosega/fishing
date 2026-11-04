@@ -118,6 +118,8 @@ jobs:
         run: |
           $operatorScripts = @(
             'experiments/p3/preview/tools/prepare-d3-hardoff-config.ps1',
+            'experiments/p3/preview/tools/deploy-d5-owner-pages-test.ps1',
+            'experiments/p3/preview/tools/deploy-d5-owner-gateway-test.ps1',
             'experiments/p3/preview/tools/deploy-d3-hardoff-approved.ps1',
             'experiments/p3/preview/tools/prepare-d3-readonly-pilot.ps1',
             'experiments/p3/preview/tools/deploy-d3-readonly-approved.ps1',

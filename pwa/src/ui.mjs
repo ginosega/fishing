@@ -49,6 +49,11 @@ export function createApp(ctx){
  const privatePilot=v3Mode&&[
   '/__d3_pilot__/','/fishing/__d3_pilot__/',
  ].includes(location.pathname);
+ // The isolated authenticated owner candidate shares the sandbox-source
+ // refresh behavior, but unlike the historical private pilot it exercises
+ // the independently scoped V3 offline library and mode controls.
+ const ownerCandidate=v3Mode&&location.pathname==='/fishing/__v3_owner_candidate__/';
+ const sandboxRefresh=privatePilot||ownerCandidate;
  if(v3Mode)ctx.v3.authorized=false; // do not trust stale browser state
  const workOffline=()=>v3Mode&&!privatePilot&&
   offline?.getMode?.()==='Work Offline';
@@ -95,7 +100,7 @@ export function createApp(ctx){
   }
   if(hash===currentHash){if(!dirty())render();return;}
   if(!canLeave())return;disposeEditor();approvedNavigation=hash;
-  location.hash=hash;if(privatePilot)void refreshPublishedContent();
+  location.hash=hash;if(sandboxRefresh)void refreshPublishedContent();
  }
  function anchor(label,href,cls=''){const a=link(label,href,cls);if(href.startsWith('#/'))a.addEventListener('click',event=>{event.preventDefault();navigate(href);});return a;}
  function copyLink(domain,id){const uri=domain+'://'+id;const full=new URL(routeFor(domain,id),ctx.root).href;const box=el('div',{class:'copy-dialog'},text('p','Internal link'),el('code',{},uri),text('p','Shareable browser URL'),el('code',{},full),toolbar(button('Copy internal link',()=>copy(uri)),button('Copy browser URL',()=>copy(full))));const dialog=el('dialog',{class:'small-dialog','aria-label':'Create Link'},box,button('Close',()=>dialog.close()));dialog.addEventListener('close',()=>dialog.remove());document.body.append(dialog);dialog.showModal();}
@@ -377,7 +382,7 @@ export function createApp(ctx){
  // original-image references, but NEVER while reviewing an open editor.
  let sourceRefreshBusy=false,sourceRefreshChecked=null;
  async function refreshPublishedContent(){
-  if(!privatePilot||typeof ctx.v3?.refreshSandboxSource!=='function'||
+  if(!sandboxRefresh||typeof ctx.v3?.refreshSandboxSource!=='function'||
    !navigator.onLine||dirty()||sourceRefreshBusy)return;
   const editable=new Set(['gear-edit','gear-add','kb-edit','kb-add',
    'catch-edit','catch-add']);

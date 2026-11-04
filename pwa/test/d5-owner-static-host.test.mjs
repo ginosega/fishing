@@ -7,7 +7,7 @@ import {createD5OwnerCandidateStaticHost,D5_OWNER_STATIC_PREFIX}
  from '../../experiments/p3/preview/src/d5-owner-candidate-static-host.mjs';
 
 const origin='https://owner.example.test';
-const pagesOrigin='https://fishing-v3-owner-test.pages.dev';
+const pagesOrigin='https://e7f4fa58.fishing-v3-owner-test.pages.dev';
 const url=origin+D5_OWNER_STATIC_PREFIX;
 const make=(options={})=>createD5OwnerCandidateStaticHost({
  origin,pagesOrigin,enabled:()=>true,...options,
@@ -66,6 +66,8 @@ test('D5-H04 fail closed for redirects, upstream denial and compressed content',
  }
  assert.equal((await make({requestPages:async()=>new Response(null,{status:404})})
   .serve(new Request(url))).status,404);
+ assert.equal((await make({pagesOrigin:'https://fishing-v3-owner-test.pages.dev'})
+  .serve(new Request(url))).status,503);
  assert.equal((await make({pagesOrigin:'https://pages.dev.evil.test'})
   .serve(new Request(url))).status,503);
 });

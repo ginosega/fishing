@@ -118,3 +118,12 @@ test('D5-O08 editor cancellation honors device draft discard; accepted status do
  assert.match(catchEditor,/Draft saved on this device\. Nothing has been published/);
  assert.match(ui,/state\.publication==='Live'&&state\.sandboxVerified===true/);
 });
+
+test('D5-O09 authenticated candidate refreshes verified sandbox source but retains V3 reading controls',()=>{
+ const ui=readFileSync(new URL('../src/ui.mjs',import.meta.url),'utf8');
+ assert.match(ui,/const ownerCandidate=v3Mode&&location\.pathname==='\/fishing\/__v3_owner_candidate__\/'/);
+ assert.match(ui,/const sandboxRefresh=privatePilot\|\|ownerCandidate/);
+ assert.match(ui,/onlineOnly:privatePilot/);
+ assert.match(ui,/v3ReadingMode:v3Mode&&!privatePilot/);
+ assert.match(ui,/if\(!sandboxRefresh\|\|typeof ctx\.v3\?\.refreshSandboxSource/);
+});
