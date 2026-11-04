@@ -18,6 +18,8 @@ import {createD3TrustedGearKBCandidate} from './d3-trusted-gear-kb-candidate.mjs
 import {createD3GuardedOperationsApi} from './d3-guarded-operations-api.mjs';
 import {createD3OwnerSandboxSource} from './d3-owner-sandbox-source.mjs';
 import {createD3OwnerPilotHost} from './d3-owner-pilot-host.mjs';
+import {createD5OwnerCandidateStaticHost,D5_OWNER_STATIC_PREFIX}
+ from './d5-owner-candidate-static-host.mjs';
 import {d3PublishingReady} from './d3-publishing-readiness.mjs';
 import {createD3BenchmarkOwnerRoute} from './d3-benchmark-owner-route.mjs';
 import {createD3CheckWebhookWake} from './d3-fast-check-webhook.mjs';
@@ -47,6 +49,7 @@ export function createD3GatedAuthGateway({
   apiFactory=createD3GuardedOperationsApi,
   sourceReadFactory=createD3OwnerSandboxSource,
   pilotHostFactory=createD3OwnerPilotHost,
+    d5OwnerHostFactory=createD5OwnerCandidateStaticHost,
   hostAssetFactory=createD3PrivateHostedAsset,
   hostProofFactory=createD3PrivateHostProof,
   benchmarkRouteFactory=createD3BenchmarkOwnerRoute,
@@ -56,7 +59,7 @@ export function createD3GatedAuthGateway({
 }={}){
   if(typeof auth?.fetch!=='function'||typeof proxy!=='function'||
     [sessionFactory,storeFactory,apiFactory,sourceReadFactory,
-     hostAssetFactory,hostProofFactory,pilotHostFactory,
+     hostAssetFactory,hostProofFactory,pilotHostFactory,d5OwnerHostFactory,
      benchmarkRouteFactory,checkWebhookFactory,mediaStageFactory,
      sourceAssetFactory].some(x=>typeof x!=='function'))
     throw Error('D3 gateway requires trusted AUTH-P0 dependencies');
@@ -67,6 +70,19 @@ export function createD3GatedAuthGateway({
       url.origin!==env.APP_ORIGIN||url.username||url.password)
       return no();
     // The existing public /fishing/ gateway remains byte-for-byte proxied.
+    // Reserve the owner-candidate path even when OFF; never accidentally
+    // fall through to public V2 or an unrelated Pages directory.
+    const ownerReserved=url.pathname==='/fishing/__v3_owner_candidate__'||
+      url.pathname.startsWith(D5_OWNER_STATIC_PREFIX);
+    if(ownerReserved){
+      if(env.D5_OWNER_CANDIDATE_ENABLED!=='true')return no();
+      const host=d5OwnerHostFactory({
+        origin:env.APP_ORIGIN,pagesOrigin:env.D5_OWNER_PAGES_ORIGIN,
+        enabled:()=>env.D5_OWNER_CANDIDATE_ENABLED==='true',
+        requestPages:requestHosted??fetch,
+      });
+      return await host.serve(request);
+    }
     // A separately armed exact owner-only path may be tested inside the
     // installed PWA scope; never allow a broad private prefix interception.
     const scopedPilot=url.pathname==='/fishing/__d3_pilot__/'||
