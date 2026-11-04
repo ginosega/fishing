@@ -97,3 +97,24 @@ test('D5-O06 device drafts remain separately disableable and no V2 code path opt
  assert.match(ui,/state\.publication==='Live'&&state\.sandboxVerified===true/);
  assert.match(ui,/drafts\?\.discard/);
 });
+
+test('D5-O07 deliberate discard waits for pending autosave and does not resurrect it',async()=>{
+ const mock=createIO(),store=make(mock.io),key='gear:edit:p3-test-item';
+ const first=store.save({key,domain:'gear',sourceRevision,baseHash,
+  record,notes:'in flight'});
+ const discard=store.discard(key);
+ await Promise.all([first,discard]);
+ assert.equal(mock.rows.size,0);
+ assert.equal((await store.read(key,{sourceRevision,baseHash})).status,'missing');
+});
+test('D5-O08 editor cancellation honors device draft discard; accepted status does not erase',()=>{
+ const ui=readFileSync(new URL('../src/ui.mjs',import.meta.url),'utf8');
+ const editor=readFileSync(new URL('../src/editor.mjs',import.meta.url),'utf8');
+ const catchEditor=readFileSync(new URL('../src/catch-editor.mjs',import.meta.url),'utf8');
+ assert.match(ui,/editor\?\.discardDraft\?\.\(\)/);
+ assert.match(editor,/discardDraft,dispose/);
+ assert.match(catchEditor,/discardDraft,dispose/);
+ assert.match(editor,/Draft saved on this device\. Nothing has been published/);
+ assert.match(catchEditor,/Draft saved on this device\. Nothing has been published/);
+ assert.match(ui,/state\.publication==='Live'&&state\.sandboxVerified===true/);
+});

@@ -158,14 +158,28 @@ export async function createCatchEditor(ctx,{
   output=el('div',{class:'handoff-output'});
  if(recovery.message)status(notice,recovery.message,
   recovery.status==='restored'||recovery.status==='discarded'?'info':'warning');
+ let draftSequence=0;
+ const warnDraft=()=>status(notice,
+  'Device draft could not be saved. Keep this editor open until the changes are safely submitted.','warning');
+ const discardDraft=async()=>{
+  ++draftSequence;
+  if(draftStore&&draftWritable)await draftStore.discard(draftKey);
+ };
  const updated=()=>{
   if(accepted)return;
   output.replaceChildren();onDirty(dirty());
-  if(!draftStore||!draftWritable||!dirty())return;
+  if(!draftStore||!draftWritable)return;
+  const sequence=++draftSequence;
+  if(!dirty()){
+   void draftStore.discard(draftKey).catch(warnDraft);
+   return;
+  }
   void saveD5EditorDraft({store:draftStore,key:draftKey,domain:'catches',
    sourceRevision:ctx.release.sourceRevision,baseHash,record,
    notes:notesText,requiresMedia:Boolean(notesEditor?.uploads().length)})
-   .catch(()=>status(notice,'Device draft could not be saved. Keep this editor open until the changes are safely submitted.','warning'));
+   .then(()=>{if(sequence===draftSequence&&!accepted)
+    status(notice,'Draft saved on this device. Nothing has been published.','info');},
+    warnDraft);
  };
  const ids=new Set(ctx.data.catches.catches.map(x=>x.id));
  const idInput=el('input',{type:'text',readonly:true,value:record.id});
@@ -375,5 +389,5 @@ export async function createCatchEditor(ctx,{
   host.append(text('p',
    'Private sandbox: use fabricated test Catch data only. Real catches belong in the eventual production release.','hint'));
  host.append(notice,form,output);
- return {element:host,isDirty:dirty,dispose:()=>notesEditor.dispose(),record};
+ return {element:host,isDirty:dirty,discardDraft,dispose:()=>notesEditor.dispose(),record};
 }

@@ -77,7 +77,15 @@ export function createApp(ctx){
  };
  function notify(message,kind='info'){status(alertHost,message,kind);}
  function dirty(){return Boolean(editor?.isDirty());}
- function canLeave(){return !dirty()||confirm('Your changes have not been saved. Discard this edit and leave?');}
+ function canLeave(){
+  if(!dirty())return true;
+  if(!confirm('Your changes have not been saved. Discard this edit and leave?'))return false;
+  // A deliberate Discard must also retire this session's device draft.
+  // Per-key storage ordering prevents a pending autosave from reappearing.
+  void editor?.discardDraft?.().catch(()=>notify(
+   'The saved device draft could not be discarded; it may be offered again on reopen.','warning'));
+  return true;
+ }
  function disposeEditor(){editor?.dispose?.();editor=null;}
  function navigate(hash){
   // Existing Add/Edit links may remain in the DOM after a mode/network change.

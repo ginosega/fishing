@@ -64,14 +64,27 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
  const host=el('div',{class:'editor'}),notice=el('div',{class:'editor-notice','aria-live':'polite'}),form=el('form',{class:'editor-form'}),output=el('div',{class:'handoff-output'});
  if(recovery.message)status(notice,recovery.message,
   recovery.status==='restored'||recovery.status==='discarded'?'info':'warning');
+ let draftSequence=0;
+ const warnDraft=()=>status(notice,
+  'Device draft could not be saved. Keep this editor open until the changes are safely submitted.','warning');
+ const discardDraft=async()=>{
+  ++draftSequence;
+  if(draftStore&&draftWritable)await draftStore.discard(draftKey);
+ };
  const persistDraft=()=>{
-  if(!draftStore||!draftWritable||saveAccepted||!dirty())return;
+  if(!draftStore||!draftWritable||saveAccepted)return;
+  const sequence=++draftSequence;
+  if(!dirty()){
+   void draftStore.discard(draftKey).catch(warnDraft);
+   return;
+  }
   void saveD5EditorDraft({store:draftStore,key:draftKey,domain,
    sourceRevision:ctx.release.sourceRevision,baseHash,
    record,notes:body,requiresMedia:mediaAction!=='keep'||
-    Boolean(notesEditor?.uploads().length)}).catch(()=>{
-   status(notice,'Device draft could not be saved. Keep this editor open until the changes are safely submitted.','warning');
-  });
+    Boolean(notesEditor?.uploads().length)})
+   .then(()=>{if(sequence===draftSequence&&!saveAccepted)
+    status(notice,'Draft saved on this device. Nothing has been published.','info');},
+    warnDraft);
  };
  const dirty=()=>!saveAccepted&&(serialize(record)!==original||body!==initialBody||mediaAction!=='keep');
  function changed(){if(saveAccepted)return;prepared=null;output.replaceChildren();onDirty?.(dirty());persistDraft();}
@@ -322,5 +335,5 @@ export async function createEditor(ctx,{domain,baseRecord=null,category=null,typ
   finally{savePending=false;if(!saveAccepted)prepareButton.disabled=false;}
  });
  const actions=toolbar(prepareButton,button('Cancel',onBack));form.append(actions,actionNotice);host.append(notice,form,output);
- return {element:host,isDirty:dirty,dispose:()=>{revokeLocal();notesEditor?.dispose();},record};
+ return {element:host,isDirty:dirty,discardDraft,dispose:()=>{revokeLocal();notesEditor?.dispose();},record};
 }
