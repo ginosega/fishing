@@ -12,7 +12,7 @@ import standaloneCode from 'ajv/dist/standalone/index.js';
 import schema from '../contracts/schema.json' with {type:'json'};
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
-const output=path.join(root,'src/generated/ajv-validators.mjs');
+const output=path.join(root,'src/generated/ajv-validators.cjs');
 const definitions=Object.freeze({
  validateGearBundle:'gearBundle',
  validateKbBundle:'kbBundle',
@@ -24,7 +24,7 @@ const definitions=Object.freeze({
 
 export async function generateStandaloneValidators(){
  const ajv=new Ajv2020({allErrors:true,strict:true,
-  code:{source:true,esm:true}});
+  code:{source:true}});
  const validators={};
  for(const [name,definition] of Object.entries(definitions)){
   const id='https://ginosega.github.io/fishing/v2/compiled/'+definition;

@@ -1,6 +1,7 @@
-import {validateGearBundle,validateKbBundle,validateCatchBundle,
- validateGearItem,validateKbEntity,validateCatch}
- from './generated/ajv-validators.mjs';
+// AJV standalone CJS bundles with esbuild and requires no runtime code generation.
+import compiledValidators from './generated/ajv-validators.cjs';
+const {validateGearBundle,validateKbBundle,validateCatchBundle,
+ validateGearItem,validateKbEntity,validateCatch}=compiledValidators;
 import {DOMAIN,validateSemantics,safePath,pathKey,assert,sequenceFolder} from './shared.mjs';
 import {parseMarkdown,markdownRouteMap} from './markdown.mjs';
 export const TAXONOMY={

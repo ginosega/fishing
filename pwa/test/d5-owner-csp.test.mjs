@@ -8,7 +8,7 @@ const read=url=>readFileSync(new URL(url,import.meta.url),'utf8');
 
 test('D5-CSP01 AJV schema validators are static and do not need unsafe-eval',()=>{
  const browserValidation=read('../src/validation.mjs');
- const generated=read('../src/generated/ajv-validators.mjs');
+ const generated=read('../src/generated/ajv-validators.cjs');
  assert.doesNotMatch(browserValidation,/\b(?:ajv\.compile|new\s+Ajv2020|new\s+Function)\b/);
  assert.doesNotMatch(generated,/\bnew\s+Function\b|\beval\s*\(/);
  for(const name of ['validateGearBundle','validateKbBundle','validateCatchBundle',
