@@ -47,6 +47,23 @@ async function loaded(page,hash=''){
   {timeout:45000}).toBe(pointer.id);
 }
 
+// The integrated owner gateway enforces this same no-eval script policy.
+// Exercise a real browser with a CSP response instead of relying on
+// source-string checks or the permissive loopback server defaults.
+test('D5-browser strict owner-gateway CSP boots static schema validators',async({page})=>{
+ const errors=[];page.on('pageerror',err=>errors.push(err.message));
+ await page.route(base,async route=>{
+  const upstream=await route.fetch();
+  await route.fulfill({response:upstream,headers:{
+   ...upstream.headers(),
+   'content-security-policy':"default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; font-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; object-src 'none'",
+  }});
+ });
+ await loaded(page);
+ await expect(page.locator('#app .nav-grid .nav-card')).toHaveCount(3);
+ expect(errors).toEqual([]);
+});
+
 test('D5-browser mode control responds after verified offline library preparation',async({page})=>{
  test.setTimeout(300000);
  const jsErrors=[];page.on('pageerror',err=>jsErrors.push(err.message));
