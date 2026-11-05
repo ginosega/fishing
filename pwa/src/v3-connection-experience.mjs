@@ -1,5 +1,6 @@
 // Owner-only V3 Connection Status presentation. The existing controller and
 // polling panel remain the source of truth, not a second publication engine.
+import {rememberD5OwnerAuthReturn} from './d5-auth-return.mjs';
 const ACTIVE=new Set(['Accepted','Validating','Checking','Merging','Deploying','Verifying']);
 const TERMINAL=new Set(['Failed','Conflict']);
 const TYPES=Object.freeze({gear:'Gear',kb:'Knowledge Base',catches:'Catch'});
@@ -122,6 +123,18 @@ export function mountV3ConnectionExperience({
      globalThis.location?.pathname==='/fishing/__v3_owner_candidate__/'?
      '/auth/start?return=%2Ffishing%2F__v3_owner_candidate__%2F':
      '/auth/start?return=%2Ffishing%2F';
+    a.addEventListener('click',()=>{
+     // Tab-local read-only hash is restored only after verified owner login.
+     // Do not relax the server's exact-path OAuth return allowlist.
+     if(globalThis.location?.pathname==='/fishing/__v3_owner_candidate__/'){
+      let storage=null;
+      try{storage=globalThis.sessionStorage;}catch{}
+      rememberD5OwnerAuthReturn({
+       pathname:globalThis.location.pathname,
+       hash:globalThis.location.hash,storage,
+      });
+     }
+    });
     a.addEventListener('click',onSignIn);
     accountBody.append(a);
    }

@@ -5,6 +5,7 @@
  * and exact scope; the existing isolated Pages reader has NO owner API.
  */
 import {bootstrap} from './app.mjs';
+import {restoreD5OwnerAuthReturn} from './d5-auth-return.mjs';
 import {createD3AuthoringClient}
  from '../../experiments/p3/preview/src/d3-authoring-client.mjs';
 import {createD3PublicationLifecycle}
@@ -98,6 +99,17 @@ export async function startD5OwnerCandidate(settings,{
  // A valid session is necessary but NOT sufficient for writes. The private
  // shell separately verifies the exact sandbox source, CSRF/readiness and
  // operation receipt, while the server checks every request independently.
+ // The OAuth server returns only to the canonical candidate root.
+ // Restore a validated read-only article route in this tab after the
+ // server has confirmed owner authorization, before the app boots.
+ let returnStorage=null;
+ try{returnStorage=globalThis.sessionStorage;}catch{}
+ restoreD5OwnerAuthReturn({
+  pathname:globalThis.location?.pathname,
+  hash:globalThis.location?.hash,
+  storage:returnStorage,
+  history:globalThis.history,
+ });
  const shell=createD3OwnerTestShell({origin,request,enabled:()=>true,
   online,storage,makeKey,publishingEnabled:()=>true,
   draftRecovery:true,bootstrap:bootstrapApp});
