@@ -174,13 +174,18 @@ test('D5-browser offline warning spacing matches Notes editor messages',async({p
   await page.setViewportSize({width,height:900});
   await page.setContent(`<style>${css}</style>
     <main id="app" class="site-main">
-      <div class="editor">
-        <form class="editor-form">
-          <div class="toolbar"><button class="btn">Save and Publish</button></div>
-          <div class="editor-notice">
-            <p class="notice error">Editing is only available when Online.</p>
-          </div>
-        </form>
+      <div class="page">
+        <div class="page-header"><h1>Edit synthetic Gear</h1></div>
+        <div class="editor">
+          <div class="editor-notice" aria-live="polite"></div>
+          <form class="editor-form">
+            <div class="toolbar"><button class="btn">Save and Publish</button></div>
+            <div class="editor-notice" aria-live="assertive">
+              <p class="notice error">Editing is only available when Online.</p>
+            </div>
+          </form>
+          <div class="handoff-output"></div>
+        </div>
       </div>
     </main>
     <aside id="app-notice" class="site-main"
@@ -202,7 +207,8 @@ test('D5-browser offline warning spacing matches Notes editor messages',async({p
    return {
     offlineGap:next.top-end.bottom,
     referenceGap:previewNotice.top-note.bottom,
-    editorPadding:getComputedStyle(document.querySelector('#app')).paddingBottom
+    editorPadding:getComputedStyle(document.querySelector('#app')).paddingBottom,
+    formMargin:getComputedStyle(document.querySelector('.editor-form')).marginBottom
    };
   });
   expect(positions.referenceGap).toBeGreaterThanOrEqual(10);
@@ -210,6 +216,7 @@ test('D5-browser offline warning spacing matches Notes editor messages',async({p
   expect(Math.abs(positions.offlineGap-positions.referenceGap))
    .toBeLessThanOrEqual(1);
   expect(positions.editorPadding).toBe('12px');
+  expect(positions.formMargin).toBe('0px');
   // Other reading pages retain the original desktop/mobile bottom padding.
   await page.locator('.editor').evaluate(node=>node.classList.remove('editor'));
   const normalPadding=await page.locator('#app').evaluate(node=>
