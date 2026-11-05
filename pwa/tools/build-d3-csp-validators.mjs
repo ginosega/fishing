@@ -72,16 +72,29 @@ const oldRecord=[
 ].join('\n');
 const newRecord='const recordValidators=Object.freeze({gear:gearItem,kb:kbEntity,catches:catchItem});';
 let safe=originalFile;
-for(const [needle,replacement]of [
- [from,to],
- [oldInit,newInit],
- [oldRecord,newRecord],
- ["ajv.errorsText(validate.errors,{separator:'; '})","schemaErrors(validate.errors)"],
- ["ajv.errorsText(validate.errors)","schemaErrors(validate.errors)"],
-]){
- if(safe.split(needle).length!==2)
-  throw Error('Validation source changed; review CSP transform: '+needle.slice(0,60));
- safe=safe.replace(needle,replacement);
+if(originalFile.includes(from)){
+ // Historical D3 source: compile canonical AJV at packaging time, then
+ // replace the legacy runtime compiler with standalone validator imports.
+ for(const [needle,replacement]of [
+  [from,to],
+  [oldInit,newInit],
+  [oldRecord,newRecord],
+  ["ajv.errorsText(validate.errors,{separator:'; '})","schemaErrors(validate.errors)"],
+  ["ajv.errorsText(validate.errors)","schemaErrors(validate.errors)"],
+ ]){
+  if(safe.split(needle).length!==2)
+   throw Error('Validation source changed; review CSP transform: '+needle.slice(0,60));
+  safe=safe.replace(needle,replacement);
+ }
+}else{
+ // D5 static validation: the canonical source already imports build-time
+ // compiled functions. The separate D3 parity checker still generates
+ // d3-validators.mjs, but there is nothing to rewrite inside validation.mjs.
+ if(!originalFile.includes(
+  "import compiledValidators from './generated/ajv-validators.cjs';")||
+  !originalFile.includes('const validators=Object.freeze({')||
+  !originalFile.includes('const recordValidators=Object.freeze({'))
+  throw Error('Unknown canonical validation source; refuse D3 pilot build');
 }
 if(/\bAjv2020\b|\bajv\.|ajv\/dist/.test(safe))
  throw Error('Runtime AJV compiler leaked into owner pilot validation');
