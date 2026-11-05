@@ -14,7 +14,7 @@ const prefix=process.env.FISHING_BASE||'/fishing/v2-preview/';
 const production=prefix==='/fishing/';
 const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript','.css':'text/css','.json':'application/json','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.webp':'image/webp','.gif':'image/gif'};
 let server,base,temporary,initial,next,fixture;
-const state={legacy:false,disconnected:false,originUnavailable:false,current:'initial',removeOld:false,fail:new Set(),corrupt:new Set(),writes:[],reads:[]};
+const state={legacy:false,disconnected:false,originUnavailable:false,current:'initial',removeOld:false,strictCsp:false,fail:new Set(),corrupt:new Set(),writes:[],reads:[]};
 const readJson=file=>fs.readFile(file,'utf8').then(JSON.parse);
 const sourceData=async()=>({gear:await readJson(path.join(v2,'Gear/gear.json')),kb:await readJson(path.join(v2,'KB/kb.json')),catches:await readJson(path.join(v2,'Catches/catches.json'))});
 const encoded=value=>value.split('/').map(encodeURIComponent).join('/');
@@ -55,7 +55,11 @@ async function serve(request,response){
   if(state.fail.has(relative)){response.writeHead(503);response.end('Injected unavailable asset');return;}
   const file=path.resolve(release.root,relative);if(!file.startsWith(release.root+path.sep))throw new Error('Unsafe test path');
   let bytes=await fs.readFile(file);if(state.corrupt.has(relative)){bytes=Buffer.from(bytes);bytes[bytes.length-1]^=1;}
-  response.writeHead(200,{'Content-Type':mime[path.extname(file)]||'application/octet-stream','Content-Length':bytes.length,'Cache-Control':'no-store'});
+  const headers={'Content-Type':mime[path.extname(file)]||'application/octet-stream',
+   'Content-Length':bytes.length,'Cache-Control':'no-store'};
+  if(state.strictCsp&&relative==='index.html')
+   headers['Content-Security-Policy']="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; font-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; object-src 'none'";
+  response.writeHead(200,headers);
   response.end(request.method==='HEAD'?undefined:bytes);
  }catch{response.writeHead(404);response.end();}
 }
@@ -107,7 +111,19 @@ async function cacheInfo(page){return page.evaluate(async()=>{const names=(await
 // One worker and separate browser contexts keep all service-worker/cache tests isolated.
 test.beforeAll(async()=>{await prepare();server=createServer(serve);await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));base=`http://127.0.0.1:${server.address().port}${prefix}`;});
 test.afterAll(async()=>{if(server)await new Promise(resolve=>server.close(resolve));if(temporary)await fs.rm(temporary,{recursive:true,force:true});});
-test.beforeEach(()=>{state.legacy=false;state.disconnected=false;state.originUnavailable=false;state.current='initial';state.removeOld=false;state.fail.clear();state.corrupt.clear();state.writes.length=0;state.reads.length=0;});
+test.beforeEach(()=>{state.legacy=false;state.disconnected=false;state.originUnavailable=false;state.current='initial';state.removeOld=false;state.strictCsp=false;state.fail.clear();state.corrupt.clear();state.writes.length=0;state.reads.length=0;});
+
+test('strict owner-gateway CSP permits schema validation without dynamic JavaScript',async({page})=>{
+ state.strictCsp=true;
+ const pageErrors=[];
+ page.on('pageerror',error=>pageErrors.push(error.message));
+ await openReady(page);
+ await expect(page.locator('#app .nav-grid .nav-card')).toHaveCount(3);
+ const errors=pageErrors.filter(x=>/EvalError|unsafe-eval|Content Security Policy|Function constructor/i.test(x));
+ expect(errors).toEqual([]);
+ expect(pageErrors).toEqual([]);
+});
+
 
 test('online-only first visit stays usable without a complete cache; explicit update prepares verified offline use',async({page,context})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));

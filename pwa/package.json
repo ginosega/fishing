@@ -10,7 +10,8 @@
     "test": "node --test test/*.test.mjs",
     "build": "node tools/build.mjs",
     "verify": "node tools/verify.mjs",
-    "test:browser": "playwright test"
+    "test:browser": "playwright test",
+    "pretest": "node tools/generate-validators.mjs"
   },
   "dependencies": {
     "ajv": "8.20.0",

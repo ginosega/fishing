@@ -1,5 +1,6 @@
-import Ajv2020 from 'ajv/dist/2020.js';
-import schema from '../contracts/schema.json' with {type:'json'};
+import {validateGearBundle,validateKbBundle,validateCatchBundle,
+ validateGearItem,validateKbEntity,validateCatch}
+ from './generated/ajv-validators.mjs';
 import {DOMAIN,validateSemantics,safePath,pathKey,assert,sequenceFolder} from './shared.mjs';
 import {parseMarkdown,markdownRouteMap} from './markdown.mjs';
 export const TAXONOMY={
@@ -10,25 +11,26 @@ export const TAXONOMY={
  lures:['Chatterbaits / bladed jigs','Spinnerbaits','Crankbaits and hard jerkbaits','Inline spinners','Spoons','Trolling lures','Topwater','Jigs','Soft plastics and swimbaits'],
  bait:['Trout bait'],accessories:['Kayaks','Accessories','Tools','Tackle Management','Electronics','Storage']
 };
-const ajv=new Ajv2020({allErrors:true,strict:true});
-const validators=Object.fromEntries(Object.entries(DOMAIN).map(([key,d])=>[key,ajv.compile({$ref:'#/$defs/'+d.definition,$defs:schema.$defs})]));
-// Cloudflare Workers disallow dynamic JavaScript generation during request
-// handling. Compile the per-record validators once at module initialization,
-// just like the bundle validators above. Never compile schemas in an editor
-// event handler or server-side publication request.
-const recordValidators=Object.freeze(Object.fromEntries(
- Object.entries({gear:'gearItem',kb:'kbEntity',catches:'catch'})
-  .map(([domain,definition])=>[domain,
-   ajv.compile({$ref:'#/$defs/'+definition,$defs:schema.$defs})])
-));
+// Source-of-truth schemas are compiled by tools/generate-validators.mjs.
+ // Only CSP-safe static functions run in a browser or Worker.
+const validators=Object.freeze({
+ gear:validateGearBundle,kb:validateKbBundle,catches:validateCatchBundle,
+});
+const recordValidators=Object.freeze({
+ gear:validateGearItem,kb:validateKbEntity,catches:validateCatch,
+});
+const errorsText=(errors,{separator=', '}={})=>
+ errors?.length?errors.map(error=>
+  'data'+(error.instancePath??'')+' '+(error.message??'must be valid')
+ ).join(separator):'No errors';
 export function validateRecords(data){
- for(const [domain,validate] of Object.entries(validators))if(!validate(data[domain]))throw new Error(`${domain} schema: ${ajv.errorsText(validate.errors,{separator:'; '})}`);
+ for(const [domain,validate] of Object.entries(validators))if(!validate(data[domain]))throw new Error(`${domain} schema: ${errorsText(validate.errors,{separator:'; '})}`);
  return validateSemantics(data,TAXONOMY);
 }
 export function validateRecord(record,domain,otherData){
  assert(['gear','kb','catches'].includes(domain),'Unknown domain');
  const validate=recordValidators[domain];
- if(!validate(record))throw new Error(ajv.errorsText(validate.errors));
+ if(!validate(record))throw new Error(errorsText(validate.errors));
  const data=structuredClone(otherData);const key=DOMAIN[domain].array;
  data[domain][key]=data[domain][key].filter(x=>x.id!==record.id).concat(record);
  return validateRecords(data);

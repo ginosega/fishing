@@ -6,7 +6,7 @@ import {execFileSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import * as esbuild from 'esbuild';
 import sharp from 'sharp';
-import {inventorySource,digest} from './library.mjs';
+import {generateStandaloneValidators} from './generate-validators.mjs';
 import {generateCardThumbnails} from './card-thumbnails.mjs';
 import {generateStaticPageArtwork} from './static-page-artwork.mjs';
 import {encodedPath,DOMAIN} from '../src/shared.mjs';
@@ -40,6 +40,10 @@ const write=async(file,bytes)=>{await fs.mkdir(path.dirname(file),{recursive:tru
 const stableJson=value=>JSON.stringify(value,null,2)+'\n';
 const hashFiles=async root=>{const result=[];async function scan(dir){for(const entry of await fs.readdir(dir,{withFileTypes:true})){const abs=path.join(dir,entry.name);if(entry.isDirectory())await scan(abs);else if(entry.isFile()){const relative=path.relative(root,abs).split(path.sep).join('/'),bytes=await fs.readFile(abs);result.push({path:relative,bytes:bytes.length,sha256:digest(bytes)});}}}await scan(root);return result.sort((a,b)=>a.path.localeCompare(b.path,'en'));};
 export async function build(){
+ // Generate before importing library.mjs, whose validation module imports
+ // this Git-ignored static validator. Direct "node tools/build.mjs" is supported.
+ await generateStandaloneValidators();
+ const {inventorySource,digest}=await import('./library.mjs');
  const icon=await fs.readFile(path.join(repo,'pwa/icon.png'));const iconMeta=await sharp(icon).metadata();
  if(iconMeta.format!=='png'||iconMeta.width!==iconMeta.height)throw new Error('Application icon must be a square PNG');
  await sharp(icon).raw().toBuffer();
