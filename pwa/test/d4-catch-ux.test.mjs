@@ -162,7 +162,7 @@ test('D4-UX14 Catch detail displays owner-only Edit item before early return',()
  const stop=ui.indexOf('appendPicture(page,record,domain);',start);
  assert(start>=0&&stop>start);
  const branch=ui.slice(start,stop);
- assert.match(branch,/if\(v3Mode&&canAuthor\(\)\)/);
+ assert.match(branch,/if\(v3Mode&&canAuthor\(\)&&canEditRecord\(domain,record.id\)\)/);
  assert(branch.includes("page.append(anchor('Edit item',`#/catches/edit/${record.id}`,'page-edit-link'))"));
  assert(branch.indexOf("page.append(anchor('Edit item'")<branch.lastIndexOf('return page;'));
  assert(ui.includes("case 'catch-edit':page=await renderCatchEditor(route.id)"));
