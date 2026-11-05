@@ -37,7 +37,7 @@ const recordTitle=(ctx,domain,record)=>domain==='catches'?`${ctx.maps.kb.get(rec
 export function createApp(ctx){
  const root=document.getElementById('app'),alertHost=document.getElementById('app-notice'),offlineHost=document.getElementById('offline-status');
  const routes=markdownRouteMap(ctx.data),exists=ctx.v3?.source?.files instanceof Set?
-  new Set(ctx.v3.source.files):
+  new Set([...ctx.v3.source.files,...(ctx.v3?.display?.canonicalFiles??[])]):
   new Set(ctx.manifest.files.filter(x=>x.path.startsWith(`releases/${ctx.release.id}/content/`)).map(x=>x.path.slice(`releases/${ctx.release.id}/content/`.length)));
  let currentHash=location.hash||'#/',route=parseRoute(currentHash),editor=null,serial=0,offline=null,approvedNavigation=null,previousHash=null;
  let ownerController=null,savingPublication=false;
@@ -64,6 +64,15 @@ export function createApp(ctx){
    (offline?.getModeAvailable?.()===true?offline.getMode():'Checking'):null});
  const canAuthor=()=>!v3Mode||(ctx.v3?.authorized===true&&
   typeof ctx.v3?.publish==='function'&&onlineForEditing());
+ // D5 combines only the reading view, not the authoring repository.
+ const ownerDisplay=ctx.v3?.display??null;
+ const canEditRecord=(domain,id)=>!ownerDisplay||
+  ownerDisplay.isSandbox(domain,id);
+ const sandboxEditorContext=()=>ownerDisplay?
+  {...ctx,data:ownerDisplay.sandboxData,maps:ownerDisplay.sandboxMaps}:ctx;
+ const recordProvenance=(domain,id)=>!ownerDisplay?null:
+  ownerDisplay.isCanonical(domain,id)?'Real library · Read-only':
+  ownerDisplay.isSandbox(domain,id)?'Sandbox · Test record':null;
  const EDITING_OFFLINE_MESSAGE='Editing is only available when Online. Switch to Automatic mode and connect to the internet to add or edit items.';
  const EDITOR_ROUTES=new Set(['gear-add','gear-edit','kb-add','kb-edit','catch-add','catch-edit']);
  const isEditorRoute=hash=>EDITOR_ROUTES.has(parseRoute(hash).page);
@@ -75,6 +84,9 @@ export function createApp(ctx){
    throw new Error('Reading mode could not be verified. Publishing is paused; reopen Connection Status and retry.');
   // A different tab may have changed the preference since this form opened.
   if(v3Mode&&!onlineForEditing())throw new Error(EDITING_OFFLINE_MESSAGE);
+  if(ownerDisplay&&(!ownerDisplay.mayPublish(args[0])||
+   args[0]?.base?.sourceRevision!==ctx.v3.source.sourceRevision))
+   throw new Error('Only verified private sandbox changes may be published.');
   savingPublication=true;
   paintConnectionIndicator();
   try{return await ctx.v3.publish(...args);}
@@ -107,8 +119,8 @@ export function createApp(ctx){
  async function copy(value){try{await navigator.clipboard.writeText(value);notify('Copied to clipboard.','success');}catch{const area=el('textarea',{readonly:true,value});alertHost.replaceChildren(text('p','Select and copy this text:'),area);area.focus();area.select();}}
  function frame(title,parent,actions=[],subtitle=''){const header=el('div',{class:'page-header'},el('div',{class:'page-heading'},text('h1',title),subtitle?text('p',subtitle,'page-subtitle'):null),el('div',{class:'page-actions'},...actions,parent?button('Back',()=>navigate(parent)):null));return el('div',{class:'page'},header);}
  function card(title,description,href,icon='',image=null){return el('a',{href,class:'nav-card',onclick:event=>{event.preventDefault();navigate(href);}},image||(icon?el('span',{class:'card-icon','aria-hidden':'true'},icon):el('span',{class:'card-thumbnail card-spacer','aria-hidden':'true'})),el('div',{},text('h2',title),description?text('p',description,'muted'):null));}
- function recordCard(domain,record){const href=routeFor(domain,record.id),pictureSrc=record.picture?.src||(domain==='catches'?ctx.maps.kb.get(record.speciesId)?.picture?.src:null),image=pictureSrc?ctx.thumbnail(pictureSrc):null;const item=card(domain==='catches'?(ctx.maps.kb.get(record.speciesId)?.name||record.speciesName||'Catch'):recordTitle(ctx,domain,record),domain==='gear'?record.type:domain==='kb'?record.description||'':record.size||'',href,'',image?el('img',{src:image,alt:'',loading:'lazy',decoding:'async',class:'card-thumbnail',onerror:event=>{event.target.hidden=true;}}):null);if(domain==='catches')item.querySelector('h2').after(el('time',{class:'catch-date muted',datetime:record.date},record.date));return item;}
- function renderHome(){const page=frame('Fishing Companion',null);page.append(text('p','Fishing reference and catch log','lead'),el('div',{class:'nav-grid home-grid'},card('My Gear',ROOT_SUBTITLES.gear,'#/inventory','🎒'),card('Knowledge Base',ROOT_SUBTITLES.kb,'#/kb','📚'),card('Catch Log','Recorded catches','#/catches','🐟')));return page;}
+ function recordCard(domain,record){const href=routeFor(domain,record.id),pictureSrc=record.picture?.src||(domain==='catches'?ctx.maps.kb.get(record.speciesId)?.picture?.src:null),image=pictureSrc?ctx.thumbnail(pictureSrc):null;const item=card(domain==='catches'?(ctx.maps.kb.get(record.speciesId)?.name||record.speciesName||'Catch'):recordTitle(ctx,domain,record),domain==='gear'?record.type:domain==='kb'?record.description||'':record.size||'',href,'',image?el('img',{src:image,alt:'',loading:'lazy',decoding:'async',class:'card-thumbnail',onerror:event=>{event.target.hidden=true;}}):null);if(domain==='catches')item.querySelector('h2').after(el('time',{class:'catch-date muted',datetime:record.date},record.date));const provenance=recordProvenance(domain,record.id);if(provenance)item.append(text('p',provenance,'hint'));return item;}
+ function renderHome(){const page=frame('Fishing Companion',null);page.append(text('p','Fishing reference and catch log','lead'));if(ownerDisplay)page.append(text('p','D5 test: Real library records are read-only. Sandbox test records are separately labeled and are the only records eligible for editing or publishing.','hint'));page.append(el('div',{class:'nav-grid home-grid'},card('My Gear',ROOT_SUBTITLES.gear,'#/inventory','🎒'),card('Knowledge Base',ROOT_SUBTITLES.kb,'#/kb','📚'),card('Catch Log','Recorded catches','#/catches','🐟')));return page;}
  function listControls(domain,records,{search=false,filter=false,sort='name',title='',pinnedId=''}={}){
   const controls=el('div',{class:'list-controls'}),results=el('div',{class:'record-grid'}),count=text('p','','result-count');let query='',type='';
   if(search){const searchInput=input('',{type:'search',placeholder:'Search '+title});searchInput.addEventListener('input',()=>{query=searchInput.value.toLocaleLowerCase();draw();});searchInput.setAttribute('aria-label','Search');controls.append(searchInput);}
@@ -152,13 +164,16 @@ export function createApp(ctx){
  async function appendMarkdown(page,pathValue,heading){
   if(!pathValue)return;
   let content;
-  if(ctx.v3?.source?.markdown instanceof Map){
-   // The test-only editor must never mix public V2 Markdown with the
-   // private sandbox's immutable record/sourceRevision.
-   if(!ctx.v3.source.markdown.has(pathValue))
-    throw new Error('Sandbox Markdown is unavailable: '+pathValue);
+  if(ctx.v3?.source?.markdown instanceof Map&&
+   ctx.v3.source.markdown.has(pathValue)){
+   // Only the sandbox's immutable source supplies editable narratives.
    content=ctx.v3.source.markdown.get(pathValue);
   }else{
+   // D5 canonical notes come only from the immutable static Pages release.
+   // An unknown sandbox narrative never falls back to public content.
+   if(ctx.v3?.source?.markdown instanceof Map&&
+    (!ownerDisplay||!ownerDisplay.canonicalFiles.has(pathValue)))
+    throw new Error('Sandbox Markdown is unavailable: '+pathValue);
    const response=await fetch(ctx.asset(pathValue));
    if(!response.ok)
     throw new Error(`Cannot load ${pathValue}: HTTP ${response.status}`);
@@ -169,6 +184,8 @@ export function createApp(ctx){
  function historySection(domain,record){const catches=catchHistory(ctx.data,domain,record.id);if(!catches.length)return null;return section('Catch History',el('div',{class:'record-grid'},...catches.map(c=>recordCard('catches',c))));}
  async function renderDetail(domain,id){const record=ctx.maps[domain].get(id);if(!record)return missing('This item does not exist or its ID has been retired.',rootRoute(domain));
   const parent=domain==='catches'?'#/catches':categoryRoute(domain,domain==='gear'?record.category:record.type),page=frame(recordTitle(ctx,domain,record),parent,[],domain==='gear'?categoryLabel(domain,record.category)+' – '+record.type:domain==='kb'?record.description||'':'');
+  const provenance=recordProvenance(domain,id);
+  if(provenance)page.append(text('p',provenance,'hint'));
   if(domain==='catches'){
    const species=ctx.maps.kb.get(record.speciesId),location=ctx.maps.kb.get(record.locationId),lure=ctx.maps.gear.get(record.lureOrBaitId);
    if(species?.picture)appendPicture(page,{...species,name:species.name},'kb');
@@ -176,7 +193,7 @@ export function createApp(ctx){
    await appendMarkdown(page,record.notes,'Notes');
    // Catch details return early, before the Gear/KB edit footer.
    // Preserve the private owner-only authoring gate and normal route.
-   if(v3Mode&&canAuthor())
+   if(v3Mode&&canAuthor()&&canEditRecord(domain,record.id))
     page.append(anchor('Edit item',`#/catches/edit/${record.id}`,'page-edit-link'));
    return page;
   }
@@ -189,20 +206,21 @@ export function createApp(ctx){
   }else{
    await appendMarkdown(page,record.content,'Notes');
   }
-  const history=historySection(domain,record);if(history)page.append(history);if(canAuthor()&&(domain!=='catches'||v3Mode))page.append(anchor('Edit item',domain==='gear'?`#/inventory/edit/${record.id}`:domain==='kb'?`#/kb/edit/${record.id}`:`#/catches/edit/${record.id}`,'page-edit-link'));return page;
+  const history=historySection(domain,record);if(history)page.append(history);if(canAuthor()&&canEditRecord(domain,record.id)&&(domain!=='catches'||v3Mode))page.append(anchor('Edit item',domain==='gear'?`#/inventory/edit/${record.id}`:domain==='kb'?`#/kb/edit/${record.id}`:`#/catches/edit/${record.id}`,'page-edit-link'));return page;
  }
  function renderCatches(){const page=frame('Recorded catches','#/');if(v3Mode&&canAuthor())page.querySelector('.page-actions').prepend(anchor('Add Catch','#/catches/add','page-edit-link'));page.append(el('div',{class:'record-grid'},...sortCatches(ctx.data.catches.catches).map(c=>recordCard('catches',c))));return page;}
- async function renderEditor(domain,id,category,type){if(v3Mode&&!onlineForEditing())return missing(EDITING_OFFLINE_MESSAGE,rootRoute(domain));if(!canAuthor())return missing('Owner sign-in is required to edit. Open Connection Status to sign in.',rootRoute(domain));const record=id?ctx.maps[domain].get(id):null;if(id&&!record)return missing('This item does not exist or its ID has been retired.',rootRoute(domain));const fallback=categoryRoute(domain,domain==='gear'?category:type);const origin=previousHash===rootRoute(domain)||previousHash===fallback?previousHash:fallback;const parent=record?routeFor(domain,record.id):fallback;const exitTarget=record?parent:origin;
-  const page=frame(record?'Edit '+record.name:domain==='gear'?'Add Gear':'Add Entry',parent,record?[button('Create Link',()=>copyLink(domain,record.id))]:[]);const created=await createEditor(ctx,{domain,baseRecord:record,category,type,onBack:()=>navigate(parent),onExit:()=>{disposeEditor();navigate(exitTarget);},onDirty:()=>{},publishChange:v3Mode?guardedPublish:null,onPrepared:v3Mode?(receipt)=>ctx.v3.onPublicationReceipt?.(receipt):null});editor=created;page.append(created.element);return page;
+ async function renderEditor(domain,id,category,type){if(v3Mode&&!onlineForEditing())return missing(EDITING_OFFLINE_MESSAGE,rootRoute(domain));if(!canAuthor())return missing('Owner sign-in is required to edit. Open Connection Status to sign in.',rootRoute(domain));if(id&&!canEditRecord(domain,id))return missing('This real-library record is read-only in the D5 test.',rootRoute(domain));const record=id?ctx.maps[domain].get(id):null;if(id&&!record)return missing('This item does not exist or its ID has been retired.',rootRoute(domain));const fallback=categoryRoute(domain,domain==='gear'?category:type);const origin=previousHash===rootRoute(domain)||previousHash===fallback?previousHash:fallback;const parent=record?routeFor(domain,record.id):fallback;const exitTarget=record?parent:origin;
+  const page=frame(record?'Edit '+record.name:domain==='gear'?'Add Gear':'Add Entry',parent,record?[button('Create Link',()=>copyLink(domain,record.id))]:[]);const created=await createEditor(sandboxEditorContext(),{domain,baseRecord:record,category,type,onBack:()=>navigate(parent),onExit:()=>{disposeEditor();navigate(exitTarget);},onDirty:()=>{},publishChange:v3Mode?guardedPublish:null,onPrepared:v3Mode?(receipt)=>ctx.v3.onPublicationReceipt?.(receipt):null});editor=created;page.append(created.element);return page;
  }
  async function renderCatchEditor(id=null){
   if(v3Mode&&!onlineForEditing())return missing(EDITING_OFFLINE_MESSAGE,'#/catches');
   if(!v3Mode||!canAuthor())return missing('Owner sign-in is required to edit Catches. Open Connection Status to sign in.','#/catches');
+  if(id&&!canEditRecord('catches',id))return missing('This real-library Catch is read-only in the D5 test.','#/catches');
   const record=id?ctx.maps.catches.get(id):null;
   if(id&&!record)return missing('This Catch does not exist.','#/catches');
   const parent=record?routeFor('catches',record.id):'#/catches';
   const page=frame(record?'Edit Catch':'Add Catch',parent);
-  const created=await createCatchEditor(ctx,{baseRecord:record,
+  const created=await createCatchEditor(sandboxEditorContext(),{baseRecord:record,
    onBack:()=>navigate(parent),onExit:()=>{disposeEditor();navigate('#/catches');},
    onDirty:()=>{},publishChange:guardedPublish,
    onPrepared:receipt=>ctx.v3.onPublicationReceipt?.(receipt),

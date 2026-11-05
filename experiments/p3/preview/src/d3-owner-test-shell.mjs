@@ -24,6 +24,7 @@ export function createD3OwnerTestShell({
  origin,request,bootstrap,enabled=()=>false,online=()=>true,
  storage=null,makeKey=()=>crypto.randomUUID(),
  publishingEnabled=()=>false,draftRecovery=false,
+ displayPublishedLibrary=false,
 }={}){
  need(typeof request==='function'&&typeof bootstrap==='function'&&
   [enabled,online,makeKey,publishingEnabled].every(x=>typeof x==='function'),
@@ -74,6 +75,8 @@ export function createD3OwnerTestShell({
   const staged=new WeakMap();
   const v3={
    enabled:true,authorized:false,
+   // D5 owner candidate only; the original D3 pilot remains sandbox-only.
+   ...(displayPublishedLibrary===true?{displayPublishedLibrary:true}:{}),
    auth:owner,lifecycle,
    ...(drafts?{drafts}:{}),
    // Owner-only revision check. The UI reloads its validated private

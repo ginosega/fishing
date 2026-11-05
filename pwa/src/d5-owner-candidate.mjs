@@ -112,6 +112,6 @@ export async function startD5OwnerCandidate(settings,{
  });
  const shell=createD3OwnerTestShell({origin,request,enabled:()=>true,
   online,storage,makeKey,publishingEnabled:()=>true,
-  draftRecovery:true,bootstrap:bootstrapApp});
+  draftRecovery:true,displayPublishedLibrary:true,bootstrap:bootstrapApp});
  return shell.start(settings);
 }
