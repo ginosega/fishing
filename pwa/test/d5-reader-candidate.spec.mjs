@@ -165,36 +165,55 @@ test('D5-browser cached Work Offline retains untagged Banks Lake and Garmin imag
   .toHaveAttribute('data-reading-mode','work-offline');
 });
 
-test('D5-browser editor offline notices stack without the page gutter',async({page})=>{
- // Reproduce the real layout: inline editor error in #app followed by the
- // separate live notice host. Other pages retain the ordinary main gutter.
+test('D5-browser offline warning spacing matches Notes editor messages',async({page})=>{
+ // The green Markdown-preview notice is separated from the Notes preview by
+ // .notes-editor's existing 12px gap. Match that gap between the red in-form
+ // edit restriction and the amber sibling global Work Offline warning.
  const css=await fs.readFile(path.join(pwaRoot,'src/styles.css'),'utf8');
- await page.setViewportSize({width:1180,height:900});
- await page.setContent(`<style>${css}</style>
-   <main id="app" class="site-main">
-     <div class="editor">
-       <form class="editor-form">
-         <div class="toolbar"><button class="btn">Save and Publish</button></div>
-         <div class="editor-notice">
-           <p class="notice error">Editing is only available when Online.</p>
-         </div>
-       </form>
-     </div>
-   </main>
-   <aside id="app-notice" class="site-main"
-     style="min-height:0;padding-top:0;padding-bottom:0">
-     <p class="notice warning">The unsaved editor stays open.</p>
-   </aside>`);
- const editorError=await page.locator('.notice.error').boundingBox();
- const offlineWarning=await page.locator('.notice.warning').boundingBox();
- expect(editorError).not.toBeNull();
- expect(offlineWarning).not.toBeNull();
- const gap=offlineWarning.y-(editorError.y+editorError.height);
- expect(gap).toBeGreaterThanOrEqual(0);
- expect(gap).toBeLessThanOrEqual(24);
- // Do not change the normal reading page's default bottom padding.
- await page.locator('.editor').evaluate(node=>node.classList.remove('editor'));
- const normalPadding=await page.locator('#app').evaluate(node=>
-  getComputedStyle(node).paddingBottom);
- expect(normalPadding).toBe('70px');
+ for(const width of [1180,390]){
+  await page.setViewportSize({width,height:900});
+  await page.setContent(`<style>${css}</style>
+    <main id="app" class="site-main">
+      <div class="editor">
+        <form class="editor-form">
+          <div class="toolbar"><button class="btn">Save and Publish</button></div>
+          <div class="editor-notice">
+            <p class="notice error">Editing is only available when Online.</p>
+          </div>
+        </form>
+      </div>
+    </main>
+    <aside id="app-notice" class="site-main"
+      style="min-height:0;padding-top:0;padding-bottom:0">
+      <p class="notice warning">The unsaved editor stays open.</p>
+    </aside>
+    <div class="notes-editor" id="reference-notes">
+      <div class="markdown-preview">TEST</div>
+      <div class="notes-editor-message">
+        <p class="notice success">Markdown preview is local and has not been saved.</p>
+      </div>
+    </div>`);
+  const positions=await page.evaluate(()=>{
+   const rect=selector=>document.querySelector(selector).getBoundingClientRect();
+   const end=rect('.editor-notice .notice.error');
+   const next=rect('#app-notice .notice.warning');
+   const note=rect('#reference-notes .markdown-preview');
+   const previewNotice=rect('#reference-notes .notice.success');
+   return {
+    offlineGap:next.top-end.bottom,
+    referenceGap:previewNotice.top-note.bottom,
+    editorPadding:getComputedStyle(document.querySelector('#app')).paddingBottom
+   };
+  });
+  expect(positions.referenceGap).toBeGreaterThanOrEqual(10);
+  expect(positions.referenceGap).toBeLessThanOrEqual(14);
+  expect(Math.abs(positions.offlineGap-positions.referenceGap))
+   .toBeLessThanOrEqual(1);
+  expect(positions.editorPadding).toBe('12px');
+  // Other reading pages retain the original desktop/mobile bottom padding.
+  await page.locator('.editor').evaluate(node=>node.classList.remove('editor'));
+  const normalPadding=await page.locator('#app').evaluate(node=>
+   getComputedStyle(node).paddingBottom);
+  expect(normalPadding).toBe(width<=650?'50px':'70px');
+ }
 });
