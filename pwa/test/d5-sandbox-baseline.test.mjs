@@ -1,5 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {spawnSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
 import {mergeD5SandboxBaseline} from '../src/d5-sandbox-baseline.mjs';
 
 const make=()=>({
@@ -35,4 +37,13 @@ test('D5-BASE03 refuse duplicate IDs from the same source',()=>{
  const base=make();
  base.catches.catches.push({id:'real-catch'});
  assert.throws(()=>mergeD5SandboxBaseline(base,sandbox()),/duplicate canonical catches/);
+});
+
+test('D5-BASE04 read-only planner parses and fails closed without pinned inputs',()=>{
+ const file=fileURLToPath(new URL('../tools/plan-d5-sandbox-baseline.mjs',import.meta.url));
+ const syntax=spawnSync(process.execPath,['--check',file],{encoding:'utf8'});
+ assert.equal(syntax.status,0,syntax.stderr);
+ const noInputs=spawnSync(process.execPath,[file],{encoding:'utf8'});
+ assert.notEqual(noInputs.status,0,'a missing source must not stage any merge');
+ assert.match(noInputs.stderr,/Missing --canonical/);
 });
