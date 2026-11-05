@@ -26,9 +26,13 @@ export async function generateStandaloneValidators(){
  const ajv=new Ajv2020({allErrors:true,strict:true,
   code:{source:true,esm:true}});
  const validators={};
- for(const [name,definition] of Object.entries(definitions))
-  validators[name]=ajv.compile({$ref:'#/$defs/'+definition,
+ for(const [name,definition] of Object.entries(definitions)){
+  const id='https://ginosega.github.io/fishing/v2/compiled/'+definition;
+  ajv.addSchema({$id:id,$ref:'#/$defs/'+definition,
    $defs:schema.$defs});
+  // AJV's standalone multi-export API maps names to registered schema IDs.
+  validators[name]=id;
+ }
  const compiled=standaloneCode(ajv,validators);
  // Do not substitute a string-based runtime compiler; enforce no eval.
  if(/\b(?:new\s+Function|eval\s*\()/.test(compiled))
