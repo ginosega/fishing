@@ -246,4 +246,6 @@
 
 /* In an active editor, stack the in-form restriction and sibling offline warning without the normal page gutter. */
 #app.site-main:has(.editor){min-height:0;padding-bottom:12px}
+/* Normalize the browser default form bottom margin; otherwise the alerts are 16px too far apart. */
+#app.site-main:has(.editor) .editor-form{margin-bottom:0}
 #app.site-main:has(.editor) .editor-form>.editor-notice .notice{margin-bottom:0}
