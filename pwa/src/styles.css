@@ -243,3 +243,7 @@
 .catch-lure-kind legend{font-weight:600;margin-bottom:7px}
 .catch-lure-kind label{display:inline-flex;align-items:center;gap:6px}
 .catch-lure-kind input{width:auto}
+
+/* In an active editor, stack the in-form restriction and sibling offline warning without the normal page gutter. */
+#app.site-main:has(.editor){min-height:0;padding-bottom:0}
+#app.site-main:has(.editor) .editor-form>.editor-notice .notice{margin-bottom:0}

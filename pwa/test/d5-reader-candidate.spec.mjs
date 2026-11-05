@@ -164,3 +164,37 @@ test('D5-browser cached Work Offline retains untagged Banks Lake and Garmin imag
  await expect(page.locator('#connection-status'))
   .toHaveAttribute('data-reading-mode','work-offline');
 });
+
+test('D5-browser editor offline notices stack without the page gutter',async({page})=>{
+ // Reproduce the real layout: inline editor error in #app followed by the
+ // separate live notice host. Other pages retain the ordinary main gutter.
+ const css=await fs.readFile(path.join(pwaRoot,'src/styles.css'),'utf8');
+ await page.setViewportSize({width:1180,height:900});
+ await page.setContent(`<style>${css}</style>
+   <main id="app" class="site-main">
+     <div class="editor">
+       <form class="editor-form">
+         <div class="toolbar"><button class="btn">Save and Publish</button></div>
+         <div class="editor-notice">
+           <p class="notice error">Editing is only available when Online.</p>
+         </div>
+       </form>
+     </div>
+   </main>
+   <aside id="app-notice" class="site-main"
+     style="min-height:0;padding-top:0;padding-bottom:0">
+     <p class="notice warning">The unsaved editor stays open.</p>
+   </aside>`);
+ const editorError=await page.locator('.notice.error').boundingBox();
+ const offlineWarning=await page.locator('.notice.warning').boundingBox();
+ expect(editorError).not.toBeNull();
+ expect(offlineWarning).not.toBeNull();
+ const gap=offlineWarning.y-(editorError.y+editorError.height);
+ expect(gap).toBeGreaterThanOrEqual(0);
+ expect(gap).toBeLessThanOrEqual(24);
+ // Do not change the normal reading page's default bottom padding.
+ await page.locator('.editor').evaluate(node=>node.classList.remove('editor'));
+ const normalPadding=await page.locator('#app').evaluate(node=>
+  getComputedStyle(node).paddingBottom);
+ expect(normalPadding).toBe('70px');
+});
