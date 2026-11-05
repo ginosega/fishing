@@ -6,12 +6,14 @@ import {execFileSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import * as esbuild from 'esbuild';
 import sharp from 'sharp';
+import {createHash} from 'node:crypto';
 import {generateStandaloneValidators} from './generate-validators.mjs';
 import {generateCardThumbnails} from './card-thumbnails.mjs';
 import {generateStaticPageArtwork} from './static-page-artwork.mjs';
 import {encodedPath,DOMAIN} from '../src/shared.mjs';
 import {V3_READER_CANDIDATE_BASE} from '../src/v3-reader-candidate.mjs';
 import {D5_OWNER_CANDIDATE_BASE} from '../src/d5-owner-candidate.mjs';
+const digest=bytes=>createHash('sha256').update(bytes).digest('hex');
 const here=path.dirname(fileURLToPath(import.meta.url)),repo=path.resolve(here,'../..');
 const args=process.argv.slice(2),option=(key,fallback)=>args.find(x=>x.startsWith(key+'='))?.slice(key.length+1)||fallback;
 const base=option('--base','/fishing/v2-preview/');
@@ -43,7 +45,7 @@ export async function build(){
  // Generate before importing library.mjs, whose validation module imports
  // this Git-ignored static validator. Direct "node tools/build.mjs" is supported.
  await generateStandaloneValidators();
- const {inventorySource,digest}=await import('./library.mjs');
+ const {inventorySource}=await import('./library.mjs');
  const icon=await fs.readFile(path.join(repo,'pwa/icon.png'));const iconMeta=await sharp(icon).metadata();
  if(iconMeta.format!=='png'||iconMeta.width!==iconMeta.height)throw new Error('Application icon must be a square PNG');
  await sharp(icon).raw().toBuffer();
