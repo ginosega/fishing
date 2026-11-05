@@ -8,11 +8,9 @@ import * as esbuild from 'esbuild';
 import sharp from 'sharp';
 import {createHash} from 'node:crypto';
 import {generateStandaloneValidators} from './generate-validators.mjs';
-import {generateCardThumbnails} from './card-thumbnails.mjs';
 import {generateStaticPageArtwork} from './static-page-artwork.mjs';
 import {encodedPath,DOMAIN} from '../src/shared.mjs';
 import {V3_READER_CANDIDATE_BASE} from '../src/v3-reader-candidate.mjs';
-import {D5_OWNER_CANDIDATE_BASE} from '../src/d5-owner-candidate.mjs';
 const digest=bytes=>createHash('sha256').update(bytes).digest('hex');
 const here=path.dirname(fileURLToPath(import.meta.url)),repo=path.resolve(here,'../..');
 const args=process.argv.slice(2),option=(key,fallback)=>args.find(x=>x.startsWith(key+'='))?.slice(key.length+1)||fallback;
@@ -26,9 +24,6 @@ const v3ReadingMode=args.includes('--v3-reading-mode');
 const v3ReaderCandidate=args.includes('--v3-reader-candidate');
 const v3OwnerCandidate=args.includes('--v3-owner-candidate');
 if(v3ReaderCandidate&&v3OwnerCandidate)throw new Error('V3 candidate modes are mutually exclusive');
-if(v3OwnerCandidate&&(!v3ReadingMode||base!==D5_OWNER_CANDIDATE_BASE||
- !args.some(x=>x.startsWith('--out='))))
- throw new Error('V3 owner candidate requires --v3-reading-mode, exact isolated --base and explicit --out');
 if(v3ReaderCandidate&&(!v3ReadingMode||base!==V3_READER_CANDIDATE_BASE||
  !args.some(x=>x.startsWith('--out='))))
  throw new Error('V3 reader candidate requires --v3-reading-mode, exact isolated --base and explicit --out');
@@ -42,10 +37,20 @@ const write=async(file,bytes)=>{await fs.mkdir(path.dirname(file),{recursive:tru
 const stableJson=value=>JSON.stringify(value,null,2)+'\n';
 const hashFiles=async root=>{const result=[];async function scan(dir){for(const entry of await fs.readdir(dir,{withFileTypes:true})){const abs=path.join(dir,entry.name);if(entry.isDirectory())await scan(abs);else if(entry.isFile()){const relative=path.relative(root,abs).split(path.sep).join('/'),bytes=await fs.readFile(abs);result.push({path:relative,bytes:bytes.length,sha256:digest(bytes)});}}}await scan(root);return result.sort((a,b)=>a.path.localeCompare(b.path,'en'));};
 export async function build(){
- // Generate before importing library.mjs, whose validation module imports
- // this Git-ignored static validator. Direct "node tools/build.mjs" is supported.
+ // Cold-checkout safety: imports of card-thumbnails.mjs and
+ // d5-owner-candidate.mjs transitively reach validation.mjs, which imports
+ // our Git-ignored AJV module. They MUST load only after this generation.
+ // Static imports here run before build() and would fail on a clean machine.
  await generateStandaloneValidators();
- const {inventorySource}=await import('./library.mjs');
+ const [{inventorySource},{generateCardThumbnails},{D5_OWNER_CANDIDATE_BASE}]=
+  await Promise.all([
+   import('./library.mjs'),
+   import('./card-thumbnails.mjs'),
+   import('../src/d5-owner-candidate.mjs'),
+  ]);
+ if(v3OwnerCandidate&&(!v3ReadingMode||base!==D5_OWNER_CANDIDATE_BASE||
+   !args.some(x=>x.startsWith('--out='))))
+  throw new Error('V3 owner candidate requires --v3-reading-mode, exact isolated --base and explicit --out');
  const icon=await fs.readFile(path.join(repo,'pwa/icon.png'));const iconMeta=await sharp(icon).metadata();
  if(iconMeta.format!=='png'||iconMeta.width!==iconMeta.height)throw new Error('Application icon must be a square PNG');
  await sharp(icon).raw().toBuffer();

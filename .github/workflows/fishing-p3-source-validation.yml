@@ -57,15 +57,21 @@ jobs:
       - name: Exercise all PWA source unit tests including P3 mock + real-source tests
         working-directory: pwa
         run: npm test
-      - name: Build and byte-verify isolated V3 reader candidate (no deploy)
+      - name: Build and byte-verify isolated V3 reader candidate (clean checkout, no deploy)
         working-directory: pwa
         run: |
+          # npm test generated this ignored file earlier. Delete it to prove
+          # the direct build command generates AJV before transitive imports.
+          rm -f src/generated/ajv-validators.cjs
+          test ! -e src/generated/ajv-validators.cjs
           node tools/build.mjs --base=/fishing/__v3_reader_candidate__/ --v3-reading-mode --v3-reader-candidate --out=/tmp/fishing-v3-reader-candidate
           node tools/verify.mjs --out=/tmp/fishing-v3-reader-candidate
           node --input-type=module -e "import fs from 'node:fs';const p='/tmp/fishing-v3-reader-candidate/';const r=JSON.parse(fs.readFileSync(p+'release.json'));const m=JSON.parse(fs.readFileSync(p+r.manifest));if(m.base!=='/fishing/__v3_reader_candidate__/'||m.v3ReaderCandidate!==true||m.releaseId!==r.id)process.exit(1);console.log('PASS: private candidate manifest and release match isolated scope')"
-      - name: Build and verify isolated V3 owner candidate (no deploy)
+      - name: Build and verify isolated V3 owner candidate (clean checkout, no deploy)
         working-directory: pwa
         run: |
+          rm -f src/generated/ajv-validators.cjs
+          test ! -e src/generated/ajv-validators.cjs
           node tools/build.mjs --base=/fishing/__v3_owner_candidate__/ --v3-reading-mode --v3-owner-candidate --out=/tmp/fishing-v3-owner-candidate
           node tools/verify.mjs --out=/tmp/fishing-v3-owner-candidate
           node tools/stage-v3-owner-pages.mjs --candidate=/tmp/fishing-v3-owner-candidate --out=/tmp/fishing-v3-owner-pages --expected-source="$GITHUB_SHA"
