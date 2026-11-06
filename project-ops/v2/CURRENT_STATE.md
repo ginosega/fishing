@@ -1,6 +1,8 @@
 # Fishing Project — current state
 
-Last reconciled: **2026-11-05 Pacific (2026-11-06 UTC)**. Bounded semantic review checked the default-main [PROJECT_ROUTER.md](../../PROJECT_ROUTER.md), canonical governance ref, application PR/source/CI and owner Cloudflare/Edge receipts in [issue #341](https://github.com/ginosega/fishing/issues/341). **Operating Model v2 ADOPTED.** No sandbox publication, D1 migration or public V3 cutover has been authorized.
+Last reconciled (UTC): **2026-11-06** (owner field/Cloudflare evidence observed 2026-11-05 Pacific). Bounded semantic review checked the default-main [PROJECT_ROUTER.md](../../PROJECT_ROUTER.md), canonical governance ref, application PR/source/CI and owner Cloudflare/Edge receipts in [issue #341](https://github.com/ginosega/fishing/issues/341). **Operating Model v2 ADOPTED.** No sandbox publication, D1 migration or public V3 cutover has been authorized.
+
+Source baseline: isolated D5 owner integration `feature/fish118-d5-owner-integration@ff9908dc8965cd8713f04cc86bbecd8d78dfd94e` (not public `main`); default-main project router verified and canonical governance source `governance/project-ops` at initial audit ref `db0319f57b455ea3e2258f15e8cd1a55370eee52`. [PR #350](https://github.com/ginosega/fishing/pull/350) · [source CI #42128911310](https://github.com/ginosega/fishing/actions/runs/42128911310).
 
 ## Environments
 
