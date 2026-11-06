@@ -31,20 +31,27 @@ export const D5_OWNER_FIRST_VISIT_SCRIPT=`(()=>{
  };
  const load=()=>{
   if(finished)return;finished=true;cleanup();
-  try{sessionStorage.removeItem(retryKey);}catch{}
-  for(const spec of [
-   ['manifest','manifest.webmanifest',''],
-   ['icon','icon.png','image/png'],
-   ['apple-touch-icon','icon.png','']]){
-   const item=document.createElement('link');item.rel=spec[0];
-   item.href=new URL(spec[1],root).href;
-   if(spec[2])item.type=spec[2];
-   document.head.append(item);
-  }
-  const script=document.createElement('script');
-  script.src=new URL('loader.js',root).href;
-  script.onerror=()=>showError('The verified startup loader is unavailable. Retry while online.');
-  document.head.append(script);
+  // Dynamic scripts are async by default. Unlike the original deferred
+  // loader, they can execute before the document body has been parsed.
+  const attachLoader=()=>{
+   try{sessionStorage.removeItem(retryKey);}catch{}
+   for(const spec of [
+    ['manifest','manifest.webmanifest',''],
+    ['icon','icon.png','image/png'],
+    ['apple-touch-icon','icon.png','']]){
+    const item=document.createElement('link');item.rel=spec[0];
+    item.href=new URL(spec[1],root).href;
+    if(spec[2])item.type=spec[2];
+    document.head.append(item);
+   }
+   const script=document.createElement('script');
+   script.src=new URL('loader.js',root).href;
+   script.onerror=()=>showError('The verified startup loader is unavailable. Retry while online.');
+   document.head.append(script);
+  };
+  if(document.readyState==='loading')
+   document.addEventListener('DOMContentLoaded',attachLoader,{once:true});
+  else attachLoader();
  };
  function check(){
   if(sw?.controller?.scriptURL===swUrl)load();
