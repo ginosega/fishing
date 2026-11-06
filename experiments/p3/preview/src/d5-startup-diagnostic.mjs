@@ -27,7 +27,10 @@ const documentHtml=[
  '<p><small>Share only the results on this page. Do not share cookies, network logs or authorization headers.</small></p>',
  '</main></body></html>',
 ].join('');
-function browserProbe(){
+// The probe is kept as literal browser JavaScript. Never use Function.toString()
+// here: Wrangler/esbuild keep_names may inject out-of-scope helper symbols.
+// A tagged raw string preserves JavaScript regexes and '\\n' without evaluation.
+const clientScript=String.raw`(function browserProbe(){
  'use strict';
  const base='/fishing/__v3_owner_candidate__/';
  const out=document.getElementById('results'),progress=document.getElementById('progress');
@@ -116,10 +119,7 @@ function browserProbe(){
    ()=>{progress.textContent='Copy unavailable; select displayed text.';});
  });
  void execute();
-}
-// Function source is materialized as a self-contained external JS script.
-// This does not use eval, inline scripts, dynamic fetching, or user content.
-const clientScript='('+browserProbe.toString()+')();';
+})();`;
 export function createD5StartupDiagnostic({origin,enabled=()=>false}={}){
  let url;try{url=new URL(origin);}catch{throw Error('Invalid startup diagnostic origin');}
  if(url.protocol!=='https:'||url.origin!==origin||
