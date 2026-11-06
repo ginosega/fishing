@@ -18,7 +18,8 @@ test('D5-IND01 only verified Automatic with a connection is Online',()=>{
   for(const online of [true,false]){
    const status=connectionIndicator({online,readingMode});
    assert.equal(status.tone,'network');
-   assert.equal(status.title,'Connection status: Offline');
+   assert.equal(status.title,online&&readingMode==='Checking'?
+    'Connection status: Checking':'Connection status: Offline');
    assert.equal(status.label,status.title);
    assert.equal(effectiveConnectionOnline({online,readingMode}),false);
   }
