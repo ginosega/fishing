@@ -1,0 +1,201 @@
+# FISH118 D5 Android-only startup diagnostic, existing private Worker.
+# PREPARE by default. -Deploy performs ONE owner-approved and version-locked rollout.
+# Do not reuse the original D5 owner gateway installer: its preconditions differ.
+param(
+ [Parameter(Mandatory=$true)][ValidatePattern('^[a-f0-9]{40}$')][string]$ExpectedHead,
+ [Parameter(Mandatory=$true)][long]$ExpectedSourceCiRun,
+ [Parameter(Mandatory=$true)][long]$ExpectedFullCiRun,
+ [Parameter(Mandatory=$true)][ValidatePattern('^[a-f0-9-]{36}$')][string]$ExpectedWorkerVersion,
+ [Parameter(Mandatory=$true)][string]$PreviousConfig,
+ [Parameter(Mandatory=$true)][string]$PreviousGeneratedDir,
+ [switch]$Deploy
+)
+$ErrorActionPreference='Stop'
+Set-StrictMode -Version Latest
+$root=(Resolve-Path (Join-Path $PSScriptRoot '..\..\..\..')).Path
+$preview=(Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+$privateOrigin='https://fishing-auth-p0-test.ginosega.workers.dev'
+$pagesOrigin='https://cf47a8f1.fishing-v3-owner-d5-test.pages.dev'
+$pagesSourceHead='ff9908dc8965cd8713f04cc86bbecd8d78dfd94e'
+$pagesRelease='4d57578d466b4757eafafed8f1983998'
+$expectedPublicV2='963f4dd58debd122dd5aea8a12a0187ca1af550ffecccaaaeef541791503e09d'
+$worker='fishing-auth-p0-test'
+$diagnostic='/__d5_startup_diagnostic__/'
+$candidate='/fishing/__v3_owner_candidate__/'
+$newConfig=Join-Path $preview 'wrangler.d5-startup-diagnostic.local.jsonc'
+$attemptMarker=Join-Path $env:TEMP ('fishing-d5-startup-'+$ExpectedHead+'.deploy-attempt')
+function Need([bool]$value,[string]$message){if(-not $value){throw $message}}
+function MustOnce([string]$value,[string]$regex,[string]$message){
+ Need ([regex]::Matches($value,$regex).Count -eq 1) $message
+}
+function ShaText([string]$value){
+ $hasher=[Security.Cryptography.SHA256]::Create()
+ try{return [BitConverter]::ToString($hasher.ComputeHash([Text.Encoding]::UTF8.GetBytes($value))).Replace('-','').ToLowerInvariant()}
+ finally{$hasher.Dispose()}
+}
+function Version{
+ $output=@(& npx.cmd --yes wrangler@4.153.0 deployments status --name $worker)
+ Need ($LASTEXITCODE -eq 0) 'Could not query active private Worker version'
+ $m=[regex]::Matches(($output -join [Environment]::NewLine),'(?m)\(100%\)\s+([a-f0-9-]{36})')
+ Need ($m.Count -eq 1) 'Private Worker current version ambiguous'
+ return $m[0].Groups[1].Value
+}
+function Http([string]$url){
+ try{return Invoke-WebRequest -Uri $url -UseBasicParsing -MaximumRedirection 0 -TimeoutSec 45 -Headers @{'Cache-Control'='no-store'}}
+ catch{
+  if($_.Exception.Response){return $_.Exception.Response}
+  throw ('Cannot inspect HTTP resource '+$url)
+ }
+}
+function Status([string]$path){
+ $r=Http ($privateOrigin+$path)
+ return [int]$r.StatusCode
+}
+function PublicV2{
+ $r=Http ($privateOrigin+'/fishing/')
+ Need ([int]$r.StatusCode -eq 200) 'Public V2 proxy unavailable'
+ return ShaText ([string]$r.Content)
+}
+function PrivateProof{
+ foreach($path in @('/__d3_pilot__/','/__d3_pilot__/pilot.js','/__d3_pilot__/pilot.css')){
+  Need ((Status $path) -eq 401) ('Private pilot anonymous denial changed: '+$path)
+ }
+ Need ((Status '/session') -eq 200) 'Private session GET unavailable'
+ Need ((Status '/api/v3/operations/latest') -in @(401,403,404)) 'Private operations status exposure changed'
+}
+function RunProof([long]$id,[string]$expectedName){
+ $r=Invoke-RestMethod -Uri ('https://api.github.com/repos/ginosega/fishing/actions/runs/'+$id) -Headers @{'User-Agent'='Fishing-D5-Operator';'Accept'='application/vnd.github+json'} -TimeoutSec 35
+ Need ($r.head_sha -ceq $ExpectedHead -and $r.name -ceq $expectedName -and
+  $r.event -ceq 'push' -and $r.status -ceq 'completed' -and $r.conclusion -ceq 'success') ('Exact-head CI missing or incomplete: '+$expectedName)
+}
+function VerifyHostedPointer{
+ $pages=Http ($pagesOrigin+$candidate+'release.json')
+ $private=Http ($privateOrigin+$candidate+'release.json')
+ Need ([int]$pages.StatusCode -eq 200 -and [int]$private.StatusCode -eq 200) 'D5 owner release pointer unavailable'
+ $ptr=([string]$pages.Content|ConvertFrom-Json)
+ Need ($ptr.id -ceq $pagesRelease -and $ptr.sourceRevision -ceq $pagesSourceHead) 'Pages immutable source changed'
+ Need ((ShaText ([string]$pages.Content)) -ceq (ShaText ([string]$private.Content))) 'Private Worker candidate differs from immutable Pages'
+}
+$previousPath=(Resolve-Path -LiteralPath $PreviousConfig).Path
+$previousGenerated=(Resolve-Path -LiteralPath $PreviousGeneratedDir).Path
+Need ($previousPath -cne $newConfig -and $previousPath -cmatch 'wrangler\.[a-z0-9.-]+\.local\.jsonc$') 'Previous config must be a different ignored local Wrangler config'
+Need ($ExpectedWorkerVersion -ne '00000000-0000-0000-0000-000000000000') 'Invalid current Worker version'
+Push-Location $root
+try{
+ Need ((& git rev-parse HEAD).Trim() -ceq $ExpectedHead -and $LASTEXITCODE -eq 0) 'Unexpected current checkout HEAD'
+ Need (@(& git status --porcelain --untracked-files=no).Count -eq 0) 'Tracked checkout dirty'
+ $remote=@(& git ls-remote origin refs/heads/feature/fish118-d5-owner-integration)
+ Need ($LASTEXITCODE -eq 0 -and $remote.Count -eq 1 -and
+  ($remote[0] -split '\s+')[0] -ceq $ExpectedHead) 'Remote isolated integration head moved'
+ RunProof $ExpectedSourceCiRun 'Fishing P3 isolated source validation'
+ RunProof $ExpectedFullCiRun 'Fishing production acceptance and deployment'
+ $source=[IO.File]::ReadAllText($previousPath)
+ $beforeConfigSha=(Get-FileHash -LiteralPath $previousPath -Algorithm SHA256).Hash
+ foreach($regex in @(
+  '"name"\s*:\s*"fishing-auth-p0-test"',
+  '"main"\s*:\s*"src/d3-owner-runtime\.mjs"',
+  '"keep_vars"\s*:\s*true',
+  '"APP_ORIGIN"\s*:\s*"https://fishing-auth-p0-test\.ginosega\.workers\.dev"',
+  '"D3_SANDBOX_REPO_ID"\s*:\s*"1430581407"',
+  '"D3_PILOT_ENABLED"\s*:\s*"true"',
+  '"D3_READ_TOKENS_ENABLED"\s*:\s*"true"',
+  '"D3_WRITE_ENABLED"\s*:\s*"true"',
+  '"D5_OWNER_CANDIDATE_ENABLED"\s*:\s*"true"',
+  '"D5_OWNER_PAGES_ORIGIN"\s*:\s*"https://cf47a8f1\.fishing-v3-owner-d5-test\.pages\.dev"',
+  '"binding"\s*:\s*"DB"',
+  '"binding"\s*:\s*"OPERATIONS_DB"',
+  '"workers_dev"\s*:\s*true'
+ )){MustOnce $source $regex ('Missing/duplicate private config field: '+$regex)}
+ Need ($source -notmatch '"D5_STARTUP_DIAGNOSTIC_ENABLED"\s*:') 'Diagnostic flag already set in existing config; reconcile manually'
+ Need ($source -notmatch 'REPLACE_WITH_') 'Config has placeholders'
+ Need ([regex]::Matches($source,'"database_id"\s*:\s*"[a-f0-9-]{36}"').Count -eq 2) 'Private D1 binding count changed'
+ foreach($name in @('D2_CSRF_KEY','D2_GITHUB_APP_PRIVATE_KEY','GITHUB_CLIENT_SECRET','D3_FAST_WEBHOOK_SECRET')){
+  Need ($source -notmatch ('"'+$name+'"\s*:')) ('Potential secret in local config: '+$name)
+ }
+ $pilot=[regex]::Match($source,'"D3_PILOT_SHA256"\s*:\s*"([a-f0-9]{64})"')
+ $style=[regex]::Match($source,'"D3_PILOT_CSS_SHA256"\s*:\s*"([a-f0-9]{64})"')
+ Need ($pilot.Success -and $style.Success) 'Previous private pilot hashes unavailable'
+ $target=Join-Path $preview 'src\generated'
+ if(-not (Test-Path -LiteralPath $target)){New-Item -ItemType Directory $target | Out-Null}
+ foreach($item in @(
+  @('d3-pilot.bundle.txt',$pilot.Groups[1].Value),
+  @('d3-pilot.css.txt',$style.Groups[1].Value)
+ )){
+  $src=Join-Path $previousGenerated $item[0]
+  $dst=Join-Path $target $item[0]
+  Need (Test-Path -LiteralPath $src) ('Previous private pilot asset missing: '+$item[0])
+  Need ((Get-FileHash -LiteralPath $src -Algorithm SHA256).Hash.ToLowerInvariant() -ceq $item[1]) ('Previous pilot asset hash mismatch: '+$item[0])
+  if(Test-Path -LiteralPath $dst){
+   Need ((Get-FileHash -LiteralPath $dst -Algorithm SHA256).Hash.ToLowerInvariant() -ceq $item[1]) ('New checkout pilot asset changed: '+$item[0])
+  }else{Copy-Item -LiteralPath $src -Destination $dst}
+ }
+ & git check-ignore -q -- $newConfig
+ Need ($LASTEXITCODE -eq 0) 'New Wrangler config must be gitignored'
+ $var=[regex]::Matches($source,'"vars"\s*:\s*\{')
+ Need ($var.Count -eq 1) 'Ambiguous config variables block'
+ $insert=[Environment]::NewLine+'    "D5_STARTUP_DIAGNOSTIC_ENABLED": "true",'
+ $new=$source.Insert($var[0].Index+$var[0].Length,$insert)
+ Need ($new.Replace($insert,'') -ceq $source) 'Configuration changed beyond diagnostic flag'
+ if(Test-Path -LiteralPath $newConfig){
+  Need ([IO.File]::ReadAllText($newConfig) -ceq $new) 'Prior diagnostic config differs; stop'
+ }else{[IO.File]::WriteAllText($newConfig,$new,(New-Object Text.UTF8Encoding($false)))}
+ Need ((Status $diagnostic) -eq 404) 'Diagnostic already enabled or route changed; stop'
+ PrivateProof
+ VerifyHostedPointer
+ $before=Version
+ Need ($before -ceq $ExpectedWorkerVersion) 'Active private Worker is not owner-approved baseline'
+ $public=PublicV2
+ Need ($public -ceq $expectedPublicV2) 'Public V2 proxy differs from pinned owner-accepted baseline'
+ $dryDir=Join-Path $env:TEMP ('fishing-d5-startup-dry-'+[guid]::NewGuid().ToString('N'))
+ try{
+  Push-Location $preview
+  try{
+   & npx.cmd --yes wrangler@4.153.0 deploy --dry-run --config $newConfig --outdir $dryDir
+   Need ($LASTEXITCODE -eq 0) 'Wrangler private Worker dry run failed'
+  }finally{Pop-Location}
+ }finally{if(Test-Path $dryDir){Remove-Item -LiteralPath $dryDir -Recurse -Force}}
+ Need ((Version) -ceq $before) 'Private Worker changed during preflight'
+ Need ((PublicV2) -ceq $public) 'Public V2 changed during preflight'
+ Need ((Get-FileHash -LiteralPath $previousPath -Algorithm SHA256).Hash -ceq $beforeConfigSha) 'Previous config changed'
+ if(-not $Deploy){
+  Write-Output 'PASS: D5 STARTUP DIAGNOSTIC PREPARED ONLY'
+  Write-Output ('EXACT_SOURCE_HEAD: '+$ExpectedHead)
+  Write-Output ('CURRENT_WORKER_VERSION: '+$before)
+  Write-Output ('PREPARED_IGNORED_CONFIG: '+$newConfig)
+  Write-Output 'NO DEPLOY, NO PUBLIC V2 CHANGE, NO BROWSER DATA CHANGE'
+ }else{
+  Need (-not (Test-Path -LiteralPath $attemptMarker)) 'Deploy attempt marker exists; NEVER retry without independent provider reconciliation'
+  Need ((Version) -ceq $before -and (PublicV2) -ceq $public -and (Status $diagnostic) -eq 404) 'Pre-deploy worker/public status drift'
+  # Create marker atomically BEFORE the one authorized deploy. Keep it even if
+  # the deploy or post-check fails. Never blindly retry an unknown outcome.
+  $marker=[IO.File]::Open($attemptMarker,[IO.FileMode]::CreateNew,[IO.FileAccess]::Write,[IO.FileShare]::None)
+  try{
+   $bytes=[Text.Encoding]::UTF8.GetBytes(('SOURCE_HEAD='+$ExpectedHead+'; PREVIOUS_VERSION='+$before+'; UTC='+[DateTime]::UtcNow.ToString('o')))
+   $marker.Write($bytes,0,$bytes.Length)
+  }finally{$marker.Dispose()}
+  Write-Output 'D5_STARTUP_SINGLE_DEPLOY_ATTEMPT_MARKER_CREATED'
+  Push-Location $preview
+  try{
+   Write-Output 'BEGINNING_ONE_OWNER_APPROVED_PRIVATE_DIAGNOSTIC_WORKER_DEPLOY'
+   & npx.cmd --yes wrangler@4.153.0 deploy --config $newConfig
+   Need ($LASTEXITCODE -eq 0) 'Worker deploy outcome unknown: inspect provider, DO NOT RETRY'
+   $after=Version
+   Need ($after -cne $before) 'Worker version not updated: reconcile, DO NOT RETRY'
+   PrivateProof
+   VerifyHostedPointer
+   Need ((PublicV2) -ceq $public) 'Public V2 proxy changed: stop, investigate'
+   $page=Http ($privateOrigin+$diagnostic)
+   $script=Http ($privateOrigin+$diagnostic+'probe.js')
+   Need ([int]$page.StatusCode -eq 200 -and [int]$script.StatusCode -eq 200) 'Private startup diagnostic unavailable'
+   Need ([string]$page.Content -match 'Fishing D5 startup diagnostic' -and
+    [string]$script.Content -match 'Candidate cache count') 'Diagnostic returned unexpected content'
+   Need ((Status ($diagnostic+'unknown')) -eq 404) 'Diagnostic routing too broad'
+   Write-Output ('PASS: D5 STARTUP DIAGNOSTIC PRIVATE WORKER DEPLOYED: '+$after)
+   Write-Output ('PREVIOUS_WORKER_VERSION: '+$before)
+   Write-Output ('SOURCE_HEAD: '+$ExpectedHead)
+   Write-Output ('DIAGNOSTIC_URL: '+$privateOrigin+$diagnostic)
+   Write-Output 'PASS: PRIVATE PILOT, IMMUTABLE PAGES, PUBLIC V2 UNCHANGED'
+   Write-Output 'NO SANDBOX PUBLISH OR PUBLIC CUTOVER'
+  }finally{Pop-Location}
+ }
+}finally{Pop-Location}
