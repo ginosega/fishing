@@ -7,6 +7,7 @@ import {createCatchEditor} from './catch-editor.mjs';
 import {openViewer,openSequenceViewer} from './viewer.mjs';
 import {bindMarkdownPictureViewer} from './markdown-viewer.mjs';
 import {connectionIndicator,effectiveConnectionOnline} from './connection-indicator.mjs';
+import {d5EditorEntryGate} from './d5-editor-entry-gate.mjs';
 import {formatV3Diagnostics} from './diagnostics.mjs';
 import {createOffline} from './offline.mjs';
 import {v3OfflineLibraryActionLabel} from './v3-offline-library-action.mjs';
@@ -41,6 +42,9 @@ export function createApp(ctx){
   new Set(ctx.manifest.files.filter(x=>x.path.startsWith(`releases/${ctx.release.id}/content/`)).map(x=>x.path.slice(`releases/${ctx.release.id}/content/`.length)));
  let currentHash=location.hash||'#/',route=parseRoute(currentHash),editor=null,serial=0,offline=null,approvedNavigation=null,previousHash=null;
  let ownerController=null,savingPublication=false;
+ // Only pending authoring routes wait for verification; readers remain immediate.
+ let editorGateVisible=false,editorGateTimeout=null,editorGateTimedOut=false;
+ let modeChecking=true;
  const acceptedDraftKeys=new Map();
  // V2 stays unchanged. V3 owner controls are strictly opt-in via an
  // authenticated, same-origin integration; server authorization is still
@@ -76,6 +80,12 @@ export function createApp(ctx){
  const EDITING_OFFLINE_MESSAGE='Editing is only available when Online. Switch to Automatic mode and connect to the internet to add or edit items.';
  const EDITOR_ROUTES=new Set(['gear-add','gear-edit','kb-add','kb-edit','catch-add','catch-edit']);
  const isEditorRoute=hash=>EDITOR_ROUTES.has(parseRoute(hash).page);
+ const editorGate=()=>d5EditorEntryGate({enabled:ownerCandidate,
+  online:navigator.onLine,modeAvailable:offline?.getModeAvailable?.()===true,
+  readingMode:offline?.getMode?.(),modeChecking,editorTimedOut:editorGateTimedOut,
+  ownerPhase:ownerController?.current()?.phase??'Unavailable',
+  authorized:ownerController?.current()?.authorized===true});
+ const clearEditorGateTimer=()=>{if(editorGateTimeout!==null){clearTimeout(editorGateTimeout);editorGateTimeout=null;}};
  const guardedPublish=async(...args)=>{
   // A different tab may have switched the persisted SW reading preference.
   // Recheck it immediately before any owner publish request.
@@ -226,7 +236,38 @@ export function createApp(ctx){
    onPrepared:receipt=>ctx.v3.onPublicationReceipt?.(receipt),
   });editor=created;page.append(created.element);return page;
  }
- async function render(){const ticket=++serial;if(offline&&!(await offline.checkCurrent()))return;if(ticket!==serial)return;disposeEditor();route=parseRoute(currentHash);root.replaceChildren(el('div',{class:'loading'},'Loading…'));
+ async function render(){const ticket=++serial;
+  // A direct Add/Edit URL must not briefly claim Offline/Not found while
+  // owner or reading mode is still unknown. Do not gate read-only routes.
+  const status=isEditorRoute(currentHash)?editorGate():'ready';
+  if(status==='pending'||status==='unavailable'){
+   if(ticket!==serial)return;
+   disposeEditor();route=parseRoute(currentHash);editorGateVisible=true;
+   const pending=status==='pending';
+   const page=frame(pending?'Checking connection and account…':
+    'Verification unavailable',rootRoute(route.page.startsWith('catch')?'catches':
+     route.page.startsWith('kb')?'kb':'gear'));
+   page.append(el('p',{role:'status','aria-live':'polite'},
+    pending?'Checking connection and account…':
+     'Connection or account verification did not complete. Editing is paused.'));
+   if(!pending)page.append(button('Retry verification',()=>{
+    editorGateTimedOut=false;modeChecking=true;void render();
+    void offline.refreshMode().then(()=>{
+     if(ownerController&&onlineForEditing())return refreshOwner();
+    }).catch(()=>{}).finally(()=>{if(editorGateVisible)void render();});
+   }));
+   root.replaceChildren(page);
+   if(pending&&editorGateTimeout===null)editorGateTimeout=setTimeout(()=>{
+    editorGateTimeout=null;editorGateTimedOut=true;
+    if(editorGateVisible&&!dirty())void render();
+   },30000);
+   if(!pending)clearEditorGateTimer();
+   return;
+  }
+  editorGateVisible=false;editorGateTimedOut=false;clearEditorGateTimer();
+  if(offline&&!(await offline.checkCurrent()))return;
+  if(ticket!==serial)return;disposeEditor();route=parseRoute(currentHash);
+  root.replaceChildren(el('div',{class:'loading'},'Loading…'));
   try{let page;
    switch(route.page){case 'home':page=renderHome();break;case 'gear-root':page=renderRoot('gear');break;case 'kb-root':page=renderRoot('kb');break;case 'gear-list':page=renderList('gear',route.category);break;case 'kb-list':page=renderList('kb',route.type);break;case 'gear-detail':page=await renderDetail('gear',route.id);break;case 'kb-detail':page=await renderDetail('kb',route.id);break;case 'catch-list':page=renderCatches();break;case 'catch-detail':page=await renderDetail('catches',route.id);break;case 'catch-add':page=await renderCatchEditor();break;case 'catch-edit':page=await renderCatchEditor(route.id);break;case 'gear-edit':page=await renderEditor('gear',route.id);break;case 'kb-edit':page=await renderEditor('kb',route.id);break;case 'gear-add':page=await renderEditor('gear',null,route.category);break;case 'kb-add':page=await renderEditor('kb',null,null,route.type);break;default:page=missing('The requested page is not available.');}
    if(ticket!==serial){if(editor&&ticket!==serial)disposeEditor();return;}root.replaceChildren(page);document.title=(page.querySelector('h1')?.textContent||'Fishing Companion')+' · Fishing Companion';
@@ -238,7 +279,9 @@ export function createApp(ctx){
  for(const a of document.querySelectorAll('[data-nav]'))a.addEventListener('click',event=>{event.preventDefault();navigate(a.getAttribute('href'));});
  offline=createOffline({root:ctx.root,releaseId:ctx.release.id,onlineOnly:privatePilot,
   v3ReadingMode:v3Mode&&!privatePilot,onMode:(_mode,_available,feedback)=>{
+   modeChecking=_available!==true&&feedback?.busy===true;
    paintReadingMode(feedback);
+   if(editorGateVisible&&!dirty())void render();
    if(workOffline())ownerPanel?.suspend();
    else ownerPanel?.paint();
    // Never rerender the current page for a mode command or status refresh.
@@ -334,7 +377,9 @@ export function createApp(ctx){
   details.append(helpBody);
   connectionDialog.insertBefore(details,document.getElementById('connection-close'));
  }
- function networkStatusText(){return onlineForEditing()?'Online':'Offline';}
+ function networkStatusText(){return v3Mode&&!privatePilot&&
+  offline?.getModeAvailable?.()!==true&&navigator.onLine?'Checking':
+  onlineForEditing()?'Online':'Offline';}
  function paintReadingMode(feedback={}){
   if(!modeControls)return;
   const selected=offline?.getMode?.()||'Automatic';
@@ -391,6 +436,7 @@ export function createApp(ctx){
   if(modeControls)paintReadingMode();
   else paintConnectionIndicator();
   if(v3Mode)document.getElementById('connection-network').textContent=networkStatusText();
+  if(editorGateVisible&&!dirty())void render();
   const current=offline.getStatus();
   document.getElementById('offline-update').disabled=
    privatePilot||Boolean(current?.state==='Downloading')||!navigator.onLine;
@@ -449,7 +495,8 @@ export function createApp(ctx){
     if((state.publication==='Live'&&state.sandboxVerified===true)||
      ['Failed','Conflict'].includes(state.publication))
      void refreshPublishedContent();
-    if(prior!==state.authorized){
+    if(editorGateVisible&&!dirty())void render();
+    else if(prior!==state.authorized){
      if(!dirty())void render();
      else notify('Owner session changed. Your unfinished edit is preserved.','warning');
     }
@@ -521,8 +568,12 @@ export function createApp(ctx){
  if(ctx.release.pendingMedia)notify('Preview only: some approved image replacements remain unresolved. This is not a production-cutover candidate.','warning');
  render();
  void offline.start().then(()=>{
+  // A failed SW startup must end the editor's neutral pending state.
+  if(ownerCandidate&&offline.getModeAvailable()!==true){
+   modeChecking=false;if(editorGateVisible)void render();
+  }
   // Work Offline must not automatically restore online owner/auth services.
   if(ownerController&&onlineForEditing())void refreshOwner();
- });
+ }).catch(()=>{modeChecking=false;if(editorGateVisible)void render();});
  return {navigate,isDirty:dirty,render};
 }

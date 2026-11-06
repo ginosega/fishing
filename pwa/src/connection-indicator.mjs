@@ -17,7 +17,9 @@ export function connectionIndicator({online,authorized=false,publication='None',
   return Object.freeze({tone:'publishing',
    title:'Publishing: '+publication,label:'Publishing: '+publication});
  }
- const state=effectiveConnectionOnline({online,readingMode})?'Online':'Offline';
+ // A pending reading-mode check is not a confirmed physical outage.
+ const state=online===true&&readingMode==='Checking'?'Checking':
+  effectiveConnectionOnline({online,readingMode})?'Online':'Offline';
  return Object.freeze({tone:'network',title:'Connection status: '+state,
   label:'Connection status: '+state});
 }
