@@ -59,3 +59,36 @@ test('D5-FIRST03 legacy controller cannot fetch loader before candidate registra
  assert(seen.indexOf('loader')>seen.indexOf('register'));
  assert.equal(seen.filter(x=>x==='loader').length,1);
 });
+
+test('D5-FIRST04 scoped bootstrap preserves deferred-loader DOM readiness',()=>{
+ const seen=[];let ready=null;
+ const serviceWorker={
+  controller:{scriptURL:sw},
+  addEventListener(){},removeEventListener(){},
+  async getRegistration(){throw Error('should not register when already controlled');},
+ };
+ const document={
+  readyState:'loading',
+  head:{append(node){seen.push(node.src?.endsWith('loader.js')?'loader':'link');}},
+  createElement:tag=>({tag}),
+  addEventListener(type,fn,opts){
+   assert.equal(type,'DOMContentLoaded');
+   assert.equal(opts.once,true);
+   ready=fn;
+  },
+ };
+ const ctx={
+  location:{origin,pathname:D5_OWNER_STATIC_PREFIX,reload(){throw Error('unexpected reload');}},
+  navigator:{serviceWorker},
+  document,
+  sessionStorage:{removeItem(){},getItem(){return null;},setItem(){}},
+  setTimeout:()=>42,clearTimeout:()=>{},URL,Promise,
+ };
+ vm.runInNewContext(bootstrap,ctx);
+ assert.deepEqual(seen,[],'loader and manifest cannot be fetched before body is parsed');
+ assert.equal(typeof ready,'function');
+ document.readyState='interactive';
+ ready();
+ assert.equal(seen.filter(x=>x==='loader').length,1);
+ assert(seen.indexOf('loader')>seen.indexOf('link'));
+});
