@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
+import fs from 'node:fs/promises';
 import {createD5StartupDiagnostic,D5_STARTUP_DIAGNOSTIC_PREFIX as PATH}
  from '../src/d5-startup-diagnostic.mjs';
 import {createD3GatedAuthGateway}
@@ -130,4 +131,55 @@ test('D5-START07 browser JS parses and reaches on-screen output without esbuild 
  assert.deepEqual(requested.map(x=>x.cache),['no-store','no-store']);
  assert.equal(elements.get('rerun').disabled,false);
  assert.equal(elements.get('copy').disabled,false);
+});
+
+test('D5-START08 Wrangler/esbuild keepNames bundle returns executable standalone JS',async()=>{
+ const esbuildPath=new URL('../../../../pwa/node_modules/esbuild/lib/main.js',import.meta.url);
+ const imported=await import(esbuildPath.href);
+ const transform=imported.transform??imported.default?.transform;
+ assert.equal(typeof transform,'function','Locked esbuild dependency unavailable');
+ const original=await fs.readFile(new URL('../src/d5-startup-diagnostic.mjs',import.meta.url),'utf8');
+ const compiled=await transform(original,{
+  loader:'js',format:'esm',platform:'neutral',target:'es2022',keepNames:true,minify:true,
+ });
+ const compiledModule=await import('data:text/javascript;base64,'+
+  Buffer.from(compiled.code).toString('base64'));
+ const compiledHost=compiledModule.createD5StartupDiagnostic({origin:ORIGIN,enabled:()=>true});
+ const response=compiledHost.serve(request(PATH+'probe.js'));
+ assert.equal(response.status,200);
+ const script=await response.text();
+ assert.doesNotMatch(script,/\b__name\s*\(|\b__async\s*\(|browserProbe\.toString\s*\(/);
+ assert.match(script,/JavaScript running/);
+ const documentNode={textContent:'',disabled:true,addEventListener(){}};
+ const elements=new Map([
+  ['results',{...documentNode}],['progress',{...documentNode}],
+  ['rerun',{...documentNode}],['copy',{...documentNode}],
+ ]);
+ const requested=[];
+ const env={
+  document:{getElementById:id=>elements.get(id)},
+  navigator:{onLine:true},window:{},location:{origin:ORIGIN},
+  URL,AbortController,Response,setTimeout,clearTimeout,
+  fetch:async(url,opts)=>{
+   requested.push([url,opts.credentials,opts.cache]);
+   return new Response(url.endsWith('release.json')?JSON.stringify({id:'b'.repeat(32)}):'/*ok*/',{
+    status:200,
+    headers:{'Content-Type':url.endsWith('release.json')?'application/json':'text/javascript'},
+   });
+  },
+ };
+ new vm.Script(script,{filename:'wrangler-shipped-d5-probe.js'})
+  .runInNewContext(env,{timeout:2000});
+ assert.match(elements.get('results').textContent,/JavaScript running: yes/);
+ await new Promise((resolve,reject)=>{
+  const stop=Date.now()+1000;
+  const check=()=>{
+   if(elements.get('progress').textContent==='Read-only checks complete.')resolve();
+   else if(Date.now()>stop)reject(Error('Bundled diagnostic script did not complete'));
+   else setTimeout(check,5);
+  };
+  check();
+ });
+ assert.equal(requested.length,2);
+ assert.ok(requested.every(([url,credentials,cache])=>url.startsWith('/fishing/')&&credentials==='omit'&&cache==='no-store'));
 });
