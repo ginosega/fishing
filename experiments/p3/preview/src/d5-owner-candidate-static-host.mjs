@@ -4,6 +4,7 @@
  * The candidate may use existing same-origin /auth and /api/v3 paths, but
  * those are NEVER forwarded to the static Pages host or authorized here.
  */
+import {D5_OWNER_FIRST_VISIT_SCRIPT} from '../../../../pwa/src/d5-owner-first-visit.mjs';
 export const D5_OWNER_STATIC_PREFIX='/fishing/__v3_owner_candidate__/';
 const GUARD={
  'Cache-Control':'no-store',
@@ -14,6 +15,14 @@ const GUARD={
  'Permissions-Policy':'camera=(), microphone=(), geolocation=()',
  'Content-Security-Policy':"default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; font-src 'self'; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; object-src 'none'",
 };
+// Only the audited inline bootstrap (not upstream-controlled HTML) is allowed.
+let trustedBootstrapHash=null;
+async function bootstrapCspHash(){
+ if(!trustedBootstrapHash)trustedBootstrapHash=crypto.subtle.digest('SHA-256',
+  new TextEncoder().encode(D5_OWNER_FIRST_VISIT_SCRIPT)).then(bytes=>
+  "'sha256-"+btoa(String.fromCharCode(...new Uint8Array(bytes)))+"'");
+ return trustedBootstrapHash;
+}
 const forbidden=url=>/%(?:2f|5c|00)/i.test(url.pathname)||
  url.pathname.includes('\\')||url.pathname.split('/').some(p=>p==='..'||p==='.');
 const deny=(status=404)=>new Response('Not found',{status,headers:GUARD});
@@ -68,6 +77,13 @@ export function createD5OwnerCandidateStaticHost({
   const headers=new Headers(GUARD);
   const type=response.headers.get('Content-Type');
   if(type)headers.set('Content-Type',type);
+  if((url.pathname===D5_OWNER_STATIC_PREFIX||
+      url.pathname===D5_OWNER_STATIC_PREFIX+'index.html')&&
+     type?.toLowerCase().startsWith('text/html')){
+   const allowed=await bootstrapCspHash();
+   headers.set('Content-Security-Policy',GUARD['Content-Security-Policy']
+    .replace("script-src 'self';","script-src 'self' "+allowed+';'));
+  }
   // No upstream cookies, CORS, redirects, validators or cache metadata.
   return new Response(request.method==='HEAD'?null:response.body,
    {status:200,headers});
