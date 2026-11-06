@@ -5,6 +5,7 @@ param(
  [Parameter(Mandatory=$true)][ValidatePattern('^[a-f0-9]{40}$')][string]$ExpectedHead,
  [Parameter(Mandatory=$true)][long]$ExpectedSourceCiRun,
  [Parameter(Mandatory=$true)][long]$ExpectedFullCiRun,
+ [Parameter(Mandatory=$true)][ValidatePattern('^[a-f0-9]{40}$')][string]$ExpectedReviewedPrHead,
  [Parameter(Mandatory=$true)][ValidatePattern('^[a-f0-9-]{36}$')][string]$ExpectedWorkerVersion,
  [Parameter(Mandatory=$true)][string]$PreviousConfig,
  [Parameter(Mandatory=$true)][string]$PreviousGeneratedDir,
@@ -63,10 +64,10 @@ function PrivateProof{
  Need ((Status '/session') -eq 200) 'Private session GET unavailable'
  Need ((Status '/api/v3/operations/latest') -in @(401,403,404)) 'Private operations status exposure changed'
 }
-function RunProof([long]$id,[string]$expectedName){
+function RunProof([long]$id,[string]$expectedName,[string]$ciHead,[string]$event){
  $r=Invoke-RestMethod -Uri ('https://api.github.com/repos/ginosega/fishing/actions/runs/'+$id) -Headers @{'User-Agent'='Fishing-D5-Operator';'Accept'='application/vnd.github+json'} -TimeoutSec 35
- Need ($r.head_sha -ceq $ExpectedHead -and $r.name -ceq $expectedName -and
-  $r.event -ceq 'push' -and $r.status -ceq 'completed' -and $r.conclusion -ceq 'success') ('Exact-head CI missing or incomplete: '+$expectedName)
+ Need ($r.head_sha -ceq $ciHead -and $r.name -ceq $expectedName -and
+  $r.event -ceq $event -and $r.status -ceq 'completed' -and $r.conclusion -ceq 'success') ('Required pinned CI missing or incomplete: '+$expectedName)
 }
 function VerifyHostedPointer{
  $pages=Http ($pagesOrigin+$candidate+'release.json')
@@ -87,8 +88,11 @@ try{
  $remote=@(& git ls-remote origin refs/heads/feature/fish118-d5-owner-integration)
  Need ($LASTEXITCODE -eq 0 -and $remote.Count -eq 1 -and
   ($remote[0] -split '\s+')[0] -ceq $ExpectedHead) 'Remote isolated integration head moved'
- RunProof $ExpectedSourceCiRun 'Fishing P3 isolated source validation'
- RunProof $ExpectedFullCiRun 'Fishing production acceptance and deployment'
+ $mergedPr=Invoke-RestMethod -Uri 'https://api.github.com/repos/ginosega/fishing/pulls/352' -Headers @{'User-Agent'='Fishing-D5-Operator';'Accept'='application/vnd.github+json'} -TimeoutSec 35
+ Need ($mergedPr.merged -eq $true -and $mergedPr.merge_commit_sha -ceq $ExpectedHead -and
+  $mergedPr.head.sha -ceq $ExpectedReviewedPrHead -and $mergedPr.base.ref -ceq 'feature/fish118-d5-owner-integration') 'Source PR #352 merge or reviewed head not verified'
+ RunProof $ExpectedSourceCiRun 'Fishing P3 isolated source validation' $ExpectedHead 'push'
+ RunProof $ExpectedFullCiRun 'Fishing production acceptance and deployment' $ExpectedReviewedPrHead 'pull_request'
  $source=[IO.File]::ReadAllText($previousPath)
  $beforeConfigSha=(Get-FileHash -LiteralPath $previousPath -Algorithm SHA256).Hash
  foreach($regex in @(
