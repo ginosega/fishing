@@ -20,6 +20,8 @@ import {createD3OwnerSandboxSource} from './d3-owner-sandbox-source.mjs';
 import {createD3OwnerPilotHost} from './d3-owner-pilot-host.mjs';
 import {createD5OwnerCandidateStaticHost,D5_OWNER_STATIC_PREFIX}
  from './d5-owner-candidate-static-host.mjs';
+import {createD5StartupDiagnostic,D5_STARTUP_DIAGNOSTIC_PREFIX}
+ from './d5-startup-diagnostic.mjs';
 import {d3PublishingReady} from './d3-publishing-readiness.mjs';
 import {createD3BenchmarkOwnerRoute} from './d3-benchmark-owner-route.mjs';
 import {createD3CheckWebhookWake} from './d3-fast-check-webhook.mjs';
@@ -50,6 +52,7 @@ export function createD3GatedAuthGateway({
   sourceReadFactory=createD3OwnerSandboxSource,
   pilotHostFactory=createD3OwnerPilotHost,
     d5OwnerHostFactory=createD5OwnerCandidateStaticHost,
+  startupDiagnosticFactory=createD5StartupDiagnostic,
   hostAssetFactory=createD3PrivateHostedAsset,
   hostProofFactory=createD3PrivateHostProof,
   benchmarkRouteFactory=createD3BenchmarkOwnerRoute,
@@ -60,7 +63,7 @@ export function createD3GatedAuthGateway({
   if(typeof auth?.fetch!=='function'||typeof proxy!=='function'||
     [sessionFactory,storeFactory,apiFactory,sourceReadFactory,
      hostAssetFactory,hostProofFactory,pilotHostFactory,d5OwnerHostFactory,
-     benchmarkRouteFactory,checkWebhookFactory,mediaStageFactory,
+     startupDiagnosticFactory,benchmarkRouteFactory,checkWebhookFactory,mediaStageFactory,
      sourceAssetFactory].some(x=>typeof x!=='function'))
     throw Error('D3 gateway requires trusted AUTH-P0 dependencies');
   async function fetchRequest(request,env,context){
@@ -69,6 +72,18 @@ export function createD3GatedAuthGateway({
     if(!env?.APP_ORIGIN||url.protocol!=='https:'||
       url.origin!==env.APP_ORIGIN||url.username||url.password)
       return no();
+    // Isolated read-only phone diagnostic deliberately lives outside the
+    // owner PWA service-worker scope, so even a broken SW cannot intercept it.
+    // Explicitly OFF without a separately approved Worker flag; no login or
+    // authoring API is reached, and public /fishing/ remains untouched.
+    if(url.pathname.startsWith(D5_STARTUP_DIAGNOSTIC_PREFIX)){
+      if(env.D5_STARTUP_DIAGNOSTIC_ENABLED!=='true')return no();
+      const diagnostic=startupDiagnosticFactory({
+        origin:env.APP_ORIGIN,
+        enabled:()=>env.D5_STARTUP_DIAGNOSTIC_ENABLED==='true',
+      });
+      return diagnostic.serve(request);
+    }
     // The existing public /fishing/ gateway remains byte-for-byte proxied.
     // Reserve the owner-candidate path even when OFF; never accidentally
     // fall through to public V2 or an unrelated Pages directory.
