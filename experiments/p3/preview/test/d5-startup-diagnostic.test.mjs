@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import vm from 'node:vm';
 import {createD5StartupDiagnostic,D5_STARTUP_DIAGNOSTIC_PREFIX as PATH}
  from '../src/d5-startup-diagnostic.mjs';
 import {createD3GatedAuthGateway}
@@ -84,4 +85,49 @@ test('D5-START06 gateway route default OFF, no proxy, owner API or privilege',as
  const ordinary=await gateway.fetch(request('/fishing/'),env,{});
  assert.equal(await ordinary.text(),'proxy');
  assert.equal(proxy,1);
+});
+
+test('D5-START07 browser JS parses and reaches on-screen output without esbuild helpers',async()=>{
+ const source=await host.serve(request(PATH+'probe.js')).text();
+ assert.doesNotMatch(source,/__name\(|browserProbe\.toString\(|\b__async\b/);
+ const elements=new Map();
+ for(const id of ['results','progress','rerun','copy']){
+  elements.set(id,{textContent:'',disabled:false,events:{},
+   addEventListener(type,handler){this.events[type]=handler;}});
+ }
+ const requested=[];
+ const environment={
+  document:{getElementById:id=>elements.get(id)},
+  window:{},
+  navigator:{onLine:true},
+  location:{origin:ORIGIN},
+  URL,AbortController,Response,setTimeout,clearTimeout,
+  fetch:async(url,options)=>{
+   requested.push({url,credentials:options.credentials,cache:options.cache});
+   if(url.endsWith('loader.js'))
+    return new Response('/* loader */',{status:200,headers:{'Content-Type':'text/javascript'}});
+   if(url.endsWith('release.json'))
+    return new Response(JSON.stringify({id:'a'.repeat(32)}),{status:200});
+   throw Error('Unexpected diagnostic resource');
+  },
+ };
+ const script=new vm.Script(source,{filename:'d5-startup-probe.js'});
+ script.runInNewContext(environment,{timeout:2000});
+ assert.match(elements.get('results').textContent,/JavaScript running: yes/);
+ assert.equal(elements.get('progress').textContent,'Running read-only checks…');
+ await new Promise((resolve,reject)=>{
+  const deadline=Date.now()+1000;
+  const tick=()=>{
+   if(elements.get('progress').textContent==='Read-only checks complete.')resolve();
+   else if(Date.now()>deadline)reject(Error('Browser diagnostic never completed'));
+   else setTimeout(tick,5);
+  };
+  tick();
+ });
+ assert.match(elements.get('results').textContent,/Network loader.js: HTTP 200/);
+ assert.match(elements.get('results').textContent,/Network release.json: HTTP 200, release a{32}/);
+ assert.deepEqual(requested.map(x=>x.credentials),['omit','omit']);
+ assert.deepEqual(requested.map(x=>x.cache),['no-store','no-store']);
+ assert.equal(elements.get('rerun').disabled,false);
+ assert.equal(elements.get('copy').disabled,false);
 });
