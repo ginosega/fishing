@@ -42,7 +42,8 @@ test('D5-START03 strict CSP, no-store, no framing and no inline script',async()=
   assert.ok(csp.includes(item),item);
  }
  assert.ok(!csp.includes("'unsafe-eval'"));
- assert.ok(!csp.includes("'unsafe-inline'; connect-src"));
+ assert.match(csp,/script-src 'self';/);
+ assert.doesNotMatch(csp,/script-src[^;]*unsafe-inline/);
  assert.equal(response.headers.get('X-Frame-Options'),'DENY');
 });
 test('D5-START04 no query, variant, wrong origin or method mutation',async()=>{
