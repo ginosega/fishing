@@ -32,7 +32,8 @@ test('D5-UX03 Preview/Edit labels and keyboard-accessible expand/restore',()=>{
 });
 
 test('D5-UX04 Work Offline verification uses exact copy, preserves mode gates',()=>{
- assert.match(offline,/'Verifying the offline catalog\.'/);
+ assert.match(offline,/'Verifying the offline catalog\.\.\.'/);
+ assert.doesNotMatch(offline,/'Verifying the offline catalog\.'(?!\.)/);
  assert.doesNotMatch(offline,/Verifying every file/);
  assert.match(offline,/modeCommand\('V3_SET_MODE',next\)/);
  assert.match(offline,/180000:12000/);
@@ -49,4 +50,21 @@ test('D5-UX05 Insert Link/Image icons keep accessible names and actions',()=>{
  assert.match(css,/\.notes-toolbar \.notes-icon-button\{[^}]*min-width:42px;min-height:42px/s);
  assert.match(notes,/const target=linkSiteRadio\.checked\?selectedLinkTarget\(\)\?\.uri:linkUrl\.value/);
  assert.match(notes,/const file=choose\.files\?\.\[0\]/);
+});
+
+test('D5-UX04A ongoing Work Offline verification uses literal ellipsis, not a period',()=>{
+ assert.match(offline,/reportMode\(next==='Work Offline'\?\s*'Verifying the offline catalog\.\.\.':/);
+});
+
+test('D5-UX05A Preview disables insertion buttons and Edit re-enables them',()=>{
+ assert.match(notes,/function syncInsertionButtons\(\)\{\s*linkButton\.disabled=showPreview;\s*imageButton\.disabled=showPreview;\s*\}/);
+ assert.match(notes,/if\(showPreview\)\{showPreview=false;[^}]*previewButton\.textContent='Preview';syncInsertionButtons\(\)/);
+ assert.match(notes,/showPreview=true;view\.hidden=false;editorField\.hidden=true;input\.hidden=true;[^]*?previewButton\.textContent='Edit';[^]*?syncInsertionButtons\(\);closeLink\(\);closeImage\(\)/);
+ for(const label of ['link','image']){
+  const pattern=new RegExp("const "+label+"Button=button\\('Insert "+label+"',\\(\\)=>\\{\\s*if\\(showPreview\\)return;");
+  assert.match(notes,pattern);
+ }
+ assert.doesNotMatch(notes,/if\(showPreview\)previewButton\.click\(\)/);
+ assert.match(notes,/setNotesToolbarIcon\(linkButton,'link','Insert Link'\)/);
+ assert.match(notes,/setNotesToolbarIcon\(imageButton,'image','Insert Image'\)/);
 });
