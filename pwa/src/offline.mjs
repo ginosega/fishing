@@ -80,7 +80,7 @@ export function createOffline({root,releaseId,onStatus,isDirty,notify,
    return false;
   }
   reportMode(next==='Work Offline'?
-   'Verifying every file in the selected offline library…':
+   'Verifying the offline catalog.':
    'Switching to Automatic…',true);
   const result=await modeCommand('V3_SET_MODE',next);
   if(!setModeState(result)){
