@@ -78,7 +78,7 @@ test('D5-M01 candidate mode buttons receive available state after SW handshake a
   assert(events.some(e=>e.busy&&/Checking service-worker/.test(e.message)));
   assert(await offline.setMode('Work Offline'));
   assert.equal(offline.getMode(),'Work Offline');
-  assert(events.some(e=>e.busy&&e.message==='Verifying the offline catalog.'));
+  assert(events.some(e=>e.busy&&e.message==='Verifying the offline catalog...'));
   assert(events.some(e=>e.mode==='Work Offline'&&!e.busy));
   assert(await offline.setMode('Automatic'));
   assert.equal(offline.getMode(),'Automatic');
