@@ -74,7 +74,7 @@ test('D4-UX06 Catch uses Markdown preview and no redundant photo/GPS hint',()=>{
  const editor=readFileSync(new URL('../src/catch-editor.mjs',import.meta.url),'utf8');
  assert(editor.includes('createNotesMarkdownEditor'));
  const shared=readFileSync(new URL('../src/notes-markdown-editor.mjs',import.meta.url),'utf8');
- assert(shared.includes("'Preview Markdown'"));
+ assert(shared.includes("button('Preview'"));
  assert(shared.includes('sanitizeHtml(parsed.html,window)'));
  assert(editor.includes('locationEntry'));
  assert(editor.includes('speciesField,locationField,lureField'));
