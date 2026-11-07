@@ -25,7 +25,7 @@ $marker=Join-Path $env:TEMP ('fishing-d5-owner-worker-update-'+$ExpectedHead+'-'
 function Need([bool]$ok,[string]$message){if(-not $ok){throw $message}}
 function ShaText([string]$s){
  $h=[Security.Cryptography.SHA256]::Create()
- try{return [Convert]::ToHexString($h.ComputeHash([Text.Encoding]::UTF8.GetBytes($s))).ToLowerInvariant()}
+ try{return [BitConverter]::ToString($h.ComputeHash([Text.Encoding]::UTF8.GetBytes($s))).Replace('-','').ToLowerInvariant()}
  finally{$h.Dispose()}
 }
 function GetText([string]$url){
@@ -86,7 +86,9 @@ try{
  $newHtml=GetText ($NewPagesOrigin+$scope)
  $inline=[regex]::Matches($newHtml,'(?s)<script>(.*?)</script>')
  Need ($inline.Count -eq 1 -and $newHtml.Contains('Isolated V3 owner sandbox candidate')) 'Missing unique candidate bootstrap'
- $bootstrapBytes=[Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($inline[0].Groups[1].Value))
+ $bootstrapSha=[Security.Cryptography.SHA256]::Create()
+ try{$bootstrapBytes=$bootstrapSha.ComputeHash([Text.Encoding]::UTF8.GetBytes($inline[0].Groups[1].Value))}
+ finally{$bootstrapSha.Dispose()}
  $bootstrapHash="'sha256-"+[Convert]::ToBase64String($bootstrapBytes)+"'"
  $source=[IO.File]::ReadAllText($previousPath)
  $sourceHash=(Get-FileHash -LiteralPath $previousPath -Algorithm SHA256).Hash
