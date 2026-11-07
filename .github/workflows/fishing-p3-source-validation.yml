@@ -128,6 +128,8 @@ jobs:
             'experiments/p3/preview/tools/deploy-d5-owner-gateway-test.ps1',
             'experiments/p3/preview/tools/deploy-d5-startup-diagnostic-private.ps1',
             'experiments/p3/preview/tools/deploy-d5-startup-probe-fix-private.ps1',
+            'experiments/p3/preview/tools/update-d5-owner-pages-private.ps1',
+            'experiments/p3/preview/tools/update-d5-owner-worker-private.ps1',
             'experiments/p3/preview/tools/deploy-d3-hardoff-approved.ps1',
             'experiments/p3/preview/tools/prepare-d3-readonly-pilot.ps1',
             'experiments/p3/preview/tools/deploy-d3-readonly-approved.ps1',
