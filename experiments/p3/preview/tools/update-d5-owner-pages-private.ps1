@@ -24,6 +24,21 @@ function ShaText([string]$s){
  try{return [BitConverter]::ToString($h.ComputeHash([Text.Encoding]::UTF8.GetBytes($s))).Replace('-','').ToLowerInvariant()}
  finally{$h.Dispose()}
 }
+# Windows PowerShell 5.1 promotes redirected native stderr to ErrorRecord.
+# Scope Continue ONLY to capture native stdout + warnings; restore Stop even
+# if the command throws. The caller MUST reject every nonzero native exit code.
+function InvokeNativeOutput([scriptblock]$Command){
+ $previousPreference=$ErrorActionPreference
+ try{
+  $ErrorActionPreference='Continue'
+  $lines=@(& $Command 2>&1)
+  $exitCode=$LASTEXITCODE
+ }finally{$ErrorActionPreference=$previousPreference}
+ return [pscustomobject]@{
+  Lines=@($lines | ForEach-Object {[string]$_})
+  ExitCode=[int]$exitCode
+ }
+}
 function GetText([string]$url){
  $r=Invoke-WebRequest -Uri $url -UseBasicParsing -MaximumRedirection 0 -TimeoutSec 45 -Headers @{'Cache-Control'='no-store'}
  Need ([int]$r.StatusCode -eq 200) ('HTTP not 200: '+$url)
@@ -86,8 +101,14 @@ try{
    $bytes=[Text.Encoding]::UTF8.GetBytes(('HEAD='+$ExpectedHead+'; RELEASE='+$ptr.id+'; PREVIOUS='+$PreviousPagesOrigin+'; UTC='+[DateTime]::UtcNow.ToString('o')))
    $stream.Write($bytes,0,$bytes.Length)
   }finally{$stream.Dispose()}
-  $output=@(& npx.cmd --yes wrangler@4.153.0 pages deploy $site "--project-name=$project" --branch=d5-owner-test "--commit-hash=$ExpectedHead" --commit-dirty=false 2>&1)
-  $code=$LASTEXITCODE
+  # PS 5.1 converts benign Wrangler stderr warnings into terminating records
+  # under Stop. Capture only this native command under Continue, then enforce
+  # actual process exit status and retain durable one-attempt attempt marker.
+  $native=InvokeNativeOutput {
+   & npx.cmd --yes wrangler@4.153.0 pages deploy $site "--project-name=$project" --branch=d5-owner-test "--commit-hash=$ExpectedHead" --commit-dirty=false
+  }
+  $output=@($native.Lines)
+  $code=$native.ExitCode
   $output | ForEach-Object {Write-Output $_}
   Need ($code -eq 0) 'Pages upload outcome UNKNOWN; inspect remote project and marker, never blind retry'
   $match=[regex]::Matches(($output -join [Environment]::NewLine),'https://[a-f0-9]{8,32}\.fishing-v3-owner-d5-test\.pages\.dev')
