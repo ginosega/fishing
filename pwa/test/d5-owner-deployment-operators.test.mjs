@@ -9,7 +9,7 @@ function ordered(source,fragments){
  let n=-1;
  for(const fragment of fragments){
   const next=source.indexOf(fragment,n+1);
-  assert(next>n,\`Missing/out-of-order safeguard: \${fragment}\`);
+  assert(next>n,`Missing/out-of-order safeguard: ${fragment}`);
   n=next;
  }
 }
