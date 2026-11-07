@@ -119,7 +119,7 @@ export function createNotesMarkdownEditor({
  function changed(){onChange(input.value);}
  input.addEventListener('input',changed);
  const previewButton=button('Preview',()=>{
-  if(showPreview){showPreview=false;view.hidden=true;editorField.hidden=false;input.hidden=false;previewButton.textContent='Preview';input.focus();return;}
+  if(showPreview){showPreview=false;view.hidden=true;editorField.hidden=false;input.hidden=false;previewButton.textContent='Preview';syncInsertionButtons();input.focus();return;}
   try{
    const options=previewOptions(),exists=new Set([...knownPaths(),...staged.keys()]);
    const parsed=parseMarkdown(input.value,{...options,exists,allowMissing:false,viewerImages:true});
@@ -141,6 +141,8 @@ export function createNotesMarkdownEditor({
    });
    showPreview=true;view.hidden=false;editorField.hidden=true;input.hidden=true;
    previewButton.textContent='Edit';
+   // Preview is read-only: insertion controls cannot exit it implicitly.
+   syncInsertionButtons();closeLink();closeImage();
    status(message,'Markdown preview is local and has not been saved.','info');
   }catch(error){status(message,error.message,'error');}
  });
@@ -220,7 +222,7 @@ export function createNotesMarkdownEditor({
   linkPanel.hidden=true;linkMessage.replaceChildren();
  }
  const linkButton=button('Insert link',()=>{
-  if(showPreview)previewButton.click();
+  if(showPreview)return;
   closeImage();
   selection=[input.selectionStart,input.selectionEnd];
   const highlighted=input.value.slice(...selection).trim();
@@ -255,13 +257,17 @@ export function createNotesMarkdownEditor({
   previewThumb.replaceChildren();
  }
  const imageButton=button('Insert image',()=>{
-  if(showPreview)previewButton.click();
+  if(showPreview)return;
   closeLink();
   selection=[input.selectionStart,input.selectionEnd];
   details.hidden=false;details.scrollIntoView({block:'nearest'});
  });
  setNotesToolbarIcon(imageButton,'image','Insert Image');
  imageButton.hidden=!allowUpload;
+ function syncInsertionButtons(){
+  linkButton.disabled=showPreview;
+  imageButton.disabled=showPreview;
+ }
  viewer.addEventListener('change',()=>{captionField.hidden=!viewer.checked;});
  captionField.hidden=true;
  choose.addEventListener('change',async()=>{
