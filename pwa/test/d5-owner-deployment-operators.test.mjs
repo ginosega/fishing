@@ -64,3 +64,18 @@ test('D5-UPDATE04 Worker deploy is one-attempt, version-locked and proves bootst
  ordered(worker,["if(-not $Deploy){","}else{","[IO.File]::Open($marker","wrangler@4.153.0 deploy --config"]);
  assert.doesNotMatch(worker,/wrangler@4\.153\.0 d1 execute|secret put|pages deploy|caches\.delete|deleteDatabase/);
 });
+
+test('D5-UPDATE05 Windows native stderr capture is scoped and nonzero exit remains fatal',()=>{
+ assert.match(pages,/function InvokeNativeOutput\(\[scriptblock\]\$Command\)/);
+ assert.match(pages,/\$previousPreference=\$ErrorActionPreference/);
+ assert.match(pages,/\$ErrorActionPreference='Continue'/);
+ assert.match(pages,/\$lines=@\(& \$Command 2>&1\)/);
+ assert.match(pages,/\$exitCode=\$LASTEXITCODE/);
+ assert.match(pages,/finally\{\$ErrorActionPreference=\$previousPreference\}/);
+ assert.match(pages,/\$native=InvokeNativeOutput \{/);
+ assert.match(pages,/\$code=\$native.ExitCode/);
+ assert.match(pages,/Need \(\$code -eq 0\) 'Pages upload outcome UNKNOWN/);
+ assert.doesNotMatch(pages,/\$output=@\(& npx\.cmd --yes wrangler@4\.153\.0 pages deploy/);
+ ordered(pages,['[IO.File]::Open($marker','$native=InvokeNativeOutput {',
+  'pages deploy $site','$code=$native.ExitCode','Need ($code -eq 0)']);
+});

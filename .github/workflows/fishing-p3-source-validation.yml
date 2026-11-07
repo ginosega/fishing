@@ -39,6 +39,18 @@ concurrency:
   group: fishing-p3-source-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 jobs:
+  windows-powershell-51-stderr:
+    name: windows-powershell-51-stderr
+    runs-on: windows-2022
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Exercise Pages warning/nonzero native exit with Windows PowerShell 5.1 (no provider)
+        shell: powershell
+        run: ./pwa/test/d5-pages-stderr-ps51.ps1
+
   verify-source-and-sandbox:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
