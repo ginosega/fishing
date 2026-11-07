@@ -47,3 +47,6 @@ try{
 }finally{
  Remove-Item -LiteralPath $dir -Recurse -Force -ErrorAction SilentlyContinue
 }
+# GitHub Actions powershell.exe propagates LASTEXITCODE from synthetic exit 27
+# unless the harness explicitly exits successfully after all checks and cleanup.
+exit 0
