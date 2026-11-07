@@ -36,7 +36,7 @@ test('FISH118 D3 inactive owner UI hides Add/Edit and rejects deep-link editor w
  assert.match(ui,/page\.append\(categories,searchResults,\.\.\.\(canAuthor\(\)\?/);
  assert.match(ui,/page\.append\(list\.element,\.\.\.\(canAuthor\(\)\?/);
  assert.match(ui,/if\(canAuthor\(\)&&canEditRecord\(domain,record.id\)&&\(domain!==\x27catches\x27\|\|v3Mode\)\)page\.append\(anchor\('Edit item'/);
- assert.match(ui,/if\(v3Mode&&canAuthor\(\)\)page\.querySelector\('\.page-actions'\)\.prepend\(anchor\('Add Catch'/);
+ assert.match(ui,/if\(v3Mode&&canAuthor\(\)\)page\.append\(el\('div',\{class:'catch-add-row'\},anchor\('Add Catch'/);
  assert.match(ui,/if\(!v3Mode\|\|!canAuthor\(\)\)return missing\('Owner sign-in is required to edit Catches/);
  assert.match(ui,/publishChange:v3Mode\?guardedPublish:null/);
  assert.match(ui,/ctx\.v3\.onPublicationReceipt=receipt=>/);

@@ -55,6 +55,43 @@ export function notesPreviewSource(reference,{staged,knownPaths,resolveSavedAsse
   return null;
  return url;
 }
+
+/* V3 shared toolbar icons; button text remains available via aria-label/title. */
+function notesToolbarIcon(kind){
+ const ns='http://www.w3.org/2000/svg';
+ const svg=document.createElementNS(ns,'svg');
+ for(const [key,val] of Object.entries({viewBox:'0 0 24 24',width:22,height:22,
+  fill:'none',stroke:'currentColor','stroke-width':1.8,
+  'stroke-linecap':'round','stroke-linejoin':'round',
+  'aria-hidden':'true',focusable:'false'}))svg.setAttribute(key,String(val));
+ function shape(tag,attrs){
+  const node=document.createElementNS(ns,tag);
+  for(const [key,val] of Object.entries(attrs))node.setAttribute(key,String(val));
+  svg.append(node);
+ }
+ if(kind==='image'){
+  shape('rect',{x:2.5,y:3,width:19,height:18,rx:2.5});
+  shape('path',{d:'M4 18l5.5-7 3.5 4 2.2-2.7L20 18H4Z',
+   fill:'#6ca6e8',stroke:'none'});
+  shape('circle',{cx:16.7,cy:8,r:2.1,fill:'#e9b66d',stroke:'none'});
+ }else{
+  const paths={
+   link:'M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71 M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71',
+   expand:'M8 3H3v5 M3 3l6 6 M16 3h5v5 M21 3l-6 6 M3 16v5h5 M3 21l6-6 M21 16v5h-5 M21 21l-6-6',
+   restore:'M3 9h6V3 M9 9L3 3 M21 9h-6V3 M15 9l6-6 M3 15h6v6 M9 15l-6 6 M21 15h-6v6 M15 15l6 6',
+  };
+  if(!Object.hasOwn(paths,kind))throw Error('Invalid Notes toolbar icon');
+  shape('path',{d:paths[kind]});
+ }
+ return svg;
+}
+function setNotesToolbarIcon(control,kind,label){
+ control.classList.add('notes-icon-button');
+ control.replaceChildren(notesToolbarIcon(kind));
+ control.setAttribute('aria-label',label);
+ control.setAttribute('title',label);
+}
+
 export function createNotesMarkdownEditor({
  domain,getRecord,value='',label='Markdown',onChange=()=>{},previewOptions,
  knownPaths=()=>new Set(),allowUpload=false,linkMaps=()=>previewOptions().maps,
@@ -81,8 +118,8 @@ export function createNotesMarkdownEditor({
  let candidate=null,expanded=false,showPreview=false,selection=[0,0];
  function changed(){onChange(input.value);}
  input.addEventListener('input',changed);
- const previewButton=button('Preview Markdown',()=>{
-  if(showPreview){showPreview=false;view.hidden=true;editorField.hidden=false;input.hidden=false;previewButton.textContent='Preview Markdown';input.focus();return;}
+ const previewButton=button('Preview',()=>{
+  if(showPreview){showPreview=false;view.hidden=true;editorField.hidden=false;input.hidden=false;previewButton.textContent='Preview';input.focus();return;}
   try{
    const options=previewOptions(),exists=new Set([...knownPaths(),...staged.keys()]);
    const parsed=parseMarkdown(input.value,{...options,exists,allowMissing:false,viewerImages:true});
@@ -103,14 +140,17 @@ export function createNotesMarkdownEditor({
     if(source)image.src=source;
    });
    showPreview=true;view.hidden=false;editorField.hidden=true;input.hidden=true;
-   previewButton.textContent='Edit Markdown';
+   previewButton.textContent='Edit';
    status(message,'Markdown preview is local and has not been saved.','info');
   }catch(error){status(message,error.message,'error');}
  });
  const expandButton=button('Expand',()=>setExpanded(!expanded));
+ setNotesToolbarIcon(expandButton,'expand','Expand editor');
+ expandButton.setAttribute('aria-expanded','false');
  function setExpanded(value){
   expanded=value;outer.classList.toggle('expanded',expanded);
-  expandButton.textContent=expanded?'Exit full page':'Expand';
+  setNotesToolbarIcon(expandButton,expanded?'restore':'expand',
+   expanded?'Exit full-page editor':'Expand editor');
   expandButton.setAttribute('aria-expanded',String(expanded));
   if(!showPreview)input.focus();
  }
@@ -193,6 +233,7 @@ export function createNotesMarkdownEditor({
   linkPanel.scrollIntoView({block:'nearest'});
   if(highlighted)linkLabel.focus();else linkSearch.focus();
  });
+ setNotesToolbarIcon(linkButton,'link','Insert Link');
  const confirmLink=button('Insert',()=>{
   try{
    const target=linkSiteRadio.checked?selectedLinkTarget()?.uri:linkUrl.value;
@@ -219,6 +260,7 @@ export function createNotesMarkdownEditor({
   selection=[input.selectionStart,input.selectionEnd];
   details.hidden=false;details.scrollIntoView({block:'nearest'});
  });
+ setNotesToolbarIcon(imageButton,'image','Insert Image');
  imageButton.hidden=!allowUpload;
  viewer.addEventListener('change',()=>{captionField.hidden=!viewer.checked;});
  captionField.hidden=true;
