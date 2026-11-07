@@ -21,7 +21,7 @@ $marker=Join-Path $env:TEMP ('fishing-d5-owner-pages-update-'+$ExpectedHead+'.at
 function Need([bool]$ok,[string]$message){if(-not $ok){throw $message}}
 function ShaText([string]$s){
  $h=[Security.Cryptography.SHA256]::Create()
- try{return [Convert]::ToHexString($h.ComputeHash([Text.Encoding]::UTF8.GetBytes($s))).ToLowerInvariant()}
+ try{return [BitConverter]::ToString($h.ComputeHash([Text.Encoding]::UTF8.GetBytes($s))).Replace('-','').ToLowerInvariant()}
  finally{$h.Dispose()}
 }
 function GetText([string]$url){
