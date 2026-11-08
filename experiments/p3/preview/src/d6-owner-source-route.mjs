@@ -5,7 +5,6 @@
  * loader; browser-provided revision, repo identity and tokens are ignored.
  */
 import {D6_SOURCE_REPOSITORY} from './d6-canonical-snapshot-loader.mjs';
-import {D6_TRUSTED_PAGES_BASE} from './d6-hosted-revision-reader.mjs';
 
 export const D6_SOURCE_ORIGIN='https://fishing.ginosega.workers.dev';
 export const D6_SOURCE_PATH='/api/v3/authoring-source';
