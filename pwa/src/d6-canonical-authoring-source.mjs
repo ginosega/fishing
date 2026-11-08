@@ -4,7 +4,8 @@
  * trusted gateway must independently pin/verify each requested main commit.
  * Never treat this display snapshot as publication authorization.
  */
-import {validateRecords,collectPaths,checkPathCollisions,validateLibraryPaths}
+import {validateRecords,collectPaths,checkPathCollisions,validateLibraryPaths,
+ validateMarkdown}
  from './validation.mjs';
 import {D6_READER_BASE,D6_READER_ORIGIN} from './d6-public-reader.mjs';
 
@@ -72,10 +73,10 @@ export function createD6CanonicalSourceClient({
   need(body.sourceRevision===expectedReleaseRevision,'SOURCE_REVISION_MISMATCH');
   need(body.files.length<=MAX_FILES&&body.markdown.length<=MAX_MARKDOWN,
    'SOURCE_TOO_LARGE');
-  let referenced;
+  let referenced,maps,routes;
   try{
-   validateRecords(body.data);
-   validateLibraryPaths(body.data);
+   maps=validateRecords(body.data);
+   routes=validateLibraryPaths(body.data);
    referenced=collectPaths(body.data);
    checkPathCollisions(referenced);
   }catch{deny('INVALID_RECORDS');}
@@ -98,6 +99,13 @@ export function createD6CanonicalSourceClient({
    need(files.has(path),'MISSING_CANONICAL_FILE');
    if(path.endsWith('.md'))need(markdown.has(path),'MISSING_CANONICAL_MARKDOWN');
   }
+  // Markdown can reference inline images and links beyond record-level fields.
+  // Verify those against the same exact source tree inventory, not a public
+  // Pages release from an unrelated revision.
+  try{
+   for(const [path,bodyText] of markdown)
+    validateMarkdown(bodyText,{owner:path,maps,exists:files,pathRoutes:routes});
+  }catch{deny('INVALID_MARKDOWN_REFERENCES');}
   // This authoring snapshot is only a display/source input, NOT a durable
   // GitHub commit receipt. It is never automatically treated as Live.
   return Object.freeze({
