@@ -179,7 +179,7 @@ test('D6-BYTES07 reject malformed/unsafe manifest path and too many bytes',async
   },
  });
  await denied(preflight(transport({pages:large.results}))
-  .verify({expectedSourceRevision:REV}),'MANIFEST_DIGEST_MISMATCH');
+  .verify({expectedSourceRevision:REV}),'RELEASE_TOO_LARGE');
 });
 
 test('D6-BYTES08 read race catches a pointer change after all file checks',async()=>{
