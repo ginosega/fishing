@@ -10,13 +10,14 @@ const ROOT_ASSETS=new Set(['/','/index.html','/release.json','/loader.js',
 const RELEASE_ASSET=/^\/releases\/[a-f0-9]{32}\/(?:[A-Za-z0-9._~!$&'()+,;=:@%-]+\/)*[A-Za-z0-9._~!$&'()+,;=:@%-]+$/;
 
 export function shouldHandleD6RootSWRequest({scope,requestUrl}={}){
- // Reject encoded traversal before URL() can normalize a dot segment.
- if(/%(?:2f|5c|00|2e)/i.test(requestUrl))return false;
  let root,url;
  try{root=new URL(scope);url=new URL(requestUrl);}catch{return false;}
  if(url.origin!==root.origin||url.username||url.password)return false;
  // Preserve the preexisting V2/private scope logic unchanged.
  if(root.href!==D6_PUBLIC_ROOT)return true;
+ // Only the new root-scope branch changes behavior. Guard raw input before
+ // URL() can normalize encoded traversal in the unified production origin.
+ if(/%(?:2f|5c|00|2e)/i.test(requestUrl))return false;
  const path=url.pathname;
  if(path.includes('\\')||path.includes('//')||
     /%(?:2f|5c|00|2e)/i.test(path))return false;
