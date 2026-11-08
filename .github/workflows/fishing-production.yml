@@ -162,6 +162,19 @@ jobs:
         run: |
           npm run build -- --base=/fishing/ --source-revision="$GITHUB_SHA"
           npm run verify
+      - name: Build and verify isolated D6 read-only release
+        timeout-minutes: 7
+        working-directory: pwa
+        run: |
+          npm run build -- --d6-reader-candidate --base=/fishing/ --out=dist-d6-reader --source-revision="$GITHUB_SHA"
+          node tools/verify.mjs --out=dist-d6-reader
+          node --input-type=module -e 'import fs from "node:fs";const p=JSON.parse(fs.readFileSync("dist-d6-reader/release.json"));const m=JSON.parse(fs.readFileSync("dist-d6-reader/"+p.manifest));if(!p.d6ReaderCandidate||!m.d6ReaderCandidate||m.base!=="/fishing/"||p.sourceRevision!==process.env.GITHUB_SHA)process.exit(1);'
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: github.event_name == 'pull_request'
+        with:
+          name: d6-reader-candidate-source-only
+          path: pwa/dist-d6-reader/
+          retention-days: 14
       - name: Complete production browser and real v1 cutover acceptance
         timeout-minutes: 15
         working-directory: pwa
