@@ -88,7 +88,7 @@ test('D6-STAGEA-W04 auth/API/publishing/admin/media and other hosts never fetch'
   '/fishing/releases/bad/app.js',
   '/fishing/releases/'+ID+'/content/%2fsecret',
   '/fishing/releases/'+ID+'/content/%5csecret',
-  '/fishing/releases/'+ID+'/content/%2e%2e/secret',
+  '/fishing/releases/'+ID+'/content/%2eprivate/secret',
   '/fishing/releases/'+ID+'/content/%252fsecret',
   '/fishing/releases/'+ID+'/app.js?source=main',
   '/fishing/release.json?revision=123',
