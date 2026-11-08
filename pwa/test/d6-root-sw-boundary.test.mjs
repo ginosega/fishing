@@ -39,6 +39,8 @@ test('D6-SW03 existing V2 and D5 scopes are unchanged',()=>{
  for(const scope of ['https://ginosega.github.io/fishing/',
   'https://fishing-auth-p0-test.ginosega.workers.dev/fishing/__v3_owner_candidate__/']){
   assert.equal(shouldHandleD6RootSWRequest({scope,requestUrl:new URL('release.json',scope).href}),true);
+  // D6-only canonicalization checks cannot alter the old scoped handler.
+  assert.equal(shouldHandleD6RootSWRequest({scope,requestUrl:scope+'releases/'+id+'/content/%2e%2e/file.png'}),true);
   assert.equal(shouldHandleD6RootSWRequest({scope,requestUrl:'https://attacker.invalid/release.json'}),false);
  }
 });
