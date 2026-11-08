@@ -18,15 +18,41 @@ const inside=(parent,child)=>{
  return rel===''||(!rel.startsWith('..'+path.sep)&&rel!=='..'&&!path.isAbsolute(rel));
 };
 const deny=reason=>{throw Error('D6 Stage A Pages packaging denied: '+reason);};
+// Resolve existing symlinked ancestors even when the requested output itself
+// does not exist. Lexical checks alone cannot protect pwa/dist aliases.
+async function physicalPath(target){
+ let cursor=target;
+ const tail=[];
+ for(;;){
+  try{return path.resolve(await fs.realpath(cursor),...tail.reverse());}
+  catch(error){
+   if(error?.code!=='ENOENT')throw error;
+   const parent=path.dirname(cursor);
+   if(parent===cursor)throw error;
+   tail.push(path.basename(cursor));
+   cursor=parent;
+  }
+ }
+}
+const protectedOrOverlapping=(input,output,protectedPath)=>
+ inside(input,output)||inside(output,input)||
+ inside(protectedPath,input)||inside(protectedPath,output)||
+ inside(input,protectedPath)||inside(output,protectedPath);
 
 export async function packageD6StaticPages({source,destination,verifyRelease=verify}={}){
  if(typeof source!=='string'||!source||typeof destination!=='string'||!destination)
   deny('explicit source and destination are required');
  if(typeof verifyRelease!=='function')deny('release verifier unavailable');
  const input=path.resolve(source),output=path.resolve(destination);
- if(inside(input,output)||inside(output,input)||input===productionDist||
-    output===productionDist||inside(output,productionDist))
+ if(protectedOrOverlapping(input,output,productionDist))
   deny('overlapping or production release paths');
+ // Check effective filesystem targets as well as spelling: a parent symlink
+ // must not let a staging upload write into production or into its own input.
+ const [realInput,realOutput,realProductionDist]=await Promise.all([
+  physicalPath(input),physicalPath(output),physicalPath(productionDist),
+ ]);
+ if(protectedOrOverlapping(realInput,realOutput,realProductionDist))
+  deny('overlapping or production release paths via symlinked parent');
  const inputStats=await fs.lstat(input).catch(()=>null);
  if(!inputStats?.isDirectory()||inputStats.isSymbolicLink())
   deny('source must be an existing release directory');
