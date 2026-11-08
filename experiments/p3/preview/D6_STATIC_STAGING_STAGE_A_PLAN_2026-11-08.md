@@ -1,0 +1,27 @@
+# D6 Stage A — proposed isolated static reader (source-only plan)
+
+**Status:** DRAFT, NOT DEPLOYED, NOT APPROVED FOR PROVIDER CHANGES. Follow [D6 issue #377](https://github.com/ginosega/fishing/issues/377) and the accepted SEC-001/002/004/005, ARC-002/003/004 decisions and release gates. This plan does not grant authorization to create a Worker/Pages project, activate routes, update DNS, install keys, or merge application code into public `main`.
+
+## Exact proposed isolation targets (reservations, not provisioned assets)
+
+- Static-only *test Worker* (proposed): `https://fishing-d6-static-test.ginosega.workers.dev/fishing/`. This is **not** the intended public production Worker `https://fishing.ginosega.workers.dev/fishing/`; it must not be retargeted to the existing D5 private Worker.
+- Isolated *test Pages project* (proposed name): `fishing-v3-d6-static-test`, expected project hostname `https://fishing-v3-d6-static-test.pages.dev/`. Build files must be served under its **`/fishing/`** subdirectory (the web manifest and service worker require that exact scope). An immutable deployment-specific Pages hostname is preferable to a mutable project alias when collecting hosted receipts.
+- Source: the exact verified head of this stacked draft PR (currently based on #390), not public `main`. Build command from `pwa/`: `npm run build -- --d6-reader-candidate --d6-static-staging --base=/fishing/ --out=dist-d6-static-staging --source-revision=<EXACT_VERIFIED_SHA>`. Then `node tools/verify.mjs --out=dist-d6-static-staging`. No pending-media flag, regular `pwa/dist` replacement, or publishing.
+- **Physical hosting layout:** use an isolated upload directory that contains `fishing/index.html`, `fishing/release.json`, `fishing/sw.js`, `fishing/loader.js`, and the full immutable `fishing/releases/<release-id>/...` manifest tree. Do **not** simply deploy the root of `dist-d6-static-staging/` to Pages and assume that the `/fishing/` URL exists. A separate reviewed packaging/proxy increment must establish the final physical layout and URL mapping before any staging deployment.
+- At this stage, the candidate app's exact-origin guard permits only the stated test Worker hostname (or local loopback). It rejects the live D6 production hostname in staging mode and refuses other Worker/Pages hosts. The staged app does **not construct owner-session or GitHub source probes**; it stays anonymous and read-only. The real production `refs/heads/main` authoring source requires a published matching main SHA, so a draft-branch test cannot lawfully exercise that source path.
+
+## Owner approval boundary
+
+**Stage A requires explicit owner approval for the concrete nonproduction Pages/Workers targets and actual deployment.** Only after approval: create/reuse approved staging-only resources, prepare the physical `/fishing/` upload tree, install a reviewed *static-only* staging Worker proxy with all `/auth`, `/session`, `/api`, OAuth, media and publishing routes absent or disabled; preserve the existing D5 worker, private immutable Pages origins, public V2 and unsent device drafts. Use no production GitHub App key, installation token, D1 write permission, GitHub writer permission or public DNS custom domain.
+
+## Gate A: static-only field verification
+
+Record the exact immutable Git commit, CI run, app release ID, Pages deployment ID/origin, Worker version ID and UTC verification timestamp. Before any assertion of hosted success: verify **actual** `/fishing/` and `/fishing/index.html` responses, exact origin on the Worker, `/` → `/fishing/`, no redirect following to unrelated sites, `/fishing/sw.js` scope, `release.json` and hashed manifest, every immutable asset byte against the release inventory using a separately configured **staging-origin** variant of the full hosted-byte verifier (never silently retarget the production checker). Check offline catalog / Work Offline / Automatic, session/source/write-route denial, and Android/Windows read-only behavior. Positive source-only CI does **not** count as hosted or owner field acceptance.
+
+## Abort / rollback
+
+If any gate fails, stop the isolated staging attempt, disable/remove only the Stage A test Worker route or revert its version to a separately confirmed prior known-good test version, and leave the recorded immutable Pages build untouched for diagnosis. Do not delete the D5 test Worker, D5 Pages releases, public V2, saved drafts, or unrelated D1 resources. Verify the unchanged public V2 host and existing private D5 worker after the abort, and record both receipt and unresolved unknowns in issue #377.
+
+## Subsequent decisions (not covered by Stage A)
+
+Production-owner auth/GitHub App **read** activation, source revision tied to canonical `main`, production publisher write privilege and protected PR/CI merge, rollback into verified V2, complete exact public-host bytes and final V3 cutover each require separate review and explicit approval. Never use a staging branch SHA as evidence of a published real `main` source.
