@@ -6,6 +6,8 @@ import {createEditor} from './editor.mjs';
 import {openViewer,openSequenceViewer} from './viewer.mjs';
 import {bindMarkdownPictureViewer} from './markdown-viewer.mjs';
 import {createOffline} from './offline.mjs';
+import {effectiveConnectionOnline} from './connection-indicator.mjs';
+import {v3OfflineLibraryActionLabel} from './v3-offline-library-action.mjs';
 
 const KAYAK_ICON=`<svg viewBox="0 0 64 64" role="img" aria-label="Kayak">
   <defs><linearGradient id="kayakHull" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a2def7"/><stop offset="1" stop-color="#76c8ef"/></linearGradient></defs>
@@ -112,13 +114,97 @@ export function createApp(ctx){
  window.addEventListener('hashchange',()=>{const requested=location.hash||'#/';if(requested===currentHash)return;if(approvedNavigation!==requested&&!canLeave()){history.replaceState(null,'',currentHash);return;}disposeEditor();approvedNavigation=null;previousHash=currentHash;currentHash=requested;alertHost.replaceChildren();render();window.scrollTo(0,0);});
  window.addEventListener('beforeunload',event=>{if(dirty()){event.preventDefault();event.returnValue='';}});
  for(const a of document.querySelectorAll('[data-nav]'))a.addEventListener('click',event=>{event.preventDefault();navigate(a.getAttribute('href'));});
- offline=createOffline({root:ctx.root,releaseId:ctx.release.id,onStatus:state=>{const needsUpdate=state.state==='Incomplete'&&Boolean(state.message);const label=state.state==='Ready'?(navigator.onLine?(state.releaseId===ctx.release.id?`Offline library ready · current · ${state.files||0} files`:`Offline library ready · update available · ${state.files||0} files`):`Offline library ready · ${state.files||0} files`):state.state==='Downloading'?`Preparing offline library · ${state.completed||0}/${state.files||'?'} files`:needsUpdate?'Offline library needs update':'Offline library not prepared';offlineHost.replaceChildren(text('span',label),...(state.message?[text('span',state.message,'hint')]:[]));offlineHost.dataset.state=state.state;offlineHost.dataset.releaseId=state.releaseId||'';document.getElementById('offline-reload').disabled=Boolean(state.updating)||state.state==='Downloading';document.getElementById('offline-update').disabled=Boolean(state.updating)||state.state==='Downloading'||!navigator.onLine;},isDirty:dirty,notify});
+ offline=createOffline({
+  root:ctx.root,releaseId:ctx.release.id,v3ReadingMode:readerOnly,
+  onMode:(_mode,_available,feedback)=>updateModeControls(feedback),
+  onStatus:state=>{
+   const needsUpdate=state.state==='Incomplete'&&Boolean(state.message);
+   const label=state.state==='Ready'?(navigator.onLine?
+    (state.releaseId===ctx.release.id?`Offline library ready · current · ${state.files||0} files`:
+    `Offline library ready · update available · ${state.files||0} files`):
+    `Offline library ready · ${state.files||0} files`):
+    state.state==='Downloading'?
+     `Preparing offline library · ${state.completed||0}/${state.files||'?'} files`:
+     needsUpdate?'Offline library needs update':'Offline library not prepared';
+   offlineHost.replaceChildren(text('span',label),
+    ...(state.message?[text('span',state.message,'hint')]:[]));
+   offlineHost.dataset.state=state.state;
+   offlineHost.dataset.releaseId=state.releaseId||'';
+   const busy=Boolean(state.updating)||state.state==='Downloading';
+   if(!readerOnly)document.getElementById('offline-reload').disabled=busy;
+   const update=document.getElementById('offline-update');
+   if(readerOnly)update.textContent=v3OfflineLibraryActionLabel(state);
+   update.disabled=busy||!navigator.onLine||
+    (readerOnly&&offline?.getMode?.()==='Work Offline');
+  },isDirty:dirty,notify,
+ });
  globalThis.__FISHING_SHELL_CLEANUP__?.();
- const connection=document.getElementById('connection-status'),connectionDialog=document.getElementById('connection-dialog');
- const updateConnection=()=>{connection.dataset.online=String(navigator.onLine);document.getElementById('connection-network').textContent=navigator.onLine?'Online':'Offline';const current=offline.getStatus();document.getElementById('offline-update').disabled=Boolean(current?.state==='Downloading')||!navigator.onLine;};
- connection.addEventListener('click',()=>connectionDialog.showModal());document.getElementById('connection-close').addEventListener('click',()=>connectionDialog.close());window.addEventListener('online',updateConnection);window.addEventListener('offline',updateConnection);updateConnection();
- document.getElementById('offline-update').disabled=!navigator.onLine;
- document.getElementById('offline-update').addEventListener('click',()=>offline.update());document.getElementById('offline-reload').addEventListener('click',()=>offline.reload());
+ const connection=document.getElementById('connection-status');
+ const connectionDialog=document.getElementById('connection-dialog');
+ let automaticModeButton=null,workOfflineButton=null,readingModeStatus=null;
+ if(readerOnly){
+  connectionDialog.classList.add('d6-reader-connection');
+  const section=el('section',{class:'d6-reading-mode'},
+   text('h2','Mode'));
+  automaticModeButton=button('Automatic',()=>void offline.setMode('Automatic'));
+  workOfflineButton=button('Work Offline',()=>void offline.setMode('Work Offline'));
+  for(const control of [automaticModeButton,workOfflineButton]){
+   control.disabled=true;
+   control.setAttribute('aria-pressed','false');
+  }
+  readingModeStatus=text('p','Checking reading controls…','hint');
+  section.append(el('div',{class:'toolbar'},automaticModeButton,workOfflineButton),
+   readingModeStatus);
+  const panel=connectionDialog.querySelector('.offline-panel');
+  connectionDialog.insertBefore(section,panel);
+  document.getElementById('offline-reload').remove();
+  document.getElementById('offline-update').textContent=
+   v3OfflineLibraryActionLabel(offline.getStatus());
+ }
+ function updateConnection(){
+  const mode=readerOnly?
+   (offline.getModeAvailable()===true?offline.getMode():'Checking'):null;
+  const confirmed=effectiveConnectionOnline({online:navigator.onLine,
+   readingMode:mode});
+  connection.dataset.online=String(confirmed);
+  if(readerOnly){
+   // Do not report Online until the service worker verifies Automatic mode.
+   connection.title='Connection status: '+(confirmed?'Online':'Offline');
+   connection.setAttribute('aria-label',connection.title);
+  }
+  document.getElementById('connection-network').textContent=
+   confirmed?'Online':'Offline';
+  const current=offline.getStatus();
+  document.getElementById('offline-update').disabled=
+   current?.state==='Downloading'||current?.updating===true||
+   !navigator.onLine||(readerOnly&&mode!=='Automatic');
+ }
+ function updateModeControls(feedback={}){
+  if(!readerOnly||!readingModeStatus)return;
+  const available=offline.getModeAvailable()===true;
+  const mode=offline.getMode();
+  readingModeStatus.textContent=feedback.message||
+   (available?'Reading mode: '+mode:'Reading controls unavailable.');
+  for(const [control,value] of [
+   [automaticModeButton,'Automatic'],[workOfflineButton,'Work Offline']]){
+   control.disabled=!available||feedback.busy===true;
+   control.setAttribute('aria-pressed',String(available&&mode===value));
+  }
+  updateConnection();
+ }
+ connection.addEventListener('click',()=>{
+  connectionDialog.showModal();
+  if(readerOnly)void offline.refreshMode();
+ });
+ document.getElementById('connection-close')
+  .addEventListener('click',()=>connectionDialog.close());
+ window.addEventListener('online',updateConnection);
+ window.addEventListener('offline',updateConnection);
+ updateConnection();
+ document.getElementById('offline-update')
+  .addEventListener('click',()=>offline.update());
+ if(!readerOnly)document.getElementById('offline-reload')
+  .addEventListener('click',()=>offline.reload());
  const releaseDetails=document.getElementById('release-details');if(releaseDetails)releaseDetails.textContent=`Release ${ctx.release.id.slice(0,12)} · Source ${ctx.release.sourceRevision.slice(0,12)}${ctx.release.pendingMedia?' · Pending media preview':''}`;
  if(ctx.release.pendingMedia)notify('Preview only: some approved image replacements remain unresolved. This is not a production-cutover candidate.','warning');
  render();offline.start();
