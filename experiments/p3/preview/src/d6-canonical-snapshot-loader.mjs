@@ -5,7 +5,6 @@
  * Repository identity, commit/tree/blob bytes and the final main ref are
  * checked server-side through a scoped contents:read GitHub App token.
  */
-import {decodeD2GitBlob} from './d2-worker-source-candidate.mjs';
 import {validateRecords,validateLibraryPaths,collectPaths,
  checkPathCollisions,validateMarkdown}
  from '../../../../pwa/src/validation.mjs';
@@ -51,6 +50,28 @@ const entryIsBlob=item=>obj(item)&&item.type==='blob'&&
  item.mode==='100644'&&SHA.test(item.sha)&&
  Number.isSafeInteger(item.size)&&item.size>=0&&
  item.size<=20*1024*1024;
+
+// Verify the exact Git blob bytes against the SHA-1 content address supplied
+// by authenticated GitHub GET. No imports from the unmerged D2 sandbox.
+async function decodeVerifiedGitBlob(entry,blob){
+ need(obj(blob)&&blob.sha===entry.sha&&blob.size===entry.size&&
+  blob.encoding==='base64'&&typeof blob.content==='string'&&
+  blob.content.length<=entry.size*2+256,'GIT_BLOB_INTEGRITY_FAILED');
+ const raw=blob.content.replace(/\s/g,'');
+ need(/^[A-Za-z0-9+/]*={0,2}$/.test(raw),'GIT_BLOB_INTEGRITY_FAILED');
+ let data;
+ try{data=Uint8Array.from(atob(raw),ch=>ch.charCodeAt(0));}
+ catch{deny('GIT_BLOB_INTEGRITY_FAILED');}
+ need(data.length===entry.size,'GIT_BLOB_INTEGRITY_FAILED');
+ const header=encoder.encode('blob '+data.length+'\0');
+ const tagged=new Uint8Array(header.length+data.length);
+ tagged.set(header);tagged.set(data,header.length);
+ const hashed=Array.from(new Uint8Array(
+  await crypto.subtle.digest('SHA-1',tagged)),
+  x=>x.toString(16).padStart(2,'0')).join('');
+ need(hashed===entry.sha,'GIT_BLOB_INTEGRITY_FAILED');
+ return data;
+}
 
 export function createD6CanonicalSnapshotLoader({
  request,issueReadToken,enabled=()=>false,
@@ -147,7 +168,7 @@ export function createD6CanonicalSnapshotLoader({
    need(bytesRead<=MAX_SOURCE_BYTES,'SOURCE_TOO_LARGE');
    const blob=await githubGet(token,API+'/git/blobs/'+entry.sha);
    let bytes;
-   try{bytes=await decodeD2GitBlob(entry,blob);}
+   try{bytes=await decodeVerifiedGitBlob(entry,blob);}
    catch{deny('GIT_BLOB_INTEGRITY_FAILED');}
    try{return decoder.decode(bytes);}
    catch{deny('INVALID_UTF8');}
