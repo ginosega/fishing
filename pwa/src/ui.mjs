@@ -142,6 +142,7 @@ export function createApp(ctx){
  const connection=document.getElementById('connection-status');
  const connectionDialog=document.getElementById('connection-dialog');
  let automaticModeButton=null,workOfflineButton=null,readingModeStatus=null;
+ let ownerSessionStatus=null,ownerProbeSerial=0;
  if(readerOnly){
   connectionDialog.classList.add('d6-reader-connection');
   const section=el('section',{class:'d6-reading-mode'},
@@ -156,6 +157,12 @@ export function createApp(ctx){
   section.append(el('div',{class:'toolbar'},automaticModeButton,workOfflineButton),
    readingModeStatus);
   const panel=connectionDialog.querySelector('.offline-panel');
+  const account=el('section',{class:'d6-owner-readiness'},
+   text('h2','Account'));
+  ownerSessionStatus=text('p','Account not checked. Editing and publishing are disabled.','hint');
+  ownerSessionStatus.setAttribute('role','status');
+  account.append(ownerSessionStatus);
+  connectionDialog.insertBefore(account,panel);
   connectionDialog.insertBefore(section,panel);
   document.getElementById('offline-reload').remove();
   document.getElementById('offline-update').textContent=
@@ -166,6 +173,11 @@ export function createApp(ctx){
    (offline.getModeAvailable()===true?offline.getMode():'Checking'):null;
   const confirmed=effectiveConnectionOnline({online:navigator.onLine,
    readingMode:mode});
+  if(readerOnly&&!confirmed&&ownerSessionStatus){
+   // Retire any response that started before an offline/mode transition.
+   ++ownerProbeSerial;
+   ownerSessionStatus.textContent='Owner session unavailable while offline. Editing and publishing are disabled.';
+  }
   connection.dataset.online=String(confirmed);
   if(readerOnly){
    // Do not report Online until the service worker verifies Automatic mode.
@@ -178,6 +190,35 @@ export function createApp(ctx){
   document.getElementById('offline-update').disabled=
    current?.state==='Downloading'||current?.updating===true||
    !navigator.onLine||(readerOnly&&mode!=='Automatic');
+ }
+ async function refreshOwnerReadiness(){
+  if(!readerOnly||!ownerSessionStatus)return;
+  const ticket=++ownerProbeSerial;
+  const available=offline?.getModeAvailable?.()===true;
+  const mode=available?offline.getMode():'Checking';
+  if(!effectiveConnectionOnline({online:navigator.onLine,
+    readingMode:mode})){
+   ownerSessionStatus.textContent='Owner session unavailable while offline. Editing and publishing are disabled.';
+   return;
+  }
+  ownerSessionStatus.textContent='Checking owner session…';
+  const result=typeof ctx.v3?.ownerReadiness?.check==='function'?
+   await ctx.v3.ownerReadiness.check({readingMode:mode}):
+   {state:'Unavailable',canPublish:false};
+  if(ticket!==ownerProbeSerial||!effectiveConnectionOnline({
+   online:navigator.onLine,
+   readingMode:offline?.getModeAvailable?.()===true?
+    offline.getMode():'Checking'}))return;
+  const descriptions={
+   Owner:'Owner session verified',
+   'Signed out':'Not signed in',
+   'Not authorized':'Account is not authorized',
+   Offline:'Offline',
+   Unavailable:'Owner session unavailable',
+  };
+  ownerSessionStatus.textContent=(descriptions[result?.state]||
+   'Owner session unavailable')+
+   ' · Editing and publishing are not enabled in this preview.';
  }
  function updateModeControls(feedback={}){
   if(!readerOnly||!readingModeStatus)return;
@@ -194,7 +235,8 @@ export function createApp(ctx){
  }
  connection.addEventListener('click',()=>{
   connectionDialog.showModal();
-  if(readerOnly)void offline.refreshMode();
+  if(readerOnly)void offline.refreshMode().then(
+   ()=>refreshOwnerReadiness(),()=>refreshOwnerReadiness());
  });
  document.getElementById('connection-close')
   .addEventListener('click',()=>connectionDialog.close());
