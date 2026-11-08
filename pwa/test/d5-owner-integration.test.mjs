@@ -167,3 +167,64 @@ test('D5-O12 owner session polling uses verified effective reading mode',()=>{
  assert.match(ui,/online:\(\)=>onlineForEditing\(\)/);
  assert.doesNotMatch(ui,/online:\(\)=>navigator\.onLine&&!workOffline\(\)/);
 });
+
+
+test('D5-O13 app-session restart retains a pending publication draft and rejects newer-source restore',async()=>{
+ const mock=createIO(),key='gear:edit:p3-test-item';
+ const originalStore=make(mock.io);
+ await saveD5EditorDraft({store:originalStore,key,domain:'gear',
+  sourceRevision,baseHash,record,notes:'unsent draft pending server verification'});
+ // New store instance models a newly launched app. There is no publication
+ // receipt→draft-key mapping inside IndexedDB; preservation fails closed.
+ const resumed=make(mock.io);
+ const original=await resumed.read(key,{sourceRevision,baseHash});
+ assert.equal(original.status,'ready');
+ assert.equal(original.draft.notes,'unsent draft pending server verification');
+ const advancedRevision='d'.repeat(40);
+ const stale=await restoreD5EditorDraft({store:resumed,key,
+  sourceRevision:advancedRevision,baseHash,ask:()=>false});
+ assert.equal(stale.status,'stale');
+ assert.match(stale.message,/preserved/);
+ assert.equal((await resumed.read(key,{sourceRevision,baseHash})).status,'ready');
+ // Only an in-session, server-verified sandbox Live result may trigger automatic
+ // cleanup. This does NOT assert cleanup after process restart is implemented.
+ const ui=readFileSync(new URL('../src/ui.mjs',import.meta.url),'utf8');
+ assert.match(ui,/const acceptedDraftKeys=new Map\(\)/);
+ assert.match(ui,/state\.publication==='Live'&&state\.sandboxVerified===true&&\s*state\.operationId&&acceptedDraftKeys\.has\(state\.operationId\)/);
+});
+
+test('D5-O14 storage quota rejection during rewrite leaves last committed draft intact',async()=>{
+ const mock=createIO(),key='kb:edit:p3-test-item';
+ let refuse=false;
+ const io={...mock.io,put:async row=>{
+  if(refuse)throw Error('QuotaExceededError');
+  return mock.io.put(row);
+ }};
+ const store=make(io);
+ await saveD5EditorDraft({store,key,domain:'kb',sourceRevision,baseHash,
+  record,notes:'committed device draft'});
+ refuse=true;
+ await assert.rejects(saveD5EditorDraft({store,key,domain:'kb',
+  sourceRevision,baseHash,record,notes:'new unsaved update'}),
+ /DEVICE_DRAFT_STORAGE_UNAVAILABLE/);
+ const last=await store.read(key,{sourceRevision,baseHash});
+ assert.equal(last.status,'ready');
+ assert.equal(last.draft.notes,'committed device draft');
+});
+
+test('D5-O15 missing local media restores text but keeps both authoring submit paths blocked',async()=>{
+ const mock=createIO(),store=make(mock.io),key='gear:edit:p3-test-item';
+ await saveD5EditorDraft({store,key,domain:'gear',sourceRevision,baseHash,
+  record,notes:'keep recovered Markdown',requiresMedia:true});
+ const recovered=await restoreD5EditorDraft({store,key,sourceRevision,
+  baseHash,ask:()=>true});
+ assert.equal(recovered.status,'restored');
+ assert.equal(recovered.notes,'keep recovered Markdown');
+ assert.equal(recovered.requiresMedia,true);
+ assert.match(recovered.message,/reattach/);
+ const editor=readFileSync(new URL('../src/editor.mjs',import.meta.url),'utf8');
+ const catchEditor=readFileSync(new URL('../src/catch-editor.mjs',import.meta.url),'utf8');
+ assert.match(editor,/if\(restoredMediaMissing\)throw new Error\('This restored draft referenced local media/);
+ assert.match(catchEditor,/if\(restoredMediaMissing\)throw Error\('This restored draft referenced local pictures/);
+ // The source checks supplement, but are not, a live browser media-failure test.
+});
