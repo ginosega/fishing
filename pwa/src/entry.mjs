@@ -7,10 +7,16 @@ const settings=globalThis.__FISHING_BOOT__;
 installPageHero();
 const d6Reader=typeof __FISHING_D6_PUBLIC_READER__!=='undefined'&&
  __FISHING_D6_PUBLIC_READER__===true;
+const d6StaticStaging=typeof __FISHING_D6_STATIC_STAGING__!=='undefined'&&
+ __FISHING_D6_STATIC_STAGING__===true;
 function d6Context(){
  if(!d6Reader)return {};
- const reader=selectD6PublicReader({enabled:true,root:settings.root,
+ const reader=selectD6PublicReader({enabled:true,staticStaging:d6StaticStaging,
+  root:settings.root,
   release:settings.release,manifest:settings.manifest});
+ // Staging may expose only immutable anonymous reading. It never creates
+ // a session probe or a canonical authoring-source client.
+ if(d6StaticStaging)return {v3:{...reader}};
  const ownerReadiness=createD6OwnerSessionReadiness({
   root:settings.root,request:(url,options)=>fetch(url,options),
   enabled:()=>true,online:()=>navigator.onLine===true,

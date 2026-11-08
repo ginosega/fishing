@@ -169,6 +169,13 @@ jobs:
           npm run build -- --d6-reader-candidate --base=/fishing/ --out=dist-d6-reader --source-revision="$GITHUB_SHA"
           node tools/verify.mjs --out=dist-d6-reader
           node --input-type=module -e 'import fs from "node:fs";const p=JSON.parse(fs.readFileSync("dist-d6-reader/release.json"));const m=JSON.parse(fs.readFileSync("dist-d6-reader/"+p.manifest));if(!p.d6ReaderCandidate||!m.d6ReaderCandidate||m.base!=="/fishing/"||p.sourceRevision!==process.env.GITHUB_SHA)process.exit(1);'
+      - name: Build and verify isolated D6 static-staging release (no deploy)
+        timeout-minutes: 7
+        working-directory: pwa
+        run: |
+          npm run build -- --d6-reader-candidate --d6-static-staging --base=/fishing/ --out=dist-d6-static-staging --source-revision="$GITHUB_SHA"
+          node tools/verify.mjs --out=dist-d6-static-staging
+          node --input-type=module -e 'import fs from "node:fs";const p=JSON.parse(fs.readFileSync("dist-d6-static-staging/release.json"));const m=JSON.parse(fs.readFileSync("dist-d6-static-staging/"+p.manifest));if(!p.d6ReaderCandidate||!m.d6ReaderCandidate||!p.d6StaticStaging||!m.d6StaticStaging||m.base!=="/fishing/"||p.sourceRevision!==process.env.GITHUB_SHA)process.exit(1);'
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: github.event_name == 'pull_request'
         with:
