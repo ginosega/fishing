@@ -19,7 +19,8 @@ const enc=new TextEncoder();
 const obj=v=>v!==null&&typeof v==='object'&&!Array.isArray(v);
 const goodPath=v=>typeof v==='string'&&v.length>0&&v.length<=512&&
  !v.startsWith('/')&&!v.includes('\\')&&!v.includes('//')&&
- !v.includes('\0')&&!v.split('/').some(x=>x==='.'||x==='..')&&
+ !v.includes('\0')&&!/%(?:2e|2f|5c|00)/i.test(v)&&
+ !v.split('/').some(x=>x==='.'||x==='..')&&
  /^(?:Gear|KB|Catches)\//.test(v);
 export class D6SourceError extends Error{
  constructor(code){super('Canonical GitHub authoring source not verified');
