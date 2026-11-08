@@ -75,7 +75,7 @@ test('D6-STAGE05 staging build has strict CLI guard and no default change',()=>{
  assert(build.includes("d6ReaderCandidate&&(base!=='/fishing/'"));
  assert(build.includes("!args.some(x=>x.startsWith('--out='))"));
  assert.match(build,/__FISHING_D6_STATIC_STAGING__/);
- assert.match(build,/d6StaticStaging\\?\\{d6StaticStaging:true\\}/);
+ assert(build.includes('d6StaticStaging?{d6StaticStaging:true}'));
  assert.match(build,/sourceRevision,base,pendingMedia,d6ReaderCandidate,d6StaticStaging/);
 });
 
