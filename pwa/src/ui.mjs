@@ -205,10 +205,31 @@ export function createApp(ctx){
   const result=typeof ctx.v3?.ownerReadiness?.check==='function'?
    await ctx.v3.ownerReadiness.check({readingMode:mode}):
    {state:'Unavailable',canPublish:false};
-  if(ticket!==ownerProbeSerial||!effectiveConnectionOnline({
-   online:navigator.onLine,
-   readingMode:offline?.getModeAvailable?.()===true?
-    offline.getMode():'Checking'}))return;
+  const stillOnline=()=>ticket===ownerProbeSerial&&
+   effectiveConnectionOnline({online:navigator.onLine,
+    readingMode:offline?.getModeAvailable?.()===true?
+     offline.getMode():'Checking'});
+  if(!stillOnline())return;
+  if(result?.state==='Owner'){
+   ownerSessionStatus.textContent='Owner session verified · Checking canonical GitHub source…';
+   let source;
+   try{
+    // A verified owner session is still not enough to enable editing.
+    source=await ctx.v3?.canonicalSource?.load?.({
+     readingMode:offline.getMode(),ownerVerified:true,
+    });
+   }catch{
+    if(stillOnline())ownerSessionStatus.textContent=
+     'Owner session verified · Canonical GitHub source unavailable. Editing and publishing are disabled.';
+    return;
+   }
+   if(!stillOnline())return;
+   ownerSessionStatus.textContent=source?.sourceOnly===true&&
+    source?.canPublish===false?
+    'Owner session verified · GitHub main source response validated. Editing and publishing are disabled.':
+    'Owner session verified · Canonical GitHub source unavailable. Editing and publishing are disabled.';
+   return;
+  }
   const descriptions={
    Owner:'Owner session verified',
    'Signed out':'Not signed in',
