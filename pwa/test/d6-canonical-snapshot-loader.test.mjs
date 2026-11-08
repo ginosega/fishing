@@ -37,7 +37,7 @@ function githubFixture({mutate=()=>{},moveHead=false,
  const rootTree={sha:TREE,truncated:false,tree:[
   {path:'pwa',mode:'040000',type:'tree',sha:PWA},
  ]};
- const entries=[...blobEntries.values()];
+ const entries=[...blobEntries.values()].map(entry=>({...entry}));
  if(duplicate)entries.push({...entries[0]});
  const contentTree={sha:PWA,truncated:false,tree:entries};
  const git={
