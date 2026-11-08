@@ -72,8 +72,8 @@ test('D6-STAGE05 staging build has strict CLI guard and no default change',()=>{
  const build=readFileSync(new URL('../tools/build.mjs',import.meta.url),'utf8');
  assert.match(build,/args\.includes\('--d6-static-staging'\)/);
  assert.match(build,/d6StaticStaging&&!d6ReaderCandidate/);
- assert.match(build,/d6ReaderCandidate&&\(base!=='\\/fishing\\/'/);
- assert.match(build,/!args\.some\(x=>x\.startsWith\('--out='\)\)/);
+ assert(build.includes("d6ReaderCandidate&&(base!=='/fishing/'"));
+ assert(build.includes("!args.some(x=>x.startsWith('--out='))"));
  assert.match(build,/__FISHING_D6_STATIC_STAGING__/);
  assert.match(build,/d6StaticStaging\\?\\{d6StaticStaging:true\\}/);
  assert.match(build,/sourceRevision,base,pendingMedia,d6ReaderCandidate,d6StaticStaging/);
@@ -83,9 +83,9 @@ test('D6-STAGE06 nonproduction hostname is a proposal, not an installed Worker',
  const entry=readFileSync(new URL('../src/entry.mjs',import.meta.url),'utf8');
  const reader=readFileSync(new URL('../src/d6-public-reader.mjs',import.meta.url),'utf8');
  const build=readFileSync(new URL('../tools/build.mjs',import.meta.url),'utf8');
- assert.match(reader,/https:\\/\\/fishing-d6-static-test\\.ginosega\\.workers\\.dev/);
+ assert(reader.includes('https://fishing-d6-static-test.ginosega.workers.dev'));
  for(const s of [entry,reader,build]){
   assert.doesNotMatch(s,/issueWriteToken|publishChange|D2_GITHUB_APP_PRIVATE_KEY/);
-  assert.doesNotMatch(s,/export default\s*\\{|addEventListener\('fetch'/);
+  assert(!s.includes('export default')&&!s.includes("addEventListener('fetch'"));
  }
 });
