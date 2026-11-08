@@ -22,8 +22,9 @@ export function createD6OwnerSessionReadiness({
    typeof online!=='function')
   throw Error('D6 session probe origin or configuration denied');
  const endpoint=candidate.origin+'/session';
- async function check(){
-  if(enabled()!==true||online()!==true)return fail('Offline');
+ async function check({readingMode='Checking'}={}){
+  // A physical network hint is not enough: persisted Work Offline is binding.
+  if(enabled()!==true||online()!==true||readingMode!=='Automatic')return fail('Offline');
   let response;
   try{response=await request(endpoint,{
    method:'GET',credentials:'same-origin',cache:'no-store',redirect:'manual',
