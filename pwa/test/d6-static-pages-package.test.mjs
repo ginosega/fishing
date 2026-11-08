@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+import {fileURLToPath} from 'node:url';
 import {packageD6StaticPages} from '../tools/package-d6-static-pages.mjs';
 
 const ID='0123456789abcdef0123456789abcdef';
@@ -76,4 +77,45 @@ test('D6-PACK05 verifier must positively attest source and copied artifact',asyn
  await assert.rejects(packageD6StaticPages({source:x.src,destination:x.out,
   verifyRelease:async()=>({...x.report,verified:false})}),/verification failed/);
  assert.deepEqual(await fs.readdir(x.root),['input']);
+});
+
+test('D6-PACK06 production dist and nested production output are forbidden',async t=>{
+ const x=await fixture(t);
+ const productionDist=path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),'../dist');
+ const nested=path.join(productionDist,'__d6_stage_a_should_not_exist__');
+ for(const output of [productionDist,nested]){
+  await assert.rejects(packageD6StaticPages({
+   source:x.src,destination:output,verifyRelease:x.verifyRelease,
+  }),/production release paths/);
+ }
+ await assert.rejects(fs.lstat(nested));
+ await assert.rejects(packageD6StaticPages({
+  source:productionDist,destination:x.out,verifyRelease:x.verifyRelease,
+ }),/production release paths/);
+});
+
+test('D6-PACK07 symlinked destination ancestor cannot alias source directory',async t=>{
+ const x=await fixture(t);
+ const alias=path.join(x.root,'source-alias');
+ await fs.symlink(x.src,alias,'dir');
+ await assert.rejects(packageD6StaticPages({
+  source:x.src,destination:path.join(alias,'nested'),
+  verifyRelease:x.verifyRelease,
+ }),/symlinked parent/);
+ await assert.rejects(fs.lstat(path.join(x.src,'nested')));
+ assert.deepEqual((await fs.readdir(x.src)).sort(),
+  ['index.html','release.json','releases']);
+});
+
+test('D6-PACK08 symlinked source ancestor cannot bypass overlap checks',async t=>{
+ const x=await fixture(t);
+ const alias=path.join(x.root,'root-alias');
+ await fs.symlink(x.root,alias,'dir');
+ await assert.rejects(packageD6StaticPages({
+  source:path.join(alias,'input'),
+  destination:path.join(x.src,'nested'),
+  verifyRelease:x.verifyRelease,
+ }),/symlinked parent/);
+ await assert.rejects(fs.lstat(path.join(x.src,'nested')));
 });
