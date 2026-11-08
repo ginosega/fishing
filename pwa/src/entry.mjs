@@ -1,6 +1,7 @@
 import {bootstrap} from './app.mjs';
 import {selectD6PublicReader} from './d6-public-reader.mjs';
 import {createD6OwnerSessionReadiness} from './d6-owner-session-readiness.mjs';
+import {createD6CanonicalSourceClient} from './d6-canonical-authoring-source.mjs';
 import {installPageHero} from './page-hero.mjs';
 const settings=globalThis.__FISHING_BOOT__;
 installPageHero();
@@ -14,8 +15,13 @@ function d6Context(){
   root:settings.root,request:(url,options)=>fetch(url,options),
   enabled:()=>true,online:()=>navigator.onLine===true,
  });
- // The owner readiness check is read-only UI status; it cannot grant writes.
- return {v3:{...reader,ownerReadiness}};
+ const canonicalSource=createD6CanonicalSourceClient({
+  root:settings.root,expectedReleaseRevision:settings.release.sourceRevision,
+  request:(url,options)=>fetch(url,options),
+  enabled:()=>true,online:()=>navigator.onLine===true,
+ });
+ // Even after both read checks, nothing authorizes a repository write.
+ return {v3:{...reader,ownerReadiness,canonicalSource}};
 }
 Promise.resolve().then(()=>bootstrap(settings,d6Context())).catch(error=>{
  const main=document.getElementById('app');main.replaceChildren();
