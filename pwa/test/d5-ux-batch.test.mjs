@@ -32,8 +32,8 @@ test('D5-UX03 Preview/Edit labels and keyboard-accessible expand/restore',()=>{
 });
 
 test('D5-UX04 Work Offline verification uses exact copy, preserves mode gates',()=>{
- assert.match(offline,/'Verifying the offline catalog\.\.\.'/);
- assert.doesNotMatch(offline,/'Verifying the offline catalog\.'(?!\.)/);
+ assert.match(offline,/'Verifying the offline library\.\.\.'/);
+ assert.doesNotMatch(offline,/'Verifying the offline library\.'(?!\.)/);
  assert.doesNotMatch(offline,/Verifying every file/);
  assert.match(offline,/modeCommand\('V3_SET_MODE',next\)/);
  assert.match(offline,/180000:12000/);
@@ -53,7 +53,7 @@ test('D5-UX05 Insert Link/Image icons keep accessible names and actions',()=>{
 });
 
 test('D5-UX04A ongoing Work Offline verification uses literal ellipsis, not a period',()=>{
- assert.match(offline,/reportMode\(next==='Work Offline'\?\s*'Verifying the offline catalog\.\.\.':/);
+ assert.match(offline,/reportMode\(next==='Work Offline'\?\s*'Verifying the offline library\.\.\.':/);
 });
 
 test('D5-UX05A Preview disables insertion buttons and Edit re-enables them',()=>{
