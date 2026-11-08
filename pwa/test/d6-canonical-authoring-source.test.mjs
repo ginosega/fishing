@@ -96,7 +96,8 @@ test('D6-SRC04 changed GitHub main revision cannot be used with older release',a
 });
 
 test('D6-SRC05 missing files, markdown, case collisions and path escape fail closed',async()=>{
- const initial=canonical(),first=referenced[0],markdown=markdownPaths[0];
+ const initial=canonical(),first=referenced.find(path=>!path.endsWith('.md')),
+  markdown=markdownPaths[0];
  assert(first&&markdown);
  const invalid=[
   {...initial,files:initial.files.filter(path=>path!==first)},
