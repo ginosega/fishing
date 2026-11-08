@@ -142,7 +142,7 @@ test('D6-PROV07 source adapter has no deploy entry, token minting or writer',()=
   import.meta.url),'utf8');
  assert.match(src,/createD6SameOriginGateway/);
  assert.match(src,/createD6HostedBytesPreflight/);
- assert.match(src,/permissions/);
+ assert.match(src,/credentials:'omit'/);
  assert.doesNotMatch(src,/export default|addEventListener\(|issueWriteToken/);
  assert.doesNotMatch(src,/method:'POST'|method:'PUT'|method:'PATCH'/);
  assert.doesNotMatch(src,/D2_GITHUB_APP_PRIVATE_KEY|D3_SANDBOX_REPO_ID/);
