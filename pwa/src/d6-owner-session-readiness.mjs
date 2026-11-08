@@ -32,6 +32,7 @@ export function createD6OwnerSessionReadiness({
   });}catch{return fail();}
   if(!(response instanceof Response)||response.status!==200||
    response.redirected===true||
+   (response.url&&response.url!==endpoint)||
    !/\bapplication\/json\b/i.test(response.headers.get('Content-Type')??''))
    return fail();
   let data;
