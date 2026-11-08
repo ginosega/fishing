@@ -4,6 +4,7 @@ import {TAXONOMY} from './validation.mjs';
 import {parseMarkdown,sanitizeHtml,markdownRouteMap} from './markdown.mjs';
 import {createEditor} from './editor.mjs';
 import {openViewer,openSequenceViewer} from './viewer.mjs';
+import {bindMarkdownPictureViewer} from './markdown-viewer.mjs';
 import {createOffline} from './offline.mjs';
 
 const KAYAK_ICON=`<svg viewBox="0 0 64 64" role="img" aria-label="Kayak">
@@ -28,6 +29,7 @@ const categoryRoute=(domain,key)=>domain==='gear'?`#/inventory/category/${key}`:
 const rootRoute=domain=>domain==='gear'?'#/inventory':domain==='kb'?'#/kb':'#/catches';
 const recordTitle=(ctx,domain,record)=>domain==='catches'?`${ctx.maps.kb.get(record.speciesId)?.name||'Catch'} · ${record.date}`:record.name;
 export function createApp(ctx){
+ const readerOnly=ctx.v3?.enabled===true&&ctx.v3?.readerOnly===true;
  const root=document.getElementById('app'),alertHost=document.getElementById('app-notice'),offlineHost=document.getElementById('offline-status');
  const routes=markdownRouteMap(ctx.data),exists=new Set(ctx.manifest.files.filter(x=>x.path.startsWith(`releases/${ctx.release.id}/content/`)).map(x=>x.path.slice(`releases/${ctx.release.id}/content/`.length)));
  let currentHash=location.hash||'#/',route=parseRoute(currentHash),editor=null,serial=0,offline=null,approvedNavigation=null,previousHash=null;
@@ -54,18 +56,27 @@ export function createApp(ctx){
  function renderRoot(domain){const gear=domain==='gear',rows=gear?GEAR_CATEGORIES:KB_TYPES,all=ctx.data[domain][DOMAIN[domain].array];const page=frame(gear?'My Gear':'Knowledge Base','#/',[],ROOT_SUBTITLES[domain]);
   const searchInput=input('',{type:'search',placeholder:'Search '+(gear?'My Gear':'Knowledge Base')});const searchResults=el('div',{class:'record-grid',hidden:true});const categories=el('div',{class:'nav-grid'},...rows.map(([key,label])=>{const meta=CATEGORY_PRESENTATION[domain][key];const item=card(label,meta.description||'',categoryRoute(domain,key),meta.icon);if(meta.svg)item.querySelector('.card-icon').innerHTML=meta.svg;return item;}));
   searchInput.addEventListener('input',()=>{const q=searchInput.value.trim().toLocaleLowerCase();searchResults.hidden=!q;categories.hidden=Boolean(q);if(!q){searchResults.replaceChildren();return;}const matches=all.filter(r=>[r.name,r.type,r.description,r.manufacturer,r.model].filter(Boolean).join(' ').toLocaleLowerCase().includes(q));searchResults.replaceChildren(...(matches.length?sortNames(matches).map(r=>recordCard(domain,r)):[empty('No matching entries.')]));});
-  searchInput.setAttribute('aria-label','Search '+(gear?'My Gear':'Knowledge Base'));page.querySelector('.page-actions').prepend(searchInput);page.append(categories,searchResults,anchor(gear?'Add Gear':'Add Entry',gear?'#/inventory/add/lures':'#/kb/add/technique','page-edit-link'));return page;
+  searchInput.setAttribute('aria-label','Search '+(gear?'My Gear':'Knowledge Base'));page.querySelector('.page-actions').prepend(searchInput);page.append(categories,searchResults,...(readerOnly?[]:[anchor(gear?'Add Gear':'Add Entry',gear?'#/inventory/add/lures':'#/kb/add/technique','page-edit-link')]));return page;
  }
  function renderList(domain,key){const gear=domain==='gear',rows=gear?GEAR_CATEGORIES:KB_TYPES;const definition=rows.find(x=>x[0]===key);if(!definition)return missing('Unknown category',rootRoute(domain));
   const records=ctx.data[domain][DOMAIN[domain].array].filter(r=>(gear?r.category:r.type)===key);
   const page=frame(definition[1],rootRoute(domain));
   if(!gear&&key==='equipment')page.append(text('p','Equipment, rig, and presentation reference','muted'));
   if(!gear&&key==='technique')page.append(text('p','Strategy, conditions, and species reference','muted'));
-  const list=listControls(domain,records,{title:definition[1],search:gear?key==='lures':key==='equipment',filter:gear,sort:gear?'gear':'name',pinnedId:gear?'':KB_PINNED_FIRST[key]||''});page.querySelector('.page-actions').prepend(...list.controls.children);page.append(list.element,anchor(gear?'Add Gear':'Add Entry',gear?`#/inventory/add/${key}`:`#/kb/add/${key}`,'page-edit-link'));return page;
+  const list=listControls(domain,records,{title:definition[1],search:gear?key==='lures':key==='equipment',filter:gear,sort:gear?'gear':'name',pinnedId:gear?'':KB_PINNED_FIRST[key]||''});page.querySelector('.page-actions').prepend(...list.controls.children);page.append(list.element,...(readerOnly?[]:[anchor(gear?'Add Gear':'Add Entry',gear?`#/inventory/add/${key}`:`#/kb/add/${key}`,'page-edit-link')]));return page;
  }
  function missing(message,parent='#/'){const page=frame('Not found',parent);page.append(empty(message),anchor('Return to the parent page',parent));return page;}
  function appendPicture(page,record,domain){const pic=record.picture;if(!pic)return;const src=ctx.asset(pic.src),caption=pic.caption||'';const activate=record.pictureSequence?.length?()=>openSequenceViewer(record.pictureSequence.map(ctx.asset),record.name,caption):()=>openViewer(src,record.name,caption);page.append(picture(src,pic.caption||record.name,caption,activate));}
- async function markdownContent(owner,textValue){const parsed=parseMarkdown(textValue,{owner,maps:ctx.maps,assetBase:ctx.base,exists,pathRoutes:routes});const article=el('article',{class:'markdown-body'});article.innerHTML=sanitizeHtml(parsed.html,window);article.addEventListener('click',event=>{const a=event.target.closest('a[href^="#/"]');if(a){event.preventDefault();navigate(a.getAttribute('href'));}});return article;}
+ async function markdownContent(owner,textValue){
+  const parsed=parseMarkdown(textValue,{owner,maps:ctx.maps,assetBase:ctx.base,
+   exists,pathRoutes:routes,allowMissingImages:readerOnly,viewerImages:readerOnly});
+  const article=el('article',{class:'markdown-body'});
+  article.innerHTML=sanitizeHtml(parsed.html,window);
+  if(readerOnly)bindMarkdownPictureViewer(article,{
+   references:parsed.references,resolveAsset:ctx.asset,openViewer});
+  article.addEventListener('click',event=>{const a=event.target.closest('a[href^="#/"]');if(a){event.preventDefault();navigate(a.getAttribute('href'));}});
+  return article;
+ }
  async function appendMarkdown(page,pathValue,heading){if(!pathValue)return;const response=await fetch(ctx.asset(pathValue));if(!response.ok)throw new Error(`Cannot load ${pathValue}: HTTP ${response.status}`);const content=await response.text();page.append(section(heading,await markdownContent(pathValue,content)));}
  function historySection(domain,record){const catches=catchHistory(ctx.data,domain,record.id);if(!catches.length)return null;return section('Catch History',el('div',{class:'record-grid'},...catches.map(c=>recordCard('catches',c))));}
  async function renderDetail(domain,id){const record=ctx.maps[domain].get(id);if(!record)return missing('This item does not exist or its ID has been retired.',rootRoute(domain));
@@ -85,10 +96,10 @@ export function createApp(ctx){
   }else{
    await appendMarkdown(page,record.content,'Notes');
   }
-  const history=historySection(domain,record);if(history)page.append(history);page.append(anchor('Edit item',domain==='gear'?`#/inventory/edit/${record.id}`:`#/kb/edit/${record.id}`,'page-edit-link'));return page;
+  const history=historySection(domain,record);if(history)page.append(history);if(!readerOnly)page.append(anchor('Edit item',domain==='gear'?`#/inventory/edit/${record.id}`:`#/kb/edit/${record.id}`,'page-edit-link'));return page;
  }
  function renderCatches(){const page=frame('Recorded catches','#/');page.append(el('div',{class:'record-grid'},...sortCatches(ctx.data.catches.catches).map(c=>recordCard('catches',c))));return page;}
- async function renderEditor(domain,id,category,type){const record=id?ctx.maps[domain].get(id):null;if(id&&!record)return missing('This item does not exist or its ID has been retired.',rootRoute(domain));const fallback=categoryRoute(domain,domain==='gear'?category:type);const origin=previousHash===rootRoute(domain)||previousHash===fallback?previousHash:fallback;const parent=record?routeFor(domain,record.id):fallback;const exitTarget=record?parent:origin;
+ async function renderEditor(domain,id,category,type){if(readerOnly)return missing('V3 reader preview is read-only. Sign-in and publishing are disabled.');const record=id?ctx.maps[domain].get(id):null;if(id&&!record)return missing('This item does not exist or its ID has been retired.',rootRoute(domain));const fallback=categoryRoute(domain,domain==='gear'?category:type);const origin=previousHash===rootRoute(domain)||previousHash===fallback?previousHash:fallback;const parent=record?routeFor(domain,record.id):fallback;const exitTarget=record?parent:origin;
   const page=frame(record?'Edit '+record.name:domain==='gear'?'Add Gear':'Add Entry',parent,record?[button('Create Link',()=>copyLink(domain,record.id))]:[]);const created=await createEditor(ctx,{domain,baseRecord:record,category,type,onBack:()=>navigate(parent),onExit:()=>{disposeEditor();navigate(exitTarget);},onDirty:()=>{}});editor=created;page.append(created.element);return page;
  }
  async function render(){const ticket=++serial;if(offline&&!(await offline.checkCurrent()))return;if(ticket!==serial)return;disposeEditor();route=parseRoute(currentHash);root.replaceChildren(el('div',{class:'loading'},'Loading…'));

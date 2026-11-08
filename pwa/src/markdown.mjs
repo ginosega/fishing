@@ -35,7 +35,7 @@ export function resolveMarkdownTarget(url,{owner,maps,assetBase,pathRoutes=new M
  if(route)return {target:route+section(fragment),kind:'internal',local};
  return {target:new URL('content/'+encodedPath(local)+query+fragment,assetBase).href,kind:'local',local};
 }
-export function parseMarkdown(text,{owner,maps,assetBase='https://example.invalid/fishing/releases/test/',exists,pathRoutes=new Map(),ownerRoute,allowMissing=false}={}){
+export function parseMarkdown(text,{owner,maps,assetBase='https://example.invalid/fishing/releases/test/',exists,pathRoutes=new Map(),ownerRoute,allowMissing=false,allowMissingImages=false,viewerImages=false}={}){
  const tokens=md.parse(text,{}),references=[];
  function walk(items){for(const token of items){
   if(token.children)walk(token.children);
@@ -46,8 +46,22 @@ export function parseMarkdown(text,{owner,maps,assetBase='https://example.invali
   if(image){
    if(resolved.kind!=='local'||!imageExtension.test(resolved.local)||/[?#]/.test(original))throw new Error(`Remote or unsafe Markdown image: ${owner} -> ${original}`);
   }
-  if(resolved.local&&exists&&!exists.has(resolved.local)&&!allowMissing)throw new Error(`Missing Markdown resource: ${owner} -> ${resolved.local}`);
-  references.push({owner,kind:image?'image':'link',source:original,...resolved});token.attrSet(attr,resolved.target);if(!image&&resolved.kind==='external'){token.attrSet('target','_blank');token.attrSet('rel','noopener noreferrer');}
+  const title=image?token.attrGet('title')||'':'';
+  const viewerMatch=viewerImages&&image?/^viewer(?:\s*:\s*(.*))?$/i.exec(title.trim()):null;
+  if(viewerMatch){
+   if(viewerMatch[1])token.attrSet('title',viewerMatch[1]);
+   else token.attrs=token.attrs?.filter(([key])=>key!=='title')||[];
+  }
+  const missing=Boolean(resolved.local&&exists&&!exists.has(resolved.local));
+  if(missing&&!allowMissing&&!(image&&allowMissingImages))
+   throw new Error(`Missing Markdown resource: ${owner} -> ${resolved.local}`);
+  references.push({owner,kind:image?'image':'link',source:original,...resolved,
+   ...(viewerImages&&image?{isImage:true,viewerEnabled:Boolean(viewerMatch),viewerCaption:viewerMatch?.[1]||''}:{}),
+   ...(image&&missing&&allowMissingImages?{missing:true}:{})});
+  token.attrSet(attr,resolved.target);
+  if(!image&&resolved.kind==='external'){
+   token.attrSet('target','_blank');token.attrSet('rel','noopener noreferrer');
+  }
  }}
  walk(tokens);
  const headings=new Map();for(let i=0;i<tokens.length;i++)if(tokens[i].type==='heading_open'){
