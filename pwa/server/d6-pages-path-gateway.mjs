@@ -26,7 +26,11 @@ export function planD6PublicRead({url,method='GET'}={}){
  const path=incoming.pathname.slice('/fishing/'.length)||'index.html';
  if(path.includes('\\')||path.includes('//')||
    !FILES.has(path)&&!RELEASE_FILE.test(path))return deny();
- const upstream=new URL(path+incoming.search,D6_GITHUB_PAGES_BASE);
+ // GitHub Pages may canonicalize /fishing/index.html to /fishing/.
+ // Fetch the canonical Pages directory URL for BOTH app-shell aliases.
+ // The served file remains index.html in the release manifest/SW cache.
+ const upstreamPath=path==='index.html'?'':path;
+ const upstream=new URL(upstreamPath+incoming.search,D6_GITHUB_PAGES_BASE);
  if(upstream.origin!==new URL(D6_GITHUB_PAGES_BASE).origin||
     !upstream.pathname.startsWith('/fishing/'))return deny();
  return Object.freeze({kind:'static',method,upstreamUrl:upstream.href});
