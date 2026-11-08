@@ -14,7 +14,7 @@ const deny=(status=404)=>Object.freeze({kind:'deny',status});
 
 export function planD6PublicRead({url,method='GET'}={}){
  // Do not normalize encoded separators/traversal into an apparently safe URL.
- if(/%(?:2f|5c|00|2e)/i.test(url))return deny();
+ if(/%(?:2f|5c|00|2e)|\/\.\.?(?:\/|$)/i.test(url))return deny();
  let incoming;
  try{incoming=new URL(url);}catch{return deny(400);}
  if(incoming.origin!==D6_PUBLIC_ORIGIN||incoming.username||
