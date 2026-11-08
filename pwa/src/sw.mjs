@@ -1,5 +1,6 @@
 /* Verified online-current releases plus explicit complete offline-library generations. */
 import {encodedPath} from './shared.mjs';
+import {shouldHandleD6RootSWRequest} from './d6-root-sw-boundary.mjs';
 import {validatePointer,validateManifest,verifyBytes,decodeVerifiedJson,isReleaseId,isDigest} from './release.mjs';
 
 const scope=self.registration.scope;
@@ -135,6 +136,8 @@ self.addEventListener('message',event=>{
 self.addEventListener('fetch',event=>{
  const request=event.request,url=new URL(request.url),scopeUrl=new URL(scope);
  if(request.method!=='GET'||url.origin!==scopeUrl.origin||!url.pathname.startsWith(scopeUrl.pathname))return;
+ // Root-scoped V3 SW must NEVER swallow same-origin owner auth/API requests.
+ if(!shouldHandleD6RootSWRequest({scope,requestUrl:request.url}))return;
  event.respondWith((async()=>{
   let relative;try{relative=decodeURIComponent(url.pathname.slice(scopeUrl.pathname.length));}catch{return new Response('Invalid resource path',{status:400});}
   if(relative==='__fishing_complete__'||relative==='__fishing_selected__')return new Response('Not found',{status:404});
