@@ -15,7 +15,10 @@ test('D6-P01 hostname root is an entry redirect, not a second build root',()=>{
  }
  const entry=planD6PublicRead({url:O+'/fishing/'});
  assert.equal(entry.kind,'static');
- assert.equal(entry.upstreamUrl,D6_GITHUB_PAGES_BASE+'index.html');
+ assert.equal(entry.upstreamUrl,D6_GITHUB_PAGES_BASE);
+ const explicit=planD6PublicRead({url:O+'/fishing/index.html'});
+ assert.equal(explicit.kind,'static');
+ assert.equal(explicit.upstreamUrl,D6_GITHUB_PAGES_BASE);
 });
 
 test('D6-P02 static release maps byte-path-for-byte-path under /fishing/',()=>{
@@ -28,7 +31,8 @@ test('D6-P02 static release maps byte-path-for-byte-path under /fishing/',()=>{
  for(const item of items){
   const result=planD6PublicRead({url:O+'/fishing/'+item});
   assert.equal(result.kind,'static',item);
-  assert.equal(result.upstreamUrl,D6_GITHUB_PAGES_BASE+item,item);
+  assert.equal(result.upstreamUrl,
+   item==='index.html'?D6_GITHUB_PAGES_BASE:D6_GITHUB_PAGES_BASE+item,item);
  }
  assert.equal(planD6PublicRead({url:O+'/fishing/release.json?revision=123'}).upstreamUrl,
   D6_GITHUB_PAGES_BASE+'release.json?revision=123');
@@ -116,4 +120,44 @@ test('D6-P08 original Pages build and loader require /fishing/ release base',()=
  assert.match(build,/const base=option\('--base','\/fishing\/v2-preview\/'\)/);
  assert.match(loader,/manifest.base!==new URL\(root\).pathname/);
  assert.match(loader,/serviceWorker.register\(new URL\('sw.js',root\),\{scope:root\}\)/);
+});
+
+test('D6-P09 shell aliases fetch canonical Pages root and never follow upstream redirects',async()=>{
+ const calls=[];
+ const fixture='<html><head><script src="./loader.js"></script></head><body>D6</body></html>';
+ const proxy=createD6PublicReadProxy({enabled:true,fetchAsset:async(u,options)=>{
+  calls.push({url:u,options});
+  // Simulate a Pages host which 308-redirects explicit /index.html.
+  if(u.endsWith('/index.html'))
+   return new Response(null,{status:308,headers:{Location:D6_GITHUB_PAGES_BASE}});
+  return new Response(fixture,{status:200,headers:{'Content-Type':'text/html'}});
+ }});
+ const entries=['/fishing/','/fishing/index.html'];
+ for(const entry of entries){
+  const response=await proxy(new Request(O+entry));
+  assert.equal(response.status,200,entry);
+  assert.equal(response.headers.get('Content-Type'),'text/html');
+  assert.equal(await response.text(),fixture);
+ }
+ assert.deepEqual(calls.map(x=>x.url),[
+  D6_GITHUB_PAGES_BASE,D6_GITHUB_PAGES_BASE,
+ ]);
+ assert(calls.every(x=>x.options.redirect==='manual'));
+ assert(calls.every(x=>x.options.method==='GET'));
+});
+
+test('D6-P10 canonical Pages shell origin failing or redirecting remains unavailable',async()=>{
+ for(const response of [
+  new Response(null,{status:308,headers:{Location:'https://attacker.invalid'}}),
+  new Response('not found',{status:404}),
+  new Response('temporarily down',{status:503}),
+ ]){
+  const proxy=createD6PublicReadProxy({enabled:true,fetchAsset:async u=>{
+   assert.equal(u,D6_GITHUB_PAGES_BASE);
+   return response.clone();
+  }});
+  const attempt=await proxy(new Request(O+'/fishing/'));
+  assert.equal(attempt.status,503);
+  assert.equal(attempt.headers.get('Location'),null);
+ }
 });
