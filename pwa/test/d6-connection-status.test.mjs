@@ -84,8 +84,8 @@ test('D6-CON07 reading controls are only enabled in isolated candidate, never V2
  assert.match(sw,/resolveSelected\(\{verify:true\}\)/);
  assert.match(offline,/expectedReleaseId:releaseId/);
  assert.match(ui,/v3ReadingMode:readerOnly/);
- assert.match(ui,/connection\\.dataset\\.online=String\\(confirmed\\)/);
- assert.match(ui,/if\\(!readerOnly\\)document\\.getElementById\\('offline-reload'\\)/);
- assert.match(ui,/if\\(readerOnly\\)void offline\\.refreshMode\\(\\)/);
- assert.match(ui,/if\\(readerOnly\\)update\\.textContent=v3OfflineLibraryActionLabel\\(state\\)/);
+ assert.match(ui,/connection\.dataset\.online=String\(confirmed\)/);
+ assert.match(ui,/if\(!readerOnly\)document\.getElementById\('offline-reload'\)/);
+ assert.match(ui,/if\(readerOnly\)void offline\.refreshMode\(\)/);
+ assert.match(ui,/if\(readerOnly\)update\.textContent=v3OfflineLibraryActionLabel\(state\)/);
 });
