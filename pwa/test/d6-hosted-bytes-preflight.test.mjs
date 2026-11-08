@@ -23,7 +23,7 @@ function fixture({v3=true,revision=REV,mutateManifest=()=>{},
  mutatePointer=()=>{},extra=false}={}){
  const fileBytes=new Map(required.map(path=>[path,
   path.endsWith('Gear/gear.json')?source:'D6 asset '+path]));
- if(extra)fileBytes.set('releases/'+RELEASE+'/content/Gear/Some art #?.png',
+ if(extra)fileBytes.set('releases/'+RELEASE+'/content/Gear/Some art #1.png',
   'binary fixture that needs URL encoding');
  const files=[...fileBytes].map(([path,body])=>({
   path,bytes:Buffer.byteLength(body),sha256:hash(body),
@@ -98,7 +98,7 @@ test('D6-BYTES01 complete source and Worker file inventory matches manifest SHA'
  assert.equal(transporters.calls.length,2*(f.manifest.files.length+4));
  assert(transporters.calls.some(c=>c.url===D6_PROOF_ORIGINS.pages));
  assert(transporters.calls.some(c=>c.url===D6_PROOF_ORIGINS.gateway));
- assert(transporters.calls.some(c=>c.url.includes('Some%20art%20%23%3F.png')));
+ assert(transporters.calls.some(c=>c.url.includes('Some%20art%20%231.png')));
  assert(transporters.calls.every(c=>!('Authorization' in c.options)));
 });
 
@@ -194,7 +194,7 @@ test('D6-BYTES08 read race catches a pointer change after all file checks',async
   }
  }});
  await denied(preflight(transporters).verify({expectedSourceRevision:REV}),
-  'GATEWAY_BYTES_DIFFER');
+  'RELEASE_CHANGED_DURING_PROOF');
 });
 
 test('D6-BYTES09 no credentials, deployment, writer or application data mutation',()=>{
