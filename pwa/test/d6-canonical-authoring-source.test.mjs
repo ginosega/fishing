@@ -112,6 +112,13 @@ test('D6-SRC05 missing files, markdown, case collisions and path escape fail clo
   await rejected(async()=>response(invalid[i]),codes[i]);
 });
 
+test('D6-SRC05B Markdown inline image references must match the canonical file tree',async()=>{
+ const broken=canonical();
+ broken.markdown=broken.markdown.map((item,index)=>index===0?
+  {...item,body:'![Missing local image](./d6-synthetic-missing-image.png)'}:item);
+ await rejected(async()=>response(broken),'INVALID_MARKDOWN_REFERENCES');
+});
+
 test('D6-SRC06 malformed or oversized JSON, stale token and bad schema fail closed',async()=>{
  await rejected(async()=>response({}), 'UNTRUSTED_SOURCE');
  await rejected(async()=>response('not json'), 'INVALID_RESPONSE');
