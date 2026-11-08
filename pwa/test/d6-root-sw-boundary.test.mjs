@@ -6,7 +6,7 @@ import {planD6StaticRequest} from '../server/d6-static-proxy.mjs';
 
 const root=D6_PUBLIC_ROOT;
 const id='0123456789abcdef0123456789abcdef';
-const check=(path,scope=root)=>shouldHandleD6RootSWRequest({scope,requestUrl:new URL(path,root).href});
+const check=(path,scope=root)=>shouldHandleD6RootSWRequest({scope,requestUrl:root+path.slice(1)});
 
 test('D6-SW01 unified root SW handles only public verified release paths',()=>{
  const paths=['/','/index.html','/release.json','/loader.js','/sw.js',
@@ -17,7 +17,7 @@ test('D6-SW01 unified root SW handles only public verified release paths',()=>{
   '/releases/'+id+'/manifest.json'];
  for(const path of paths){
   assert.equal(check(path),true,path);
-  assert.equal(planD6StaticRequest({url:new URL(path,root).href}).kind,'static',path);
+  assert.equal(planD6StaticRequest({url:root+path.slice(1)}).kind,'static',path);
  }
 });
 
@@ -31,7 +31,7 @@ test('D6-SW02 never intercept owner API, auth callbacks or private sandbox',()=>
   '/releases/'+id+'/content/%2fapi','/%61uth/start'];
  for(const path of paths){
   assert.equal(check(path),false,path);
-  assert.notEqual(planD6StaticRequest({url:new URL(path,root).href}).kind,'static',path);
+  assert.notEqual(planD6StaticRequest({url:root+path.slice(1)}).kind,'static',path);
  }
 });
 
