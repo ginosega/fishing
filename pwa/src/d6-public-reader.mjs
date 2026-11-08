@@ -5,17 +5,23 @@
  */
 export const D6_READER_BASE='/fishing/';
 export const D6_READER_ORIGIN='https://fishing.ginosega.workers.dev';
+// Reserved staging hostname only: NOT a deployed Worker or public cutover.
+export const D6_STATIC_STAGING_ORIGIN='https://fishing-d6-static-test.ginosega.workers.dev';
 
-export function selectD6PublicReader({enabled=false,root,release,manifest}={}){
+export function selectD6PublicReader({enabled=false,staticStaging=false,root,release,manifest}={}){
  if(enabled!==true)return null;
  let url;
  try{url=new URL(root);}catch{throw Error('D6 reader root unavailable');}
  const loopback=url.protocol==='http:'&&
   ['localhost','127.0.0.1','[::1]'].includes(url.hostname);
- if((url.origin!==D6_READER_ORIGIN&&!loopback)||
+ const staging=staticStaging===true;
+ const allowedOrigin=staging?D6_STATIC_STAGING_ORIGIN:D6_READER_ORIGIN;
+ if((url.origin!==allowedOrigin&&!loopback)||
    url.pathname!==D6_READER_BASE||url.search||url.hash||
    url.username||url.password||
    manifest?.base!==D6_READER_BASE||
+   (release?.d6StaticStaging===true)!==staging||
+   (manifest?.d6StaticStaging===true)!==staging||
    manifest?.d6ReaderCandidate!==true||
    release?.d6ReaderCandidate!==true||
    manifest?.releaseId!==release?.id||
