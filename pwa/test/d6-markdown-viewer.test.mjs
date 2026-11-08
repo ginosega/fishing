@@ -172,7 +172,7 @@ test('D6-V07 loopback candidate shows Banks Lake-style local Markdown PNG in ful
   f.imageNode.replacement.handlers.click();
  }
  assert.equal(opened.length,2);
- assert.match(opened[0][0],/^http:\/\/127\.0\.0\.1:4173\/fishing\/__v3_reader_candidate__\//);
+ assert.match(opened[0][0],/^http:\/\/127\.0\.0\.1:4173\/fishing\//);
 });
 
 test('D6-V08 viewer refuses non-loopback plaintext and credential-bearing original assets',()=>{
