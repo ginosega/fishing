@@ -8,6 +8,21 @@ import {packageD6StaticPages} from '../tools/package-d6-static-pages.mjs';
 
 const ID='0123456789abcdef0123456789abcdef';
 const SHA='a'.repeat(40);
+// Windows developer-mode/admin privileges are not required for directory
+// junctions. The Linux CI lane continues to exercise native POSIX symlinks.
+async function directoryAlias(t,target,alias){
+ try{
+  await fs.symlink(target,alias,process.platform==='win32'?'junction':'dir');
+  return true;
+ }catch(error){
+  if(process.platform==='win32'&&
+     (error?.code==='EPERM'||error?.code==='EACCES')){
+   t.skip('Windows directory link creation is blocked by local policy; POSIX CI covers this guard');
+   return false;
+  }
+  throw error;
+ }
+}
 const fixture=async t=>{
  const root=await fs.mkdtemp(path.join(os.tmpdir(),'fishing-d6-stage-test-'));
  t.after(()=>fs.rm(root,{recursive:true,force:true}));
@@ -98,7 +113,7 @@ test('D6-PACK06 production dist and nested production output are forbidden',asyn
 test('D6-PACK07 symlinked destination ancestor cannot alias source directory',async t=>{
  const x=await fixture(t);
  const alias=path.join(x.root,'source-alias');
- await fs.symlink(x.src,alias,'dir');
+ if(!await directoryAlias(t,x.src,alias))return;
  await assert.rejects(packageD6StaticPages({
   source:x.src,destination:path.join(alias,'nested'),
   verifyRelease:x.verifyRelease,
@@ -111,7 +126,7 @@ test('D6-PACK07 symlinked destination ancestor cannot alias source directory',as
 test('D6-PACK08 symlinked source ancestor cannot bypass overlap checks',async t=>{
  const x=await fixture(t);
  const alias=path.join(x.root,'root-alias');
- await fs.symlink(x.root,alias,'dir');
+ if(!await directoryAlias(t,x.root,alias))return;
  await assert.rejects(packageD6StaticPages({
   source:path.join(alias,'input'),
   destination:path.join(x.src,'nested'),
