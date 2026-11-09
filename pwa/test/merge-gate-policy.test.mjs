@@ -5,7 +5,13 @@ import os from 'node:os';
 import path from 'node:path';
 import {execFileSync} from 'node:child_process';
 
-const workflow=fs.readFileSync(new URL('../../.github/workflows/fishing-production.yml',import.meta.url),'utf8');
+// Windows Git checkout may translate the workflow to CRLF. Inspect the
+// logical YAML text rather than checkout-dependent newline encoding.
+const workflow=fs.readFileSync(new URL('../../.github/workflows/fishing-production.yml',import.meta.url),'utf8')
+ .replace(/\r\n?/g,'\n');
+// Tests invoking the actual Bash lane script run on its authoritative Linux CI
+// runner; Windows-native installations are not required to emulate Git Bash.
+const bashLaneTest=process.platform==='win32'?test.skip:test;
 
 function classifyScript(){
  const step=workflow.indexOf('      - id: classify\n');
@@ -56,24 +62,24 @@ test('FISH118-M01 all PRs receive one stable, never-skipped merge-ready check',(
  assert.match(workflow,/needs: \[classify, validate-content, validate-full, validate-docs\]/);
  assert.equal((workflow.match(/name: fishing-merge-ready/g)||[]).length,1);
 });
-test('FISH118-M02 Gear, KB, Catch source changes use the fast lane',async t=>{
+bashLaneTest('FISH118-M02 Gear, KB, Catch source changes use the fast lane',async t=>{
  for(const file of ['pwa/Gear/fixture.json','pwa/KB/Techniques/content/example.md',
   'pwa/Catches/fixture.json']){
   assert.equal(await modeFor(t,[file]),'content',file);
  }
 });
-test('FISH118-M03 docs-only PRs use nonrelease docs validation',async t=>{
+bashLaneTest('FISH118-M03 docs-only PRs use nonrelease docs validation',async t=>{
  for(const file of ['README.md','pwa/docs/Release Note.md','pwa/README.md']){
   assert.equal(await modeFor(t,[file]),'docs',file);
  }
 });
-test('FISH118-M04 runtime, schema and workflow changes use full application tests',async t=>{
+bashLaneTest('FISH118-M04 runtime, schema and workflow changes use full application tests',async t=>{
  for(const file of ['pwa/src/runtime.mjs','pwa/tools/build.mjs','pwa/contracts/schema.json',
   '.github/workflows/example.yml','experiments/p3/preview/src/worker.mjs']){
   assert.equal(await modeFor(t,[file]),'full',file);
  }
 });
-test('FISH118-M05 mixed docs and canonical changes use full lane regardless of file order',async t=>{
+bashLaneTest('FISH118-M05 mixed docs and canonical changes use full lane regardless of file order',async t=>{
  for(const files of [
   ['README.md','pwa/Gear/change.json'],
   ['pwa/Gear/change.json','z-last-doc.md'],
@@ -83,7 +89,7 @@ test('FISH118-M05 mixed docs and canonical changes use full lane regardless of f
   assert.equal(await modeFor(t,files),'full',files.join(' + '));
  }
 });
-test('FISH118-M06 empty or ambiguous diff is not fast or docs lane',async t=>{
+bashLaneTest('FISH118-M06 empty or ambiguous diff is not fast or docs lane',async t=>{
  assert.equal(await modeFor(t,[]),'full');
 });
 test('FISH118-M07 main deployment trigger and guards remain unchanged',()=>{
