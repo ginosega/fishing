@@ -111,7 +111,9 @@ function compiled(op,step,plan){
    tree.push({path:entry.path,mode:'100644',type:'blob',
     sha:entry.sha});
   }
-  need(paths.has(op.domain==='gear'?'gear/gear.json':'kb/kb.json'),
+  const canonicalJson=op.domain==='gear'?'gear/gear.json':'kb/kb.json';
+  need(paths.has(canonicalJson)&&tree.some(e=>
+   e.path.toLowerCase()===canonicalJson&&SHA.test(e.sha??'')),
    'UNSAFE_TREE');
   url=ROOT+'/git/trees';
   body={base_tree:plan.baseTreeSha,tree};
@@ -191,17 +193,20 @@ export function createD6ProductionGitHubStepWriter({
   // operation/step key is a conflict, not a mutated original snapshot.
   const prior=await dbRead(operationId,action.key);
   if(prior)return status(prior,op,action.key,hash);
-  // Prerequisite MUST validate earlier steps and canonical main using
-  // trusted independent reads, not merely a D1 boolean or caller claim.
-  let ready;
-  try{ready=await verifyPrerequisite({
-   operationId,step,requestSha256:hash,
-   sourceRevision:op.sourceRevision,candidateSha256:op.candidateSha256,
-  });}catch{deny('PRECONDITION_UNVERIFIED');}
-  need(ready?.repositoryId===REPO.id&&
-   ready.operationId===operationId&&ready.step===step&&
-   ready.requestSha256===hash&&ready.verified===true,
-   'PRECONDITION_UNVERIFIED');
+  // A real provider adapter must verify earlier steps and actual main
+  // through trusted independent reads, never a client-supplied boolean.
+  const checkReady=async()=>{
+   let ready;
+   try{ready=await verifyPrerequisite({
+    operationId,step,requestSha256:hash,
+    sourceRevision:op.sourceRevision,candidateSha256:op.candidateSha256,
+   });}catch{deny('PRECONDITION_UNVERIFIED');}
+   need(ready?.repositoryId===REPO.id&&
+    ready.operationId===operationId&&ready.step===step&&
+    ready.requestSha256===hash&&ready.verified===true,
+    'PRECONDITION_UNVERIFIED');
+  };
+  await checkReady();
   const at=now();
   need(Number.isSafeInteger(at)&&at>0,'INVALID_CLOCK');
   const claimed=await dbInsert(operationId,action.key,hash,at);
@@ -223,6 +228,10 @@ export function createD6ProductionGitHubStepWriter({
    token=grant.token;
   }catch{return status(row,op,action.key,hash);}
   if(enabled()!==true)return status(row,op,action.key,hash);
+  // Revalidate as close to the outbound mutation as practical, after
+  // slow token minting. A changed main leaves Unknown; never replay.
+  await checkReady();
+  active();
   // The network result is NOT proof of remote mutation. In particular
   // 409, 422, timeout and an HTTP 201 with lost local ack all stay Unknown.
   let response;
