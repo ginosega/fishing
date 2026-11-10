@@ -145,6 +145,28 @@ test('D6-OWNUI09 a late owner reply cannot restore a stale privilege',async()=>{
  assert.equal(adapter.current().phase,'Anonymous');
  assert.equal(adapter.current().authorized,false);
 });
+test('D6-OWNUI14 stale owner GET cannot survive completed sign-out',async()=>{
+ let finish;
+ const adapter=createD6OwnerConnectionAdapter({
+  root:ROOT,enabled:()=>true,online:()=>true,
+  readingMode:()=> 'Automatic',
+  ownerReadiness:{check:async()=>({
+   state:'Owner',ownerLogin:'ginosega',canPublish:false,
+  })},
+  request:()=>new Promise(resolve=>{finish=resolve;}),
+ });
+ await adapter.restore();
+ const signingOut=adapter.signOut();
+ const stale=await adapter.restore();
+ assert.equal(stale.authorized,true);
+ finish(new Response(JSON.stringify({signedOut:true}),{
+  status:200,headers:{'Content-Type':'application/json'},
+ }));
+ await signingOut;
+ assert.equal(adapter.current().phase,'Anonymous');
+ assert.equal(adapter.current().authorized,false);
+ assert.equal(adapter.current().publicLive,false);
+});
 test('D6-OWNUI10 never exposes a fake publication or writer',async()=>{
  const x=harness({result:{state:'Owner',ownerLogin:'ginosega',
   canPublish:false}});
