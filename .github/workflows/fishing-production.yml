@@ -114,7 +114,7 @@ jobs:
     if: needs.classify.outputs.mode == 'full'
     needs: classify
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -146,8 +146,10 @@ jobs:
           npm test
           npm run build -- --pending-media --source-revision="$GITHUB_SHA"
           npm run verify
+      # Ubuntu apt dependency installation exceeded 10 minutes in PR #399;
+      # allow a bounded longer install without skipping browser acceptance.
       - name: Install Chromium and WebKit
-        timeout-minutes: 10
+        timeout-minutes: 20
         working-directory: pwa
         run: npx playwright install --with-deps chromium webkit
       - name: Preserve preview scope regression coverage
