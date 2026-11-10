@@ -9,6 +9,8 @@ const d6Reader=typeof __FISHING_D6_PUBLIC_READER__!=='undefined'&&
  __FISHING_D6_PUBLIC_READER__===true;
 const d6StaticStaging=typeof __FISHING_D6_STATIC_STAGING__!=='undefined'&&
  __FISHING_D6_STATIC_STAGING__===true;
+const d6OwnerConnection=typeof __FISHING_D6_OWNER_CONNECTION__!=='undefined'&&
+ __FISHING_D6_OWNER_CONNECTION__===true;
 function d6Context(){
  if(!d6Reader)return {};
  const reader=selectD6PublicReader({enabled:true,staticStaging:d6StaticStaging,
@@ -27,7 +29,12 @@ function d6Context(){
   enabled:()=>true,online:()=>navigator.onLine===true,
  });
  // Even after both read checks, nothing authorizes a repository write.
- return {v3:{...reader,ownerReadiness,canonicalSource}};
+ if(d6OwnerConnection&&
+   (settings.release?.d6OwnerConnectionCandidate!==true||
+    settings.manifest?.d6OwnerConnectionCandidate!==true))
+  throw Error('D6 approved Connection Status build identity missing');
+ return {v3:{...reader,ownerReadiness,canonicalSource,
+  ownerConnectionCandidate:d6OwnerConnection}};
 }
 Promise.resolve().then(()=>bootstrap(settings,d6Context())).catch(error=>{
  const main=document.getElementById('app');main.replaceChildren();
