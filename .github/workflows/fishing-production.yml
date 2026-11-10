@@ -197,6 +197,15 @@ jobs:
           test -f dist-d6-static-pages-upload/fishing/index.html
           test -f dist-d6-static-pages-upload/fishing/release.json
           test ! -f dist-d6-static-pages-upload/index.html
+      - name: Build and browser-test isolated D6 approved owner UI (no deploy)
+        timeout-minutes: 12
+        working-directory: pwa
+        run: |
+          npm run build -- --d6-reader-candidate --d6-owner-connection-candidate --base=/fishing/ --out=dist-d6-owner-connection --source-revision="$GITHUB_SHA"
+          node tools/verify.mjs --out=dist-d6-owner-connection
+          node --input-type=module -e 'import fs from "node:fs";const p=JSON.parse(fs.readFileSync("dist-d6-owner-connection/release.json"));const m=JSON.parse(fs.readFileSync("dist-d6-owner-connection/"+p.manifest));if(!p.d6ReaderCandidate||!m.d6ReaderCandidate||!p.d6OwnerConnectionCandidate||!m.d6OwnerConnectionCandidate||p.d6StaticStaging||m.d6StaticStaging||m.base!=="/fishing/"||p.sourceRevision!==process.env.GITHUB_SHA)process.exit(1);'
+          FISHING_D6_OWNER_CONNECTION_DIST=dist-d6-owner-connection npx playwright test test/d6-owner-connection-candidate.spec.mjs
+          mv .test-output .d6-owner-ui-test-output
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: github.event_name == 'pull_request'
         with:
@@ -222,6 +231,7 @@ jobs:
           path: |
             pwa/.test-output/
             pwa/.preview-test-output/
+            pwa/.d6-owner-ui-test-output/
           include-hidden-files: true
           retention-days: 90
 

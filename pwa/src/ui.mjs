@@ -147,13 +147,18 @@ export function createApp(ctx){
  let automaticModeButton=null,workOfflineButton=null,readingModeStatus=null;
  let ownerSessionStatus=null,ownerProbeSerial=0;
  let approvedController=null,approvedPresenter=null;
+ // The accepted D5 presenter has its own asynchronous command repaint after
+ // sign-out, separate from the D6 adapter's onChange repaint. Keep its
+ // historical return-query out of the D6-only production OAuth link after
+ // *either* repaint, without changing approved presentation source or labels.
+ const normalizeApprovedSignIn=()=>{
+  const link=connectionDialog.querySelector('.v3-account-body a[href]');
+  if(link&&link.getAttribute('href')!=='/auth/start')
+   link.setAttribute('href','/auth/start');
+ };
  const paintApproved=()=>{
   approvedPresenter?.paint();
-  // The unchanged D5 view emits the old sandbox-era return query.
-  // D6 OAuth accepts only the fixed /auth/start route; correct the DOM link
-  // after every render without altering its approved text/layout or issuer.
-  const link=connectionDialog.querySelector('.v3-account-body a[href]');
-  if(link)link.setAttribute('href','/auth/start');
+  normalizeApprovedSignIn();
  };
  if(readerOnly){
   connectionDialog.classList.add('d6-reader-connection');
@@ -217,6 +222,15 @@ export function createApp(ctx){
   approvedPresenter=mountV3ConnectionExperience({
    dialog:connectionDialog,controller:approvedController,
    documentObject:document,
+  });
+  const accountBody=connectionDialog.querySelector('.v3-account-body');
+  // Observe only the signed-in/signed-out account subtree: the approved D5
+  // command button internally repaints it after its Promise resolves.
+  // attributeFilter and equality guard avoid observer feedback loops.
+  if(!accountBody)throw Error('D6 owner Account view unavailable');
+  const signInLinkObserver=new MutationObserver(normalizeApprovedSignIn);
+  signInLinkObserver.observe(accountBody,{
+   childList:true,subtree:true,attributes:true,attributeFilter:['href'],
   });
   paintApproved();
  }
