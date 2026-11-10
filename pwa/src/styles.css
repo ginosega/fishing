@@ -28,3 +28,146 @@
 .d6-reading-mode h2{font-size:1rem;margin:0}
 .d6-reading-mode [aria-pressed="true"]{border-color:var(--accent);background:var(--soft);box-shadow:inset 0 0 0 1px var(--accent)}
 .d6-reading-mode .hint{margin:0}
+
+/* D6 opt-in: unmodified, owner-accepted D5 Connection Status stylesheet.
+   Source: feature/fish118-d5-owner-integration@298ab5e76e48b8d66102d179dbf62d881c642226.
+   Applies only when v3-connection-dialog is set. */
+/* FISH118 V3 Connection Status only: match the site's spacious card hierarchy.
+   The V2 dialog and header remain untouched. */
+.v3-connection-dialog{width:min(560px,calc(100% - 24px));max-height:calc(100dvh - 24px);overflow-y:auto}
+.v3-connection-dialog>h2{margin:0 0 10px}
+.v3-connection-layout{display:flex;flex-direction:column;align-items:stretch;gap:0;flex-wrap:nowrap}
+.v3-connection-section{border-top:1px solid var(--border);padding:16px 0;min-width:0}
+.v3-connection-section>h3{font-size:1rem;line-height:1.35;margin:0 0 10px;font-weight:700}
+.v3-connection-section p{margin:0}
+.v3-connection-section .hint{margin:4px 0 0;font-size:.84rem;line-height:1.5}
+.v3-network-section #connection-network{font-weight:650}
+.v3-connection-layout .toolbar{gap:8px}
+.v3-connection-layout .btn,.v3-connection-dialog .v3-connection-section .btn{font-size:.88rem;min-height:38px;padding:7px 12px}
+.v3-account-body,.v3-publication-body{display:flex;flex-direction:column;gap:7px}
+.v3-account-body>.btn,.v3-account-body>a.btn,.v3-publication-body>.btn{align-self:flex-start;margin-top:4px}
+.v3-connection-value{font-weight:650;overflow-wrap:anywhere}
+.v3-publishing .v3-connection-value{line-height:1.4}
+.v3-help-body{display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:12px 0 0}
+.v3-connection-help{border-top:1px solid var(--border);padding:14px 0}
+.v3-connection-help>summary{font-weight:650;cursor:pointer;list-style-position:inside}
+.v3-connection-help textarea{width:100%}
+.v3-connection-help .hint{font-size:.82rem;margin:0}
+.v3-connection-dialog .dialog-close{margin-top:14px}
+.v3-connection-dialog .offline-mode-select [aria-pressed="true"]{background:var(--soft);color:var(--accent-dark);border-color:#8dbbad;outline:2px solid #a3cfc0;outline-offset:0}
+@media(max-width:520px){
+ .v3-connection-dialog{padding:18px}
+ .v3-connection-section{padding:14px 0}
+ .v3-connection-layout .toolbar{width:100%}
+ .v3-connection-layout .toolbar>.btn{flex:1;min-width:0}
+}
+
+/* FISH118: Alpine Mist dark theme is scoped to V3 Connection Status only. */
+.v3-connection-dialog{
+ color-scheme:dark;
+ --ink:#eef5f0;--muted:#b3c6bb;--accent:#91cbb0;--accent-dark:#bee7d1;
+ --surface:#2c413a;--soft:#30483d;--border:#41564b;
+ background:linear-gradient(150deg,#233430,#1c2927);
+ color:var(--ink);border:1px solid #597b69;
+ position:relative;box-shadow:0 24px 75px rgba(0,0,0,.42)
+}
+.v3-connection-dialog::before{
+ content:"";position:absolute;top:0;left:0;right:0;height:3px;
+ background:linear-gradient(90deg,#719f82,transparent 85%);
+ pointer-events:none;border-radius:14px 14px 0 0
+}
+.v3-connection-dialog .v3-connection-section{padding:12px 0}
+.v3-connection-section>h2,.v3-publishing-heading>h2{
+ font-size:1rem;line-height:1.35;font-weight:700;margin:0 0 9px;color:var(--ink)
+}
+.v3-network-row,.v3-publishing-heading{
+ display:flex;align-items:center;justify-content:space-between;gap:12px
+}
+.v3-network-row{min-height:24px}
+.v3-network-section #connection-network{
+ margin:0;font-size:.9rem;font-weight:700;line-height:1.45;color:var(--ink)
+}
+.v3-network-dot,.v3-publication-dot{
+ flex:none;width:12px;height:12px;border-radius:50%;display:inline-block
+}
+.v3-network-dot{background:#66bfa1;box-shadow:0 0 0 5px #66bfa122}
+.v3-connection-dialog[data-network-online="false"] .v3-network-dot{
+ background:#c79443;box-shadow:0 0 0 5px #c7944322
+}
+.v3-publication-dot[data-tone="publishing"]{
+ background:#7099da;box-shadow:0 0 0 5px #7099da22
+}
+.v3-publication-dot[data-tone="error"]{
+ background:#d85a61;box-shadow:0 0 0 5px #d85a6122
+}
+.v3-publication-dot[hidden]{display:none}
+.v3-connection-dialog .v3-connection-value{
+ display:block;font-size:.9rem;font-weight:700;line-height:1.45;color:var(--ink)
+}
+.v3-connection-dialog .offline-state{
+ font-size:.9rem;color:var(--muted);margin:0 0 11px;
+ display:flex;flex-direction:column;align-items:stretch;gap:6px;
+ min-width:0;max-width:100%;overflow-wrap:anywhere
+}
+.v3-connection-dialog .offline-state>span{
+ display:block;min-width:0;max-width:100%;white-space:normal;overflow-wrap:anywhere
+}
+.v3-connection-dialog .offline-state[data-state="Ready"]{color:#94d8ad}
+.v3-connection-dialog .offline-state[data-state="Incomplete"]{color:#e6bd7d}
+.v3-connection-dialog .offline-state[data-state="OnlineOnly"]{color:var(--muted)}
+.v3-connection-dialog .v3-connection-section .btn,
+.v3-connection-dialog #connection-close,
+.v3-connection-dialog .v3-help-body .btn{
+ background:#2c413a;color:var(--ink);border-color:#4b685a
+}
+.v3-connection-dialog .v3-connection-section .btn:hover:not(:disabled),
+.v3-connection-dialog #connection-close:hover,
+.v3-connection-dialog .v3-help-body .btn:hover:not(:disabled){
+ background:#365447;border-color:#91cbb0
+}
+.v3-connection-dialog .offline-mode-select [aria-pressed="true"]{
+ background:#365749;color:var(--ink);border-color:#91cbb0;
+ outline:1px solid #91cbb0;outline-offset:0
+}
+.v3-connection-dialog :is(.btn,a,summary,textarea):focus-visible{
+ outline:2px solid #91cbb0;outline-offset:2px
+}
+.v3-connection-dialog .v3-connection-help{border-color:var(--border)}
+.v3-connection-dialog .v3-connection-help summary{color:var(--ink)}
+.v3-connection-dialog textarea{
+ background:#20322c;color:var(--ink);border:1px solid #597b69
+}
+.v3-connection-dialog #connection-close{
+ display:block;min-width:108px;margin:14px auto 0
+}
+@media(max-width:520px){
+ .v3-connection-dialog .v3-connection-section{padding:10px 0}
+ .v3-connection-dialog #connection-close{margin:12px auto 0}
+}
+
+/* FISH118: Publishing Status is a native accordion like Help & Diagnostics.
+   Native summary marker is retained for keyboard and assistive technology. */
+.v3-connection-dialog .v3-publishing{padding:14px 0}
+.v3-connection-dialog .v3-publishing>.v3-publishing-toggle{
+ display:list-item;position:relative;list-style-position:inside;
+ cursor:pointer;color:var(--ink);font-weight:650;line-height:1.45;
+ padding-right:24px
+}
+.v3-connection-dialog .v3-publishing-toggle>h2{
+ display:inline;font-size:1rem;font-weight:700;line-height:1.35;
+ color:var(--ink);margin:0
+}
+.v3-connection-dialog .v3-publishing-toggle .v3-publication-dot{
+ position:absolute;right:4px;top:50%;transform:translateY(-50%)
+}
+.v3-connection-dialog .v3-publishing[open] .v3-publication-body{
+ padding-top:12px
+}
+@media(max-width:520px){
+ .v3-connection-dialog .v3-publishing{padding:14px 0}
+}
+
+/* V3: keep one Prepare/Update button compact on narrow screens. */
+.v3-connection-dialog .v3-offline-actions>.btn{flex:0 0 auto}
+
+
