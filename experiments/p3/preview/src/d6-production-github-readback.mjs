@@ -110,7 +110,7 @@ function treeMap(value){
 }
 function treeComparison(original,next,plan,domain){
  const before=treeMap(original),after=treeMap(next);
- const expected=new Map(plan.entries.map(e=>[e.path,e]));
+ const expected=new Map(plan.tree.map(e=>[e.path,e]));
  const all=new Set([...before.keys(),...after.keys()]);
  const changed=new Set();
  for(const path of all){
