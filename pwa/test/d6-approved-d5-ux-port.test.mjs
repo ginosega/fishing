@@ -42,7 +42,7 @@ test('D6-UX-PORT02 approved Connection Status implementation stays unmodified',(
  assert.match(acceptedFile,/Publishing Status/);
  assert.match(acceptedFile,/No recent publication available/);
 });
-test('D6-UX-PORT03 isolated D5 sandbox is NOT imported into D6 public entry',()=>{
+test('D6-UX-PORT03 production opt-in mounts only approved UI, not D5 sandbox',()=>{
  const entry=read('entry.mjs').toString();
  const ui=read('ui.mjs').toString();
  const build=readFileSync(new URL('../tools/build.mjs',import.meta.url),'utf8');
@@ -51,11 +51,16 @@ test('D6-UX-PORT03 isolated D5 sandbox is NOT imported into D6 public entry',()=
  for(const text of [entry,ui]){
   assert.doesNotMatch(text,/d5-owner-candidate\.mjs/);
   assert.doesNotMatch(text,/d3-owner-test-shell\.mjs/);
-  assert.doesNotMatch(text,/v3-connection-experience\.mjs/);
-  assert.doesNotMatch(text,/v3-connection\.mjs/);
+  assert.doesNotMatch(text,/d3-authoring-client\.mjs/);
+  assert.doesNotMatch(text,/d3-publication-lifecycle\.mjs/);
  }
+ assert.match(ui,/mountV3ConnectionExperience/);
+ assert.match(ui,/createD6OwnerConnectionAdapter/);
+ assert.match(ui,/ownerConnectionCandidate===true/);
+ assert.match(entry,/__FISHING_D6_OWNER_CONNECTION__/);
  assert.doesNotMatch(build,/--d6-production-owner/);
  assert.match(build,/--d6-reader-candidate/);
+ assert.match(build,/--d6-owner-connection-candidate/);
 });
 test('D6-UX-PORT04 no extra auth, backend or publishing entry is introduced',()=>{
  const entry=read('entry.mjs').toString();
