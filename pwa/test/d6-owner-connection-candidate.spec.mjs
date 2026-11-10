@@ -24,7 +24,7 @@ const mime={
  '.svg':'image/svg+xml','.jpg':'image/jpeg','.webp':'image/webp',
  '.gif':'image/gif',
 };
-let server,base,session,logs;
+let server,base,session,logs,realLibrary;
 test.skip(!distSetting,'D6 owner Connection Status needs a separate isolated candidate release');
 
 const error=(res,status)=>{res.writeHead(status,{
@@ -96,6 +96,21 @@ test.beforeAll(async()=>{
  expect(manifest.d6StaticStaging).not.toBe(true);
  expect(manifest.base).toBe(prefix);
  expect(release.sourceRevision).toMatch(/^[a-f0-9]{40}$/);
+ // The candidate must render actual canonical Gear/KB/Catches records,
+ // not synthetic fixtures or a stale owner-only sandbox catalog.
+ const contentDir=path.join(root,'releases',release.id,'content');
+ realLibrary={};
+ for(const [domain,file] of Object.entries({
+  gear:'Gear/gear.json',kb:'KB/kb.json',catches:'Catches/catches.json',
+ }))realLibrary[domain]=JSON.parse(await fs.readFile(
+  path.join(contentDir,file),'utf8'));
+ for(const [domain,key] of [['gear','items'],['kb','entities'],
+  ['catches','catches']])expect(realLibrary[domain][key].length).toBeGreaterThan(0);
+ expect(manifest.counts).toEqual({
+  gear:realLibrary.gear.items.length,
+  kb:realLibrary.kb.entities.length,
+  catches:realLibrary.catches.catches.length,
+ });
  server=createServer((req,res)=>{void serve(req,res).catch(()=>error(res,503));});
  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
  base='http://127.0.0.1:'+server.address().port+prefix;
@@ -159,5 +174,42 @@ test('D6-OWNER-BROWSER02 approved owner view and signout stay read-only',async({
  expect(logs.signouts[0].origin).toBe(new URL(base).origin);
  expect(logs.sources).toBe(0);
  expect(logs.writes).toHaveLength(0);
+ expect(errors).toEqual([]);
+});
+
+test('D6-OWNER-BROWSER03 canonical real Gear, KB and Catches render without writes',async({page})=>{
+ const errors=await open(page);
+ const initial=await page.evaluate(()=>window.__FISHING_V2__);
+ expect(initial.counts).toEqual({
+  gear:realLibrary.gear.items.length,
+  kb:realLibrary.kb.entities.length,
+  catches:realLibrary.catches.catches.length,
+ });
+ const gear=realLibrary.gear.items.find(x=>x.picture)||realLibrary.gear.items[0];
+ const kb=realLibrary.kb.entities.find(x=>x.content)||realLibrary.kb.entities[0];
+ const caught=realLibrary.catches.catches[0];
+ const species=realLibrary.kb.entities.find(x=>x.id===caught.speciesId);
+ expect(species).toBeDefined();
+ async function visit(hash,title){
+  await page.evaluate(next=>{window.location.hash=next;},hash);
+  await expect(page.locator('#app .page-header h1')).toHaveText(title,
+   {timeout:20000});
+  await expect(page.getByRole('button',{name:'Save & Publish'})).toHaveCount(0);
+ }
+ await page.getByRole('link',{name:/My Gear/}).click();
+ await expect(page.locator('#app .page-header h1')).toHaveText('My Gear');
+ await visit('#/inventory/item/'+encodeURIComponent(gear.id),gear.name);
+ await expect(page.locator('#app .page-edit-link')).toHaveCount(0);
+ await visit('#/kb/'+encodeURIComponent(kb.id),kb.name);
+ await expect(page.locator('#app .page-edit-link')).toHaveCount(0);
+ await visit('#/catches/'+encodeURIComponent(caught.id),
+  species.name+' · '+caught.date);
+ await expect(page.locator('#app .page-edit-link')).toHaveCount(0);
+ await visit('#/catches','Recorded catches');
+ expect(await page.locator('#app .catch-date').count()).toBe(
+  realLibrary.catches.catches.length);
+ expect(logs.writes).toEqual([]);
+ expect(logs.sources).toBe(0);
+ expect(logs.oauth).toBe(0);
  expect(errors).toEqual([]);
 });
