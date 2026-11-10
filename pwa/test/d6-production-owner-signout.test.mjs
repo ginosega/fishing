@@ -141,7 +141,11 @@ test('D6-SIGNOUT08 read composition requires separate signout flag',async()=>{
   {gatewayEnabled:true,sessionEnabled:true,oauthEnabled:true},
  ]){
   const {app,store}=composed(flags);
-  assert.equal((await app.fetch(request())).status,404);
+  // A disabled gateway returns 503; when the gateway is enabled but
+  // sign-out remains absent, its existing read router returns 404.
+  // Both must deny access without touching the session database.
+  const expectedStatus=flags.gatewayEnabled===true?404:503;
+  assert.equal((await app.fetch(request())).status,expectedStatus);
   assert.equal(store.deleted.length,0);
  }
  const {app,store}=composed({
