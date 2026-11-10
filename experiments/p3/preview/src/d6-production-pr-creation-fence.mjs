@@ -184,6 +184,9 @@ export function createD6ProductionPrCreationFence({
   }catch{
    return result(await one(operationId),op);
   }
+  // Revocation after an in-flight external write must not certify it.
+  // The durable Unknown fence remains, requiring later reconciliation.
+  if(enabled()!==true)return result(await one(operationId),op);
   // Never trust createPr's acknowledgment; read the remote PR separately.
   return reconcile(op);
  }
