@@ -138,6 +138,26 @@ function compiled(op,step,plan){
  }else deny('INVALID_STEP');
  return Object.freeze({key,url,method,body});
 }
+/**
+ * Single deterministic, trusted-server step descriptor shared by the
+ * mutation fence and the independent read-back verifier. It has no token,
+ * network action or write authority; callers must still fence and verify.
+ */
+export async function describeD6ProductionGitHubStep({
+ operation,step,plan,
+}={}){
+ const op=trustedOperation(operation,operation?.operationId);
+ need(steps.has(step),'INVALID_STEP');
+ const action=compiled(op,step,plan);
+ const requestSha256=await sha256(JSON.stringify({
+  operationId:op.operationId,stepKey:action.key,
+  method:action.method,url:action.url,body:action.body,
+  sourceRevision:op.sourceRevision,
+  candidateSha256:op.candidateSha256,
+ }));
+ return Object.freeze({...action,requestSha256});
+}
+
 function status(row,op,key,digest,attempted=false){
  need(row&&row.operation_id===op.operationId&&
   row.step_key===key&&row.owner_github_id===REPO.ownerGitHubId&&
@@ -179,16 +199,12 @@ export function createD6ProductionGitHubStepWriter({
   let p;
   try{p=await planStep({operationId:op.operationId,step});}
   catch{deny('STEP_PLAN_UNAVAILABLE');}
-  return compiled(op,step,p);
+  return describeD6ProductionGitHubStep({operation:op,step,plan:p});
  };
  async function attempt(operationId,step){
   const op=await load(operationId);
   const action=await plan(op,step);
-  const hash=await sha256(JSON.stringify({
-   operationId,stepKey:action.key,method:action.method,url:action.url,
-   body:action.body,sourceRevision:op.sourceRevision,
-   candidateSha256:op.candidateSha256,
-  }));
+  const hash=action.requestSha256;
   // Reuse never replays. Different immutable body with the same
   // operation/step key is a conflict, not a mutated original snapshot.
   const prior=await dbRead(operationId,action.key);
@@ -254,11 +270,7 @@ export function createD6ProductionGitHubStepWriter({
  }
  async function inspectFence(operationId,step){
   const op=await load(operationId),action=await plan(op,step);
-  const hash=await sha256(JSON.stringify({
-   operationId,stepKey:action.key,method:action.method,url:action.url,
-   body:action.body,sourceRevision:op.sourceRevision,
-   candidateSha256:op.candidateSha256,
-  }));
+  const hash=action.requestSha256;
   const row=await dbRead(operationId,action.key);
   if(!row)deny('FENCE_MISSING');
   return status(row,op,action.key,hash);
