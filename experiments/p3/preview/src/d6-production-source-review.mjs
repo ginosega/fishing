@@ -10,9 +10,9 @@
  * loader MUST be createD6CanonicalSnapshotLoader.loadSnapshot, not a
  * browser-provided source object. No GitHub write, D1, Worker, or merge API.
  */
-import {promoteChange,ChangeConflictError}
+import {promoteChange,ChangeConflictError,equal}
  from '../../../../pwa/src/handoff.mjs';
-import {DOMAIN,fingerprint,safePath,equal}
+import {DOMAIN,fingerprint,safePath}
  from '../../../../pwa/src/shared.mjs';
 import {validateRecords,validateRecord,validateLibraryPaths,
  collectPaths,checkPathCollisions,validateMarkdown}
