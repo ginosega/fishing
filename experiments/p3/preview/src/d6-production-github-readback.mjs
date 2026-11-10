@@ -93,8 +93,10 @@ function treeMap(value){
   value.tree.length<=MAX_ENTRIES,'TREE_UNVERIFIED');
  const result=new Map(),folded=new Set();
  for(const item of value.tree){
-  need(typeof item?.path==='string'&&
-   safePath(item.path)===item.path&&
+  let validPath=false;
+  try{validPath=typeof item?.path==='string'&&
+    safePath(item.path)===item.path;}catch{}
+  need(validPath&&
    ['blob','tree'].includes(item.type)&&
    SHA.test(item.sha??'')&&
    (item.type==='tree'?item.mode==='040000':
@@ -168,6 +170,7 @@ export function createD6ProductionGitHubReadback({
   request,enabled].every(fn=>typeof fn==='function'),'INVALID_CONFIG');
  const active=()=>need(enabled()===true,'DISABLED');
  async function github(url,token,{list=false}={}){
+  active();
   need(typeof url==='string'&&url.startsWith(BASE+'/')&&
    !url.includes('#'),'UNTRUSTED_URL');
   let response;
@@ -181,7 +184,8 @@ export function createD6ProductionGitHubReadback({
    },
   });}
   catch{deny('GITHUB_READ_UNAVAILABLE');}
-  need(!response.url||response.url===url,'GITHUB_READ_UNAVAILABLE');
+  need(response instanceof Response&&
+   (!response.url||response.url===url),'GITHUB_READ_UNAVAILABLE');
   return boundedJson(response,list);
  }
  async function inspect(operationId,step){
@@ -211,6 +215,7 @@ export function createD6ProductionGitHubReadback({
   });}
   catch{deny('TOKEN_UNAVAILABLE');}
   need(grant?.repositoryId===REPO.id&&
+   plain(grant.permissions)&&
    grant.permissions?.contents==='write'&&
    grant.permissions?.pull_requests==='write'&&
    Object.keys(grant.permissions).length===2&&
