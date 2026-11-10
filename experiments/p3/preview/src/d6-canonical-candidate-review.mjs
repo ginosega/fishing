@@ -89,6 +89,15 @@ export function createD6CanonicalCandidateReview({enabled=()=>false}={}){
    validateRecords(data);
    validateLibraryPaths(data);
   }catch{deny('INVALID_SOURCE');}
+  // Refuse incomplete snapshot material before reviewing any candidate.
+  // The trusted loader guarantees this; keep the pure review seam fail-closed
+  // if a future caller passes a truncated source projection.
+  for(const p of collectPaths(data)){
+   if(!source.files.has(p))deny('INVALID_SOURCE');
+   if(p.endsWith('.md')&&
+    (!source.markdown.has(p)||typeof source.markdown.get(p)!=='string'))
+    deny('MISSING_SOURCE_NARRATIVE');
+  }
   const key=DOMAIN[domain].array;
   const list=data[domain][key];
   const existing=list.find(r=>r.id===pkg.id);
