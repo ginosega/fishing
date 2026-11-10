@@ -158,6 +158,20 @@ export function createD6ProductionPublishEvidenceGate({
   const op=await operation(operationId);
   const pr=await pull(op);
   checkPR(pr,op,true);
+  checkPaths(pr.changedPaths,op.domain);
+  // Independent Git-tree reconstruction, not PR title/body or caller hints.
+  const proof=await safeCall(()=>verifyCandidate({
+   operationId,prNumber:pr.number,headSha:pr.head.sha,
+   originalSourceRevision:op.sourceRevision,
+   expectedCandidateSha256:op.candidateSha256,
+  }));
+  need(proof?.repositoryId===REPO.id&&
+   proof?.sourceRevision===op.sourceRevision&&
+   proof?.headSha===pr.head.sha&&
+   proof?.candidateSha256===op.candidateSha256&&
+   proof?.pathsVerified===pr.changedPaths.length&&
+   proof?.contentOnly===true,'CANDIDATE_UNVERIFIED');
+  checkStatuses(await safeCall(()=>readChecks(pr.head.sha)),pr.head.sha);
   // Verify that the recorded source operation and exact PR match the
   // GitHub merged commit now on main; do not accept a replaced main.
   checkMain(await safeCall(()=>readMain()),pr.mergeCommitSha);
