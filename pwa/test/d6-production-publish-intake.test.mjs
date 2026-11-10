@@ -17,18 +17,20 @@ const pkg=()=>({
 const body=(packageValue=pkg(),media=[])=>JSON.stringify({
  idempotencyKey:key,snapshot:{package:packageValue,media},
 });
-const req=(payload=body(),options={})=>new Request(
- ORIGIN+'/api/v3/operations',{
- method:'POST',
- headers:{
-  Origin:ORIGIN,'Sec-Fetch-Site':'same-origin',
-  'X-Fish-V3-Intent':'publish',
-  'X-Fish-V3-CSRF':'C'.repeat(43),
-  'Content-Type':'application/json',
-  ...options.headers,
- },
- body:payload,...options,
-});
+const req=(payload=body(),options={})=>{
+ const {headers:extraHeaders={},...rest}=options;
+ return new Request(ORIGIN+'/api/v3/operations',{
+  method:'POST',...rest,
+  headers:{
+   Origin:ORIGIN,'Sec-Fetch-Site':'same-origin',
+   'X-Fish-V3-Intent':'publish',
+   'X-Fish-V3-CSRF':'C'.repeat(43),
+   'Content-Type':'application/json',
+   ...extraHeaders,
+  },
+  body:payload,
+ });
+};
 const expectCode=async(promise,code)=>assert.rejects(promise,
  error=>error instanceof D6PublishIntakeError&&error.code===code);
 function setup({enabled=true,ownerId=265665562,denyOwner=false}={}){
