@@ -71,10 +71,13 @@ export function createD6OwnerConnectionAdapter({
        reply.headers.get('Content-Type')??''))throw Error('Invalid sign-out');
    const body=await reply.json();
    if(body?.signedOut!==true)throw Error('Unconfirmed sign-out');
-   if(seq!==generation)return current();
+   // Even when a concurrent GET finished after sign-out started, it may
+   // contain the OLD session. Invalidate its generation and fail closed.
+   ++generation;
    return set(initial('Anonymous'));
   }catch{
-   if(seq===generation)set(initial('Unavailable'));
+   ++generation;
+   set(initial('Unavailable'));
    throw Error('D6 sign-out outcome unconfirmed; do not retry blindly');
   }
  }
