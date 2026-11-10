@@ -1,0 +1,162 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {fingerprint} from '../src/shared.mjs';
+import {createD6ProductionPublishIntake,D6_PUBLISH_INTAKE_ORIGIN}
+ from '../../experiments/p3/preview/src/d6-production-publish-intake.mjs';
+import {createD6ProductionSourceReview,D6SourceReviewError}
+ from '../../experiments/p3/preview/src/d6-production-source-review.mjs';
+
+const MAIN='a'.repeat(40),OLD='b'.repeat(40),TREE='c'.repeat(40);
+const record={id:'sample-item',category:'lures',type:'Jigs',name:'Sample'};
+const baseData=()=>({
+ gear:{schemaVersion:2,items:[]},kb:{schemaVersion:2,entities:[]},
+ catches:{schemaVersion:2,catches:[]},
+});
+const pkg=(operation='add')=>({
+ format:'fishing-companion-change-v2',domain:'gear',
+ operation,id:record.id,
+ base:{schemaVersion:2,sourceRevision:MAIN,recordHash:null},
+ ...(operation==='add'?{record:{...record}}:
+  {changes:{set:{name:'Updated'},unset:[],
+   baseFields:{name:record.name}}}),
+ notes:{action:'keep'},picture:{action:'keep'},
+ pictureSequence:{action:'keep'},
+});
+const request=p=>new Request(D6_PUBLISH_INTAKE_ORIGIN+
+ '/api/v3/operations',{
+ method:'POST',headers:{
+  Origin:D6_PUBLISH_INTAKE_ORIGIN,
+  'Sec-Fetch-Site':'same-origin','X-Fish-V3-Intent':'publish',
+  'X-Fish-V3-CSRF':'C'.repeat(43),
+  'Content-Type':'application/json',
+ },
+ body:JSON.stringify({
+  idempotencyKey:'sample_idempotency_key_1234',
+  snapshot:{package:p,media:[]},
+ }),
+});
+function setup({
+ data=baseData(),files=new Set([
+  'Gear/gear.json','KB/kb.json','Catches/catches.json']),
+ markdown=new Map(),enabled=true,owner=true,sourcePatch={},
+}={}){
+ let reads=0,checks=0;
+ const intake=createD6ProductionPublishIntake({
+  enabled:()=>true,
+  sessionFactory:()=>({authorizeWrite:async()=>{
+   checks++;
+   if(!owner)throw Error('Unauthorized');
+   return {authorized:true,ownerGitHubId:265665562};
+  }}),
+ });
+ const loadSnapshot=async({expectedReleaseRevision})=>{
+  reads++;assert.equal(expectedReleaseRevision,MAIN);
+  return {repositoryId:1350909744,
+   repositoryFullName:'ginosega/fishing',ref:'refs/heads/main',
+   sourceRevision:MAIN,treeSha:TREE,
+   files,markdown,data,sourceOnly:true,canPublish:false,
+   ...sourcePatch};
+ };
+ const review=createD6ProductionSourceReview({
+  intake,loadSnapshot,enabled:()=>enabled,
+ });
+ return {review,counts:()=>({reads,checks})};
+}
+const deny=async(promise,code)=>assert.rejects(promise,
+ e=>e instanceof D6SourceReviewError&&e.code===code);
+
+test('D6-SOURCE01 default OFF: no auth, GitHub or write operations',async()=>{
+ const x=setup({enabled:false});
+ await deny(x.review.review(request(pkg()),{trustedMainSha:MAIN}),
+  'DISABLED');
+ assert.deepEqual(x.counts(),{reads:0,checks:0});
+ assert.deepEqual(Object.keys(x.review),['review']);
+});
+test('D6-SOURCE02 only server-supplied exact main SHA may start',async()=>{
+ const x=setup();
+ await deny(x.review.review(request(pkg()),{trustedMainSha:OLD.slice(1)}),
+  'UNVERIFIED_MAIN');
+ assert.deepEqual(x.counts(),{reads:0,checks:0});
+});
+test('D6-SOURCE03 unauthorized owner never triggers GitHub reader',async()=>{
+ const x=setup({owner:false});
+ await assert.rejects(x.review.review(request(pkg()),{
+  trustedMainSha:MAIN}));
+ assert.deepEqual(x.counts(),{reads:0,checks:1});
+});
+test('D6-SOURCE04 valid Gear add produces no publish or receipt',async()=>{
+ const x=setup();
+ const result=await x.review.review(request(pkg()),{
+  trustedMainSha:MAIN});
+ assert.equal(result.candidateData.gear.items[0].name,'Sample');
+ assert.equal(result.canPublish,false);
+ assert.equal(result.requiresDurableOperation,true);
+ assert.equal(result.operationId,undefined);
+ assert.equal(result.releaseId,undefined);
+ assert.equal(result.fileOps.length,0);
+ assert.deepEqual(x.counts(),{reads:1,checks:1});
+});
+test('D6-SOURCE05 stale origin base never silently rebases',async()=>{
+ const p=pkg();p.base.sourceRevision=OLD;
+ const x=setup();
+ await deny(x.review.review(request(p),{trustedMainSha:MAIN}),
+  'STALE_SOURCE');
+ assert.equal(x.counts().reads,0);
+});
+test('D6-SOURCE06 forged or mismatched canonical snapshot denied',async()=>{
+ const x=setup({sourcePatch:{repositoryId:1430581407}});
+ await deny(x.review.review(request(pkg()),{trustedMainSha:MAIN}),
+  'SOURCE_UNVERIFIED');
+});
+test('D6-SOURCE07 existing add ID is a conflict, not overwrite',async()=>{
+ const data=baseData();data.gear.items=[{...record}];
+ const x=setup({data});
+ await deny(x.review.review(request(pkg()),{trustedMainSha:MAIN}),
+  'CONFLICT');
+});
+test('D6-SOURCE08 edit requires same canonical record hash',async()=>{
+ const data=baseData();data.gear.items=[{...record}];
+ const p=pkg('edit');p.base.recordHash='f'.repeat(64);
+ await deny(setup({data}).review.review(request(p),
+  {trustedMainSha:MAIN}),'CONFLICT');
+});
+test('D6-SOURCE09 reviewed text-only edit preserves other fields',async()=>{
+ const data=baseData();data.gear.items=[{...record,manufacturer:'SampleCo'}];
+ const p=pkg('edit');p.base.recordHash=await fingerprint(data.gear.items[0]);
+ const x=setup({data});
+ const r=await x.review.review(request(p),{trustedMainSha:MAIN});
+ assert.equal(r.candidateData.gear.items[0].name,'Updated');
+ assert.equal(r.candidateData.gear.items[0].manufacturer,'SampleCo');
+ assert.equal(data.gear.items[0].name,'Sample');
+ assert.equal(r.canPublish,false);
+});
+test('D6-SOURCE10 valid narrative create validates complete candidate',async()=>{
+ const p=pkg();p.notes={
+  action:'create',path:'Gear/Lures/content/Sample.md',body:'# Sample',
+  baseSha256:null,
+ };
+ const r=await setup().review.review(request(p),{
+  trustedMainSha:MAIN});
+ assert.equal(r.fileOps[0].action,'create');
+ assert.equal(r.candidateMarkdown.get('Gear/Lures/content/Sample.md'),
+  '# Sample');
+});
+test('D6-SOURCE11 existing unclaimed Markdown path cannot be clobbered',async()=>{
+ const p=pkg();p.notes={
+  action:'create',path:'Gear/Lures/content/Sample.md',body:'# Sample',
+  baseSha256:null,
+ };
+ const files=new Set(['Gear/gear.json','KB/kb.json','Catches/catches.json',
+  'Gear/Lures/content/Sample.md']);
+ const x=setup({files});
+ await deny(x.review.review(request(p),{trustedMainSha:MAIN}),
+  'CONFLICT');
+});
+test('D6-SOURCE12 empty unchanged edit rejected, no operation',async()=>{
+ const data=baseData();data.gear.items=[{...record}];
+ const p=pkg('edit');p.base.recordHash=await fingerprint(record);
+ p.changes={set:{},unset:[],baseFields:{}};
+ const x=setup({data});
+ await deny(x.review.review(request(p),{trustedMainSha:MAIN}),
+  'NO_CHANGE');
+});
