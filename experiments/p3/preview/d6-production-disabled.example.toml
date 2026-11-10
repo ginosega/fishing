@@ -1,0 +1,25 @@
+# D6 source-review example ONLY. Do not pass this file to wrangler deploy.
+# No active production Wrangler configuration has been installed.
+# This file intentionally creates no reachable Worker route even if copied.
+name = "fishing-d6-review-only"
+main = "./src/d6-production-disabled-worker.mjs"
+compatibility_date = "2026-11-10"
+workers_dev = false
+routes = []
+
+[vars]
+D6_WORKER_ENTRY_ENABLED = "false"
+D6_PRODUCTION_ENABLED = "false"
+D6_GATEWAY_ENABLED = "false"
+D6_STATIC_ENABLED = "false"
+D6_SESSION_ENABLED = "false"
+D6_OAUTH_ENABLED = "false"
+D6_SOURCE_ENABLED = "false"
+D6_READ_TOKEN_ENABLED = "false"
+D6_SIGNER_ENABLED = "false"
+D6_HOSTED_PREFLIGHT_ENABLED = "false"
+D6_ORIGIN = "https://fishing.ginosega.workers.dev"
+D6_OWNER_GITHUB_ID = "265665562"
+D6_REPOSITORY_ID = "1350909744"
+# No D1 bindings or secrets. Production auth/DB/GitHub App installation,
+# real public origin, route activation, and writer require separate approval.
