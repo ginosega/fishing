@@ -10,6 +10,8 @@ import {createD6ProductionReadWithSigner}
  from './d6-production-read-with-signer.mjs';
 import {createD6ProductionOAuthSessionIssuer,D6_OAUTH_ORIGIN}
  from './d6-production-oauth-session-issuer.mjs';
+import {createD6ProductionOwnerSignout,D6_OWNER_SIGNOUT_PATH}
+ from './d6-production-owner-signout.mjs';
 
 const response=(status,error)=>new Response(JSON.stringify({ok:false,error}),{
  status,headers:{
@@ -24,10 +26,10 @@ export function createD6ProductionOAuthReadComposition({
  oauthClientId,oauthClientSecret,AUTH_DB,csrfKey,cryptoApi,now,
  gatewayEnabled=false,staticEnabled=false,sessionEnabled=false,
  sourceEnabled=false,tokenEnabled=false,signerEnabled=false,
- oauthEnabled=false,preflightEnabled=false,
+ oauthEnabled=false,signoutEnabled=false,preflightEnabled=false,
 }={}){
  const flags=[gatewayEnabled,staticEnabled,sessionEnabled,sourceEnabled,
-  tokenEnabled,signerEnabled,oauthEnabled,preflightEnabled];
+  tokenEnabled,signerEnabled,oauthEnabled,signoutEnabled,preflightEnabled];
  if(flags.some(flag=>typeof flag!=='boolean')||
     (now!==undefined&&typeof now!=='function'))
   throw Error('Invalid D6 production OAuth-read configuration');
@@ -45,10 +47,20 @@ export function createD6ProductionOAuthReadComposition({
   enabled:()=>gatewayEnabled===true&&sessionEnabled===true&&
    oauthEnabled===true,
  });
+ const signout=createD6ProductionOwnerSignout({
+  AUTH_DB,cryptoApi,
+  enabled:()=>gatewayEnabled===true&&sessionEnabled===true&&
+   signoutEnabled===true,
+ });
  async function fetchRequest(request){
   if(!(request instanceof Request))return reader.fetch(request);
   let url;
   try{url=new URL(request.url);}catch{return response(404,'NOT_FOUND');}
+  // Sign-out remains absent from public routes when the independent
+  // source-only capability is OFF; the accepted D5 UI is not wired yet.
+  if(url.pathname===D6_OWNER_SIGNOUT_PATH&&signoutEnabled===true){
+   return signout.signOut(request);
+  }
   if(url.pathname==='/auth/start'||url.pathname==='/auth/callback'){
    if(url.origin!==D6_OAUTH_ORIGIN||url.username||url.password)
     return response(404,'NOT_FOUND');
