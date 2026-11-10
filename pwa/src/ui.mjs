@@ -8,6 +8,8 @@ import {bindMarkdownPictureViewer} from './markdown-viewer.mjs';
 import {createOffline} from './offline.mjs';
 import {effectiveConnectionOnline} from './connection-indicator.mjs';
 import {v3OfflineLibraryActionLabel} from './v3-offline-library-action.mjs';
+import {createD6OwnerConnectionAdapter} from './d6-owner-connection-adapter.mjs';
+import {mountV3ConnectionExperience} from './v3-connection-experience.mjs';
 
 const KAYAK_ICON=`<svg viewBox="0 0 64 64" role="img" aria-label="Kayak">
   <defs><linearGradient id="kayakHull" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a2def7"/><stop offset="1" stop-color="#76c8ef"/></linearGradient></defs>
@@ -32,6 +34,7 @@ const rootRoute=domain=>domain==='gear'?'#/inventory':domain==='kb'?'#/kb':'#/ca
 const recordTitle=(ctx,domain,record)=>domain==='catches'?`${ctx.maps.kb.get(record.speciesId)?.name||'Catch'} · ${record.date}`:record.name;
 export function createApp(ctx){
  const readerOnly=ctx.v3?.enabled===true&&ctx.v3?.readerOnly===true;
+ const approvedConnection=readerOnly&&ctx.v3?.ownerConnectionCandidate===true;
  const root=document.getElementById('app'),alertHost=document.getElementById('app-notice'),offlineHost=document.getElementById('offline-status');
  const routes=markdownRouteMap(ctx.data),exists=new Set(ctx.manifest.files.filter(x=>x.path.startsWith(`releases/${ctx.release.id}/content/`)).map(x=>x.path.slice(`releases/${ctx.release.id}/content/`.length)));
  let currentHash=location.hash||'#/',route=parseRoute(currentHash),editor=null,serial=0,offline=null,approvedNavigation=null,previousHash=null;
@@ -143,6 +146,15 @@ export function createApp(ctx){
  const connectionDialog=document.getElementById('connection-dialog');
  let automaticModeButton=null,workOfflineButton=null,readingModeStatus=null;
  let ownerSessionStatus=null,ownerProbeSerial=0;
+ let approvedController=null,approvedPresenter=null;
+ const paintApproved=()=>{
+  approvedPresenter?.paint();
+  // The unchanged D5 view emits the old sandbox-era return query.
+  // D6 OAuth accepts only the fixed /auth/start route; correct the DOM link
+  // after every render without altering its approved text/layout or issuer.
+  const link=connectionDialog.querySelector('.v3-account-body a[href]');
+  if(link)link.setAttribute('href','/auth/start');
+ };
  if(readerOnly){
   connectionDialog.classList.add('d6-reader-connection');
   const section=el('section',{class:'d6-reading-mode'},
@@ -168,6 +180,46 @@ export function createApp(ctx){
   document.getElementById('offline-update').textContent=
    v3OfflineLibraryActionLabel(offline.getStatus());
  }
+ if(approvedConnection){
+  // Exact approved D5 composition, scoped to the source-only D6 build.
+  // Stage A, public V2 and unflagged D6 continue to use their old views.
+  connectionDialog.querySelector('.d6-owner-readiness')?.remove();
+  ownerSessionStatus=null;
+  const panel=connectionDialog.querySelector('.offline-panel');
+  const offlineStatus=document.getElementById('offline-status');
+  const actions=document.getElementById('offline-update').parentElement;
+  const network=document.getElementById('connection-network');
+  network.className='v3-network-value';
+  const networkSection=el('section',{
+   class:'v3-connection-section v3-network-section',
+  },text('h2','Connection status'),el('div',{class:'v3-network-row'},
+   network,el('span',{class:'v3-network-dot','aria-hidden':'true'})));
+  const librarySection=el('section',{class:'v3-connection-section'},
+   text('h2','Offline Library'),offlineStatus,actions);
+  const modeSection=connectionDialog.querySelector('.d6-reading-mode');
+  modeSection.className='v3-connection-section offline-mode-select';
+  readingModeStatus.hidden=true;
+  actions.classList.add('v3-offline-actions');
+  panel.replaceChildren(networkSection,modeSection,librarySection);
+  panel.classList.add('v3-connection-layout');
+  connectionDialog.classList.add('v3-connection-dialog');
+  connectionDialog.querySelector('#connection-title')?.remove();
+  connectionDialog.removeAttribute('aria-labelledby');
+  connectionDialog.setAttribute('aria-label','Fishing Companion settings');
+  approvedController=createD6OwnerConnectionAdapter({
+   root:ctx.root,ownerReadiness:ctx.v3?.ownerReadiness,
+   request:(url,options)=>fetch(url,options),
+   enabled:()=>true,online:()=>navigator.onLine===true,
+   readingMode:()=>offline.getModeAvailable()===true?
+    offline.getMode():'Checking',
+   onChange:()=>paintApproved(),
+  });
+  approvedPresenter=mountV3ConnectionExperience({
+   dialog:connectionDialog,controller:approvedController,
+   documentObject:document,
+  });
+  paintApproved();
+ }
  function updateConnection(){
   const mode=readerOnly?
    (offline.getModeAvailable()===true?offline.getMode():'Checking'):null;
@@ -179,6 +231,7 @@ export function createApp(ctx){
    ownerSessionStatus.textContent='Owner session unavailable while offline. Editing and publishing are disabled.';
   }
   connection.dataset.online=String(confirmed);
+  if(approvedConnection)connectionDialog.dataset.networkOnline=String(confirmed);
   if(readerOnly){
    // Do not report Online until the service worker verifies Automatic mode.
    connection.title='Connection status: '+(confirmed?'Online':'Offline');
@@ -247,22 +300,32 @@ export function createApp(ctx){
   const mode=offline.getMode();
   readingModeStatus.textContent=feedback.message||
    (available?'Reading mode: '+mode:'Reading controls unavailable.');
+  if(approvedConnection)readingModeStatus.hidden=available&&!feedback.message;
   for(const [control,value] of [
    [automaticModeButton,'Automatic'],[workOfflineButton,'Work Offline']]){
    control.disabled=!available||feedback.busy===true;
    control.setAttribute('aria-pressed',String(available&&mode===value));
   }
   updateConnection();
+  if(approvedConnection&&connectionDialog.open===true)
+   void approvedController?.restore();
  }
  connection.addEventListener('click',()=>{
   connectionDialog.showModal();
+  if(approvedConnection)approvedPresenter?.onDialogOpen();
   if(readerOnly)void offline.refreshMode().then(
-   ()=>refreshOwnerReadiness(),()=>refreshOwnerReadiness());
+   ()=>approvedConnection?approvedController.restore():refreshOwnerReadiness(),
+   ()=>approvedConnection?approvedController.restore():refreshOwnerReadiness());
  });
  document.getElementById('connection-close')
   .addEventListener('click',()=>connectionDialog.close());
- window.addEventListener('online',updateConnection);
- window.addEventListener('offline',updateConnection);
+ const connectionNetworkChanged=()=>{
+  updateConnection();
+  if(approvedConnection&&connectionDialog.open===true)
+   void approvedController?.restore();
+ };
+ window.addEventListener('online',connectionNetworkChanged);
+ window.addEventListener('offline',connectionNetworkChanged);
  updateConnection();
  document.getElementById('offline-update')
   .addEventListener('click',()=>offline.update());
