@@ -142,5 +142,5 @@ test('D6-REVIEW09 schema and source narrative guard fail closed',async()=>{
  await error(review().review(incoming(p),sample()),
   'CANDIDATE_VALIDATION_FAILED');
  const s=sample();s.markdown.delete('KB/Techniques/content/Existing guide.md');
- await error(review().review(incoming(add()),s),'INVALID_SOURCE');
+ await error(review().review(incoming(add()),s),'MISSING_SOURCE_NARRATIVE');
 });
