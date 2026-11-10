@@ -146,12 +146,22 @@ jobs:
           npm test
           npm run build -- --pending-media --source-revision="$GITHUB_SHA"
           npm run verify
-      # Ubuntu apt dependency installation exceeded 10 minutes in PR #399;
-      # allow a bounded longer install without skipping browser acceptance.
+      # GitHub ubuntu-24.04 mirror fallback to azure.archive.ubuntu.com
+      # intermittently hangs apt update (observed in #405 run 42760445895).
+      # Preserve all Playwright dependencies and both browser test suites.
       - name: Install Chromium and WebKit
         timeout-minutes: 20
         working-directory: pwa
-        run: npx playwright install --with-deps chromium webkit
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -f /etc/apt/apt-mirrors.txt ]] &&
+             grep -Fq 'azure.archive.ubuntu.com' /etc/apt/apt-mirrors.txt; then
+            echo 'Selecting the official Ubuntu HTTPS archive for apt dependencies'
+            printf 'https://archive.ubuntu.com/ubuntu/\n' |
+              sudo tee /etc/apt/apt-mirrors.txt >/dev/null
+          fi
+          npx playwright install --with-deps chromium webkit
       - name: Preserve preview scope regression coverage
         timeout-minutes: 12
         working-directory: pwa
