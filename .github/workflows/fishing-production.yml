@@ -206,6 +206,29 @@ jobs:
           node --input-type=module -e 'import fs from "node:fs";const p=JSON.parse(fs.readFileSync("dist-d6-owner-connection/release.json"));const m=JSON.parse(fs.readFileSync("dist-d6-owner-connection/"+p.manifest));if(!p.d6ReaderCandidate||!m.d6ReaderCandidate||!p.d6OwnerConnectionCandidate||!m.d6OwnerConnectionCandidate||p.d6StaticStaging||m.d6StaticStaging||m.base!=="/fishing/"||p.sourceRevision!==process.env.GITHUB_SHA)process.exit(1);'
           FISHING_D6_OWNER_CONNECTION_DIST=dist-d6-owner-connection npx playwright test test/d6-owner-connection-candidate.spec.mjs
           mv .test-output .d6-owner-ui-test-output
+      - name: Assert read-only real-record candidate retains current canonical main content
+        timeout-minutes: 2
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Reject a stale/sandbox catalog even if its preview still renders.
+          git rev-parse --verify refs/remotes/origin/main
+          git diff --exit-code refs/remotes/origin/main HEAD -- pwa/Gear/ pwa/KB/ pwa/Catches/
+      - name: Package and verify actual real-record owner UI for isolated staging (no deploy)
+        timeout-minutes: 7
+        working-directory: pwa
+        run: |
+          node tools/package-d6-static-pages.mjs --in=dist-d6-owner-connection --out=dist-d6-owner-pages-upload --mode=owner-read-only
+          node tools/verify.mjs --out=dist-d6-owner-pages-upload/fishing
+          cmp dist-d6-owner-connection/release.json dist-d6-owner-pages-upload/fishing/release.json
+          test -f dist-d6-owner-pages-upload/fishing/index.html
+          test ! -f dist-d6-owner-pages-upload/index.html
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: github.event_name == 'pull_request'
+        with:
+          name: d6-final-owner-real-records-source-only
+          path: pwa/dist-d6-owner-pages-upload/
+          retention-days: 14
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: github.event_name == 'pull_request'
         with:
