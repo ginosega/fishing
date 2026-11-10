@@ -58,6 +58,7 @@ export function createD6ProductionRuntimeBindingContract({
  const tokenEnabled=flag('D6_READ_TOKEN_ENABLED');
  const signerEnabled=flag('D6_SIGNER_ENABLED');
  const oauthEnabled=flag('D6_OAUTH_ENABLED');
+ const signoutEnabled=flag('D6_SIGNOUT_ENABLED');
  const preflightEnabled=flag('D6_HOSTED_PREFLIGHT_ENABLED');
  const readTarget=API+'/repos/ginosega/fishing/installation';
  const installation=num(env.D6_GITHUB_INSTALLATION_ID)?
@@ -117,7 +118,7 @@ export function createD6ProductionRuntimeBindingContract({
   cryptoApi,now,
   gatewayEnabled,staticEnabled,sessionEnabled,
   sourceEnabled,tokenEnabled,signerEnabled,
-  oauthEnabled,preflightEnabled,
+  oauthEnabled,signoutEnabled,preflightEnabled,
  });
  return Object.freeze({fetch:composed.fetch,
   // Operator-only preflight is NOT an HTTP route; caller must not publish it.
