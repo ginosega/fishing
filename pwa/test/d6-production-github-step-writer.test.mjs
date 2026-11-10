@@ -71,7 +71,9 @@ function setup({db=memoryD1(),enabled=true,actor=op(),
   verifyPrerequisite:async ctx=>{
    state.requirements.push(ctx);
    if(revokeAt==='prereq')state.enabled=false;
-   return prerequisite?{repositoryId:REPO,operationId:ctx.operationId,
+   const verified=prerequisite!==false&&
+    !(prerequisite==='first-only'&&state.requirements.length>1);
+   return verified?{repositoryId:REPO,operationId:ctx.operationId,
     step:ctx.step,requestSha256:ctx.requestSha256,verified:true}:
     {verified:false};
   },
@@ -158,6 +160,7 @@ test('D6-GSTEP04 trees restrict file paths and require Gear JSON update',async()
  for(const entries of [
   [{path:'KB/kb.json',mode:'100644',type:'blob',sha:BLOB}],
   [{path:'Gear/gear.json',mode:'100644',type:'blob',sha:'bad'}],
+  [{path:'Gear/gear.json',mode:'100644',type:'blob',sha:null}],
   [{path:'Gear/gear.json',mode:'100755',type:'blob',sha:BLOB}],
   [{path:'Gear/gear.json',mode:'100644',type:'tree',sha:BLOB}],
   [plans.tree.entries[0],plans.tree.entries[0]],
@@ -344,5 +347,18 @@ test('D6-GSTEP18 invalid ID and step never call DB or network',async()=>{
  await denied(x.writer.attempt('bad','branch'),'INVALID_OPERATION');
  await denied(x.writer.attempt(ID,'merge'),'INVALID_STEP');
  assert.equal(x.db.stats.writes,0);
+ assert.equal(x.state.network.length,0);
+});
+
+
+test('D6-GSTEP19 main/precondition change after token mint never writes',async()=>{
+ const x=setup({prerequisite:'first-only'});
+ await denied(x.writer.attempt(ID,'pr'),'PRECONDITION_UNVERIFIED');
+ assert.equal(x.db.rows.length,1);
+ assert.equal(x.db.rows[0].state,'Unknown');
+ assert.equal(x.state.auth.length,1);
+ assert.equal(x.state.network.length,0);
+ const same=await x.writer.attempt(ID,'pr');
+ assert.equal(same.state,'Unknown');
  assert.equal(x.state.network.length,0);
 });
