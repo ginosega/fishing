@@ -206,6 +206,21 @@ jobs:
           node --input-type=module -e 'import fs from "node:fs";const p=JSON.parse(fs.readFileSync("dist-d6-owner-connection/release.json"));const m=JSON.parse(fs.readFileSync("dist-d6-owner-connection/"+p.manifest));if(!p.d6ReaderCandidate||!m.d6ReaderCandidate||!p.d6OwnerConnectionCandidate||!m.d6OwnerConnectionCandidate||p.d6StaticStaging||m.d6StaticStaging||m.base!=="/fishing/"||p.sourceRevision!==process.env.GITHUB_SHA)process.exit(1);'
           FISHING_D6_OWNER_CONNECTION_DIST=dist-d6-owner-connection npx playwright test test/d6-owner-connection-candidate.spec.mjs
           mv .test-output .d6-owner-ui-test-output
+      - name: Build and browser-test WP1 owner editor preview on actual records (no deploy)
+        timeout-minutes: 15
+        working-directory: pwa
+        run: |
+          npm run build -- --d6-reader-candidate --d6-owner-connection-candidate --d6-owner-editor-preview --base=/fishing/ --out=dist-d6-wp1-owner-editor --source-revision="$GITHUB_SHA"
+          node tools/verify.mjs --out=dist-d6-wp1-owner-editor
+          node --input-type=module -e 'import fs from "node:fs";const p=JSON.parse(fs.readFileSync("dist-d6-wp1-owner-editor/release.json"));const m=JSON.parse(fs.readFileSync("dist-d6-wp1-owner-editor/"+p.manifest));if(!p.d6ReaderCandidate||!m.d6ReaderCandidate||!p.d6OwnerConnectionCandidate||!m.d6OwnerConnectionCandidate||!p.d6OwnerEditorPreview||!m.d6OwnerEditorPreview||p.d6StaticStaging||m.d6StaticStaging||p.sourceRevision!==process.env.GITHUB_SHA||m.base!=="/fishing/")process.exit(1);'
+          FISHING_D6_OWNER_EDITOR_DIST=dist-d6-wp1-owner-editor npx playwright test test/d6-owner-editor-preview.spec.mjs
+          mv .test-output .wp1-owner-editor-test-output
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: github.event_name == 'pull_request'
+        with:
+          name: d6-wp1-owner-editor-preview-source-only
+          path: pwa/dist-d6-wp1-owner-editor/
+          retention-days: 14
       - name: Assert read-only real-record candidate retains current canonical main content
         timeout-minutes: 2
         shell: bash
@@ -255,6 +270,7 @@ jobs:
             pwa/.test-output/
             pwa/.preview-test-output/
             pwa/.d6-owner-ui-test-output/
+            pwa/.wp1-owner-editor-test-output/
           include-hidden-files: true
           retention-days: 90
 
