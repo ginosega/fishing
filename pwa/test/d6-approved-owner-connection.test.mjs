@@ -212,7 +212,8 @@ test('D6-OWNUI13 mounting requires explicit isolated production-path build',()=>
  assert.match(b,/!d6ReaderCandidate\|\|d6StaticStaging/);
  assert.match(b,/__FISHING_D6_OWNER_CONNECTION__/);
  assert.match(e,/d6OwnerConnectionCandidate/);
- assert.match(e,/if\(d6StaticStaging\)return/);
+ assert.match(e,/if\(d6StaticStaging\)\{/);
+ assert.match(e,/if\(d6EditorPreview\)throw Error\('D6 editor preview cannot use static staging'\)/);
  assert.match(u,/approvedConnection=readerOnly&&ctx\.v3\?\.ownerConnectionCandidate===true/);
  assert.match(u,/mountV3ConnectionExperience/);
  assert.match(u,/createD6OwnerConnectionAdapter/);
