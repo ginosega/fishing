@@ -1,6 +1,8 @@
 import {el,text,button,link,field,input,select,empty,status,picture,section,toolbar,table} from './dom.mjs';
 import {DOMAIN,GEAR_CATEGORIES,KB_TYPES,ROD_TYPES,sortGear,sortNames,sortCatches,catchHistory,parseRoute,routeFor,encodedPath} from './shared.mjs';
-import {TAXONOMY} from './validation.mjs';
+import {TAXONOMY,validateRecords} from './validation.mjs';
+import {createD6OwnerEditorPreviewGate} from './d6-owner-editor-preview-gate.mjs';
+import {createD6ApprovedEditorPreview,createD6ApprovedCatchPreview} from './d6-approved-owner-editor-preview.mjs';
 import {parseMarkdown,sanitizeHtml,markdownRouteMap} from './markdown.mjs';
 import {createEditor} from './editor.mjs';
 import {openViewer,openSequenceViewer} from './viewer.mjs';
@@ -35,9 +37,32 @@ const recordTitle=(ctx,domain,record)=>domain==='catches'?`${ctx.maps.kb.get(rec
 export function createApp(ctx){
  const readerOnly=ctx.v3?.enabled===true&&ctx.v3?.readerOnly===true;
  const approvedConnection=readerOnly&&ctx.v3?.ownerConnectionCandidate===true;
+ const ownerEditorPreview=approvedConnection&&ctx.v3?.ownerEditorPreview===true;
  const root=document.getElementById('app'),alertHost=document.getElementById('app-notice'),offlineHost=document.getElementById('offline-status');
  const routes=markdownRouteMap(ctx.data),exists=new Set(ctx.manifest.files.filter(x=>x.path.startsWith(`releases/${ctx.release.id}/content/`)).map(x=>x.path.slice(`releases/${ctx.release.id}/content/`.length)));
  let currentHash=location.hash||'#/',route=parseRoute(currentHash),editor=null,serial=0,offline=null,approvedNavigation=null,previousHash=null;
+ const ownerEditorGate=ownerEditorPreview?createD6OwnerEditorPreviewGate({
+  root:ctx.root,releaseRevision:ctx.release.sourceRevision,
+  ownerReadiness:ctx.v3.ownerReadiness,canonicalSource:ctx.v3.canonicalSource,
+  enabled:()=>true,online:()=>navigator.onLine===true,
+  readingMode:()=>offline?.getModeAvailable?.()===true?offline.getMode():'Checking',
+ }):null;
+ const ownerEditingAvailable=()=>ownerEditorPreview&&
+  approvedController?.current()?.authorized===true&&
+  effectiveConnectionOnline({online:navigator.onLine,
+   readingMode:offline?.getModeAvailable?.()===true?offline.getMode():'Checking'});
+ const showEditingLinks=()=>!readerOnly||ownerEditingAvailable();
+ async function verifiedPreviewContext(){
+  if(!ownerEditorGate)throw Error('Owner editor preview is unavailable.');
+  const result=await ownerEditorGate.open();
+  const source=result.source;
+  return {...ctx,data:source.data,maps:validateRecords(source.data),
+   v3:{...ctx.v3,source,ownerAuthoringPreview:true,drafts:null,
+    // Enable accepted D5 local original-image and Notes insertion controls,
+    // but NEVER expose a media staging network service in WP1.
+    stageMedia:async()=>{throw Error('Media staging is unavailable in WP1 preview.');},
+   }};
+ }
  function notify(message,kind='info'){status(alertHost,message,kind);}
  function dirty(){return Boolean(editor?.isDirty());}
  function canLeave(){return !dirty()||confirm('Your changes have not been saved. Discard this edit and leave?');}
@@ -61,14 +86,14 @@ export function createApp(ctx){
  function renderRoot(domain){const gear=domain==='gear',rows=gear?GEAR_CATEGORIES:KB_TYPES,all=ctx.data[domain][DOMAIN[domain].array];const page=frame(gear?'My Gear':'Knowledge Base','#/',[],ROOT_SUBTITLES[domain]);
   const searchInput=input('',{type:'search',placeholder:'Search '+(gear?'My Gear':'Knowledge Base')});const searchResults=el('div',{class:'record-grid',hidden:true});const categories=el('div',{class:'nav-grid'},...rows.map(([key,label])=>{const meta=CATEGORY_PRESENTATION[domain][key];const item=card(label,meta.description||'',categoryRoute(domain,key),meta.icon);if(meta.svg)item.querySelector('.card-icon').innerHTML=meta.svg;return item;}));
   searchInput.addEventListener('input',()=>{const q=searchInput.value.trim().toLocaleLowerCase();searchResults.hidden=!q;categories.hidden=Boolean(q);if(!q){searchResults.replaceChildren();return;}const matches=all.filter(r=>[r.name,r.type,r.description,r.manufacturer,r.model].filter(Boolean).join(' ').toLocaleLowerCase().includes(q));searchResults.replaceChildren(...(matches.length?sortNames(matches).map(r=>recordCard(domain,r)):[empty('No matching entries.')]));});
-  searchInput.setAttribute('aria-label','Search '+(gear?'My Gear':'Knowledge Base'));page.querySelector('.page-actions').prepend(searchInput);page.append(categories,searchResults,...(readerOnly?[]:[anchor(gear?'Add Gear':'Add Entry',gear?'#/inventory/add/lures':'#/kb/add/technique','page-edit-link')]));return page;
+  searchInput.setAttribute('aria-label','Search '+(gear?'My Gear':'Knowledge Base'));page.querySelector('.page-actions').prepend(searchInput);page.append(categories,searchResults,...(showEditingLinks()?[anchor(gear?'Add Gear':'Add Entry',gear?'#/inventory/add/lures':'#/kb/add/technique','page-edit-link')]:[]));return page;
  }
  function renderList(domain,key){const gear=domain==='gear',rows=gear?GEAR_CATEGORIES:KB_TYPES;const definition=rows.find(x=>x[0]===key);if(!definition)return missing('Unknown category',rootRoute(domain));
   const records=ctx.data[domain][DOMAIN[domain].array].filter(r=>(gear?r.category:r.type)===key);
   const page=frame(definition[1],rootRoute(domain));
   if(!gear&&key==='equipment')page.append(text('p','Equipment, rig, and presentation reference','muted'));
   if(!gear&&key==='technique')page.append(text('p','Strategy, conditions, and species reference','muted'));
-  const list=listControls(domain,records,{title:definition[1],search:gear?key==='lures':key==='equipment',filter:gear,sort:gear?'gear':'name',pinnedId:gear?'':KB_PINNED_FIRST[key]||''});page.querySelector('.page-actions').prepend(...list.controls.children);page.append(list.element,...(readerOnly?[]:[anchor(gear?'Add Gear':'Add Entry',gear?`#/inventory/add/${key}`:`#/kb/add/${key}`,'page-edit-link')]));return page;
+  const list=listControls(domain,records,{title:definition[1],search:gear?key==='lures':key==='equipment',filter:gear,sort:gear?'gear':'name',pinnedId:gear?'':KB_PINNED_FIRST[key]||''});page.querySelector('.page-actions').prepend(...list.controls.children);page.append(list.element,...(showEditingLinks()?[anchor(gear?'Add Gear':'Add Entry',gear?`#/inventory/add/${key}`:`#/kb/add/${key}`,'page-edit-link')]:[]));return page;
  }
  function missing(message,parent='#/'){const page=frame('Not found',parent);page.append(empty(message),anchor('Return to the parent page',parent));return page;}
  function appendPicture(page,record,domain){const pic=record.picture;if(!pic)return;const src=ctx.asset(pic.src),caption=pic.caption||'';const activate=record.pictureSequence?.length?()=>openSequenceViewer(record.pictureSequence.map(ctx.asset),record.name,caption):()=>openViewer(src,record.name,caption);page.append(picture(src,pic.caption||record.name,caption,activate));}
@@ -90,7 +115,9 @@ export function createApp(ctx){
    const species=ctx.maps.kb.get(record.speciesId),location=ctx.maps.kb.get(record.locationId),lure=ctx.maps.gear.get(record.lureOrBaitId);
    if(species?.picture)appendPicture(page,{...species,name:species.name},'kb');
    page.append(table([['Date',record.date],...(record.time?[['Time',record.time]]:[]),...(record.size?[['Size',record.size]]:[]),...(species?[['Species',anchor(species.name,routeFor('kb',species.id))]]:[]),...(location?[['Location',anchor(location.name,routeFor('kb',location.id))]]:[]),...(lure?[['Lure or bait',anchor(lure.name,routeFor('gear',lure.id))]]:[])]));
-   await appendMarkdown(page,record.notes,'Notes');return page;
+   await appendMarkdown(page,record.notes,'Notes');
+   if(ownerEditingAvailable())page.append(anchor('Edit item',`#/catches/edit/${record.id}`,'page-edit-link'));
+   return page;
   }
   appendPicture(page,record,domain);
   if(domain==='gear'){
@@ -101,15 +128,39 @@ export function createApp(ctx){
   }else{
    await appendMarkdown(page,record.content,'Notes');
   }
-  const history=historySection(domain,record);if(history)page.append(history);if(!readerOnly)page.append(anchor('Edit item',domain==='gear'?`#/inventory/edit/${record.id}`:`#/kb/edit/${record.id}`,'page-edit-link'));return page;
+  const history=historySection(domain,record);if(history)page.append(history);if(showEditingLinks())page.append(anchor('Edit item',domain==='gear'?`#/inventory/edit/${record.id}`:`#/kb/edit/${record.id}`,'page-edit-link'));return page;
  }
- function renderCatches(){const page=frame('Recorded catches','#/');page.append(el('div',{class:'record-grid'},...sortCatches(ctx.data.catches.catches).map(c=>recordCard('catches',c))));return page;}
- async function renderEditor(domain,id,category,type){if(readerOnly)return missing('V3 reader preview is read-only. Sign-in and publishing are disabled.');const record=id?ctx.maps[domain].get(id):null;if(id&&!record)return missing('This item does not exist or its ID has been retired.',rootRoute(domain));const fallback=categoryRoute(domain,domain==='gear'?category:type);const origin=previousHash===rootRoute(domain)||previousHash===fallback?previousHash:fallback;const parent=record?routeFor(domain,record.id):fallback;const exitTarget=record?parent:origin;
-  const page=frame(record?'Edit '+record.name:domain==='gear'?'Add Gear':'Add Entry',parent,record?[button('Create Link',()=>copyLink(domain,record.id))]:[]);const created=await createEditor(ctx,{domain,baseRecord:record,category,type,onBack:()=>navigate(parent),onExit:()=>{disposeEditor();navigate(exitTarget);},onDirty:()=>{}});editor=created;page.append(created.element);return page;
+ function renderCatches(){const page=frame('Recorded catches','#/');
+  if(ownerEditingAvailable())page.append(el('div',{class:'catch-add-row'},anchor('Add Catch','#/catches/add','page-edit-link')));
+  page.append(el('div',{class:'record-grid'},...sortCatches(ctx.data.catches.catches).map(c=>recordCard('catches',c))));return page;}
+ async function renderEditor(domain,id,category,type){
+  if(readerOnly&&!ownerEditorPreview)return missing('V3 reader preview is read-only. Sign-in and publishing are disabled.');
+  const approvedCtx=ownerEditorPreview?await verifiedPreviewContext():ctx;
+  const record=id?approvedCtx.maps[domain].get(id):null;if(id&&!record)return missing('This item does not exist or its ID has been retired.',rootRoute(domain));const fallback=categoryRoute(domain,domain==='gear'?category:type);const origin=previousHash===rootRoute(domain)||previousHash===fallback?previousHash:fallback;const parent=record?routeFor(domain,record.id):fallback;const exitTarget=record?parent:origin;
+  const page=frame(record?'Edit '+record.name:domain==='gear'?'Add Gear':'Add Entry',parent,record?[button('Create Link',()=>copyLink(domain,record.id))]:[]);
+  const create=ownerEditorPreview?createD6ApprovedEditorPreview:createEditor;
+  const created=await create(approvedCtx,{domain,baseRecord:record,category,type,onBack:()=>navigate(parent),onExit:()=>{disposeEditor();navigate(exitTarget);},onDirty:()=>{}});
+  editor=created;page.append(created.element);return page;
+ }
+ async function renderCatchPreview(id=null){
+  if(!ownerEditorPreview)return missing('Catch editing is unavailable in this read-only release.','#/catches');
+  const approvedCtx=await verifiedPreviewContext();
+  const record=id?approvedCtx.maps.catches.get(id):null;
+  if(id&&!record)return missing('This Catch does not exist.','#/catches');
+  const parent=record?routeFor('catches',record.id):'#/catches';
+  const page=frame(record?'Edit Catch':'Add Catch',parent);
+  const created=await createD6ApprovedCatchPreview(approvedCtx,{
+   baseRecord:record,onBack:()=>navigate(parent),
+   onExit:()=>{disposeEditor();navigate('#/catches');},
+   onDirty:()=>{},
+  });
+  editor=created;page.append(created.element);return page;
  }
  async function render(){const ticket=++serial;if(offline&&!(await offline.checkCurrent()))return;if(ticket!==serial)return;disposeEditor();route=parseRoute(currentHash);root.replaceChildren(el('div',{class:'loading'},'Loading…'));
   try{let page;
-   switch(route.page){case 'home':page=renderHome();break;case 'gear-root':page=renderRoot('gear');break;case 'kb-root':page=renderRoot('kb');break;case 'gear-list':page=renderList('gear',route.category);break;case 'kb-list':page=renderList('kb',route.type);break;case 'gear-detail':page=await renderDetail('gear',route.id);break;case 'kb-detail':page=await renderDetail('kb',route.id);break;case 'catch-list':page=renderCatches();break;case 'catch-detail':page=await renderDetail('catches',route.id);break;case 'gear-edit':page=await renderEditor('gear',route.id);break;case 'kb-edit':page=await renderEditor('kb',route.id);break;case 'gear-add':page=await renderEditor('gear',null,route.category);break;case 'kb-add':page=await renderEditor('kb',null,null,route.type);break;default:page=missing('The requested page is not available.');}
+   switch(route.page){case 'home':page=renderHome();break;case 'gear-root':page=renderRoot('gear');break;case 'kb-root':page=renderRoot('kb');break;case 'gear-list':page=renderList('gear',route.category);break;case 'kb-list':page=renderList('kb',route.type);break;case 'gear-detail':page=await renderDetail('gear',route.id);break;case 'kb-detail':page=await renderDetail('kb',route.id);break;case 'catch-list':page=renderCatches();break;case 'catch-detail':page=await renderDetail('catches',route.id);break;
+    case 'catch-add':page=await renderCatchPreview();break;
+    case 'catch-edit':page=await renderCatchPreview(route.id);break;case 'gear-edit':page=await renderEditor('gear',route.id);break;case 'kb-edit':page=await renderEditor('kb',route.id);break;case 'gear-add':page=await renderEditor('gear',null,route.category);break;case 'kb-add':page=await renderEditor('kb',null,null,route.type);break;default:page=missing('The requested page is not available.');}
    if(ticket!==serial){if(editor&&ticket!==serial)disposeEditor();return;}root.replaceChildren(page);document.title=(page.querySelector('h1')?.textContent||'Fishing Companion')+' · Fishing Companion';
    if(route.section){requestAnimationFrame(()=>{const heading=[...page.querySelectorAll('[id]')].find(e=>e.id===route.section);heading?.scrollIntoView({block:'start'});});}
   }catch(error){if(ticket===serial){const page=missing('Unable to display this page: '+error.message);page.append(button('Retry',()=>render(),{variant:'primary'}));root.replaceChildren(page);}console.error(error);}
@@ -146,7 +197,7 @@ export function createApp(ctx){
  const connectionDialog=document.getElementById('connection-dialog');
  let automaticModeButton=null,workOfflineButton=null,readingModeStatus=null;
  let ownerSessionStatus=null,ownerProbeSerial=0;
- let approvedController=null,approvedPresenter=null;
+ let approvedController=null,approvedPresenter=null,lastPreviewOwner=false;
  // The accepted D5 presenter has its own asynchronous command repaint after
  // sign-out, separate from the D6 adapter's onChange repaint. Keep its
  // historical return-query out of the D6-only production OAuth link after
@@ -159,6 +210,14 @@ export function createApp(ctx){
  const paintApproved=()=>{
   approvedPresenter?.paint();
   normalizeApprovedSignIn();
+  // Signed-in state changes refresh only reader navigation, never a dirty
+  // local editor. Every actual editor route still performs fresh source proof.
+  const authorized=ownerEditingAvailable();
+  if(ownerEditorPreview&&authorized!==lastPreviewOwner){
+   lastPreviewOwner=authorized;
+   if(!dirty()&&!['gear-edit','gear-add','kb-edit','kb-add','catch-edit','catch-add'].includes(route.page))
+    void render();
+  }
  };
  if(readerOnly){
   connectionDialog.classList.add('d6-reader-connection');

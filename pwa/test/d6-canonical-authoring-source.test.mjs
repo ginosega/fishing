@@ -160,6 +160,8 @@ test('D6-SRC08 bootstrap and owner status are read-only, not publication integra
  assert.match(ui,/source\?\.sourceOnly===true/);
  assert.match(ui,/source\?\.canPublish===false/);
  assert.match(ui,/Editing and publishing are disabled/);
- assert.match(ui,/if\(readerOnly\)return missing\('V3 reader preview is read-only/);
+ assert.match(ui,/if\(readerOnly&&!ownerEditorPreview\)return missing\('V3 reader preview is read-only/);
+ assert.match(ui,/await verifiedPreviewContext\(\)/);
+ assert.match(ui,/createD6OwnerEditorPreviewGate/);
  assert.doesNotMatch(entry,/createD3OwnerTestShell|createD3AuthoringClient|publishChange/);
 });

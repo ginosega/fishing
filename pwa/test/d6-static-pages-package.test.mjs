@@ -194,3 +194,26 @@ test('D6-PACK10 owner packaging rejects static, mixed, missing and unverified re
   mode:'owner-read-only'}),/verification failed/);
  await assert.rejects(fs.stat(x.out));
 });
+
+test('WP1-PACK11 owner editor preview is never an approved read-only Pages upload',async t=>{
+ const x=await fixture(t);
+ const {d6StaticStaging:ignoredPointer,...p}=x.pointer;
+ const {d6StaticStaging:ignoredManifest,...m}=x.manifest;
+ const pointer={...p,d6OwnerConnectionCandidate:true,
+  d6OwnerEditorPreview:true};
+ const manifest={...m,d6OwnerConnectionCandidate:true,
+  d6OwnerEditorPreview:true};
+ await fs.writeFile(path.join(x.src,'release.json'),JSON.stringify(pointer));
+ await fs.writeFile(path.join(x.src,pointer.manifest),JSON.stringify(manifest));
+ await assert.rejects(packageD6StaticPages({source:x.src,
+  destination:x.out,verifyRelease:x.verifyRelease,mode:'owner-read-only'}),
+  /unapproved staging release pointer/);
+ await assert.rejects(fs.stat(x.out));
+ // Marker only in the manifest is independently denied.
+ delete pointer.d6OwnerEditorPreview;
+ await fs.writeFile(path.join(x.src,'release.json'),JSON.stringify(pointer));
+ await assert.rejects(packageD6StaticPages({source:x.src,
+  destination:x.out,verifyRelease:x.verifyRelease,mode:'owner-read-only'}),
+  /unapproved staging manifest/);
+ await assert.rejects(fs.stat(x.out));
+});

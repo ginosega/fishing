@@ -61,7 +61,9 @@ test('D6-STAGE04 stage bootstrap bypasses all owner and canonical source probes'
  const entry=readFileSync(new URL('../src/entry.mjs',import.meta.url),'utf8');
  assert.match(entry,/__FISHING_D6_STATIC_STAGING__===true/);
  assert.match(entry,/staticStaging:d6StaticStaging/);
- const stop=entry.indexOf('if(d6StaticStaging)return {v3:{...reader}};');
+ const stop=entry.indexOf('if(d6StaticStaging){');
+ assert.match(entry,/if\(d6EditorPreview\)throw Error\('D6 editor preview cannot use static staging'\)/);
+ assert.match(entry,/return \{v3:\{\.\.\.reader\}\}/);
  const session=entry.indexOf('createD6OwnerSessionReadiness({');
  const source=entry.indexOf('createD6CanonicalSourceClient({');
  assert(stop>0&&session>stop&&source>stop);

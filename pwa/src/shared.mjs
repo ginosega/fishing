@@ -117,6 +117,10 @@ export function parseRoute(hash) {
     if(KB_TYPES.some(x=>x[0]===parts[1]))return parts[2]?detail('kb-detail',parts[2]):{page:'kb-list',type:parts[1]};
     if(parts.length===2)return detail('kb-detail',parts[1]);
   }
+  if(parts[0]==='catches'&&parts[1]==='add'&&parts.length===2)
+   return {page:'catch-add'};
+  if(parts[0]==='catches'&&parts[1]==='edit'&&parts.length===3)
+   return {page:'catch-edit',id:parts[2]};
   if((parts[0]==='catches'||parts[0]==='catch-log')&&parts.length<=2)return parts[1]?detail('catch-detail',parts[1]):{page:'catch-list'};
   return {page:'missing'};
 }
