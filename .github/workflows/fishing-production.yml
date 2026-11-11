@@ -131,6 +131,11 @@ jobs:
           node-version: '24'
           cache: npm
           cache-dependency-path: pwa/package-lock.json
+      # Browser container intentionally omits unzip; use Python's standard
+      # library to extract the SHA256-verified immutable v1 fixture.
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: '3.12'
       - name: Trust checked-out workspace in pinned Playwright container
         shell: bash
         run: |
@@ -144,7 +149,8 @@ jobs:
           git show 4aafcd2f88b35bb34b608e2f85dec1daffc6c1d1:recovery/v1-migration-source.zip > /tmp/v1-migration-source.zip
           echo '83100e9cf2788b2d33959b39a6bb63fdd0e78c5e512936a07e46b22632bf7dbf  /tmp/v1-migration-source.zip' | sha256sum --check
           mkdir /tmp/v1-root
-          unzip -q /tmp/v1-production.zip -d /tmp/v1-root
+          python -m zipfile -e /tmp/v1-production.zip /tmp/v1-root
+          test -n "$(find /tmp/v1-root -type f -print -quit)"
       - name: Install and audit locked dependencies
         timeout-minutes: 5
         working-directory: pwa
