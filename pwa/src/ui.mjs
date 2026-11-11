@@ -3,6 +3,7 @@ import {DOMAIN,GEAR_CATEGORIES,KB_TYPES,ROD_TYPES,sortGear,sortNames,sortCatches
 import {TAXONOMY,validateRecords} from './validation.mjs';
 import {createD6OwnerEditorPreviewGate} from './d6-owner-editor-preview-gate.mjs';
 import {createD6ApprovedEditorPreview,createD6ApprovedCatchPreview} from './d6-approved-owner-editor-preview.mjs';
+import {createD6OwnerDeviceDraftStore} from './d6-owner-device-drafts.mjs';
 import {parseMarkdown,sanitizeHtml,markdownRouteMap} from './markdown.mjs';
 import {createEditor} from './editor.mjs';
 import {openViewer,openSequenceViewer} from './viewer.mjs';
@@ -52,12 +53,20 @@ export function createApp(ctx){
   effectiveConnectionOnline({online:navigator.onLine,
    readingMode:offline?.getModeAvailable?.()===true?offline.getMode():'Checking'});
  const showEditingLinks=()=>!readerOnly||ownerEditingAvailable();
+ let ownerDeviceDrafts=null;
  async function verifiedPreviewContext(){
   if(!ownerEditorGate)throw Error('Owner editor preview is unavailable.');
   const result=await ownerEditorGate.open();
   const source=result.source;
+  // The store is constructed ONLY following fresh signed-in owner and
+  // pinned canonical-main source verification. It keeps text locally and
+  // never authorizes a publishing or media network request.
+  if(!ownerDeviceDrafts)ownerDeviceDrafts=createD6OwnerDeviceDraftStore({
+   enabled:true,root:ctx.root,
+  });
   return {...ctx,data:source.data,maps:validateRecords(source.data),
-   v3:{...ctx.v3,source,ownerAuthoringPreview:true,drafts:null,
+   v3:{...ctx.v3,source,ownerAuthoringPreview:true,
+    drafts:ownerDeviceDrafts,
     // Enable accepted D5 local original-image and Notes insertion controls,
     // but NEVER expose a media staging network service in WP1.
     stageMedia:async()=>{throw Error('Media staging is unavailable in WP1 preview.');},

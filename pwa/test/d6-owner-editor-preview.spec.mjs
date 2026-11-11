@@ -224,3 +224,96 @@ test('WP1-EDITOR-B04 owner signout and Work Offline block new editor routes',asy
  expect(logs.writes).toEqual([]);
  expect(errors).toEqual([]);
 });
+
+test('WP1-EDITOR-B05 owner local text draft survives reload without publishing',async({page})=>{
+ session={authenticated:true,authorized:true,ownerLogin:'ginosega'};
+ const errors=await open(page);
+ await ownerReady(page);
+ const gear=real.gear.items.find(x=>x.name)||real.gear.items[0];
+ const route='#/inventory/edit/'+gear.id;
+ await page.evaluate(hash=>{location.hash=hash;},route);
+ const name=page.getByRole('textbox',{name:'Name',exact:true});
+ await expect(name).toHaveValue(gear.name,{timeout:25000});
+ const changedName=gear.name+' (unpublished WP1 draft)';
+ await name.fill(changedName);
+ await expect(page.locator('#app .editor-notice[aria-live="polite"]')).toContainText(
+  'Draft saved on this device. Nothing has been published.',{timeout:25000});
+ const dialogs=[];
+ page.on('dialog',async dlg=>{
+  dialogs.push({type:dlg.type(),message:dlg.message()});
+  await dlg.accept();
+ });
+ await page.reload({waitUntil:'domcontentloaded'});
+ await expect(page.locator('#app .page-header h1')).toHaveText(
+  'Edit '+gear.name,{timeout:35000});
+ await expect(page.getByRole('textbox',{name:'Name',exact:true}))
+  .toHaveValue(changedName);
+ expect(dialogs.some(d=>d.type==='confirm'&&
+  d.message.includes('An unsent draft is saved on this device'))).toBe(true);
+ await expect(page.getByRole('button',{
+  name:'Save and Publish unavailable in WP1 preview',
+ })).toBeDisabled();
+ expect(logs.writes).toEqual([]);
+ expect(errors).toEqual([]);
+});
+
+for(const sample of [
+ {name:'desktop',width:1280,height:900},
+ {name:'mobile',width:390,height:844},
+]){
+ test('WP1-CARD-M01 Gear-card above-fold decode measurement '+sample.name,
+ async({page,browserName})=>{
+  await page.setViewportSize({width:sample.width,height:sample.height});
+  // Fixed network budget for Chromium; WebKit has no CDP throttling,
+  // so its values are recorded separately, not compared as equivalents.
+  if(browserName==='chromium'){
+   const cdp=await page.context().newCDPSession(page);
+   await cdp.send('Network.enable');
+   await cdp.send('Network.emulateNetworkConditions',{
+    offline:false,latency:80,
+    downloadThroughput:1024*1024,uploadThroughput:1024*1024,
+   });
+  }
+  await page.goto(base+'#/inventory/category/lures',
+   {waitUntil:'domcontentloaded'});
+  await expect.poll(()=>page.locator(
+   '#app .record-grid img.card-thumbnail').count(),{timeout:30000}
+  ).toBeGreaterThan(0);
+  const actual=await page.evaluate(async()=>{
+   const all=[...document.querySelectorAll(
+    '#app .record-grid img.card-thumbnail')];
+   const above=all.filter(img=>{
+    const r=img.getBoundingClientRect();
+    return r.top<innerHeight&&r.bottom>0&&r.left<innerWidth&&r.right>0;
+   });
+   await Promise.all(above.map(img=>img.decode()));
+   await new Promise(resolve=>requestAnimationFrame(()=>
+    requestAnimationFrame(resolve)));
+   return {decodedMs:Math.round(performance.now()),
+    visible:above.length,allCards:all.length,
+    images:above.map(img=>({
+     url:img.currentSrc,loaded:img.complete&&img.naturalWidth>0,
+    }))};
+  });
+  expect(actual.visible).toBeGreaterThan(0);
+  expect(actual.images.every(x=>x.loaded)).toBe(true);
+  const fileSizes=new Map(manifest.files.map(f=>[f.path,f.bytes]));
+  let visibleBytes=0;
+  for(const img of actual.images){
+   const file=decodeURIComponent(new URL(img.url).pathname.slice(
+    prefix.length));
+   expect(file).toContain('/card-thumbnails/');
+   const n=fileSizes.get(file);
+   expect(n).toBeGreaterThan(0);
+   visibleBytes+=n;
+  }
+  console.log('WP1_CARD_BASELINE '+JSON.stringify({
+   engine:browserName,viewport:sample.name,
+   decodedMs:actual.decodedMs,aboveFoldImages:actual.visible,
+   cardCount:actual.allCards,visibleThumbnailBytes:visibleBytes,
+   networkProfile:browserName==='chromium'?
+    '80ms RTT, 1MiB/s download/upload':'local, unthrottled',
+  }));
+  expect(logs.writes).toEqual([]);
+ });
+}
