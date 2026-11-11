@@ -257,6 +257,42 @@ test('WP1-EDITOR-B05 owner local text draft survives reload without publishing',
  expect(errors).toEqual([]);
 });
 
+
+test('WP1-EDITOR-B06 disconnection retains unsent draft, denies fresh editor and no writes',async({page,context})=>{
+ session={authenticated:true,authorized:true,ownerLogin:'ginosega'};
+ const errors=await open(page);
+ await ownerReady(page);
+ const gear=real.gear.items[0],kb=real.kb.entities[0];
+ await page.evaluate(h=>location.hash=h,'#/inventory/edit/'+gear.id);
+ const name=page.getByRole('textbox',{name:'Name',exact:true});
+ await expect(name).toHaveValue(gear.name,{timeout:30000});
+ const changedName=gear.name+' (offline unsent WP1 draft)';
+ await name.fill(changedName);
+ await expect(page.locator('#app .editor-notice[aria-live="polite"]'))
+  .toContainText('Draft saved on this device. Nothing has been published.',
+   {timeout:25000});
+ const sourcesBefore=logs.sources;
+ await context.setOffline(true);
+ await expect(name).toHaveValue(changedName);
+ await expect(page.getByRole('button',{
+  name:'Save and Publish unavailable in WP1 preview',
+ })).toBeDisabled();
+ const dialogs=[];
+ page.on('dialog',async dialog=>{
+  dialogs.push(dialog.message());
+  await dialog.accept();
+ });
+ await page.evaluate(h=>location.hash=h,'#/kb/edit/'+kb.id);
+ await expect(page.locator('#app')).toContainText(
+  'Owner editor preview is unavailable',{timeout:25000});
+ expect(dialogs).toContain(
+  'Your changes have not been saved. Discard this edit and leave?');
+ expect(logs.sources).toBe(sourcesBefore);
+ expect(logs.writes).toEqual([]);
+ expect(errors).toEqual([]);
+ await context.setOffline(false);
+});
+
 for(const sample of [
  {name:'desktop',width:1280,height:900},
  {name:'mobile',width:390,height:844},
@@ -307,13 +343,25 @@ for(const sample of [
    expect(n).toBeGreaterThan(0);
    visibleBytes+=n;
   }
+  // WP1 approved quantitative CI regression gate. Two independent
+  // baseline runs showed 455-720ms on the same actual 42-card page.
+  // This is a deterministic developer test threshold, NOT an Android/Edge
+  // field p95 or a guarantee about real-world mobile data connections.
+  const maxDecodedMs=2000;
+  const maxVisibleThumbnailBytes=sample.name==='desktop'?
+   96*1024:64*1024;
   console.log('WP1_CARD_BASELINE '+JSON.stringify({
    engine:browserName,viewport:sample.name,
    decodedMs:actual.decodedMs,aboveFoldImages:actual.visible,
    cardCount:actual.allCards,visibleThumbnailBytes:visibleBytes,
+   maxDecodedMs,maxVisibleThumbnailBytes,
    networkProfile:browserName==='chromium'?
     '80ms RTT, 1MiB/s download/upload':'local, unthrottled',
   }));
+  expect(actual.decodedMs,
+   'Above-fold Gear thumbnails must decode within 2 seconds on CI').toBeLessThanOrEqual(maxDecodedMs);
+  expect(visibleBytes,
+   'Above-fold Gear thumbnails must stay within approved card byte budget').toBeLessThanOrEqual(maxVisibleThumbnailBytes);
   expect(logs.writes).toEqual([]);
  });
 }
