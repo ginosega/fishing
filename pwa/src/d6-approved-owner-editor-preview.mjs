@@ -3,6 +3,7 @@
  * The existing V2 editor.mjs is intentionally untouched.
  */
 import {el,text,button,field,input,select,section,toolbar,status,picture} from './dom.mjs';
+import {createCatchEditor} from './catch-editor.mjs';
 import {DOMAIN,GEAR_CATEGORIES,KB_TYPES,ROD_TYPES,EQUIPMENT_TYPES,ID_PATTERN,categoryFolder,safePath,encodedPath,newId,suggestedFilename,sha256,sequenceFolder,sequencePicturePath} from './shared.mjs';
 import {TAXONOMY,validateRecord,validateRecords} from './validation.mjs';
 import {parseMarkdown,sanitizeHtml,markdownRouteMap} from './markdown.mjs';
@@ -356,4 +357,34 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
  form.append(actions,actionNotice);
  host.append(notice,blocked,form,output);
  return {element:host,isDirty:dirty,discardDraft,dispose:()=>{revokeLocal();notesEditor?.dispose();},record};
+}
+
+/**
+ * Reuse the accepted D5 Catch Add/Edit form with its publishing button
+ * permanently disabled in WP1. Capture submit BEFORE the D5 form handler,
+ * including programmatic submit events; no publishing callback is reachable.
+ */
+export async function createD6ApprovedCatchPreview(ctx,options={}){
+ if(ctx?.v3?.ownerAuthoringPreview!==true||
+    ctx?.v3?.source?.sourceOnly!==true||
+    ctx?.v3?.source?.canPublish!==false)
+  throw Error('Verified read-only owner Catch editor preview required.');
+ const editor=await createCatchEditor(ctx,{
+  ...options,publishChange:async()=>{
+   throw Error('Publishing is disabled in this WP1 preview.');
+  },onPrepared:()=>{},
+ });
+ const form=editor.element.querySelector('form');
+ const submit=form?.querySelector('button[type="submit"]');
+ if(!form||!submit)throw Error('Approved Catch editor controls unavailable');
+ // The owner's browser cannot enable a hidden GitHub/media write; no
+ // callback in this module is connected to a publishing provider.
+ form.addEventListener('submit',event=>{
+  event.preventDefault();event.stopImmediatePropagation();
+ },true);
+ submit.disabled=true;
+ submit.setAttribute('aria-label','Save and Publish unavailable in WP1 preview');
+ editor.element.prepend(text('p',
+  'Editor preview only. Save and Publish is disabled until the secure production publishing pipeline is complete. Nothing has been submitted.','hint'));
+ return editor;
 }
