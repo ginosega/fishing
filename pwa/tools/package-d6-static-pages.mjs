@@ -66,6 +66,7 @@ export async function packageD6StaticPages({source,destination,verifyRelease=ver
     pointer.d6ReaderCandidate!==true||
     (owner?pointer.d6StaticStaging===true:pointer.d6StaticStaging!==true)||
     (pointer.d6OwnerConnectionCandidate===true)!==owner||
+    pointer.d6OwnerEditorPreview===true||
     pointer.pendingMedia!==false||
     pointer.manifest!=='releases/'+pointer.id+'/manifest.json')
   deny('unapproved staging release pointer');
@@ -75,6 +76,7 @@ export async function packageD6StaticPages({source,destination,verifyRelease=ver
     manifest.d6ReaderCandidate!==true||
     (owner?manifest.d6StaticStaging===true:manifest.d6StaticStaging!==true)||
     (manifest.d6OwnerConnectionCandidate===true)!==owner||
+    manifest.d6OwnerEditorPreview===true||
     manifest.pendingMedia!==false||manifest.base!=='/fishing/')
   deny('unapproved staging manifest or /fishing/ base');
  // Full canonical content/manifest and every file hash are checked here.
