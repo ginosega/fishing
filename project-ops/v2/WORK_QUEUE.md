@@ -40,6 +40,12 @@ Evidence: [Audit procedure](SEMANTIC_AUDIT_SOP.md) and [validator](VALIDATION_RU
 
 ## FISH-TODO-118 — Fishing Companion V3 continuation
 
+State: in-progress
+Owner: project owner / assistant implementer
+Prerequisites: Default-main router and protected governance state; accepted requirements, technical design and bounded decisions; prior D5/private and D6/Stage A evidence verified; separate provider activation approvals retained.
+Acceptance: All finite WP0–WP6 exit gates and the reviewed requirements→test matrix pass, final complete hosted owner/anonymous Windows/Android acceptance, authorized controlled real-record Save→GitHub→independently verified public Live, and preserved source/media/receipt integrity. No false Live.
+Next safe action: Complete WP0 source/requirements/test inventory and reviewed draft-PR disposition; proceed to WP1 only after its mapping gate.
+
 **Owner-approved delivery scope (2026-11-10):** [FISH118 V3 Completion Contract](FISH118_V3_COMPLETION_CONTRACT.md), finite **WP0–WP6**, in order. All remaining V3 work and any new blocker MUST map to a WP; no new package/scope without documented evidence and explicit owner approval. This entry is the **only live WP status pointer**; do not duplicate plan text in the router, startup prompt or current-state history.
 
 **Active package: WP0 — Freeze integration contract.** Status: **open**. Owner: project owner / assistant implementer. Next safe action: build a bounded **requirements→D5/D6 source→test→WP** inventory and draft-PR disposition, identifying complete vs partial vs missing owner/editor, Catch/media, auth, durable publisher/recovery and release functionality. Record exact dependencies and source selection before additional implementation. Finish WP0 and review exceptions before WP1 feature integration.
