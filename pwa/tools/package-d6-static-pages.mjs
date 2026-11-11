@@ -64,7 +64,7 @@ export async function packageD6StaticPages({source,destination,verifyRelease=ver
  const pointer=JSON.parse(await fs.readFile(path.join(input,'release.json'),'utf8'));
  if(!ID.test(pointer.id??'')||!SHA.test(pointer.sourceRevision??'')||
     pointer.d6ReaderCandidate!==true||
-    pointer.d6StaticStaging!==(owner?false:true)||
+    (owner?pointer.d6StaticStaging===true:pointer.d6StaticStaging!==true)||
     (pointer.d6OwnerConnectionCandidate===true)!==owner||
     pointer.pendingMedia!==false||
     pointer.manifest!=='releases/'+pointer.id+'/manifest.json')
@@ -73,7 +73,7 @@ export async function packageD6StaticPages({source,destination,verifyRelease=ver
  if(manifest.releaseId!==pointer.id||
     manifest.sourceRevision!==pointer.sourceRevision||
     manifest.d6ReaderCandidate!==true||
-    manifest.d6StaticStaging!==(owner?false:true)||
+    (owner?manifest.d6StaticStaging===true:manifest.d6StaticStaging!==true)||
     (manifest.d6OwnerConnectionCandidate===true)!==owner||
     manifest.pendingMedia!==false||manifest.base!=='/fishing/')
   deny('unapproved staging manifest or /fishing/ base');
