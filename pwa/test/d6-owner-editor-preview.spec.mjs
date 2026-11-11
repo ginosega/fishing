@@ -257,6 +257,42 @@ test('WP1-EDITOR-B05 owner local text draft survives reload without publishing',
  expect(errors).toEqual([]);
 });
 
+
+test('WP1-EDITOR-B06 disconnection retains unsent draft, denies fresh editor and no writes',async({page,context})=>{
+ session={authenticated:true,authorized:true,ownerLogin:'ginosega'};
+ const errors=await open(page);
+ await ownerReady(page);
+ const gear=real.gear.items[0],kb=real.kb.entities[0];
+ await page.evaluate(h=>location.hash=h,'#/inventory/edit/'+gear.id);
+ const name=page.getByRole('textbox',{name:'Name',exact:true});
+ await expect(name).toHaveValue(gear.name,{timeout:30000});
+ const changedName=gear.name+' (offline unsent WP1 draft)';
+ await name.fill(changedName);
+ await expect(page.locator('#app .editor-notice[aria-live="polite"]'))
+  .toContainText('Draft saved on this device. Nothing has been published.',
+   {timeout:25000});
+ const sourcesBefore=logs.sources;
+ await context.setOffline(true);
+ await expect(name).toHaveValue(changedName);
+ await expect(page.getByRole('button',{
+  name:'Save and Publish unavailable in WP1 preview',
+ })).toBeDisabled();
+ const dialogs=[];
+ page.on('dialog',async dialog=>{
+  dialogs.push(dialog.message());
+  await dialog.accept();
+ });
+ await page.evaluate(h=>location.hash=h,'#/kb/edit/'+kb.id);
+ await expect(page.locator('#app')).toContainText(
+  'Owner editor preview is unavailable',{timeout:25000});
+ expect(dialogs).toContain(
+  'Your changes have not been saved. Discard this edit and leave?');
+ expect(logs.sources).toBe(sourcesBefore);
+ expect(logs.writes).toEqual([]);
+ expect(errors).toEqual([]);
+ await context.setOffline(false);
+});
+
 for(const sample of [
  {name:'desktop',width:1280,height:900},
  {name:'mobile',width:390,height:844},
