@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 /**
- * D6 Stage A physical Pages artifact preparation. LOCAL/SOURCE ONLY.
+ * D6 verified read-only physical Pages artifact preparation. LOCAL/SOURCE ONLY.
+ * Supports the original Stage A build and a separately marked integrated
+ * owner Connection Status build with real canonical content; NEVER deploys.
  * This never creates a Pages project, Worker, route, credential or deployment.
  * The generated upload directory has exactly one top-level fishing/ subtree.
  */
@@ -39,7 +41,10 @@ const protectedOrOverlapping=(input,output,protectedPath)=>
  inside(protectedPath,input)||inside(protectedPath,output)||
  inside(input,protectedPath)||inside(output,protectedPath);
 
-export async function packageD6StaticPages({source,destination,verifyRelease=verify}={}){
+export async function packageD6StaticPages({source,destination,verifyRelease=verify,
+ mode='static'}={}){
+ if(!['static','owner-read-only'].includes(mode))deny('unknown package mode');
+ const owner=mode==='owner-read-only';
  if(typeof source!=='string'||!source||typeof destination!=='string'||!destination)
   deny('explicit source and destination are required');
  if(typeof verifyRelease!=='function')deny('release verifier unavailable');
@@ -58,14 +63,18 @@ export async function packageD6StaticPages({source,destination,verifyRelease=ver
   deny('source must be an existing release directory');
  const pointer=JSON.parse(await fs.readFile(path.join(input,'release.json'),'utf8'));
  if(!ID.test(pointer.id??'')||!SHA.test(pointer.sourceRevision??'')||
-    pointer.d6ReaderCandidate!==true||pointer.d6StaticStaging!==true||
+    pointer.d6ReaderCandidate!==true||
+    (owner?pointer.d6StaticStaging===true:pointer.d6StaticStaging!==true)||
+    (pointer.d6OwnerConnectionCandidate===true)!==owner||
     pointer.pendingMedia!==false||
     pointer.manifest!=='releases/'+pointer.id+'/manifest.json')
   deny('unapproved staging release pointer');
  const manifest=JSON.parse(await fs.readFile(path.join(input,pointer.manifest),'utf8'));
  if(manifest.releaseId!==pointer.id||
     manifest.sourceRevision!==pointer.sourceRevision||
-    manifest.d6ReaderCandidate!==true||manifest.d6StaticStaging!==true||
+    manifest.d6ReaderCandidate!==true||
+    (owner?manifest.d6StaticStaging===true:manifest.d6StaticStaging!==true)||
+    (manifest.d6OwnerConnectionCandidate===true)!==owner||
     manifest.pendingMedia!==false||manifest.base!=='/fishing/')
   deny('unapproved staging manifest or /fishing/ base');
  // Full canonical content/manifest and every file hash are checked here.
@@ -97,7 +106,7 @@ export async function packageD6StaticPages({source,destination,verifyRelease=ver
   return Object.freeze({releaseId:pointer.id,
    sourceRevision:pointer.sourceRevision,
    uploadRoot:output,physicalBase:'fishing/',files:after.files,bytes:after.bytes,
-   verified:true,deployed:false});
+   verified:true,deployed:false,mode});
  }catch(error){
   await fs.rm(temp,{recursive:true,force:true});
   throw error;
@@ -108,11 +117,14 @@ if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.ur
  const args=process.argv.slice(2);
  const input=args.find(x=>x.startsWith('--in='))?.slice(5);
  const output=args.find(x=>x.startsWith('--out='))?.slice(6);
- if(args.length!==2||!input||!output||args.some(x=>
-    !x.startsWith('--in=')&&!x.startsWith('--out='))){
-  console.error('Usage: node tools/package-d6-static-pages.mjs --in=<verified-staging-dist> --out=<new-isolated-upload-dir>');
+ const mode=args.find(x=>x.startsWith('--mode='))?.slice(7)||'static';
+ if(args.length!==(mode==='static'?2:3)||!input||!output||
+    !['static','owner-read-only'].includes(mode)||args.some(x=>
+    !x.startsWith('--in=')&&!x.startsWith('--out=')&&
+    !x.startsWith('--mode='))){
+  console.error('Usage: node tools/package-d6-static-pages.mjs --in=<verified-dist> --out=<isolated-upload-dir> [--mode=owner-read-only]');
   process.exitCode=1;
- }else packageD6StaticPages({source:input,destination:output})
+ }else packageD6StaticPages({source:input,destination:output,mode})
   .then(x=>console.log(JSON.stringify(x,null,2)))
   .catch(e=>{console.error(e);process.exitCode=1;});
 }

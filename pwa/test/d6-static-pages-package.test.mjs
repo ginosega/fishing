@@ -134,3 +134,63 @@ test('D6-PACK08 symlinked source ancestor cannot bypass overlap checks',async t=
  }),/symlinked parent/);
  await assert.rejects(fs.lstat(path.join(x.src,'nested')));
 });
+
+test('D6-PACK09 approved owner Connection Status real-record candidate is isolated and read-only',async t=>{
+ const x=await fixture(t);
+ // The real D6 builder omits false optional flags; it does not serialize
+ // d6StaticStaging:false. Stage A still REQUIRES explicit true.
+ const {d6StaticStaging:ignoredPointer,...pointerBase}=x.pointer;
+ const {d6StaticStaging:ignoredManifest,...manifestBase}=x.manifest;
+ const pointer={...pointerBase,d6OwnerConnectionCandidate:true};
+ const manifest={...manifestBase,d6OwnerConnectionCandidate:true};
+ await fs.writeFile(path.join(x.src,'release.json'),JSON.stringify(pointer));
+ await fs.writeFile(path.join(x.src,pointer.manifest),JSON.stringify(manifest));
+ const result=await packageD6StaticPages({source:x.src,destination:x.out,
+  verifyRelease:x.verifyRelease,mode:'owner-read-only'});
+ assert.equal(result.mode,'owner-read-only');
+ assert.equal(Object.hasOwn(pointer,'d6StaticStaging'),false);
+ assert.equal(Object.hasOwn(manifest,'d6StaticStaging'),false);
+ assert.equal(result.deployed,false);
+ assert.equal(result.verified,true);
+ assert.deepEqual(await fs.readdir(x.out),['fishing']);
+ assert.equal(JSON.parse(await fs.readFile(
+  path.join(x.out,'fishing/release.json'),'utf8'))
+  .d6OwnerConnectionCandidate,true);
+ await assert.rejects(fs.stat(path.join(x.out,'index.html')));
+});
+test('D6-PACK10 owner packaging rejects static, mixed, missing and unverified releases',async t=>{
+ const x=await fixture(t);
+ // The real D6 builder omits false optional flags; it does not serialize
+ // d6StaticStaging:false. Stage A still REQUIRES explicit true.
+ const {d6StaticStaging:ignoredPointer,...pointerBase}=x.pointer;
+ const {d6StaticStaging:ignoredManifest,...manifestBase}=x.manifest;
+ const pointer={...pointerBase,d6OwnerConnectionCandidate:true};
+ const manifest={...manifestBase,d6OwnerConnectionCandidate:true};
+ await fs.writeFile(path.join(x.src,'release.json'),JSON.stringify(pointer));
+ await fs.writeFile(path.join(x.src,pointer.manifest),JSON.stringify(manifest));
+ for(const [file,field,value] of [
+  ['release.json','d6OwnerConnectionCandidate',false],
+  ['release.json','d6StaticStaging',true],
+  [pointer.manifest,'d6OwnerConnectionCandidate',false],
+  [pointer.manifest,'d6StaticStaging',true],
+  [pointer.manifest,'base','/fishing/__v3_owner_candidate__/'],
+ ]){
+  const target=path.join(x.src,file);
+  const original=JSON.parse(await fs.readFile(target,'utf8'));
+  await fs.writeFile(target,JSON.stringify({...original,[field]:value}));
+  await assert.rejects(packageD6StaticPages({source:x.src,
+   destination:x.out,verifyRelease:x.verifyRelease,
+   mode:'owner-read-only'}),/denied/);
+  await fs.writeFile(target,JSON.stringify(original));
+ }
+ await assert.rejects(packageD6StaticPages({source:x.src,
+  destination:x.out,verifyRelease:x.verifyRelease,mode:'static'}),
+  /denied/);
+ await assert.rejects(packageD6StaticPages({source:x.src,
+  destination:x.out,verifyRelease:x.verifyRelease,mode:'other'}),
+  /denied/);
+ await assert.rejects(packageD6StaticPages({source:x.src,
+  destination:x.out,verifyRelease:async()=>({...x.report,verified:false}),
+  mode:'owner-read-only'}),/verification failed/);
+ await assert.rejects(fs.stat(x.out));
+});
