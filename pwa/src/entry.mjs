@@ -11,6 +11,8 @@ const d6StaticStaging=typeof __FISHING_D6_STATIC_STAGING__!=='undefined'&&
  __FISHING_D6_STATIC_STAGING__===true;
 const d6OwnerConnection=typeof __FISHING_D6_OWNER_CONNECTION__!=='undefined'&&
  __FISHING_D6_OWNER_CONNECTION__===true;
+const d6EditorPreview=typeof __FISHING_D6_OWNER_EDITOR_PREVIEW__!=='undefined'&&
+ __FISHING_D6_OWNER_EDITOR_PREVIEW__===true;
 function d6Context(){
  if(!d6Reader)return {};
  const reader=selectD6PublicReader({enabled:true,staticStaging:d6StaticStaging,
@@ -18,7 +20,10 @@ function d6Context(){
   release:settings.release,manifest:settings.manifest});
  // Staging may expose only immutable anonymous reading. It never creates
  // a session probe or a canonical authoring-source client.
- if(d6StaticStaging)return {v3:{...reader}};
+ if(d6StaticStaging){
+  if(d6EditorPreview)throw Error('D6 editor preview cannot use static staging');
+  return {v3:{...reader}};
+ }
  const ownerReadiness=createD6OwnerSessionReadiness({
   root:settings.root,request:(url,options)=>fetch(url,options),
   enabled:()=>true,online:()=>navigator.onLine===true,
@@ -33,8 +38,13 @@ function d6Context(){
    (settings.release?.d6OwnerConnectionCandidate!==true||
     settings.manifest?.d6OwnerConnectionCandidate!==true))
   throw Error('D6 approved Connection Status build identity missing');
+ if(d6EditorPreview&&(!d6OwnerConnection||
+    settings.release?.d6OwnerEditorPreview!==true||
+    settings.manifest?.d6OwnerEditorPreview!==true))
+  throw Error('D6 owner editor preview build identity missing');
  return {v3:{...reader,ownerReadiness,canonicalSource,
-  ownerConnectionCandidate:d6OwnerConnection}};
+  ownerConnectionCandidate:d6OwnerConnection,
+  ownerEditorPreview:d6EditorPreview}};
 }
 Promise.resolve().then(()=>bootstrap(settings,d6Context())).catch(error=>{
  const main=document.getElementById('app');main.replaceChildren();
