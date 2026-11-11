@@ -236,7 +236,7 @@ test('WP1-EDITOR-B05 owner local text draft survives reload without publishing',
  await expect(name).toHaveValue(gear.name,{timeout:25000});
  const changedName=gear.name+' (unpublished WP1 draft)';
  await name.fill(changedName);
- await expect(page.locator('#app .editor-notice')).toContainText(
+ await expect(page.locator('#app .editor-notice[aria-live="polite"]')).toContainText(
   'Draft saved on this device. Nothing has been published.',{timeout:25000});
  const dialogs=[];
  page.on('dialog',async dlg=>{
