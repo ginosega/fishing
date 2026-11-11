@@ -149,6 +149,13 @@ test('WP1-EDITOR-B02 owner can inspect Gear and KB Notes forms without publishin
  await ownerReady(page);
  const gear=real.gear.items.find(x=>x.notes)||real.gear.items[0];
  const kb=real.kb.entities.find(x=>x.content)||real.kb.entities[0];
+ // Explicitly accept leaving an unsaved form; Playwright otherwise
+ // dismisses the app's protective confirmation and blocks navigation.
+ const confirmations=[];
+ page.on('dialog',async dialog=>{
+  confirmations.push(dialog.message());
+  await dialog.accept();
+ });
  async function check(domain,id,title){
   const hash=domain==='gear'?'#/inventory/edit/'+id:'#/kb/edit/'+id;
   await page.evaluate(h=>location.hash=h,hash);
@@ -158,7 +165,7 @@ test('WP1-EDITOR-B02 owner can inspect Gear and KB Notes forms without publishin
   // D5 Notes image and link insertion remains locally inspectable,
   // but no GitHub original bytes or ticket may be staged.
   await expect(page.getByRole('button',{name:'Insert Image'})).toBeVisible();
-  await expect(page.getByRole('button',{name:'Preview'})).toBeVisible();
+  await expect(page.getByRole('button',{name:'Preview',exact:true})).toBeVisible();
   const blocked=page.getByRole('button',{
    name:'Save and Publish unavailable in WP1 preview',
   });
@@ -168,6 +175,9 @@ test('WP1-EDITOR-B02 owner can inspect Gear and KB Notes forms without publishin
  }
  await check('gear',gear.id,gear.name);
  await check('kb',kb.id,kb.name);
+ expect(confirmations.every(message=>
+  message==='Your changes have not been saved. Discard this edit and leave?'
+ )).toBe(true);
  expect(logs.sources).toBeGreaterThanOrEqual(2);
  expect(logs.writes).toEqual([]);
  expect(errors).toEqual([]);
@@ -177,6 +187,11 @@ test('WP1-EDITOR-B03 verified owner Catch Add/Edit has no submit route',async({p
  const errors=await open(page);
  await ownerReady(page);
  const first=real.catches.catches[0];
+ const confirmations=[];
+ page.on('dialog',async dialog=>{
+  confirmations.push(dialog.message());
+  await dialog.accept();
+ });
  for(const hash of ['#/catches/add','#/catches/edit/'+first.id]){
   await page.evaluate(v=>location.hash=v,hash);
   await expect(page.locator('#app .page-header h1')).toHaveText(
@@ -186,6 +201,10 @@ test('WP1-EDITOR-B03 verified owner Catch Add/Edit has no submit route',async({p
    name:'Save and Publish unavailable in WP1 preview',
   })).toBeDisabled();
  }
+ // The Add form's generated ID makes it dirty. Verify intentional
+ // discard confirmation is honored rather than bypassing unsaved edits.
+ expect(confirmations).toContain(
+  'Your changes have not been saved. Discard this edit and leave?');
  expect(logs.writes).toEqual([]);
  expect(errors).toEqual([]);
 });
