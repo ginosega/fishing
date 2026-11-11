@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import os from 'node:os';
 import {execFileSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import * as esbuild from 'esbuild';
@@ -48,7 +47,11 @@ export async function build(){
  const maskableArtSize=Math.round(iconMeta.width*0.88);
  const maskableArt=await sharp(icon).trim({background:{r:0,g:0,b:0,alpha:0}}).resize(maskableArtSize,maskableArtSize,{fit:'contain'}).png().toBuffer();
  const maskableIcon=await sharp({create:{width:iconMeta.width,height:iconMeta.height,channels:3,background:'#11665c'}}).composite([{input:maskableArt,gravity:'centre'}]).removeAlpha().png().toBuffer();
- const library=await inventorySource(source,{pendingMedia}),tmp=await fs.mkdtemp(path.join(os.tmpdir(),'fishing-v2-'));
+ const library=await inventorySource(source,{pendingMedia});
+ // Keep the staging tree on the output filesystem; /tmp→workspace rename
+ // fails EXDEV in container CI. A random sibling retains atomic promotion.
+ await fs.mkdir(path.dirname(output),{recursive:true});
+ const tmp=await fs.mkdtemp(path.join(path.dirname(output),'.fishing-v2-'));
  try{
   const content=path.join(tmp,'content');
   for(const file of library.files){const src=path.join(source,file.path),dest=path.join(content,file.path);await fs.mkdir(path.dirname(dest),{recursive:true});await fs.copyFile(src,dest);const copied=await fs.readFile(dest);if(copied.length!==file.bytes||digest(copied)!==file.sha256)throw new Error('Source changed while copying: '+file.path);}
