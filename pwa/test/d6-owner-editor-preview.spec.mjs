@@ -366,9 +366,9 @@ test('WP1-VIEWER-B09 opt-in Notes viewer loads original and missing art fails sa
  const original=toMarkdownPath(gear.picture.src);
  const missing=toMarkdownPath(path.posix.join(
   path.posix.dirname(gear.picture.src),'wp1-unavailable-image.png'));
- const body=notes+'\\n\\n![WP1 original image]('+original+
-  ' "viewer: WP1 original caption")\\n\\n'+
-  '![WP1 missing image]('+missing+' "viewer")\\n';
+ const body=notes+'\n\n![WP1 original image]('+original+
+  ' "viewer: WP1 original caption")\n\n'+
+  '![WP1 missing image]('+missing+' "viewer")\n';
  const wanted='releases/'+release.id+'/content/'+gear.notes;
  await page.route(url=>{
   try{return decodeURIComponent(url.pathname).endsWith('/'+wanted);}
