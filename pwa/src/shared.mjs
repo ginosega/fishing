@@ -125,9 +125,20 @@ export function parseRoute(hash) {
   return {page:'missing'};
 }
 export function routeFor(domain,id) {return domain==='gear'?`#/inventory/item/${encodeURIComponent(id)}`:domain==='kb'?`#/kb/${encodeURIComponent(id)}`:`#/catches/${encodeURIComponent(id)}`;}
+const SITE_INTERNAL_ROUTES=Object.freeze({
+ home:'#/',gear:'#/inventory',kb:'#/kb',catches:'#/catches',
+});
 export function internalLink(uri,maps) {
-  const match=/^(gear|kb):\/\/([a-z0-9][a-z0-9-]*)$/.exec(uri);
-  if(!match||!maps[match[1]]?.has(match[2]))throw new Error(`Unknown internal reference: ${uri}`);
+  const site=/^site:\/\/([a-z]+)$/.exec(uri);
+  if(site){
+   const route=Object.hasOwn(SITE_INTERNAL_ROUTES,site[1])?
+    SITE_INTERNAL_ROUTES[site[1]]:null;
+   if(!route)throw new Error(`Unknown internal reference: ${uri}`);
+   return route;
+  }
+  const match=/^(gear|kb|catches):\/\/([a-z0-9][a-z0-9-]*)$/.exec(uri);
+  if(!match||!maps?.[match[1]]?.has(match[2]))
+   throw new Error(`Unknown internal reference: ${uri}`);
   return routeFor(match[1],match[2]);
 }
 export function categoryFolder(domain,key) {const row=(domain==='gear'?GEAR_CATEGORIES:KB_TYPES).find(x=>x[0]===key);assert(row,`Unknown category: ${key}`);return (domain==='gear'?'Gear/':'KB/')+row[2];}
