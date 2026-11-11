@@ -22,6 +22,8 @@ const mime={
  '.gif':'image/gif',
 };
 let server,base,release,manifest,real,sourceBody,session,logs;
+// Server-side, per-test Markdown fixture is visible to service-worker fetches.
+const notesFixtures=new Map();
 test.skip(!setting,'WP1 owner editor preview requires separate verified opt-in bundle');
 const deny=(res,status=404)=>{
  res.writeHead(status,{'Content-Type':'text/plain','Cache-Control':'no-store'});
@@ -65,6 +67,13 @@ async function serve(req,res){
   file.split('/').some(x=>x==='.'||x==='..'||x===''))return deny(res);
  const abs=path.resolve(root,file);
  if(!abs.startsWith(root+path.sep))return deny(res);
+ if(notesFixtures.has(file)){
+  const bytes=Buffer.from(notesFixtures.get(file));
+  res.writeHead(200,{'Content-Type':'text/markdown; charset=utf-8',
+   'Content-Length':bytes.length,'Cache-Control':'no-store'});
+  res.end(req.method==='HEAD'?undefined:bytes);
+  return;
+ }
  try{
   const bytes=await fs.readFile(abs);
   res.writeHead(200,{'Content-Type':mime[path.extname(abs)]||
@@ -111,6 +120,7 @@ test.afterAll(async()=>{
  if(server)await new Promise(done=>server.close(done));
 });
 test.beforeEach(()=>{
+ notesFixtures.clear();
  session={authenticated:false,authorized:false};
  logs={sessions:0,sources:0,signouts:0,writes:[]};
 });
@@ -370,11 +380,9 @@ test('WP1-VIEWER-B09 opt-in Notes viewer loads original and missing art fails sa
   ' "viewer: WP1 original caption")\n\n'+
   '![WP1 missing image]('+missing+' "viewer")\n';
  const wanted='releases/'+release.id+'/content/'+gear.notes;
- await page.route(url=>{
-  try{return decodeURIComponent(url.pathname).endsWith('/'+wanted);}
-  catch{return false;}
- },route=>route.fulfill({status:200,
-  contentType:'text/markdown; charset=utf-8',body}));
+ // Page route interception misses requests initiated by the installed PWA
+ // service worker. Serve the same fixture from the existing loopback server.
+ notesFixtures.set(wanted,body);
  await page.evaluate(h=>location.hash=h,'#/inventory/item/'+gear.id);
  await expect(page.locator('#app .page-header h1')).toHaveText(gear.name,
   {timeout:30000});
