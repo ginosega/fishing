@@ -293,6 +293,43 @@ test('WP1-EDITOR-B06 disconnection retains unsent draft, denies fresh editor and
  await context.setOffline(false);
 });
 
+
+test('WP1-LINK-B01 bundled owner Notes picker inserts approved site link, previews safely',async({page})=>{
+ session={authenticated:true,authorized:true,ownerLogin:'ginosega'};
+ const errors=await open(page);
+ await ownerReady(page);
+ const gear=real.gear.items[0];
+ await page.evaluate(h=>location.hash=h,'#/inventory/edit/'+gear.id);
+ const notes=page.locator('#app .notes-editor textarea.markdown-editor');
+ await expect(notes).toBeVisible({timeout:35000});
+ await notes.fill('WP1 unpublished Notes link regression');
+ await page.getByRole('button',{name:'Insert Link'}).click();
+ const picker=page.locator('#app .notes-link-panel');
+ await expect(picker).toBeVisible();
+ const links=picker.locator('select[aria-label="Link to page"]');
+ const ids=await links.locator('option').evaluateAll(options=>
+  options.map(item=>item.value));
+ expect(ids).toContain('site://catches');
+ expect(ids).toContain('gear://'+gear.id);
+ expect(ids.some(uri=>uri.startsWith('catches://'))).toBe(false);
+ await links.selectOption('site://catches');
+ await picker.getByRole('textbox',{name:'Link text'}).fill('Catch Log Link');
+ await picker.getByRole('button',{name:'Insert',exact:true}).click();
+ await expect(notes).toHaveValue(/\\[Catch Log Link\\]\\(site:\\/\\/catches\\)/);
+ await page.getByRole('button',{name:'Preview',exact:true}).click();
+ await expect(page.locator('#app .notes-editor .markdown-preview a[href="#/catches"]'))
+  .toHaveText('Catch Log Link');
+ await expect(page.getByRole('button',{name:'Insert Link'})).toBeDisabled();
+ await expect(page.getByRole('button',{name:'Insert Image'})).toBeDisabled();
+ await page.getByRole('button',{name:'Edit',exact:true}).click();
+ await expect(notes).toBeVisible();
+ await expect(page.getByRole('button',{
+  name:'Save and Publish unavailable in WP1 preview',
+ })).toBeDisabled();
+ expect(logs.writes).toEqual([]);
+ expect(errors).toEqual([]);
+});
+
 for(const sample of [
  {name:'desktop',width:1280,height:900},
  {name:'mobile',width:390,height:844},
