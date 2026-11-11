@@ -131,6 +131,12 @@ jobs:
           node-version: '24'
           cache: npm
           cache-dependency-path: pwa/package-lock.json
+      - name: Trust checked-out workspace in pinned Playwright container
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -d "$GITHUB_WORKSPACE/.git"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - name: Verify durable v1 recovery and prepare actual cutover fixture
         run: |
           git show 4aafcd2f88b35bb34b608e2f85dec1daffc6c1d1:recovery/v1-production.zip > /tmp/v1-production.zip
