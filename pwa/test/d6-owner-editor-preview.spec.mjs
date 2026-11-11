@@ -307,13 +307,25 @@ for(const sample of [
    expect(n).toBeGreaterThan(0);
    visibleBytes+=n;
   }
+  // WP1 approved quantitative CI regression gate. Two independent
+  // baseline runs showed 455-720ms on the same actual 42-card page.
+  // This is a deterministic developer test threshold, NOT an Android/Edge
+  // field p95 or a guarantee about real-world mobile data connections.
+  const maxDecodedMs=2000;
+  const maxVisibleThumbnailBytes=sample.name==='desktop'?
+   96*1024:64*1024;
   console.log('WP1_CARD_BASELINE '+JSON.stringify({
    engine:browserName,viewport:sample.name,
    decodedMs:actual.decodedMs,aboveFoldImages:actual.visible,
    cardCount:actual.allCards,visibleThumbnailBytes:visibleBytes,
+   maxDecodedMs,maxVisibleThumbnailBytes,
    networkProfile:browserName==='chromium'?
     '80ms RTT, 1MiB/s download/upload':'local, unthrottled',
   }));
+  expect(actual.decodedMs,
+   'Above-fold Gear thumbnails must decode within 2 seconds on CI').toBeLessThanOrEqual(maxDecodedMs);
+  expect(visibleBytes,
+   'Above-fold Gear thumbnails must stay within approved card byte budget').toBeLessThanOrEqual(maxVisibleThumbnailBytes);
   expect(logs.writes).toEqual([]);
  });
 }
