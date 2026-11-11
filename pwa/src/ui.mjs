@@ -57,7 +57,11 @@ export function createApp(ctx){
   const result=await ownerEditorGate.open();
   const source=result.source;
   return {...ctx,data:source.data,maps:validateRecords(source.data),
-   v3:{...ctx.v3,source,ownerAuthoringPreview:true,drafts:null}};
+   v3:{...ctx.v3,source,ownerAuthoringPreview:true,drafts:null,
+    // Enable accepted D5 local original-image and Notes insertion controls,
+    // but NEVER expose a media staging network service in WP1.
+    stageMedia:async()=>{throw Error('Media staging is unavailable in WP1 preview.');},
+   }};
  }
  function notify(message,kind='info'){status(alertHost,message,kind);}
  function dirty(){return Boolean(editor?.isDirty());}
