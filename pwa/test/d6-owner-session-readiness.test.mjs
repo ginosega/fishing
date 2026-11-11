@@ -116,7 +116,9 @@ test('D6-SES06 source entry has only read-only owner gate and no publisher',()=>
  assert.match(ui,/if\(readerOnly\)void offline\.refreshMode\(\)\.then/);
  assert.match(ui,/ownerProbeSerial/);
  assert.match(ui,/check\(\{readingMode:mode\}\)/);
- assert.match(ui,/if\(readerOnly\)return missing\('V3 reader preview is read-only/);
+ assert.match(ui,/if\(readerOnly&&!ownerEditorPreview\)return missing\('V3 reader preview is read-only/);
+ assert.match(ui,/const ownerEditorPreview=approvedConnection&&ctx\.v3\?\.ownerEditorPreview===true/);
+ assert.match(ui,/await verifiedPreviewContext\(\)/);
  assert.match(reader,/readerOnly:true/);
  assert.doesNotMatch(entry,/createD3OwnerTestShell|createD3AuthoringClient|publishChange/);
 });
