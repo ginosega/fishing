@@ -114,6 +114,12 @@ jobs:
     if: needs.classify.outputs.mode == 'full'
     needs: classify
     runs-on: ubuntu-24.04
+    # Playwright 1.62.0 official Ubuntu Noble image includes Chromium,
+    # WebKit and their system libraries. Two exact-head PR runs hit the
+    # 20-minute GitHub runner apt-mirror timeout before any browser test.
+    # Keep browser suites required; remove only unreliable apt installation.
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.0-noble
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -146,22 +152,16 @@ jobs:
           npm test
           npm run build -- --pending-media --source-revision="$GITHUB_SHA"
           npm run verify
-      # GitHub ubuntu-24.04 mirror fallback to azure.archive.ubuntu.com
-      # intermittently hangs apt update (observed in #405 run 42760445895).
-      # Preserve all Playwright dependencies and both browser test suites.
-      - name: Install Chromium and WebKit
-        timeout-minutes: 20
+      - name: Confirm pinned Playwright 1.62.0 Chromium and WebKit are preinstalled
+        timeout-minutes: 2
         working-directory: pwa
         shell: bash
         run: |
           set -euo pipefail
-          if [[ -f /etc/apt/apt-mirrors.txt ]] &&
-             grep -Fq 'azure.archive.ubuntu.com' /etc/apt/apt-mirrors.txt; then
-            echo 'Selecting the official Ubuntu HTTPS archive for apt dependencies'
-            printf 'https://archive.ubuntu.com/ubuntu/\n' |
-              sudo tee /etc/apt/apt-mirrors.txt >/dev/null
-          fi
-          npx playwright install --with-deps chromium webkit
+          node -e 'const p=require("./node_modules/playwright-core/package.json");if(p.version!=="1.62.0")process.exit(1)'
+          test -d /ms-playwright
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npx playwright --version
+          node --input-type=module -e 'import {chromium,webkit} from "@playwright/test";import fs from "node:fs";for(const t of [chromium,webkit]){const p=t.executablePath();if(!fs.existsSync(p))throw Error("Missing bundled browser: "+p);}'
       - name: Preserve preview scope regression coverage
         timeout-minutes: 12
         working-directory: pwa
