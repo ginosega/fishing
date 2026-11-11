@@ -311,7 +311,7 @@ test('WP1-EDITOR-B07 Notes page picker and manual Catch links preview as real ro
  await picker.locator('select[aria-label="Link to page"]')
   .selectOption('site://home');
  await picker.getByRole('button',{name:'Insert',exact:true}).click();
- await expect(notes).toContainText('site://home');
+ await expect(notes).toHaveValue(/site:\/\/home/);
  await page.getByRole('button',{name:'Preview',exact:true}).click();
  const preview=page.locator('#app .notes-editor .markdown-preview');
  await expect(preview).toBeVisible();
