@@ -155,6 +155,10 @@ test('WP1-EDITOR-B02 owner can inspect Gear and KB Notes forms without publishin
   await expect(page.locator('#app .page-header h1')).toHaveText('Edit '+title,
    {timeout:35000});
   await expect(page.locator('#app .notes-editor')).toBeVisible();
+  // D5 Notes image and link insertion remains locally inspectable,
+  // but no GitHub original bytes or ticket may be staged.
+  await expect(page.getByRole('button',{name:'Insert Image'})).toBeVisible();
+  await expect(page.getByRole('button',{name:'Preview'})).toBeVisible();
   const blocked=page.getByRole('button',{
    name:'Save and Publish unavailable in WP1 preview',
   });
