@@ -6,7 +6,10 @@
 
 State: closed
 Owner: project owner; assistant implementation
-Next safe action: Validate [draft #431](https://github.com/ginosega/fishing/pull/431) exact-head full-lane CI for measured Gear-card 2s / derivative-byte limits and disconnected-owner draft/denial coverage. Correct any regression on the same WP1 branch; review remaining Notes/media/offline editor controls, without changing owner-approved failure UI. Do not activate publishing or promote source-only previews to hosted acceptance.
+Next safe action: Routine in-place upkeep only, through protected governance PRs; do not reopen migration solely because PWA app development resumes.
+Prerequisites: P1 design approval and independence amendment; completed P2, P3, P4 and P5 evidence.
+Acceptance: Five bounded current documents, permanent static transfer prompt/router, indexed accepted/rejected/deferred/superseded lessons and original sources, no duplicate active authority; owner-approved full adoption.
+Evidence: [Owner directive](P5_OWNER_DIRECTIVE_COMPLETE_GOVERNANCE_2026-11-01.md), [P4 acceptance](P4_RECOVERY_ACCEPTANCE_2026-11-01.md), [main router PR #292](https://github.com/ginosega/fishing/pull/292), [ruleset #26335925](https://github.com/ginosega/fishing/rules/26335925).
 
 ## FISH-OPS-V2-VALIDATION — Required independent structural checks
 
@@ -41,7 +44,7 @@ State: in-progress
 Owner: project owner / assistant implementer
 Prerequisites: Default-main router and protected governance state; accepted requirements, technical design and bounded decisions; prior D5/private and D6/Stage A evidence verified; separate provider activation approvals retained.
 Acceptance: All finite WP0–WP6 exit gates and the reviewed requirements→test matrix pass, final complete hosted owner/anonymous Windows/Android acceptance, authorized controlled real-record Save→GitHub→independently verified public Live, and preserved source/media/receipt integrity. No false Live.
-Next safe action: #424 exact-head CI now PASS and read-only real-record artifact retained; selectively integrate approved D5 Gear/KB/Catch/Notes/media editor in D6 production-root UI behind canonical session/source guards, with no active writer. Verify browser denial/owner flows and establish measurable card-load baseline/threshold before WP1 exit.
+Next safe action: Validate [draft #431](https://github.com/ginosega/fishing/pull/431) exact-head full CI for measured 2s Gear-card / derivative-byte budgets and disconnected-owner editing/draft-denial coverage. Correct any regressions on the same WP1 branch; review remaining Notes/media/offline editor controls without changing owner-approved failure UI. Publishing remains disabled and source-only CI is not a hosted acceptance.
 
 **Owner-approved delivery scope (2026-11-10):** [FISH118 V3 Completion Contract](FISH118_V3_COMPLETION_CONTRACT.md), finite **WP0–WP6**, in order. All remaining V3 work and any new blocker MUST map to a WP; no new package/scope without documented evidence and explicit owner approval. This entry is the **only live WP status pointer**; do not duplicate plan text in the router, startup prompt or current-state history.
 
