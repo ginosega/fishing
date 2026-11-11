@@ -293,6 +293,59 @@ test('WP1-EDITOR-B06 disconnection retains unsent draft, denies fresh editor and
  await context.setOffline(false);
 });
 
+test('WP1-EDITOR-B07 Notes page picker and manual Catch links preview as real routes',async({page})=>{
+ session={authenticated:true,authorized:true,ownerLogin:'ginosega'};
+ const errors=await open(page);
+ await ownerReady(page);
+ const gear=real.gear.items.find(x=>x.notes)||real.gear.items[0];
+ const catchRecord=real.catches.catches[0];
+ await page.evaluate(h=>location.hash=h,'#/inventory/edit/'+gear.id);
+ const notes=page.locator('#app .notes-editor .markdown-editor');
+ await expect(notes).toBeVisible({timeout:30000});
+ await notes.fill('[Existing Catch](catches://'+catchRecord.id+')');
+ await page.getByRole('button',{name:'Insert Link'}).click();
+ const picker=page.locator('#app .notes-link-panel');
+ await expect(picker).toBeVisible();
+ // Individual Catches are deliberately excluded from the chooser.
+ await expect(picker.locator('option[value^="catches://"]')).toHaveCount(0);
+ await picker.locator('select[aria-label="Link to page"]')
+  .selectOption('site://home');
+ await picker.getByRole('button',{name:'Insert',exact:true}).click();
+ await expect(notes).toContainText('site://home');
+ await page.getByRole('button',{name:'Preview',exact:true}).click();
+ const preview=page.locator('#app .notes-editor .markdown-preview');
+ await expect(preview).toBeVisible();
+ await expect(preview.getByRole('link',{name:'Home'})).toHaveAttribute('href','#/');
+ await expect(preview.getByRole('link',{name:'Existing Catch'}))
+  .toHaveAttribute('href','#/catches/'+catchRecord.id);
+ await expect(page.getByRole('button',{name:'Insert Link'})).toBeDisabled();
+ await expect(page.getByRole('button',{name:'Insert Image'})).toBeDisabled();
+ await expect(page.getByRole('button',{
+  name:'Save and Publish unavailable in WP1 preview',
+ })).toBeDisabled();
+ expect(logs.writes).toEqual([]);
+ expect(errors).toEqual([]);
+});
+
+test('WP1-EDITOR-B08 unknown internal Notes targets fail closed',async({page})=>{
+ session={authenticated:true,authorized:true,ownerLogin:'ginosega'};
+ const errors=await open(page);
+ await ownerReady(page);
+ const gear=real.gear.items[0];
+ await page.evaluate(h=>location.hash=h,'#/inventory/edit/'+gear.id);
+ const notes=page.locator('#app .notes-editor .markdown-editor');
+ await expect(notes).toBeVisible({timeout:30000});
+ for(const invalid of ['site://unapproved','catches://wp1-no-such-catch-000']){
+  await notes.fill('[Missing]('+invalid+')');
+  await page.getByRole('button',{name:'Preview',exact:true}).click();
+  await expect(page.locator('#app .notes-editor-message'))
+   .toContainText('Unknown internal reference: '+invalid);
+  await expect(notes).toBeVisible();
+ }
+ expect(logs.writes).toEqual([]);
+ expect(errors).toEqual([]);
+});
+
 for(const sample of [
  {name:'desktop',width:1280,height:900},
  {name:'mobile',width:390,height:844},
