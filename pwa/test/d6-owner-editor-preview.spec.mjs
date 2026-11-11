@@ -315,7 +315,7 @@ test('WP1-LINK-B01 bundled owner Notes picker inserts approved site link, previe
  await links.selectOption('site://catches');
  await picker.getByRole('textbox',{name:'Link text'}).fill('Catch Log Link');
  await picker.getByRole('button',{name:'Insert',exact:true}).click();
- await expect(notes).toHaveValue(/\\[Catch Log Link\\]\\(site:\\/\\/catches\\)/);
+ await expect(notes).toHaveValue(/\[Catch Log Link\]\(site:\/\/catches\)/);
  await page.getByRole('button',{name:'Preview',exact:true}).click();
  await expect(page.locator('#app .notes-editor .markdown-preview a[href="#/catches"]'))
   .toHaveText('Catch Log Link');
