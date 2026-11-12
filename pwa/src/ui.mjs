@@ -13,6 +13,7 @@ import {effectiveConnectionOnline} from './connection-indicator.mjs';
 import {v3OfflineLibraryActionLabel} from './v3-offline-library-action.mjs';
 import {createD6OwnerConnectionAdapter} from './d6-owner-connection-adapter.mjs';
 import {mountV3ConnectionExperience} from './v3-connection-experience.mjs';
+import {formatV3Diagnostics} from './diagnostics.mjs';
 
 const KAYAK_ICON=`<svg viewBox="0 0 64 64" role="img" aria-label="Kayak">
   <defs><linearGradient id="kayakHull" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a2def7"/><stop offset="1" stop-color="#76c8ef"/></linearGradient></defs>
@@ -279,6 +280,46 @@ export function createApp(ctx){
   connectionDialog.querySelector('#connection-title')?.remove();
   connectionDialog.removeAttribute('aria-labelledby');
   connectionDialog.setAttribute('aria-label','Fishing Companion settings');
+  // Port the owner-approved D5 Help & Diagnostics section without altering
+  // its wording, order or privacy allowlist. Keep it collapsed by default,
+  // and keep release/source identity out of the daily status sections.
+  const details=el('details',{class:'v3-connection-help diagnostics-panel'},
+   el('summary',{},'Help & Diagnostics'));
+  const helpBody=el('div',{class:'v3-help-body'},
+   text('p','Copy technical information to help troubleshoot an issue. No credentials or draft content are included.','hint'));
+  const result=el('p',{role:'status','aria-live':'polite',class:'hint'});
+  const copyButton=button('Copy diagnostics',async()=>{
+   let usage,quota;
+   try{
+    const estimate=await navigator.storage?.estimate?.();
+    usage=estimate?.usage;quota=estimate?.quota;
+   }catch{ /* Storage access is optional and never required for browsing. */ }
+   const contents=formatV3Diagnostics({
+    releaseId:ctx.release.id,
+    sourceRevision:ctx.release.sourceRevision,
+    mode:offline.getMode(),online:navigator.onLine,
+    offline:offline.getStatus(),
+    publicationState:approvedController?.current()?.publication,
+    userAgent:navigator.userAgent||'',
+    storageUsed:usage,storageQuota:quota,
+   });
+   try{
+    await navigator.clipboard.writeText(contents);
+    result.textContent='Diagnostics copied. No credentials or draft content included.';
+    helpBody.querySelector('textarea')?.remove();
+   }catch{
+    result.textContent='Clipboard unavailable. Select and copy the diagnostics below.';
+    const area=el('textarea',{rows:12,readonly:true,value:contents,
+     'aria-label':'Diagnostics ready to copy'});
+    helpBody.querySelector('textarea')?.remove();
+    helpBody.append(area);area.focus();area.select();
+   }
+  });
+  const version=el('p',{class:'hint'},
+   'App release '+ctx.release.id.slice(0,12)+' · Source '+ctx.release.sourceRevision.slice(0,12));
+  helpBody.append(copyButton,result,version);
+  details.append(helpBody);
+  connectionDialog.insertBefore(details,document.getElementById('connection-close'));
   approvedController=createD6OwnerConnectionAdapter({
    root:ctx.root,ownerReadiness:ctx.v3?.ownerReadiness,
    request:(url,options)=>fetch(url,options),
