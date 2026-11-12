@@ -415,6 +415,21 @@ export function createApp(ctx){
   .addEventListener('click',()=>offline.reload());
  const releaseDetails=document.getElementById('release-details');if(releaseDetails)releaseDetails.textContent=`Release ${ctx.release.id.slice(0,12)} · Source ${ctx.release.sourceRevision.slice(0,12)}${ctx.release.pendingMedia?' · Pending media preview':''}`;
  if(ctx.release.pendingMedia)notify('Preview only: some approved image replacements remain unresolved. This is not a production-cutover candidate.','warning');
- render();offline.start();
+ // A deep-linked owner editor after reload must not be attempted while
+ // the service worker reading mode is still Checking. The strict owner gate
+ // correctly denies an unverified mode, but the old boot order left that
+ // transient denial on screen instead of restoring an existing local draft.
+ // Keep the gate unchanged: initialize offline controls first only for an
+ // initial editor route. Failures still deny entry and never enable writes.
+ const initialEditorRoute=ownerEditorPreview&&
+  ['gear-edit','gear-add','kb-edit','kb-add','catch-edit','catch-add']
+   .includes(route.page);
+ if(initialEditorRoute){
+  root.replaceChildren(el('div',{class:'loading'},'Loading…'));
+  void offline.start().then(()=>render());
+ }else{
+  render();
+  void offline.start();
+ }
  return {navigate,isDirty:dirty,render};
 }
