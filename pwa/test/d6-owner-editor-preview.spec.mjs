@@ -478,6 +478,132 @@ test('WP1-MEDIA-B10 Notes original picker previews alt and viewer locally withou
  expect(errors).toEqual([]);
 });
 
+// WP1-DRAFT-05 integration: a source-incompatible device row must prompt,
+// retain the unsent local draft and prevent replacement by fresh editor changes.
+test('WP1-DRAFT-B11 stale local draft is retained and automatic writes stay paused',async({page})=>{
+ session={authenticated:true,authorized:true,ownerLogin:'ginosega'};
+ const errors=await open(page);
+ await ownerReady(page);
+ const gear=real.gear.items[0];
+ const draftKey='gear:edit:'+gear.id;
+ const staleName='WP1 stale local draft';
+ await page.evaluate(({draftKey,staleName,gearId})=>new Promise((resolve,reject)=>{
+  const request=indexedDB.open('fishing-v3-d6-owner-drafts-v1',1);
+  request.onupgradeneeded=()=>{
+   if(!request.result.objectStoreNames.contains('drafts'))
+    request.result.createObjectStore('drafts',{keyPath:'key'});
+  };
+  request.onerror=()=>reject(Error('Cannot seed local draft'));
+  request.onsuccess=()=>{
+   const db=request.result;
+   const tx=db.transaction('drafts','readwrite');
+   tx.objectStore('drafts').put({
+    key:location.origin+'/fishing/'+draftKey,version:1,
+    domain:'gear',sourceRevision:'a'.repeat(40),baseHash:null,
+    record:{id:gearId,name:staleName},notes:'Unsaved stale Notes',
+    requiresMedia:false,updatedAt:Date.now(),
+   });
+   tx.oncomplete=()=>{db.close();resolve();};
+   tx.onerror=()=>reject(Error('Cannot seed local draft'));
+   tx.onabort=()=>reject(Error('Cannot seed local draft'));
+  };
+ }),{draftKey,staleName,gearId:gear.id});
+ const dialogs=[];
+ page.on('dialog',async d=>{dialogs.push(d.message());await d.dismiss();});
+ await page.evaluate(hash=>location.hash=hash,'#/inventory/edit/'+gear.id);
+ await expect(page.locator('#app .page-header h1')).toHaveText('Edit '+gear.name,
+  {timeout:35000});
+ await expect(page.locator('#app .editor-notice[aria-live="polite"]'))
+  .toContainText('The incompatible saved draft was preserved. Automatic draft writes are paused to avoid overwriting it.');
+ expect(dialogs.some(s=>s.includes('based on different source content'))).toBe(true);
+ const name=page.getByRole('textbox',{name:'Name',exact:true});
+ await expect(name).toHaveValue(gear.name);
+ await name.fill(gear.name+' (new unsent edit)');
+ await expect(name).toHaveValue(gear.name+' (new unsent edit)');
+ const persisted=await page.evaluate(draftKey=>new Promise((resolve,reject)=>{
+  const request=indexedDB.open('fishing-v3-d6-owner-drafts-v1',1);
+  request.onerror=()=>reject(Error('Cannot read retained draft'));
+  request.onsuccess=()=>{
+   const db=request.result,tx=db.transaction('drafts','readonly');
+   const get=tx.objectStore('drafts').get(location.origin+'/fishing/'+draftKey);
+   get.onsuccess=()=>resolve(get.result);
+   get.onerror=()=>reject(Error('Cannot read retained draft'));
+   tx.oncomplete=()=>db.close();
+  };
+ }),draftKey);
+ expect(persisted.record.name).toBe(staleName);
+ expect(persisted.notes).toBe('Unsaved stale Notes');
+ await expect(page.getByRole('button',{
+  name:'Save and Publish unavailable in WP1 preview',
+ })).toBeDisabled();
+ expect(logs.writes).toEqual([]);
+ expect(errors).toEqual([]);
+});
+
+// WP1-DRAFT-05 integration: force a quota/transaction write denial in the
+// local device draft store without affecting the immutable release cache.
+test('WP1-DRAFT-B12 local storage write denial warns and retains editor text',async({page})=>{
+ session={authenticated:true,authorized:true,ownerLogin:'ginosega'};
+ const errors=await open(page);
+ await ownerReady(page);
+ await page.evaluate(()=>{
+  const original=IDBDatabase.prototype.transaction;
+  IDBDatabase.prototype.transaction=function(name,mode,...rest){
+   if(this.name==='fishing-v3-d6-owner-drafts-v1'&&mode==='readwrite')
+    throw new DOMException('Storage quota denied','QuotaExceededError');
+   return original.call(this,name,mode,...rest);
+  };
+ });
+ const gear=real.gear.items[0];
+ await page.evaluate(hash=>location.hash=hash,'#/inventory/edit/'+gear.id);
+ const name=page.getByRole('textbox',{name:'Name',exact:true});
+ await expect(name).toHaveValue(gear.name,{timeout:35000});
+ const changed=gear.name+' (unsent during quota failure)';
+ await name.fill(changed);
+ await expect(page.locator('#app .editor-notice[aria-live="polite"]'))
+  .toContainText('Device draft could not be saved. Keep this editor open until the changes are safely submitted.',
+   {timeout:25000});
+ await expect(name).toHaveValue(changed);
+ await expect(page.getByRole('button',{
+  name:'Save and Publish unavailable in WP1 preview',
+ })).toBeDisabled();
+ expect(logs.writes).toEqual([]);
+ expect(errors).toEqual([]);
+});
+
+// V3-PERF-04 / WP1 accessibility/search integration: use the real catalogs,
+// keyboard-activated results, explicit labels and honest empty states.
+test('WP1-SEARCH-B13 real Gear and KB search is keyboard accessible and never authors',async({page})=>{
+ const errors=await open(page);
+ const gear=real.gear.items.find(x=>x.name?.length>10)||real.gear.items[0];
+ const kb=real.kb.entities.find(x=>x.name?.length>10)||real.kb.entities[0];
+ await page.evaluate(hash=>location.hash=hash,'#/inventory');
+ const gearSearch=page.getByRole('searchbox',{name:'Search My Gear'});
+ await expect(gearSearch).toBeVisible({timeout:20000});
+ await gearSearch.fill(gear.name);
+ const gearLink=page.locator('#app a[href="#/inventory/item/'+gear.id+'"]');
+ await expect(gearLink).toBeVisible();
+ await expect(page.locator('#app .nav-grid')).toBeHidden();
+ await gearLink.focus();
+ await gearLink.press('Enter');
+ await expect(page.locator('#app .page-header h1')).toHaveText(gear.name,
+  {timeout:20000});
+ await page.evaluate(hash=>location.hash=hash,'#/kb');
+ const kbSearch=page.getByRole('searchbox',{name:'Search Knowledge Base'});
+ await expect(kbSearch).toBeVisible({timeout:20000});
+ await kbSearch.fill(kb.name);
+ await expect(page.locator('#app a[href="#/kb/'+kb.id+'"]')).toBeVisible();
+ await kbSearch.fill('wp1-no-matching-catalog-record');
+ await expect(page.locator('#app')).toContainText('No matching entries.');
+ await expect(page.locator('#app .record-grid a')).toHaveCount(0);
+ await kbSearch.fill('');
+ await expect(page.locator('#app .nav-grid')).toBeVisible();
+ await expect(page.locator('#app .page-edit-link')).toHaveCount(0);
+ expect(logs.sources).toBe(0);
+ expect(logs.writes).toEqual([]);
+ expect(errors).toEqual([]);
+});
+
 for(const sample of [
  {name:'desktop',width:1280,height:900},
  {name:'mobile',width:390,height:844},
