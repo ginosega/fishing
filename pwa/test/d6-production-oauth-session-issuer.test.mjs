@@ -288,3 +288,39 @@ test('D6-OAUTH12 oversized streamed OAuth JSON cancels before full read',async()
  assert.equal(canceled,true);
  assert(pulled<10);
 });
+
+test('D6-OAUTH13 exact GitHub RFC 9207 issuer permits callback; spoofed issuers fail closed',async()=>{
+ const githubIssuer='&iss=https%3A%2F%2Fgithub.com%2Flogin%2Foauth';
+ const accepted=factory(),{state}=await start(accepted);
+ const success=await accepted.issue.callback(callback(state,{query:githubIssuer}));
+ assert.equal(success.status,303);
+ assert.equal(success.headers.get('Location'),'/fishing/');
+ assert.equal(accepted.db.sessions.size,1);
+ assert.equal(accepted.db.flows.size,0);
+ assert.equal(accepted.provider.length,2);
+
+ const denied=factory(),{state:otherState}=await start(denied);
+ for(const query of [
+  '&iss=https%3A%2F%2Fevil.invalid%2Flogin%2Foauth',
+  '&iss=https%3A%2F%2Fgithub.com',
+  '&iss=HTTPS%3A%2F%2Fgithub.com%2Flogin%2Foauth',
+  githubIssuer+'%2F',
+  githubIssuer+githubIssuer,
+  githubIssuer+'&return=%2Ffishing%2F',
+  '&ISS=https%3A%2F%2Fgithub.com%2Flogin%2Foauth',
+ ]){
+  const rejected=await denied.issue.callback(
+   callback(otherState,{query}));
+  assert.equal(rejected.status,400,query);
+  assert.equal(rejected.headers.get('Set-Cookie')?.includes('__Host-fish_p0_session='),false);
+  assert.equal(denied.provider.length,0);
+  assert.equal(denied.db.flows.size,1);
+  assert.equal(denied.db.sessions.size,0);
+ }
+ // Rejected foreign parameters must not consume the legitimate pending flow.
+ const recovered=await denied.issue.callback(
+  callback(otherState,{query:githubIssuer}));
+ assert.equal(recovered.status,303);
+ assert.equal(denied.db.sessions.size,1);
+ assert.equal(denied.provider.length,2);
+});
