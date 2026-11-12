@@ -737,6 +737,48 @@ test('WP1-DENY-B16 anonymous direct editors and authorized forms never expose sa
  expect(errors).toEqual([]);
 });
 
+// V3-CONNECTION-06 / OPS-04: approved Help & Diagnostics is the final,
+// collapsed section. The allowlisted snapshot never exposes drafts or tokens.
+test('WP1-DIAG-B17 approved Help diagnostics copies only allowlisted state',async({page})=>{
+ session={authenticated:true,authorized:true,ownerLogin:'ginosega'};
+ const errors=await open(page);
+ await ownerReady(page);
+ await page.locator('#connection-status').click();
+ const dialog=page.locator('#connection-dialog');
+ const details=dialog.locator('.v3-connection-help');
+ await expect(details.locator('summary')).toHaveText('Help & Diagnostics');
+ await expect(details).not.toHaveAttribute('open');
+ await expect(dialog.locator('.v3-account')).toBeVisible();
+ await expect(dialog.locator('.v3-publishing')).toBeVisible();
+ await details.locator('summary').click();
+ await expect(details).toHaveAttribute('open');
+ await expect(details).toContainText('No credentials or draft content are included.');
+ await expect(details).toContainText('App release '+release.id.slice(0,12));
+ await page.evaluate(()=>Object.defineProperty(navigator,'clipboard',{
+  configurable:true,value:{writeText:async value=>{window.__wp1DiagnosticsCopy=value;}},
+ }));
+ await details.getByRole('button',{name:'Copy diagnostics'}).click();
+ await expect(details).toContainText('Diagnostics copied. No credentials or draft content included.');
+ const copied=await page.evaluate(()=>window.__wp1DiagnosticsCopy);
+ expect(copied).toContain('Application: Fishing Companion');
+ expect(copied).toContain('App release: '+release.id);
+ expect(copied).toContain('Source revision: '+release.sourceRevision);
+ expect(copied).toContain('Reading mode: Automatic');
+ for(const forbidden of ['ginosega','Bearer','csrf','operationId','Draft saved',
+  'githubToken','github.com/','/session','Unsent Catch notes']){
+  expect(copied).not.toContain(forbidden);
+ }
+ await page.evaluate(()=>Object.defineProperty(navigator,'clipboard',{
+  configurable:true,value:{writeText:async()=>{throw Error('Clipboard unavailable');}},
+ }));
+ await details.getByRole('button',{name:'Copy diagnostics'}).click();
+ await expect(details).toContainText('Clipboard unavailable. Select and copy the diagnostics below.');
+ await expect(details.getByRole('textbox',{name:'Diagnostics ready to copy'}))
+  .toHaveValue(copied);
+ expect(logs.writes).toEqual([]);
+ expect(errors).toEqual([]);
+});
+
 for(const sample of [
  {name:'desktop',width:1280,height:900},
  {name:'mobile',width:390,height:844},
