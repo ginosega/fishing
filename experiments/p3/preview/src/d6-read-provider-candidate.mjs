@@ -19,6 +19,7 @@ import {D6_PROOF_ORIGINS}
  from './d6-hosted-bytes-preflight.mjs';
 
 const API='https://api.github.com/repos/ginosega/fishing';
+const GRAPHQL='https://api.github.com/graphql';
 const SHA=/^[a-f0-9]{40}$/;
 const fail=()=>{throw Error('D6 trusted read transport denied');};
 const isPage=(url,pagesBase)=>{
@@ -82,14 +83,21 @@ export function createD6ReadProviderCandidate({
    headers:{Accept:'application/json'}});
  };
  const requestGitHub=(url,options)=>{
-  if(!isGitHub(url)||options?.method!=='GET'||
-   options.redirect!=='manual'||options?.body!==undefined||
+  const graphql=url===GRAPHQL&&options?.method==='POST'&&
+   options?.headers?.['Content-Type']==='application/json'&&
+   typeof options?.body==='string'&&options.body.length<=16000&&
+   options.body.startsWith('{"query":"query WP2VerifiedMarkdown ');
+  if(!graphql&&(!isGitHub(url)||options?.method!=='GET'||
+   options?.body!==undefined))fail();
+  if(options?.redirect!=='manual'||
    typeof options?.headers?.Authorization!=='string'||
    !/^Bearer [^\s]{12,}$/.test(options.headers.Authorization)||
    options.headers.Accept!=='application/vnd.github+json')fail();
   return transport(url,{
-   method:'GET',redirect:'manual',cache:'no-store',credentials:'omit',
+   method:graphql?'POST':'GET',
+   redirect:'manual',cache:'no-store',credentials:'omit',
    headers:{...options.headers},
+   ...(graphql?{body:options.body}:{}),
   });
  };
  const fetchGateway=(url,options)=>{
