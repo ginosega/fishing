@@ -259,7 +259,9 @@ test('WP3-CATCH05 Catch source acceptance is durable, unique and not Live',async
  const p={format:'fishing-companion-change-v2',
   domain:'catches',operation:'add',id:'catch-2026-11-12',
   base:{schemaVersion:2,sourceRevision:MAIN,recordHash:null},
-  record:{id:'catch-2026-11-12',date:'2026-11-12'},
+  record:{id:'catch-2026-11-12',date:'2026-11-12',
+   speciesName:'Unlisted species',locationName:'Unnamed bay',
+   lureOrBaitName:'Handmade spoon'},
   notes:{action:'keep'},picture:{action:'keep'},
   pictureSequence:{action:'keep'}};
  const req=()=>new Request(D6_PUBLISH_INTAKE_ORIGIN+'/api/v3/operations',{
@@ -276,6 +278,10 @@ test('WP3-CATCH05 Catch source acceptance is durable, unique and not Live',async
  assert.equal(accepted.status,'Accepted');
  assert.equal(accepted.isLive,false);
  assert.equal(s.store.rows[0].domain,'catches');
+ const storedPkg=JSON.parse(s.store.rows[0].snapshot_json).snapshot.package;
+ assert.equal(storedPkg.record.speciesName,'Unlisted species');
+ assert.equal(storedPkg.record.locationName,'Unnamed bay');
+ assert.equal(storedPkg.record.lureOrBaitName,'Handmade spoon');
  const retry=await s.receipt.accept(req(),{trustedMainSha:LATER});
  assert.equal(retry.operationId,accepted.operationId);
  assert.equal(s.store.rows.length,1);
