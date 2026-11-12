@@ -139,7 +139,7 @@ test('D6-INTAKE07 sandbox/repository/identity injection is rejected',async()=>{
    {trustedMainSha:MAIN}),'INVALID_SUBMISSION');
  }
 });
-test('D6-INTAKE08 media, pictures and Catch are not yet enabled',async()=>{
+test('D6-INTAKE08 media and pictures are denied; text-only Catch is non-submitting',async()=>{
  const image={path:'Gear/x/assets/a.png',bytes:3};
  await expectCode(setup().instance.inspect(req(body(pkg(),[image])),
   {trustedMainSha:MAIN}),'INVALID_SUBMISSION');
@@ -147,7 +147,15 @@ test('D6-INTAKE08 media, pictures and Catch are not yet enabled',async()=>{
  await expectCode(setup().instance.inspect(req(body(withPicture)),
   {trustedMainSha:MAIN}),'INVALID_SUBMISSION');
  const catchPkg=pkg();catchPkg.domain='catches';
- await expectCode(setup().instance.inspect(req(body(catchPkg)),
+ catchPkg.record={id:'test-item',date:'2026-11-12'};
+ const candidate=await setup().instance.inspect(req(body(catchPkg)),
+  {trustedMainSha:MAIN});
+ assert.equal(candidate.snapshot.package.domain,'catches');
+ assert.equal(candidate.sourceOnly,true);
+ assert.equal(candidate.canPublish,false);
+ const catchPhoto=structuredClone(catchPkg);
+ catchPhoto.picture.action='add';
+ await expectCode(setup().instance.inspect(req(body(catchPhoto)),
   {trustedMainSha:MAIN}),'INVALID_SUBMISSION');
 });
 test('D6-INTAKE09 strict package/JSON/idempotency/shape guard',async()=>{

@@ -3,7 +3,7 @@
  *
  * Deliberately not wired to the production Worker, a route, any GitHub
  * permission, D1 operation store, merge, deployment, or polling coordinator.
- * This validates a bounded TEXT-ONLY Gear/KB intent before a future trusted
+ * This validates a bounded TEXT-ONLY Gear/KB/Catch intent before a future trusted
  * candidate validator and durable idempotency/unknown-receipt store. A valid
  * intent is NEVER an accepted operation or evidence of public Live.
  *
@@ -77,7 +77,7 @@ function parseIntent(raw){
   Array.isArray(body.snapshot.media)&&body.snapshot.media.length===0&&
   plain(body.snapshot.package)&&
   body.snapshot.package.format==='fishing-companion-change-v2'&&
-  ['gear','kb'].includes(body.snapshot.package.domain)&&
+  ['gear','kb','catches'].includes(body.snapshot.package.domain)&&
   ['add','edit'].includes(body.snapshot.package.operation)&&
   SHA.test(body.snapshot.package.base?.sourceRevision??'')&&
   body.snapshot.package.picture?.action==='keep'&&
