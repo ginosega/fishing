@@ -281,3 +281,39 @@ test('WP3-CATCH05 Catch source acceptance is durable, unique and not Live',async
  assert.equal(s.store.rows.length,1);
  assert.equal(s.count().reads,1);
 });
+
+test('WP3-DOMAIN04 Gear/KB/Catch use one source-review receipt gate',async()=>{
+ const gear=packageFor();
+ const kb={format:'fishing-companion-change-v2',domain:'kb',
+  operation:'add',id:'sample-technique',
+  base:{schemaVersion:2,sourceRevision:MAIN,recordHash:null},
+  record:{id:'sample-technique',type:'technique',name:'Sample Technique'},
+  notes:{action:'create',path:'KB/Techniques/content/Sample Technique.md',
+   body:'# Sample Technique',baseSha256:null},
+  picture:{action:'keep'},pictureSequence:{action:'keep'}};
+ const catchPkg={format:'fishing-companion-change-v2',domain:'catches',
+  operation:'add',id:'catch-2026-11-12',
+  base:{schemaVersion:2,sourceRevision:MAIN,recordHash:null},
+  record:{id:'catch-2026-11-12',date:'2026-11-12'},
+  notes:{action:'create',path:'Catches/content/catch-2026-11-12.md',
+   body:'# Catch Notes',baseSha256:null},
+  picture:{action:'keep'},pictureSequence:{action:'keep'}};
+ const req=(p,key)=>new Request(D6_PUBLISH_INTAKE_ORIGIN+
+  '/api/v3/operations',{method:'POST',headers:{
+   Origin:D6_PUBLISH_INTAKE_ORIGIN,'Sec-Fetch-Site':'same-origin',
+   'X-Fish-V3-Intent':'publish','X-Fish-V3-CSRF':'C'.repeat(43),
+   'Content-Type':'application/json',
+  },body:JSON.stringify({idempotencyKey:key,
+   snapshot:{package:p,media:[]}})});
+ const s=setup(),kinds=[gear,kb,catchPkg],receipts=[];
+ for(let i=0;i<kinds.length;i++)
+  receipts.push(await s.receipt.accept(
+   req(kinds[i],'wp3_domain_submission_'+String(i).padStart(4,'0')),
+   {trustedMainSha:MAIN}));
+ assert.deepEqual(receipts.map(r=>r.domain),['gear','kb','catches']);
+ assert(receipts.every(r=>r.status==='Accepted'&&r.sourceOnly&&
+  r.isLive===false&&r.canPublish===false));
+ assert.deepEqual(s.store.rows.map(r=>r.domain),['gear','kb','catches']);
+ assert.equal(s.count().reads,3);
+ assert.equal(s.store.rows.length,3);
+});

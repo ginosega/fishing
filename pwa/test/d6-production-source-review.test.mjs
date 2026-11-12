@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {fingerprint} from '../src/shared.mjs';
+import {prepareChange} from '../src/handoff.mjs';
 import {prepareCatchPackage} from '../src/catch-editor.mjs';
 import {createD6ProductionPublishIntake,D6_PUBLISH_INTAKE_ORIGIN}
  from '../../experiments/p3/preview/src/d6-production-publish-intake.mjs';
@@ -192,9 +193,11 @@ test('WP3-CATCH02 editor Catch Edit preserves original fields under review',asyn
 });
 
 test('WP3-CATCH03 Catch Notes create has an owned Catches path and no Live',async()=>{
- const p=await prepareCatchPackage({ctx:catchCtx(),record:catchRecord});
- p.notes={action:'create',path:'Catches/content/'+catchRecord.id+'.md',
-  body:'# Catch notes',baseSha256:null};
+ const p=await prepareCatchPackage({
+  ctx:catchCtx(),record:catchRecord,text:'# Catch notes',
+ });
+ assert.equal(p.notes.action,'create');
+ assert.equal(p.notes.path,'Catches/content/'+catchRecord.id+'.md');
  const result=await setup().review.review(request(p),{trustedMainSha:MAIN});
  assert.equal(result.fileOps[0].path,'Catches/content/'+catchRecord.id+'.md');
  assert.equal(result.candidateData.catches.catches[0].notes,
@@ -211,4 +214,52 @@ test('WP3-CATCH04 Catch image staging is explicit denial, never silent loss',asy
  p.picture={action:'add',path:'Catches/content/unsafe.png'};
  await assert.rejects(setup().review.review(request(p),{
   trustedMainSha:MAIN}),e=>e?.code==='INVALID_SUBMISSION');
+});
+
+test('WP3-DOMAIN01 KB Add through shared source review retains Markdown',async()=>{
+ const record={id:'sample-technique',type:'technique',name:'Sample Technique'};
+ const p=await prepareChange({
+  domain:'kb',operation:'add',id:record.id,record,
+  sourceRevision:MAIN,text:'# Sample Technique',
+ });
+ const r=await setup().review.review(request(p),{trustedMainSha:MAIN});
+ assert.equal(r.domain,'kb');
+ assert.equal(r.candidateData.kb.entities[0].content,
+  'KB/Techniques/content/Sample Technique.md');
+ assert.equal(r.candidateMarkdown.get(r.fileOps[0].path),
+  '# Sample Technique');
+ assert.equal(r.fileOps[0].action,'create');
+ assert.equal(r.sourceOnly,true);
+ assert.equal(r.canPublish,false);
+});
+
+test('WP3-DOMAIN02 KB Edit protects original canonical text',async()=>{
+ const original={id:'sample-technique',type:'technique',
+  name:'Sample Technique',
+  content:'KB/Techniques/content/Sample Technique.md'};
+ const data=baseData();data.kb.entities=[original];
+ const files=new Set(['Gear/gear.json','KB/kb.json','Catches/catches.json',
+  original.content]);
+ const markdown=new Map([[original.content,'# Existing']]);
+ const p=await prepareChange({domain:'kb',operation:'edit',
+  id:original.id,baseRecord:original,
+  record:{...original,name:'Updated Technique'},
+  baseText:'# Existing',text:'# Existing',sourceRevision:MAIN,
+ });
+ const r=await setup({data,files,markdown}).review.review(request(p),{
+  trustedMainSha:MAIN,
+ });
+ assert.equal(r.candidateData.kb.entities[0].name,'Updated Technique');
+ assert.equal(r.candidateMarkdown.get(original.content),'# Existing');
+ assert.equal(r.fileOps.length,0);
+ assert.equal(original.name,'Sample Technique');
+ assert.equal(r.canPublish,false);
+});
+
+test('WP3-DOMAIN03 Catch Notes cannot escape its owned source path',async()=>{
+ const p=await prepareCatchPackage({ctx:catchCtx(),
+  record:catchRecord,text:'# Notes'});
+ p.notes.path='Catches/content/unrelated-record.md';
+ await deny(setup().review.review(request(p),{trustedMainSha:MAIN}),
+  'UNSAFE_NARRATIVE_PATH');
 });
