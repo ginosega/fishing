@@ -1,0 +1,10 @@
+{
+  "name": "fishing-auth-p0-feasibility",
+  "private": true,
+  "type": "module",
+  "description": "Isolated authentication feasibility prototype; no production integration",
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "engines": { "node": ">=20" }
+}
