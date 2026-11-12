@@ -24,7 +24,7 @@ const response=(status,error)=>new Response(JSON.stringify({ok:false,error}),{
 export function createD6ProductionOAuthReadComposition({
  transport,requestAppGitHub,requestOAuthGitHub,appEnv,
  oauthClientId,oauthClientSecret,AUTH_DB,csrfKey,cryptoApi,now,
- gatewayEnabled=false,staticEnabled=false,sessionEnabled=false,
+ pagesBase,gatewayEnabled=false,staticEnabled=false,sessionEnabled=false,
  sourceEnabled=false,tokenEnabled=false,signerEnabled=false,
  oauthEnabled=false,signoutEnabled=false,preflightEnabled=false,
 }={}){
@@ -35,7 +35,7 @@ export function createD6ProductionOAuthReadComposition({
   throw Error('Invalid D6 production OAuth-read configuration');
 
  const reader=createD6ProductionReadWithSigner({
-  transport,requestAppGitHub,appEnv,AUTH_DB,csrfKey,cryptoApi,now,
+  transport,requestAppGitHub,appEnv,AUTH_DB,csrfKey,cryptoApi,now,pagesBase,
   gatewayEnabled,staticEnabled,sessionEnabled,sourceEnabled,
   tokenEnabled,signerEnabled,preflightEnabled,
  });

@@ -13,7 +13,7 @@ import {createD6ProductionOwnerSession} from './d6-production-owner-session.mjs'
 import {createD6ReadProviderCandidate} from './d6-read-provider-candidate.mjs';
 
 export function createD6ProductionReadComposition({
- transport,issueReadToken,AUTH_DB,csrfKey,now,
+ transport,issueReadToken,AUTH_DB,csrfKey,now,pagesBase,
  gatewayEnabled=false,staticEnabled=false,sessionEnabled=false,
  sourceEnabled=false,preflightEnabled=false,
 }={}){
@@ -32,7 +32,7 @@ export function createD6ProductionReadComposition({
  });
 
  const provider=createD6ReadProviderCandidate({
-  transport,issueReadToken,ownerSession,
+  transport,issueReadToken,ownerSession,pagesBase,
   gatewayEnabled,staticEnabled,sessionEnabled,
   sourceEnabled,preflightEnabled,
  });

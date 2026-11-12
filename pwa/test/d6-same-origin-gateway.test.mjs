@@ -5,6 +5,8 @@ import {readFileSync} from 'node:fs';
 import {collectPaths} from '../src/validation.mjs';
 import {createD6SameOriginGateway} from
  '../../experiments/p3/preview/src/d6-same-origin-gateway.mjs';
+import {D6_ISOLATED_PAGES_BASE,planD6PublicRead}
+ from '../server/d6-pages-path-gateway.mjs';
 import {createD6CanonicalSourceClient} from '../src/d6-canonical-authoring-source.mjs';
 
 const ORIGIN='https://fishing.ginosega.workers.dev';
@@ -29,11 +31,11 @@ const rejectTransport=async()=>{throw Error('Provider must not be called');};
 function gateway({
  flags={},fetchStaticAsset=rejectTransport,fetchHostedAsset=rejectTransport,
  requestGitHub=rejectTransport,issueReadToken=rejectTransport,
- ownerSession=owner(),
+ ownerSession=owner(),pagesBase,
 }={}){
  return createD6SameOriginGateway({
   fetchStaticAsset,fetchHostedAsset,requestGitHub,issueReadToken,ownerSession,
-  gatewayEnabled:()=>flags.gateway??false,
+  pagesBase,gatewayEnabled:()=>flags.gateway??false,
   staticEnabled:()=>flags.static??false,
   sessionEnabled:()=>flags.session??false,
   sourceEnabled:()=>flags.source??false,
@@ -323,4 +325,26 @@ test('D6-GW10 only source-only function exported; no Worker or write wiring',()=
  assert.match(source,/createD6CanonicalSnapshotLoader/);
  assert.match(source,/createD6OwnerSourceRoute/);
  assert.doesNotMatch(source,/export default|addEventListener\(|issueWriteToken|method:'POST'|method:'PUT'/);
+});
+
+test('D6-GW11 isolated static and owner source use same exact Pages base',async()=>{
+ const calls=[];
+ const app=gateway({pagesBase:D6_ISOLATED_PAGES_BASE,
+  flags:{gateway:true,static:true,session:true,source:true},
+  fetchStaticAsset:async(url)=>{calls.push(['static',url]);
+   return new Response('static bytes');},
+  fetchHostedAsset:async(url)=>{calls.push(['hosted',url]);
+   return json({id:'b'.repeat(32),sourceRevision:'a'.repeat(40)});
+  },
+  issueReadToken:async()=>{throw Error('No token before hosted proof');},
+ });
+ assert.equal((await app.fetch(req('/fishing/release.json'))).status,200);
+ assert.equal((await app.fetch(req('/api/v3/authoring-source'))).status,503);
+ assert.deepEqual(calls,[
+  ['static',D6_ISOLATED_PAGES_BASE+'release.json'],
+  ['hosted',D6_ISOLATED_PAGES_BASE+'release.json'],
+ ]);
+ assert.equal(planD6PublicRead({url:ORIGIN+'/fishing/release.json',
+  pagesBase:'https://evil.invalid/fishing/'}).kind,'deny');
+ assert.throws(()=>gateway({pagesBase:'https://evil.invalid/fishing/'}));
 });
