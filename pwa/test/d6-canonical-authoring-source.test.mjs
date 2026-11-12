@@ -165,3 +165,33 @@ test('D6-SRC08 bootstrap and owner status are read-only, not publication integra
  assert.match(ui,/createD6OwnerEditorPreviewGate/);
  assert.doesNotMatch(entry,/createD3OwnerTestShell|createD3AuthoringClient|publishChange/);
 });
+
+test('D6-SRC09 isolated WP2 browser keeps hosted code and canonical main separate',async()=>{
+ const stage='https://fishing-d6-wp2-test.ginosega.workers.dev';
+ const hosted='e'.repeat(40);
+ const reply={...canonical(),stagingOnly:true,hostedRevision:hosted};
+ const config={root:stage+'/fishing/',wp2Staging:true,
+  expectedReleaseRevision:hosted};
+ const result=await client(async(url)=>{
+  assert.equal(url,stage+'/api/v3/authoring-source');
+  return response(reply);
+ },config).load(ok);
+ assert.equal(result.sourceRevision,REV);
+ assert.equal(result.hostedRevision,hosted);
+ assert.equal(result.stagingOnly,true);
+ assert.equal(result.canPublish,false);
+ for(const faulty of [
+  {...reply,stagingOnly:false},
+  {...reply,hostedRevision:'c'.repeat(40)},
+  {...reply,sourceRevision:'noSHA'},
+  {...reply,ref:'refs/heads/feature/draft'},
+ ]){
+  await assert.rejects(client(async()=>response(faulty),config).load(ok),
+   e=>e instanceof D6SourceError);
+ }
+ assert.throws(()=>client(async()=>response(reply),{
+  root:stage+'/fishing/',expectedReleaseRevision:hosted,
+ }),e=>e.code==='INVALID_CONFIG');
+ await rejected(async()=>response({...canonical(),stagingOnly:true,
+  hostedRevision:REV}),'SOURCE_REVISION_MISMATCH');
+});

@@ -76,10 +76,10 @@ async function decodeVerifiedGitBlob(entry,blob){
 }
 
 export function createD6CanonicalSnapshotLoader({
- request,issueReadToken,enabled=()=>false,
+ request,issueReadToken,enabled=()=>false,stagingMode=false,
 }={}){
  need(typeof request==='function'&&typeof issueReadToken==='function'&&
-  typeof enabled==='function','INVALID_CONFIG');
+  typeof enabled==='function'&&typeof stagingMode==='boolean','INVALID_CONFIG');
 
  async function githubGet(token,url){
   // Never send a repository token to caller-supplied URL or a redirect.
@@ -122,7 +122,7 @@ export function createD6CanonicalSnapshotLoader({
   const head=first?.object?.sha;
   need(first?.ref===D6_SOURCE_REPOSITORY.ref&&
    first?.object?.type==='commit'&&SHA.test(head)&&
-   head===expectedReleaseRevision,'MAIN_RELEASE_MISMATCH');
+   (stagingMode||head===expectedReleaseRevision),'MAIN_RELEASE_MISMATCH');
 
   const commit=await githubGet(token,API+'/git/commits/'+head);
   need(commit?.sha===head&&SHA.test(commit.tree?.sha),

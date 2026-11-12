@@ -9,13 +9,15 @@ const d6Reader=typeof __FISHING_D6_PUBLIC_READER__!=='undefined'&&
  __FISHING_D6_PUBLIC_READER__===true;
 const d6StaticStaging=typeof __FISHING_D6_STATIC_STAGING__!=='undefined'&&
  __FISHING_D6_STATIC_STAGING__===true;
+const d6Wp2Staging=typeof __FISHING_D6_WP2_STAGING__!=='undefined'&&
+ __FISHING_D6_WP2_STAGING__===true;
 const d6OwnerConnection=typeof __FISHING_D6_OWNER_CONNECTION__!=='undefined'&&
  __FISHING_D6_OWNER_CONNECTION__===true;
 const d6EditorPreview=typeof __FISHING_D6_OWNER_EDITOR_PREVIEW__!=='undefined'&&
  __FISHING_D6_OWNER_EDITOR_PREVIEW__===true;
 function d6Context(){
  if(!d6Reader)return {};
- const reader=selectD6PublicReader({enabled:true,staticStaging:d6StaticStaging,
+ const reader=selectD6PublicReader({enabled:true,staticStaging:d6StaticStaging,wp2Staging:d6Wp2Staging,
   root:settings.root,
   release:settings.release,manifest:settings.manifest});
  // Staging may expose only immutable anonymous reading. It never creates
@@ -26,13 +28,19 @@ function d6Context(){
  }
  const ownerReadiness=createD6OwnerSessionReadiness({
   root:settings.root,request:(url,options)=>fetch(url,options),
+  wp2Staging:d6Wp2Staging,
   enabled:()=>true,online:()=>navigator.onLine===true,
  });
  const canonicalSource=createD6CanonicalSourceClient({
   root:settings.root,expectedReleaseRevision:settings.release.sourceRevision,
+  wp2Staging:d6Wp2Staging,
   request:(url,options)=>fetch(url,options),
   enabled:()=>true,online:()=>navigator.onLine===true,
  });
+ if(d6Wp2Staging&&
+   (settings.release?.d6Wp2Staging!==true||
+    settings.manifest?.d6Wp2Staging!==true))
+  throw Error('D6 WP2 staging build identity missing');
  // Even after both read checks, nothing authorizes a repository write.
  if(d6OwnerConnection&&
    (settings.release?.d6OwnerConnectionCandidate!==true||
@@ -43,7 +51,7 @@ function d6Context(){
     settings.manifest?.d6OwnerEditorPreview!==true))
   throw Error('D6 owner editor preview build identity missing');
  return {v3:{...reader,ownerReadiness,canonicalSource,
-  ownerConnectionCandidate:d6OwnerConnection,
+  wp2Staging:d6Wp2Staging,ownerConnectionCandidate:d6OwnerConnection,
   ownerEditorPreview:d6EditorPreview}};
 }
 Promise.resolve().then(()=>bootstrap(settings,d6Context())).catch(error=>{

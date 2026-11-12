@@ -70,3 +70,27 @@ test('D6-A05 normal V2 Add/Edit remains, candidate hides all editing routes',()=
  assert.match(ui,/viewerImages:readerOnly/);
  assert.match(ui,/if\(readerOnly\)bindMarkdownPictureViewer/);
 });
+
+test('D6-A06 WP2 staged build requires dedicated origin and matching markers',()=>{
+ const stage='https://fishing-d6-wp2-test.ginosega.workers.dev';
+ const staged={...good,enabled:true,wp2Staging:true,
+  root:stage+D6_READER_BASE,
+  release:{...good.release,d6Wp2Staging:true},
+  manifest:{...good.manifest,d6Wp2Staging:true},
+ };
+ assert.equal(selectD6PublicReader(staged).readerOnly,true);
+ for(const bad of [
+  {...staged,root:D6_READER_ORIGIN+D6_READER_BASE},
+  {...staged,wp2Staging:false},
+  {...staged,release:good.release},
+  {...staged,manifest:good.manifest},
+  {...staged,staticStaging:true},
+ ]){
+  assert.throws(()=>selectD6PublicReader(bad));
+ }
+ const source=readFileSync(new URL('../tools/build.mjs',import.meta.url),'utf8');
+ assert.match(source,/--d6-wp2-hosted-candidate/);
+ assert.match(source,/d6Wp2Staging/);
+ assert.match(source,/__FISHING_D6_WP2_STAGING__/);
+ assert.match(source,/d6Wp2Staging:true/);
+});

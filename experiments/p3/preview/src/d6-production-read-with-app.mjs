@@ -16,7 +16,7 @@ import {createD6ProductionReadTokenIssuer}
 
 export function createD6ProductionReadWithApp({
  transport,requestAppGitHub,signAppJwt,appEnv,
- AUTH_DB,csrfKey,now,pagesBase,
+ AUTH_DB,csrfKey,now,pagesBase,origin,stagingMode=false,
  gatewayEnabled=false,staticEnabled=false,sessionEnabled=false,
  sourceEnabled=false,tokenEnabled=false,preflightEnabled=false,
 }={}){
@@ -35,7 +35,7 @@ export function createD6ProductionReadWithApp({
    sourceEnabled===true&&tokenEnabled===true,
  });
  const provider=createD6ProductionReadComposition({
-  transport,AUTH_DB,csrfKey,now,pagesBase,
+  transport,AUTH_DB,csrfKey,now,pagesBase,origin,stagingMode,
   issueReadToken:issuer.issueReadToken,
   gatewayEnabled,staticEnabled,sessionEnabled,
   sourceEnabled,preflightEnabled,

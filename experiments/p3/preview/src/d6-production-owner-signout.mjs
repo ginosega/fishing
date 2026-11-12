@@ -8,6 +8,8 @@
  * This is required before the accepted D5 Connection Status "Sign out"
  * control can be wired into the D6 production owner UI.
  */
+import {isD6GatewayOrigin}
+ from '../../../../pwa/server/d6-pages-path-gateway.mjs';
 export const D6_OWNER_SIGNOUT_ORIGIN='https://fishing.ginosega.workers.dev';
 export const D6_OWNER_SIGNOUT_PATH='/session/signout';
 const OWNER=265665562;
@@ -40,14 +42,14 @@ function b64(buffer){
  let s='';for(const v of new Uint8Array(buffer))s+=String.fromCharCode(v);
  return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/g,'');
 }
-function permitted(request){
+function permitted(request,origin){
  if(!(request instanceof Request)||request.method!=='POST'||
     request.headers.has('Authorization')||request.body!==null)return false;
  let url;try{url=new URL(request.url);}catch{return false;}
- return url.origin===D6_OWNER_SIGNOUT_ORIGIN&&
+ return url.origin===origin&&
    url.pathname===D6_OWNER_SIGNOUT_PATH&&!url.search&&!url.hash&&
    !url.username&&!url.password&&
-   request.headers.get('Origin')===D6_OWNER_SIGNOUT_ORIGIN&&
+   request.headers.get('Origin')===origin&&
    request.headers.get('Sec-Fetch-Site')==='same-origin'&&
    request.headers.get('X-Fish-P0-Intent')==='signout'&&
    !['navigate','websocket'].includes(
@@ -55,11 +57,13 @@ function permitted(request){
 }
 export function createD6ProductionOwnerSignout({
  AUTH_DB,cryptoApi=globalThis.crypto,enabled=()=>false,
+ origin=D6_OWNER_SIGNOUT_ORIGIN,
 }={}){
- if(typeof enabled!=='function')throw Error('Invalid D6 sign-out gate');
+ if(typeof enabled!=='function'||!isD6GatewayOrigin(origin))
+  throw Error('Invalid D6 sign-out gate');
  async function signOut(request){
   if(enabled()!==true)return response(503,'TEMPORARILY_UNAVAILABLE');
-  if(!permitted(request))return response(403,'REQUEST_DENIED');
+  if(!permitted(request,origin))return response(403,'REQUEST_DENIED');
   const secret=cookie(request);
   if(!secret)return response(401,'SESSION_REQUIRED');
   if(typeof AUTH_DB?.prepare!=='function'||

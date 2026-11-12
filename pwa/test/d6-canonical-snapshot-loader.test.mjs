@@ -235,3 +235,23 @@ test('D6-TRUST10 oversized streamed GitHub JSON is canceled and denied',async()=
  assert.equal(canceled,true);
  assert(pulled<8);
 });
+
+test('D6-TRUST11 staging main snapshot remains canonical, even when code differs',async()=>{
+ const f=githubFixture();
+ const source=createD6CanonicalSnapshotLoader({
+  request:f.request,
+  issueReadToken:async()=>({repositoryId:1350909744,
+   token:'github-test-read-token',permissions:{contents:'read'}}),
+  enabled:()=>true,stagingMode:true,
+ });
+ const result=await source.loadSnapshot({
+  expectedReleaseRevision:'e'.repeat(40),
+ });
+ assert.equal(result.ref,'refs/heads/main');
+ assert.equal(result.sourceRevision,SHA);
+ assert.equal(result.canPublish,false);
+ assert.equal(f.calls.filter(call=>call.url===API+'/git/ref/heads/main').length,2);
+ const production=loader({request:f.request});
+ await denied(production.loadSnapshot({expectedReleaseRevision:'e'.repeat(40)}),
+  'MAIN_RELEASE_MISMATCH');
+});

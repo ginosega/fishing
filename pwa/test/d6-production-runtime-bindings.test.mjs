@@ -6,6 +6,8 @@ import {createD6ProductionRuntimeBindingContract}
  from '../../experiments/p3/preview/src/d6-production-runtime-bindings.mjs';
 
 const ORIGIN='https://fishing.ginosega.workers.dev',NOW=2000000000;
+const STAGE='https://fishing-d6-wp2-test.ginosega.workers.dev';
+const stageReq=(path,opts={})=>new Request(STAGE+path,opts);
 const secure={
  D6_PRODUCTION_ENABLED:'true',D6_ORIGIN:ORIGIN,
  D6_OWNER_GITHUB_ID:'265665562',D6_REPOSITORY_ID:'1350909744',
@@ -322,16 +324,17 @@ test('D6-BIND13 forged sign-out cannot revoke active owner session',async()=>{
 });
 
 test('D6-BIND14 isolated V3 Pages source selected independently of V2',async()=>{
- const x=make({D6_STATIC_ENABLED:'true',D6_ISOLATED_PAGES_ENABLED:'true'});
- const response=await x.app.fetch(req('/fishing/release.json'));
+ const x=make({D6_STATIC_ENABLED:'true',D6_ISOLATED_PAGES_ENABLED:'true',
+  D6_WP2_STAGING_ENABLED:'true',D6_ORIGIN:STAGE});
+ const response=await x.app.fetch(stageReq('/fishing/release.json'));
  assert.equal(response.status,200);
  assert.deepEqual(x.network.map(n=>n.url),[
   'https://fishing-v3-d6-static-test.pages.dev/fishing/release.json',
  ]);
  assert.equal(x.network[0].options.credentials,'omit');
  assert.equal(x.network[0].options.redirect,'manual');
- assert.equal((await x.app.fetch(req('/api/v3/operations',{
-  method:'POST',headers:{Origin:ORIGIN},
+ assert.equal((await x.app.fetch(stageReq('/api/v3/operations',{
+  method:'POST',headers:{Origin:STAGE},
  }))).status,404);
 });
 test('D6-BIND15 arbitrary Pages URLs cannot enter through runtime env',async()=>{
@@ -342,5 +345,72 @@ test('D6-BIND15 arbitrary Pages URLs cannot enter through runtime env',async()=>
  assert.equal(response.status,200);
  assert.deepEqual(x.network.map(n=>n.url),[
   'https://ginosega.github.io/fishing/release.json',
+ ]);
+});
+
+test('D6-BIND16 isolated server profile must match origin and Pages gates',async()=>{
+ for(const flags of [
+  {D6_WP2_STAGING_ENABLED:'true',D6_ISOLATED_PAGES_ENABLED:'true'},
+  {D6_WP2_STAGING_ENABLED:'true',D6_ORIGIN:STAGE},
+  {D6_ISOLATED_PAGES_ENABLED:'true'},
+  {D6_WP2_STAGING_ENABLED:'true',D6_ISOLATED_PAGES_ENABLED:'true',
+   D6_ORIGIN:'https://evil.invalid'},
+ ]){
+  const x=make({...flags,D6_STATIC_ENABLED:'true',
+   D6_SESSION_ENABLED:'true',D6_OAUTH_ENABLED:'true'});
+  assert.equal((await x.app.fetch(stageReq('/fishing/release.json'))).status,503);
+  assert.equal((await x.app.fetch(stageReq('/auth/start'))).status,503);
+  assert.equal(x.dbEvents.length,0);assert.equal(x.network.length,0);
+ }
+});
+test('D6-BIND17 WP2 staging OAuth, owner session and sign-out share host',async()=>{
+ const x=make({
+  D6_WP2_STAGING_ENABLED:'true',D6_ISOLATED_PAGES_ENABLED:'true',
+  D6_ORIGIN:STAGE,D6_STATIC_ENABLED:'true',D6_SESSION_ENABLED:'true',
+  D6_OAUTH_ENABLED:'true',D6_SIGNOUT_ENABLED:'true',
+  D6_OAUTH_CLIENT_ID:'Iv1.fishingtest',
+  D6_OAUTH_CLIENT_SECRET:'test-only-client-secret-value-xxxxxxxx',
+ });
+ assert.equal((await x.app.fetch(req('/session'))).status,404);
+ const started=await x.app.fetch(stageReq('/auth/start',{
+  headers:{'Sec-Fetch-Mode':'navigate','Sec-Fetch-Dest':'document',
+   'Sec-Fetch-Site':'same-origin'},
+ }));
+ assert.equal(started.status,303);
+ const redirect=new URL(started.headers.get('Location'));
+ assert.equal(redirect.searchParams.get('redirect_uri'),STAGE+'/auth/callback');
+ const state=started.headers.get('Set-Cookie')?.match(
+  /__Host-fish_p0_flow=([A-Za-z0-9_-]{43})/)?.[1];
+ assert.match(state,/^[A-Za-z0-9_-]{43}$/);
+ const callback=await x.app.fetch(stageReq('/auth/callback?code=githubCode1234567890&state='+state,{
+  headers:{Cookie:'__Host-fish_p0_flow='+state,
+   'Sec-Fetch-Site':'cross-site','Sec-Fetch-Mode':'navigate',
+   'Sec-Fetch-Dest':'document'},
+ }));
+ assert.equal(callback.status,303);
+ const sid=callback.headers.get('Set-Cookie')?.match(
+  /__Host-fish_p0_session=([A-Za-z0-9_-]{43})/)?.[1];
+ assert.match(sid,/^[A-Za-z0-9_-]{43}$/);
+ assert.equal(x.sessions.get(hash(sid))?.github_id,265665562);
+ const cookie='__Host-fish_p0_session='+sid;
+ const status=await x.app.fetch(stageReq('/session',{
+  headers:{Cookie:cookie,'Sec-Fetch-Site':'same-origin'},
+ }));
+ assert.equal((await status.json()).authorized,true);
+ assert.equal((await x.app.fetch(stageReq('/api/v3/media',{
+  method:'POST',headers:{Cookie:cookie,Origin:STAGE},
+ }))).status,404);
+ const out=await x.app.fetch(stageReq('/session/signout',{
+  method:'POST',headers:{Cookie:cookie,Origin:STAGE,
+   'Sec-Fetch-Site':'same-origin','X-Fish-P0-Intent':'signout'},
+ }));
+ assert.equal(out.status,200);
+ assert.equal(x.sessions.has(hash(sid)),false);
+ assert.deepEqual(await (await x.app.fetch(stageReq('/session',{
+  headers:{Cookie:cookie,'Sec-Fetch-Site':'same-origin'},
+ }))).json(),{authenticated:false,authorized:false});
+ assert.deepEqual(x.network.map(n=>n.url),[
+  'https://github.com/login/oauth/access_token',
+  'https://api.github.com/user',
  ]);
 });

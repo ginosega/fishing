@@ -224,3 +224,30 @@ test('D6-OWNUI13 mounting requires explicit isolated production-path build',()=>
  assert.doesNotMatch(e,/d3-owner-test-shell|d5-owner-candidate/);
  assert.doesNotMatch(u,/createD3PublicationLifecycle|d3-authoring-client/);
 });
+
+test('D6-OWNUI14 WP2 staging connects to its own signout endpoint only',async()=>{
+ const stage='https://fishing-d6-wp2-test.ginosega.workers.dev';
+ const calls=[];
+ const init={root:stage+'/fishing/',wp2Staging:true,
+  ownerReadiness:{check:async()=>({state:'Owner',canPublish:false,
+   ownerLogin:'ginosega'})},
+  request:async(url,options)=>{
+   calls.push({url,options});
+   return new Response(JSON.stringify({signedOut:true}),{
+    headers:{'Content-Type':'application/json'},
+   });
+  },
+  enabled:()=>true,online:()=>true,readingMode:()=> 'Automatic',
+ };
+ const adapter=createD6OwnerConnectionAdapter(init);
+ assert.equal((await adapter.restore()).authorized,true);
+ assert.equal((await adapter.signOut()).authorized,false);
+ assert.equal(calls[0].url,stage+'/session/signout');
+ assert.equal(calls[0].options.method,'POST');
+ assert.throws(()=>createD6OwnerConnectionAdapter({
+  ...init,wp2Staging:false,
+ }));
+ assert.throws(()=>createD6OwnerConnectionAdapter({
+  ...init,root:'https://evil.invalid/fishing/',
+ }));
+});

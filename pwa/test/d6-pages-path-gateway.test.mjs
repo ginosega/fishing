@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {planD6PublicRead,createD6PublicReadProxy,D6_PUBLIC_ORIGIN,D6_GITHUB_PAGES_BASE}
+import {planD6PublicRead,createD6PublicReadProxy,D6_PUBLIC_ORIGIN,D6_GITHUB_PAGES_BASE,
+ D6_ISOLATED_PAGES_BASE}
  from '../server/d6-pages-path-gateway.mjs';
 const O=D6_PUBLIC_ORIGIN;
 const ID='0123456789abcdef0123456789abcdef';
@@ -160,4 +161,26 @@ test('D6-P10 canonical Pages shell origin failing or redirecting remains unavail
   assert.equal(attempt.status,503);
   assert.equal(attempt.headers.get('Location'),null);
  }
+});
+
+test('D6-P11 isolated Worker/static Pages origin pair is exact',async()=>{
+ const staging='https://fishing-d6-wp2-test.ginosega.workers.dev';
+ const req=new Request(staging+'/fishing/release.json');
+ const plan=planD6PublicRead({url:req.url,
+  origin:staging,pagesBase:D6_ISOLATED_PAGES_BASE});
+ assert.equal(plan.kind,'static');
+ assert.equal(plan.upstreamUrl,D6_ISOLATED_PAGES_BASE+'release.json');
+ const calls=[];
+ const proxy=createD6PublicReadProxy({
+  enabled:true,origin:staging,pagesBase:D6_ISOLATED_PAGES_BASE,
+  fetchAsset:async url=>{calls.push(url);return new Response('bytes');},
+ });
+ assert.equal((await proxy(req)).status,200);
+ assert.deepEqual(calls,[plan.upstreamUrl]);
+ assert.equal(planD6PublicRead({url:req.url}).kind,'deny');
+ assert.equal(planD6PublicRead({url:req.url,
+  origin:'https://evil.invalid',pagesBase:D6_ISOLATED_PAGES_BASE}).kind,'deny');
+ assert.throws(()=>createD6PublicReadProxy({
+  enabled:true,origin:'https://evil.invalid',fetchAsset:async()=>{},
+ }));
 });

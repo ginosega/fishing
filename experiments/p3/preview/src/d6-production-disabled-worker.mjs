@@ -12,6 +12,8 @@
  */
 import {createD6ProductionRuntimeBindingContract}
  from './d6-production-runtime-bindings.mjs';
+import {D6_WP2_STAGING_ORIGIN}
+ from '../../../../pwa/src/d6-public-reader.mjs';
 
 export const D6_WORKER_CANDIDATE_ORIGIN=
  'https://fishing.ginosega.workers.dev';
@@ -44,10 +46,12 @@ export function createD6DisabledProductionWorker({
   if(!(request instanceof Request))return denied();
   let url;
   try{url=new URL(request.url);}catch{return denied();}
-  if(url.origin!==D6_WORKER_CANDIDATE_ORIGIN||
+  const pinnedOrigin=env?.D6_WP2_STAGING_ENABLED==='true'?
+   D6_WP2_STAGING_ORIGIN:D6_WORKER_CANDIDATE_ORIGIN;
+  if(url.origin!==pinnedOrigin||
      url.username||url.password)return denied();
   if(request.headers.get('Origin') &&
-     request.headers.get('Origin')!==D6_WORKER_CANDIDATE_ORIGIN)
+     request.headers.get('Origin')!==pinnedOrigin)
    return response(403,'ORIGIN_DENIED');
   try{
    const trusted=createD6ProductionRuntimeBindingContract({

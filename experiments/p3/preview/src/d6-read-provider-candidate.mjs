@@ -13,14 +13,13 @@ import {createD6HostedBytesPreflight}
  from './d6-hosted-bytes-preflight.mjs';
 import {D6_TRUSTED_PAGES_BASE}
  from './d6-hosted-revision-reader.mjs';
-import {isD6TrustedPagesBase}
+import {isD6TrustedPagesBase,D6_PUBLIC_ORIGIN}
  from '../../../../pwa/server/d6-pages-path-gateway.mjs';
 import {D6_PROOF_ORIGINS}
  from './d6-hosted-bytes-preflight.mjs';
 
 const API='https://api.github.com/repos/ginosega/fishing';
 const SHA=/^[a-f0-9]{40}$/;
-const GATEWAY=new URL(D6_PROOF_ORIGINS.gateway);
 const fail=()=>{throw Error('D6 trusted read transport denied');};
 const isPage=(url,pagesBase)=>{
  const PAGE=new URL(pagesBase);
@@ -30,7 +29,8 @@ const isPage=(url,pagesBase)=>{
   !u.username&&!u.password&&!u.search&&!u.hash&&
   !/%(?:2f|5c|2e|00)/i.test(u.pathname);
 };
-const isGateway=url=>{
+const isGateway=(url,origin)=>{
+ const GATEWAY=new URL(origin+'/fishing/');
  let u;
  try{u=new URL(url);}catch{return false;}
  return u.origin===GATEWAY.origin&&u.pathname.startsWith(GATEWAY.pathname)&&
@@ -55,7 +55,8 @@ const isGitHub=url=>{
 
 export function createD6ReadProviderCandidate({
  transport,ownerSession,issueReadToken,
- pagesBase=D6_TRUSTED_PAGES_BASE,
+ pagesBase=D6_TRUSTED_PAGES_BASE,origin=D6_PUBLIC_ORIGIN,
+ stagingMode=false,
  gatewayEnabled=false,staticEnabled=false,
  sessionEnabled=false,sourceEnabled=false,preflightEnabled=false,
 }={}){
@@ -65,7 +66,7 @@ export function createD6ReadProviderCandidate({
   typeof issueReadToken!=='function'||
   [gatewayEnabled,staticEnabled,sessionEnabled,sourceEnabled,preflightEnabled]
    .some(value=>typeof value!=='boolean')||
-  !isD6TrustedPagesBase(pagesBase))fail();
+  !isD6TrustedPagesBase(pagesBase)||typeof stagingMode!=='boolean')fail();
 
  const fetchStaticAsset=(url,options)=>{
   if(!isPage(url,pagesBase)||!['GET','HEAD'].includes(options?.method)||
@@ -92,21 +93,21 @@ export function createD6ReadProviderCandidate({
   });
  };
  const fetchGateway=(url,options)=>{
-  if(!isGateway(url)||options?.method!=='GET'||
+  if(!isGateway(url,origin)||options?.method!=='GET'||
    options.redirect!=='manual')fail();
   return transport(url,{method:'GET',redirect:'manual',cache:'no-store',
    credentials:'omit'});
  };
  const gateway=createD6SameOriginGateway({
   fetchStaticAsset,fetchHostedAsset,requestGitHub,issueReadToken,
-  ownerSession,pagesBase,
+  ownerSession,pagesBase,origin,stagingMode,
   gatewayEnabled:()=>gatewayEnabled,
   staticEnabled:()=>staticEnabled,
   sessionEnabled:()=>sessionEnabled,
   sourceEnabled:()=>sourceEnabled,
  });
  const hosted=createD6HostedBytesPreflight({
-  fetchPages:fetchStaticAsset,fetchGateway,pagesBase,
+  fetchPages:fetchStaticAsset,fetchGateway,pagesBase,origin,
   enabled:()=>preflightEnabled,
  });
  return Object.freeze({

@@ -13,6 +13,8 @@ import {createD6ProductionOAuthReadComposition}
  from './d6-production-oauth-read-composition.mjs';
 import {D6_GITHUB_PAGES_BASE,D6_ISOLATED_PAGES_BASE}
  from '../../../../pwa/server/d6-pages-path-gateway.mjs';
+import {D6_WP2_STAGING_ORIGIN}
+ from '../../../../pwa/src/d6-public-reader.mjs';
 
 const ORIGIN='https://fishing.ginosega.workers.dev';
 const OWNER='265665562';
@@ -48,10 +50,16 @@ export function createD6ProductionRuntimeBindingContract({
  if(!env||typeof env!=='object'||typeof network!=='function'||
     (now!==undefined&&typeof now!=='function'))
   throw Error('D6 runtime binding configuration denied');
+ // Only two immutable trust profiles. Staging credentials/cookies must not
+ // accidentally be accepted on the future public production hostname.
+ const stagingMode=env.D6_WP2_STAGING_ENABLED==='true';
+ const origin=stagingMode?D6_WP2_STAGING_ORIGIN:ORIGIN;
+ const isolated=env.D6_ISOLATED_PAGES_ENABLED==='true';
  const globalOn=env.D6_PRODUCTION_ENABLED==='true'&&
-   env.D6_ORIGIN===ORIGIN&&
+   env.D6_ORIGIN===origin&&
    env.D6_OWNER_GITHUB_ID===OWNER&&
-   env.D6_REPOSITORY_ID===REPO;
+   env.D6_REPOSITORY_ID===REPO&&
+   (stagingMode?isolated:!isolated);
  const gatewayEnabled=globalOn&&env.D6_GATEWAY_ENABLED==='true';
  const flag=name=>gatewayEnabled&&env[name]==='true';
  const staticEnabled=flag('D6_STATIC_ENABLED');
@@ -64,7 +72,7 @@ export function createD6ProductionRuntimeBindingContract({
  const preflightEnabled=flag('D6_HOSTED_PREFLIGHT_ENABLED');
  // Only a trusted server-side exact-string flag can select D6 Stage A Pages.
  // Never derive the upstream from a browser-supplied URL or header.
- const pagesBase=env.D6_ISOLATED_PAGES_ENABLED==='true'?
+ const pagesBase=stagingMode?
   D6_ISOLATED_PAGES_BASE:D6_GITHUB_PAGES_BASE;
  const readTarget=API+'/repos/ginosega/fishing/installation';
  const installation=num(env.D6_GITHUB_INSTALLATION_ID)?
@@ -121,7 +129,7 @@ export function createD6ProductionRuntimeBindingContract({
   oauthClientId:env.D6_OAUTH_CLIENT_ID,
   oauthClientSecret:env.D6_OAUTH_CLIENT_SECRET,
   AUTH_DB:env.AUTH_DB,csrfKey:env.D6_CSRF_KEY,
-  cryptoApi,now,pagesBase,
+  cryptoApi,now,pagesBase,origin,stagingMode,
   gatewayEnabled,staticEnabled,sessionEnabled,
   sourceEnabled,tokenEnabled,signerEnabled,
   oauthEnabled,signoutEnabled,preflightEnabled,

@@ -20,7 +20,8 @@ function make(){
  const calls=[],worker=createD6DisabledProductionWorker({
   network:async(url,options)=>{
    calls.push({url,options});
-   if(url.startsWith('https://ginosega.github.io/fishing/'))
+   if(url.startsWith('https://ginosega.github.io/fishing/')||
+      url.startsWith('https://fishing-v3-d6-static-test.pages.dev/fishing/'))
     return new Response('verified-static-bytes',{status:200,headers:{
      'Content-Type':'application/json',
      'Set-Cookie':'upstream=unsafe',
@@ -175,4 +176,22 @@ test('D6-ENTRY12 source has no writer, cron or credential setup',()=>{
  assert.match(source,/createD6ProductionRuntimeBindingContract/);
  assert.doesNotMatch(source,/issueWriteToken|authorizeWrite|stageMedia|scheduled\s*\(/);
  assert.doesNotMatch(source,/1430581407|fishing-p3-sandbox|D2_WRITE_ENABLED/);
+});
+
+test('D6-ENTRY13 isolated WP2 entry rejects public host and retains no writes',async()=>{
+ const stage='https://fishing-d6-wp2-test.ginosega.workers.dev';
+ const {worker,calls}=make();
+ const env=secure({D6_WP2_STAGING_ENABLED:'true',
+  D6_ISOLATED_PAGES_ENABLED:'true',D6_ORIGIN:stage,D6_STATIC_ENABLED:'true'});
+ assert.equal((await worker.fetch(request('/fishing/release.json'),env)).status,404);
+ assert.equal(calls.length,0);
+ const stageReq=path=>new Request(stage+path);
+ assert.equal((await worker.fetch(stageReq('/fishing/release.json'),env)).status,200);
+ assert.equal(calls[0].url,
+  'https://fishing-v3-d6-static-test.pages.dev/fishing/release.json');
+ assert.equal((await worker.fetch(new Request(stage+'/api/v3/operations',{
+  method:'POST',
+ }),env)).status,404);
+ const disabled=secure({...env,D6_WP2_STAGING_ENABLED:'false'});
+ assert.equal((await worker.fetch(stageReq('/fishing/release.json'),disabled)).status,404);
 });
