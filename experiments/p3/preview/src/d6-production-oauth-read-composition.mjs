@@ -24,7 +24,7 @@ const response=(status,error)=>new Response(JSON.stringify({ok:false,error}),{
 export function createD6ProductionOAuthReadComposition({
  transport,requestAppGitHub,requestOAuthGitHub,appEnv,
  oauthClientId,oauthClientSecret,AUTH_DB,csrfKey,cryptoApi,now,
- pagesBase,gatewayEnabled=false,staticEnabled=false,sessionEnabled=false,
+ pagesBase,origin=D6_OAUTH_ORIGIN,stagingMode=false,gatewayEnabled=false,staticEnabled=false,sessionEnabled=false,
  sourceEnabled=false,tokenEnabled=false,signerEnabled=false,
  oauthEnabled=false,signoutEnabled=false,preflightEnabled=false,
 }={}){
@@ -36,19 +36,20 @@ export function createD6ProductionOAuthReadComposition({
 
  const reader=createD6ProductionReadWithSigner({
   transport,requestAppGitHub,appEnv,AUTH_DB,csrfKey,cryptoApi,now,pagesBase,
+  origin,stagingMode,
   gatewayEnabled,staticEnabled,sessionEnabled,sourceEnabled,
   tokenEnabled,signerEnabled,preflightEnabled,
  });
  const login=createD6ProductionOAuthSessionIssuer({
   AUTH_DB,clientId:oauthClientId,clientSecret:oauthClientSecret,
-  requestGitHub:requestOAuthGitHub,cryptoApi,now,
+  requestGitHub:requestOAuthGitHub,cryptoApi,now,origin,
   // OAuth sign-in works without enabling App signing/read or publishing,
   // but it does require the same owner-session and gateway permission.
   enabled:()=>gatewayEnabled===true&&sessionEnabled===true&&
    oauthEnabled===true,
  });
  const signout=createD6ProductionOwnerSignout({
-  AUTH_DB,cryptoApi,
+  AUTH_DB,cryptoApi,origin,
   enabled:()=>gatewayEnabled===true&&sessionEnabled===true&&
    signoutEnabled===true,
  });
@@ -62,10 +63,10 @@ export function createD6ProductionOAuthReadComposition({
    return signout.signOut(request);
   }
   if(url.pathname==='/auth/start'||url.pathname==='/auth/callback'){
-   if(url.origin!==D6_OAUTH_ORIGIN||url.username||url.password)
+   if(url.origin!==origin||url.username||url.password)
     return response(404,'NOT_FOUND');
-   const origin=request.headers.get('Origin');
-   if(origin&&origin!==D6_OAUTH_ORIGIN)
+   const requestOrigin=request.headers.get('Origin');
+   if(requestOrigin&&requestOrigin!==origin)
     return response(403,'ORIGIN_DENIED');
    if(!gatewayEnabled||!sessionEnabled||!oauthEnabled)
     return response(503,'TEMPORARILY_UNAVAILABLE');

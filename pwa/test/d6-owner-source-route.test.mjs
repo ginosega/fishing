@@ -267,3 +267,33 @@ test('D6-ROUTE08 source files do not install Worker, App token issuer or writer'
  assert.match(src,/loadSnapshot\(\{/);
  assert.doesNotMatch(src,/method:'POST'|method:'PUT'|method:'PATCH'|issueWriteToken/);
 });
+
+test('D6-ROUTE11 isolated release SHA and main SHA stay distinct',async()=>{
+ const staging='https://fishing-d6-wp2-test.ginosega.workers.dev';
+ const release='e'.repeat(40);
+ const route=createD6OwnerSourceRoute({
+  ownerSession:owner(),enabled:()=>true,origin:staging,stagingMode:true,
+  readHostedRevision:async()=>({...proof(),sourceRevision:release}),
+  loadSnapshot:async args=>{
+   assert.deepEqual(args,{expectedReleaseRevision:release});
+   return snapshot();
+  },
+ });
+ const res=await route.serve(new Request(staging+D6_SOURCE_PATH));
+ assert.equal(res.status,200);
+ const body=await res.json();
+ assert.equal(body.sourceRevision,REV);
+ assert.equal(body.hostedRevision,release);
+ assert.equal(body.stagingOnly,true);
+ assert.equal(body.sandboxOnly,false);
+ assert.equal(Object.hasOwn(body,'canPublish'),false);
+ const normal=setup({
+  readHostedRevision:async()=>({...proof(),sourceRevision:release}),
+ });
+ assert.equal((await normal.serve(req())).status,503);
+ assert.throws(()=>createD6OwnerSourceRoute({
+  ownerSession:owner(),readHostedRevision:async()=>proof(),
+  loadSnapshot:async()=>snapshot(),enabled:()=>true,
+  origin:D6_SOURCE_ORIGIN,stagingMode:true,
+ }));
+});

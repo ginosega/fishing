@@ -3,7 +3,8 @@
  * SOURCE ONLY; built and mounted only under isolated D6 owner UI build flag.
  * Never represents authenticated display state as edit/publish permission.
  */
-import {D6_READER_BASE,D6_READER_ORIGIN} from './d6-public-reader.mjs';
+import {D6_READER_BASE,D6_READER_ORIGIN,D6_WP2_STAGING_ORIGIN}
+ from './d6-public-reader.mjs';
 const initial=phase=>Object.freeze({
  authenticated:false,authorized:false,ownerLogin:null,
  phase,operationId:null,publication:'None',summary:null,
@@ -11,13 +12,17 @@ const initial=phase=>Object.freeze({
 });
 export function createD6OwnerConnectionAdapter({
  root,ownerReadiness,request,enabled=()=>false,online=()=>false,
+ wp2Staging=false,
  readingMode=()=> 'Checking',onChange=()=>{},
 }={}){
  let url;
  try{url=new URL(root);}catch{throw Error('D6 Connection Status root denied');}
  const loopback=url.protocol==='http:'&&
   ['localhost','127.0.0.1','[::1]'].includes(url.hostname);
- if((url.origin!==D6_READER_ORIGIN&&!loopback)||
+ const exactOrigin=wp2Staging===true?
+  D6_WP2_STAGING_ORIGIN:D6_READER_ORIGIN;
+ if(typeof wp2Staging!=='boolean'||
+    (url.origin!==exactOrigin&&!loopback)||
     url.pathname!==D6_READER_BASE||url.search||url.hash||
     url.username||url.password||
     typeof ownerReadiness?.check!=='function'||

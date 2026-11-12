@@ -5,6 +5,10 @@
  * loader; browser-provided revision, repo identity and tokens are ignored.
  */
 import {D6_SOURCE_REPOSITORY} from './d6-canonical-snapshot-loader.mjs';
+import {isD6GatewayOrigin,D6_PUBLIC_ORIGIN}
+ from '../../../../pwa/server/d6-pages-path-gateway.mjs';
+import {D6_WP2_STAGING_ORIGIN}
+ from '../../../../pwa/src/d6-public-reader.mjs';
 
 export const D6_SOURCE_ORIGIN='https://fishing.ginosega.workers.dev';
 export const D6_SOURCE_PATH='/api/v3/authoring-source';
@@ -33,11 +37,14 @@ const goodPath=v=>typeof v==='string'&&v.length>0&&v.length<=512&&
 
 export function createD6OwnerSourceRoute({
  ownerSession,readHostedRevision,loadSnapshot,
- enabled=()=>false,
+ enabled=()=>false,origin=D6_SOURCE_ORIGIN,stagingMode=false,
 }={}){
  if(typeof ownerSession?.authorizeStatus!=='function'||
    typeof readHostedRevision!=='function'||
-   typeof loadSnapshot!=='function'||typeof enabled!=='function')
+   typeof loadSnapshot!=='function'||typeof enabled!=='function'||
+   !isD6GatewayOrigin(origin)||typeof stagingMode!=='boolean'||
+   (stagingMode&&origin!==D6_WP2_STAGING_ORIGIN)||
+   (!stagingMode&&origin!==D6_PUBLIC_ORIGIN))
   throw Error('D6 read route requires trusted server dependencies');
  async function serve(request){
   if(enabled()!==true)return reject(503,'TEMPORARILY_UNAVAILABLE');
@@ -45,7 +52,7 @@ export function createD6OwnerSourceRoute({
      request.headers.has('Authorization'))return reject(404,'NOT_FOUND');
   let url;
   try{url=new URL(request.url);}catch{return reject(404,'NOT_FOUND');}
-  if(url.origin!==D6_SOURCE_ORIGIN||url.pathname!==D6_SOURCE_PATH||
+  if(url.origin!==origin||url.pathname!==D6_SOURCE_PATH||
     url.search||url.hash||url.username||url.password)
    return reject(404,'NOT_FOUND');
   let identity;
@@ -73,7 +80,7 @@ export function createD6OwnerSourceRoute({
   if(source?.repositoryId!==D6_SOURCE_REPOSITORY.id||
     source?.repositoryFullName!==D6_SOURCE_REPOSITORY.fullName||
     source?.ref!==D6_SOURCE_REPOSITORY.ref||
-    source?.sourceRevision!==hosted.sourceRevision||
+    (!stagingMode&&source?.sourceRevision!==hosted.sourceRevision)||
     !SHA.test(source?.treeSha??'')||
     source?.sourceOnly!==true||source?.canPublish!==false||
     source?.files?.constructor!==Set||source?.markdown?.constructor!==Map||
@@ -95,6 +102,7 @@ export function createD6OwnerSourceRoute({
    repositoryFullName:D6_SOURCE_REPOSITORY.fullName,
    ref:D6_SOURCE_REPOSITORY.ref,
    sourceRevision:source.sourceRevision,treeSha:source.treeSha,
+   ...(stagingMode?{stagingOnly:true,hostedRevision:hosted.sourceRevision}:{}),
    sandboxOnly:false,
    data:{gear:source.data.gear,kb:source.data.kb,catches:source.data.catches},
    files,markdown:md.map(([path,body])=>({path,body})),

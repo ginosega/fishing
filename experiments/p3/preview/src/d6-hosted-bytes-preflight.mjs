@@ -9,7 +9,7 @@
  */
 import {validatePointer,validateManifest} from '../../../../pwa/src/release.mjs';
 import {D6_TRUSTED_PAGES_BASE} from './d6-hosted-revision-reader.mjs';
-import {D6_PUBLIC_ORIGIN,isD6TrustedPagesBase}
+import {D6_PUBLIC_ORIGIN,isD6TrustedPagesBase,isD6GatewayOrigin}
  from '../../../../pwa/server/d6-pages-path-gateway.mjs';
 
 export const D6_PROOF_ORIGINS=Object.freeze({
@@ -55,10 +55,11 @@ function location(base,relative){
 
 export function createD6HostedBytesPreflight({
  fetchPages,fetchGateway,enabled=()=>false,
- pagesBase=D6_TRUSTED_PAGES_BASE,
+ pagesBase=D6_TRUSTED_PAGES_BASE,origin=D6_PUBLIC_ORIGIN,
 }={}){
  need(typeof fetchPages==='function'&&typeof fetchGateway==='function'&&
-  typeof enabled==='function'&&isD6TrustedPagesBase(pagesBase),
+  typeof enabled==='function'&&isD6TrustedPagesBase(pagesBase)&&
+  isD6GatewayOrigin(origin),
   'INVALID_CONFIG');
 
  async function read(fetcher,url,limit){
@@ -96,7 +97,7 @@ export function createD6HostedBytesPreflight({
 
  async function readBoth(path,limit){
   const p=await read(fetchPages,location(pagesBase,path),limit);
-  const g=await read(fetchGateway,location(D6_PROOF_ORIGINS.gateway,path),limit);
+  const g=await read(fetchGateway,location(origin+'/fishing/',path),limit);
   need(p.byteLength===g.byteLength&&await sha(p)===await sha(g),
    'GATEWAY_BYTES_DIFFER');
   return p;

@@ -7,7 +7,8 @@
 import {validateRecords,collectPaths,checkPathCollisions,validateLibraryPaths,
  validateMarkdown}
  from './validation.mjs';
-import {D6_READER_BASE,D6_READER_ORIGIN} from './d6-public-reader.mjs';
+import {D6_READER_BASE,D6_READER_ORIGIN,D6_WP2_STAGING_ORIGIN}
+ from './d6-public-reader.mjs';
 
 export const D6_CANONICAL_REPOSITORY=Object.freeze({
  id:1350909744,fullName:'ginosega/fishing',ref:'refs/heads/main',
@@ -31,12 +32,15 @@ const deny=code=>{throw new D6SourceError(code);};
 const need=(value,code)=>{if(!value)deny(code);};
 
 export function createD6CanonicalSourceClient({
- root,request,expectedReleaseRevision,enabled=()=>false,online=()=>false,
+ root,request,expectedReleaseRevision,wp2Staging=false,
+ enabled=()=>false,online=()=>false,
 }={}){
  let u;
  try{u=new URL(root);}catch{deny('INVALID_CONFIG');}
  const loopback=u.protocol==='http:'&&['localhost','127.0.0.1','[::1]'].includes(u.hostname);
- need((u.origin===D6_READER_ORIGIN||loopback)&&
+ const exactOrigin=wp2Staging===true?D6_WP2_STAGING_ORIGIN:D6_READER_ORIGIN;
+ need(typeof wp2Staging==='boolean'&&
+  (u.origin===exactOrigin||loopback)&&
   u.pathname===D6_READER_BASE&&!u.search&&!u.hash&&
   !u.username&&!u.password&&SHA.test(expectedReleaseRevision??'')&&
   typeof request==='function'&&typeof enabled==='function'&&
@@ -70,7 +74,16 @@ export function createD6CanonicalSourceClient({
    'UNTRUSTED_SOURCE');
   // A newly committed main can be ahead of its hosted release. Never pair
   // that source with an older client release for an eventual edit.
-  need(body.sourceRevision===expectedReleaseRevision,'SOURCE_REVISION_MISMATCH');
+  if(wp2Staging){
+   // Code on the staging Pages branch is NOT a canonical main commit.
+   // Both revisions must remain explicit and this result cannot publish.
+   need(body.stagingOnly===true&&
+    body.hostedRevision===expectedReleaseRevision&&
+    SHA.test(body.sourceRevision),'SOURCE_REVISION_MISMATCH');
+  }else{
+   need(body.stagingOnly!==true&&!Object.hasOwn(body,'hostedRevision')&&
+    body.sourceRevision===expectedReleaseRevision,'SOURCE_REVISION_MISMATCH');
+  }
   need(body.files.length<=MAX_FILES&&body.markdown.length<=MAX_MARKDOWN,
    'SOURCE_TOO_LARGE');
   let referenced,maps,routes;
@@ -114,6 +127,7 @@ export function createD6CanonicalSourceClient({
    ref:D6_CANONICAL_REPOSITORY.ref,
    sourceRevision:body.sourceRevision,treeSha:body.treeSha,
    data:body.data,files,markdown,canPublish:false,sourceOnly:true,
+   ...(wp2Staging?{stagingOnly:true,hostedRevision:expectedReleaseRevision}:{}),
   });
  }
  return Object.freeze({load});

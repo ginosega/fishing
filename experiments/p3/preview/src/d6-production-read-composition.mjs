@@ -13,7 +13,7 @@ import {createD6ProductionOwnerSession} from './d6-production-owner-session.mjs'
 import {createD6ReadProviderCandidate} from './d6-read-provider-candidate.mjs';
 
 export function createD6ProductionReadComposition({
- transport,issueReadToken,AUTH_DB,csrfKey,now,pagesBase,
+ transport,issueReadToken,AUTH_DB,csrfKey,now,pagesBase,origin,stagingMode=false,
  gatewayEnabled=false,staticEnabled=false,sessionEnabled=false,
  sourceEnabled=false,preflightEnabled=false,
 }={}){
@@ -27,12 +27,12 @@ export function createD6ProductionReadComposition({
  // and selected owner. Neither this composition nor its public projection
  // exposes the CSRF token, cookie/session hash, D1 handle or owner ID.
  const ownerSession=createD6ProductionOwnerSession({
-  AUTH_DB,csrfKey,now,
+  AUTH_DB,csrfKey,now,origin,
   enabled:()=>gatewayEnabled===true&&sessionEnabled===true,
  });
 
  const provider=createD6ReadProviderCandidate({
-  transport,issueReadToken,ownerSession,pagesBase,
+  transport,issueReadToken,ownerSession,pagesBase,origin,stagingMode,
   gatewayEnabled,staticEnabled,sessionEnabled,
   sourceEnabled,preflightEnabled,
  });

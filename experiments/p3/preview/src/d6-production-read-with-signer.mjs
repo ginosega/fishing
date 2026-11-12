@@ -14,7 +14,7 @@ import {createD6ProductionAppSigner}
  from './d6-production-app-signer.mjs';
 
 export function createD6ProductionReadWithSigner({
- transport,requestAppGitHub,appEnv,AUTH_DB,csrfKey,now,cryptoApi,pagesBase,
+ transport,requestAppGitHub,appEnv,AUTH_DB,csrfKey,now,cryptoApi,pagesBase,origin,stagingMode=false,
  gatewayEnabled=false,staticEnabled=false,sessionEnabled=false,
  sourceEnabled=false,tokenEnabled=false,signerEnabled=false,
  preflightEnabled=false,
@@ -34,7 +34,7 @@ export function createD6ProductionReadWithSigner({
  });
  const reader=createD6ProductionReadWithApp({
   transport,requestAppGitHub,signAppJwt:signer.signAppJwt,appEnv,
-  AUTH_DB,csrfKey,now,pagesBase,
+  AUTH_DB,csrfKey,now,pagesBase,origin,stagingMode,
   gatewayEnabled,staticEnabled,sessionEnabled,sourceEnabled,
   tokenEnabled,preflightEnabled,
  });

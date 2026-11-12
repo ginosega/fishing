@@ -1,4 +1,6 @@
 import {readD6BoundedJson} from './d6-bounded-json-response.mjs';
+import {isD6GatewayOrigin}
+ from '../../../../pwa/server/d6-pages-path-gateway.mjs';
 
 /**
  * D6 canonical-production GitHub OAuth session issuer, SOURCE ONLY.
@@ -62,11 +64,11 @@ const readCookie=(req,name)=>{
  }
  return found.length===1&&B64.test(found[0])?found[0]:null;
 };
-const goodRequest=(req,path)=>{
+const goodRequest=(req,path,origin)=>{
  if(!(req instanceof Request)||req.method!=='GET'||
     req.headers.has('Authorization'))return null;
  let url;try{url=new URL(req.url);}catch{return null;}
- if(url.origin!==D6_OAUTH_ORIGIN||url.pathname!==path||
+ if(url.origin!==origin||url.pathname!==path||
    url.hash||url.username||url.password)return null;
  const mode=req.headers.get('Sec-Fetch-Mode');
  const dest=req.headers.get('Sec-Fetch-Dest');
@@ -77,8 +79,10 @@ const goodRequest=(req,path)=>{
 export function createD6ProductionOAuthSessionIssuer({
  AUTH_DB,clientId,clientSecret,requestGitHub,cryptoApi=globalThis.crypto,
  now=()=>Math.floor(Date.now()/1000),enabled=()=>false,
+ origin=D6_OAUTH_ORIGIN,
 }={}){
- if(typeof enabled!=='function'||typeof now!=='function')
+ if(!isD6GatewayOrigin(origin)||typeof enabled!=='function'||
+    typeof now!=='function')
   throw Error('Invalid D6 OAuth configuration');
  const sha=async value=>b64(await cryptoApi.subtle.digest(
   'SHA-256',enc.encode(value)));
@@ -113,7 +117,7 @@ export function createD6ProductionOAuthSessionIssuer({
  }
  async function start(request){
   if(!ready())return denied();
-  const url=goodRequest(request,START);
+  const url=goodRequest(request,START,origin);
   if(!url||url.search||['cross-site','same-site'].includes(
    request.headers.get('Sec-Fetch-Site')))return denied(404);
   const at=time();
@@ -126,7 +130,7 @@ export function createD6ProductionOAuthSessionIssuer({
    if(result?.success!==true)throw Error('flow storage failed');
    const target=new URL(AUTHORIZE);
    target.searchParams.set('client_id',clientId);
-   target.searchParams.set('redirect_uri',D6_OAUTH_ORIGIN+CALLBACK);
+   target.searchParams.set('redirect_uri',origin+CALLBACK);
    target.searchParams.set('state',state);
    target.searchParams.set('code_challenge',await sha(verifier));
    target.searchParams.set('code_challenge_method','S256');
@@ -136,7 +140,7 @@ export function createD6ProductionOAuthSessionIssuer({
  }
  async function callback(request){
   if(!ready())return denied();
-  const url=goodRequest(request,CALLBACK);
+  const url=goodRequest(request,CALLBACK,origin);
   if(!url)return withClear(denied(404));
   const keys=[...url.searchParams.keys()];
   const state=url.searchParams.get('state');
@@ -163,7 +167,7 @@ export function createD6ProductionOAuthSessionIssuer({
     },
     body:JSON.stringify({
      client_id:clientId,client_secret:clientSecret,code,
-     redirect_uri:D6_OAUTH_ORIGIN+CALLBACK,
+     redirect_uri:origin+CALLBACK,
      code_verifier:pending.code_verifier,
     }),
    },16384);

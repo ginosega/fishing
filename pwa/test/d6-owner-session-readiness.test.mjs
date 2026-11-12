@@ -122,3 +122,20 @@ test('D6-SES06 source entry has only read-only owner gate and no publisher',()=>
  assert.match(reader,/readerOnly:true/);
  assert.doesNotMatch(entry,/createD3OwnerTestShell|createD3AuthoringClient|publishChange/);
 });
+
+test('D6-SES07 WP2 staging status probe permits only pinned test hostname',async()=>{
+ const staging='https://fishing-d6-wp2-test.ginosega.workers.dev';
+ const calls=[];
+ const session=make(async(url)=>{
+  calls.push(url);
+  return respond({authenticated:true,authorized:true,ownerLogin:'ginosega'});
+ },{root:staging+'/fishing/',wp2Staging:true});
+ assert.equal((await session.check(automatic)).state,'Owner');
+ assert.deepEqual(calls,[staging+'/session']);
+ assert.throws(()=>make(async()=>respond({}),{
+  root:staging+'/fishing/',
+ }),/denied/);
+ assert.throws(()=>make(async()=>respond({}),{
+  root:D6_READER_ORIGIN+'/fishing/',wp2Staging:true,
+ }),/denied/);
+});

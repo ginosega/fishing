@@ -322,6 +322,7 @@ export function createApp(ctx){
   connectionDialog.insertBefore(details,document.getElementById('connection-close'));
   approvedController=createD6OwnerConnectionAdapter({
    root:ctx.root,ownerReadiness:ctx.v3?.ownerReadiness,
+   wp2Staging:ctx.v3?.wp2Staging===true,
    request:(url,options)=>fetch(url,options),
    enabled:()=>true,online:()=>navigator.onLine===true,
    readingMode:()=>offline.getModeAvailable()===true?

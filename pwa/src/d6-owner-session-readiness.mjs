@@ -4,18 +4,22 @@
  * No CSRF token, media ticket, GitHub credential, repository ID, or write
  * capability is exposed to this candidate.
  */
-import {D6_READER_BASE,D6_READER_ORIGIN} from './d6-public-reader.mjs';
+import {D6_READER_BASE,D6_READER_ORIGIN,D6_WP2_STAGING_ORIGIN}
+ from './d6-public-reader.mjs';
 
 const fail=(state='Unavailable')=>Object.freeze({state,canPublish:false});
 const OWNER_LOGIN=/^[A-Za-z0-9-]{1,39}$/;
 export function createD6OwnerSessionReadiness({
- root,request,enabled=()=>false,online=()=>false,
+ root,request,enabled=()=>false,online=()=>false,wp2Staging=false,
 }={}){
  let candidate;
  try{candidate=new URL(root);}catch{throw Error('D6 session probe root invalid');}
  const loopback=candidate.protocol==='http:'&&
   ['localhost','127.0.0.1','[::1]'].includes(candidate.hostname);
- if((candidate.origin!==D6_READER_ORIGIN&&!loopback)||
+ const exactOrigin=wp2Staging===true?
+  D6_WP2_STAGING_ORIGIN:D6_READER_ORIGIN;
+ if(typeof wp2Staging!=='boolean'||
+   (candidate.origin!==exactOrigin&&!loopback)||
    candidate.pathname!==D6_READER_BASE||candidate.username||
    candidate.password||candidate.search||candidate.hash||
    typeof request!=='function'||typeof enabled!=='function'||

@@ -12,7 +12,7 @@
  * binding in this module. Deployment/credential activation is separate.
  */
 import {createD6PublicReadProxy,planD6PublicRead,D6_PUBLIC_ORIGIN,
- D6_GITHUB_PAGES_BASE,isD6TrustedPagesBase}
+ D6_GITHUB_PAGES_BASE,isD6TrustedPagesBase,isD6GatewayOrigin}
  from '../../../../pwa/server/d6-pages-path-gateway.mjs';
 import {createD6HostedRevisionReader}
  from './d6-hosted-revision-reader.mjs';
@@ -39,6 +39,7 @@ const enabled=(value)=>value()===true;
 export function createD6SameOriginGateway({
  fetchStaticAsset,fetchHostedAsset,requestGitHub,issueReadToken,ownerSession,
  pagesBase=D6_GITHUB_PAGES_BASE,
+ origin=D6_PUBLIC_ORIGIN,stagingMode=false,
  gatewayEnabled=()=>false,staticEnabled=()=>false,
  sessionEnabled=()=>false,sourceEnabled=()=>false,
 }={}){
@@ -48,7 +49,8 @@ export function createD6SameOriginGateway({
   typeof ownerSession?.describe!=='function'||
   typeof ownerSession?.authorizeStatus!=='function'||
   [gatewayEnabled,staticEnabled,sessionEnabled,sourceEnabled]
-   .some(v=>typeof v!=='function')||!isD6TrustedPagesBase(pagesBase))
+   .some(v=>typeof v!=='function')||!isD6TrustedPagesBase(pagesBase)||
+  !isD6GatewayOrigin(origin)||typeof stagingMode!=='boolean')
   throw Error('D6 same-origin gateway requires explicit trusted dependencies');
 
  const gate=()=>enabled(gatewayEnabled);
@@ -58,17 +60,17 @@ export function createD6SameOriginGateway({
  // intentionally enabled. This is still only a read, never write authority.
  const sourceOn=()=>sessionOn()&&enabled(sourceEnabled);
  const staticProxy=createD6PublicReadProxy({
-  fetchAsset:fetchStaticAsset,enabled:true,pagesBase,
+  fetchAsset:fetchStaticAsset,enabled:true,pagesBase,origin,
  });
  const hosted=createD6HostedRevisionReader({
   fetchAsset:fetchHostedAsset,enabled:sourceOn,pagesBase,
  });
  const github=createD6CanonicalSnapshotLoader({
-  request:requestGitHub,issueReadToken,enabled:sourceOn,
+  request:requestGitHub,issueReadToken,enabled:sourceOn,stagingMode,
  });
  const source=createD6OwnerSourceRoute({
   ownerSession,readHostedRevision:hosted.readHostedRevision,
-  loadSnapshot:github.loadSnapshot,enabled:sourceOn,
+  loadSnapshot:github.loadSnapshot,enabled:sourceOn,origin,stagingMode,
  });
 
  async function sessionStatus(request){
@@ -96,11 +98,11 @@ export function createD6SameOriginGateway({
   if(!(request instanceof Request))return fail(404,'NOT_FOUND');
   let url;
   try{url=new URL(request.url);}catch{return fail(404,'NOT_FOUND');}
-  if(url.origin!==D6_PUBLIC_ORIGIN||url.username||url.password)
+  if(url.origin!==origin||url.username||url.password)
    return fail(404,'NOT_FOUND');
   // Never facilitate browser cross-origin cookie reads or respond with CORS.
-  const origin=request.headers.get('Origin');
-  if(origin&&origin!==D6_PUBLIC_ORIGIN)
+  const requestOrigin=request.headers.get('Origin');
+  if(requestOrigin&&requestOrigin!==origin)
    return fail(403,'ORIGIN_DENIED');
   if(request.headers.get('Sec-Fetch-Site')==='cross-site')
    return fail(403,'ORIGIN_DENIED');
@@ -118,7 +120,7 @@ export function createD6SameOriginGateway({
   // No authentication start/callback, signout, POST, PATCH, media,
   // operations, admin, private pilot or GitHub write routes exist here.
   const plan=planD6PublicRead({url:request.url,method:request.method,
-   pagesBase});
+   pagesBase,origin});
   if(plan.kind==='static'||plan.kind==='redirect'){
    if(!staticOn())return fail(503,'TEMPORARILY_UNAVAILABLE');
    return staticProxy(request);
