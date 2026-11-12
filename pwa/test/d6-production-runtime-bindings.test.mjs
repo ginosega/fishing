@@ -382,7 +382,8 @@ test('D6-BIND17 WP2 staging OAuth, owner session and sign-out share host',async(
  const state=started.headers.get('Set-Cookie')?.match(
   /__Host-fish_p0_flow=([A-Za-z0-9_-]{43})/)?.[1];
  assert.match(state,/^[A-Za-z0-9_-]{43}$/);
- const callback=await x.app.fetch(stageReq('/auth/callback?code=githubCode1234567890&state='+state,{
+ const callback=await x.app.fetch(stageReq('/auth/callback?code=githubCode1234567890&state='+state+
+  '&iss=https%3A%2F%2Fgithub.com%2Flogin%2Foauth',{
   headers:{Cookie:'__Host-fish_p0_flow='+state,
    'Sec-Fetch-Site':'cross-site','Sec-Fetch-Mode':'navigate',
    'Sec-Fetch-Dest':'document'},
