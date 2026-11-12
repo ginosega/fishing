@@ -67,7 +67,7 @@ function githubFixture({mutate=()=>{},moveHead=false,
    assert.equal(opts.headers['Content-Type'],'application/json');
    const query=JSON.parse(opts.body).query;
    assert.match(query,/^query WP2VerifiedMarkdown /);
-   const matches=[...query.matchAll(/b(\\d+):object\\(oid:"([a-f0-9]{40})"\\)/g)];
+   const matches=[...query.matchAll(/b(\d+):object\(oid:"([a-f0-9]{40})"\)/g)];
    assert(matches.length>0&&matches.length<=8);
    const repository={nameWithOwner:'ginosega/fishing',databaseId:1350909744};
    for(const [,index,oid] of matches){
