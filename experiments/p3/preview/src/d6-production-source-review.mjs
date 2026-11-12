@@ -29,7 +29,7 @@ export class D6SourceReviewError extends Error {
 }
 const deny=code=>{throw new D6SourceReviewError(code);};
 const need=(value,code)=>{if(!value)deny(code);};
-const suffix=domain=>domain==='gear'?'notes':'content';
+const suffix=domain=>domain==='kb'?'content':'notes';
 const correctSource=(source,sha)=>source?.repositoryId===
  D6_SOURCE_REPOSITORY.id&&
  source?.repositoryFullName===D6_SOURCE_REPOSITORY.fullName&&
@@ -40,12 +40,12 @@ const correctSource=(source,sha)=>source?.repositoryId===
  source?.data?.gear&&source?.data?.kb&&source?.data?.catches;
 const isNarrative=(path,domain)=>{
  try{return safePath(path)===path&&path.startsWith(
-   domain==='gear'?'Gear/':'KB/')&&
+   domain==='gear'?'Gear/':domain==='kb'?'KB/':'Catches/content/')&&
    path.includes('/content/')&&path.endsWith('.md');}
  catch{return false;}
 };
 
-/** Review a TEXT-ONLY Gear/KB intent. Result stays server-internal, not a
+/** Review a TEXT-ONLY Gear/KB/Catch intent. Result stays server-internal, not a
  * public API response or permission to submit any operation. */
 export function createD6ProductionSourceReview({
  intake,loadSnapshot,enabled=()=>false,
@@ -69,7 +69,7 @@ export function createD6ProductionSourceReview({
    intent?.trustedMainSha===trustedMainSha&&
    intent?.snapshot?.media?.length===0,'UNTRUSTED_INTENT');
   const pkg=intent.snapshot.package;
-  need(['gear','kb'].includes(pkg?.domain)&&
+  need(['gear','kb','catches'].includes(pkg?.domain)&&
    ['add','edit'].includes(pkg?.operation)&&
    pkg?.base?.sourceRevision===trustedMainSha,'STALE_SOURCE');
 
@@ -119,14 +119,16 @@ export function createD6ProductionSourceReview({
   }
   need(promoted?.record?.id===pkg.id&&
    promoted?.sourceRevision===trustedMainSha,'INVALID_CHANGE');
-  // No picture, sequence, Catch or arbitrary media writes are authorized.
+  // No picture, sequence or arbitrary media writes are authorized.
   need(equal(promoted.record.picture,currentRecord?.picture)&&
    equal(promoted.record.pictureSequence,currentRecord?.pictureSequence),
    'UNSUPPORTED_MEDIA');
   const fileOps=[];
   for(const write of promoted.writes){
    const path=write.path;
-   need(isNarrative(path,domain),'UNSAFE_NARRATIVE_PATH');
+   need(isNarrative(path,domain)&&
+    (domain!=='catches'||path==='Catches/content/'+pkg.id+'.md'||
+     path===oldPath),'UNSAFE_NARRATIVE_PATH');
    const existed=files.has(path);
    if(write.remove===true){
     need(existed&&markdown.has(path),'INVALID_CHANGE');

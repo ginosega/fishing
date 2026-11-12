@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {fingerprint} from '../src/shared.mjs';
+import {prepareCatchPackage} from '../src/catch-editor.mjs';
 import {createD6ProductionPublishIntake,D6_PUBLISH_INTAKE_ORIGIN}
  from '../../experiments/p3/preview/src/d6-production-publish-intake.mjs';
 import {createD6ProductionSourceReview,D6SourceReviewError}
@@ -159,4 +160,55 @@ test('D6-SOURCE12 empty unchanged edit rejected, no operation',async()=>{
  const x=setup({data});
  await deny(x.review.review(request(p),{trustedMainSha:MAIN}),
   'NO_CHANGE');
+});
+
+const catchRecord={id:'catch-2026-11-12',date:'2026-11-12'};
+const catchCtx=(data=baseData())=>({
+ v3:{source:{files:new Set([
+  'Gear/gear.json','KB/kb.json','Catches/catches.json'])}},
+ release:{sourceRevision:MAIN},data,
+});
+
+test('WP3-CATCH01 editor Catch Add prepares a canonical text-only source package',async()=>{
+ const p=await prepareCatchPackage({ctx:catchCtx(),record:catchRecord});
+ assert.equal(p.domain,'catches');
+ assert.equal(p.notes.action,'keep');
+ const result=await setup().review.review(request(p),{trustedMainSha:MAIN});
+ assert.deepEqual(result.candidateData.catches.catches,[catchRecord]);
+ assert.equal(result.canPublish,false);
+ assert.equal(result.fileOps.length,0);
+});
+
+test('WP3-CATCH02 editor Catch Edit preserves original fields under review',async()=>{
+ const data=baseData();data.catches.catches=[{...catchRecord}];
+ const p=await prepareCatchPackage({
+  ctx:catchCtx(data),baseRecord:data.catches.catches[0],
+  record:{...catchRecord,size:'12 in'},
+ });
+ const result=await setup({data}).review.review(request(p),{trustedMainSha:MAIN});
+ assert.equal(result.candidateData.catches.catches[0].size,'12 in');
+ assert.equal(data.catches.catches[0].size,undefined);
+ assert.equal(result.sourceOnly,true);
+});
+
+test('WP3-CATCH03 Catch Notes create has an owned Catches path and no Live',async()=>{
+ const p=await prepareCatchPackage({ctx:catchCtx(),record:catchRecord});
+ p.notes={action:'create',path:'Catches/content/'+catchRecord.id+'.md',
+  body:'# Catch notes',baseSha256:null};
+ const result=await setup().review.review(request(p),{trustedMainSha:MAIN});
+ assert.equal(result.fileOps[0].path,'Catches/content/'+catchRecord.id+'.md');
+ assert.equal(result.candidateData.catches.catches[0].notes,
+  'Catches/content/'+catchRecord.id+'.md');
+ assert.equal(result.canPublish,false);
+});
+
+test('WP3-CATCH04 Catch image staging is explicit denial, never silent loss',async()=>{
+ await assert.rejects(prepareCatchPackage({
+  ctx:catchCtx(),record:catchRecord,
+  notesImages:[{path:'Catches/content/unsafe.png'}],
+ }),/requires WP3 media integration/);
+ const p=await prepareCatchPackage({ctx:catchCtx(),record:catchRecord});
+ p.picture={action:'add',path:'Catches/content/unsafe.png'};
+ await assert.rejects(setup().review.review(request(p),{
+  trustedMainSha:MAIN}),e=>e?.code==='INVALID_SUBMISSION');
 });

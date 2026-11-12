@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS d6_operation_receipts (
  snapshot_json TEXT NOT NULL,
  candidate_sha256 TEXT NOT NULL,
  source_revision TEXT NOT NULL,
- domain TEXT NOT NULL CHECK(domain IN ('gear','kb')),
+ domain TEXT NOT NULL CHECK(domain IN ('gear','kb','catches')),
  operation_kind TEXT NOT NULL CHECK(operation_kind IN ('add','edit')),
  record_id TEXT NOT NULL,
  state TEXT NOT NULL DEFAULT 'Accepted'
@@ -75,7 +75,7 @@ function receipt(row){
   row.owner_github_id===D6_PUBLISH_REPOSITORY.ownerGitHubId&&
   KEY.test(row.idempotency_key??'')&&DIGEST.test(row.snapshot_sha256??'')&&
   SHA.test(row.source_revision??'')&&
-  ['gear','kb'].includes(row.domain)&&
+  ['gear','kb','catches'].includes(row.domain)&&
   ['add','edit'].includes(row.operation_kind)&&
   typeof row.record_id==='string'&&row.record_id.length>0&&
   STATE.has(row.state)&&Number.isSafeInteger(row.created_at)&&
@@ -121,7 +121,7 @@ export function createD6ProductionOperationReceipts({
    intent.trustedMainSha===trustedMainSha&&
    KEY.test(intent.idempotencyKey??''),'UNTRUSTED_INTENT');
   const pkg=intent.snapshot?.package;
-  need(['gear','kb'].includes(pkg?.domain)&&
+  need(['gear','kb','catches'].includes(pkg?.domain)&&
    ['add','edit'].includes(pkg?.operation)&&
    typeof pkg?.id==='string'&&pkg.id.length>0,
    'UNTRUSTED_INTENT');
@@ -151,7 +151,7 @@ export function createD6ProductionOperationReceipts({
    Array.isArray(candidate.fileOps),
    'UNTRUSTED_CANDIDATE');
   const record=candidate.candidateData?.[pkg.domain]?.[
-   pkg.domain==='gear'?'items':'entities']?.find(x=>x.id===pkg.id);
+   pkg.domain==='gear'?'items':pkg.domain==='kb'?'entities':'catches']?.find(x=>x.id===pkg.id);
   need(record,'UNTRUSTED_CANDIDATE');
   const candidateHash=await digest(JSON.stringify({
    main:trustedMainSha,tree:candidate.treeSha,

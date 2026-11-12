@@ -1,17 +1,26 @@
 import {canonical,fingerprint,sha256,safePath,assert,DOMAIN,categoryFolder,suggestedFilename} from './shared.mjs';
 export const HANDOFF_FORMAT='fishing-companion-change-v2';
 const ABSENT=Object.freeze({$absent:true});
-const narrativeKey=domain=>domain==='gear'?'notes':'content';
+const narrativeKey=domain=>domain==='kb'?'content':'notes';
 const clone=value=>value===undefined?undefined:structuredClone(value);
 export function equal(a,b){return canonical(a)===canonical(b);}
 const previousValue=(object,key)=>Object.hasOwn(object,key)?clone(object[key]):ABSENT;
 const unpack=value=>value&&typeof value==='object'&&value.$absent===true?undefined:value;
-export function narrativePath(domain,record){return categoryFolder(domain,domain==='gear'?record.category:record.type)+'/content/'+suggestedFilename(record.name);}
+export function narrativePath(domain,record){
+ if(domain==='catches'){
+  assert(/^[a-z0-9][a-z0-9-]*$/.test(record?.id),
+   'Valid Catch ID required for narrative path');
+  return safePath('Catches/content/'+record.id+'.md');
+ }
+ return categoryFolder(domain,domain==='gear'?record.category:record.type)+'/content/'+suggestedFilename(record.name);
+}
 export function picturePath(domain,record,filename){return safePath(categoryFolder(domain,domain==='gear'?record.category:record.type)+'/assets/'+filename);}
 export class ChangeConflictError extends Error{constructor(conflicts){super(`Change requires review: ${conflicts.join(', ')}`);this.name='ChangeConflictError';this.conflicts=conflicts;}}
 function validFileMeta(file){return file&&Number.isSafeInteger(file.bytes)&&file.bytes>0&&/^[a-f0-9]{64}$/.test(file.sha256);}
 export async function prepareChange({domain,operation,id,baseRecord,record,baseText='',text='',sourceRevision,notesPath,pictureAction='keep',picturePath:requestedPicturePath,baseFileHash,pictureFile,pictureSequenceAction='keep',pictureSequencePaths,pictureSequenceFiles}={}){
- assert(['gear','kb'].includes(domain),'Only Gear and KB authoring is P1');
+ assert(['gear','kb','catches'].includes(domain),'Unsupported authoring domain');
+ if(domain==='catches')assert(pictureAction==='keep'&&
+  pictureSequenceAction==='keep','Catch image changes are unsupported');
  assert(['add','edit'].includes(operation),'Unsupported operation');
  assert(record?.id===id,'Identity cannot be edited');
  assert(typeof sourceRevision==='string'&&sourceRevision.length>0,'Source revision required');
@@ -64,7 +73,7 @@ export async function prepareChange({domain,operation,id,baseRecord,record,baseT
 export function validatePackage(pkg){
  assert(pkg?.format===HANDOFF_FORMAT,'Unsupported handoff format');
  assert(pkg.base?.schemaVersion===2,'Incompatible schema');
- assert(['gear','kb'].includes(pkg.domain),'Unsupported domain');
+ assert(['gear','kb','catches'].includes(pkg.domain),'Unsupported domain');
  assert(['add','edit'].includes(pkg.operation),'Unsupported operation');
  assert(typeof pkg.id==='string'&&/^[a-z0-9][a-z0-9-]*$/.test(pkg.id),'Invalid identity');
  assert(typeof pkg.base.sourceRevision==='string'&&pkg.base.sourceRevision.length>0,'Missing base revision');
@@ -72,6 +81,8 @@ export function validatePackage(pkg){
  assert(['keep','create','replace','remove'].includes(pkg.notes?.action),'Invalid narrative action');
  assert(['keep','add','replace','remove'].includes(pkg.picture?.action),'Invalid picture action');
  const sequence=pkg.pictureSequence||{action:'keep'};assert(['keep','set','remove'].includes(sequence.action),'Invalid picture-sequence action');
+ if(pkg.domain==='catches')assert(pkg.picture.action==='keep'&&
+  sequence.action==='keep','Catch image changes are unsupported');
  if(pkg.notes.action!=='keep')safePath(pkg.notes.path);
  if(['add','replace'].includes(pkg.picture.action))safePath(pkg.picture.path);
  if(sequence.action==='set'){
