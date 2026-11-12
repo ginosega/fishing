@@ -59,7 +59,8 @@ function make(overrides={},config={}){
    if(url==='https://api.github.com/user')
     return new Response(JSON.stringify({id:265665562,login:'ginosega'}),
      {headers:{'Content-Type':'application/json'}});
-   if(url.startsWith('https://ginosega.github.io/fishing/'))
+   if(url.startsWith('https://ginosega.github.io/fishing/')||
+      url.startsWith('https://fishing-v3-d6-static-test.pages.dev/fishing/'))
     return new Response('static bytes',{status:200,
      headers:{'Content-Type':'text/plain'}});
    throw Error('unapproved provider call');
@@ -318,4 +319,28 @@ test('D6-BIND13 forged sign-out cannot revoke active owner session',async()=>{
   Cookie:cookie,'Sec-Fetch-Site':'same-origin',
  }}));
  assert.equal((await status.json()).authorized,true);
+});
+
+test('D6-BIND14 isolated V3 Pages source selected independently of V2',async()=>{
+ const x=make({D6_STATIC_ENABLED:'true',D6_ISOLATED_PAGES_ENABLED:'true'});
+ const response=await x.app.fetch(req('/fishing/release.json'));
+ assert.equal(response.status,200);
+ assert.deepEqual(x.network.map(n=>n.url),[
+  'https://fishing-v3-d6-static-test.pages.dev/fishing/release.json',
+ ]);
+ assert.equal(x.network[0].options.credentials,'omit');
+ assert.equal(x.network[0].options.redirect,'manual');
+ assert.equal((await x.app.fetch(req('/api/v3/operations',{
+  method:'POST',headers:{Origin:ORIGIN},
+ }))).status,404);
+});
+test('D6-BIND15 arbitrary Pages URLs cannot enter through runtime env',async()=>{
+ const x=make({D6_STATIC_ENABLED:'true',
+  D6_ISOLATED_PAGES_ENABLED:'https://evil.invalid',
+  D6_TRUSTED_PAGES_BASE:'https://evil.invalid/fishing/'});
+ const response=await x.app.fetch(req('/fishing/release.json'));
+ assert.equal(response.status,200);
+ assert.deepEqual(x.network.map(n=>n.url),[
+  'https://ginosega.github.io/fishing/release.json',
+ ]);
 });

@@ -13,15 +13,17 @@ import {createD6HostedBytesPreflight}
  from './d6-hosted-bytes-preflight.mjs';
 import {D6_TRUSTED_PAGES_BASE}
  from './d6-hosted-revision-reader.mjs';
+import {isD6TrustedPagesBase}
+ from '../../../../pwa/server/d6-pages-path-gateway.mjs';
 import {D6_PROOF_ORIGINS}
  from './d6-hosted-bytes-preflight.mjs';
 
 const API='https://api.github.com/repos/ginosega/fishing';
 const SHA=/^[a-f0-9]{40}$/;
-const PAGE=new URL(D6_TRUSTED_PAGES_BASE);
 const GATEWAY=new URL(D6_PROOF_ORIGINS.gateway);
 const fail=()=>{throw Error('D6 trusted read transport denied');};
-const isPage=url=>{
+const isPage=(url,pagesBase)=>{
+ const PAGE=new URL(pagesBase);
  let u;
  try{u=new URL(url);}catch{return false;}
  return u.origin===PAGE.origin&&u.pathname.startsWith(PAGE.pathname)&&
@@ -53,6 +55,7 @@ const isGitHub=url=>{
 
 export function createD6ReadProviderCandidate({
  transport,ownerSession,issueReadToken,
+ pagesBase=D6_TRUSTED_PAGES_BASE,
  gatewayEnabled=false,staticEnabled=false,
  sessionEnabled=false,sourceEnabled=false,preflightEnabled=false,
 }={}){
@@ -61,16 +64,17 @@ export function createD6ReadProviderCandidate({
   typeof ownerSession?.authorizeStatus!=='function'||
   typeof issueReadToken!=='function'||
   [gatewayEnabled,staticEnabled,sessionEnabled,sourceEnabled,preflightEnabled]
-   .some(value=>typeof value!=='boolean'))fail();
+   .some(value=>typeof value!=='boolean')||
+  !isD6TrustedPagesBase(pagesBase))fail();
 
  const fetchStaticAsset=(url,options)=>{
-  if(!isPage(url)||!['GET','HEAD'].includes(options?.method)||
+  if(!isPage(url,pagesBase)||!['GET','HEAD'].includes(options?.method)||
    options.redirect!=='manual')fail();
   return transport(url,{method:options.method,redirect:'manual',
    cache:'no-store',credentials:'omit'});
  };
  const fetchHostedAsset=(url,options)=>{
-  if(!isPage(url)||options?.method!=='GET'||
+  if(!isPage(url,pagesBase)||options?.method!=='GET'||
    options.redirect!=='manual')fail();
   return transport(url,{method:'GET',redirect:'manual',cache:'no-store',
    credentials:'omit',
@@ -95,14 +99,14 @@ export function createD6ReadProviderCandidate({
  };
  const gateway=createD6SameOriginGateway({
   fetchStaticAsset,fetchHostedAsset,requestGitHub,issueReadToken,
-  ownerSession,
+  ownerSession,pagesBase,
   gatewayEnabled:()=>gatewayEnabled,
   staticEnabled:()=>staticEnabled,
   sessionEnabled:()=>sessionEnabled,
   sourceEnabled:()=>sourceEnabled,
  });
  const hosted=createD6HostedBytesPreflight({
-  fetchPages:fetchStaticAsset,fetchGateway,
+  fetchPages:fetchStaticAsset,fetchGateway,pagesBase,
   enabled:()=>preflightEnabled,
  });
  return Object.freeze({

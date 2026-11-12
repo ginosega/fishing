@@ -11,7 +11,8 @@
  * media endpoint, CSRF token disclosure, installed GitHub App, or secret
  * binding in this module. Deployment/credential activation is separate.
  */
-import {createD6PublicReadProxy,planD6PublicRead,D6_PUBLIC_ORIGIN}
+import {createD6PublicReadProxy,planD6PublicRead,D6_PUBLIC_ORIGIN,
+ D6_GITHUB_PAGES_BASE,isD6TrustedPagesBase}
  from '../../../../pwa/server/d6-pages-path-gateway.mjs';
 import {createD6HostedRevisionReader}
  from './d6-hosted-revision-reader.mjs';
@@ -37,6 +38,7 @@ const enabled=(value)=>value()===true;
 
 export function createD6SameOriginGateway({
  fetchStaticAsset,fetchHostedAsset,requestGitHub,issueReadToken,ownerSession,
+ pagesBase=D6_GITHUB_PAGES_BASE,
  gatewayEnabled=()=>false,staticEnabled=()=>false,
  sessionEnabled=()=>false,sourceEnabled=()=>false,
 }={}){
@@ -46,7 +48,7 @@ export function createD6SameOriginGateway({
   typeof ownerSession?.describe!=='function'||
   typeof ownerSession?.authorizeStatus!=='function'||
   [gatewayEnabled,staticEnabled,sessionEnabled,sourceEnabled]
-   .some(v=>typeof v!=='function'))
+   .some(v=>typeof v!=='function')||!isD6TrustedPagesBase(pagesBase))
   throw Error('D6 same-origin gateway requires explicit trusted dependencies');
 
  const gate=()=>enabled(gatewayEnabled);
@@ -56,10 +58,10 @@ export function createD6SameOriginGateway({
  // intentionally enabled. This is still only a read, never write authority.
  const sourceOn=()=>sessionOn()&&enabled(sourceEnabled);
  const staticProxy=createD6PublicReadProxy({
-  fetchAsset:fetchStaticAsset,enabled:true,
+  fetchAsset:fetchStaticAsset,enabled:true,pagesBase,
  });
  const hosted=createD6HostedRevisionReader({
-  fetchAsset:fetchHostedAsset,enabled:sourceOn,
+  fetchAsset:fetchHostedAsset,enabled:sourceOn,pagesBase,
  });
  const github=createD6CanonicalSnapshotLoader({
   request:requestGitHub,issueReadToken,enabled:sourceOn,
@@ -115,7 +117,8 @@ export function createD6SameOriginGateway({
   }
   // No authentication start/callback, signout, POST, PATCH, media,
   // operations, admin, private pilot or GitHub write routes exist here.
-  const plan=planD6PublicRead({url:request.url,method:request.method});
+  const plan=planD6PublicRead({url:request.url,method:request.method,
+   pagesBase});
   if(plan.kind==='static'||plan.kind==='redirect'){
    if(!staticOn())return fail(503,'TEMPORARILY_UNAVAILABLE');
    return staticProxy(request);

@@ -7,12 +7,20 @@
  */
 export const D6_PUBLIC_ORIGIN='https://fishing.ginosega.workers.dev';
 export const D6_GITHUB_PAGES_BASE='https://ginosega.github.io/fishing/';
+// Dedicated, previously accepted D6 Stage A Pages project (not public V2).
+// Only these exact upstream origins are permitted.
+export const D6_ISOLATED_PAGES_BASE=
+ 'https://fishing-v3-d6-static-test.pages.dev/fishing/';
+export const isD6TrustedPagesBase=base=>
+ base===D6_GITHUB_PAGES_BASE||base===D6_ISOLATED_PAGES_BASE;
 const FILES=new Set(['index.html','release.json','loader.js','sw.js',
  'manifest.webmanifest','icon.png','icon-maskable.png']);
 const RELEASE_FILE=/^releases\/[a-f0-9]{32}\/(?:[A-Za-z0-9._~!$&'()+,;=:@%-]+\/)*[A-Za-z0-9._~!$&'()+,;=:@%-]+$/;
 const deny=(status=404)=>Object.freeze({kind:'deny',status});
 
-export function planD6PublicRead({url,method='GET'}={}){
+export function planD6PublicRead({url,method='GET',
+ pagesBase=D6_GITHUB_PAGES_BASE}={}){
+ if(!isD6TrustedPagesBase(pagesBase))return deny();
  // Do not normalize encoded separators/traversal into an apparently safe URL.
  if(/%(?:2f|5c|00|2e)|\/\.\.?(?:\/|$)/i.test(url))return deny();
  let incoming;
@@ -30,18 +38,23 @@ export function planD6PublicRead({url,method='GET'}={}){
  // Fetch the canonical Pages directory URL for BOTH app-shell aliases.
  // The served file remains index.html in the release manifest/SW cache.
  const upstreamPath=path==='index.html'?'':path;
- const upstream=new URL(upstreamPath+incoming.search,D6_GITHUB_PAGES_BASE);
- if(upstream.origin!==new URL(D6_GITHUB_PAGES_BASE).origin||
-    !upstream.pathname.startsWith('/fishing/'))return deny();
+ const upstream=new URL(upstreamPath+incoming.search,pagesBase);
+ const trusted=new URL(pagesBase);
+ if(upstream.origin!==trusted.origin||
+    !upstream.pathname.startsWith(trusted.pathname))return deny();
  return Object.freeze({kind:'static',method,upstreamUrl:upstream.href});
 }
 
-export function createD6PublicReadProxy({fetchAsset,enabled=false}={}){
+export function createD6PublicReadProxy({fetchAsset,enabled=false,
+ pagesBase=D6_GITHUB_PAGES_BASE}={}){
+ if(!isD6TrustedPagesBase(pagesBase))
+  throw Error('D6 static Pages source denied');
  if(typeof fetchAsset!=='function')throw Error('An explicit asset fetcher is required');
  return async request=>{
   if(enabled!==true)return new Response('D6 public gateway is disabled',
    {status:503,headers:{'Cache-Control':'no-store'}});
-  const plan=planD6PublicRead({url:request?.url,method:request?.method});
+  const plan=planD6PublicRead({url:request?.url,method:request?.method,
+   pagesBase});
   if(plan.kind==='deny')return new Response('Unavailable',
    {status:plan.status,headers:{'Cache-Control':'no-store'}});
   if(plan.kind==='redirect')return new Response(null,{

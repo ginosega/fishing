@@ -5,6 +5,8 @@
  * not full hosted-file byte acceptance or permission to enable publishing.
  */
 import {validatePointer,validateManifest} from '../../../../pwa/src/release.mjs';
+import {isD6TrustedPagesBase}
+ from '../../../../pwa/server/d6-pages-path-gateway.mjs';
 
 export const D6_TRUSTED_PAGES_BASE='https://ginosega.github.io/fishing/';
 const SHA=/^[a-f0-9]{40}$/;
@@ -18,7 +20,9 @@ export class D6HostedProofError extends Error{
 const deny=code=>{throw new D6HostedProofError(code);};
 const need=(v,code)=>{if(!v)deny(code);};
 
-export function createD6HostedRevisionReader({fetchAsset,enabled=()=>false}={}){
+export function createD6HostedRevisionReader({fetchAsset,enabled=()=>false,
+ pagesBase=D6_TRUSTED_PAGES_BASE}={}){
+ need(isD6TrustedPagesBase(pagesBase),'INVALID_CONFIG');
  need(typeof fetchAsset==='function'&&typeof enabled==='function',
   'INVALID_CONFIG');
  async function readBytes(url,limit){
@@ -57,12 +61,12 @@ export function createD6HostedRevisionReader({fetchAsset,enabled=()=>false}={}){
   let pointer;
   try{
    pointer=validatePointer(JSON.parse(dec.decode(
-    await readBytes(D6_TRUSTED_PAGES_BASE+'release.json',LIMIT_POINTER))));
+    await readBytes(pagesBase+'release.json',LIMIT_POINTER))));
   }catch(e){if(e instanceof D6HostedProofError)throw e;
    deny('INVALID_POINTER');}
   need(SHA.test(pointer.sourceRevision)&&pointer.pendingMedia===false&&
    pointer.d6ReaderCandidate===true,'NOT_V3_RELEASE');
-  const url=D6_TRUSTED_PAGES_BASE+pointer.manifest;
+  const url=pagesBase+pointer.manifest;
   const bytes=await readBytes(url,LIMIT_MANIFEST);
   const digest=[...new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))]
    .map(v=>v.toString(16).padStart(2,'0')).join('');

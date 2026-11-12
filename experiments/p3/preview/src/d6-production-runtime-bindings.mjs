@@ -11,6 +11,8 @@
  */
 import {createD6ProductionOAuthReadComposition}
  from './d6-production-oauth-read-composition.mjs';
+import {D6_GITHUB_PAGES_BASE,D6_ISOLATED_PAGES_BASE}
+ from '../../../../pwa/server/d6-pages-path-gateway.mjs';
 
 const ORIGIN='https://fishing.ginosega.workers.dev';
 const OWNER='265665562';
@@ -60,6 +62,10 @@ export function createD6ProductionRuntimeBindingContract({
  const oauthEnabled=flag('D6_OAUTH_ENABLED');
  const signoutEnabled=flag('D6_SIGNOUT_ENABLED');
  const preflightEnabled=flag('D6_HOSTED_PREFLIGHT_ENABLED');
+ // Only a trusted server-side exact-string flag can select D6 Stage A Pages.
+ // Never derive the upstream from a browser-supplied URL or header.
+ const pagesBase=env.D6_ISOLATED_PAGES_ENABLED==='true'?
+  D6_ISOLATED_PAGES_BASE:D6_GITHUB_PAGES_BASE;
  const readTarget=API+'/repos/ginosega/fishing/installation';
  const installation=num(env.D6_GITHUB_INSTALLATION_ID)?
   API+'/app/installations/'+env.D6_GITHUB_INSTALLATION_ID:null;
@@ -115,7 +121,7 @@ export function createD6ProductionRuntimeBindingContract({
   oauthClientId:env.D6_OAUTH_CLIENT_ID,
   oauthClientSecret:env.D6_OAUTH_CLIENT_SECRET,
   AUTH_DB:env.AUTH_DB,csrfKey:env.D6_CSRF_KEY,
-  cryptoApi,now,
+  cryptoApi,now,pagesBase,
   gatewayEnabled,staticEnabled,sessionEnabled,
   sourceEnabled,tokenEnabled,signerEnabled,
   oauthEnabled,signoutEnabled,preflightEnabled,
