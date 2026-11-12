@@ -17,10 +17,16 @@ export function narrativePath(domain,record){
 export function picturePath(domain,record,filename){return safePath(categoryFolder(domain,domain==='gear'?record.category:record.type)+'/assets/'+filename);}
 export class ChangeConflictError extends Error{constructor(conflicts){super(`Change requires review: ${conflicts.join(', ')}`);this.name='ChangeConflictError';this.conflicts=conflicts;}}
 function validFileMeta(file){return file&&Number.isSafeInteger(file.bytes)&&file.bytes>0&&/^[a-f0-9]{64}$/.test(file.sha256);}
-export async function prepareChange({domain,operation,id,baseRecord,record,baseText='',text='',sourceRevision,notesPath,pictureAction='keep',picturePath:requestedPicturePath,baseFileHash,pictureFile,pictureSequenceAction='keep',pictureSequencePaths,pictureSequenceFiles}={}){
+export async function prepareChange({domain,operation,id,baseRecord,record,baseText='',text='',sourceRevision,notesPath,pictureAction='keep',picturePath:requestedPicturePath,baseFileHash,pictureFile,pictureSequenceAction='keep',pictureSequencePaths,pictureSequenceFiles,notesImages=[]}={}){
  assert(['gear','kb','catches'].includes(domain),'Unsupported authoring domain');
- if(domain==='catches')assert(pictureAction==='keep'&&
-  pictureSequenceAction==='keep','Catch image changes are unsupported');
+ if(domain==='catches'){
+  assert(pictureAction==='keep'&&pictureSequenceAction==='keep',
+   'Catch image changes are unsupported');
+  // Approved D5 Catch editor forwards local Notes images to this handoff.
+  // Refuse unimplemented media instead of silently discarding those bytes.
+  assert(Array.isArray(notesImages)&&notesImages.length===0,
+   'Catch Notes image publishing requires WP3 media integration');
+ }
  assert(['add','edit'].includes(operation),'Unsupported operation');
  assert(record?.id===id,'Identity cannot be edited');
  assert(typeof sourceRevision==='string'&&sourceRevision.length>0,'Source revision required');

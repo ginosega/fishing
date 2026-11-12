@@ -89,9 +89,6 @@ export async function prepareCatchPackage({
  });
  if(typeof notesText!=='string'||typeof baseText!=='string')
   throw new Error('Invalid Catch Notes.');
- // Do not silently omit image bytes from a source-only Catch package.
- if(!Array.isArray(notesImages)||notesImages.length)
-  throw new Error('Catch Notes image publishing requires WP3 media integration.');
  if(baseRecord?.notes&&!notesText.trim())
   throw new Error('Existing Catch Notes cannot be removed in this pilot.');
  const expectedPath=narrativePath('catches',candidate);
