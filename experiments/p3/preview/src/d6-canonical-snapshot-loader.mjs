@@ -8,6 +8,8 @@
 import {validateRecords,validateLibraryPaths,collectPaths,
  checkPathCollisions,validateMarkdown}
  from '../../../../pwa/src/validation.mjs';
+import {readD6BoundedJson,D6BoundedJsonError}
+ from './d6-bounded-json-response.mjs';
 
 export const D6_SOURCE_REPOSITORY=Object.freeze({
  id:1350909744,fullName:'ginosega/fishing',ref:'refs/heads/main',
@@ -90,14 +92,12 @@ export function createD6CanonicalSnapshotLoader({
    (!res.url||res.url===url)&&
    /\bapplication\/json\b/i.test(res.headers.get('Content-Type')??''),
    'GITHUB_UNAVAILABLE');
-  const claimed=Number(res.headers.get('Content-Length'));
-  if(Number.isFinite(claimed)&&claimed>MAX_GITHUB_JSON_BYTES)
-   deny('GITHUB_RESPONSE_TOO_LARGE');
-  let raw;
-  try{raw=await res.text();}catch{deny('INVALID_GITHUB_RESPONSE');}
-  need(encoder.encode(raw).byteLength<=MAX_GITHUB_JSON_BYTES,
-   'GITHUB_RESPONSE_TOO_LARGE');
-  try{return JSON.parse(raw);}catch{deny('INVALID_GITHUB_RESPONSE');}
+  try{return await readD6BoundedJson(res,MAX_GITHUB_JSON_BYTES);}
+  catch(error){
+   if(error instanceof D6BoundedJsonError&&error.code==='TOO_LARGE')
+    deny('GITHUB_RESPONSE_TOO_LARGE');
+   deny('INVALID_GITHUB_RESPONSE');
+  }
  }
 
  async function loadSnapshot({expectedReleaseRevision}={}){

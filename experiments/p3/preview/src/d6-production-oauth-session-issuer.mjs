@@ -1,3 +1,5 @@
+import {readD6BoundedJson} from './d6-bounded-json-response.mjs';
+
 /**
  * D6 canonical-production GitHub OAuth session issuer, SOURCE ONLY.
  * No Worker export, installed route, credential binding, publisher or writer.
@@ -106,11 +108,8 @@ export function createD6ProductionOAuthSessionIssuer({
      result.redirected===true||(result.url&&result.url!==url)||
      !/^application\/json\b/i.test(result.headers.get('Content-Type')??''))
    throw Error('provider rejected');
-  const len=Number(result.headers.get('Content-Length'));
-  if(Number.isFinite(len)&&len>maxBytes)throw Error('provider oversized');
-  const body=await result.text();
-  if(enc.encode(body).length>maxBytes)throw Error('provider oversized');
-  return JSON.parse(body);
+  // Reject oversized provider bytes during streaming, before buffering.
+  return readD6BoundedJson(result,maxBytes);
  }
  async function start(request){
   if(!ready())return denied();
