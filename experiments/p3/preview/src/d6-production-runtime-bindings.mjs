@@ -80,10 +80,15 @@ export function createD6ProductionRuntimeBindingContract({
  const mint=installation?installation+'/access_tokens':null;
 
  const transport=async(url,options)=>{
-  // Lower-level read provider already checks exact Pages/GitHub paths;
-  // this trusted adapter enforces no credential-bearing redirects.
+  // POST is permitted only for bounded GitHub GraphQL immutable blob reads.
+  // All remaining URLs and write-capable methods retain their old deny gate.
+  const graphql=url===API+'/graphql'&&options?.method==='POST'&&
+   options?.headers?.['Content-Type']==='application/json'&&
+   typeof options?.body==='string'&&options.body.length<=16000&&
+   options.body.startsWith('{"query":"query WP2VerifiedMarkdown ')&&
+   /^Bearer [^\s]{12,}$/.test(options?.headers?.Authorization??'');
   if(typeof url!=='string'||!url.startsWith('https://')||
-    !httpOpts(options)||options.method!=='GET'&&
+    !httpOpts(options)||!graphql&&options.method!=='GET'&&
     options.method!=='HEAD')fail();
   return network(url,options);
  };

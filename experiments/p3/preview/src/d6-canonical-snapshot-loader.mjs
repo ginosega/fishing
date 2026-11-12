@@ -15,6 +15,7 @@ export const D6_SOURCE_REPOSITORY=Object.freeze({
  id:1350909744,fullName:'ginosega/fishing',ref:'refs/heads/main',
 });
 const API='https://api.github.com/repos/'+D6_SOURCE_REPOSITORY.fullName;
+const GRAPHQL='https://api.github.com/graphql';
 const MAIN=API+'/git/ref/heads/main';
 const ROOT='pwa/';
 const CANONICAL=Object.freeze({
@@ -28,6 +29,10 @@ const MAX_SOURCE_BYTES=2*1024*1024;
 const MAX_JSON_BYTES=320000;
 const MAX_MD_BYTES=131072;
 const MAX_GITHUB_JSON_BYTES=2*1024*1024;
+// At most 30 batched Markdown reads, keeping the full source invocation
+// under the Workers Free 50-external-subrequest ceiling.
+const MARKDOWN_BATCH=8;
+const MAX_MARKDOWN_BATCHES=30;
 const decoder=new TextDecoder('utf-8',{fatal:true});
 const encoder=new TextEncoder();
 const obj=v=>v!==null&&typeof v==='object'&&!Array.isArray(v);
@@ -98,6 +103,61 @@ export function createD6CanonicalSnapshotLoader({
     deny('GITHUB_RESPONSE_TOO_LARGE');
    deny('INVALID_GITHUB_RESPONSE');
   }
+ }
+
+ async function githubMarkdownBatch(token,items){
+  need(Array.isArray(items)&&items.length>0&&
+   items.length<=MARKDOWN_BATCH&&items.every(entryIsBlob),
+   'INVALID_MARKDOWN_BATCH');
+  // GitHub GraphQL aliases immutable Git blob OIDs from the already
+  // verified canonical main tree. No browser paths or revisions enter.
+  const fields=items.map((entry,i)=>'b'+i+':object(oid:"'+entry.sha+
+   '"){ ... on Blob { oid byteSize isBinary isTruncated text } }').join(' ');
+  const query='query WP2VerifiedMarkdown {repository(owner:"ginosega",'+
+   'name:"fishing"){nameWithOwner databaseId '+fields+'}}';
+  const body=JSON.stringify({query});
+  need(body.length<=16000,'INVALID_MARKDOWN_BATCH');
+  let res;
+  try{res=await request(GRAPHQL,{
+   method:'POST',headers:{...gitHeaders(token),
+    'Content-Type':'application/json'},body,redirect:'manual',
+  });}catch{deny('GITHUB_GRAPHQL_UNAVAILABLE');}
+  need(res instanceof Response&&res.status===200&&
+   res.redirected!==true&&(!res.url||res.url===GRAPHQL)&&
+   res.headers.get('Content-Type')?.toLowerCase().split(';')[0].trim()==='application/json',
+   'GITHUB_GRAPHQL_UNAVAILABLE');
+  let reply;
+  try{reply=await readD6BoundedJson(res,MAX_GITHUB_JSON_BYTES);}
+  catch(error){
+   if(error instanceof D6BoundedJsonError&&error.code==='TOO_LARGE')
+    deny('GITHUB_RESPONSE_TOO_LARGE');
+   deny('INVALID_GITHUB_GRAPHQL_RESPONSE');
+  }
+  need(obj(reply)&&!Object.hasOwn(reply,'errors')&&
+   obj(reply.data)&&obj(reply.data.repository)&&
+   reply.data.repository.nameWithOwner===D6_SOURCE_REPOSITORY.fullName&&
+   reply.data.repository.databaseId===D6_SOURCE_REPOSITORY.id,
+   'INVALID_GITHUB_GRAPHQL_RESPONSE');
+  const records=reply.data.repository;
+  const result=[];
+  for(let i=0;i<items.length;i++){
+   const entry=items[i],blob=records['b'+i];
+   need(obj(blob)&&blob.oid===entry.sha&&
+    blob.byteSize===entry.size&&blob.isBinary===false&&
+    blob.isTruncated===false&&typeof blob.text==='string',
+    'GIT_BLOB_INTEGRITY_FAILED');
+   const bytes=encoder.encode(blob.text);
+   need(bytes.byteLength===entry.size,'GIT_BLOB_INTEGRITY_FAILED');
+   const prefix=encoder.encode('blob '+bytes.byteLength+String.fromCharCode(0));
+   const tagged=new Uint8Array(prefix.length+bytes.length);
+   tagged.set(prefix);tagged.set(bytes,prefix.length);
+   const digest=Array.from(new Uint8Array(
+    await crypto.subtle.digest('SHA-1',tagged)),
+    b=>b.toString(16).padStart(2,'0')).join('');
+   need(digest===entry.sha,'GIT_BLOB_INTEGRITY_FAILED');
+   result.push(blob.text);
+  }
+  return result;
  }
 
  async function loadSnapshot({expectedReleaseRevision}={}){
@@ -197,8 +257,20 @@ export function createD6CanonicalSnapshotLoader({
   for(const path of referenced){
    need(content(path)&&files.has(path),'MISSING_REFERENCED_CONTENT');
   }
-  for(const path of narrative){
-   markdown.set(path,await loadText(path,MAX_MD_BYTES));
+  need(Math.ceil(narrative.length/MARKDOWN_BATCH)<=MAX_MARKDOWN_BATCHES,
+   'TOO_MANY_MARKDOWN_BATCHES');
+  for(let offset=0;offset<narrative.length;offset+=MARKDOWN_BATCH){
+   const group=narrative.slice(offset,offset+MARKDOWN_BATCH);
+   const batchEntries=group.map(path=>{
+    const entry=entries.get(path);
+    need(entryIsBlob(entry)&&entry.size>0&&entry.size<=MAX_MD_BYTES,
+     'MISSING_OR_LARGE_SOURCE_FILE');
+    bytesRead+=entry.size;
+    need(bytesRead<=MAX_SOURCE_BYTES,'SOURCE_TOO_LARGE');
+    return entry;
+   });
+   const bodies=await githubMarkdownBatch(token,batchEntries);
+   for(let i=0;i<group.length;i++)markdown.set(group[i],bodies[i]);
   }
   // Verify links and inline image references in the same immutable Git tree.
   try{
