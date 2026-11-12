@@ -263,3 +263,21 @@ test('WP3-DOMAIN03 Catch Notes cannot escape its owned source path',async()=>{
  await deny(setup().review.review(request(p),{trustedMainSha:MAIN}),
   'UNSAFE_NARRATIVE_PATH');
 });
+
+test('WP3-NAMES01 Catch editor free-text choices survive canonical review',async()=>{
+ const item={...catchRecord,speciesName:'Unlisted species',
+  locationName:'Unnamed bay',lureOrBaitName:'Custom jig'};
+ const p=await prepareCatchPackage({ctx:catchCtx(),record:item,
+  text:'# Catch details'});
+ const r=await setup().review.review(request(p),{trustedMainSha:MAIN});
+ assert.equal(r.candidateData.catches.catches[0].speciesName,
+  'Unlisted species');
+ assert.equal(r.candidateData.catches.catches[0].locationName,
+  'Unnamed bay');
+ assert.equal(r.candidateData.catches.catches[0].lureOrBaitName,
+  'Custom jig');
+ assert.equal(r.candidateMarkdown.get('Catches/content/'+item.id+'.md'),
+  '# Catch details');
+ assert.equal(r.sourceOnly,true);
+ assert.equal(r.canPublish,false);
+});
