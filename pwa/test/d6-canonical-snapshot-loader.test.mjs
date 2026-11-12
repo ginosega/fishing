@@ -7,6 +7,7 @@ import {createD6CanonicalSnapshotLoader,D6TrustedSourceError,
  D6_SOURCE_REPOSITORY} from '../../experiments/p3/preview/src/d6-canonical-snapshot-loader.mjs';
 
 const API='https://api.github.com/repos/ginosega/fishing';
+const GRAPHQL='https://api.github.com/graphql';
 const SHA='a'.repeat(40),TREE='b'.repeat(40),PWA='c'.repeat(40);
 const root=Object.fromEntries([
  ['gear','Gear/gear.json'],['kb','KB/kb.json'],['catches','Catches/catches.json'],
@@ -33,7 +34,7 @@ for(const p of imagePaths)blobEntries.set(p,{
 const jsonBody=(body,{status=200,contentType='application/json'}={})=>
  new Response(JSON.stringify(body),{status,headers:{'Content-Type':contentType}});
 function githubFixture({mutate=()=>{},moveHead=false,
- failUrl=null,badBlob=false,duplicate=false}={}){
+ failUrl=null,badBlob=false,badGraphQL=false,duplicate=false}={}){
  const rootTree={sha:TREE,truncated:false,tree:[
   {path:'pwa',mode:'040000',type:'tree',sha:PWA},
  ]};
@@ -61,6 +62,25 @@ function githubFixture({mutate=()=>{},moveHead=false,
  const request=async(url,opts)=>{
   calls.push({url,opts});
   if(url===failUrl)return jsonBody({}, {status:302});
+  if(url===GRAPHQL){
+   assert.equal(opts.method,'POST');
+   assert.equal(opts.headers['Content-Type'],'application/json');
+   const query=JSON.parse(opts.body).query;
+   assert.match(query,/^query WP2VerifiedMarkdown /);
+   const matches=[...query.matchAll(/b(\\d+):object\\(oid:"([a-f0-9]{40})"\\)/g)];
+   assert(matches.length>0&&matches.length<=8);
+   const repository={nameWithOwner:'ginosega/fishing',databaseId:1350909744};
+   for(const [,index,oid] of matches){
+    const entry=[...blobEntries.values()].find(x=>x.sha===oid);
+    assert(entry);
+    repository['b'+index]={
+     oid,byteSize:entry.size,isBinary:false,isTruncated:false,
+     text:badGraphQL?'wrong markdown':
+      contents.get(entry.path),
+    };
+   }
+   return jsonBody({data:{repository}});
+  }
   let value=git[url];
   if(url===API+'/git/ref/heads/main'&&moveHead&&++refReads===2)
    value={ref:'refs/heads/main',object:{type:'commit',sha:'d'.repeat(40)}};
@@ -105,8 +125,15 @@ test('D6-TRUST01 exact canonical repository and immutable Git tree pass read-onl
  assert(!Object.hasOwn(result,'token')&&!Object.hasOwn(result,'writeToken'));
  assert(!Object.hasOwn(result,'publish')&&!Object.hasOwn(result,'csrf'));
  assert.equal(f.calls.filter(c=>c.url===API+'/git/ref/heads/main').length,2);
- assert(f.calls.every(c=>c.opts.method==='GET'&&c.opts.redirect==='manual'&&
+ assert(f.calls.every(c=>['GET','POST'].includes(c.opts.method)&&
+  c.opts.redirect==='manual'&&
   c.opts.headers.Authorization==='Bearer github-test-read-token'));
+ const batches=f.calls.filter(c=>c.url===GRAPHQL);
+ assert(batches.length>0&&batches.length<=30);
+ assert(f.calls.length+7<=50,
+  'main snapshot plus hosted proof and App grant exceeds Workers Free limit');
+ assert.equal(f.calls.filter(c=>c.url.includes('/git/blobs/')).length,3,
+  'only canonical JSON files should use REST blob GET');
 });
 
 test('D6-TRUST02 disabled/default-off and invalid source SHA never issue tokens',async()=>{
@@ -203,7 +230,7 @@ test('D6-TRUST08 transport failure or redirect never reads an alternate endpoint
  await denied(loader({request:f.request}).loadSnapshot({
   expectedReleaseRevision:SHA,
  }),'GITHUB_UNAVAILABLE');
- assert(f.calls.every(c=>c.url===API||c.url.startsWith(API+'/')));
+ assert(f.calls.every(c=>c.url===GRAPHQL||c.url===API||c.url.startsWith(API+'/')));
 });
 
 test('D6-TRUST09 no production route, GitHub writer or credential activation',()=>{
@@ -212,7 +239,8 @@ test('D6-TRUST09 no production route, GitHub writer or credential activation',()
  assert.match(src,/permissions:\{contents:'read'\}/);
  assert.match(src,/expectedReleaseRevision/);
  assert.match(src,/ref:'refs\/heads\/main'/);
- assert.doesNotMatch(src,/method:'POST'|method:'PATCH'|method:'PUT'|issueWriteToken|publishChange/);
+ assert.match(src,/GRAPHQL/);
+ assert.doesNotMatch(src,/method:'PATCH'|method:'PUT'|issueWriteToken|publishChange/);
  assert(!src.includes('D2_GITHUB_APP_PRIVATE_KEY'));
 });
 
@@ -254,4 +282,31 @@ test('D6-TRUST11 staging main snapshot remains canonical, even when code differs
  const production=loader({request:f.request});
  await denied(production.loadSnapshot({expectedReleaseRevision:'e'.repeat(40)}),
   'MAIN_RELEASE_MISMATCH');
+});
+
+test('D6-TRUST12 batch GraphQL blob mismatches deny before source publication',async()=>{
+ const f=githubFixture({badGraphQL:true});
+ await denied(loader({request:f.request}).loadSnapshot({
+  expectedReleaseRevision:SHA,
+ }),'GIT_BLOB_INTEGRITY_FAILED');
+ assert(f.calls.some(c=>c.url===GRAPHQL));
+ assert(f.calls.every(c=>c.url===GRAPHQL||c.url===API||c.url.startsWith(API+'/')));
+});
+
+test('D6-TRUST13 GitHub GraphQL redirect and error objects fail closed',async()=>{
+ for(const failure of [
+  {status:302,body:{}},
+  {status:200,body:{errors:[{message:'Forbidden'}]}},
+  {status:200,body:{data:{repository:{
+   nameWithOwner:'other/fishing',databaseId:1350909744,
+  }}}},
+ ]){
+  const f=githubFixture();
+  await denied(loader({request:async(url,options)=>{
+   if(url===GRAPHQL)return jsonBody(failure.body,{status:failure.status});
+   return f.request(url,options);
+  }}).loadSnapshot({expectedReleaseRevision:SHA}),
+    failure.status===302?'GITHUB_GRAPHQL_UNAVAILABLE':
+     'INVALID_GITHUB_GRAPHQL_RESPONSE');
+ }
 });
