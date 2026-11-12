@@ -215,3 +215,23 @@ test('D6-TRUST09 no production route, GitHub writer or credential activation',()
  assert.doesNotMatch(src,/method:'POST'|method:'PATCH'|method:'PUT'|issueWriteToken|publishChange/);
  assert(!src.includes('D2_GITHUB_APP_PRIVATE_KEY'));
 });
+
+// WP2-AUTH-03 / X-03: stream-limit the trusted GitHub main reader.
+test('D6-TRUST10 oversized streamed GitHub JSON is canceled and denied',async()=>{
+ let pulled=0,canceled=false;
+ const trusted=loader({request:async url=>{
+  assert.equal(url,API);
+  return new Response(new ReadableStream({
+   pull(controller){
+    pulled++;
+    controller.enqueue(new Uint8Array(512*1024));
+    if(pulled===8)controller.close();
+   },
+   cancel(){canceled=true;},
+  }),{headers:{'Content-Type':'application/json'}});
+ }});
+ await denied(trusted.loadSnapshot({expectedReleaseRevision:SHA}),
+  'GITHUB_RESPONSE_TOO_LARGE');
+ assert.equal(canceled,true);
+ assert(pulled<8);
+});

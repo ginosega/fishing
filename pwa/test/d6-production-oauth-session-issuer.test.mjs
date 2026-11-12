@@ -265,3 +265,26 @@ test('D6-OAUTH11 source has no production Worker, sandbox or writer entrypoint',
  assert.doesNotMatch(code,/issueReadToken|issueWriteToken|authorizeWrite/);
  assert.doesNotMatch(code,/\/api\/v3\/operations|D2_SANDBOX|D5_OWNER/);
 });
+
+// WP2-AUTH-03 / X-03: bound provider bodies without Content-Length.
+test('D6-OAUTH12 oversized streamed OAuth JSON cancels before full read',async()=>{
+ let pulled=0,canceled=false;
+ const x=factory({requestGitHub:async url=>{
+  assert.equal(url,'https://github.com/login/oauth/access_token');
+  return new Response(new ReadableStream({
+   pull(controller){
+    pulled++;
+    controller.enqueue(new Uint8Array(4096));
+    if(pulled===10)controller.close();
+   },
+   cancel(){canceled=true;},
+  }),{headers:{'Content-Type':'application/json'}});
+ }});
+ const {state}=await start(x);
+ const response=await x.issue.callback(callback(state));
+ assert.equal(response.status,503);
+ assert.equal(x.db.sessions.size,0);
+ assert.equal(x.db.flows.size,0);
+ assert.equal(canceled,true);
+ assert(pulled<10);
+});
