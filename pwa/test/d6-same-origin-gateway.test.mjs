@@ -247,9 +247,27 @@ function providerFixtures(){
  };
  const requestGitHub=async(url,options)=>{
   githubCalls++;
-  assert.equal(options.method,'GET');
   assert.equal(options.redirect,'manual');
   assert.equal(options.headers.Authorization,'Bearer read-only-fixture-token');
+  if(url==='https://api.github.com/graphql'){
+   assert.equal(options.method,'POST');
+   assert.equal(options.headers['Content-Type'],'application/json');
+   const query=JSON.parse(options.body).query;
+   assert.match(query,/^query WP2VerifiedMarkdown /);
+   const matches=[...query.matchAll(/b(\d+):object\(oid:"([a-f0-9]{40})"\)/g)];
+   assert(matches.length>0&&matches.length<=8);
+   const repository={nameWithOwner:'ginosega/fishing',databaseId:1350909744};
+   for(const [,i,oid] of matches){
+    const entry=entries.find(x=>x.sha===oid);
+    assert(entry);
+    repository['b'+i]={
+     oid,byteSize:entry.size,isBinary:false,isTruncated:false,
+     text:contents.get(entry.path),
+    };
+   }
+   return json({data:{repository}});
+  }
+  assert.equal(options.method,'GET');
   return api.has(url)?json(api.get(url)):new Response('{}',{status:404});
  };
  const issueReadToken=async args=>{
