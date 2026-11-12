@@ -23,6 +23,8 @@ function make(overrides={},config={}){
      flow.set(args[0],{code_verifier:args[1],expires_at:args[2]});
     }else if(sql.startsWith('INSERT INTO sessions')){
      sessions.set(args[0],{github_id:args[1],expires_at:args[2]});
+    }else if(sql==='DELETE FROM sessions WHERE token_hash = ? AND github_id = ?'){
+     if(sessions.get(args[0])?.github_id===args[1])sessions.delete(args[0]);
     }else throw Error('invalid database mutation');
     return {success:true};
    },
@@ -223,4 +225,97 @@ test('D6-BIND11 no entrypoint, sandbox creds, writer, cron or deploy surface',()
  assert.doesNotMatch(code,/1430581407|fishing-p3-sandbox/);
  assert.doesNotMatch(code,/authorizeWrite|issueWriteToken|scheduled\(/);
  assert.doesNotMatch(code,/api\/v3\/operations|D2_WRITE_ENABLED/);
+});
+
+async function signedInOwner(x){
+ const started=await x.app.fetch(req('/auth/start',{
+  headers:{'Sec-Fetch-Mode':'navigate','Sec-Fetch-Dest':'document',
+   'Sec-Fetch-Site':'same-origin'},
+ }));
+ assert.equal(started.status,303);
+ const state=started.headers.get('Set-Cookie')?.match(
+  /__Host-fish_p0_flow=([A-Za-z0-9_-]{43})/)?.[1];
+ assert.match(state,/^[A-Za-z0-9_-]{43}$/);
+ const response=await x.app.fetch(req('/auth/callback?code=githubCode1234567890&state='+state,{
+  headers:{Cookie:'__Host-fish_p0_flow='+state,
+   'Sec-Fetch-Site':'cross-site','Sec-Fetch-Mode':'navigate',
+   'Sec-Fetch-Dest':'document'},
+ }));
+ assert.equal(response.status,303);
+ const sid=response.headers.get('Set-Cookie')?.match(
+  /__Host-fish_p0_session=([A-Za-z0-9_-]{43})/)?.[1];
+ assert.match(sid,/^[A-Za-z0-9_-]{43}$/);
+ return sid;
+}
+
+test('D6-BIND12 OAuth owner sign-out revokes D1 session before source access',async()=>{
+ const x=make({
+  D6_SESSION_ENABLED:'true',D6_OAUTH_ENABLED:'true',
+  D6_SIGNOUT_ENABLED:'true',D6_SOURCE_ENABLED:'true',
+  D6_OAUTH_CLIENT_ID:'Iv1.fishingtest',
+  D6_OAUTH_CLIENT_SECRET:'test-only-client-secret-value-xxxxxxxx',
+ });
+ const sid=await signedInOwner(x);
+ const cookie='__Host-fish_p0_session='+sid;
+ assert.equal(x.sessions.get(hash(sid))?.github_id,265665562);
+ const before=await x.app.fetch(req('/session',{headers:{
+  Cookie:cookie,'Sec-Fetch-Site':'same-origin',
+ }}));
+ assert.equal((await before.json()).authorized,true);
+ const signedOut=await x.app.fetch(req('/session/signout',{
+  method:'POST',headers:{Cookie:cookie,Origin:ORIGIN,
+   'Sec-Fetch-Site':'same-origin','X-Fish-P0-Intent':'signout'},
+ }));
+ assert.equal(signedOut.status,200);
+ assert.deepEqual(await signedOut.json(),{signedOut:true});
+ assert.equal(x.sessions.has(hash(sid)),false);
+ assert.match(signedOut.headers.get('Set-Cookie'),/Max-Age=0/);
+ const after=await x.app.fetch(req('/session',{headers:{
+  Cookie:cookie,'Sec-Fetch-Site':'same-origin',
+ }}));
+ assert.deepEqual(await after.json(),{
+  authenticated:false,authorized:false,
+ });
+ const source=await x.app.fetch(req('/api/v3/authoring-source',{
+  headers:{Cookie:cookie,'Sec-Fetch-Site':'same-origin'},
+ }));
+ assert.equal(source.status,401);
+ assert.deepEqual(x.network.map(c=>c.url),[
+  'https://github.com/login/oauth/access_token',
+  'https://api.github.com/user',
+ ]);
+ assert.equal(x.dbEvents.filter(e=>e.sql.startsWith('DELETE FROM sessions')).length,1);
+ assert.equal((await x.app.fetch(req('/api/v3/operations',{
+  method:'POST',headers:{Cookie:cookie,Origin:ORIGIN},
+ }))).status,404);
+});
+
+test('D6-BIND13 forged sign-out cannot revoke active owner session',async()=>{
+ const x=make({
+  D6_SESSION_ENABLED:'true',D6_OAUTH_ENABLED:'true',
+  D6_SIGNOUT_ENABLED:'true',
+  D6_OAUTH_CLIENT_ID:'Iv1.fishingtest',
+  D6_OAUTH_CLIENT_SECRET:'test-only-client-secret-value-xxxxxxxx',
+ });
+ const sid=await signedInOwner(x),cookie='__Host-fish_p0_session='+sid;
+ for(const headers of [
+  {Origin:'https://evil.invalid','Sec-Fetch-Site':'same-origin',
+   'X-Fish-P0-Intent':'signout'},
+  {Origin:ORIGIN,'Sec-Fetch-Site':'cross-site',
+   'X-Fish-P0-Intent':'signout'},
+  {Origin:ORIGIN,'Sec-Fetch-Site':'same-origin',
+   'X-Fish-P0-Intent':'other'},
+ ]){
+  const response=await x.app.fetch(req('/session/signout',{
+   method:'POST',headers:{...headers,Cookie:cookie},
+  }));
+  assert([403,404].includes(response.status));
+  assert.equal(response.headers.get('Set-Cookie'),null);
+  assert.equal(x.sessions.has(hash(sid)),true);
+ }
+ assert.equal(x.dbEvents.filter(e=>e.sql.startsWith('DELETE FROM sessions')).length,0);
+ const status=await x.app.fetch(req('/session',{headers:{
+  Cookie:cookie,'Sec-Fetch-Site':'same-origin',
+ }}));
+ assert.equal((await status.json()).authorized,true);
 });
