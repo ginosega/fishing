@@ -429,9 +429,11 @@ test('WP1-MEDIA-B10 Notes original picker previews alt and viewer locally withou
  await ownerReady(page);
  const contentPrefix='releases/'+release.id+'/content/';
  const known=new Set(manifest.files.map(x=>x.path));
- const gear=real.gear.items.find(row=>row.notes&&row.picture?.src?.endsWith('.webp')&&
+ // JPEG is decodable with the ImageBitmap fallback in WebKit. Animated
+ // WebP/GIF need ImageDecoder support and correctly fail closed otherwise.
+ const gear=real.gear.items.find(row=>row.notes&&row.picture?.src?.endsWith('.jpg')&&
   known.has(contentPrefix+row.notes)&&known.has(contentPrefix+row.picture.src));
- expect(gear,'A real Gear record with Notes and an original WebP is required')
+ expect(gear,'A real Gear record with Notes and an original JPEG is required')
   .toBeDefined();
  const original=await fs.readFile(path.join(root,contentPrefix,gear.picture.src));
  await page.evaluate(hash=>location.hash=hash,'#/inventory/edit/'+gear.id);
@@ -441,7 +443,7 @@ test('WP1-MEDIA-B10 Notes original picker previews alt and viewer locally withou
  const panel=page.locator('#app .notes-image-panel');
  await expect(panel).toBeVisible();
  await panel.locator('input[type="file"]').setInputFiles({
-  name:'wp1-inline-original.webp',mimeType:'image/webp',buffer:original,
+  name:'wp1-inline-original.jpg',mimeType:'image/jpeg',buffer:original,
  });
  await expect(panel.locator('.notes-image-thumb img')).toBeVisible();
  await expect(panel.locator('.notes-image-thumb')).toContainText(/\d+ × \d+/);
@@ -458,7 +460,7 @@ test('WP1-MEDIA-B10 Notes original picker previews alt and viewer locally withou
  await caption.fill('WP1 image caption');
  await insert.click();
  await expect(panel).toBeHidden();
- await expect(notes).toHaveValue(/!\[WP1 selected original\]\(\.\.\/assets\/.*wp1-inline-original\.webp "viewer: WP1 image caption"\)/);
+ await expect(notes).toHaveValue(/!\[WP1 selected original\]\(\.\.\/assets\/.*wp1-inline-original\.jpg "viewer: WP1 image caption"\)/);
  await page.getByRole('button',{name:'Preview',exact:true}).click();
  const preview=page.locator('#app .notes-editor .markdown-preview');
  await expect(preview).toBeVisible();
