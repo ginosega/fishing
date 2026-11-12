@@ -444,7 +444,7 @@ test('WP1-MEDIA-B10 Notes original picker previews alt and viewer locally withou
   name:'wp1-inline-original.webp',mimeType:'image/webp',buffer:original,
  });
  await expect(panel.locator('.notes-image-thumb img')).toBeVisible();
- await expect(panel.locator('.notes-image-thumb')).toContainText(/\\d+ × \\d+/);
+ await expect(panel.locator('.notes-image-thumb')).toContainText(/\d+ × \d+/);
  const alt=panel.locator('input[type="text"]').first();
  await alt.fill('');
  const insert=panel.getByRole('button',{name:'Insert',exact:true});
@@ -458,7 +458,7 @@ test('WP1-MEDIA-B10 Notes original picker previews alt and viewer locally withou
  await caption.fill('WP1 image caption');
  await insert.click();
  await expect(panel).toBeHidden();
- await expect(notes).toHaveValue(/!\\[WP1 selected original\\]\\(\\.\\.\\/assets\\/.*wp1-inline-original\\.webp "viewer: WP1 image caption"\\)/);
+ await expect(notes).toHaveValue(/!\[WP1 selected original\]\(\.\.\/assets\/.*wp1-inline-original\.webp "viewer: WP1 image caption"\)/);
  await page.getByRole('button',{name:'Preview',exact:true}).click();
  const preview=page.locator('#app .notes-editor .markdown-preview');
  await expect(preview).toBeVisible();
