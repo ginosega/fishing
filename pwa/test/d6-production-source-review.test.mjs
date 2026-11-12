@@ -205,15 +205,20 @@ test('WP3-CATCH03 Catch Notes create has an owned Catches path and no Live',asyn
  assert.equal(result.canPublish,false);
 });
 
-test('WP3-CATCH04 Catch image staging is explicit denial, never silent loss',async()=>{
- await assert.rejects(prepareCatchPackage({
+test('WP3-CATCH04 Catch image package is retained but publisher remains off',async()=>{
+ const path='Catches/assets/'+catchRecord.id+'/notes/photo.png';
+ const p=await prepareCatchPackage({
   ctx:catchCtx(),record:catchRecord,
-  notesImages:[{path:'Catches/content/unsafe.png'}],
- }),/requires WP3 media integration/);
- const p=await prepareCatchPackage({ctx:catchCtx(),record:catchRecord});
- p.picture={action:'add',path:'Catches/content/unsafe.png'};
+  text:'![Photo](../assets/'+catchRecord.id+'/notes/photo.png)',
+  notesImages:[{path,bytes:16,sha256:'b'.repeat(64)}],
+ });
+ assert.deepEqual(p.notes.images,[{path,bytes:16,sha256:'b'.repeat(64)}]);
  await assert.rejects(setup().review.review(request(p),{
   trustedMainSha:MAIN}),e=>e?.code==='INVALID_SUBMISSION');
+ const bad={...catchRecord,picture:{src:path}};
+ await assert.rejects(prepareCatchPackage({
+  ctx:catchCtx(),record:bad,
+ }),/Invalid Catch fields/);
 });
 
 test('WP3-DOMAIN01 KB Add through shared source review retains Markdown',async()=>{
