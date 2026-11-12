@@ -604,6 +604,139 @@ test('WP1-SEARCH-B13 real Gear and KB search is keyboard accessible and never au
  expect(errors).toEqual([]);
 });
 
+// WP1 Catch Add/Edit coverage on actual canonical data. No local Catch
+// becomes part of the release or triggers network writes.
+test('WP1-CATCH-B14 canonical Catch Add/Edit controls, generated ID and no schema expansion',async({page})=>{
+ session={authenticated:true,authorized:true,ownerLogin:'ginosega'};
+ const errors=await open(page);
+ await ownerReady(page);
+ const caught=real.catches.catches.find(row=>row.time&&row.size&&row.speciesId);
+ const species=real.kb.entities.find(row=>row.id===caught.speciesId);
+ expect(caught).toBeDefined();
+ expect(species).toBeDefined();
+ const confirmations=[];
+ page.on('dialog',async dlg=>{
+  confirmations.push(dlg.message());
+  await dlg.accept();
+ });
+ await page.evaluate(hash=>location.hash=hash,'#/catches/add');
+ await expect(page.locator('#app .page-header h1')).toHaveText('Add Catch',{timeout:35000});
+ const editor=page.locator('#app .editor');
+ const date=editor.getByLabel('Date',{exact:true});
+ const time=editor.getByLabel('Time (optional)',{exact:true});
+ const size=editor.getByLabel('Size (optional)',{exact:true});
+ const speciesEntry=editor.getByLabel('Species',{exact:true});
+ const location=editor.getByLabel('Location',{exact:true});
+ const id=editor.getByLabel('ID (generated automatically)',{exact:true});
+ await expect(id).toHaveAttribute('readonly','');
+ await date.fill('2026-09-24');
+ await time.fill('11:30');
+ await size.fill('14 in');
+ await speciesEntry.fill(species.name);
+ await location.fill('WP1 local lake');
+ await expect(id).toHaveValue(/^catch-2026-09-24-/);
+ await expect(id).not.toHaveValue(/^p3-/);
+ await expect(editor.locator('.catch-lure-picker input[readonly]')).toBeVisible();
+ await editor.getByRole('button',{name:'Choose',exact:true}).click();
+ const picker=editor.locator('.catch-lure-panel');
+ await expect(picker).toBeVisible();
+ await picker.locator('input[type="radio"]').nth(1).check();
+ await picker.getByLabel('Custom lure or bait').fill('WP1 unsent lure');
+ await picker.getByRole('button',{name:'Select',exact:true}).click();
+ await expect(picker).toBeHidden();
+ await expect(editor.locator('.catch-lure-picker input[readonly]')).toHaveValue('WP1 unsent lure');
+ const notes=editor.locator('.notes-editor .markdown-editor');
+ await notes.fill('## Unpublished Catch notes');
+ await expect(editor.getByRole('button',{name:'Insert Image'})).toBeVisible();
+ await expect(editor.getByRole('button',{
+  name:'Save and Publish unavailable in WP1 preview',
+ })).toBeDisabled();
+ for(const label of ['GPS','Trip','Session','Catch picture','Cover photo']){
+  await expect(editor.getByLabel(label,{exact:true})).toHaveCount(0);
+ }
+ // Existing Catch fields must round trip from canonical data; IDs cannot mutate.
+ await page.evaluate(hash=>location.hash=hash,'#/catches/edit/'+caught.id);
+ await expect(page.locator('#app .page-header h1')).toHaveText('Edit Catch',{timeout:35000});
+ const original=page.locator('#app .editor');
+ await expect(original.getByLabel('ID',{exact:true})).toHaveValue(caught.id);
+ await expect(original.getByLabel('ID',{exact:true})).toHaveAttribute('readonly','');
+ await expect(original.getByLabel('Date',{exact:true})).toHaveValue(caught.date);
+ await expect(original.getByLabel('Time (optional)',{exact:true})).toHaveValue(caught.time);
+ await expect(original.getByLabel('Size (optional)',{exact:true})).toHaveValue(caught.size);
+ await expect(original.getByLabel('Species',{exact:true})).toHaveValue(species.name);
+ await expect(original.getByRole('button',{
+  name:'Save and Publish unavailable in WP1 preview',
+ })).toBeDisabled();
+ expect(confirmations).toContain('Your changes have not been saved. Discard this edit and leave?');
+ expect(logs.writes).toEqual([]);
+ expect(errors).toEqual([]);
+});
+
+test('WP1-CATCH-B15 canonical Catch listing/sort and inferred species artwork',async({page})=>{
+ const errors=await open(page);
+ await page.evaluate(hash=>location.hash=hash,'#/catches');
+ await expect(page.locator('#app .page-header h1')).toHaveText('Recorded catches',{timeout:35000});
+ const dates=await page.locator('#app .catch-date').allTextContents();
+ expect(dates).toHaveLength(real.catches.catches.length);
+ expect(dates).toEqual([...dates].sort().reverse());
+ const caught=real.catches.catches.find(row=>
+  real.kb.entities.some(entity=>entity.id===row.speciesId&&entity.picture?.src));
+ expect(caught).toBeDefined();
+ const species=real.kb.entities.find(x=>x.id===caught.speciesId);
+ const card=page.locator('#app a[href="#/catches/'+caught.id+'"]');
+ await expect(card).toBeVisible();
+ await expect(card.locator('h2')).toHaveText(species.name);
+ await expect(card.locator('img.card-thumbnail')).toHaveCount(1);
+ await card.focus();
+ await card.press('Enter');
+ await expect(page.locator('#app .page-header h1'))
+  .toHaveText(species.name+' · '+caught.date,{timeout:35000});
+ await expect(page.locator('#app .page > .picture')).toHaveCount(1);
+ await expect(page.locator('#app .page-edit-link')).toHaveCount(0);
+ expect(logs.sources).toBe(0);
+ expect(logs.writes).toEqual([]);
+ expect(errors).toEqual([]);
+});
+
+test('WP1-DENY-B16 anonymous direct editors and authorized forms never expose sandbox handoff',async({page})=>{
+ const errors=await open(page);
+ const caught=real.catches.catches[0],gear=real.gear.items[0],kb=real.kb.entities[0];
+ for(const hash of [
+  '#/catches/add','#/catches/edit/'+caught.id,
+  '#/inventory/edit/'+gear.id,'#/kb/edit/'+kb.id,
+ ]){
+  await page.evaluate(value=>location.hash=value,hash);
+  await expect(page.locator('#app .page-header h1')).toHaveText('Not found',{timeout:35000});
+  await expect(page.locator('#app .editor')).toHaveCount(0);
+  await expect(page.getByRole('button',{name:/Save and Publish|Prepare Changes|Copy Changes/})).toHaveCount(0);
+ }
+ expect(logs.sources).toBe(0);
+ session={authenticated:true,authorized:true,ownerLogin:'ginosega'};
+ await page.locator('#connection-status').click();
+ const dialog=page.locator('#connection-dialog');
+ await expect(dialog.locator('.v3-account-body')).toContainText('Signed in as ginosega',
+  {timeout:30000});
+ await dialog.getByRole('button',{name:'Close'}).click();
+ await page.evaluate(hash=>location.hash=hash,'#/catches/edit/'+caught.id);
+ await expect(page.locator('#app .page-header h1')).toHaveText('Edit Catch',{timeout:35000});
+ const editor=page.locator('#app .editor');
+ await expect(editor.getByRole('button',{name:'Copy Changes'})).toHaveCount(0);
+ await expect(editor.getByRole('button',{name:'Prepare Changes'})).toHaveCount(0);
+ await expect(editor).not.toContainText('Private sandbox:');
+ await expect(editor.getByRole('button',{
+  name:'Save and Publish unavailable in WP1 preview',
+ })).toBeDisabled();
+ // Bypass disabled-button semantics to exercise the registered form guard:
+ // direct programmatic submit must not reach a media or publish endpoint.
+ await editor.locator('form').evaluate(form=>
+  form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true})));
+ await expect(editor.getByRole('button',{
+  name:'Save and Publish unavailable in WP1 preview',
+ })).toBeDisabled();
+ expect(logs.writes).toEqual([]);
+ expect(errors).toEqual([]);
+});
+
 for(const sample of [
  {name:'desktop',width:1280,height:900},
  {name:'mobile',width:390,height:844},
