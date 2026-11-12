@@ -346,6 +346,81 @@ test('WP1-EDITOR-B08 unknown internal Notes targets fail closed',async({page})=>
  expect(errors).toEqual([]);
 });
 
+// WP1 VIEW-01/02/03 integrated regression: exercise the production-shaped
+// reader against a real canonical record/original, with a browser-only Notes
+// fixture. No repository files, media bytes or provider routes are changed.
+test('WP1-VIEWER-B09 opt-in Notes viewer loads original and missing art fails safely',async({page})=>{
+ const errors=await open(page);
+ const known=new Set(manifest.files.map(x=>x.path));
+ const gear=real.gear.items.find(item=>item.notes&&item.picture?.src&&
+  known.has('releases/'+release.id+'/content/'+item.notes)&&
+  known.has('releases/'+release.id+'/content/'+item.picture.src));
+ expect(gear,'A real Gear Notes record with its original picture is required')
+  .toBeDefined();
+ const notes=await fs.readFile(path.join(root,'releases',release.id,
+  'content',gear.notes),'utf8');
+ const toMarkdownPath=target=>path.posix.relative(
+  path.posix.dirname(gear.notes),target).split('/').map(segment=>
+   segment==='..'?'..':encodeURIComponent(segment).replace(/[()]/g,ch=>
+    '%'+ch.charCodeAt(0).toString(16).toUpperCase())).join('/');
+ const original=toMarkdownPath(gear.picture.src);
+ const missing=toMarkdownPath(path.posix.join(
+  path.posix.dirname(gear.picture.src),'wp1-unavailable-image.png'));
+ const body=notes+'\n\n![WP1 original image]('+original+
+  ' "viewer: WP1 original caption")\n\n'+
+  '![WP1 missing image]('+missing+' "viewer")\n';
+ const wanted='releases/'+release.id+'/content/'+gear.notes;
+ // Override only the page's Markdown fetch for this test. Mutating served
+ // release bytes makes the service worker correctly fail asset verification.
+ // This exercises the real renderer against canonical originals without
+ // weakening immutable release validation or changing source content.
+ await page.evaluate(({wanted,body})=>{
+  const originalFetch=window.fetch.bind(window);
+  let fixtureHits=0;
+  window.__wp1ViewerFixtureHits=()=>fixtureHits;
+  window.fetch=(input,init)=>{
+   const target=input instanceof Request?input.url:String(input);
+   let url;
+   try{url=new URL(target,document.baseURI);}catch{return originalFetch(input,init);}
+   if(decodeURIComponent(url.pathname).endsWith('/'+wanted)){
+    fixtureHits++;
+    return Promise.resolve(new Response(body,{status:200,
+     headers:{'Content-Type':'text/markdown; charset=utf-8'}}));
+   }
+   return originalFetch(input,init);
+  };
+ },{wanted,body});
+ await page.evaluate(h=>location.hash=h,'#/inventory/item/'+gear.id);
+ await expect(page.locator('#app .page-header h1')).toHaveText(gear.name,
+  {timeout:30000});
+ expect(await page.evaluate(()=>window.__wp1ViewerFixtureHits())).toBe(1);
+ const trigger=page.getByRole('button',{name:'Enlarge WP1 original image'});
+ await expect(trigger).toBeVisible({timeout:30000});
+ const image=trigger.locator('img');
+ await expect.poll(()=>image.evaluate(img=>img.naturalWidth),
+  {timeout:30000}).toBeGreaterThan(0);
+ const source=await image.getAttribute('src');
+ expect(decodeURIComponent(new URL(source,base).pathname))
+  .toContain('/content/'+gear.picture.src);
+ expect(source).not.toContain('/card-thumbnails/');
+ await expect(page.locator('.markdown-image-unavailable'))
+  .toContainText('Picture unavailable: WP1 missing image');
+ await expect(page.getByRole('button',{name:'Enlarge WP1 missing image'}))
+  .toHaveCount(0);
+ await trigger.click();
+ const viewer=page.getByRole('dialog',{name:'Image viewer'});
+ await expect(viewer).toBeVisible();
+ await expect(viewer.locator('.viewer-caption')).toHaveText('WP1 original caption');
+ await expect(viewer.locator('.image-stage img')).toHaveAttribute('src',source);
+ await viewer.getByRole('button',{name:'Zoom in'}).click();
+ await expect(viewer.locator('.zoom-label')).not.toHaveText('100%');
+ await viewer.getByRole('button',{name:'Close'}).click();
+ await expect(viewer).toHaveCount(0);
+ await expect(trigger).toBeFocused();
+ expect(logs.writes).toEqual([]);
+ expect(errors).toEqual([]);
+});
+
 for(const sample of [
  {name:'desktop',width:1280,height:900},
  {name:'mobile',width:390,height:844},
