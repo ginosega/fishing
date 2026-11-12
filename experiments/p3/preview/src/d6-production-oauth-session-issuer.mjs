@@ -21,6 +21,7 @@ const IDENTITY='https://api.github.com/user';
 const FLOW_AGE=600,SESSION_AGE=7*24*60*60;
 const B64=/^[A-Za-z0-9_-]{43}$/;
 const CODE=/^[A-Za-z0-9_-]{8,512}$/;
+const GITHUB_ISSUER='https://github.com/login/oauth';
 const enc=new TextEncoder();
 const headers=Object.freeze({
  'Cache-Control':'private, no-store, max-age=0',
@@ -143,10 +144,16 @@ export function createD6ProductionOAuthSessionIssuer({
   const url=goodRequest(request,CALLBACK,origin);
   if(!url)return withClear(denied(404));
   const keys=[...url.searchParams.keys()];
+  const issuer=url.searchParams.get('iss');
+  const keysShape=keys.sort().join(',');
+  // RFC 9207: accept only GitHub's exact OAuth issuer when iss is present.
+  // Legacy two-parameter callbacks remain valid; never ignore extra keys.
+  const validShape=keysShape==='code,state'||
+   (keysShape==='code,iss,state'&&issuer===GITHUB_ISSUER);
   const state=url.searchParams.get('state');
   const code=url.searchParams.get('code');
   const flow=readCookie(request,FLOW);
-  if(keys.length!==2||keys.sort().join(',')!=='code,state'||
+  if(!validShape||
     !B64.test(state??'')||!CODE.test(code??'')||
     !B64.test(flow??'')||!fixed(state,flow))
    return withClear(denied(400));
