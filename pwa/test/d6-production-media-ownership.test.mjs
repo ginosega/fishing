@@ -120,7 +120,13 @@ test('WP3-MEDIA10 Knot ordered frames must match candidate ownership',async()=>{
  const args={package:pkg,sourceFiles,candidateFiles,
   candidateMarkdown,candidateData:data};
  assert.deepEqual(reviewD6CanonicalMediaOwnership(args).paths,frames);
+ const reversed=structuredClone(args);
+ reversed.candidateData.kb.entities[0].pictureSequence.reverse();
+ // Canonical sequence validation rejects out-of-order frames first.
+ fail(()=>reviewD6CanonicalMediaOwnership(reversed),'INVALID_CANDIDATE');
  const altered=structuredClone(args);
- altered.candidateData.kb.entities[0].pictureSequence.reverse();
+ altered.candidateData.kb.entities[0].pictureSequence[0]=
+  'KB/Knots/assets/example-knot/step-01.jpg';
+ // Individually valid frame names still cannot differ from this operation.
  fail(()=>reviewD6CanonicalMediaOwnership(altered),'SEQUENCE_NOT_OWNED');
 });
