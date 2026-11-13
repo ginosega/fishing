@@ -185,9 +185,9 @@ test('WP3-MINT04 complete media metadata is included in immutable durable accept
  assert.equal(x.state.reads,1);
  const change=structuredClone(pkg);
  change.notes.images[0].sha256='e'.repeat(64);
- const changed=await assert.rejects(
-  x.receipts.accept(req(change),{trustedMainSha:MAIN}));
- assert(changed);
+ await assert.rejects(
+  x.receipts.accept(req(change),{trustedMainSha:MAIN}),
+  error=>error?.code==='KEY_REUSE');
  assert.equal(x.store.rows.length,1);
 });
 
