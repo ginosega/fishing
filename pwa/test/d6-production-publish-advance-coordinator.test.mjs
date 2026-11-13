@@ -203,7 +203,8 @@ async function setup({domain='catches',db=memoryD1(),enabled=true,
    if(state.networkError)throw Error('transport loss');
    if(options.method==='PATCH')return response(ref(),200);
    if(url===API+'/git/ref/heads/main')return response(state.remoteMain);
-   if(url===API+'/git/refs/heads/fish-v3/publish/'+ID)
+   if(options.method==='GET'&&
+    url===API+'/git/ref/heads/fish-v3/publish/'+ID)
     return response(state.remoteRef??{message:'missing'},
      state.remoteRef?200:404);
    if(url===API+'/git/commits/'+COMMIT)
@@ -241,7 +242,7 @@ test('WP3-ADV01 exact confirmed tree, branch and commit allow only guarded PATCH
  assert.deepEqual(x.state.requests.filter(r=>r.options.method==='GET')
   .map(r=>r.url),[
    API+'/git/ref/heads/main',
-   API+'/git/refs/heads/fish-v3/publish/'+ID,
+   API+'/git/ref/heads/fish-v3/publish/'+ID,
    API+'/git/commits/'+COMMIT,
    API+'/git/ref/heads/main',
   ]);
@@ -375,4 +376,20 @@ test('WP3-ADV13 same guarded non-force branch advance for Gear and KB',async()=>
   assert.equal((await x.coord.reconcile(auth(),ID)).verifiedAdvance,true);
   assert.equal(x.state.requests.filter(r=>r.options.method==='PATCH').length,1);
  }
+});
+
+test('WP3-ADV14 mutation and independent single-ref readback are disjoint',async()=>{
+ const x=await setup();
+ await x.coord.attempt(auth(),ID);
+ const pending=x.state.requests[0];
+ assert.equal(pending.options.method,'PATCH');
+ assert.equal(pending.url,API+'/git/refs/heads/fish-v3/publish/'+ID);
+ const verified=await x.coord.reconcile(auth(),ID);
+ assert.equal(verified.verifiedAdvance,true);
+ const reads=x.state.requests.filter(r=>r.options.method==='GET');
+ assert.equal(reads.filter(r=>
+  r.url===API+'/git/ref/heads/fish-v3/publish/'+ID).length,1);
+ assert.equal(reads.some(r=>r.url===pending.url),false);
+ assert.equal(x.db.advanceProofs.length,1);
+ assert.equal(x.state.requests.filter(r=>r.options.method==='PATCH').length,1);
 });

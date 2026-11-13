@@ -85,7 +85,9 @@ const need=(yes,code)=>{if(!yes)deny(code);};
 const plain=x=>x!==null&&typeof x==='object'&&
  !Array.isArray(x)&&Object.getPrototypeOf(x)===Object.prototype;
 const branch=id=>'refs/heads/fish-v3/publish/'+id;
+// GitHub REST uses plural refs for PATCH and singular ref for GET.
 const branchEndpoint=id=>API+'/git/refs/heads/fish-v3/publish/'+id;
+const branchReadEndpoint=id=>API+'/git/ref/heads/fish-v3/publish/'+id;
 const message=id=>'Fishing Companion V3 content update '+id;
 function trustedOperation(stored,id){
  const op=stored?.operation,pkg=stored?.package;
@@ -432,7 +434,8 @@ export function createD6ProductionPublishAdvanceCoordinator({
    pointer.object?.type==='commit'&&
    pointer.object.sha===op.sourceRevision,
    'SOURCE_MOVED');
-  const ref=await github(action.url);
+  // An independently read single ref must not reuse the PATCH URL.
+  const ref=await github(branchReadEndpoint(op.operationId));
   need(ref?.ref===action.refName&&
    ref.object?.type==='commit'&&
    ref.object.sha===action.resultCommitSha,
