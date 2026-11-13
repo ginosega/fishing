@@ -113,7 +113,7 @@ function memoryD1({lostProofAck=false,unavailable=false}={}){
 }
 function setup({enabled=true,owner=true,db=memoryD1(),
  providerMap=provider(),hintAvailable=true,readScope=true,
- sourceOnly=true,networkError=false}={}){
+ sourceOnly=true,networkError=false,planOverride=null}={}){
  const state={enabled,owner,providerMap,hintAvailable,
   readScope,networkError,sourceOnly,
   authCount:0,loads:0,planCount:0,hintCount:0,
@@ -134,7 +134,7 @@ function setup({enabled=true,owner=true,db=memoryD1(),
   state.loads++;return stored;
  };
  const atomicPlanner={plan:async()=>{
-  state.planCount++;return {...plan(),sourceOnly:state.sourceOnly};
+  state.planCount++;return {...(planOverride??plan()),sourceOnly:state.sourceOnly};
  }};
  const writer=createD6ProductionAtomicTreeStep({
   DB:db.DB,session,loadAcceptedOperation,atomicPlanner,
@@ -337,4 +337,42 @@ test('WP3-TRBK12 existing media preimage is not silently overwritten',async()=>{
   .tree.push(entry(MEDIA,OLD));
  await denied(x.verifier.reconcile(request(),ID),'EXISTING_MEDIA_COLLISION');
  assert.equal(x.db.proofs.length,0);
+});
+
+test('WP3-TRBK13 Markdown-only edit readback keeps canonical JSON and images untouched',async()=>{
+ const base=oldTree(),target=newTree();
+ // Existing record JSON and all existing media remain identical. Only
+ // the Markdown body gets a new verified blob in the final Git tree.
+ base.tree.push(entry(NOTE,OLD),entry(MEDIA,IMAGE_SHA));
+ target.tree.find(v=>v.path===INDEX).sha=OLD;
+ const override={...plan(),
+  mediaCount:0,textCount:1,fileCount:1,canonicalJsonUnchanged:true,
+  verifiedText:[{path:NOTE,sha:NOTE_SHA,bytes:64}],
+  entries:[entry(NOTE,NOTE_SHA)],
+ };
+ const x=setup({planOverride:override});
+ x.state.providerMap.set(ROOT+'/git/trees/'+BASE+'?recursive=1',base);
+ x.state.providerMap.set(ROOT+'/git/trees/'+RESULT+'?recursive=1',target);
+ const sent=await x.writer.attempt(request(),ID);
+ assert.equal(sent.state,'Unknown');
+ assert.equal(x.state.postCount,1);
+ const verified=await x.verifier.reconcile(request(),ID);
+ assert.equal(verified.state,'VerifiedTree');
+ assert.equal(verified.changedPaths,1);
+ assert.equal(verified.isLive,false);
+ assert.equal(x.db.proofs[0].changed_paths,1);
+ assert.equal((await x.writer.attempt(request(),ID)).attemptedNow,false);
+ assert.equal(x.state.postCount,1);
+});
+
+test('WP3-TRBK14 missing JSON without the unchanged-source declaration is denied',async()=>{
+ const override={...plan(),
+  mediaCount:0,textCount:1,fileCount:1,
+  verifiedText:[{path:NOTE,sha:NOTE_SHA,bytes:64}],
+  entries:[entry(NOTE,NOTE_SHA)],
+ };
+ const x=setup({planOverride:override});
+ await assert.rejects(x.writer.attempt(request(),ID));
+ assert.equal(x.db.stats.writes,0);
+ assert.equal(x.state.postCount,0);
 });

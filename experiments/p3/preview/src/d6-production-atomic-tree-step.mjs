@@ -9,8 +9,9 @@
  * attempt never authorizes replay or publication. A later independent remote
  * tree/commit/PR readback and durable coordinator is mandatory.
  *
- * Upstream original-byte Git blobs must have been independently verified,
- * including signed staging tickets. No browser-selected paths, tree entries,
+ * All new original-byte Git blobs must have been independently verified,
+ * including signed staging tickets. Ordinary record-only/Markdown-only
+ * changes have zero media entries and must reject undeclared tickets. No browser-selected paths, tree entries,
  * base revision, repository, Git token, or readiness boolean is trusted.
  * The host must inject the existing D2 owner session, trusted D1 operation
  * reader, #470 atomic planner, authoritative-main prerequisite checker and
@@ -70,10 +71,10 @@ export async function describeD6AtomicTreeStep({
   plan?.sourceRevision===op.sourceRevision&&
   plan?.domain===op.domain&&plan?.recordId===op.recordId&&
   SHA.test(plan.baseTreeSha??'')&&
-  Array.isArray(plan.entries)&&plan.entries.length>=2&&
+  Array.isArray(plan.entries)&&plan.entries.length>=1&&
   plan.entries.length<=32&&plan.fileCount===plan.entries.length&&
   Number.isSafeInteger(plan.textCount)&&plan.textCount>=1&&
-  Number.isSafeInteger(plan.mediaCount)&&plan.mediaCount>=1&&
+  Number.isSafeInteger(plan.mediaCount)&&plan.mediaCount>=0&&
   Array.isArray(plan.verifiedText)&&
   plan.verifiedText.length===plan.textCount,
   'UNTRUSTED_ATOMIC_PLAN');
@@ -94,7 +95,10 @@ export async function describeD6AtomicTreeStep({
  }
  let deleted=0;
  for(const entry of entries)if(entry.sha===null)deleted++;
- need(entries.some(x=>x.path===canonical&&SHA.test(x.sha??''))&&
+ const canonicalEntry=entries.find(x=>x.path===canonical);
+ need((plan.canonicalJsonUnchanged===true?
+   canonicalEntry===undefined:
+   canonicalEntry&&SHA.test(canonicalEntry.sha??''))&&
   plan.mediaCount+plan.textCount+deleted===entries.length,
   'INCOMPLETE_ATOMIC_PLAN');
  for(const proof of plan.verifiedText){
@@ -107,8 +111,9 @@ export async function describeD6AtomicTreeStep({
   textPaths.set(key,proof.sha);
  }
  need(textPaths.size===plan.textCount&&
-  textPaths.get(pathKey(canonical))===
-   entries.find(x=>x.path===canonical)?.sha,
+  (plan.canonicalJsonUnchanged===true?
+   !textPaths.has(pathKey(canonical)):
+   textPaths.get(pathKey(canonical))===canonicalEntry?.sha),
   'UNVERIFIED_TEXT');
  let mediaCount=0;
  for(const entry of entries){

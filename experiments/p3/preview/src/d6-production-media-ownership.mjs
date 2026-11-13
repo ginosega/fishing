@@ -39,7 +39,8 @@ export function reviewD6CanonicalMediaOwnership({
   candidateMarkdown instanceof Map&&candidateData&&
   typeof candidateData==='object','UNVERIFIED_SOURCE');
  const expected=expectedD6CanonicalMedia(pkg);
- need(expected.length>0,'NO_MEDIA');
+ // Empty media sets are valid for record-only and Markdown-only writes.
+ // The complete candidate still passes schema/path ownership checks.
  let maps,routes;
  try{
   maps=validateRecords(candidateData);
@@ -92,7 +93,7 @@ export function reviewD6CanonicalMediaOwnership({
  }
  return Object.freeze({
   verified:true,sourceOnly:true,canPublish:false,
-  requiresSignedStaging:true,requiresGitReadback:true,
+  requiresSignedStaging:expected.length>0,requiresGitReadback:true,
   requiresAtomicTree:true,
   fileCount:expected.length,
   paths:Object.freeze(expected.map(x=>x.path)),
