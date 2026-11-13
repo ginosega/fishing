@@ -80,34 +80,51 @@ function checked(preflight){
  * provider fence and independently re-fetched Git blob readback. The
  * source/owner authorization and durable fence must be checked separately.
  */
-export async function describeD6CanonicalMediaStageClaim({
- operationId,sourceRevision,snapshotSha256,path,originalBytes,
- mime,sha256:expectedDigest,
+/**
+ * Reconstruct the exact original write fingerprint from immutable
+ * already-verified D1 media-stage metadata. This DOES NOT by itself prove
+ * any bytes or Git blob; only the independent readback reconciler can do so.
+ */
+export async function describeD6CanonicalMediaStageMetadata({
+ operationId,sourceRevision,snapshotSha256,path,bytes,
+ mime,sha256:expectedDigest,expectedBlobSha,
 }={}){
  let canonical;
- try{canonical=safePath(path);}catch{deny('UNTRUSTED_MEDIA_BYTES');}
+ try{canonical=safePath(path);}catch{deny('UNTRUSTED_MEDIA_METADATA');}
+ const kind={jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',
+  webp:'image/webp',gif:'image/gif'};
  need(UUID.test(operationId??'')&&SHA.test(sourceRevision??'')&&
   HASH.test(snapshotSha256??'')&&
   canonical===path&&path.includes('/assets/')&&
   /^(Gear|KB|Catches)\//.test(path)&&
-  originalBytes instanceof Uint8Array&&
-  originalBytes.length>0&&originalBytes.length<=MAX&&
-  HASH.test(expectedDigest??'')&&
-  d6ImageMime(originalBytes)===mime,
-  'UNTRUSTED_MEDIA_BYTES');
- need(await sha256(originalBytes)===expectedDigest,
-  'MEDIA_DIGEST_MISMATCH');
- const expectedBlobSha=await blobSha(originalBytes);
+  Number.isSafeInteger(bytes)&&bytes>0&&bytes<=MAX&&
+  HASH.test(expectedDigest??'')&&SHA.test(expectedBlobSha??'')&&
+  mime===kind[path.split('.').at(-1).toLowerCase()],
+  'UNTRUSTED_MEDIA_METADATA');
  const stepKey='media:'+path;
  const requestSha256=await sha256(JSON.stringify({
   operationId,ownerGitHubId:REPO.ownerGitHubId,
   repositoryId:REPO.id,ref:REPO.ref,
   sourceRevision,snapshotSha256,
-  stepKey,path,bytes:originalBytes.length,sha256:expectedDigest,
+  stepKey,path,bytes,sha256:expectedDigest,
   mime,expectedBlobSha,endpoint:URL,method:'POST',encoding:'base64',
  }));
- return Object.freeze({
-  operationId,stepKey,requestSha256,expectedBlobSha,
+ return Object.freeze({operationId,stepKey,requestSha256,expectedBlobSha});
+}
+export async function describeD6CanonicalMediaStageClaim({
+ operationId,sourceRevision,snapshotSha256,path,originalBytes,
+ mime,sha256:expectedDigest,
+}={}){
+ need(originalBytes instanceof Uint8Array&&
+  originalBytes.length>0&&originalBytes.length<=MAX&&
+  d6ImageMime(originalBytes)===mime,
+  'UNTRUSTED_MEDIA_BYTES');
+ need(await sha256(originalBytes)===expectedDigest,
+  'MEDIA_DIGEST_MISMATCH');
+ return describeD6CanonicalMediaStageMetadata({
+  operationId,sourceRevision,snapshotSha256,path,
+  bytes:originalBytes.length,mime,sha256:expectedDigest,
+  expectedBlobSha:await blobSha(originalBytes),
  });
 }
 
