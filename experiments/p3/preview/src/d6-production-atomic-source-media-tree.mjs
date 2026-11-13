@@ -4,7 +4,7 @@
  * SOURCE ONLY / DEFAULT OFF. Derives one immutable, bounded Git tree write-set
  * from trusted, current main source and a canonical Accepted owner operation.
  * Re-runs source promotion, conflict/record/Markdown validation, canonical
- * media ownership, signed-ticket verification and independent original Git
+ * media ownership, conditional signed-ticket verification and independent Git
  * blob reads. Verifies that each needed JSON/Markdown Git blob already exists
  * with exactly the expected bytes BEFORE listing any complete tree entries.
  *
@@ -188,7 +188,12 @@ export function createD6ProductionAtomicSourceMediaTree({
    promoted.sourceRevision===operation.sourceRevision,
    'INVALID_CHANGE');
   const originals=expectedD6CanonicalMedia(pkg);
-  need(originals.length>0,'NO_ORIGINAL_MEDIA');
+  // Zero new originals is a valid ordinary record/Markdown edit.
+  // Existing source images are retained, never restaged or replaced.
+  // Nonempty ticket input with no declared originals must fail closed.
+  if(originals.length===0)
+   need(Array.isArray(mediaTickets)&&mediaTickets.length===0,
+    'UNEXPECTED_MEDIA_TICKETS');
   const narrativeOps=[];
   for(const write of promoted.writes){
    const path=write.path;
@@ -243,12 +248,20 @@ export function createD6ProductionAtomicSourceMediaTree({
   need(ownership.verified===true&&
    ownership.fileCount===originals.length,'MEDIA_OWNERSHIP_DENIED');
   let verified;
-  try{
-   verified=await verifyD6CanonicalStagedGitBlobs({
-    package:pkg,operation,media:mediaTickets,
-    verifyTicket,readGitBlob,
-   });
-  }catch{deny('SIGNED_MEDIA_UNVERIFIED');}
+  if(originals.length===0){
+   // No upload or media-ticket verification may be silently skipped for a
+   // package that declares new original images. That case must use the
+   // full signed-ticket and independent original-byte readback path below.
+   verified={verified:true,operationId:operation.operationId,
+    fileCount:0,files:[]};
+  }else{
+   try{
+    verified=await verifyD6CanonicalStagedGitBlobs({
+     package:pkg,operation,media:mediaTickets,
+     verifyTicket,readGitBlob,
+    });
+   }catch{deny('SIGNED_MEDIA_UNVERIFIED');}
+  }
   need(verified?.verified===true&&
    verified.operationId===operation.operationId&&
    verified.fileCount===originals.length&&
