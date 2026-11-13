@@ -14,6 +14,8 @@
  * it independently reconciles its external outcome.
  */
 import {D6_PUBLISH_REPOSITORY} from './d6-production-publish-intake.mjs';
+import {expectedD6CanonicalMedia}
+ from './d6-production-media-contract.mjs';
 
 export const D6_RECEIPTS_SCHEMA_SQL = `
 CREATE TABLE IF NOT EXISTS d6_operation_receipts (
@@ -148,7 +150,18 @@ export function createD6ProductionOperationReceipts({
    candidate?.operation===pkg.operation&&
    candidate?.recordId===pkg.id&&
    SHA.test(candidate.treeSha??'')&&
-   Array.isArray(candidate.fileOps),
+   Array.isArray(candidate.fileOps)&&
+   Array.isArray(candidate.pendingOriginals)&&
+   candidate.requiresSignedStaging===(candidate.pendingOriginals.length>0)&&
+   candidate.requiresIndependentBlobReadback===
+    (candidate.pendingOriginals.length>0),
+   'UNTRUSTED_CANDIDATE');
+  let expectedOriginals;
+  try{expectedOriginals=expectedD6CanonicalMedia(pkg);}
+  catch{deny('UNTRUSTED_INTENT');}
+  need(JSON.stringify(candidate.pendingOriginals)===
+   JSON.stringify(expectedOriginals)&&
+   JSON.stringify(intent.snapshot.media)===JSON.stringify(expectedOriginals),
    'UNTRUSTED_CANDIDATE');
   const record=candidate.candidateData?.[pkg.domain]?.[
    pkg.domain==='gear'?'items':pkg.domain==='kb'?'entities':'catches']?.find(x=>x.id===pkg.id);
@@ -157,6 +170,7 @@ export function createD6ProductionOperationReceipts({
    main:trustedMainSha,tree:candidate.treeSha,
    domain:pkg.domain,operation:pkg.operation,
    record,files:candidate.fileOps,
+   pendingOriginals:expectedOriginals,
   }));
   const operationId=newId(),at=now();
   need(UUID.test(operationId)&&Number.isSafeInteger(at)&&at>0,

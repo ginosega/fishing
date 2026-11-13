@@ -3,8 +3,10 @@
  *
  * Deliberately not wired to the production Worker, a route, any GitHub
  * permission, D1 operation store, merge, deployment, or polling coordinator.
- * This validates a bounded TEXT-ONLY Gear/KB/Catch intent before a future trusted
- * candidate validator and durable idempotency/unknown-receipt store. A valid
+ * This validates a bounded Gear/KB/Catch intent and exact new-original
+ * media METADATA (path, byte length, SHA-256), never image bytes or a
+ * staging receipt. It requires later trusted candidate validation and
+ * durable idempotency/unknown-receipt storage. A valid
  * intent is NEVER an accepted operation or evidence of public Live.
  *
  * Reuses the exact D2 owner session/CSRF verifier; no second login or
@@ -15,6 +17,8 @@
 import {createD2UnifiedOwnerSession}
  from './d2-unified-owner-session.mjs';
 import {validatePackage} from '../../../../pwa/src/handoff.mjs';
+import {expectedD6CanonicalMedia}
+ from './d6-production-media-contract.mjs';
 
 export const D6_PUBLISH_REPOSITORY=Object.freeze({
  id:1350909744,name:'ginosega/fishing',ref:'refs/heads/main',
@@ -74,20 +78,23 @@ function parseIntent(raw){
   'idempotencyKey,snapshot'&&KEY.test(body.idempotencyKey)&&
   plain(body.snapshot)&&
   Object.keys(body.snapshot).sort().join(',')==='media,package'&&
-  Array.isArray(body.snapshot.media)&&body.snapshot.media.length===0&&
+  Array.isArray(body.snapshot.media)&&body.snapshot.media.length<=24&&
   plain(body.snapshot.package)&&
   body.snapshot.package.format==='fishing-companion-change-v2'&&
   ['gear','kb','catches'].includes(body.snapshot.package.domain)&&
   ['add','edit'].includes(body.snapshot.package.operation)&&
   SHA.test(body.snapshot.package.base?.sourceRevision??'')&&
-  body.snapshot.package.picture?.action==='keep'&&
-  (body.snapshot.package.pictureSequence?.action??'keep')==='keep'&&
-  (!body.snapshot.package.notes?.images||
-   Array.isArray(body.snapshot.package.notes.images)&&
-   body.snapshot.package.notes.images.length===0)&&
   JSON.stringify(body)===raw,'INVALID_SUBMISSION');
- try{validatePackage(body.snapshot.package);}
- catch{deny('INVALID_SUBMISSION');}
+ let expected;
+ try{
+  validatePackage(body.snapshot.package);
+  expected=expectedD6CanonicalMedia(body.snapshot.package);
+ }catch{deny('INVALID_SUBMISSION');}
+ // The only allowed media snapshot is the complete, ordered set of
+ // metadata already declared by the source-package. Neither raw bytes,
+ // browser-provided Git blob SHAs nor arbitrary paths can enter D1.
+ need(JSON.stringify(body.snapshot.media)===JSON.stringify(expected),
+  'MEDIA_METADATA_MISMATCH');
  return freezeTree(body);
 }
 
