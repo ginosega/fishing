@@ -75,6 +75,42 @@ function checked(preflight){
   'UNTRUSTED_PREFLIGHT');
  return {path,bytes:value};
 }
+/**
+ * Immutable, non-authorizing request descriptor shared by the original
+ * provider fence and independently re-fetched Git blob readback. The
+ * source/owner authorization and durable fence must be checked separately.
+ */
+export async function describeD6CanonicalMediaStageClaim({
+ operationId,sourceRevision,snapshotSha256,path,originalBytes,
+ mime,sha256:expectedDigest,
+}={}){
+ let canonical;
+ try{canonical=safePath(path);}catch{deny('UNTRUSTED_MEDIA_BYTES');}
+ need(UUID.test(operationId??'')&&SHA.test(sourceRevision??'')&&
+  HASH.test(snapshotSha256??'')&&
+  canonical===path&&path.includes('/assets/')&&
+  /^(Gear|KB|Catches)\//.test(path)&&
+  originalBytes instanceof Uint8Array&&
+  originalBytes.length>0&&originalBytes.length<=MAX&&
+  HASH.test(expectedDigest??'')&&
+  d6ImageMime(originalBytes)===mime,
+  'UNTRUSTED_MEDIA_BYTES');
+ need(await sha256(originalBytes)===expectedDigest,
+  'MEDIA_DIGEST_MISMATCH');
+ const expectedBlobSha=await blobSha(originalBytes);
+ const stepKey='media:'+path;
+ const requestSha256=await sha256(JSON.stringify({
+  operationId,ownerGitHubId:REPO.ownerGitHubId,
+  repositoryId:REPO.id,ref:REPO.ref,
+  sourceRevision,snapshotSha256,
+  stepKey,path,bytes:originalBytes.length,sha256:expectedDigest,
+  mime,expectedBlobSha,endpoint:URL,method:'POST',encoding:'base64',
+ }));
+ return Object.freeze({
+  operationId,stepKey,requestSha256,expectedBlobSha,
+ });
+}
+
 function status(row,claim,attemptedNow=false){
  need(row?.operation_id===claim.operationId&&
   row.step_key===claim.stepKey&&
@@ -119,19 +155,14 @@ export function createD6ProductionMediaStageFence({
   const original=await preflight.preflight(uploadRequest);
   active();
   const {path,bytes}=checked(original);
-  need(await sha256(bytes)===original.sha256,'MEDIA_DIGEST_MISMATCH');
-  const expectedBlobSha=await blobSha(bytes);
-  const stepKey='media:'+path,operationId=original.operationId;
-  const requestSha256=await sha256(JSON.stringify({
-   operationId,ownerGitHubId:REPO.ownerGitHubId,
-   repositoryId:REPO.id,ref:REPO.ref,
+  const claim=await describeD6CanonicalMediaStageClaim({
+   operationId:original.operationId,
    sourceRevision:original.sourceRevision,
    snapshotSha256:original.snapshotSha256,
-   stepKey,path,bytes:bytes.length,sha256:original.sha256,
-   mime:original.mime,expectedBlobSha,
-   endpoint:URL,method:'POST',encoding:'base64',
-  }));
-  const claim={operationId,stepKey,requestSha256,expectedBlobSha};
+   path,originalBytes:bytes,
+   mime:original.mime,sha256:original.sha256,
+  });
+  const {operationId,stepKey,requestSha256,expectedBlobSha}=claim;
   const prior=await read(operationId,stepKey);
   if(prior)return status(prior,claim);
   const prerequisite=async()=>{
