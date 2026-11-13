@@ -81,7 +81,7 @@ function memoryD1({lostFenceAck=false,lostProofAck=false,disabled=false}={}){
     const old=branchProofs.find(r=>r.operation_id===id);
     if(!old)branchProofs.push({operation_id:id,owner_github_id:owner,
      repository_id:repositoryId,tree_request_sha256:treeRequestSha256,
-     request_sha256,source_revision:sourceRevision,
+     request_sha256:requestSha256,source_revision:sourceRevision,
      base_tree_sha:baseTreeSha,result_tree_sha:resultTreeSha,
      ref_name:refName,state:'VerifiedBranch',verified_at:at});
     if(loseProof){loseProof=false;throw Error('D1 proof ack lost');}
