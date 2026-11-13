@@ -236,6 +236,9 @@ test('WP3-ATOM10 disabled planner makes no source or blob request',async()=>{
 // WP3 text-only canonical publication: original Gear/KB/Catch images in
 // main are KEEP references, not new media tickets or new Git blob writes.
 async function rewriteWithoutMedia(x,{originalRecord=null,originalText=''}={}){
+ // The fixture's accepted operation must track the edit package; the
+ // source planner intentionally rejects mismatched add/edit identities.
+ x.operation.operation=x.pkg.operation;
  const target=await promoteChange({
   package:x.pkg,currentRecord:originalRecord,
   currentText:originalText,sourceRevision:MAIN,
@@ -391,6 +394,7 @@ test('WP3-TEXT07 unchanged record and unchanged Notes are rejected before Git wr
   sourceRevision:MAIN,
  });
  x.input.package=x.pkg;
+ x.operation.operation='edit';
  x.input.mediaTickets=[];
  await denied(x.tree.plan(x.input),'NO_CHANGE');
  assert.equal(x.calls.length,0);
