@@ -59,6 +59,14 @@ test('WP3-MEDIA07 unreferenced images and incorrect narrative owner fail',async(
  staleImage.candidateMarkdown.set(staleImage.package.notes.path,'# Caption only');
  fail(()=>reviewD6CanonicalMediaOwnership(staleImage),
   'UNREFERENCED_NOTE_IMAGE');
+ const linkOnly=structuredClone(args);
+ // A Markdown link to the original file is not an embedded image.
+ linkOnly.package.notes.body=
+  '[Photo](../assets/catch-example/notes/photo.png)';
+ linkOnly.candidateMarkdown.set(linkOnly.package.notes.path,
+  linkOnly.package.notes.body);
+ fail(()=>reviewD6CanonicalMediaOwnership(linkOnly),
+  'UNREFERENCED_NOTE_IMAGE');
 });
 
 test('WP3-MEDIA08 missing media and existing filename collisions fail',async()=>{
