@@ -24,7 +24,7 @@ const pkg=(operation='add')=>({
  notes:{action:'keep'},picture:{action:'keep'},
  pictureSequence:{action:'keep'},
 });
-const request=p=>new Request(D6_PUBLISH_INTAKE_ORIGIN+
+const request=(p,media=[])=>new Request(D6_PUBLISH_INTAKE_ORIGIN+
  '/api/v3/operations',{
  method:'POST',headers:{
   Origin:D6_PUBLISH_INTAKE_ORIGIN,
@@ -34,7 +34,7 @@ const request=p=>new Request(D6_PUBLISH_INTAKE_ORIGIN+
  },
  body:JSON.stringify({
   idempotencyKey:'sample_idempotency_key_1234',
-  snapshot:{package:p,media:[]},
+  snapshot:{package:p,media},
  }),
 });
 function setup({
@@ -213,8 +213,15 @@ test('WP3-CATCH04 Catch image package is retained but publisher remains off',asy
   notesImages:[{path,bytes:16,sha256:'b'.repeat(64)}],
  });
  assert.deepEqual(p.notes.images,[{path,bytes:16,sha256:'b'.repeat(64)}]);
- await assert.rejects(setup().review.review(request(p),{
-  trustedMainSha:MAIN}),e=>e?.code==='INVALID_SUBMISSION');
+ // Authentication and source ownership now accept only the immutable
+ // metadata; no image bytes are staged and no provider writes are enabled.
+ const reviewed=await setup().review.review(request(p,p.notes.images),{
+  trustedMainSha:MAIN});
+ assert.deepEqual(reviewed.pendingOriginals,p.notes.images);
+ assert.equal(reviewed.requiresSignedStaging,true);
+ assert.equal(reviewed.requiresIndependentBlobReadback,true);
+ assert.equal(reviewed.canPublish,false);
+ assert.equal(reviewed.operationId,undefined);
  const bad={...catchRecord,picture:{src:path}};
  await assert.rejects(prepareCatchPackage({
   ctx:catchCtx(),record:bad,
