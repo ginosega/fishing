@@ -187,6 +187,11 @@ export function createD6ProductionAtomicSourceMediaTree({
   need(promoted.record?.id===pkg.id&&
    promoted.sourceRevision===operation.sourceRevision,
    'INVALID_CHANGE');
+  // Reject no-op edits rather than creating an Unknown Git fence for
+  // an empty tree. A Markdown-only edit can leave canonical JSON untouched.
+  if(pkg.operation==='edit')
+   need(!equal(old,promoted.record)||promoted.writes.length>0,
+    'NO_CHANGE');
   const originals=expectedD6CanonicalMedia(pkg);
   // Zero new originals is a valid ordinary record/Markdown edit.
   // Existing source images are retained, never restaged or replaced.
@@ -271,8 +276,13 @@ export function createD6ProductionAtomicSourceMediaTree({
   // confirmed image blobs and missing Markdown/record JSON.
   const entries=new Map(),textProofs=[];
   const jsonPath=DOMAIN[domain].file;
+  const canonicalJsonUnchanged=equal(source.data[domain],data[domain]);
   const jsonBody=JSON.stringify(data[domain],null,2)+'\n';
-  const textWrites=[{path:jsonPath,body:jsonBody},
+  // Do not claim an unchanged JSON blob was a mutation: independent
+  // Git-tree readback requires exact equality of the changed path set.
+  // The pinned, validated canonical-source JSON remains untouched.
+  const textWrites=[
+   ...(canonicalJsonUnchanged?[]:[{path:jsonPath,body:jsonBody}]),
    ...narrativeOps.filter(x=>!x.remove)];
   for(const item of textWrites){
    const p=await verifyTextBlob(readGitBlob,item.path,item.body);
@@ -287,6 +297,7 @@ export function createD6ProductionAtomicSourceMediaTree({
    expectedPaths.delete(file.path);
   }
   need(expectedPaths.size===0&&
+   entries.size>0&&
    entries.size===textWrites.length+
     narrativeOps.filter(x=>x.remove).length+originals.length&&
    entries.size<=MAX_ENTRIES,'INCOMPLETE_ATOMIC_TREE');
@@ -301,6 +312,7 @@ export function createD6ProductionAtomicSourceMediaTree({
    domain,recordId:pkg.id,
    fileCount:tree.length,
    mediaCount:originals.length,textCount:textProofs.length,
+   canonicalJsonUnchanged,
    entries:tree,verifiedText:Object.freeze(textProofs),
    sourceOnly:true,atomicTreeReady:true,
    canSubmitTree:false,canPublish:false,isLive:false,

@@ -345,10 +345,15 @@ test('WP3-TEXT04 Catch Notes edit preserves existing inline image without restag
  await rewriteWithoutMedia(x,{originalRecord:original,originalText:oldText});
  const result=await x.tree.plan(x.input);
  assert.equal(result.mediaCount,0);
- assert.equal(result.textCount,2);
+ assert.equal(result.canonicalJsonUnchanged,true);
+ assert.equal(result.textCount,1);
  assert(result.entries.every(e=>!e.path.includes('/assets/')));
- assert.equal(result.fileCount,2);
- assert.equal(x.calls.length,2);
+ assert.equal(result.fileCount,1);
+ assert.equal(x.calls.length,1);
+ const descriptor=await describeD6AtomicTreeStep({
+  operation:x.operation,plan:result});
+ assert.equal(descriptor.entryCount,1);
+ assert.equal(descriptor.body.tree[0].path,original.notes);
 });
 
 test('WP3-TEXT05 extraneous media tickets on a zero-media package fail before blobs',async()=>{
@@ -367,5 +372,26 @@ test('WP3-TEXT06 undeclared new image references fail complete-candidate check',
  delete x.pkg.notes.images;
  await rewriteWithoutMedia(x);
  await denied(x.tree.plan(x.input),'INVALID_CANDIDATE');
+ assert.equal(x.calls.length,0);
+});
+
+test('WP3-TEXT07 unchanged record and unchanged Notes are rejected before Git writes',async()=>{
+ const x=await setup('catches');
+ const original=(await promoteChange({
+  package:x.pkg,sourceRevision:MAIN,
+ })).record;
+ const text=x.pkg.notes.body;
+ x.source.data.catches.catches.push(original);
+ x.source.files.add(x.paths[0]);
+ x.source.files.add(original.notes);
+ x.source.markdown.set(original.notes,text);
+ x.pkg=await prepareChange({
+  domain:'catches',operation:'edit',id:original.id,
+  baseRecord:original,record:original,baseText:text,text,
+  sourceRevision:MAIN,
+ });
+ x.input.package=x.pkg;
+ x.input.mediaTickets=[];
+ await denied(x.tree.plan(x.input),'NO_CHANGE');
  assert.equal(x.calls.length,0);
 });

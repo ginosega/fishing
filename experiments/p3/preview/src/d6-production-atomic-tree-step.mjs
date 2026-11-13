@@ -95,7 +95,10 @@ export async function describeD6AtomicTreeStep({
  }
  let deleted=0;
  for(const entry of entries)if(entry.sha===null)deleted++;
- need(entries.some(x=>x.path===canonical&&SHA.test(x.sha??''))&&
+ const canonicalEntry=entries.find(x=>x.path===canonical);
+ need((plan.canonicalJsonUnchanged===true?
+   canonicalEntry===undefined:
+   canonicalEntry&&SHA.test(canonicalEntry.sha??''))&&
   plan.mediaCount+plan.textCount+deleted===entries.length,
   'INCOMPLETE_ATOMIC_PLAN');
  for(const proof of plan.verifiedText){
@@ -108,8 +111,9 @@ export async function describeD6AtomicTreeStep({
   textPaths.set(key,proof.sha);
  }
  need(textPaths.size===plan.textCount&&
-  textPaths.get(pathKey(canonical))===
-   entries.find(x=>x.path===canonical)?.sha,
+  (plan.canonicalJsonUnchanged===true?
+   !textPaths.has(pathKey(canonical)):
+   textPaths.get(pathKey(canonical))===canonicalEntry?.sha),
   'UNVERIFIED_TEXT');
  let mediaCount=0;
  for(const entry of entries){
