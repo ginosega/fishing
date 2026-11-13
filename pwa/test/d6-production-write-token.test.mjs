@@ -13,6 +13,7 @@ const NOW=1800000000;
 const JWT='eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiI3NyJ9.signature';
 const TOKEN='source-only-not-an-authentic-token-1234567890';
 const SCOPE={contents:'write',pull_requests:'write'};
+const CONTENTS={contents:'write'},PRS={pull_requests:'write'};
 const json=(value,status=200,headers={})=>new Response(
  JSON.stringify(value),{status,headers:{
   'Content-Type':'application/json',...headers,
@@ -85,8 +86,9 @@ test('D6-WTOKEN02 exact numeric repo and minimum write scope only',async()=>{
  for(const args of [
   {},{repositoryId:SANDBOX,permissions:SCOPE},
   {repositoryId:MAIN,permissions:SCOPE},
-  {repositoryId:REPO,permissions:{contents:'write'}},
+  {repositoryId:REPO,permissions:{}},
   {repositoryId:REPO,permissions:{contents:'read',pull_requests:'write'}},
+  {repositoryId:REPO,permissions:{pull_requests:'read'}},
   {repositoryId:REPO,permissions:{contents:'write',pull_requests:'read'}},
   {repositoryId:REPO,permissions:{...SCOPE,actions:'write'}},
   {repositoryId:REPO,permissions:['contents:write','pull_requests:write']},
@@ -256,7 +258,7 @@ test('D6-WTOKEN13 no production route, GitHub writer or sandbox App imported',()
  const text=readFileSync(new URL(
   '../../experiments/p3/preview/src/d6-production-write-token.mjs',
   import.meta.url),'utf8');
- assert.match(text,/repository_ids:\[REPO.id\],permissions:SCOPE/);
+ assert.match(text,/repository_ids:\[REPO.id\],permissions:requested/);
  assert.match(text,/contents:'write',pull_requests:'write'/);
  assert.doesNotMatch(text,/export default|addEventListener\(/);
  assert.doesNotMatch(text,/1430581407|fishing-p3-sandbox/);
@@ -275,4 +277,66 @@ test('D6-WTOKEN14 invalid constructor dependencies deny safely',()=>{
   }),e=>e instanceof D6ProductionWriteTokenError&&
    e.code==='INVALID_CONFIG');
  }
+});
+
+
+test('WP3-TOKEN01 verified tree/branch/commit/advance get only contents:write',async()=>{
+ const x=setup({issued:{...grant(),permissions:{
+  ...CONTENTS,metadata:'read',
+ }}});
+ const r=await x.issuer.issueWriteToken({
+  repositoryId:REPO,permissions:CONTENTS,
+ });
+ assert.deepEqual(r.permissions,CONTENTS);
+ assert.equal(Object.isFrozen(r.permissions),true);
+ assert.deepEqual(JSON.parse(x.state.calls[2].options.body),{
+  repository_ids:[REPO],permissions:CONTENTS,
+ });
+ assert.equal(x.state.calls.length,3);
+});
+
+test('WP3-TOKEN02 PR creation receives only pull_requests:write',async()=>{
+ const x=setup({issued:{...grant(),permissions:{
+  ...PRS,metadata:'read',
+ }}});
+ const r=await x.issuer.issueWriteToken({
+  repositoryId:REPO,permissions:PRS,
+ });
+ assert.deepEqual(r.permissions,PRS);
+ assert.deepEqual(JSON.parse(x.state.calls[2].options.body),{
+  repository_ids:[REPO],permissions:PRS,
+ });
+});
+
+test('WP3-TOKEN03 broad or mismatched grants cannot satisfy narrow steps',async()=>{
+ for(const [requested,returned] of [
+  [CONTENTS,{...SCOPE,metadata:'read'}],
+  [PRS,{...SCOPE,metadata:'read'}],
+  [CONTENTS,{pull_requests:'write',metadata:'read'}],
+  [PRS,{contents:'write',metadata:'read'}],
+  [CONTENTS,{contents:'write',issues:'read',metadata:'read'}],
+  [PRS,{pull_requests:'write',metadata:'write'}],
+ ]){
+  const x=setup({issued:{...grant(),permissions:returned}});
+  await denied(x.issuer.issueWriteToken({
+   repositoryId:REPO,permissions:requested,
+  }),'TOKEN_SCOPE_DENIED');
+  assert.equal(x.state.calls.length,3);
+ }
+});
+test('WP3-TOKEN04 missing or malformed per-step scope rejected before signing',async()=>{
+ const x=setup();
+ for(const permissions of [
+  {contents:'write',pull_requests:'read'},
+  {contents:'read',pull_requests:'write'},
+  {pull_requests:'write',issues:'read'},
+  {contents:'write',actions:'read'},
+  {contents:'admin'},[],null,
+ ]){
+  await denied(x.issuer.issueWriteToken({
+   repositoryId:REPO,permissions,
+  }),'WRITE_SCOPE_DENIED');
+ }
+ assert.equal(x.state.calls.length,0);
+ assert.equal(x.state.signs.length,0);
 });
