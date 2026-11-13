@@ -10,6 +10,8 @@ import {D6_PUBLISH_REPOSITORY,D6_PUBLISH_INTAKE_ORIGIN}
 import {createD6ProductionMediaTicketVerifier,
  d6CanonicalMediaTicketPayload,D6_MEDIA_TICKET_VERSION}
  from '../../experiments/p3/preview/src/d6-production-media-ticket-verify.mjs';
+import {describeD6AtomicTreeStep}
+ from '../../experiments/p3/preview/src/d6-production-atomic-tree-step.mjs';
 import {createD6ProductionAtomicSourceMediaTree,D6AtomicMediaTreeError}
  from '../../experiments/p3/preview/src/d6-production-atomic-source-media-tree.mjs';
 
@@ -227,5 +229,143 @@ test('WP3-ATOM10 disabled planner makes no source or blob request',async()=>{
  const x=await setup();
  x.state.enabled=false;
  await denied(x.tree.plan(x.input),'DISABLED');
+ assert.equal(x.calls.length,0);
+});
+
+
+// WP3 text-only canonical publication: original Gear/KB/Catch images in
+// main are KEEP references, not new media tickets or new Git blob writes.
+async function rewriteWithoutMedia(x,{originalRecord=null,originalText=''}={}){
+ const target=await promoteChange({
+  package:x.pkg,currentRecord:originalRecord,
+  currentText:originalText,sourceRevision:MAIN,
+ });
+ const next=structuredClone(x.source.data),array=DOMAIN[x.pkg.domain].array;
+ if(x.pkg.operation==='add')next[x.pkg.domain][array].push(target.record);
+ else next[x.pkg.domain][array][next[x.pkg.domain][array]
+  .findIndex(v=>v.id===x.pkg.id)]=target.record;
+ x.bodies.clear(); // No new media blobs may be needed for this plan.
+ const text=Buffer.from(JSON.stringify(next[x.pkg.domain],null,2)+'\n');
+ x.bodies.set(gitSha(text),text);
+ for(const write of target.writes){
+  if(write.remove)continue;
+  const bytes=Buffer.from(write.body);
+  x.bodies.set(gitSha(bytes),bytes);
+ }
+ x.input.mediaTickets=[];
+ return target;
+}
+
+test('WP3-TEXT01 Gear add without picture emits one verified canonical JSON blob',async()=>{
+ const x=await setup('gear');
+ x.pkg.picture={action:'keep'};
+ await rewriteWithoutMedia(x);
+ assert.equal(expectedD6CanonicalMedia(x.pkg).length,0);
+ const result=await x.tree.plan(x.input);
+ assert.equal(result.mediaCount,0);
+ assert.equal(result.textCount,1);
+ assert.equal(result.fileCount,1);
+ assert.deepEqual(result.entries.map(e=>e.path),[DOMAIN.gear.file]);
+ assert.equal(x.calls.length,1);
+ const step=await describeD6AtomicTreeStep({
+  operation:x.operation,plan:result});
+ assert.equal(step.entryCount,1);
+ assert.equal(step.mediaCount,0);
+ assert.equal(step.body.tree.length,1);
+ assert.equal(step.body.tree[0].sha,result.verifiedText[0].sha);
+ assert.equal(result.canPublish,false);
+ assert.equal(result.isLive,false);
+});
+
+test('WP3-TEXT02 Catch add with Markdown and zero images retains one atomic tree',async()=>{
+ const x=await setup('catches');
+ x.pkg.notes.body='Catch notes with no new picture';
+ delete x.pkg.notes.images;
+ await rewriteWithoutMedia(x);
+ const result=await x.tree.plan(x.input);
+ assert.equal(result.mediaCount,0);
+ assert.equal(result.textCount,2);
+ assert.deepEqual(new Set(result.entries.map(e=>e.path)),new Set([
+  DOMAIN.catches.file,'Catches/content/catch-example.md',
+ ]));
+ assert.equal(result.fileCount,2);
+ assert.equal(x.calls.length,2);
+ const step=await describeD6AtomicTreeStep({
+  operation:x.operation,plan:result});
+ assert.equal(step.entryCount,2);
+ assert.equal(step.body.tree.every(e=>e.type==='blob'),true);
+});
+
+test('WP3-TEXT03 KB edits retain existing Knot frames and original artwork unchanged',async()=>{
+ const x=await setup('kb');
+ const original=(await promoteChange({
+  package:x.pkg,sourceRevision:MAIN,
+ })).record;
+ const previousText=x.pkg.notes.body;
+ x.source.data.kb.entities.push(original);
+ for(const image of x.paths)x.source.files.add(image);
+ x.source.files.add(original.content);
+ x.source.markdown.set(original.content,previousText);
+ const edit=await prepareChange({
+  domain:'kb',operation:'edit',id:original.id,
+  baseRecord:original,record:{...original,name:'Updated Knot'},
+  baseText:previousText,text:previousText+'\nUpdated instructions',
+  sourceRevision:MAIN,
+ });
+ x.input.package=x.pkg=edit;
+ await rewriteWithoutMedia(x,{originalRecord:original,
+  originalText:previousText});
+ assert.equal(expectedD6CanonicalMedia(x.pkg).length,0);
+ const result=await x.tree.plan(x.input);
+ assert.equal(result.mediaCount,0);
+ assert.equal(result.textCount,2);
+ assert.equal(result.fileCount,2);
+ assert(x.paths.every(path=>x.source.files.has(path)));
+ assert(result.entries.every(e=>!e.path.includes('/assets/')));
+ assert.equal(x.calls.length,2);
+});
+
+test('WP3-TEXT04 Catch Notes edit preserves existing inline image without restaging',async()=>{
+ const x=await setup('catches');
+ const original=(await promoteChange({
+  package:x.pkg,sourceRevision:MAIN,
+ })).record;
+ const oldText=x.pkg.notes.body;
+ x.source.data.catches.catches.push(original);
+ x.source.files.add(x.paths[0]);
+ x.source.files.add(original.notes);
+ x.source.markdown.set(original.notes,oldText);
+ x.pkg=await prepareChange({
+  domain:'catches',operation:'edit',id:original.id,
+  baseRecord:original,record:original,
+  baseText:oldText,text:oldText+'\n\nMore catch details.',
+  sourceRevision:MAIN,
+ });
+ x.input.package=x.pkg;
+ await rewriteWithoutMedia(x,{originalRecord:original,originalText:oldText});
+ const result=await x.tree.plan(x.input);
+ assert.equal(result.mediaCount,0);
+ assert.equal(result.textCount,2);
+ assert(result.entries.every(e=>!e.path.includes('/assets/')));
+ assert.equal(result.fileCount,2);
+ assert.equal(x.calls.length,2);
+});
+
+test('WP3-TEXT05 extraneous media tickets on a zero-media package fail before blobs',async()=>{
+ const x=await setup('gear');
+ x.pkg.picture={action:'keep'};
+ const originalTicket=x.tickets[0];
+ await rewriteWithoutMedia(x);
+ x.input.mediaTickets=[originalTicket];
+ await denied(x.tree.plan(x.input),'UNEXPECTED_MEDIA_TICKETS');
+ assert.equal(x.calls.length,0);
+});
+
+test('WP3-TEXT06 undeclared new image references fail complete-candidate check',async()=>{
+ const x=await setup('catches');
+ x.pkg.notes.body='![Unstaged](../assets/catch-example/notes/photo.png)';
+ delete x.pkg.notes.images;
+ await rewriteWithoutMedia(x);
+ await denied(x.tree.plan(x.input),'INVALID_CANDIDATE');
  assert.equal(x.calls.length,0);
 });
