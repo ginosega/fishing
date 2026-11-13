@@ -7,9 +7,10 @@
  * Source review, signed media tickets and exact Git blob readback must be
  * integrated before a production writer can use its result.
  */
-import {DOMAIN,pathKey} from '../../../../pwa/src/shared.mjs';
-import {validateRecords,validateLibraryPaths,validateMarkdown,
+import {DOMAIN} from '../../../../pwa/src/shared.mjs';
+import {validateRecords,validateLibraryPaths,
  checkPathCollisions} from '../../../../pwa/src/validation.mjs';
+import {parseMarkdown} from '../../../../pwa/src/markdown.mjs';
 import {expectedD6CanonicalMedia}
  from './d6-production-media-contract.mjs';
 
@@ -77,12 +78,14 @@ export function reviewD6CanonicalMediaOwnership({
    'NARRATIVE_NOT_OWNED');
   let references;
   try{
-   references=validateMarkdown(pkg.notes.body,{
+   references=parseMarkdown(pkg.notes.body,{
     owner:pkg.notes.path,maps,exists:candidateFiles,
-    pathRoutes:routes,
-   });
+    pathRoutes:routes,viewerImages:true,
+   }).references;
   }catch{need(false,'INVALID_MARKDOWN');}
-  const images=new Set(references.filter(r=>r.kind==='image'&&
+  // Markdown reference kind describes URL resolution (e.g. 'local'),
+  // not image-vs-link. Use parser image metadata to reject link-only refs.
+  const images=new Set(references.filter(r=>r.isImage===true&&
    r.local).map(r=>r.local));
   for(const image of notes)
    need(images.has(image.path),'UNREFERENCED_NOTE_IMAGE');
