@@ -139,13 +139,27 @@ test('D6-INTAKE07 sandbox/repository/identity injection is rejected',async()=>{
    {trustedMainSha:MAIN}),'INVALID_SUBMISSION');
  }
 });
-test('D6-INTAKE08 media and pictures are denied; text-only Catch is non-submitting',async()=>{
- const image={path:'Gear/x/assets/a.png',bytes:3};
- await expectCode(setup().instance.inspect(req(body(pkg(),[image])),
-  {trustedMainSha:MAIN}),'INVALID_SUBMISSION');
- const withPicture=pkg();withPicture.picture.action='add';
- await expectCode(setup().instance.inspect(req(body(withPicture)),
-  {trustedMainSha:MAIN}),'INVALID_SUBMISSION');
+test('D6-INTAKE08 media metadata must exactly match immutable package, not bytes',async()=>{
+ const image={path:'Gear/Lures/assets/original.png',
+  bytes:42,sha256:'d'.repeat(64)};
+ const withPicture=pkg();
+ withPicture.picture={action:'add',path:image.path,
+  file:{bytes:image.bytes,sha256:image.sha256}};
+ const verified=await setup().instance.inspect(
+  req(body(withPicture,[image])),{trustedMainSha:MAIN});
+ assert.deepEqual(verified.snapshot.media,[image]);
+ assert.equal(verified.canPublish,false);
+ assert(Object.isFrozen(verified.snapshot.media[0]));
+ for(const provided of [
+  [],[{...image,sha256:'e'.repeat(64)}],
+  [{...image,blobSha:'a'.repeat(40)}],
+  [{...image},image],
+  [{...image,bytes:41}],
+ ]){
+  await expectCode(setup().instance.inspect(
+   req(body(withPicture,provided)),{trustedMainSha:MAIN}),
+   'MEDIA_METADATA_MISMATCH');
+ }
  const catchPkg=pkg();catchPkg.domain='catches';
  catchPkg.record={id:'test-item',date:'2026-11-12'};
  const candidate=await setup().instance.inspect(req(body(catchPkg)),
