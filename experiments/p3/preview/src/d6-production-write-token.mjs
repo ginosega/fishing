@@ -4,8 +4,10 @@
  * NO Worker route, GitHub file writer, pull request, D1 migration, secret
  * provisioning, authorization to enable write permissions, or cutover.
  *
- * The only permitted token is for numeric repo 1350909744, with exactly
- * contents:write and pull_requests:write (plus implicit metadata:read).
+ * The only permitted token is for numeric repo 1350909744. Each existing
+ * publication step requests only contents:write or pull_requests:write;
+ * a legacy combined grant remains accepted but is never substituted for a
+ * narrower request. Implicit metadata:read is the only extra permission.
  * App JWT, installation token, PEM and transport remain trusted-server only.
  * A future coordinator must first durably fence the operation and revalidate
  * the owner session, canonical main, idempotency and exact PR-head evidence.
@@ -16,17 +18,26 @@ import {D6_PUBLISH_REPOSITORY}
 const ROOT='https://api.github.com';
 const REPO=D6_PUBLISH_REPOSITORY;
 const SCOPE=Object.freeze({contents:'write',pull_requests:'write'});
+const CONTENTS_SCOPE=Object.freeze({contents:'write'});
+const PR_SCOPE=Object.freeze({pull_requests:'write'});
 const MAX_RESPONSE=131072;
 const decoder=new TextDecoder('utf-8',{fatal:true});
 const isNum=v=>typeof v==='string'&&/^[1-9][0-9]{0,15}$/.test(v)&&
  Number.isSafeInteger(Number(v));
 const object=v=>v!==null&&typeof v==='object'&&
  !Array.isArray(v)&&Object.getPrototypeOf(v)===Object.prototype;
-const sameScope=p=>object(p)&&Object.keys(p).length===2&&
- p.contents==='write'&&p.pull_requests==='write';
-const granted=p=>object(p)&&p.contents==='write'&&
- p.pull_requests==='write'&&Object.keys(p).every(k=>
-  k==='contents'||k==='pull_requests'||k==='metadata')&&
+const exact=(p,wanted)=>object(p)&&
+ Object.keys(p).length===Object.keys(wanted).length&&
+ Object.keys(wanted).every(k=>p[k]===wanted[k]);
+function scope(p){
+ if(exact(p,CONTENTS_SCOPE))return CONTENTS_SCOPE;
+ if(exact(p,PR_SCOPE))return PR_SCOPE;
+ if(exact(p,SCOPE))return SCOPE;
+ return null;
+}
+const granted=(p,wanted)=>object(p)&&
+ Object.keys(p).every(k=>Object.hasOwn(wanted,k)||k==='metadata')&&
+ Object.keys(wanted).every(k=>p[k]===wanted[k])&&
  (!Object.hasOwn(p,'metadata')||p.metadata==='read');
 
 export class D6ProductionWriteTokenError extends Error {
@@ -81,7 +92,8 @@ export function createD6ProductionWriteTokenIssuer({
 
  async function issueWriteToken({repositoryId,permissions}={}){
   need(enabled()===true,'DISABLED');
-  need(repositoryId===REPO.id&&sameScope(permissions),
+  const requested=scope(permissions);
+  need(repositoryId===REPO.id&&requested,
    'WRITE_SCOPE_DENIED');
   const appId=env?.D6_GITHUB_APP_ID,
    installationId=env?.D6_GITHUB_INSTALLATION_ID;
@@ -133,6 +145,8 @@ export function createD6ProductionWriteTokenIssuer({
    inst.account?.login==='ginosega'&&
    inst.repository_selection==='selected'&&
    inst.suspended_at==null&&
+   // The App must be owner-approved for the complete publishing
+   // capability, but the minted step token must remain narrower.
    inst.permissions?.contents==='write'&&
    inst.permissions?.pull_requests==='write',
    'INSTALLATION_DENIED');
@@ -142,12 +156,13 @@ export function createD6ProductionWriteTokenIssuer({
    target.account?.login==='ginosega'&&
    target.suspended_at==null,'REPOSITORY_DENIED');
   const result=await get(tokenUrl,'POST',{
-   repository_ids:[REPO.id],permissions:SCOPE,
+   repository_ids:[REPO.id],permissions:requested,
   });
   const expires=typeof result.expires_at==='string'?
    Date.parse(result.expires_at)/1000:NaN;
   need(typeof result.token==='string'&&
-   /^[^\s]{20,}$/.test(result.token)&&granted(result.permissions)&&
+   /^[^\s]{20,}$/.test(result.token)&&
+   granted(result.permissions,requested)&&
    Array.isArray(result.repositories)&&result.repositories.length===1&&
    result.repositories[0]?.id===REPO.id&&
    result.repositories[0]?.full_name===REPO.name&&
@@ -157,7 +172,7 @@ export function createD6ProductionWriteTokenIssuer({
   // separately approved server-side GitHub writer may consume this token.
   need(enabled()===true,'DISABLED');
   return Object.freeze({
-   repositoryId:REPO.id,permissions:SCOPE,
+   repositoryId:REPO.id,permissions:requested,
    token:result.token,expiresAt:expires,
   });
  }
