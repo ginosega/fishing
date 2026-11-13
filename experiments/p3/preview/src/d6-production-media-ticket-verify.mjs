@@ -13,11 +13,13 @@ import {validInlineNoteImagePath}
 import {D6_PUBLISH_INTAKE_ORIGIN,D6_PUBLISH_REPOSITORY}
  from './d6-production-publish-intake.mjs';
 
-const VERSION='fish-v3-media-ticket-v1';
+export const D6_MEDIA_TICKET_VERSION='fish-v3-media-ticket-v1';
+const VERSION=D6_MEDIA_TICKET_VERSION;
 const SHA=/^[a-f0-9]{40}$/,DIGEST=/^[a-f0-9]{64}$/;
 const UUID=/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i;
 const SIG=/^[A-Za-z0-9_-]{43}$/;
-const MAX_FILE=10*1024*1024,TTL=4*60*60,SKEW=60;
+export const D6_MEDIA_TICKET_TTL_SECONDS=4*60*60;
+const MAX_FILE=10*1024*1024,TTL=D6_MEDIA_TICKET_TTL_SECONDS,SKEW=60;
 const mime=Object.freeze({jpg:'image/jpeg',jpeg:'image/jpeg',
  png:'image/png',webp:'image/webp',gif:'image/gif'});
 const fields=Object.freeze(['version','operationId','repositoryId',
@@ -34,8 +36,8 @@ export class D6MediaTicketError extends Error{
 const need=(ok,code)=>{if(!ok)throw new D6MediaTicketError(code);};
 const plain=x=>x!==null&&typeof x==='object'&&
  !Array.isArray(x)&&Object.getPrototypeOf(x)===Object.prototype;
-const canonical=(origin,ticket)=>JSON.stringify([origin,
- ...fields.map(field=>ticket[field])]);
+export const d6CanonicalMediaTicketPayload=(origin,ticket)=>
+ JSON.stringify([origin,...fields.map(field=>ticket[field])]);
 function claimedPath(path,operation){
  let p;
  try{p=safePath(path);}catch{need(false,'UNSAFE_MEDIA_PATH');}
@@ -101,8 +103,9 @@ function signatureBytes(value){
 }
 /**
  * This verifier requires the existing same-origin gateway's secret custody.
- * No client or request body may set its origin, key or clock. The signing
- * issuer/staging route is NOT implemented or authorized here.
+ * No client or request body may set its origin, key or clock. Ticket signing
+ * is isolated in the separate default-off durable-proof issuer; no route
+ * or signing key is installed by importing this verifier.
  */
 export function createD6ProductionMediaTicketVerifier({
  origin=D6_PUBLISH_INTAKE_ORIGIN,secret,now=()=>Math.floor(Date.now()/1000),
@@ -121,7 +124,7 @@ export function createD6ProductionMediaTicketVerifier({
   try{
    valid=await crypto.subtle.verify('HMAC',await key,
     signatureBytes(ticket.signature),
-    enc.encode(canonical(origin,ticket)));
+    enc.encode(d6CanonicalMediaTicketPayload(origin,ticket)));
   }catch{need(false,'SIGNATURE_UNVERIFIED');}
   need(valid===true,'SIGNATURE_UNVERIFIED');
   return Object.freeze(Object.fromEntries(fields.filter(x=>x!=='version')
