@@ -25,7 +25,7 @@ const fixture=async()=>{
   sourceRevision:revision,notesImages:[{path,bytes:png.length,
    sha256:await sha256(png)}]});
  const op=operation();
- return {pkg,op};
+ return {package:pkg,operation:op};
 };
 function request({
  bytes=png,mediaPath=path,id=operationId,type='image/png',extra={},
@@ -87,7 +87,7 @@ test('WP3-STAGE03 mismatched operation and foreign record fail before read',asyn
  await denied(s.impl.preflight(request({mediaPath:
   'Catches/assets/different/notes/photo.png'})),
   'UNEXPECTED_MEDIA_PATH');
- const foreign=setup({stored:{...stored,op:{...stored.op,
+ const foreign=setup({stored:{...stored,operation:{...stored.operation,
   ownerGitHubId:3}}});
  await denied(foreign.impl.preflight(request()),'UNTRUSTED_OPERATION');
 });
@@ -124,7 +124,7 @@ test('WP3-STAGE06 missing operation, invalid path and callback failures denied',
   'UNEXPECTED_MEDIA_PATH');
  const bad=setup({stored:null});
  await denied(bad.impl.preflight(request()),'OPERATION_UNAVAILABLE');
- const noAck=setup({stored:{...stored,op:{...stored.op,
+ const noAck=setup({stored:{...stored,operation:{...stored.operation,
   state:'Unknown'}}});
  await denied(noAck.impl.preflight(request()),'UNTRUSTED_OPERATION');
 });
