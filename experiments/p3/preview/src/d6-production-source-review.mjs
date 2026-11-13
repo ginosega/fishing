@@ -19,6 +19,10 @@ import {validateRecords,validateRecord,validateLibraryPaths,
  from '../../../../pwa/src/validation.mjs';
 import {D6_PUBLISH_REPOSITORY}
  from './d6-production-publish-intake.mjs';
+import {expectedD6CanonicalMedia}
+ from './d6-production-media-contract.mjs';
+import {reviewD6CanonicalMediaOwnership}
+ from './d6-production-media-ownership.mjs';
 import {D6_SOURCE_REPOSITORY}
  from './d6-canonical-snapshot-loader.mjs';
 
@@ -45,7 +49,9 @@ const isNarrative=(path,domain)=>{
  catch{return false;}
 };
 
-/** Review a TEXT-ONLY Gear/KB/Catch intent. Result stays server-internal, not a
+/** Review a canonical Gear/KB/Catch intent, including pending original-image
+ * metadata. Pending metadata is not staged bytes or signed blob evidence.
+ * Result stays server-internal, not a
  * public API response or permission to submit any operation. */
 export function createD6ProductionSourceReview({
  intake,loadSnapshot,enabled=()=>false,
@@ -67,7 +73,7 @@ export function createD6ProductionSourceReview({
    intent?.ref===D6_PUBLISH_REPOSITORY.ref&&
    intent?.ownerGitHubId===D6_PUBLISH_REPOSITORY.ownerGitHubId&&
    intent?.trustedMainSha===trustedMainSha&&
-   intent?.snapshot?.media?.length===0,'UNTRUSTED_INTENT');
+   Array.isArray(intent?.snapshot?.media),'UNTRUSTED_INTENT');
   const pkg=intent.snapshot.package;
   need(['gear','kb','catches'].includes(pkg?.domain)&&
    ['add','edit'].includes(pkg?.operation)&&
@@ -119,10 +125,14 @@ export function createD6ProductionSourceReview({
   }
   need(promoted?.record?.id===pkg.id&&
    promoted?.sourceRevision===trustedMainSha,'INVALID_CHANGE');
-  // No picture, sequence or arbitrary media writes are authorized.
-  need(equal(promoted.record.picture,currentRecord?.picture)&&
-   equal(promoted.record.pictureSequence,currentRecord?.pictureSequence),
-   'UNSUPPORTED_MEDIA');
+  // Only a complete, immutable metadata set declared by this same
+  // authenticated package may become proposed original-image paths.
+  // Existence in this candidate is NOT evidence of a staged Git blob.
+  let originals;
+  try{originals=expectedD6CanonicalMedia(pkg);}
+  catch{deny('INVALID_MEDIA_METADATA');}
+  need(JSON.stringify(originals)===JSON.stringify(intent.snapshot.media),
+   'INVALID_MEDIA_METADATA');
   const fileOps=[];
   for(const write of promoted.writes){
    const path=write.path;
@@ -147,6 +157,10 @@ export function createD6ProductionSourceReview({
      baseSha256:write.baseSha256}));
    }
   }
+  for(const media of originals){
+   need(!files.has(media.path),'EXISTING_MEDIA_COLLISION');
+   files.add(media.path);
+  }
   if(pkg.operation==='add')records.push(promoted.record);
   else records[records.findIndex(x=>x.id===pkg.id)]=promoted.record;
   try{
@@ -164,6 +178,16 @@ export function createD6ProductionSourceReview({
     }
    }
   }catch{deny('INVALID_CANDIDATE');}
+  let ownership;
+  try{
+   ownership=reviewD6CanonicalMediaOwnership({
+    package:pkg,sourceFiles:source.files,candidateFiles:files,
+    candidateMarkdown:markdown,candidateData:data,
+   });
+  }catch{deny('MEDIA_OWNERSHIP_DENIED');}
+  need(ownership?.verified===true&&
+   ownership.fileCount===originals.length,
+   'MEDIA_OWNERSHIP_DENIED');
   need(pkg.operation==='add'||fileOps.length>0||
    !equal(promoted.record,currentRecord),'NO_CHANGE');
   // Internal, non-durable candidate for a future independently approved
@@ -175,6 +199,9 @@ export function createD6ProductionSourceReview({
    domain,operation:pkg.operation,recordId:pkg.id,
    candidateData:data,candidateFiles:files,candidateMarkdown:markdown,
    fileOps:Object.freeze(fileOps),
+   pendingOriginals:Object.freeze(originals),
+   requiresSignedStaging:originals.length>0,
+   requiresIndependentBlobReadback:originals.length>0,
    sourceOnly:true,requiresDurableOperation:true,canPublish:false,
   });
  }
