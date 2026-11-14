@@ -113,9 +113,10 @@ export function createD6ProductionMediaTicketVerifier({
  origin=D6_PUBLISH_INTAKE_ORIGIN,secret,now=()=>Math.floor(Date.now()/1000),
  isolatedOriginEnabled=()=>false,
 }={}){
- const originGate=createD6Wp3PinnedWriteOrigin({
+ let originGate;
+ try{originGate=createD6Wp3PinnedWriteOrigin({
   origin,isolatedEnabled:isolatedOriginEnabled,
- });
+ });}catch{need(false,'INVALID_CONFIG');}
  need(typeof secret==='string'&&enc.encode(secret).length>=32&&
   typeof now==='function','INVALID_CONFIG');
  const key=crypto.subtle.importKey('raw',enc.encode(secret),
