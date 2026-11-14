@@ -40,20 +40,20 @@ const plan=()=>({
  recordId:'catch-example',textCount:2,mediaCount:1,fileCount:3,
  verifiedText:[{path:INDEX,sha:JSON_SHA,bytes:98},
   {path:NOTE,sha:NOTE_SHA,bytes:64}],
- entries:[entry(INDEX,JSON_SHA),entry(NOTE,NOTE_SHA),
+ entries:[entry('pwa/'+INDEX,JSON_SHA),entry('pwa/'+NOTE,NOTE_SHA),
   entry(MEDIA,IMAGE_SHA)],
 });
 const gitTree=(sha,items)=>({
  sha,truncated:false,tree:items,
 });
 const oldTree=()=>gitTree(BASE,[
- entry('Catches','0'.repeat(40),'040000','tree'),
- entry(INDEX,OLD),entry('README.md',README),
+ entry('pwa','0'.repeat(40),'040000','tree'),
+ entry('pwa/'+INDEX,OLD),entry('README.md',README),
 ]);
 const newTree=()=>gitTree(RESULT,[
- entry('Catches','0'.repeat(40),'040000','tree'),
+ entry('pwa','0'.repeat(40),'040000','tree'),
  entry(INDEX,JSON_SHA),entry(NOTE,NOTE_SHA),
- entry(MEDIA,IMAGE_SHA),entry('README.md',README),
+ entry('pwa/'+MEDIA,IMAGE_SHA),entry('README.md',README),
 ]);
 function provider(){
  return new Map([
