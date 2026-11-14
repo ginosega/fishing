@@ -162,7 +162,7 @@ test('WP3-TREE02 trusted atomic plan binds one durable Unknown before POST',asyn
  assert.equal(q.options.headers.Authorization,
   'Bearer TEST-ONLY-WRITE-CREDENTIAL-1234567890');
  assert.deepEqual(JSON.parse(q.options.body),{
-  base_tree:BASE,tree:plan().entries});
+  base_tree:BASE,tree:plan().entries.map(x=>({...x,path:'pwa/'+x.path}))});
  assert.deepEqual(x.state.tokens[0],{
   repositoryId:REPO.id,permissions:{contents:'write'}});
  assert.equal(x.state.prerequisites.length,2);
