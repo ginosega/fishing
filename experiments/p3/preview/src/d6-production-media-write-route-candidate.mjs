@@ -18,6 +18,8 @@
 import {safePath} from '../../../../pwa/src/shared.mjs';
 import {D6_PUBLISH_INTAKE_ORIGIN as ORIGIN}
  from './d6-production-publish-intake.mjs';
+import {createD6Wp3PinnedWriteOrigin}
+ from './d6-production-wp3-origin-profile.mjs';
 
 const STAGE='/api/v3/media',READBACK=STAGE+'/reconcile';
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i;
@@ -80,6 +82,7 @@ export function createD6ProductionMediaWriteRouteCandidate({
  session,stage,reconciliation,
  enabled=()=>false,writeEnabled=()=>false,
  stageEnabled=()=>false,reconcileEnabled=()=>false,
+ origin=ORIGIN,isolatedOriginEnabled=()=>false,
 }={}){
  if(typeof session?.authorizeWrite!=='function'||
   typeof session?.authorizeMedia!=='function'||
@@ -88,17 +91,21 @@ export function createD6ProductionMediaWriteRouteCandidate({
   [enabled,writeEnabled,stageEnabled,reconcileEnabled]
    .some(x=>typeof x!=='function'))
   throw Error('invalid WP3 original media route configuration');
- const on=()=>enabled()===true&&writeEnabled()===true;
+ const originGate=createD6Wp3PinnedWriteOrigin({
+  origin,isolatedEnabled:isolatedOriginEnabled,
+ });
+ const on=()=>originGate.enabled()&&
+  enabled()===true&&writeEnabled()===true;
  async function serve(request){
-  if(enabled()!==true)return missing();
+  if(enabled()!==true||!originGate.enabled())return missing();
   if(!(request instanceof Request))return missing();
   let url;
   try{url=new URL(request.url);}catch{return missing();}
-  if(url.origin!==ORIGIN||url.username||url.password||
+  if(url.origin!==origin||url.username||url.password||
    url.search||url.hash||request.method!=='POST'||
    request.headers.has('Authorization')||
    ![STAGE,READBACK].includes(url.pathname))return missing();
-  if(request.headers.get('Origin')!==ORIGIN||
+  if(request.headers.get('Origin')!==origin||
    request.headers.get('Sec-Fetch-Site')!=='same-origin')
    return denied();
   const staging=url.pathname===STAGE;

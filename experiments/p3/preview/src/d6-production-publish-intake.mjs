@@ -19,6 +19,8 @@ import {createD2UnifiedOwnerSession}
 import {validatePackage} from '../../../../pwa/src/handoff.mjs';
 import {expectedD6CanonicalMedia}
  from './d6-production-media-contract.mjs';
+import {createD6Wp3PinnedWriteOrigin}
+ from './d6-production-wp3-origin-profile.mjs';
 
 export const D6_PUBLISH_REPOSITORY=Object.freeze({
  id:1350909744,name:'ginosega/fishing',ref:'refs/heads/main',
@@ -101,18 +103,23 @@ function parseIntent(raw){
 export function createD6ProductionPublishIntake({
  AUTH_DB,csrfKey,enabled=()=>false,now,
  sessionFactory=createD2UnifiedOwnerSession,
+ origin=D6_PUBLISH_INTAKE_ORIGIN,
+ isolatedOriginEnabled=()=>false,
 }={}){
  need(typeof enabled==='function'&&
   typeof sessionFactory==='function'&&
   (now===undefined||typeof now==='function'),'INVALID_CONFIG');
+ const originGate=createD6Wp3PinnedWriteOrigin({
+  origin,isolatedEnabled:isolatedOriginEnabled,
+ });
  let session;
  const requireSession=()=>{
-  if(enabled()!==true)deny('DISABLED');
+  if(enabled()!==true||!originGate.enabled())deny('DISABLED');
   if(!session){
    try{session=sessionFactory({
     AUTH_DB,csrfKey,
     ownerGitHubId:D6_PUBLISH_REPOSITORY.ownerGitHubId,
-    origin:D6_PUBLISH_INTAKE_ORIGIN,now,
+    origin,now,
    });}
    catch{deny('SESSION_UNAVAILABLE');}
    need(typeof session?.authorizeWrite==='function',
@@ -121,11 +128,11 @@ export function createD6ProductionPublishIntake({
   return session;
  };
  async function inspect(request,{trustedMainSha}={}){
-  if(enabled()!==true)deny('DISABLED');
+  if(enabled()!==true||!originGate.enabled())deny('DISABLED');
   need(request instanceof Request,'INVALID_REQUEST');
   let url;
   try{url=new URL(request.url);}catch{deny('INVALID_REQUEST');}
-  need(url.origin===D6_PUBLISH_INTAKE_ORIGIN&&
+  need(url.origin===origin&&
    url.pathname===PATH&&!url.search&&!url.hash&&
    !url.username&&!url.password&&request.method==='POST'&&
    !request.headers.has('Authorization'),'ROUTE_DENIED');

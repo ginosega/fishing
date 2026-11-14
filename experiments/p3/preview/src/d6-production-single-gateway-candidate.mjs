@@ -16,6 +16,8 @@
  */
 import {D6_PUBLISH_INTAKE_ORIGIN as ORIGIN}
  from './d6-production-publish-intake.mjs';
+import {createD6Wp3PinnedWriteOrigin}
+ from './d6-production-wp3-origin-profile.mjs';
 
 const UUID='[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}';
 const OPERATIONS=new RegExp('^/api/v3/operations(?:/'+UUID+
@@ -49,6 +51,7 @@ export function createD6ProductionSingleGatewayCandidate({
  readGateway,operationRoute,mediaRoute,
  writeMountEnabled=()=>false,writeEnabled=()=>false,
  operationEnabled=()=>false,mediaEnabled=()=>false,
+ origin=ORIGIN,isolatedOriginEnabled=()=>false,
 }={}){
  if(typeof readGateway?.fetch!=='function'||
   typeof operationRoute?.serve!=='function'||
@@ -56,6 +59,9 @@ export function createD6ProductionSingleGatewayCandidate({
   [writeMountEnabled,writeEnabled,operationEnabled,mediaEnabled]
    .some(fn=>typeof fn!=='function'))
   throw Error('WP3 single-gateway composition unavailable');
+ const originGate=createD6Wp3PinnedWriteOrigin({
+  origin,isolatedEnabled:isolatedOriginEnabled,
+ });
 
  async function fetchRequest(request){
   if(!(request instanceof Request))return notFound();
@@ -67,10 +73,11 @@ export function createD6ProductionSingleGatewayCandidate({
   if(!operation&&!media)return readGateway.fetch(request);
   // Never leak owner authoring paths to the static Pages proxy or
   // read-only fallback, even when this candidate is not mounted.
-  if(writeMountEnabled()!==true||writeEnabled()!==true||
+  if(!originGate.enabled()||
+   writeMountEnabled()!==true||writeEnabled()!==true||
    (operation?operationEnabled():mediaEnabled())!==true)
    return notFound();
-  if(u.origin!==ORIGIN||u.username||u.password||u.search||u.hash||
+  if(u.origin!==origin||u.username||u.password||u.search||u.hash||
    request.method!=='POST'||request.headers.has('Authorization'))
    return notFound();
   if(operation&&!OPERATIONS.test(u.pathname)||

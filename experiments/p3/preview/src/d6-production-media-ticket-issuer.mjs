@@ -21,6 +21,8 @@ import {D6_MEDIA_TICKET_VERSION,D6_MEDIA_TICKET_TTL_SECONDS,
  d6CanonicalMediaTicketPayload}
  from './d6-production-media-ticket-verify.mjs';
 import {safePath} from '../../../../pwa/src/shared.mjs';
+import {createD6Wp3PinnedWriteOrigin}
+ from './d6-production-wp3-origin-profile.mjs';
 
 const REPO=D6_PUBLISH_REPOSITORY;
 const SHA=/^[a-f0-9]{40}$/,HASH=/^[a-f0-9]{64}$/;
@@ -112,17 +114,23 @@ function validProof(row,op,target,fence,now){
 export function createD6ProductionVerifiedMediaTicketIssuer({
  DB,session,loadAcceptedOperation,verifyCanonicalSource,
  secret,origin=D6_PUBLISH_INTAKE_ORIGIN,
+ isolatedOriginEnabled=()=>false,
  enabled=()=>false,now=()=>Math.floor(Date.now()/1000),
 }={}){
  need(DB?.prepare&&typeof session?.authorizeWrite==='function'&&
   [loadAcceptedOperation,verifyCanonicalSource,enabled,now]
    .every(x=>typeof x==='function')&&
-  origin===D6_PUBLISH_INTAKE_ORIGIN&&
+  typeof isolatedOriginEnabled==='function'&&
   typeof secret==='string'&&enc.encode(secret).length>=32,
   'INVALID_CONFIG');
+ let originGate;
+ try{originGate=createD6Wp3PinnedWriteOrigin({
+  origin,isolatedEnabled:isolatedOriginEnabled,
+ });}catch{deny('INVALID_CONFIG');}
  const key=crypto.subtle.importKey('raw',enc.encode(secret),
   {name:'HMAC',hash:'SHA-256'},false,['sign']);
- const active=()=>need(enabled()===true,'DISABLED');
+ const active=()=>need(enabled()===true&&
+  originGate.enabled(),'DISABLED');
  const read=async(sql,...args)=>{
   try{return await DB.prepare(sql).bind(...args).first();}
   catch{deny('STORE_UNAVAILABLE');}

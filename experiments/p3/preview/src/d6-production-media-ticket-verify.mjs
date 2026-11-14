@@ -12,6 +12,8 @@ import {validInlineNoteImagePath}
  from '../../../../pwa/src/handoff.mjs';
 import {D6_PUBLISH_INTAKE_ORIGIN,D6_PUBLISH_REPOSITORY}
  from './d6-production-publish-intake.mjs';
+import {createD6Wp3PinnedWriteOrigin}
+ from './d6-production-wp3-origin-profile.mjs';
 
 export const D6_MEDIA_TICKET_VERSION='fish-v3-media-ticket-v1';
 const VERSION=D6_MEDIA_TICKET_VERSION;
@@ -109,13 +111,18 @@ function signatureBytes(value){
  */
 export function createD6ProductionMediaTicketVerifier({
  origin=D6_PUBLISH_INTAKE_ORIGIN,secret,now=()=>Math.floor(Date.now()/1000),
+ isolatedOriginEnabled=()=>false,
 }={}){
- need(origin===D6_PUBLISH_INTAKE_ORIGIN&&
-  typeof secret==='string'&&enc.encode(secret).length>=32&&
+ let originGate;
+ try{originGate=createD6Wp3PinnedWriteOrigin({
+  origin,isolatedEnabled:isolatedOriginEnabled,
+ });}catch{need(false,'INVALID_CONFIG');}
+ need(typeof secret==='string'&&enc.encode(secret).length>=32&&
   typeof now==='function','INVALID_CONFIG');
  const key=crypto.subtle.importKey('raw',enc.encode(secret),
   {name:'HMAC',hash:'SHA-256'},false,['verify']);
  async function verifyTicket(ticket,{operation,allowExpired=false}={}){
+  need(originGate.enabled(),'DISABLED');
   need(allowExpired===false,'UNSAFE_EXPIRED_READ');
   const timestamp=now();
   need(Number.isSafeInteger(timestamp)&&timestamp>0,'INVALID_CLOCK');
