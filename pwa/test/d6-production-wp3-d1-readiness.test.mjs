@@ -9,6 +9,7 @@ const tables=[
  'd6_operation_receipts','d6_provider_step_fences',
  'd6_media_stage_verified','d6_atomic_tree_verified',
  'd6_publish_branch_verified','d6_publish_commit_verified',
+ 'd6_publish_tree_candidates',
  'd6_publish_commit_candidates','d6_publish_advance_verified',
  'd6_publish_pr_verified',
 ];
@@ -95,14 +96,14 @@ test('WP3-D1PLAN03 provisioned exact schema yields read-only readiness, never Li
  const x=fake();
  const result=await x.audit.inspect();
  assert.deepEqual(result,{
-  schemaReady:true,tableCount:9,
+  schemaReady:true,tableCount:10,
   receiptsUnique:true,activeRecordUnique:true,
   sourceOnly:true,canApply:false,
   writeAuthorized:false,canPublish:false,isLive:false,
   requiresSeparateOwnerApproval:true,
  });
- assert.equal(x.calls.length,12);
- assert.equal(x.calls.filter(x=>x.startsWith('PRAGMA table_info')).length,9);
+ assert.equal(x.calls.length,13);
+ assert.equal(x.calls.filter(x=>x.startsWith('PRAGMA table_info')).length,10);
  assert(x.calls.every(q=>q.startsWith('PRAGMA ')));
 });
 
@@ -147,5 +148,5 @@ test('WP3-D1PLAN08 no credentials, provider URLs, write flags or deployed bindin
   'INSERT INTO sessions','DELETE FROM sessions',
   'https://api.github.com','https://fishing.'])
   assert.equal(code.includes(secret),false);
- assert.equal(D6_WP3_D1_SCHEMA_PLAN.length,9);
+ assert.equal(D6_WP3_D1_SCHEMA_PLAN.length,10);
 });
