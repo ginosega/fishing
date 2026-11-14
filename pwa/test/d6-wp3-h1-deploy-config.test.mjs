@@ -52,7 +52,7 @@ test('WP3-H1DEPLOY02 no issuer secrets or credentials in config, all writer cont
 test('WP3-H1DEPLOY03 reject missing or swapped pins in checked config contract',async()=>{
  const c=await config();
  assert.equal(c.d1_databases.length,2);
- assert.equal(Object.keys(c.vars).length,22);
+ assert.equal(Object.keys(c.vars).length,23);
  const src=await fs.readFile(path.resolve(here,
   '../server/d6-wp3-h1-read-only-worker.mjs'),'utf8');
  assert(!/import [^\n]*(?:step-writer|publisher|write-token|write-composition)/i.test(src));
