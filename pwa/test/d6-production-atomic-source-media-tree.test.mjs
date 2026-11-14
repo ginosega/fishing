@@ -291,7 +291,12 @@ test('WP3-TEXT01 Gear add without picture emits one verified canonical JSON blob
  assert.equal(step.entryCount,1);
  assert.equal(step.mediaCount,0);
  assert.equal(step.body.tree.length,1);
- assert.equal(step.body.tree[0].content,x.jsonBody);
+ assert.equal(step.body.tree[0].content,result.entries[0].content);
+ const written=JSON.parse(step.body.tree[0].content);
+ assert.equal(written.items.length,1);
+ assert.deepEqual(written.items[0],{
+  id:'example-jig',category:'lures',type:'Jigs',name:'Example Jig',
+ });
  assert.equal(step.body.tree[0].sha,undefined);
  assert.equal(step.expectedEntries[0].sha,result.verifiedText[0].sha);
  assert.equal(result.canPublish,false);
