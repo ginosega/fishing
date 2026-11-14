@@ -111,6 +111,7 @@ test('WP3-ROUTE02 same-origin CSRF POST surface rejects foreign methods, path, q
   request(API,'{}',{headers:{'X-Fish-V3-Intent':'read'}}),
   request(API,'{}',{headers:{'Content-Type':'text/plain'}}),
   request(API,'{}',{method:'PUT'}),
+  request(API+'/'+ID+'/BEGIN'),
  ];
  for(const r of bad){
   const response=await x.route.serve(r);
@@ -216,8 +217,10 @@ test('WP3-ROUTE08 revoked write permission allows owner status but no mutation',
  const x=harness();
  x.state.writeEnabled=false;
  assert.equal((await x.route.serve(request(API+'/'+ID+'/begin'))).status,503);
+ assert.equal((await x.route.serve(request(API+'/'+ID+'/reconcile'))).status,503);
  assert.equal((await x.route.serve(request(API+'/'+ID+'/status'))).status,200);
  assert.equal(x.calls.begin,0);
+ assert.equal(x.calls.reconcile,0);
  assert.equal(x.calls.current,1);
  assert.equal(x.calls.main,0);
 });
