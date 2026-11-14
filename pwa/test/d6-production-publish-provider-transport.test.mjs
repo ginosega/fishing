@@ -24,7 +24,7 @@ const opts=(method='GET',payload)=>({
 const payloads=[
  ['/git/blobs','POST',{encoding:'base64',content:'AQIDBA=='}],
  ['/git/trees','POST',{base_tree:SHA,tree:[
-  {path:'Gear/gear.json',mode:'100644',type:'blob',sha:COMMIT}]}],
+  {path:'pwa/Gear/gear.json',mode:'100644',type:'blob',sha:COMMIT}]}],
  ['/git/commits','POST',{message:'Fishing Companion V3 content update '+ID,
   tree:TREE,parents:[SHA]}],
  ['/git/refs','POST',{ref:'refs/heads/'+REF,sha:SHA}],
