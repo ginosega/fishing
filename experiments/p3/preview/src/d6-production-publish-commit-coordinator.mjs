@@ -15,6 +15,8 @@
  * No D1 schema is installed and no real provider permissions are activated.
  */
 import {sha256} from '../../../../pwa/src/shared.mjs';
+import {readD6BoundedJson}
+ from './d6-bounded-json-response.mjs';
 import {describeD6AtomicTreeStep}
  from './d6-production-atomic-tree-step.mjs';
 import {describeD6PublishBranchStep}
@@ -231,13 +233,15 @@ async function boundedJson(response,url){
 }
 export function createD6ProductionPublishCommitCoordinator({
  DB,session,loadAcceptedOperation,atomicPlanner,verifyPrerequisite,
- issueWriteToken,issueReadToken,loadCandidateCommitHint,request,
+ issueWriteToken,issueReadToken,storeCandidateCommitHint,
+ loadCandidateCommitHint,request,
  enabled=()=>false,now=()=>Math.floor(Date.now()/1000),
 }={}){
  need(DB?.prepare&&typeof session?.authorizeWrite==='function'&&
   typeof atomicPlanner?.plan==='function'&&
   [loadAcceptedOperation,verifyPrerequisite,issueWriteToken,
-   issueReadToken,loadCandidateCommitHint,request,enabled,now]
+   issueReadToken,storeCandidateCommitHint,
+   loadCandidateCommitHint,request,enabled,now]
    .every(f=>typeof f==='function'),'INVALID_CONFIG');
  const active=()=>need(enabled()===true,'DISABLED');
  const read=async(sql,...args)=>{
@@ -339,16 +343,43 @@ export function createD6ProductionPublishCommitCoordinator({
    token=grant.token;
   }catch{return status(action);}
   active();await prerequisite(op,action);active();
-  try{await request(action.url,{
-   method:'POST',redirect:'manual',credentials:'omit',
-   cache:'no-store',headers:{
-    Authorization:'Bearer '+token,
-    Accept:'application/vnd.github+json',
-    'X-GitHub-Api-Version':'2026-03-10',
-    'Content-Type':'application/json',
-    'User-Agent':'fishing-d6-commit-source-only',
-   },body:JSON.stringify(action.body),
-  });}catch{return status(action,true);}
+  // The durable Unknown fence MUST exist before this sole provider POST.
+  // Even a valid 201 is only a candidate, never VerifiedCommit or Live.
+  try{
+   const created=await request(action.url,{
+    method:'POST',redirect:'manual',credentials:'omit',
+    cache:'no-store',headers:{
+     Authorization:'Bearer '+token,
+     Accept:'application/vnd.github+json',
+     'X-GitHub-Api-Version':'2026-03-10',
+     'Content-Type':'application/json',
+     'User-Agent':'fishing-d6-commit-source-only',
+    },body:JSON.stringify(action.body),
+   });
+   if(!(created instanceof Response)||created.status!==201||
+    created.redirected!==false||
+    (created.url&&created.url!==action.url)||
+    !/\bapplication\/(?:vnd\.github\+)?json\b/i.test(
+     created.headers.get('Content-Type')??''))
+    return status(action,true);
+   const result=await readD6BoundedJson(created,MAX_JSON);
+   if(!SHA.test(result?.sha??'')||result.sha===op.sourceRevision||
+    result.message!==action.body.message||
+    result.tree?.sha!==action.resultTreeSha||
+    !Array.isArray(result.parents)||result.parents.length!==1||
+    result.parents[0]?.sha!==op.sourceRevision)
+    return status(action,true);
+   await storeCandidateCommitHint({
+    operationId,repositoryId:REPO.id,ref:REPO.ref,
+    sourceRevision:op.sourceRevision,
+    requestSha256:action.requestSha256,
+    resultCommitSha:result.sha,
+   });
+  }catch{
+   // Lost/invalid provider response or lost D1 custody ack leaves Unknown.
+   // Reconcile only from an independently persisted candidate; never POST again.
+   return status(action,true);
+  }
   return status(action,true);
  }
  async function reconcile(authRequest,operationId){

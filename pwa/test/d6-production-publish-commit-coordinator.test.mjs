@@ -101,7 +101,8 @@ function memoryD1({lostFenceAck=false,lostProofAck=false,unavailable=false}={}){
 }
 async function setup({db=memoryD1(),domain='catches',enabled=true,
  owner=true,prerequisite='ok',tokenScope='ok',
- hint=true,gitCommit=remote(),networkError=false}={}){
+ hint=true,gitCommit=remote(),networkError=false,
+ custodyLostAck=false,createdReply=remote(),createdStatus=201}={}){
  const op=operation(domain),p=atomicPlan(domain);
  const stored={operation:op,package:{
   domain,operation:'add',id:'catch-example',
@@ -131,7 +132,8 @@ async function setup({db=memoryD1(),domain='catches',enabled=true,
   state:'Unknown',created_at:1800000002});
  db.treeProofs.push(tProof);db.branchProofs.push(bProof);
  const state={enabled,owner,prerequisite,tokenScope,hint,
-  gitCommit,networkError,auth:0,loads:0,plans:0,prechecks:0,
+  gitCommit,networkError,custodyLostAck,createdReply,createdStatus,
+  candidate:null,auth:0,loads:0,plans:0,prechecks:0,
   readTokens:0,writeTokens:0,requests:[]};
  const coordinator=createD6ProductionPublishCommitCoordinator({
   DB:db.DB,enabled:()=>state.enabled,now:()=>NOW,
@@ -175,18 +177,22 @@ async function setup({db=memoryD1(),domain='catches',enabled=true,
     token:'TEST-ONLY-COMMIT-READ-CREDENTIAL'}:{
     repositoryId:REPO.id,permissions:{contents:'write'},token:'bad'};
   },
-  loadCandidateCommitHint:async args=>{
-   if(!state.hint)return null;
-   return {provenance:'server-provider-result',operationId:args.operationId,
-    repositoryId:args.repositoryId,ref:args.ref,
-    sourceRevision:args.sourceRevision,
-    requestSha256:args.requestSha256,resultCommitSha:COMMIT};
+  storeCandidateCommitHint:async args=>{
+   if(!state.hint)throw Error('D1 commit candidate unavailable');
+   state.candidate={...args,provenance:'server-provider-result'};
+   if(state.custodyLostAck){
+    state.custodyLostAck=false;
+    throw Error('D1 response lost after durable insert');
+   }
+   return state.candidate;
   },
+  loadCandidateCommitHint:async()=>state.candidate,
   request:async(url,options)=>{
    state.requests.push({url,options,
     fencePresent:db.fences.some(r=>r.step_key==='commit')});
    if(state.networkError)throw Error('provider timeout');
-   if(options.method==='POST')return response({sha:COMMIT},201);
+   if(options.method==='POST')
+    return response(state.createdReply,state.createdStatus);
    return response(state.gitCommit??{message:'not found'},
     state.gitCommit?200:404);
   },
@@ -263,13 +269,12 @@ test('WP3-COMMIT05 lost D1 fence ack forbids any POST or replay',async()=>{
  assert.equal((await x.coordinator.attempt(request(),ID)).state,'Unknown');
  assert.equal(x.state.requests.length,0);
 });
-test('WP3-COMMIT06 provider uncertainty requires independent commit readback',async()=>{
+test('WP3-COMMIT06 lost provider ack with no stored SHA stays Unknown; no blind POST',async()=>{
  const x=await setup({networkError:true});
  assert.equal((await x.coordinator.attempt(request(),ID)).state,'Unknown');
  assert.equal(x.state.requests.length,1);
  x.state.networkError=false;
- const result=await x.coordinator.reconcile(request(),ID);
- assert.equal(result.verifiedCommit,true);
+ await denied(x.coordinator.reconcile(request(),ID),'COMMIT_SHA_UNKNOWN');
  assert.equal((await x.coordinator.attempt(request(),ID)).attemptedNow,false);
  assert.equal(x.state.requests.filter(r=>r.options.method==='POST').length,1);
 });
@@ -311,7 +316,7 @@ test('WP3-COMMIT10 bad token scope and corrupt durable receipt never prove commi
  const x=await setup({tokenScope:'bad'});
  assert.equal((await x.coordinator.attempt(request(),ID)).state,'Unknown');
  assert.equal(x.state.requests.length,0);
- await denied(x.coordinator.reconcile(request(),ID),'TOKEN_UNAVAILABLE');
+ await denied(x.coordinator.reconcile(request(),ID),'COMMIT_SHA_UNKNOWN');
  const good=await setup();
  await good.coordinator.attempt(request(),ID);
  await good.coordinator.reconcile(request(),ID);
@@ -337,4 +342,27 @@ test('WP3-COMMIT12 Gear and KB use the same immutable three-domain gate',async()
   assert.equal((await x.coordinator.reconcile(request(),ID)).verifiedCommit,true);
   assert.equal(x.state.requests.filter(r=>r.options.method==='POST').length,1);
  }
+});
+
+test('WP3-COMMIT13 invalid provider 201/202 cannot produce commit candidate',async()=>{
+ for(const variant of [
+  {createdReply:{sha:COMMIT},createdStatus:201},
+  {createdReply:{...remote(),message:'untrusted'},createdStatus:201},
+  {createdReply:remote(),createdStatus:202},
+  {createdReply:{...remote(),tree:{sha:MAIN}},createdStatus:201},
+ ]){
+  const x=await setup(variant);
+  const status=await x.coordinator.attempt(request(),ID);
+  assert.equal(status.state,'Unknown');
+  assert.equal(x.state.candidate,null);
+  await denied(x.coordinator.reconcile(request(),ID),'COMMIT_SHA_UNKNOWN');
+  assert.equal(x.state.requests.filter(r=>r.options.method==='POST').length,1);
+ }
+});
+test('WP3-COMMIT14 lost candidate D1 insert ack recovers through custody + independent GET',async()=>{
+ const x=await setup({custodyLostAck:true});
+ assert.equal((await x.coordinator.attempt(request(),ID)).state,'Unknown');
+ assert.equal(x.state.candidate.resultCommitSha,COMMIT);
+ assert.equal((await x.coordinator.reconcile(request(),ID)).verifiedCommit,true);
+ assert.equal(x.state.requests.filter(r=>r.options.method==='POST').length,1);
 });
