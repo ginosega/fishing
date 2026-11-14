@@ -55,8 +55,12 @@ function describe(url,method){
    GIT_TREE.test(relative)||GIT_BLOB.test(relative)||
    PR_DETAIL.test(relative)||relative==='/pulls'&&PR_LIST.test(u.search);
   need(valid,'URL_DENIED');
-  need((relative==='/pulls')===Boolean(u.search),
-   'URL_DENIED');
+  // #472 independent complete-tree proof and the canonical snapshot
+  // loader both require exact recursive immutable-tree reads. No other
+  // query is allowed; a browser cannot choose this GitHub URL.
+  const treeRecursive=GIT_TREE.test(relative)&&u.search==='?recursive=1';
+  need(relative==='/pulls'?PR_LIST.test(u.search):
+   treeRecursive||u.search==='','URL_DENIED');
  }else{
   const valid=method==='POST'&&
    ['/git/blobs','/git/trees','/git/commits','/git/refs','/pulls']

@@ -356,7 +356,7 @@ test('WP3-TEXT04 Catch Notes edit preserves existing inline image without restag
  const descriptor=await describeD6AtomicTreeStep({
   operation:x.operation,plan:result});
  assert.equal(descriptor.entryCount,1);
- assert.equal(descriptor.body.tree[0].path,original.notes);
+ assert.equal(descriptor.body.tree[0].path,'pwa/'+original.notes);
 });
 
 test('WP3-TEXT05 extraneous media tickets on a zero-media package fail before blobs',async()=>{

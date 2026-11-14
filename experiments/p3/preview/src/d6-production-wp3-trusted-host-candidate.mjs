@@ -67,6 +67,8 @@ import {createD6Wp3D1Readiness}
  from './d6-production-wp3-d1-readiness.mjs';
 import {createD6ProductionPublishSourcePrecondition}
  from './d6-production-publish-source-precondition.mjs';
+import {createD6Wp3CanonicalSourceTransport}
+ from './d6-production-wp3-canonical-source-transport.mjs';
 import {readD6BoundedJson}
  from './d6-bounded-json-response.mjs';
 
@@ -136,23 +138,9 @@ export function createD6ProductionWp3TrustedHostCandidate({
  const readiness=createD6Wp3D1Readiness({
   DB:env.WP3_DB,enabled:writesOn,
  });
- const guardedSourceRequest=async(url,opts)=>{
-  need(writesOn(),'WRITE_DISABLED');
-  let u;try{u=new URL(url);}catch{throw new D6Wp3HostError('READ_URL_DENIED');}
-  const repoGet=opts?.method==='GET'&&
-   (url===ROOT||url.startsWith(ROOT+'/'))&&
-   !u.search&&!u.hash;
-  const graphql=opts?.method==='POST'&&
-   url===API+'/graphql'&&
-   typeof opts.body==='string'&&opts.body.length<=16000&&
-   opts.body.startsWith('{"query":"query WP2VerifiedMarkdown ');
-  need(u.origin===API&&
-   (repoGet||graphql)&&opts?.redirect==='manual'&&
-   opts?.cache==='no-store'&&opts?.credentials==='omit'&&
-   /^Bearer [^\s]{20,}$/.test(opts?.headers?.Authorization??''),
-   'READ_URL_DENIED');
-  return network(url,opts);
- };
+ const guardedSourceRequest=createD6Wp3CanonicalSourceTransport({
+  upstream:network,enabled:writesOn,
+ }).request;
  function instantiate(){
   need(writesOn(),'WRITE_DISABLED');
   if(writers)return writers;

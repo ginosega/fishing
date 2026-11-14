@@ -134,7 +134,13 @@ export async function describeD6AtomicTreeStep({
   mediaCount++;
  }
  need(mediaCount===plan.mediaCount,'INCOMPLETE_ATOMIC_PLAN');
- const body={base_tree:plan.baseTreeSha,tree:entries};
+ // The canonical source loader verifies an immutable *repository root*
+ // commit tree, while authoring paths are relative to its pwa/ subtree.
+ // Git Data create-tree operates on the repository root: every entry MUST
+ // be prefixed exactly once before calculating the immutable fence digest.
+ // No caller may write a root-level Gear/KB/Catches file.
+ const body={base_tree:plan.baseTreeSha,
+  tree:entries.map(item=>({...item,path:'pwa/'+item.path}))};
  const stepKey='tree',method='POST';
  const requestSha256=await hex(JSON.stringify({
   operationId:op.operationId,ownerGitHubId:REPO.ownerGitHubId,
