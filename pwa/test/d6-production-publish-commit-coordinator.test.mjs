@@ -6,6 +6,8 @@ import {describeD6AtomicTreeStep}
  from '../../experiments/p3/preview/src/d6-production-atomic-tree-step.mjs';
 import {describeD6PublishBranchStep}
  from '../../experiments/p3/preview/src/d6-production-publish-branch-coordinator.mjs';
+import {createD6ProductionPublishProviderTransport}
+ from '../../experiments/p3/preview/src/d6-production-publish-provider-transport.mjs';
 import {createD6ProductionPublishCommitCoordinator,
  D6PublishCommitError,D6_PUBLISH_COMMIT_PROOF_SQL,
  describeD6PublishCommitStep}
@@ -102,7 +104,8 @@ function memoryD1({lostFenceAck=false,lostProofAck=false,unavailable=false}={}){
 async function setup({db=memoryD1(),domain='catches',enabled=true,
  owner=true,prerequisite='ok',tokenScope='ok',
  hint=true,gitCommit=remote(),networkError=false,
- custodyLostAck=false,createdReply=remote(),createdStatus=201}={}){
+ custodyLostAck=false,createdReply=remote(),createdStatus=201,
+ transportIntegrated=false}={}){
  const op=operation(domain),p=atomicPlan(domain);
  const stored={operation:op,package:{
   domain,operation:'add',id:'catch-example',
@@ -135,6 +138,18 @@ async function setup({db=memoryD1(),domain='catches',enabled=true,
   gitCommit,networkError,custodyLostAck,createdReply,createdStatus,
   candidate:null,auth:0,loads:0,plans:0,prechecks:0,
   readTokens:0,writeTokens:0,requests:[]};
+ const upstream=async(url,options)=>{
+  state.requests.push({url,options,
+   fencePresent:db.fences.some(r=>r.step_key==='commit')});
+  if(state.networkError)throw Error('provider timeout');
+  if(options.method==='POST')
+   return response(state.createdReply,state.createdStatus);
+  return response(state.gitCommit??{message:'not found'},
+   state.gitCommit?200:404);
+ };
+ const transport=createD6ProductionPublishProviderTransport({
+  upstream,enabled:()=>state.enabled,
+ });
  const coordinator=createD6ProductionPublishCommitCoordinator({
   DB:db.DB,enabled:()=>state.enabled,now:()=>NOW,
   session:{authorizeWrite:async r=>{
@@ -187,15 +202,7 @@ async function setup({db=memoryD1(),domain='catches',enabled=true,
    return state.candidate;
   },
   loadCandidateCommitHint:async()=>state.candidate,
-  request:async(url,options)=>{
-   state.requests.push({url,options,
-    fencePresent:db.fences.some(r=>r.step_key==='commit')});
-   if(state.networkError)throw Error('provider timeout');
-   if(options.method==='POST')
-    return response(state.createdReply,state.createdStatus);
-   return response(state.gitCommit??{message:'not found'},
-    state.gitCommit?200:404);
-  },
+  request:transportIntegrated?transport.request:upstream,
  });
  return {coordinator,db,stored,state,treeAction,branchAction,action};
 }
@@ -365,4 +372,21 @@ test('WP3-COMMIT14 lost candidate D1 insert ack recovers through custody + indep
  assert.equal(x.state.candidate.resultCommitSha,COMMIT);
  assert.equal((await x.coordinator.reconcile(request(),ID)).verifiedCommit,true);
  assert.equal(x.state.requests.filter(r=>r.options.method==='POST').length,1);
+});
+
+test('WP3-TRAN08: actual durable commit coordinator uses pinned provider transport',async()=>{
+ const x=await setup({transportIntegrated:true});
+ const attempted=await x.coordinator.attempt(request(),ID);
+ assert.equal(attempted.state,'Unknown');
+ assert.equal(attempted.isLive,false);
+ assert.equal(x.state.requests[0].fencePresent,true);
+ assert.equal(x.state.requests[0].options.method,'POST');
+ assert.equal(x.state.candidate.resultCommitSha,COMMIT);
+ const verified=await x.coordinator.reconcile(request(),ID);
+ assert.equal(verified.verifiedCommit,true);
+ assert.equal(verified.isLive,false);
+ assert.deepEqual(x.state.requests.map(v=>v.options.method),['POST','GET']);
+ assert.equal(x.state.requests.filter(v=>v.options.method==='POST').length,1);
+ assert.equal((await x.coordinator.attempt(request(),ID)).attemptedNow,false);
+ assert.equal(x.state.requests.filter(v=>v.options.method==='POST').length,1);
 });
