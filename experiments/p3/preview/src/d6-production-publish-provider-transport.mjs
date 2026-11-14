@@ -87,7 +87,40 @@ function body(urlPath,method,raw){
  }else if(urlPath==='/git/trees'){
   need(keys==='base_tree,tree'&&HEX40.test(data.base_tree??'')&&
    Array.isArray(data.tree)&&data.tree.length>0&&
+   data.tree.length<=32,'BODY_DENIED');
+  const seen=new Set();
+  for(const entry of data.tree){
+   need(own(entry)&&entry.mode==='100644'&&entry.type==='blob'&&
+    typeof entry.path==='string'&&
+    /^pwa\/(?:Gear|KB|Catches)\/[A-Za-z0-9._~! }else if(urlPath==='/git/trees'){
+  need(keys==='base_tree,tree'&&HEX40.test(data.base_tree??'')&&
+   Array.isArray(data.tree)&&data.tree.length>0&&
    data.tree.length<=400,'BODY_DENIED');
+ }else if(urlPath==='/git/refs'){'()+,;=:@%/-]+$/.test(entry.path)&&
+    !entry.path.includes('//')&&!entry.path.split('/').some(x=>
+     x==='.'||x==='..')&&!seen.has(entry.path.toLowerCase()),
+    'BODY_DENIED');
+   seen.add(entry.path.toLowerCase());
+   if(Object.hasOwn(entry,'content')){
+    // GitHub Git Trees requires content OR sha, never both. Only source
+    // JSON and Markdown may be generated inline; original images must
+    // arrive through the independent signed-media Git blob staging path.
+    need(Object.keys(entry).sort().join(',')===
+     'content,mode,path,type'&&
+     (entry.path.endsWith('.json')||
+      entry.path.endsWith('.md')&&
+      entry.path.includes('/content/'))&&
+     typeof entry.content==='string'&&
+     new TextEncoder().encode(entry.content).length>0&&
+     new TextEncoder().encode(entry.content).length<=131072,
+     'BODY_DENIED');
+   }else{
+    need(Object.keys(entry).sort().join(',')===
+     'mode,path,sha,type'&&
+     (entry.sha===null||HEX40.test(entry.sha??'')),
+     'BODY_DENIED');
+   }
+  }
  }else if(urlPath==='/git/refs'){
   need(keys==='ref,sha'&&REF.test(data.ref??'')&&
    HEX40.test(data.sha??''),'BODY_DENIED');
