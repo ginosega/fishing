@@ -19,6 +19,8 @@
  */
 import {DOMAIN,pathKey}
  from '../../../../pwa/src/shared.mjs';
+import {readD6BoundedJson}
+ from './d6-bounded-json-response.mjs';
 import {D6_PUBLISH_REPOSITORY}
  from './d6-production-publish-intake.mjs';
 
@@ -167,13 +169,16 @@ function outcome(row,claim,attemptedNow=false){
 }
 export function createD6ProductionAtomicTreeStep({
  DB,session,loadAcceptedOperation,atomicPlanner,verifyPrerequisite,
- issueWriteToken,request,enabled=()=>false,
+ issueWriteToken,request,
+ storeCandidateTreeHint=async()=>{throw Error('TREE_CUSTODY_DISABLED');},
+ enabled=()=>false,
  now=()=>Math.floor(Date.now()/1000),
 }={}){
  need(DB?.prepare&&typeof session?.authorizeWrite==='function'&&
   typeof atomicPlanner?.plan==='function'&&
   [loadAcceptedOperation,verifyPrerequisite,issueWriteToken,
-   request,enabled,now].every(f=>typeof f==='function'),
+   request,storeCandidateTreeHint,enabled,now]
+   .every(f=>typeof f==='function'),
   'INVALID_CONFIG');
  const active=()=>need(enabled()===true,'DISABLED');
  const read=async(id,key)=>{
@@ -264,7 +269,7 @@ export function createD6ProductionAtomicTreeStep({
   await prerequisite();
   active();
   try{
-   await request(URL,{
+   const created=await request(URL,{
     method:'POST',redirect:'manual',cache:'no-store',
     credentials:'omit',headers:{
      Authorization:'Bearer '+token,
@@ -273,6 +278,24 @@ export function createD6ProductionAtomicTreeStep({
      'Content-Type':'application/json',
      'User-Agent':'fishing-d6-atomic-tree-source',
     },body:JSON.stringify(claim.body),
+   });
+   // This is only a server-owned CANDIDATE, not VerifiedTree. An HTTP 201
+   // without an intact, bounded response is still sticky Unknown.
+   if(!(created instanceof Response)||created.status!==201||
+    created.redirected!==false||
+    (created.url&&created.url!==URL)||
+    !/\bapplication\/(?:vnd\.github\+)?json\b/i.test(
+     created.headers.get('Content-Type')??''))
+    return outcome(row,claim,true);
+   const candidate=await readD6BoundedJson(created,65536);
+   if(!SHA.test(candidate?.sha??'')||
+    candidate.sha===claim.baseTreeSha)
+    return outcome(row,claim,true);
+   await storeCandidateTreeHint({
+    operationId,repositoryId:REPO.id,ref:REPO.ref,
+    sourceRevision:op.sourceRevision,
+    requestSha256:claim.requestSha256,
+    resultTreeSha:candidate.sha,
    });
   }catch{return outcome(row,claim,true);}
   return outcome(row,claim,true);
