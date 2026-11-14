@@ -4,6 +4,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
 import {createHash} from 'node:crypto';
+import {DatabaseSync} from 'node:sqlite';
 import {fileURLToPath} from 'node:url';
 import {prepareD6Wp3H1Migrations}
  from '../tools/prepare-d6-wp3-h1-migrations.mjs';
@@ -82,4 +83,39 @@ test('WP3-H1SQL03 never overwrite, accept an unknown SHA or produce a Cloudflare
    destination:inside,sourceRevision:SHA,
   }),/outside the repository/);
  }
+});
+
+test('WP3-H1SQL04 exported SQL executes in isolated in-memory SQLite with two receipt uniqueness guards',async t=>{
+ const x=await fixture(t);
+ await prepareD6Wp3H1Migrations({destination:x.dest,sourceRevision:SHA});
+ const db=new DatabaseSync(':memory:');
+ try{
+  db.exec(await fs.readFile(path.join(x.dest,'auth.sql'),'utf8'));
+  db.exec(await fs.readFile(path.join(x.dest,'operations.sql'),'utf8'));
+  const authNames=db.prepare(
+   "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name IN ('auth_flows','sessions') ORDER BY name"
+  ).all().map(x=>x.name);
+  assert.deepEqual(authNames,['auth_flows','sessions']);
+  const opsNames=db.prepare(
+   "SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'd6_%' ORDER BY name"
+  ).all().map(x=>x.name);
+  assert.deepEqual(opsNames,D6_WP3_D1_SCHEMA_PLAN.map(x=>x.table).sort());
+  for(const entry of D6_WP3_D1_SCHEMA_PLAN){
+   const columns=db.prepare('PRAGMA table_info("'+entry.table+'")')
+    .all().map(x=>({name:x.name,type:x.type}));
+   assert.deepEqual(columns,entry.columns,entry.table);
+  }
+  const idx=db.prepare('PRAGMA index_list("d6_operation_receipts")').all();
+  let idempotency=false,active=false;
+  for(const i of idx.filter(x=>x.unique===1)){
+   const fields=db.prepare('PRAGMA index_info("'+i.name+'")').all()
+    .map(x=>x.name).join(',');
+   if(fields==='owner_github_id,idempotency_key'&&i.partial===0)
+    idempotency=true;
+   if(i.name==='d6_operation_active_record'&&i.partial===1&&
+    fields==='owner_github_id,domain,record_id')active=true;
+  }
+  assert(idempotency,'must have unique owner+idempotency');
+  assert(active,'must have partial active-record uniqueness');
+ }finally{db.close();}
 });
