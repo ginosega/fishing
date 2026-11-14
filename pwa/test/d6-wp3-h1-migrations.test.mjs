@@ -33,7 +33,7 @@ test('WP3-H1SQL01 only two AUTH-P0 and ten source-owned operation tables',async 
  assert.equal(report.targetOperationsDb,'fishing-v3-wp3-operations-test');
  assert.equal(report.auth.tables.length,2);
  assert.equal(report.operations.tables.length,10);
- const names=await fs.readdir(x.dest);
+ const names=(await fs.readdir(x.dest)).sort();
  assert.deepEqual(names,['auth.sql','manifest.json','operations.sql']);
  const auth=await fs.readFile(path.join(x.dest,'auth.sql'),'utf8');
  const op=await fs.readFile(path.join(x.dest,'operations.sql'),'utf8');
