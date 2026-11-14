@@ -9,6 +9,8 @@ export const D6_READER_ORIGIN='https://fishing.ginosega.workers.dev';
 export const D6_STATIC_STAGING_ORIGIN='https://fishing-d6-static-test.ginosega.workers.dev';
 // Dedicated WP2 test host, distinct from the accepted Stage A static Worker.
 export const D6_WP2_STAGING_ORIGIN='https://fishing-d6-wp2-test.ginosega.workers.dev';
+// Proposed dedicated WP3 owner-write host; not a deployed/approved route.
+export const D6_WP3_STAGING_ORIGIN='https://fishing-v3-wp3-test.ginosega.workers.dev';
 
 export function selectD6PublicReader({
  enabled=false,staticStaging=false,wp2Staging=false,root,release,manifest,
