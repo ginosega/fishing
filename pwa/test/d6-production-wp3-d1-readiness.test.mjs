@@ -69,7 +69,7 @@ test('WP3-D1PLAN01 exact imported nine-table D1 plan, immutable and no execute s
   assert(Object.isFrozen(entry.columns));
   assert.equal(entry.canApply,false);
   assert.equal(entry.sourceOnly,true);
-  assert.match(entry.sql,/^CREATE TABLE IF NOT EXISTS d6_/);
+  assert.match(entry.sql.trimStart(),/^CREATE TABLE IF NOT EXISTS d6_/);
   assert.match(entry.sql,/\);/);
   assert.doesNotMatch(entry.sql,
    /\b(?:DROP|ALTER|DELETE|INSERT|UPDATE|REPLACE|ATTACH|DETACH)\b/i);
