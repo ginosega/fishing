@@ -43,8 +43,10 @@ const protectedOrOverlapping=(input,output,protectedPath)=>
 
 export async function packageD6StaticPages({source,destination,verifyRelease=verify,
  mode='static'}={}){
- if(!['static','owner-read-only'].includes(mode))deny('unknown package mode');
- const owner=mode==='owner-read-only';
+ if(!['static','owner-read-only','wp3-owner-preview'].includes(mode))
+  deny('unknown package mode');
+ const wp3=mode==='wp3-owner-preview';
+ const owner=mode==='owner-read-only'||wp3;
  if(typeof source!=='string'||!source||typeof destination!=='string'||!destination)
   deny('explicit source and destination are required');
  if(typeof verifyRelease!=='function')deny('release verifier unavailable');
@@ -66,7 +68,9 @@ export async function packageD6StaticPages({source,destination,verifyRelease=ver
     pointer.d6ReaderCandidate!==true||
     (owner?pointer.d6StaticStaging===true:pointer.d6StaticStaging!==true)||
     (pointer.d6OwnerConnectionCandidate===true)!==owner||
-    pointer.d6OwnerEditorPreview===true||
+    (pointer.d6OwnerEditorPreview===true)!==wp3||
+    (pointer.d6Wp3Staging===true)!==wp3||
+    (wp3&&pointer.d6Wp2Staging===true)||
     pointer.pendingMedia!==false||
     pointer.manifest!=='releases/'+pointer.id+'/manifest.json')
   deny('unapproved staging release pointer');
@@ -76,7 +80,9 @@ export async function packageD6StaticPages({source,destination,verifyRelease=ver
     manifest.d6ReaderCandidate!==true||
     (owner?manifest.d6StaticStaging===true:manifest.d6StaticStaging!==true)||
     (manifest.d6OwnerConnectionCandidate===true)!==owner||
-    manifest.d6OwnerEditorPreview===true||
+    (manifest.d6OwnerEditorPreview===true)!==wp3||
+    (manifest.d6Wp3Staging===true)!==wp3||
+    (wp3&&manifest.d6Wp2Staging===true)||
     manifest.pendingMedia!==false||manifest.base!=='/fishing/')
   deny('unapproved staging manifest or /fishing/ base');
  // Full canonical content/manifest and every file hash are checked here.
@@ -121,10 +127,10 @@ if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.ur
  const output=args.find(x=>x.startsWith('--out='))?.slice(6);
  const mode=args.find(x=>x.startsWith('--mode='))?.slice(7)||'static';
  if(args.length!==(mode==='static'?2:3)||!input||!output||
-    !['static','owner-read-only'].includes(mode)||args.some(x=>
+    !['static','owner-read-only','wp3-owner-preview'].includes(mode)||args.some(x=>
     !x.startsWith('--in=')&&!x.startsWith('--out=')&&
     !x.startsWith('--mode='))){
-  console.error('Usage: node tools/package-d6-static-pages.mjs --in=<verified-dist> --out=<isolated-upload-dir> [--mode=owner-read-only]');
+  console.error('Usage: node tools/package-d6-static-pages.mjs --in=<verified-dist> --out=<isolated-upload-dir> [--mode=owner-read-only|wp3-owner-preview]');
   process.exitCode=1;
  }else packageD6StaticPages({source:input,destination:output,mode})
   .then(x=>console.log(JSON.stringify(x,null,2)))
