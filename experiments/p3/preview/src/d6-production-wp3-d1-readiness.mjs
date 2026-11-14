@@ -60,7 +60,7 @@ const need=(ok,code)=>{if(!ok)deny(code);};
 
 function definition(table,sql){
  need(NAME.test(table)&&typeof sql==='string'&&
-  sql.startsWith('CREATE TABLE IF NOT EXISTS '+table+' (')&&
+  sql.trimStart().startsWith('CREATE TABLE IF NOT EXISTS '+table+' (')&&
   !/\b(?:DROP|ALTER|DELETE|INSERT|UPDATE|REPLACE|ATTACH|DETACH)\b/i.test(sql),
   'UNTRUSTED_SCHEMA_SOURCE');
  const columns=extractColumns(sql),names=columns.map(x=>x.name);
