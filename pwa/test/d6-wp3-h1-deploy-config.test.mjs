@@ -55,7 +55,11 @@ test('WP3-H1DEPLOY03 reject missing or swapped pins in checked config contract',
  assert.equal(Object.keys(c.vars).length,23);
  const src=await fs.readFile(path.resolve(here,
   '../server/d6-wp3-h1-read-only-worker.mjs'),'utf8');
- assert(!/import [^\n]*(?:step-writer|publisher|write-token|write-composition)/i.test(src));
+ const importPaths=[...src.matchAll(/\bfrom\s+['"]([^'"]+)['"]/g)].map(x=>x[1]);
+ assert(importPaths.length>0);
+ for(const imported of importPaths)
+  assert(!/(?:step-writer|publisher|write-token|write-composition)/i.test(imported),
+   'forbidden writer dependency: '+imported);
  assert.match(src,/writeFlags\.every\(name=>env\[name\]!=='true'\)/);
  assert.match(src,/if\(writePath\(url.pathname\)\)return missing\(\)/);
 });
