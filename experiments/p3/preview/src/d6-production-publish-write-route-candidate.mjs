@@ -21,7 +21,8 @@ import {D6_PUBLISH_REPOSITORY as REPO,
 const API='/api/v3/operations';
 const SHA=/^[a-f0-9]{40}$/;
 const ID='[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}';
-const PATH=new RegExp('^'+API+'/('+ID+')/(status|begin|reconcile)$','i');
+const PATH=new RegExp('^'+API+'/('+ID+')/(status|begin|reconcile)$');
+const OP_ID=new RegExp('^'+ID+'$');
 const HEADERS=Object.freeze({
  'Content-Type':'application/json; charset=utf-8',
  'Cache-Control':'private, no-store, max-age=0',
@@ -39,7 +40,7 @@ const missing=()=>reply(404,{ok:false,error:'NOT_FOUND'});
 const denied=()=>reply(403,{ok:false,error:'OWNER_DENIED'});
 
 function operation(receipt){
- if(!receipt||!/^([0-9a-f-]{36})$/i.test(receipt.operationId??'')||
+ if(!receipt||!OP_ID.test(receipt.operationId??'')||
   !['Accepted','Unknown'].includes(receipt.status)||
   receipt.sourceOnly!==true||receipt.isLive!==false||
   receipt.canPublish!==false||
@@ -54,12 +55,12 @@ function operation(receipt){
 }
 const STEPS=['tree','branch','commit','advance','pr'];
 function state(data){
- if(!data||!/^([0-9a-f-]{36})$/i.test(data.operationId??'')||
+ if(!data||!OP_ID.test(data.operationId??'')||
   !['AwaitingAuthorizedWrite','ReconciliationRequired',
    'VerifiedPr'].includes(data.state)||
   !SHA.test(data.sourceRevision??'')||
   data.sourceOnly!==true||data.canPublish!==false||
-  data.isLive!==false||
+  data.isLive!==false||data.requiresHostedReleaseProof!==true||
   !Array.isArray(data.verifiedSteps)||
   !data.verifiedSteps.every((x,i)=>STEPS[i]===x))
   throw Error('unverified lifecycle state');
@@ -143,8 +144,8 @@ export function createD6ProductionPublishWriteRouteCandidate({
   try{raw=await request.text();}catch{return missing();}
   if(raw!=='{}')return missing();
   const operationId=match[1].toLowerCase(),action=match[2];
-  if(action==='begin'&&writeEnabled()!==true)return unavailable();
-  if(enabled()!==true||action==='begin'&&writeEnabled()!==true)
+  if(action!=='status'&&writeEnabled()!==true)return unavailable();
+  if(enabled()!==true||action!=='status'&&writeEnabled()!==true)
    return unavailable();
   try{
    const value=action==='status'?
