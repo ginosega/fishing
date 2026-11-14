@@ -49,7 +49,7 @@ const hex=async bytes=>[...new Uint8Array(
 const enc=new TextEncoder();
 async function inlineGitSha(body){
  const bytes=enc.encode(body);
- const head=enc.encode('blob '+bytes.length+'\\0');
+ const head=enc.encode('blob '+bytes.length+String.fromCharCode(0));
  const tagged=new Uint8Array(head.length+bytes.length);
  tagged.set(head);tagged.set(bytes,head.length);
  return [...new Uint8Array(await crypto.subtle.digest('SHA-1',tagged))]
