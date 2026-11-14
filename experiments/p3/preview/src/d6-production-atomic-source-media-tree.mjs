@@ -5,8 +5,9 @@
  * from trusted, current main source and a canonical Accepted owner operation.
  * Re-runs source promotion, conflict/record/Markdown validation, canonical
  * media ownership, conditional signed-ticket verification and independent Git
- * blob reads. Verifies that each needed JSON/Markdown Git blob already exists
- * with exactly the expected bytes BEFORE listing any complete tree entries.
+ * blob reads for original images. For canonical JSON/Markdown, computes
+ * each UTF-8 Git blob SHA locally and binds exact inline content to ONE
+ * fenced Git create-tree request; GitHub creates the text blobs atomically.
  *
  * No GitHub write, D1 lifecycle transition, staged-media issuer, Worker route,
  * credential provisioning, merge, deployment or Live acknowledgment.
@@ -77,31 +78,17 @@ function validOperation(op,pkg){
   op.sourceRevision===pkg.base?.sourceRevision,
   'UNTRUSTED_OPERATION');
 }
-async function verifyTextBlob(readGitBlob,path,body){
- need(typeof body==='string'&&
-  enc.encode(body).length>0&&enc.encode(body).length<=TEXT_MAX,
-  'TEXT_TOO_LARGE');
- const bytes=enc.encode(body),sha=await gitBlobSha(bytes);
- let blob;
- try{blob=await readGitBlob({
-  repositoryId:REPO.id,repositoryFullName:REPO.name,blobSha:sha,
- });}catch{deny('TEXT_BLOB_READ_UNKNOWN');}
- need(plain(blob)&&blob.sha===sha&&
-  blob.encoding==='base64'&&blob.size===bytes.length&&
-  typeof blob.content==='string'&&
-  blob.content.length>0&&blob.content.length<=2*TEXT_MAX,
-  'TEXT_BLOB_UNVERIFIED');
- const content=blob.content.replace(/[\r\n]/g,'');
- need(content.length%4===0&&
-  /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/
-   .test(content),'TEXT_BLOB_UNVERIFIED');
- let decoded;
- try{decoded=Uint8Array.from(atob(content),x=>x.charCodeAt(0));}
- catch{deny('TEXT_BLOB_UNVERIFIED');}
- need(decoded.length===bytes.length&&decoded.every((v,i)=>v===bytes[i])&&
-  await gitBlobSha(decoded)===sha,'TEXT_BLOB_UNVERIFIED');
- return Object.freeze({path,sha,bytes:bytes.length});
+async function proveInlineText(path,body){
+ // No Git blob exists yet for a novel change. GitHub Git Trees accepts
+ // `content` instead of `sha`, never both. Independently calculate the
+ // Git blob SHA over the exact UTF-8 bytes for later immutable tree proof.
+ need(typeof body==='string','TEXT_TOO_LARGE');
+ const bytes=enc.encode(body);
+ need(bytes.length>0&&bytes.length<=131072,'TEXT_TOO_LARGE');
+ return Object.freeze({path,sha:await gitBlobSha(bytes),
+  bytes:bytes.length,content:body});
 }
+
 function changedRecordOnly(sourceData,next,domain,id,action){
  const array=DOMAIN[domain].array;
  for(const d of Object.keys(DOMAIN)){
@@ -124,16 +111,20 @@ const pathAllowed=(p,domain,id)=>{
   return p.startsWith(root)&&p.includes('/content/')&&p.endsWith('.md');
  }catch{return false;}
 };
-function writeEntry(entries,path,sha){
+function writeEntry(entries,path,sha,content){
  need(typeof path==='string'&&safePath(path)===path&&
-  (sha===null||SHA.test(sha??'')),'INVALID_TREE_ENTRY');
+  (sha===null||SHA.test(sha??''))&&
+  (content===undefined||typeof content==='string'&&
+   content.length>0),'INVALID_TREE_ENTRY');
  const k=pathKey(path);
  need(!entries.has(k),'DUPLICATE_TREE_PATH');
- entries.set(k,Object.freeze({path,mode:'100644',type:'blob',sha}));
+ entries.set(k,Object.freeze({path,mode:'100644',type:'blob',sha,
+  ...(content===undefined?{}:{content})}));
 }
 /**
  * "readGitBlob" MUST be the trusted server-only immutable Git Data GET
- * provider, shared for original media and changed text. The resulting plan
+ * provider for separately staged ORIGINAL media; new JSON/Markdown text
+ * is bound as inline content to the single durable-fenced Git tree POST. The resulting plan
  * can only be passed to a separately authorized, durable-fenced writer.
  */
 export function createD6ProductionAtomicSourceMediaTree({
@@ -285,8 +276,9 @@ export function createD6ProductionAtomicSourceMediaTree({
    ...(canonicalJsonUnchanged?[]:[{path:jsonPath,body:jsonBody}]),
    ...narrativeOps.filter(x=>!x.remove)];
   for(const item of textWrites){
-   const p=await verifyTextBlob(readGitBlob,item.path,item.body);
-   textProofs.push(p);writeEntry(entries,p.path,p.sha);
+   const p=await proveInlineText(item.path,item.body);
+   textProofs.push(Object.freeze({path:p.path,sha:p.sha,bytes:p.bytes}));
+   writeEntry(entries,p.path,p.sha,p.content);
   }
   for(const item of narrativeOps.filter(x=>x.remove))
    writeEntry(entries,item.path,null);
