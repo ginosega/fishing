@@ -200,9 +200,9 @@ test('WP3-ATOM05 new JSON/Markdown absent from GitHub are generated inline',asyn
 });
 
 test('WP3-ATOM05B changing inline text after hashing is rejected',async()=>{
- const x=await setup(),plan=await x.tree.plan(x.input);
- plan.entries=plan.entries.map(e=>e.content===undefined?
-  e:{...e,content:e.content+'tampered'});
+ const x=await setup(),original=await x.tree.plan(x.input);
+ const plan={...original,entries:original.entries.map(e=>
+  e.content===undefined?e:{...e,content:e.content+'tampered'})};
  await assert.rejects(describeD6AtomicTreeStep({
   operation:x.operation,plan,
  }),e=>e.code==='INLINE_TEXT_MISMATCH');
