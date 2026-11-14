@@ -123,9 +123,10 @@ export function createD6ProductionVerifiedMediaTicketIssuer({
   typeof isolatedOriginEnabled==='function'&&
   typeof secret==='string'&&enc.encode(secret).length>=32,
   'INVALID_CONFIG');
- const originGate=createD6Wp3PinnedWriteOrigin({
+ let originGate;
+ try{originGate=createD6Wp3PinnedWriteOrigin({
   origin,isolatedEnabled:isolatedOriginEnabled,
- });
+ });}catch{deny('INVALID_CONFIG');}
  const key=crypto.subtle.importKey('raw',enc.encode(secret),
   {name:'HMAC',hash:'SHA-256'},false,['sign']);
  const active=()=>need(enabled()===true&&
