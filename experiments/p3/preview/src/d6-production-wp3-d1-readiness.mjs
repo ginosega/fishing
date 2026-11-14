@@ -26,6 +26,8 @@ import {D6_PUBLISH_BRANCH_PROOF_SQL}
  from './d6-production-publish-branch-coordinator.mjs';
 import {D6_PUBLISH_COMMIT_PROOF_SQL}
  from './d6-production-publish-commit-coordinator.mjs';
+import {D6_PUBLISH_TREE_CANDIDATE_SQL}
+ from './d6-production-tree-candidate-custody.mjs';
 import {D6_PUBLISH_COMMIT_CANDIDATE_SQL}
  from './d6-production-commit-candidate-custody.mjs';
 import {D6_PUBLISH_ADVANCE_PROOF_SQL}
@@ -40,6 +42,7 @@ const DEFINITIONS=[
  ['d6_atomic_tree_verified',D6_ATOMIC_TREE_PROOF_SQL],
  ['d6_publish_branch_verified',D6_PUBLISH_BRANCH_PROOF_SQL],
  ['d6_publish_commit_verified',D6_PUBLISH_COMMIT_PROOF_SQL],
+ ['d6_publish_tree_candidates',D6_PUBLISH_TREE_CANDIDATE_SQL],
  ['d6_publish_commit_candidates',D6_PUBLISH_COMMIT_CANDIDATE_SQL],
  ['d6_publish_advance_verified',D6_PUBLISH_ADVANCE_PROOF_SQL],
  ['d6_publish_pr_verified',D6_PUBLISH_PR_PROOF_SQL],
