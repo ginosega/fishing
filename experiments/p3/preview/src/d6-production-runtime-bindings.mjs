@@ -11,9 +11,10 @@
  */
 import {createD6ProductionOAuthReadComposition}
  from './d6-production-oauth-read-composition.mjs';
-import {D6_GITHUB_PAGES_BASE,D6_ISOLATED_PAGES_BASE}
+import {D6_GITHUB_PAGES_BASE,D6_ISOLATED_PAGES_BASE,
+ D6_WP3_ISOLATED_PAGES_BASE}
  from '../../../../pwa/server/d6-pages-path-gateway.mjs';
-import {D6_WP2_STAGING_ORIGIN}
+import {D6_WP2_STAGING_ORIGIN,D6_WP3_STAGING_ORIGIN}
  from '../../../../pwa/src/d6-public-reader.mjs';
 
 const ORIGIN='https://fishing.ginosega.workers.dev';
@@ -52,14 +53,24 @@ export function createD6ProductionRuntimeBindingContract({
   throw Error('D6 runtime binding configuration denied');
  // Only two immutable trust profiles. Staging credentials/cookies must not
  // accidentally be accepted on the future public production hostname.
- const stagingMode=env.D6_WP2_STAGING_ENABLED==='true';
- const origin=stagingMode?D6_WP2_STAGING_ORIGIN:ORIGIN;
- const isolated=env.D6_ISOLATED_PAGES_ENABLED==='true';
+ // The new WP3 owner-read profile is distinct from the field-accepted
+ // read-only WP2 profile. Neither can silently impersonate the other.
+ const wp2Mode=env.D6_WP2_STAGING_ENABLED==='true';
+ const wp3Mode=env.D6_WP3_ISOLATED_READ_ENABLED==='true';
+ const stagingMode=wp2Mode||wp3Mode;
+ const origin=wp3Mode?D6_WP3_STAGING_ORIGIN:
+  wp2Mode?D6_WP2_STAGING_ORIGIN:ORIGIN;
+ const wp2Pages=env.D6_ISOLATED_PAGES_ENABLED==='true';
+ const wp3Pages=env.D6_WP3_ISOLATED_PAGES_ENABLED==='true';
+ const matchedPages=wp3Mode?!wp2Pages&&wp3Pages:
+  wp2Mode?wp2Pages&&!wp3Pages:!wp2Pages&&!wp3Pages;
  const globalOn=env.D6_PRODUCTION_ENABLED==='true'&&
    env.D6_ORIGIN===origin&&
    env.D6_OWNER_GITHUB_ID===OWNER&&
    env.D6_REPOSITORY_ID===REPO&&
-   (stagingMode?isolated:!isolated);
+   !(wp2Mode&&wp3Mode)&&
+   matchedPages&&
+   (!wp3Mode||env.D6_WP3_READ_PROFILE_ENABLED==='true');
  const gatewayEnabled=globalOn&&env.D6_GATEWAY_ENABLED==='true';
  const flag=name=>gatewayEnabled&&env[name]==='true';
  const staticEnabled=flag('D6_STATIC_ENABLED');
@@ -72,8 +83,8 @@ export function createD6ProductionRuntimeBindingContract({
  const preflightEnabled=flag('D6_HOSTED_PREFLIGHT_ENABLED');
  // Only a trusted server-side exact-string flag can select D6 Stage A Pages.
  // Never derive the upstream from a browser-supplied URL or header.
- const pagesBase=stagingMode?
-  D6_ISOLATED_PAGES_BASE:D6_GITHUB_PAGES_BASE;
+ const pagesBase=wp3Mode?D6_WP3_ISOLATED_PAGES_BASE:
+  wp2Mode?D6_ISOLATED_PAGES_BASE:D6_GITHUB_PAGES_BASE;
  const readTarget=API+'/repos/ginosega/fishing/installation';
  const installation=num(env.D6_GITHUB_INSTALLATION_ID)?
   API+'/app/installations/'+env.D6_GITHUB_INSTALLATION_ID:null;
