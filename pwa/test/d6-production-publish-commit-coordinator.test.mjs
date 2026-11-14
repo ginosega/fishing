@@ -316,7 +316,7 @@ test('WP3-COMMIT10 bad token scope and corrupt durable receipt never prove commi
  const x=await setup({tokenScope:'bad'});
  assert.equal((await x.coordinator.attempt(request(),ID)).state,'Unknown');
  assert.equal(x.state.requests.length,0);
- await denied(x.coordinator.reconcile(request(),ID),'TOKEN_UNAVAILABLE');
+ await denied(x.coordinator.reconcile(request(),ID),'COMMIT_SHA_UNKNOWN');
  const good=await setup();
  await good.coordinator.attempt(request(),ID);
  await good.coordinator.reconcile(request(),ID);
