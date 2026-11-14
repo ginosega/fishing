@@ -80,6 +80,6 @@ test('WP3-H1SQL03 never overwrite, accept an unknown SHA or produce a Cloudflare
  for(const inside of [root,path.join(root,'pwa/dist-wp3-demo')]){
   await assert.rejects(prepareD6Wp3H1Migrations({
    destination:inside,sourceRevision:SHA,
-  }),/inside the repository/);
+  }),/outside the repository/);
  }
 });
