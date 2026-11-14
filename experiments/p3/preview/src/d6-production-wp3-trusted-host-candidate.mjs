@@ -7,11 +7,11 @@
  * reader, original-media staging/ticket verifier, #496 provider step wiring,
  * #494 one-step publisher, and #493 single same-origin gateway.
  *
- * Only the exact canonical-production profile is eligible for source-level
- * write tests. The existing WP2 isolated staging profile REMAINS READ ONLY;
- * its different origin is not silently retargeted to production credentials.
- * A separately owner-approved isolated-origin security design and hosted
- * acceptance remain outstanding. Importing this file cannot mount a Worker.
+ * Source-only isolated WP3 host composition now shares the original OAuth/
+ * read pipeline with the existing D2 owner+CSRF and provider publisher.
+ * Public production is unchanged; WP2 remains read-only. The proposed WP3
+ * profile has extra, independently OFF read/write capability gates.
+ * No Worker entrypoint, hosted configuration or provisioned credential here.
  */
 import {D6_PUBLISH_INTAKE_ORIGIN as ORIGIN,
  D6_PUBLISH_REPOSITORY as REPO,
@@ -71,6 +71,8 @@ import {createD6Wp3CanonicalSourceTransport}
  from './d6-production-wp3-canonical-source-transport.mjs';
 import {readD6BoundedJson}
  from './d6-bounded-json-response.mjs';
+import {D6_WP3_PROPOSED_ISOLATED_ORIGIN as ISOLATED_ORIGIN}
+ from './d6-production-wp3-origin-profile.mjs';
 
 const API='https://api.github.com',ROOT=API+'/repos/'+REPO.name;
 const UUID='[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[a-f0-9]{12}';
@@ -88,9 +90,9 @@ export class D6Wp3HostError extends Error{
   this.name='D6Wp3HostError';this.code=code;}
 }
 const need=(ok,code)=>{if(!ok)throw new D6Wp3HostError(code);};
-const allowedOrigin=req=>{
+const allowedOrigin=(req,origin)=>{
  let url;try{url=new URL(req.url);}catch{return false;}
- return url.origin===ORIGIN&&!url.search&&!url.hash&&
+ return url.origin===origin&&!url.search&&!url.hash&&
   !url.username&&!url.password&&!req.headers.has('Authorization');
 };
 const isWritePath=path=>OPERATIONS.test(path)||MEDIA.has(path);
@@ -104,16 +106,36 @@ export function createD6ProductionWp3TrustedHostCandidate({
  need(env&&typeof env==='object'&&
   [network,now,ownerApproval,authorizeStep].every(x=>typeof x==='function'),
   'INVALID_CONFIG');
- // Do not share the read-only WP2 capability flag with write activation.
- // The immutable hostname + owner/repo and non-staging profile are required
- // before a WP3 write surface can be considered.
+ // The source-level host's origin comes ONLY from trusted server bindings.
+ // No client request, URL header, cookie or repository content selects it.
+ const isolatedSelected=env.D6_ORIGIN===ISOLATED_ORIGIN;
+ const selectedOrigin=isolatedSelected?ISOLATED_ORIGIN:ORIGIN;
+ const noWp2=()=>env.D6_WP2_STAGING_ENABLED!=='true'&&
+  env.D6_ISOLATED_PAGES_ENABLED!=='true';
+ const productionProfile=()=>env.D6_ORIGIN===ORIGIN&&noWp2()&&
+  env.D6_WP3_ISOLATED_READ_ENABLED!=='true'&&
+  env.D6_WP3_ISOLATED_PAGES_ENABLED!=='true'&&
+  env.D6_WP3_READ_PROFILE_ENABLED!=='true'&&
+  env.D6_WP3_ISOLATED_WRITE_PROFILE_ENABLED!=='true';
+ const isolatedProfile=()=>isolatedSelected&&noWp2()&&
+  env.D6_WP3_ISOLATED_READ_ENABLED==='true'&&
+  env.D6_WP3_ISOLATED_PAGES_ENABLED==='true'&&
+  env.D6_WP3_READ_PROFILE_ENABLED==='true'&&
+  env.D6_WP3_ISOLATED_WRITE_PROFILE_ENABLED==='true'&&
+  // A writable host also needs the dedicated read-only OAuth/source side.
+  // This is not proof of hosted OAuth, immutable Pages bytes or credentials.
+  env.D6_STATIC_ENABLED==='true'&&
+  env.D6_OAUTH_ENABLED==='true'&&
+  env.D6_SESSION_ENABLED==='true'&&
+  env.D6_SOURCE_ENABLED==='true'&&
+  env.D6_READ_TOKEN_ENABLED==='true'&&
+  env.D6_SIGNER_ENABLED==='true';
  const profile=()=>env.D6_PRODUCTION_ENABLED==='true'&&
   env.D6_GATEWAY_ENABLED==='true'&&
-  env.D6_ORIGIN===ORIGIN&&
   env.D6_OWNER_GITHUB_ID===String(REPO.ownerGitHubId)&&
   env.D6_REPOSITORY_ID===String(REPO.id)&&
-  env.D6_WP2_STAGING_ENABLED!=='true'&&
-  env.D6_ISOLATED_PAGES_ENABLED!=='true';
+  (isolatedSelected?isolatedProfile():productionProfile());
+ const isolatedOriginEnabled=()=>isolatedSelected&&isolatedProfile();
  const authoringOn=()=>profile()&&
   env.D6_WP3_RUNTIME_ENABLED==='true'&&
   env.D6_SESSION_ENABLED==='true';
@@ -131,7 +153,7 @@ export function createD6ProductionWp3TrustedHostCandidate({
   need(writesOn(),'WRITE_DISABLED');
   if(!session)session=createD2UnifiedOwnerSession({
    AUTH_DB:env.AUTH_DB,csrfKey:env.D6_CSRF_KEY,
-   ownerGitHubId:REPO.ownerGitHubId,origin:ORIGIN,now,
+   ownerGitHubId:REPO.ownerGitHubId,origin:selectedOrigin,now,
   });
   return session;
  };
@@ -168,11 +190,12 @@ export function createD6ProductionWp3TrustedHostCandidate({
   const request=provider.request;
   const source=createD6CanonicalSnapshotLoader({
    request:guardedSourceRequest,issueReadToken,
-   enabled:writesOn,stagingMode:false,
+   enabled:writesOn,stagingMode:isolatedSelected,
   });
   const intake=createD6ProductionPublishIntake({
    AUTH_DB:env.AUTH_DB,csrfKey:env.D6_CSRF_KEY,
    enabled:writesOn,now,
+   origin:selectedOrigin,isolatedOriginEnabled,
   });
   const review=createD6ProductionSourceReview({
    intake,loadSnapshot:source.loadSnapshot,enabled:writesOn,
@@ -249,10 +272,11 @@ export function createD6ProductionWp3TrustedHostCandidate({
   const signed=createD6ProductionVerifiedMediaTicketIssuer({
    DB,session:actor,loadAcceptedOperation:stored,
    verifyCanonicalSource:verifyMediaSource,secret,
+   origin:selectedOrigin,isolatedOriginEnabled,
    enabled:writesOn,now,
   });
   const verifyTicket=createD6ProductionMediaTicketVerifier({
-   secret,now,origin:ORIGIN,
+   secret,now,origin:selectedOrigin,isolatedOriginEnabled,
   }).verifyTicket;
   const mediaBinding=createD6ProductionVerifiedMediaOperationBinding({
    session:actor,loadAcceptedOperation:stored,
@@ -277,11 +301,13 @@ export function createD6ProductionWp3TrustedHostCandidate({
    session:actor,receipts,dispatcher:publisher,
    getTrustedCurrentMain:canonicalMain.getTrustedCurrentMain,
    enabled:writesOn,writeEnabled:writesOn,
+   origin:selectedOrigin,isolatedOriginEnabled,
   });
   const mediaRoute=createD6ProductionMediaWriteRouteCandidate({
    session:actor,stage,reconciliation,
    enabled:writesOn,writeEnabled:writesOn,
    stageEnabled:writesOn,reconcileEnabled:writesOn,
+   origin:selectedOrigin,isolatedOriginEnabled,
   });
   writers=Object.freeze({operationRoute,mediaRoute});
   return writers;
@@ -292,6 +318,7 @@ export function createD6ProductionWp3TrustedHostCandidate({
   mediaRoute:{serve:r=>instantiate().mediaRoute.serve(r)},
   writeMountEnabled:writesOn,writeEnabled:writesOn,
   operationEnabled:writesOn,mediaEnabled:writesOn,
+  origin:selectedOrigin,isolatedOriginEnabled,
  });
  async function fetchRequest(request){
   if(!(request instanceof Request))return deny(404,'NOT_FOUND');
@@ -300,7 +327,8 @@ export function createD6ProductionWp3TrustedHostCandidate({
   if(!isWritePath(url.pathname))return gateway.fetch(request);
   // Reuse the single-gateway exact-path denial for non-canonical methods,
   // malformed query/path and disabled/staging write configurations.
-  if(!writesOn()||!allowedOrigin(request)||request.method!=='POST')
+  if(!writesOn()||!allowedOrigin(request,selectedOrigin)||
+   request.method!=='POST')
    return gateway.fetch(request);
   // Owner/CSRF before ANY WP3 D1 schema read or provider call.
   try{
