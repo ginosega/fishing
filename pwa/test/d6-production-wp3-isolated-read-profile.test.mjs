@@ -1,3 +1,5 @@
+import {createD6OwnerSourceRoute}
+ from '../../experiments/p3/preview/src/d6-owner-source-route.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
@@ -208,4 +210,29 @@ test('WP3-READ06 source profile has no token, D1 or write method exposure',()=>{
   assert.equal(key in x.runtime,false);
  assert.equal(x.events.network.length,0);
  assert.equal(x.events.d1.length,0);
+});
+
+test('WP3-READ07 owner canonical read source only accepts matching explicit staging profile',async()=>{
+ const options={
+  ownerSession:{authorizeStatus:async()=>({
+   authorized:true,ownerGitHubId:OWNER,
+  })},
+  readHostedRevision:async()=>{throw Error('Not hosted')},
+  loadSnapshot:async()=>{throw Error('Not hosted')},
+  enabled:()=>false,
+ };
+ for(const origin of [WP2,WP3]){
+  const route=createD6OwnerSourceRoute({...options,origin,
+   stagingMode:true});
+  assert.deepEqual(Object.keys(route),['serve']);
+  assert.equal((await route.serve(r(origin,
+   '/api/v3/authoring-source'))).status,503);
+ }
+ for(const [origin,stagingMode] of [
+  [PUBLIC,true],[WP2,false],[WP3,false],
+  ['https://untrusted.invalid',true],
+ ]){
+  assert.throws(()=>createD6OwnerSourceRoute({...options,
+   origin,stagingMode}));
+ }
 });
