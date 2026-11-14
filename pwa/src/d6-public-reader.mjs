@@ -13,9 +13,11 @@ export const D6_WP2_STAGING_ORIGIN='https://fishing-d6-wp2-test.ginosega.workers
 export const D6_WP3_STAGING_ORIGIN='https://fishing-v3-wp3-test.ginosega.workers.dev';
 
 export function selectD6PublicReader({
- enabled=false,staticStaging=false,wp2Staging=false,root,release,manifest,
+ enabled=false,staticStaging=false,wp2Staging=false,wp3Staging=false,
+ root,release,manifest,
 }={}){
- if(staticStaging===true&&wp2Staging===true)
+ if([staticStaging,wp2Staging,wp3Staging].some(x=>typeof x!=='boolean')||
+   [staticStaging,wp2Staging,wp3Staging].filter(Boolean).length>1)
   throw Error('D6 staged origin modes conflict');
  if(enabled!==true)return null;
  let url;
@@ -24,7 +26,8 @@ export function selectD6PublicReader({
   ['localhost','127.0.0.1','[::1]'].includes(url.hostname);
  const staging=staticStaging===true;
  const allowedOrigin=staging?D6_STATIC_STAGING_ORIGIN:
-  wp2Staging===true?D6_WP2_STAGING_ORIGIN:D6_READER_ORIGIN;
+  wp2Staging===true?D6_WP2_STAGING_ORIGIN:
+  wp3Staging===true?D6_WP3_STAGING_ORIGIN:D6_READER_ORIGIN;
  if((url.origin!==allowedOrigin&&!loopback)||
    url.pathname!==D6_READER_BASE||url.search||url.hash||
    url.username||url.password||
@@ -33,6 +36,8 @@ export function selectD6PublicReader({
    (manifest?.d6StaticStaging===true)!==staging||
    (release?.d6Wp2Staging===true)!==(wp2Staging===true)||
    (manifest?.d6Wp2Staging===true)!==(wp2Staging===true)||
+   (release?.d6Wp3Staging===true)!==wp3Staging||
+   (manifest?.d6Wp3Staging===true)!==wp3Staging||
    manifest?.d6ReaderCandidate!==true||
    release?.d6ReaderCandidate!==true||
    manifest?.releaseId!==release?.id||

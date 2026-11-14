@@ -250,6 +250,24 @@ jobs:
           cmp dist-d6-owner-connection/release.json dist-d6-owner-pages-upload/fishing/release.json
           test -f dist-d6-owner-pages-upload/fishing/index.html
           test ! -f dist-d6-owner-pages-upload/index.html
+      - name: Build and verify exact isolated WP3 H1 Pages owner/editor release (no deploy)
+        timeout-minutes: 9
+        working-directory: pwa
+        run: |
+          npm run build -- --d6-reader-candidate --d6-owner-connection-candidate --d6-owner-editor-preview --d6-wp3-hosted-candidate --base=/fishing/ --out=dist-d6-wp3-h1-owner-editor --source-revision="$GITHUB_SHA"
+          node tools/verify.mjs --out=dist-d6-wp3-h1-owner-editor
+          node --input-type=module -e 'import fs from "node:fs";const p=JSON.parse(fs.readFileSync("dist-d6-wp3-h1-owner-editor/release.json"));const m=JSON.parse(fs.readFileSync("dist-d6-wp3-h1-owner-editor/"+p.manifest));if(!p.d6ReaderCandidate||!m.d6ReaderCandidate||!p.d6OwnerConnectionCandidate||!m.d6OwnerConnectionCandidate||!p.d6OwnerEditorPreview||!m.d6OwnerEditorPreview||!p.d6Wp3Staging||!m.d6Wp3Staging||p.d6Wp2Staging||m.d6Wp2Staging||p.d6StaticStaging||m.d6StaticStaging||p.pendingMedia!==false||m.pendingMedia!==false||p.sourceRevision!==process.env.GITHUB_SHA||m.base!=="/fishing/")process.exit(1);'
+          node tools/package-d6-static-pages.mjs --in=dist-d6-wp3-h1-owner-editor --out=dist-d6-wp3-h1-pages-upload --mode=wp3-owner-preview
+          node tools/verify.mjs --out=dist-d6-wp3-h1-pages-upload/fishing
+          cmp dist-d6-wp3-h1-owner-editor/release.json dist-d6-wp3-h1-pages-upload/fishing/release.json
+          test -f dist-d6-wp3-h1-pages-upload/fishing/index.html
+          test ! -f dist-d6-wp3-h1-pages-upload/index.html
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: github.event_name == 'pull_request'
+        with:
+          name: d6-wp3-h1-pages-source-only
+          path: pwa/dist-d6-wp3-h1-pages-upload/
+          retention-days: 14
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: github.event_name == 'pull_request'
         with:
