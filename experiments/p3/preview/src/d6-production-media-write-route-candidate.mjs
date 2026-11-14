@@ -66,8 +66,8 @@ async function boundedJson(request){
  for(const v of parts){all.set(v,i);i+=v.length;}
  const raw=new TextDecoder('utf-8',{fatal:true}).decode(all);
  const data=JSON.parse(raw);
- if(!plain(data)||Object.keys(data).sort().join(',')!==
-  'blobSha,operationId,path'||JSON.stringify(data)!==raw||
+ if(!plain(data)||Object.keys(data).join(',')!==
+  'operationId,path,blobSha'||JSON.stringify(data)!==raw||
   !UUID.test(data.operationId??'')||!SHA.test(data.blobSha??'')||
   typeof data.path!=='string'||data.path.length>1000||
   safePath(data.path)!==data.path||
@@ -133,6 +133,9 @@ export function createD6ProductionMediaWriteRouteCandidate({
      !UUID.test(x.operationId??'')||
      typeof x.stepKey!=='string'||
      !x.stepKey.startsWith('media:')||
+     x.operationId!==request.headers.get('X-Fish-V3-Operation')||
+     x.stepKey.slice('media:'.length)!==
+      decodeURIComponent(request.headers.get('X-Fish-V3-Media-Path')??'')||
      !SHA.test(x.expectedBlobSha??'')||
      x.requiresIndependentGitReadback!==true||
      x.requiresDurableReconciliation!==true)
