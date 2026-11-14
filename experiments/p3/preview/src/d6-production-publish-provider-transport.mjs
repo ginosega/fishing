@@ -89,51 +89,28 @@ function body(urlPath,method,raw){
   need(keys==='base_tree,tree'&&HEX40.test(data.base_tree??'')&&
    Array.isArray(data.tree)&&data.tree.length>0&&
    data.tree.length<=32,'BODY_DENIED');
-  const seen=new Set();
-  const jsonFiles=new Set([
+  const seen=new Set(),jsonFiles=new Set([
    'pwa/Gear/gear.json','pwa/KB/kb.json',
    'pwa/Catches/catches.json',
   ]);
   for(const entry of data.tree){
-   let safe=false;
-   try{safe=safePath(entry?.path)===entry.path;}
-   catch{}
+   let safe=false,key;
+   try{
+    safe=safePath(entry?.path)===entry.path;
+    key=pathKey(entry?.path);
+   }catch{}
    need(own(entry)&&entry.mode==='100644'&&entry.type==='blob'&&
     safe&&['pwa/Gear/','pwa/KB/','pwa/Catches/']
      .some(prefix=>entry.path.startsWith(prefix))&&
-    !seen.has(pathKey(entry.path)),'BODY_DENIED');
-   seen.add(pathKey(entry.path));
+    !seen.has(key),'BODY_DENIED');
+   seen.add(key);
    if(Object.hasOwn(entry,'content')){
-    // Git Trees accepts content OR sha, never both.
+    // Git Trees accepts content OR sha, never both. Original images use
+    // the separate signed Git-blob staging + independent readback path.
     const textFile=jsonFiles.has(entry.path)||
      entry.path.includes('/content/')&&entry.path.endsWith('.md');
     need(Object.keys(entry).sort().join(',')===
      'content,mode,path,type'&&textFile&&
-     typeof entry.content==='string'&&
-     new TextEncoder().encode(entry.content).length>0&&
-     new TextEncoder().encode(entry.content).length<=131072,
-     'BODY_DENIED');
-   }else{
-    need(Object.keys(entry).sort().join(',')===
-     'mode,path,sha,type'&&
-     (entry.sha===null||HEX40.test(entry.sha??'')),
-     'BODY_DENIED');
-   }
-  }
- }else if(urlPath==='/git/refs'){'()+,;=:@%/-]+$/.test(entry.path)&&
-    !entry.path.includes('//')&&!entry.path.split('/').some(x=>
-     x==='.'||x==='..')&&!seen.has(entry.path.toLowerCase()),
-    'BODY_DENIED');
-   seen.add(entry.path.toLowerCase());
-   if(Object.hasOwn(entry,'content')){
-    // GitHub Git Trees requires content OR sha, never both. Only source
-    // JSON and Markdown may be generated inline; original images must
-    // arrive through the independent signed-media Git blob staging path.
-    need(Object.keys(entry).sort().join(',')===
-     'content,mode,path,type'&&
-     (entry.path.endsWith('.json')||
-      entry.path.endsWith('.md')&&
-      entry.path.includes('/content/'))&&
      typeof entry.content==='string'&&
      new TextEncoder().encode(entry.content).length>0&&
      new TextEncoder().encode(entry.content).length<=131072,
