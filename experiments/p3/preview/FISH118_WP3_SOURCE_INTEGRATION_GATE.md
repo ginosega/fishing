@@ -14,6 +14,12 @@
 - New joined checks `WP3-JOIN01–04` invoke **the actual** five-step coordinator's tree writer, existing durable D1 Unknown claim and tree SHA candidate custodian, trusted GitHub provider transport and independent #472 GET + `d6_atomic_tree_verified`, followed by existing #477 recovery-lifecycle inspection. They cover a valid root-tree change without unrelated modifications, lost GitHub POST acknowledgment without replay, source drift after fencing, and source drift before the first fence.
 - Existing #470–#497 unit and integration suites must continue to pass at the exact PR head. Simulated/provider fakes in these tests do **not** establish live GitHub App permissions or a hosted success.
 
+## Additional discovered pre-host publishing blocker: novel text blobs
+
+The existing `#470` atomic source/media planner computes a Git SHA for **newly generated canonical JSON and Markdown text**, then attempts an immutable `GET /git/blobs/{sha}` before planning the tree entry. A new, never-before-published text body will ordinarily **not yet exist in GitHub's object store**, and the current media Git-blob staging flow covers only original images. As a result, a novel content edit can fail closed before a Git tree mutation, even with the corrected `pwa/` paths.
+
+This is not resolved by the transport fixes or joined tree tests in this PR: those tests use synthetic plans with preexisting predicted text SHAs. Before any real hosted content acceptance, implement and test a bounded, immutable, verifiable text-object creation strategy—such as Git Tree API inline `content` bound to independently checked Git blob digests, or separately fenced-and-reconciled text-blob staging. Preserve the one-Unknown-before-provider-write rule, no blind retries, canonical source-only paths and independent root-tree proof. **Do not claim source-integrated real text publishing or WP3 exit until this is resolved.** Track this as a separate bounded source fix if required.
+
 ## Explicit remaining blocker for isolated hosted WP3 acceptance
 
 The existing #490/#492/#493 write route and canonical D2 session pin the canonical production origin. Existing WP2 staging allows a separate exact hostname **for READ only**. #497 deliberately refuses write activation on WP2 staging. This is necessary and must **not** be worked around by rewriting the browser Origin, sharing cookies/CSRF across origins, routing to a second implicit login or deploying the draft writer on the production domain.
