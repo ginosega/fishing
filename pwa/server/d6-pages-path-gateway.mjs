@@ -5,17 +5,23 @@
  * endpoints live OUTSIDE that scope and are not handled by this proxy.
  * This is neither a deployable auth Worker nor a GitHub publishing service.
  */
-import {D6_WP2_STAGING_ORIGIN} from '../src/d6-public-reader.mjs';
+import {D6_WP2_STAGING_ORIGIN,D6_WP3_STAGING_ORIGIN}
+ from '../src/d6-public-reader.mjs';
 export const D6_PUBLIC_ORIGIN='https://fishing.ginosega.workers.dev';
 export const isD6GatewayOrigin=origin=>
- origin===D6_PUBLIC_ORIGIN||origin===D6_WP2_STAGING_ORIGIN;
+ origin===D6_PUBLIC_ORIGIN||origin===D6_WP2_STAGING_ORIGIN||
+ origin===D6_WP3_STAGING_ORIGIN;
 export const D6_GITHUB_PAGES_BASE='https://ginosega.github.io/fishing/';
 // Dedicated, previously accepted D6 Stage A Pages project (not public V2).
 // Only these exact upstream origins are permitted.
 export const D6_ISOLATED_PAGES_BASE=
  'https://fishing-v3-d6-static-test.pages.dev/fishing/';
+// Proposed new WP3 Pages project: not created/deployed or an existing asset.
+export const D6_WP3_ISOLATED_PAGES_BASE=
+ 'https://fishing-v3-wp3-test.pages.dev/fishing/';
 export const isD6TrustedPagesBase=base=>
- base===D6_GITHUB_PAGES_BASE||base===D6_ISOLATED_PAGES_BASE;
+ base===D6_GITHUB_PAGES_BASE||base===D6_ISOLATED_PAGES_BASE||
+ base===D6_WP3_ISOLATED_PAGES_BASE;
 const FILES=new Set(['index.html','release.json','loader.js','sw.js',
  'manifest.webmanifest','icon.png','icon-maskable.png']);
 const RELEASE_FILE=/^releases\/[a-f0-9]{32}\/(?:[A-Za-z0-9._~!$&'()+,;=:@%-]+\/)*[A-Za-z0-9._~!$&'()+,;=:@%-]+$/;
@@ -24,7 +30,9 @@ const deny=(status=404)=>Object.freeze({kind:'deny',status});
 export function planD6PublicRead({url,method='GET',
  pagesBase=D6_GITHUB_PAGES_BASE,origin=D6_PUBLIC_ORIGIN}={}){
  if(!isD6GatewayOrigin(origin))return deny();
- if(!isD6TrustedPagesBase(pagesBase))return deny();
+ if(!isD6TrustedPagesBase(pagesBase)||
+  (origin===D6_WP3_STAGING_ORIGIN)!==
+   (pagesBase===D6_WP3_ISOLATED_PAGES_BASE))return deny();
  // Do not normalize encoded separators/traversal into an apparently safe URL.
  if(/%(?:2f|5c|00|2e)|\/\.\.?(?:\/|$)/i.test(url))return deny();
  let incoming;
@@ -52,7 +60,9 @@ export function planD6PublicRead({url,method='GET',
 export function createD6PublicReadProxy({fetchAsset,enabled=false,
  pagesBase=D6_GITHUB_PAGES_BASE,origin=D6_PUBLIC_ORIGIN}={}){
  if(!isD6GatewayOrigin(origin))throw Error('D6 static gateway origin denied');
- if(!isD6TrustedPagesBase(pagesBase))
+ if(!isD6TrustedPagesBase(pagesBase)||
+  (origin===D6_WP3_STAGING_ORIGIN)!==
+   (pagesBase===D6_WP3_ISOLATED_PAGES_BASE))
   throw Error('D6 static Pages source denied');
  if(typeof fetchAsset!=='function')throw Error('An explicit asset fetcher is required');
  return async request=>{

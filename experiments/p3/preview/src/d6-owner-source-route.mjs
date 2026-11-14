@@ -7,7 +7,7 @@
 import {D6_SOURCE_REPOSITORY} from './d6-canonical-snapshot-loader.mjs';
 import {isD6GatewayOrigin,D6_PUBLIC_ORIGIN}
  from '../../../../pwa/server/d6-pages-path-gateway.mjs';
-import {D6_WP2_STAGING_ORIGIN}
+import {D6_WP2_STAGING_ORIGIN,D6_WP3_STAGING_ORIGIN}
  from '../../../../pwa/src/d6-public-reader.mjs';
 
 export const D6_SOURCE_ORIGIN='https://fishing.ginosega.workers.dev';
@@ -43,7 +43,8 @@ export function createD6OwnerSourceRoute({
    typeof readHostedRevision!=='function'||
    typeof loadSnapshot!=='function'||typeof enabled!=='function'||
    !isD6GatewayOrigin(origin)||typeof stagingMode!=='boolean'||
-   (stagingMode&&origin!==D6_WP2_STAGING_ORIGIN)||
+   (stagingMode&&origin!==D6_WP2_STAGING_ORIGIN&&
+    origin!==D6_WP3_STAGING_ORIGIN)||
    (!stagingMode&&origin!==D6_PUBLIC_ORIGIN))
   throw Error('D6 read route requires trusted server dependencies');
  async function serve(request){

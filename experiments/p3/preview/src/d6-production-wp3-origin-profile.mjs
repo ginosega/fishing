@@ -15,9 +15,10 @@
  */
 import {D6_PUBLISH_INTAKE_ORIGIN as PRODUCTION_ORIGIN}
  from './d6-production-publish-intake.mjs';
+import {D6_WP3_STAGING_ORIGIN}
+ from '../../../../pwa/src/d6-public-reader.mjs';
 
-export const D6_WP3_PROPOSED_ISOLATED_ORIGIN=
- 'https://fishing-v3-wp3-test.ginosega.workers.dev';
+export const D6_WP3_PROPOSED_ISOLATED_ORIGIN=D6_WP3_STAGING_ORIGIN;
 
 export class D6Wp3OriginError extends Error{
  constructor(code){
