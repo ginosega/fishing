@@ -17,7 +17,7 @@ const denied=(promise,code)=>assert.rejects(promise,e=>
 function harness({enabled=true,writeEnabled=true,owner=true,
  approved=true,loseAck=false,alterAttempt=false,
  tamper=null,approvalHook=null,readFail=false}={}){
- const s={enabled,writeEnabled,owner,approved,loseAck,
+ const s={enabled,writeEnabled,owner,approved,loseAck,alterAttempt,
   verified:0,fenced:null,auth:0,reads:0,attempts:[],approvals:[],
   reconciliations:[],tamper,readFail};
  const view=()=>{
