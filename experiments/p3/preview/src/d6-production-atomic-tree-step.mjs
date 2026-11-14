@@ -46,6 +46,15 @@ const need=(value,code)=>{if(!value)deny(code);};
 const hex=async bytes=>[...new Uint8Array(
  await crypto.subtle.digest('SHA-256',new TextEncoder().encode(bytes)))]
  .map(b=>b.toString(16).padStart(2,'0')).join('');
+const enc=new TextEncoder();
+async function inlineGitSha(body){
+ const bytes=enc.encode(body);
+ const head=enc.encode('blob '+bytes.length+'\\0');
+ const tagged=new Uint8Array(head.length+bytes.length);
+ tagged.set(head);tagged.set(bytes,head.length);
+ return [...new Uint8Array(await crypto.subtle.digest('SHA-1',tagged))]
+  .map(x=>x.toString(16).padStart(2,'0')).join('');
+}
 function trustedOperation(op,id){
  need(op&&op.operationId===id&&UUID.test(id)&&
   op.state==='Accepted'&&op.repositoryId===REPO.id&&
@@ -87,13 +96,18 @@ export async function describeD6AtomicTreeStep({
   try{key=pathKey(entry?.path);}catch{deny('UNSAFE_TREE');}
   need(entry.mode==='100644'&&entry.type==='blob'&&
    (entry.sha===null||SHA.test(entry.sha??''))&&
+   (entry.content===undefined||
+    typeof entry.content==='string'&&
+    enc.encode(entry.content).length>0&&
+    enc.encode(entry.content).length<=131072)&&
    !paths.has(key)&&
    entry.path.startsWith(op.domain==='gear'?'Gear/':
     op.domain==='kb'?'KB/':'Catches/'),
    'UNSAFE_TREE');
   paths.add(key);
   entries.push({path:entry.path,mode:'100644',
-   type:'blob',sha:entry.sha});
+   type:'blob',sha:entry.sha,
+   ...(entry.content===undefined?{}:{content:entry.content})});
  }
  let deleted=0;
  for(const entry of entries)if(entry.sha===null)deleted++;
@@ -110,20 +124,26 @@ export async function describeD6AtomicTreeStep({
    Number.isSafeInteger(proof.bytes)&&proof.bytes>0&&
    proof.bytes<=1024*1024&&
    !textPaths.has(key),'UNVERIFIED_TEXT');
-  textPaths.set(key,proof.sha);
+  textPaths.set(key,{sha:proof.sha,bytes:proof.bytes});
  }
  need(textPaths.size===plan.textCount&&
   (plan.canonicalJsonUnchanged===true?
    !textPaths.has(pathKey(canonical)):
-   textPaths.get(pathKey(canonical))===canonicalEntry?.sha),
+   textPaths.get(pathKey(canonical))?.sha===canonicalEntry?.sha),
   'UNVERIFIED_TEXT');
  let mediaCount=0;
  for(const entry of entries){
   const txt=textPaths.get(pathKey(entry.path));
   if(txt!==undefined){
-   need(entry.sha===txt,'UNVERIFIED_TEXT');
+   need(entry.sha===txt.sha,'UNVERIFIED_TEXT');
+   if(entry.content!==undefined){
+    need(enc.encode(entry.content).length===txt.bytes&&
+     await inlineGitSha(entry.content)===entry.sha,
+     'INLINE_TEXT_MISMATCH');
+   }
    continue;
   }
+  need(entry.content===undefined,'UNEXPECTED_INLINE_CONTENT');
   if(entry.sha===null){
    need(entry.path.includes('/content/')&&
     entry.path.endsWith('.md'),'UNSAFE_DELETE');
@@ -139,18 +159,29 @@ export async function describeD6AtomicTreeStep({
  // Git Data create-tree operates on the repository root: every entry MUST
  // be prefixed exactly once before calculating the immutable fence digest.
  // No caller may write a root-level Gear/KB/Catches file.
+ const expectedEntries=entries.map(({path,mode,type,sha})=>({
+  path:'pwa/'+path,mode,type,sha,
+ }));
+ // GitHub must receive EITHER content OR sha, never both. The expected
+ // SHA for inline text is bound into the same D1 Unknown fingerprint and
+ // must later be proved independently by Git GET of the resulting tree.
  const body={base_tree:plan.baseTreeSha,
-  tree:entries.map(item=>({...item,path:'pwa/'+item.path}))};
+  tree:entries.map(item=>item.content===undefined?
+   {path:'pwa/'+item.path,mode:item.mode,type:item.type,sha:item.sha}:
+   {path:'pwa/'+item.path,mode:item.mode,type:item.type,
+    content:item.content}),
+ };
  const stepKey='tree',method='POST';
  const requestSha256=await hex(JSON.stringify({
   operationId:op.operationId,ownerGitHubId:REPO.ownerGitHubId,
   repositoryId:REPO.id,ref:REPO.ref,
   sourceRevision:op.sourceRevision,
   snapshotSha256:op.snapshotSha256,
-  stepKey,method,url:URL,body,
+  stepKey,method,url:URL,body,expectedEntries,
  }));
  return Object.freeze({operationId:op.operationId,stepKey,
   requestSha256,method,url:URL,body,
+  expectedEntries:Object.freeze(expectedEntries.map(Object.freeze)),
   baseTreeSha:plan.baseTreeSha,entryCount:entries.length,
   mediaCount,textCount:plan.textCount});
 }
