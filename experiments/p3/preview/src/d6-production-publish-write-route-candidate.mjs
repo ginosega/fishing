@@ -17,6 +17,8 @@
 import {D6_PUBLISH_REPOSITORY as REPO,
  D6_PUBLISH_INTAKE_ORIGIN as ORIGIN}
  from './d6-production-publish-intake.mjs';
+import {createD6Wp3PinnedWriteOrigin}
+ from './d6-production-wp3-origin-profile.mjs';
 
 const API='/api/v3/operations';
 const SHA=/^[a-f0-9]{40}$/;
@@ -85,6 +87,7 @@ function state(data){
 export function createD6ProductionPublishWriteRouteCandidate({
  session,receipts,dispatcher,getTrustedCurrentMain,
  enabled=()=>false,writeEnabled=()=>false,
+ origin=ORIGIN,isolatedOriginEnabled=()=>false,
 }={}){
  if(typeof session?.authorizeWrite!=='function'||
   typeof receipts?.accept!=='function'||
@@ -93,19 +96,22 @@ export function createD6ProductionPublishWriteRouteCandidate({
   typeof getTrustedCurrentMain!=='function'||
   typeof enabled!=='function'||typeof writeEnabled!=='function')
   throw Error('invalid WP3 write-route dependencies');
+ const originGate=createD6Wp3PinnedWriteOrigin({
+  origin,isolatedEnabled:isolatedOriginEnabled,
+ });
 
  async function serve(request){
-  if(enabled()!==true)return missing();
+  if(enabled()!==true||!originGate.enabled())return missing();
   if(!(request instanceof Request))return missing();
   let url;
   try{url=new URL(request.url);}catch{return missing();}
-  if(url.origin!==ORIGIN||url.username||url.password||
+  if(url.origin!==origin||url.username||url.password||
    url.search||url.hash||request.method!=='POST'||
    request.headers.has('Authorization'))return missing();
   const accepting=url.pathname===API;
   const match=accepting?null:PATH.exec(url.pathname);
   if(!accepting&&!match)return missing();
-  if(request.headers.get('Origin')!==ORIGIN||
+  if(request.headers.get('Origin')!==origin||
    request.headers.get('Sec-Fetch-Site')!=='same-origin')
    return denied();
   if(request.headers.get('X-Fish-V3-Intent')!=='publish'||
@@ -117,7 +123,7 @@ export function createD6ProductionPublishWriteRouteCandidate({
    if(actor?.authorized!==true||
     actor.ownerGitHubId!==REPO.ownerGitHubId)return denied();
   }catch{return denied();}
-  if(enabled()!==true)return unavailable();
+  if(enabled()!==true||!originGate.enabled())return unavailable();
   if(accepting){
    if(writeEnabled()!==true)return unavailable();
    try{
