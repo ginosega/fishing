@@ -24,7 +24,7 @@ const opts=(method='GET',payload)=>({
 const payloads=[
  ['/git/blobs','POST',{encoding:'base64',content:'AQIDBA=='}],
  ['/git/trees','POST',{base_tree:SHA,tree:[
-  {path:'Gear/gear.json',mode:'100644',type:'blob',sha:COMMIT}]}],
+  {path:'pwa/Gear/gear.json',mode:'100644',type:'blob',sha:COMMIT}]}],
  ['/git/commits','POST',{message:'Fishing Companion V3 content update '+ID,
   tree:TREE,parents:[SHA]}],
  ['/git/refs','POST',{ref:'refs/heads/'+REF,sha:SHA}],
@@ -169,4 +169,51 @@ test('WP3-TRAN07: default disabled and transport errors do not authorize a retry
    tree:TREE,parents:[SHA]})),/lost ack/);
  assert.equal(attempts,1);
  assert.deepEqual(Object.keys(p),['request']);
+});
+
+test('WP3-TRAN08: one fenced Git tree can create novel UTF-8 JSON/Markdown inline with verified media SHA',async()=>{
+ const h=harness();
+ const tree=[
+  {path:'pwa/Catches/catches.json',mode:'100644',type:'blob',
+   content:'{"catches":[{"id":"sample"}]}\n'},
+  {path:'pwa/Catches/content/sample.md',mode:'100644',
+   type:'blob',content:'# Fish 🐟\n'},
+  {path:'pwa/Catches/assets/sample/notes/photo.png',mode:'100644',
+   type:'blob',sha:TREE},
+ ];
+ const request=opts('POST',{base_tree:SHA,tree});
+ assert.equal((await h.provider.request(API+'/git/trees',request)).status,200);
+ assert.equal(h.calls.length,1);
+ const sent=JSON.parse(h.calls[0].options.body);
+ assert.deepEqual(sent.tree,tree);
+ assert.equal(Object.hasOwn(sent.tree[0],'sha'),false);
+ assert.equal(Object.hasOwn(sent.tree[1],'sha'),false);
+ assert.equal(sent.tree[2].sha,TREE);
+});
+
+test('WP3-TRAN09: no mixed sha+content, inline binary, wrong root or ambiguous paths',async()=>{
+ const h=harness();
+ const base={path:'pwa/Catches/content/sample.md',mode:'100644',
+  type:'blob',content:'new body'};
+ const bad=[
+  {...base,sha:TREE},
+  {...base,path:'Catches/content/sample.md'},
+  {...base,path:'pwa/../Catches/content/sample.md'},
+  {...base,path:'pwa/Catches/assets/sample/notes/photo.png'},
+  {...base,path:'pwa/Catches/content/sample.png'},
+  {...base,content:''},
+  {...base,content:'A'.repeat(131073)},
+  {...base,mode:'100755'},
+  {...base, extra:true},
+ ];
+ for(const item of bad){
+  await denied(h.provider.request(API+'/git/trees',opts('POST',{
+   base_tree:SHA,tree:[item],
+  })),'BODY_DENIED');
+ }
+ const duplicate=[base,{...base,path:'pwa/Catches/content/SAMPLE.md'}];
+ await denied(h.provider.request(API+'/git/trees',opts('POST',{
+  base_tree:SHA,tree:duplicate,
+ })),'BODY_DENIED');
+ assert.equal(h.calls.length,0);
 });

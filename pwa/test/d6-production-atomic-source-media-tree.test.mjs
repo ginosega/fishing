@@ -139,7 +139,7 @@ test('WP3-ATOM01 Catch Notes yields one all-or-nothing JSON/Markdown/image tree'
   path:x.paths[0],mode:'100644',type:'blob',sha:PNG_SHA});
  assert.equal(result.requiresDurableGitStepFence,true);
  assert.equal(result.requiresIndependentTreeReadback,true);
- assert.equal(x.calls.length,3);
+ assert.equal(x.calls.length,1);
 });
 
 test('WP3-ATOM02 Gear representative original shares atomic tree with record JSON',async()=>{
@@ -162,7 +162,7 @@ test('WP3-ATOM03 Knot sequence frames retain exact order and bytes',async()=>{
  ]));
  for(const path of x.paths)
   assert.equal(r.entries.find(v=>v.path===path).sha,PNG_SHA);
- assert.equal(x.calls.length,4);
+ assert.equal(x.calls.length,2);
 });
 
 test('WP3-ATOM04 ticket forgery and a missing ticket never yield partial tree',async()=>{
@@ -175,21 +175,37 @@ test('WP3-ATOM04 ticket forgery and a missing ticket never yield partial tree',a
  assert.equal(x.calls.length,0);
 });
 
-test('WP3-ATOM05 missing or forged Markdown or JSON blob fails closed',async()=>{
+test('WP3-ATOM05 new JSON/Markdown absent from GitHub are generated inline',async()=>{
  const x=await setup(),original=x.state.reader;
  x.state.reader=async ctx=>{
-  if(ctx.blobSha!==PNG_SHA)throw Error('staging unfinished');
+  // New text blobs do not exist yet. Only original PNG had been staged.
+  if(ctx.blobSha!==PNG_SHA)throw Error('novel text SHA absent');
   return original(ctx);
  };
- await denied(x.tree.plan(x.input),'TEXT_BLOB_READ_UNKNOWN');
- const y=await setup(),first=y.state.reader;
- y.state.reader=async ctx=>{
-  const result=await first(ctx);
-  if(ctx.blobSha===PNG_SHA)return result;
-  result.content=Buffer.from('corrupt').toString('base64');
-  return result;
- };
- await denied(y.tree.plan(y.input),'TEXT_BLOB_UNVERIFIED');
+ const result=await x.tree.plan(x.input);
+ assert.equal(result.textCount,2);
+ assert.equal(x.calls.length,1);
+ for(const proof of result.verifiedText){
+  const entry=result.entries.find(e=>e.path===proof.path);
+  assert.equal(typeof entry.content,'string');
+  assert.equal(entry.sha,proof.sha);
+  assert.equal(gitSha(Buffer.from(entry.content,'utf8')),proof.sha);
+ }
+ const step=await describeD6AtomicTreeStep({
+  operation:x.operation,plan:result,
+ });
+ assert.equal(step.body.tree.filter(x=>Object.hasOwn(x,'content')).length,2);
+ assert.equal(step.body.tree.filter(x=>Object.hasOwn(x,'sha')).length,1);
+ assert.equal(step.expectedEntries.length,3);
+});
+
+test('WP3-ATOM05B changing inline text after hashing is rejected',async()=>{
+ const x=await setup(),original=await x.tree.plan(x.input);
+ const plan={...original,entries:original.entries.map(e=>
+  e.content===undefined?e:{...e,content:e.content+'tampered'})};
+ await assert.rejects(describeD6AtomicTreeStep({
+  operation:x.operation,plan,
+ }),e=>e.code==='INLINE_TEXT_MISMATCH');
 });
 
 test('WP3-ATOM06 stale or foreign source and operation never read Git blobs',async()=>{
@@ -269,13 +285,20 @@ test('WP3-TEXT01 Gear add without picture emits one verified canonical JSON blob
  assert.equal(result.textCount,1);
  assert.equal(result.fileCount,1);
  assert.deepEqual(result.entries.map(e=>e.path),[DOMAIN.gear.file]);
- assert.equal(x.calls.length,1);
+ assert.equal(x.calls.length,0);
  const step=await describeD6AtomicTreeStep({
   operation:x.operation,plan:result});
  assert.equal(step.entryCount,1);
  assert.equal(step.mediaCount,0);
  assert.equal(step.body.tree.length,1);
- assert.equal(step.body.tree[0].sha,result.verifiedText[0].sha);
+ assert.equal(step.body.tree[0].content,result.entries[0].content);
+ const written=JSON.parse(step.body.tree[0].content);
+ assert.equal(written.items.length,1);
+ assert.deepEqual(written.items[0],{
+  id:'example-jig',category:'lures',type:'Jigs',name:'Example Jig',
+ });
+ assert.equal(step.body.tree[0].sha,undefined);
+ assert.equal(step.expectedEntries[0].sha,result.verifiedText[0].sha);
  assert.equal(result.canPublish,false);
  assert.equal(result.isLive,false);
 });
@@ -292,7 +315,7 @@ test('WP3-TEXT02 Catch add with Markdown and zero images retains one atomic tree
   DOMAIN.catches.file,'Catches/content/catch-example.md',
  ]));
  assert.equal(result.fileCount,2);
- assert.equal(x.calls.length,2);
+ assert.equal(x.calls.length,0);
  const step=await describeD6AtomicTreeStep({
   operation:x.operation,plan:result});
  assert.equal(step.entryCount,2);
@@ -325,7 +348,7 @@ test('WP3-TEXT03 KB edits retain existing Knot frames and original artwork uncha
  assert.equal(result.fileCount,2);
  assert(x.paths.every(path=>x.source.files.has(path)));
  assert(result.entries.every(e=>!e.path.includes('/assets/')));
- assert.equal(x.calls.length,2);
+ assert.equal(x.calls.length,0);
 });
 
 test('WP3-TEXT04 Catch Notes edit preserves existing inline image without restaging',async()=>{
@@ -352,7 +375,7 @@ test('WP3-TEXT04 Catch Notes edit preserves existing inline image without restag
  assert.equal(result.textCount,1);
  assert(result.entries.every(e=>!e.path.includes('/assets/')));
  assert.equal(result.fileCount,1);
- assert.equal(x.calls.length,1);
+ assert.equal(x.calls.length,0);
  const descriptor=await describeD6AtomicTreeStep({
   operation:x.operation,plan:result});
  assert.equal(descriptor.entryCount,1);

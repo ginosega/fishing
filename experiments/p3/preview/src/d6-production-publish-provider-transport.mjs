@@ -12,6 +12,7 @@
  */
 import {D6_PUBLISH_REPOSITORY as REPO}
  from './d6-production-publish-intake.mjs';
+import {safePath,pathKey} from '../../../../pwa/src/shared.mjs';
 
 const ROOT='https://api.github.com/repos/'+REPO.name;
 const UUID='[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}';
@@ -87,7 +88,40 @@ function body(urlPath,method,raw){
  }else if(urlPath==='/git/trees'){
   need(keys==='base_tree,tree'&&HEX40.test(data.base_tree??'')&&
    Array.isArray(data.tree)&&data.tree.length>0&&
-   data.tree.length<=400,'BODY_DENIED');
+   data.tree.length<=32,'BODY_DENIED');
+  const seen=new Set(),jsonFiles=new Set([
+   'pwa/Gear/gear.json','pwa/KB/kb.json',
+   'pwa/Catches/catches.json',
+  ]);
+  for(const entry of data.tree){
+   let safe=false,key;
+   try{
+    safe=safePath(entry?.path)===entry.path;
+    key=pathKey(entry?.path);
+   }catch{}
+   need(own(entry)&&entry.mode==='100644'&&entry.type==='blob'&&
+    safe&&['pwa/Gear/','pwa/KB/','pwa/Catches/']
+     .some(prefix=>entry.path.startsWith(prefix))&&
+    !seen.has(key),'BODY_DENIED');
+   seen.add(key);
+   if(Object.hasOwn(entry,'content')){
+    // Git Trees accepts content OR sha, never both. Original images use
+    // the separate signed Git-blob staging + independent readback path.
+    const textFile=jsonFiles.has(entry.path)||
+     entry.path.includes('/content/')&&entry.path.endsWith('.md');
+    need(Object.keys(entry).sort().join(',')===
+     'content,mode,path,type'&&textFile&&
+     typeof entry.content==='string'&&
+     new TextEncoder().encode(entry.content).length>0&&
+     new TextEncoder().encode(entry.content).length<=131072,
+     'BODY_DENIED');
+   }else{
+    need(Object.keys(entry).sort().join(',')===
+     'mode,path,sha,type'&&
+     (entry.sha===null||HEX40.test(entry.sha??'')),
+     'BODY_DENIED');
+   }
+  }
  }else if(urlPath==='/git/refs'){
   need(keys==='ref,sha'&&REF.test(data.ref??'')&&
    HEX40.test(data.sha??''),'BODY_DENIED');

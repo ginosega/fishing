@@ -318,7 +318,7 @@ export function createD6ProductionAtomicTreeReconciliation({
    resultTreeSha+'?recursive=1');
   const changed=compareTrees(original,result,{
    base_tree:action.baseTreeSha,
-   target_sha:resultTreeSha,entries:action.body.tree,
+   target_sha:resultTreeSha,entries:action.expectedEntries,
   });
   need(changed===action.entryCount,'UNEXPECTED_TREE_CHANGE');
   // Recheck main after potentially long remote/tree reads.
