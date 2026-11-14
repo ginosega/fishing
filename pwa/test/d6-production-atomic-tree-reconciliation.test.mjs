@@ -40,7 +40,7 @@ const plan=()=>({
  recordId:'catch-example',textCount:2,mediaCount:1,fileCount:3,
  verifiedText:[{path:INDEX,sha:JSON_SHA,bytes:98},
   {path:NOTE,sha:NOTE_SHA,bytes:64}],
- entries:[entry('pwa/'+INDEX,JSON_SHA),entry('pwa/'+NOTE,NOTE_SHA),
+ entries:[entry(INDEX,JSON_SHA),entry(NOTE,NOTE_SHA),
   entry(MEDIA,IMAGE_SHA)],
 });
 const gitTree=(sha,items)=>({
@@ -52,7 +52,7 @@ const oldTree=()=>gitTree(BASE,[
 ]);
 const newTree=()=>gitTree(RESULT,[
  entry('pwa','0'.repeat(40),'040000','tree'),
- entry(INDEX,JSON_SHA),entry(NOTE,NOTE_SHA),
+ entry('pwa/'+INDEX,JSON_SHA),entry('pwa/'+NOTE,NOTE_SHA),
  entry('pwa/'+MEDIA,IMAGE_SHA),entry('README.md',README),
 ]);
 function provider(){
@@ -260,9 +260,9 @@ test('WP3-TRBK06 unrelated change, missing media or forged JSON are rejected',as
  const target=ROOT+'/git/trees/'+RESULT+'?recursive=1';
  for(const change of [
   t=>{t.tree.find(v=>v.path==='README.md').sha='6'.repeat(40);},
-  t=>{t.tree=t.tree.filter(v=>v.path!==MEDIA);},
-  t=>{t.tree.find(v=>v.path===INDEX).sha='f'.repeat(40);},
-  t=>{t.tree.find(v=>v.path===NOTE).mode='120000';},
+  t=>{t.tree=t.tree.filter(v=>v.path!=='pwa/'+MEDIA);},
+  t=>{t.tree.find(v=>v.path==='pwa/'+INDEX).sha='f'.repeat(40);},
+  t=>{t.tree.find(v=>v.path==='pwa/'+NOTE).mode='120000';},
  ]){
   const x=setup();await x.writer.attempt(request(),ID);
   const row=structuredClone(x.state.providerMap.get(target));
@@ -276,9 +276,9 @@ test('WP3-TRBK07 truncated and colliding Git tree responses fail closed',async()
  const target=ROOT+'/git/trees/'+RESULT+'?recursive=1';
  for(const change of [
   t=>{t.truncated=true;},
-  t=>{t.tree.push({...t.tree.find(v=>v.path===NOTE)});},
-  t=>{t.tree.push({...t.tree.find(v=>v.path===MEDIA),
-   path:MEDIA.replace('photo.png','PHOTO.PNG')});},
+  t=>{t.tree.push({...t.tree.find(v=>v.path==='pwa/'+NOTE)});},
+  t=>{t.tree.push({...t.tree.find(v=>v.path==='pwa/'+MEDIA),
+   path:('pwa/'+MEDIA).replace('photo.png','PHOTO.PNG')});},
   t=>{t.tree[0].mode='100644';},
  ]){
   const x=setup();await x.writer.attempt(request(),ID);
@@ -334,7 +334,7 @@ test('WP3-TRBK11 forged fence/fresh plan drift fail before GitHub reads',async()
 test('WP3-TRBK12 existing media preimage is not silently overwritten',async()=>{
  const x=setup();await x.writer.attempt(request(),ID);
  x.state.providerMap.get(ROOT+'/git/trees/'+BASE+'?recursive=1')
-  .tree.push(entry(MEDIA,OLD));
+  .tree.push(entry('pwa/'+MEDIA,OLD));
  await denied(x.verifier.reconcile(request(),ID),'EXISTING_MEDIA_COLLISION');
  assert.equal(x.db.proofs.length,0);
 });
@@ -343,8 +343,8 @@ test('WP3-TRBK13 Markdown-only edit readback keeps canonical JSON and images unt
  const base=oldTree(),target=newTree();
  // Existing record JSON and all existing media remain identical. Only
  // the Markdown body gets a new verified blob in the final Git tree.
- base.tree.push(entry(NOTE,OLD),entry(MEDIA,IMAGE_SHA));
- target.tree.find(v=>v.path===INDEX).sha=OLD;
+ base.tree.push(entry('pwa/'+NOTE,OLD),entry('pwa/'+MEDIA,IMAGE_SHA));
+ target.tree.find(v=>v.path==='pwa/'+INDEX).sha=OLD;
  const override={...plan(),
   mediaCount:0,textCount:1,fileCount:1,canonicalJsonUnchanged:true,
   verifiedText:[{path:NOTE,sha:NOTE_SHA,bytes:64}],
