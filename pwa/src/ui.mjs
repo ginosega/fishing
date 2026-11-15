@@ -45,6 +45,7 @@ export function createApp(ctx){
  let currentHash=location.hash||'#/',route=parseRoute(currentHash),editor=null,serial=0,offline=null,approvedNavigation=null,previousHash=null;
  const ownerEditorGate=ownerEditorPreview?createD6OwnerEditorPreviewGate({
   root:ctx.root,releaseRevision:ctx.release.sourceRevision,
+  wp3Staging:ctx.v3?.wp3Staging===true,
   ownerReadiness:ctx.v3.ownerReadiness,canonicalSource:ctx.v3.canonicalSource,
   enabled:()=>true,online:()=>navigator.onLine===true,
   readingMode:()=>offline?.getModeAvailable?.()===true?offline.getMode():'Checking',
@@ -63,7 +64,7 @@ export function createApp(ctx){
   // pinned canonical-main source verification. It keeps text locally and
   // never authorizes a publishing or media network request.
   if(!ownerDeviceDrafts)ownerDeviceDrafts=createD6OwnerDeviceDraftStore({
-   enabled:true,root:ctx.root,
+   enabled:true,root:ctx.root,wp3Staging:ctx.v3?.wp3Staging===true,
   });
   return {...ctx,data:source.data,maps:validateRecords(source.data),
    v3:{...ctx.v3,source,ownerAuthoringPreview:true,
@@ -323,6 +324,7 @@ export function createApp(ctx){
   approvedController=createD6OwnerConnectionAdapter({
    root:ctx.root,ownerReadiness:ctx.v3?.ownerReadiness,
    wp2Staging:ctx.v3?.wp2Staging===true,
+   wp3Staging:ctx.v3?.wp3Staging===true,
    request:(url,options)=>fetch(url,options),
    enabled:()=>true,online:()=>navigator.onLine===true,
    readingMode:()=>offline.getModeAvailable()===true?
