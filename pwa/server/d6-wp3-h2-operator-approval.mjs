@@ -62,10 +62,27 @@ export function createD6Wp3H2OperatorApproval({
   const length=request.headers.get('Content-Length');
   if(length!==null&&(!/^\d+$/.test(length)||Number(length)>128*1024))
    return false;
+  // Streaming limit: never buffer an unbounded client body, even if its
+  // Content-Length is absent or untruthful. Empty-chunk floods fail closed.
   let bytes;
-  try{bytes=new Uint8Array(await request.clone().arrayBuffer());}
-  catch{return false;}
-  if(!bytes.length||bytes.length>128*1024||!active())return false;
+  const reader=request.clone().body?.getReader();
+  if(!reader)return false;
+  const parts=[];let size=0,chunks=0,complete=false;
+  try{
+   for(;chunks<512;chunks++){
+    const {done,value}=await reader.read();
+    if(done){complete=true;break;}
+    if(!(value instanceof Uint8Array))break;
+    size+=value.byteLength;
+    if(size>128*1024)break;
+    parts.push(value);
+   }
+  }catch{}
+  finally{if(!complete)void reader.cancel().catch(()=>{});}
+  if(!complete||!size||!active())return false;
+  bytes=new Uint8Array(size);
+  let offset=0;
+  for(const part of parts){bytes.set(part,offset);offset+=part.length;}
   let digest;
   try{digest=Array.from(new Uint8Array(await cryptoApi.subtle.digest(
    'SHA-256',bytes))).map(b=>b.toString(16).padStart(2,'0')).join('');}
