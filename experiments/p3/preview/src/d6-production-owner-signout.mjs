@@ -44,7 +44,7 @@ function b64(buffer){
 }
 function permitted(request,origin){
  if(!(request instanceof Request)||request.method!=='POST'||
-    request.headers.has('Authorization')||request.body!==null)return false;
+    request.headers.has('Authorization'))return false;
  let url;try{url=new URL(request.url);}catch{return false;}
  return url.origin===origin&&
    url.pathname===D6_OWNER_SIGNOUT_PATH&&!url.search&&!url.hash&&
@@ -55,6 +55,31 @@ function permitted(request,origin){
    !['navigate','websocket'].includes(
     request.headers.get('Sec-Fetch-Mode')??'');
 }
+// Cloudflare may expose a zero-byte POST as a non-null ReadableStream.
+// Require the body to be *observably empty*, never merely present with
+// Content-Length: 0. Reject data/unknown streams before any D1 mutation.
+async function emptyRequestBody(request){
+ const length=request.headers.get('Content-Length');
+ if(length!==null&&length!=='0')return false;
+ if(request.body===null)return true;
+ let reader;
+ try{
+  reader=request.body.getReader();
+  // Bound empty-chunk iterations; any real byte denies the action.
+  for(let i=0;i<4;i++){
+   const {done,value}=await reader.read();
+   if(done)return true;
+   if(!(value instanceof Uint8Array)||value.byteLength!==0)return false;
+  }
+ }catch{return false;}
+ finally{
+  if(reader){
+   try{await reader.cancel();}catch{}
+   reader.releaseLock();
+  }
+ }
+ return false;
+}
 export function createD6ProductionOwnerSignout({
  AUTH_DB,cryptoApi=globalThis.crypto,enabled=()=>false,
  origin=D6_OWNER_SIGNOUT_ORIGIN,
@@ -63,7 +88,8 @@ export function createD6ProductionOwnerSignout({
   throw Error('Invalid D6 sign-out gate');
  async function signOut(request){
   if(enabled()!==true)return response(503,'TEMPORARILY_UNAVAILABLE');
-  if(!permitted(request,origin))return response(403,'REQUEST_DENIED');
+  if(!permitted(request,origin)||!await emptyRequestBody(request))
+   return response(403,'REQUEST_DENIED');
   const secret=cookie(request);
   if(!secret)return response(401,'SESSION_REQUIRED');
   if(typeof AUTH_DB?.prepare!=='function'||

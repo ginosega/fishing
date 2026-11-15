@@ -192,6 +192,35 @@ test('D6-SIGNOUT10 production environment cannot enable signout by secret alone'
  assert.equal((await enabled.fetch(request())).status,200);
  assert.equal(store.deleted.length,1);
 });
+// Model Cloudflare's legitimate empty POST arriving as a body stream,
+// rather than assuming a body-less Request always has body===null.
+function streamedRequest(bytes=[]){
+ const stream=new ReadableStream({
+  start(controller){
+   if(bytes.length>0)controller.enqueue(Uint8Array.from(bytes));
+   controller.close();
+  },
+ });
+ return new Request(request(),{body:stream,duplex:'half'});
+}
+test('D6-SIGNOUT12 empty streamed browser POST revokes exactly caller session',async()=>{
+ const store=db(),input=streamedRequest();
+ assert.notEqual(input.body,null,'test must exercise non-null body stream');
+ const result=await primitive(store).signOut(input);
+ assert.equal(result.status,200);
+ assert.deepEqual(await result.json(),{signedOut:true});
+ assert.deepEqual(store.deleted,[[sha(SID),OWNER]]);
+ assert.equal(store.sessions.has(sha(SID)),false);
+ assert.equal(store.sessions.get(sha(OTHER)),OWNER+1);
+});
+test('D6-SIGNOUT13 nonempty streamed POST is denied before any D1 action',async()=>{
+ const store=db(),input=streamedRequest([0x41]);
+ const result=await primitive(store).signOut(input);
+ assert.equal(result.status,403);
+ assert.equal(result.headers.get('Set-Cookie'),null);
+ assert.equal(store.deleted.length,0);
+ assert.equal(store.sessions.get(sha(SID)),OWNER);
+});
 test('D6-SIGNOUT11 no sign-out route installs a Worker or authoring publisher',()=>{
  const source=readFileSync(new URL(
   '../../experiments/p3/preview/src/d6-production-owner-signout.mjs',
