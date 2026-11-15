@@ -4,7 +4,7 @@
  * It stores structured editor fields and Markdown, NOT media bytes, upload
  * tickets, CSRF tokens, operations, credentials or a publishing outbox.
  */
-import {D6_READER_BASE,D6_READER_ORIGIN} from './d6-public-reader.mjs';
+import {D6_READER_BASE,D6_READER_ORIGIN,D6_WP3_STAGING_ORIGIN} from './d6-public-reader.mjs';
 const SHA=/^[a-f0-9]{40}$/;
 const HASH=/^[a-f0-9]{64}$/;
 const KEY=/^(gear|kb|catches):(edit:[a-z0-9-]+|add:[a-z0-9-]+)$/;
@@ -70,14 +70,15 @@ function indexedDbIO(indexedDB){
   delete:key=>run('readwrite',s=>s.delete(key))};
 }
 export function createD6OwnerDeviceDraftStore({
- enabled=false,root,io=null,indexedDB=globalThis.indexedDB,
+ enabled=false,root,wp3Staging=false,io=null,indexedDB=globalThis.indexedDB,
 }={}){
  if(enabled!==true)return null;
  let url;
  try{url=new URL(root);}catch{throw Error('DEVICE_DRAFT_SCOPE_DENIED');}
  const loopback=url.protocol==='http:'&&
   ['localhost','127.0.0.1','[::1]'].includes(url.hostname);
- if((url.origin!==D6_READER_ORIGIN&&!loopback)||
+ if(typeof wp3Staging!=='boolean'||
+  (url.origin!==(wp3Staging?D6_WP3_STAGING_ORIGIN:D6_READER_ORIGIN)&&!loopback)||
   url.pathname!==OWNER_SCOPE||url.search||url.hash||
   url.username||url.password)
   throw Error('DEVICE_DRAFT_SCOPE_DENIED');
