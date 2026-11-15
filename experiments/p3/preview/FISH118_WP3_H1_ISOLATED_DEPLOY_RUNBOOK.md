@@ -28,11 +28,15 @@ In GitHub [run #43639313066](https://github.com/ginosega/fishing/actions/runs/43
 ```powershell
 $pages = Join-Path $HOME "fishing-wp3-h1-pages"
 $p = Get-Content (Join-Path $pages "fishing\release.json") -Raw | ConvertFrom-Json
-if ($p.releaseId -ne "14ca85788af5a057933f74d85b242566" -or
+if ($p.id -ne "14ca85788af5a057933f74d85b242566" -or
     $p.sourceRevision -ne "75978eaf787f9964bc645cbc8113f5be0213fd2d" -or
     $p.d6Wp3Staging -ne $true -or $p.d6Wp2Staging -eq $true -or
+    $p.d6ReaderCandidate -ne $true -or
     $p.d6OwnerEditorPreview -ne $true -or $p.pendingMedia -ne $false) {
     throw "Incorrect WP3 Pages immutable release"
+}
+if ($p.manifest -ne "releases/$($p.id)/manifest.json") {
+    throw "Unexpected WP3 Pages manifest path"
 }
 if (!(Test-Path (Join-Path $pages "fishing\index.html")) -or
     (Test-Path (Join-Path $pages "index.html"))) { throw "Unexpected Pages physical root" }
@@ -51,8 +55,12 @@ This is a Cloudflare write, but within the owner's approved **isolated H1 read-o
 ```powershell
 npx wrangler pages deployment list --project-name fishing-v3-wp3-test
 $hosted = Invoke-RestMethod -Uri "https://fishing-v3-wp3-test.pages.dev/fishing/release.json" -Method Get
-$hosted | Select-Object releaseId,sourceRevision,d6Wp3Staging,d6OwnerEditorPreview,pendingMedia
+$hosted | Select-Object id,sourceRevision,d6Wp3Staging,d6OwnerEditorPreview,pendingMedia
 ```
+
+**Field correction (2026-11-14):** The immutable `release.json` pointer uses `id`, **not** `releaseId`. The WP2 marker is omitted altogether when false. The per-asset manifest intentionally contains both root assets (`index.html`, `loader.js`, etc.) **and** immutable `releases/<id>/...` paths. Never require every manifest entry to start with `releases/`; follow the canonical `pwa/src/release.mjs` manifest contract. The original operator's initial checks failed because of these verifier assumptions; corrected local verification eventually reported PASS for all 575 local file hashes.
+
+**Owner-reported hosted receipt:** the operator compared hosted `https://fishing-v3-wp3-test.pages.dev/fishing/release.json` SHA256 to the exact verified local file and reported **PASS**; the sourceRevision and WP3 flag match. The pasted output displayed `releaseId` (blank) instead of `id`, because that select-field was wrong. Successful Pages deployment output/ID was not pasted, and no full hosted-manifest/575-asset readback has yet been shown. Treat this as hosted pointer proof only. Next run independent SHA256 checks of the hosted manifest and all 575 hosted assets, and preserve count/failure evidence before moving to the Worker.
 
 Check the hosted release identity and required release/manifest bytes; a successful upload alone is **not** full hosted hash validation. Do not launch H1 Worker if hosted release does not match.
 
