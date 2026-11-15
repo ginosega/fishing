@@ -89,15 +89,15 @@ test('WP3-H1-UI05 Connection Status adapter is bound to exact isolated origin',a
  for(const root of [PROD,WP2,'https://evil.invalid/fishing/']){
   assert.throws(()=>createD6OwnerConnectionAdapter({
    root,wp3Staging:true,ownerReadiness:readiness,request:async()=>{},
-  }),/root denied/);
+  }),/D6 Connection Status prerequisites denied/);
  }
  assert.throws(()=>createD6OwnerConnectionAdapter({
   root:STAGE,ownerReadiness:readiness,request:async()=>{},
- }),/root denied/);
+ }),/D6 Connection Status prerequisites denied/);
  assert.throws(()=>createD6OwnerConnectionAdapter({
   root:STAGE,wp2Staging:true,wp3Staging:true,
   ownerReadiness:readiness,request:async()=>{},
- }),/root denied/);
+ }),/D6 Connection Status prerequisites denied/);
 });
 test('WP3-H1-UI06 staged owner drafts are device-local and origin isolated',async()=>{
  const rows=new Map();
