@@ -14,6 +14,8 @@ import {D6_WP3_STAGING_ORIGIN as ORIGIN}
  from '../src/d6-public-reader.mjs';
 import {createD6Wp3H2OperatorApproval}
  from './d6-wp3-h2-operator-approval.mjs';
+import {createD6Wp3H2OwnerCsrfHandoff,D6_WP3_H2_OWNER_CSRF_PATH}
+ from './d6-wp3-h2-owner-csrf.mjs';
 
 const readPins=Object.freeze([
  'D6_PRODUCTION_ENABLED','D6_GATEWAY_ENABLED',
@@ -64,6 +66,18 @@ export function createD6Wp3H2Worker({
   try{url=new URL(request.url);}catch{return missing();}
   if(url.origin!==ORIGIN||url.username||url.password||
    request.headers.has('Authorization'))return missing();
+  // An exact H2-only owner CSRF handoff. No fallback into read Pages or
+  // general /session; nothing exists while writer/operator gates are OFF.
+  if(url.pathname==='/api/v3/h2'||
+   url.pathname.startsWith('/api/v3/h2/')){
+   if(url.pathname!==D6_WP3_H2_OWNER_CSRF_PATH||
+    !writerSwitches(env))return missing();
+   const operator=createD6Wp3H2OperatorApproval({env,now,cryptoApi});
+   const handoff=createD6Wp3H2OwnerCsrfHandoff({
+    env,now,enabled:()=>writerSwitches(env)&&operator.approved(),
+   });
+   return handoff.serve(request);
+  }
   if(WRITE.test(url.pathname)){
    // A URL in the write namespace must never fall through to Pages or the
    // read gateway, even if its path, method or host is malformed.
