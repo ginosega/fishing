@@ -29,7 +29,8 @@
     "D6_WP3_WRITE_ENABLED": "false",
     "D6_WP3_MOUNT_ENABLED": "false",
     "D6_WP3_ISOLATED_WRITE_PROFILE_ENABLED": "false",
-    "D6_WP3_H2_OPERATOR_APPROVED": "false"
+    "D6_WP3_H2_OPERATOR_APPROVED": "false",
+    "D6_WP3_H2_DIAGNOSTICS_ENABLED": "false"
   },
   "d1_databases": [
     {
