@@ -1,0 +1,44 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "fishing-v3-wp3-test",
+  "main": "./server/d6-wp3-h1-read-only-worker.mjs",
+  "compatibility_date": "2026-11-14",
+  "workers_dev": true,
+  "vars": {
+    "D6_WP3_H1_READ_ONLY_ENABLED": "true",
+    "D6_PRODUCTION_ENABLED": "true",
+    "D6_GATEWAY_ENABLED": "true",
+    "D6_ORIGIN": "https://fishing-v3-wp3-test.ginosega.workers.dev",
+    "D6_OWNER_GITHUB_ID": "265665562",
+    "D6_REPOSITORY_ID": "1350909744",
+    "D6_WP3_ISOLATED_READ_ENABLED": "true",
+    "D6_WP3_ISOLATED_PAGES_ENABLED": "true",
+    "D6_WP3_READ_PROFILE_ENABLED": "true",
+    "D6_WP2_STAGING_ENABLED": "false",
+    "D6_ISOLATED_PAGES_ENABLED": "false",
+    "D6_STATIC_ENABLED": "true",
+    "D6_SESSION_ENABLED": "true",
+    "D6_OAUTH_ENABLED": "true",
+    "D6_SOURCE_ENABLED": "true",
+    "D6_READ_TOKEN_ENABLED": "true",
+    "D6_SIGNER_ENABLED": "true",
+    "D6_SIGNOUT_ENABLED": "true",
+    "D6_HOSTED_PREFLIGHT_ENABLED": "false",
+    "D6_WP3_RUNTIME_ENABLED": "false",
+    "D6_WP3_WRITE_ENABLED": "false",
+    "D6_WP3_MOUNT_ENABLED": "false",
+    "D6_WP3_ISOLATED_WRITE_PROFILE_ENABLED": "false"
+  },
+  "d1_databases": [
+    {
+      "binding": "AUTH_DB",
+      "database_name": "fishing-v3-wp3-auth-test",
+      "database_id": "0d8da698-87b8-4b5e-a1e7-fe6de49e5afc"
+    },
+    {
+      "binding": "WP3_DB",
+      "database_name": "fishing-v3-wp3-operations-test",
+      "database_id": "5a47841e-7874-4ec8-9fa8-be0315f6a802"
+    }
+  ]
+}

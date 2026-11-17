@@ -30,6 +30,30 @@ test('strict schema rejects unknown fields, duplicate IDs, invalid dates and bro
  const ref=clone(data);ref.catches.catches[0].speciesId='retired-species';assert.throws(()=>validateRecords(ref),/speciesId/);
  const wrong=clone(data);wrong.catches.catches[0].lureOrBaitId='daiwa-tatula-xt-rod';assert.throws(()=>validateRecords(wrong),/lure\/bait/);
 });
+test('WP3 approved optional Catch names remain bounded and preserve strict schema',()=>{
+ const sample={id:'catch-optional-name-regression',date:'2026-11-12',
+  speciesName:'Unlisted species',locationName:'Unnamed bay',
+  lureOrBaitName:'Homemade spoon'};
+ assert(validateRecord(sample,'catches',data));
+ const withNames=clone(data);withNames.catches.catches.push(sample);
+ const verified=validateRecords(withNames);
+ assert(verified.catches.has(sample.id));
+ assert.equal(withNames.catches.schemaVersion,2);
+ for(const field of ['speciesName','locationName','lureOrBaitName']){
+  for(const value of ['', 'x'.repeat(161), 42]){
+   const invalid=clone(withNames);
+   invalid.catches.catches.at(-1)[field]=value;
+   assert.throws(()=>validateRecords(invalid),/schema/i);
+  }
+ }
+ const forged=clone(withNames);
+ forged.catches.catches.at(-1).unapprovedPhoto='ignored';
+ assert.throws(()=>validateRecords(forged),/schema/i);
+ const badRef=clone(withNames);
+ badRef.catches.catches.at(-1).speciesId='unknown-species';
+ assert.throws(()=>validateRecords(badRef),/speciesId/);
+});
+
 test('dates and ordered domain sorting are deterministic',()=>{
  assert(localDateValid('2024-02-29'));assert(!localDateValid('2025-02-29'));assert(!localDateValid('2026-13-01'));
  assert.deepEqual(sortGear([{type:'B',name:'Z'},{type:'A',name:'Z'},{type:'A',name:'A'}]).map(x=>x.name),['A','Z','Z']);

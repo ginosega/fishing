@@ -24,7 +24,7 @@ function localPath(owner,relative){
 function section(url){return url?`?section=${encodeURIComponent(decode(url.slice(1)))}`:'';}
 export function resolveMarkdownTarget(url,{owner,maps,assetBase,pathRoutes=new Map(),ownerRoute}={}){
  assert(typeof url==='string'&&url.length>0,'Empty Markdown URL');
- if(/^(gear|kb):\/\//.test(url))return {target:internalLink(url,maps),kind:'internal'};
+ if(/^(gear|kb|catches|site):\/\//.test(url))return {target:internalLink(url,maps),kind:'internal'};
  if(url.startsWith('#'))return {target:(ownerRoute||pathRoutes.get(owner)||'#/')+section(url),kind:'anchor'};
  if(/^https?:\/\//i.test(url)){const u=new URL(url);assert(['http:','https:'].includes(u.protocol),'Unsafe URL');return {target:url,kind:'external'};}
  if(url.startsWith('//')||url.startsWith('/')||url.includes('\\')||/^[a-z][a-z0-9+.-]*:/i.test(url))throw new Error(`Unsafe Markdown URL: ${url}`);
@@ -35,7 +35,7 @@ export function resolveMarkdownTarget(url,{owner,maps,assetBase,pathRoutes=new M
  if(route)return {target:route+section(fragment),kind:'internal',local};
  return {target:new URL('content/'+encodedPath(local)+query+fragment,assetBase).href,kind:'local',local};
 }
-export function parseMarkdown(text,{owner,maps,assetBase='https://example.invalid/fishing/releases/test/',exists,pathRoutes=new Map(),ownerRoute,allowMissing=false}={}){
+export function parseMarkdown(text,{owner,maps,assetBase='https://example.invalid/fishing/releases/test/',exists,pathRoutes=new Map(),ownerRoute,allowMissing=false,allowMissingImages=false,viewerImages=false}={}){
  const tokens=md.parse(text,{}),references=[];
  function walk(items){for(const token of items){
   if(token.children)walk(token.children);
@@ -46,8 +46,22 @@ export function parseMarkdown(text,{owner,maps,assetBase='https://example.invali
   if(image){
    if(resolved.kind!=='local'||!imageExtension.test(resolved.local)||/[?#]/.test(original))throw new Error(`Remote or unsafe Markdown image: ${owner} -> ${original}`);
   }
-  if(resolved.local&&exists&&!exists.has(resolved.local)&&!allowMissing)throw new Error(`Missing Markdown resource: ${owner} -> ${resolved.local}`);
-  references.push({owner,kind:image?'image':'link',source:original,...resolved});token.attrSet(attr,resolved.target);if(!image&&resolved.kind==='external'){token.attrSet('target','_blank');token.attrSet('rel','noopener noreferrer');}
+  const title=image?token.attrGet('title')||'':'';
+  const viewerMatch=viewerImages&&image?/^viewer(?:\s*:\s*(.*))?$/i.exec(title.trim()):null;
+  if(viewerMatch){
+   if(viewerMatch[1])token.attrSet('title',viewerMatch[1]);
+   else token.attrs=token.attrs?.filter(([key])=>key!=='title')||[];
+  }
+  const missing=Boolean(resolved.local&&exists&&!exists.has(resolved.local));
+  if(missing&&!allowMissing&&!(image&&allowMissingImages))
+   throw new Error(`Missing Markdown resource: ${owner} -> ${resolved.local}`);
+  references.push({owner,kind:image?'image':'link',source:original,...resolved,
+   ...(viewerImages&&image?{isImage:true,viewerEnabled:Boolean(viewerMatch),viewerCaption:viewerMatch?.[1]||''}:{}),
+   ...(image&&missing&&allowMissingImages?{missing:true}:{})});
+  token.attrSet(attr,resolved.target);
+  if(!image&&resolved.kind==='external'){
+   token.attrSet('target','_blank');token.attrSet('rel','noopener noreferrer');
+  }
  }}
  walk(tokens);
  const headings=new Map();for(let i=0;i<tokens.length;i++)if(tokens[i].type==='heading_open'){

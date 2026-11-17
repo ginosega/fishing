@@ -2,7 +2,7 @@ import {createApp} from './ui.mjs';
 import {validateRecords} from './validation.mjs';
 import {DOMAIN,encodedPath} from './shared.mjs';
 
-export async function bootstrap({root,release}){
+export async function bootstrap({root,release},{v3=null}={}){
  const base=new URL('releases/'+release.id+'/',root).href;
  const data={};
  for(const [domain,config] of Object.entries(DOMAIN)){
@@ -17,7 +17,9 @@ export async function bootstrap({root,release}){
   const thumb=manifest.cardThumbnails?.[file];
   return thumb?new URL('card-thumbnails/'+encodedPath(thumb),base).href:asset(file);
  };
- const context={root,base,release,manifest,data,maps,asset,thumbnail};
+ const context={root,base,release,manifest,data,maps,asset,thumbnail,
+  ...(v3?.enabled===true&&v3?.readerOnly===true?{v3}:{}),
+ };
  window.__FISHING_V2__={releaseId:release.id,sourceRevision:release.sourceRevision,counts:{gear:data.gear.items.length,kb:data.kb.entities.length,catches:data.catches.catches.length}};
  createApp(context);
 }

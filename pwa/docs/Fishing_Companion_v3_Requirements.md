@@ -112,6 +112,8 @@ The original v2 requirements and approved changes remain authoritative for behav
 
 **V3-CATCH-04.** Do not add Catch picture capture/storage, GPS, trips, sessions, additional required fields, or new authoring-time obligations.
 
+**Owner-approved narrow Catch schema clarification (November 12, 2026):** Allow three **optional** free-text fields `speciesName`, `locationName`, and `lureOrBaitName` (1–160 characters when present) alongside the existing optional linked-ID fields. This aligns the approved V3 Catch editor's unlisted-name/Other choices with canonical validation. Preserve the v2 Catch bundle `schemaVersion: 2`, existing records and references; no new required field, data migration, representative Catch image, or unrelated schema redesign. These optional names do not create new Gear/KB entities and do not bypass validation of any linked ID.
+
 ### V3-VIEW — Markdown image viewing
 
 **V3-VIEW-01.** Activating a locally referenced image rendered inside Gear Notes, KB Content, or Catch Notes opens the existing Picture Viewer with original image quality, zoom/pan/pinch and accessible dismissal.

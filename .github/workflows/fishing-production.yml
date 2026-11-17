@@ -114,7 +114,13 @@ jobs:
     if: needs.classify.outputs.mode == 'full'
     needs: classify
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
+    # Playwright 1.62.0 official Ubuntu Noble image includes Chromium,
+    # WebKit and their system libraries. Two exact-head PR runs hit the
+    # 20-minute GitHub runner apt-mirror timeout before any browser test.
+    # Keep browser suites required; remove only unreliable apt installation.
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.0-noble
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -125,6 +131,17 @@ jobs:
           node-version: '24'
           cache: npm
           cache-dependency-path: pwa/package-lock.json
+      # Browser container intentionally omits unzip; use Python's standard
+      # library to extract the SHA256-verified immutable v1 fixture.
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: '3.12'
+      - name: Trust checked-out workspace in pinned Playwright container
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -d "$GITHUB_WORKSPACE/.git"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - name: Verify durable v1 recovery and prepare actual cutover fixture
         run: |
           git show 4aafcd2f88b35bb34b608e2f85dec1daffc6c1d1:recovery/v1-production.zip > /tmp/v1-production.zip
@@ -132,7 +149,8 @@ jobs:
           git show 4aafcd2f88b35bb34b608e2f85dec1daffc6c1d1:recovery/v1-migration-source.zip > /tmp/v1-migration-source.zip
           echo '83100e9cf2788b2d33959b39a6bb63fdd0e78c5e512936a07e46b22632bf7dbf  /tmp/v1-migration-source.zip' | sha256sum --check
           mkdir /tmp/v1-root
-          unzip -q /tmp/v1-production.zip -d /tmp/v1-root
+          python -m zipfile -e /tmp/v1-production.zip /tmp/v1-root
+          test -n "$(find /tmp/v1-root -type f -print -quit)"
       - name: Install and audit locked dependencies
         timeout-minutes: 5
         working-directory: pwa
@@ -146,10 +164,16 @@ jobs:
           npm test
           npm run build -- --pending-media --source-revision="$GITHUB_SHA"
           npm run verify
-      - name: Install Chromium and WebKit
-        timeout-minutes: 10
+      - name: Confirm pinned Playwright 1.62.0 Chromium and WebKit are preinstalled
+        timeout-minutes: 2
         working-directory: pwa
-        run: npx playwright install --with-deps chromium webkit
+        shell: bash
+        run: |
+          set -euo pipefail
+          node -e 'const p=require("./node_modules/playwright-core/package.json");if(p.version!=="1.62.0")process.exit(1)'
+          test -d /ms-playwright
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npx playwright --version
+          node --input-type=module -e 'import {chromium,webkit} from "@playwright/test";import fs from "node:fs";for(const t of [chromium,webkit]){const p=t.executablePath();if(!fs.existsSync(p))throw Error("Missing bundled browser: "+p);}'
       - name: Preserve preview scope regression coverage
         timeout-minutes: 12
         working-directory: pwa
@@ -162,6 +186,117 @@ jobs:
         run: |
           npm run build -- --base=/fishing/ --source-revision="$GITHUB_SHA"
           npm run verify
+      - name: Build and verify isolated D6 read-only release
+        timeout-minutes: 7
+        working-directory: pwa
+        run: |
+          npm run build -- --d6-reader-candidate --base=/fishing/ --out=dist-d6-reader --source-revision="$GITHUB_SHA"
+          node tools/verify.mjs --out=dist-d6-reader
+          node --input-type=module -e 'import fs from "node:fs";const p=JSON.parse(fs.readFileSync("dist-d6-reader/release.json"));const m=JSON.parse(fs.readFileSync("dist-d6-reader/"+p.manifest));if(!p.d6ReaderCandidate||!m.d6ReaderCandidate||m.base!=="/fishing/"||p.sourceRevision!==process.env.GITHUB_SHA)process.exit(1);'
+      - name: Build and verify isolated D6 static-staging release (no deploy)
+        timeout-minutes: 7
+        working-directory: pwa
+        run: |
+          npm run build -- --d6-reader-candidate --d6-static-staging --base=/fishing/ --out=dist-d6-static-staging --source-revision="$GITHUB_SHA"
+          node tools/verify.mjs --out=dist-d6-static-staging
+          node --input-type=module -e 'import fs from "node:fs";const p=JSON.parse(fs.readFileSync("dist-d6-static-staging/release.json"));const m=JSON.parse(fs.readFileSync("dist-d6-static-staging/"+p.manifest));if(!p.d6ReaderCandidate||!m.d6ReaderCandidate||!p.d6StaticStaging||!m.d6StaticStaging||m.base!=="/fishing/"||p.sourceRevision!==process.env.GITHUB_SHA)process.exit(1);'
+      - name: Package and verify physical D6 Stage A Pages tree (no deploy)
+        timeout-minutes: 7
+        working-directory: pwa
+        run: |
+          node tools/package-d6-static-pages.mjs --in=dist-d6-static-staging --out=dist-d6-static-pages-upload
+          node tools/verify.mjs --out=dist-d6-static-pages-upload/fishing
+          test -f dist-d6-static-pages-upload/fishing/index.html
+          test -f dist-d6-static-pages-upload/fishing/release.json
+          test ! -f dist-d6-static-pages-upload/index.html
+      - name: Build and browser-test isolated D6 approved owner UI (no deploy)
+        timeout-minutes: 12
+        working-directory: pwa
+        run: |
+          npm run build -- --d6-reader-candidate --d6-owner-connection-candidate --base=/fishing/ --out=dist-d6-owner-connection --source-revision="$GITHUB_SHA"
+          node tools/verify.mjs --out=dist-d6-owner-connection
+          node --input-type=module -e 'import fs from "node:fs";const p=JSON.parse(fs.readFileSync("dist-d6-owner-connection/release.json"));const m=JSON.parse(fs.readFileSync("dist-d6-owner-connection/"+p.manifest));if(!p.d6ReaderCandidate||!m.d6ReaderCandidate||!p.d6OwnerConnectionCandidate||!m.d6OwnerConnectionCandidate||p.d6StaticStaging||m.d6StaticStaging||m.base!=="/fishing/"||p.sourceRevision!==process.env.GITHUB_SHA)process.exit(1);'
+          FISHING_D6_OWNER_CONNECTION_DIST=dist-d6-owner-connection npx playwright test test/d6-owner-connection-candidate.spec.mjs
+          mv .test-output .d6-owner-ui-test-output
+      - name: Build and browser-test WP1 owner editor preview on actual records (no deploy)
+        timeout-minutes: 15
+        working-directory: pwa
+        run: |
+          npm run build -- --d6-reader-candidate --d6-owner-connection-candidate --d6-owner-editor-preview --base=/fishing/ --out=dist-d6-wp1-owner-editor --source-revision="$GITHUB_SHA"
+          node tools/verify.mjs --out=dist-d6-wp1-owner-editor
+          node --input-type=module -e 'import fs from "node:fs";const p=JSON.parse(fs.readFileSync("dist-d6-wp1-owner-editor/release.json"));const m=JSON.parse(fs.readFileSync("dist-d6-wp1-owner-editor/"+p.manifest));if(!p.d6ReaderCandidate||!m.d6ReaderCandidate||!p.d6OwnerConnectionCandidate||!m.d6OwnerConnectionCandidate||!p.d6OwnerEditorPreview||!m.d6OwnerEditorPreview||p.d6StaticStaging||m.d6StaticStaging||p.sourceRevision!==process.env.GITHUB_SHA||m.base!=="/fishing/")process.exit(1);'
+          FISHING_D6_OWNER_EDITOR_DIST=dist-d6-wp1-owner-editor npx playwright test test/d6-owner-editor-preview.spec.mjs
+          mv .test-output .wp1-owner-editor-test-output
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: github.event_name == 'pull_request'
+        with:
+          name: d6-wp1-owner-editor-preview-source-only
+          path: pwa/dist-d6-wp1-owner-editor/
+          retention-days: 14
+      - name: Assert read-only real-record candidate retains current canonical main content
+        timeout-minutes: 2
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Reject a stale/sandbox catalog even if its preview still renders.
+          git rev-parse --verify refs/remotes/origin/main
+          git diff --exit-code refs/remotes/origin/main HEAD -- pwa/Gear/ pwa/KB/ pwa/Catches/
+      - name: Package and verify actual real-record owner UI for isolated staging (no deploy)
+        timeout-minutes: 7
+        working-directory: pwa
+        run: |
+          node tools/package-d6-static-pages.mjs --in=dist-d6-owner-connection --out=dist-d6-owner-pages-upload --mode=owner-read-only
+          node tools/verify.mjs --out=dist-d6-owner-pages-upload/fishing
+          cmp dist-d6-owner-connection/release.json dist-d6-owner-pages-upload/fishing/release.json
+          test -f dist-d6-owner-pages-upload/fishing/index.html
+          test ! -f dist-d6-owner-pages-upload/index.html
+      - name: Build and verify exact isolated WP3 H1 Pages owner/editor release (no deploy)
+        timeout-minutes: 9
+        working-directory: pwa
+        run: |
+          npm run build -- --d6-reader-candidate --d6-owner-connection-candidate --d6-owner-editor-preview --d6-wp3-hosted-candidate --base=/fishing/ --out=dist-d6-wp3-h1-owner-editor --source-revision="$GITHUB_SHA"
+          node tools/verify.mjs --out=dist-d6-wp3-h1-owner-editor
+          node --input-type=module -e 'import fs from "node:fs";const p=JSON.parse(fs.readFileSync("dist-d6-wp3-h1-owner-editor/release.json"));const m=JSON.parse(fs.readFileSync("dist-d6-wp3-h1-owner-editor/"+p.manifest));if(!p.d6ReaderCandidate||!m.d6ReaderCandidate||!p.d6OwnerConnectionCandidate||!m.d6OwnerConnectionCandidate||!p.d6OwnerEditorPreview||!m.d6OwnerEditorPreview||!p.d6Wp3Staging||!m.d6Wp3Staging||p.d6Wp2Staging||m.d6Wp2Staging||p.d6StaticStaging||m.d6StaticStaging||p.pendingMedia!==false||m.pendingMedia!==false||p.sourceRevision!==process.env.GITHUB_SHA||m.base!=="/fishing/")process.exit(1);'
+          node tools/package-d6-static-pages.mjs --in=dist-d6-wp3-h1-owner-editor --out=dist-d6-wp3-h1-pages-upload --mode=wp3-owner-preview
+          node tools/verify.mjs --out=dist-d6-wp3-h1-pages-upload/fishing
+          cmp dist-d6-wp3-h1-owner-editor/release.json dist-d6-wp3-h1-pages-upload/fishing/release.json
+          test -f dist-d6-wp3-h1-pages-upload/fishing/index.html
+          test ! -f dist-d6-wp3-h1-pages-upload/index.html
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: github.event_name == 'pull_request'
+        with:
+          name: d6-wp3-h1-pages-source-only
+          path: pwa/dist-d6-wp3-h1-pages-upload/
+          retention-days: 14
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: github.event_name == 'pull_request'
+        with:
+          name: d6-final-owner-real-records-source-only
+          path: pwa/dist-d6-owner-pages-upload/
+          retention-days: 14
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: github.event_name == 'pull_request'
+        with:
+          name: d6-reader-candidate-source-only
+          path: pwa/dist-d6-reader/
+          retention-days: 14
+      - name: Prepare exact WP3 H1 D1 SQL for owner-reviewed isolated provisioning (no execute)
+        timeout-minutes: 2
+        working-directory: pwa
+        shell: bash
+        run: |
+          set -euo pipefail
+          node tools/prepare-d6-wp3-h1-migrations.mjs --out="${RUNNER_TEMP}/d6-wp3-h1-sql" --source-revision="$GITHUB_SHA"
+          test -f "${RUNNER_TEMP}/d6-wp3-h1-sql/auth.sql"
+          test -f "${RUNNER_TEMP}/d6-wp3-h1-sql/operations.sql"
+          test -f "${RUNNER_TEMP}/d6-wp3-h1-sql/manifest.json"
+          node --input-type=module -e 'import fs from "node:fs";import {createHash} from "node:crypto";const d=process.env.RUNNER_TEMP+"/d6-wp3-h1-sql/";const m=JSON.parse(fs.readFileSync(d+"manifest.json"));if(m.sourceRevision!==process.env.GITHUB_SHA||m.executed!==false||m.canPublish!==false||m.auth.tables.length!==2||m.operations.tables.length!==10)process.exit(1);for(const t of [m.auth,m.operations])if(createHash("sha256").update(fs.readFileSync(d+t.file)).digest("hex")!==t.sha256)process.exit(1);'
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: github.event_name == 'pull_request'
+        with:
+          name: d6-wp3-h1-sql-source-only
+          path: ${{ runner.temp }}/d6-wp3-h1-sql/
+          retention-days: 14
       - name: Complete production browser and real v1 cutover acceptance
         timeout-minutes: 15
         working-directory: pwa
@@ -181,6 +316,8 @@ jobs:
           path: |
             pwa/.test-output/
             pwa/.preview-test-output/
+            pwa/.d6-owner-ui-test-output/
+            pwa/.wp1-owner-editor-test-output/
           include-hidden-files: true
           retention-days: 90
 
