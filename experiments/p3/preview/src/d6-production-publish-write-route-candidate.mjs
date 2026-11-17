@@ -34,8 +34,8 @@ const HEADERS=Object.freeze({
  'X-Robots-Tag':'noindex, nofollow',
  'Cross-Origin-Resource-Policy':'same-origin',
 });
-const reply=(status,value)=>new Response(JSON.stringify(value),{
- status,headers:HEADERS,
+const reply=(status,value,extraHeaders={})=>new Response(JSON.stringify(value),{
+ status,headers:{...HEADERS,...extraHeaders},
 });
 const unavailable=()=>reply(503,{ok:false,error:'TEMPORARILY_UNAVAILABLE'});
 const missing=()=>reply(404,{ok:false,error:'NOT_FOUND'});
@@ -88,17 +88,28 @@ export function createD6ProductionPublishWriteRouteCandidate({
  session,receipts,dispatcher,getTrustedCurrentMain,
  enabled=()=>false,writeEnabled=()=>false,
  origin=ORIGIN,isolatedOriginEnabled=()=>false,
+ diagnosticStageEnabled=()=>false,
 }={}){
  if(typeof session?.authorizeWrite!=='function'||
   typeof receipts?.accept!=='function'||
   !['current','beginOne','reconcileOne'].every(k=>
    typeof dispatcher?.[k]==='function')||
   typeof getTrustedCurrentMain!=='function'||
-  typeof enabled!=='function'||typeof writeEnabled!=='function')
+  typeof enabled!=='function'||typeof writeEnabled!=='function'||
+  typeof diagnosticStageEnabled!=='function')
   throw Error('invalid WP3 write-route dependencies');
  const originGate=createD6Wp3PinnedWriteOrigin({
   origin,isolatedEnabled:isolatedOriginEnabled,
  });
+ // H2-only opt-in: preserve the original 503 body. A fixed stage header
+ // may be emitted only after the owner/session/CSRF gate succeeds, never
+ // from an exception string, token, URL or provider response body.
+ const stageUnavailable=stage=>{
+  let allowed=false;
+  try{allowed=diagnosticStageEnabled()===true;}catch{}
+  return reply(503,{ok:false,error:'TEMPORARILY_UNAVAILABLE'},
+   allowed?{'X-Fish-V3-H2-Failure-Stage':stage}:{});
+ };
 
  async function serve(request){
   if(enabled()!==true||!originGate.enabled())return missing();
@@ -126,20 +137,26 @@ export function createD6ProductionPublishWriteRouteCandidate({
   if(enabled()!==true||!originGate.enabled())return unavailable();
   if(accepting){
    if(writeEnabled()!==true)return unavailable();
+   let main;
    try{
-    const main=await getTrustedCurrentMain({
+    main=await getTrustedCurrentMain({
      repositoryId:REPO.id,ref:REPO.ref,
     });
-    if(main?.verified!==true||
-     main.repositoryId!==REPO.id||main.ref!==REPO.ref||
-     !SHA.test(main.sourceRevision??''))return unavailable();
-    if(enabled()!==true||writeEnabled()!==true)
-     return unavailable();
-    const accepted=await receipts.accept(request.clone(),{
+   }catch{return stageUnavailable('MAIN_LOOKUP');}
+   if(main?.verified!==true||
+    main.repositoryId!==REPO.id||main.ref!==REPO.ref||
+    !SHA.test(main.sourceRevision??''))
+    return stageUnavailable('MAIN_UNVERIFIED');
+   if(enabled()!==true||writeEnabled()!==true)
+    return stageUnavailable('GATE_REVOKED');
+   let accepted;
+   try{
+    accepted=await receipts.accept(request.clone(),{
      trustedMainSha:main.sourceRevision,
     });
-    return reply(202,operation(accepted));
-   }catch{return unavailable();}
+   }catch{return stageUnavailable('RECEIPT_ACCEPT');}
+   try{return reply(202,operation(accepted));}
+   catch{return stageUnavailable('RECEIPT_FORMAT');}
   }
   // All control calls accept only the empty, unambiguous JSON object.
   // The next step is D1-derived and server-approved, never client-selected.
