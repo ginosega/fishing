@@ -302,6 +302,11 @@ export function createD6ProductionWp3TrustedHostCandidate({
    getTrustedCurrentMain:canonicalMain.getTrustedCurrentMain,
    enabled:writesOn,writeEnabled:writesOn,
    origin:selectedOrigin,isolatedOriginEnabled,
+   // Only the exact isolated H2 fixture may opt in to nonsecret 503
+   // stage labels; production and all other profiles remain generic.
+   diagnosticStageEnabled:()=>isolatedSelected&&
+    env.D6_WP3_H2_TEST_NAME==='WP3-H2-SYNTH-KB-001'&&
+    env.D6_WP3_H2_DIAGNOSTICS_ENABLED==='true'&&writesOn(),
   });
   const mediaRoute=createD6ProductionMediaWriteRouteCandidate({
    session:actor,stage,reconciliation,
