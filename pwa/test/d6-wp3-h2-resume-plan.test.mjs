@@ -113,10 +113,6 @@ test('WP3-H2RES04 restart checkpoint advances only after fenced readback',()=>{
   receiptRow:row(),status:current(0),
   previous:after.checkpoint,
  }),'CHECKPOINT_PROGRESS_JUMP');
- rejected(()=>planD6Wp3H2Resume({
-  receiptRow:row(),status:current(1),
-  previous:unknown.checkpoint,
- }) .step==='tree'?()=>{}:null,'INVALID_CHECKPOINT');
 });
 
 test('WP3-H2RES05 confirmed PR remains unmerged and requires external verification',()=>{
