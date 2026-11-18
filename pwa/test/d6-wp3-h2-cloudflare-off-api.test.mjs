@@ -99,7 +99,10 @@ test('WP3-OFF03 disabled/unknown Cloudflare account or missing credentials deny'
 });
 
 test('WP3-OFF04 old OFF entry in history cannot masquerade as active OFF',async()=>{
- const f=fixture({listData:[previous(),latest()]});
+ const f=fixture({listData:[
+  {...latest(),versions:[{version_id:ACTIVE,percentage:100}]},
+  {...previous(),versions:[{version_id:OFF,percentage:100}]},
+ ]});
  await err(f.api.verifyTraffic(),'OFF_NOT_100_PERCENT');
  assert.equal(f.calls.length,1);
 });
@@ -118,7 +121,7 @@ test('WP3-OFF05 split/foreign/current version, incorrect percent or order deny',
   assert.equal(f.calls.length,1);
  }
  const unordered=fixture({listData:[previous(),latest()]});
- await err(unordered.api.verifyTraffic(),'OFF_NOT_100_PERCENT');
+ await err(unordered.api.verifyTraffic(),'DEPLOYMENT_ORDER_UNVERIFIED');
  const dup=fixture({listData:[latest(),{...previous(),
   created_on:latest().created_on}]});
  await err(dup.api.verifyTraffic(),'DEPLOYMENT_ORDER_UNVERIFIED');
