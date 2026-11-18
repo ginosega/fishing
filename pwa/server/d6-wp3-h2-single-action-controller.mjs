@@ -19,6 +19,8 @@ import {
 const STEPS=Object.freeze(['tree','branch','commit','advance','pr']);
 const ORIGIN='https://fishing-v3-wp3-test.ginosega.workers.dev';
 const WORKER='fishing-v3-wp3-test';
+const REPO='ginosega/fishing';
+const OWNER=265665562,REPO_ID=1350909744;
 const AUTH_DB='0d8da698-87b8-4b5e-a1e7-fe6de49e5afc';
 const WP3_DB='5a47841e-7874-4ec8-9fa8-be0315f6a802';
 const SHA40=/^[a-f0-9]{40}$/;
@@ -52,7 +54,10 @@ export function createD6Wp3H2PhasedController({
  let running=false;
 
  function validateRequest(req) {
-  need(plain(req)&&['intake','step','reconcile'].includes(req.mode)&&
+  const allowed=['mode','sourceRevision','artifactHead',
+   'envelopeSha256','approvalRef','operationId','step','previous'];
+  need(plain(req)&&Object.keys(req).every(k=>allowed.includes(k))&&
+   ['intake','step','reconcile'].includes(req.mode)&&
    SHA40.test(req.sourceRevision??'')&&
    SHA40.test(req.artifactHead??'')&&
    SHA64.test(req.envelopeSha256??'')&&
@@ -66,6 +71,8 @@ export function createD6Wp3H2PhasedController({
  function validPreflight(p,req) {
   need(plain(p)&&p.verified===true&&
    p.isolatedOrigin===ORIGIN&&p.workerName===WORKER&&
+   p.repositoryFullName===REPO&&
+   p.repositoryId===REPO_ID&&p.ownerGitHubId===OWNER&&
    p.authDbId===AUTH_DB&&p.wp3DbId===WP3_DB&&
    p.offVerified===true&&p.offTraffic===100&&
    UUID.test(p.offVersion??'')&&
@@ -186,7 +193,10 @@ export function createD6Wp3H2PhasedController({
     offVersion:p.offVersion,deadline,claimKey,
    });
    need(watchdog?.armed===true&&watchdog.independent===true&&
+    watchdog.workerName===WORKER&&
     watchdog.offVersion===p.offVersion&&
+    Number.isSafeInteger(watchdog.deadline)&&
+    watchdog.deadline>=now()+60&&
     watchdog.deadline<=deadline,'INDEPENDENT_OFF_NOT_ARMED');
    const on=await activate({
     mode:req.mode,step:req.step??null,
@@ -194,6 +204,7 @@ export function createD6Wp3H2PhasedController({
     artifactHead:req.artifactHead,claimKey,
    });
    need(on?.verified===true&&on.traffic===100&&
+    on.workerName===WORKER&&UUID.test(on.version??'')&&
     on.sourceHead===req.artifactHead&&
     on.mode===req.mode&&
     on.step===(req.step??null)&&
