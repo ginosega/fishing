@@ -310,3 +310,59 @@ test('D6-TRUST13 GitHub GraphQL redirect and error objects fail closed',async()=
      'INVALID_GITHUB_GRAPHQL_RESPONSE');
  }
 });
+
+test('D6-TRUST14 bounded parallel batches preserve immutable Markdown order',async()=>{
+ const f=githubFixture();
+ let active=0,peak=0;
+ const request=async(url,opts)=>{
+  if(url===GRAPHQL){
+   active++;peak=Math.max(peak,active);
+   try{await new Promise(resolve=>setImmediate(resolve));}
+   finally{active--;}
+  }
+  return f.request(url,opts);
+ };
+ const result=await loader({request}).loadSnapshot({
+  expectedReleaseRevision:SHA,
+ });
+ const narratives=paths.filter(p=>p.endsWith('.md'));
+ const batchCount=Math.ceil(narratives.length/8);
+ assert(batchCount>=4,'fixture must exercise multiple waves');
+ assert.equal(f.calls.filter(c=>c.url===GRAPHQL).length,batchCount);
+ assert.equal(peak,3,'no more than three source reads in flight');
+ assert.deepEqual([...result.markdown.keys()],narratives);
+ assert(result.markdown.size===narratives.length);
+ assert.equal(f.calls.at(-1).url,API+'/git/ref/heads/main');
+ assert.equal(f.calls.length+7<=50,
+  'bounded source reads must preserve the Free provider budget');
+});
+
+test('D6-TRUST15 later invalid Markdown inventory fails before any GraphQL',async()=>{
+ const narrative=paths.filter(p=>p.endsWith('.md')).at(-1);
+ const f=githubFixture({mutate:git=>{
+  const tree=git[API+'/git/trees/'+PWA+'?recursive=1'];
+  const entry=tree.tree.find(x=>x.path===narrative);
+  assert(entry);
+  entry.size=131073;
+ }});
+ await denied(loader({request:f.request}).loadSnapshot({
+  expectedReleaseRevision:SHA,
+ }),'MISSING_OR_LARGE_SOURCE_FILE');
+ assert.equal(f.calls.filter(c=>c.url===GRAPHQL).length,0);
+ assert.equal(f.calls.filter(c=>c.url===API+'/git/ref/heads/main').length,1);
+});
+
+test('D6-TRUST16 one parallel GitHub error denies before final main check',async()=>{
+ const f=githubFixture();
+ let graphCalls=0;
+ const request=async(url,opts)=>{
+  if(url===GRAPHQL&&++graphCalls===2)
+   return jsonBody({errors:[{message:'provider denied'}]});
+  return f.request(url,opts);
+ };
+ await denied(loader({request}).loadSnapshot({
+  expectedReleaseRevision:SHA,
+ }),'INVALID_GITHUB_GRAPHQL_RESPONSE');
+ assert.equal(graphCalls,3,'first wave is bounded to three reads');
+ assert.equal(f.calls.filter(c=>c.url===API+'/git/ref/heads/main').length,1);
+});
