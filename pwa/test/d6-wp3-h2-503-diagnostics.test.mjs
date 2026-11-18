@@ -90,3 +90,52 @@ test('H2-503-03 diagnostic failure is fail-closed and config is OFF',async()=>{
   'D6_WP3_H2_OPERATOR_APPROVED'
  ])assert.equal(config.vars[flag],'false',flag);
 });
+
+test('H2-503-04 receipt phase labels require diagnostic enablement and allowlist',async()=>{
+ const phases=[
+  'RECEIPT_INTAKE','RECEIPT_LOOKUP','RECEIPT_SOURCE_REVIEW',
+  'RECEIPT_CANDIDATE','RECEIPT_INSERT','RECEIPT_READBACK',
+ ];
+ for(const phase of phases){
+  const resp=await route({
+   diagnostic:()=>true,
+   accept:async(_request,{reportDiagnosticStage})=>{
+    assert.equal(typeof reportDiagnosticStage,'function');
+    reportDiagnosticStage(phase);
+    throw Error('private source or database details');
+   },
+  }).serve(request());
+  assert.equal(resp.status,503);
+  assert.equal(resp.headers.get(stage),phase);
+  assert.equal(resp.headers.get('Vary'),'Cookie');
+  assert.equal(resp.headers.has('Access-Control-Allow-Origin'),false);
+  assert.deepEqual(await resp.json(),
+   {ok:false,error:'TEMPORARILY_UNAVAILABLE'});
+ }
+ const forged=await route({
+  diagnostic:()=>true,
+  accept:async(_request,{reportDiagnosticStage})=>{
+   reportDiagnosticStage('SECRET_D1_DETAILS');
+   throw Error('private');
+  },
+ }).serve(request());
+ assert.equal(forged.status,503);
+ assert.equal(forged.headers.get(stage),'RECEIPT_ACCEPT');
+ const disabled=await route({
+  accept:async(_request,options)=>{
+   assert.equal(options.reportDiagnosticStage,undefined);
+   throw Error('private');
+  },
+ }).serve(request());
+ assert.equal(disabled.status,503);
+ assert.equal(disabled.headers.has(stage),false);
+ const success=await route({
+  diagnostic:()=>true,
+  accept:async(_request,{reportDiagnosticStage})=>{
+   reportDiagnosticStage('RECEIPT_READBACK');
+   return accepted();
+  },
+ }).serve(request());
+ assert.equal(success.status,202);
+ assert.equal(success.headers.has(stage),false);
+});
