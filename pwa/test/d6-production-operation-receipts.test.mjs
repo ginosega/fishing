@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {DatabaseSync} from 'node:sqlite';
 import {createD6ProductionPublishIntake,D6_PUBLISH_INTAKE_ORIGIN}
  from '../../experiments/p3/preview/src/d6-production-publish-intake.mjs';
 import {createD6ProductionSourceReview}
@@ -359,4 +360,76 @@ test('WP3-H2 receipt phase callbacks preserve failures and do not change writes'
   'RECEIPT_INTAKE','RECEIPT_LOOKUP','RECEIPT_SOURCE_REVIEW',
  ]);
  assert.equal(unavailable.store.rows.length,0);
+});
+
+function realSQLite({loseFirstInsertAcknowledgment=false}={}){
+ const db=new DatabaseSync(':memory:');
+ db.exec(D6_RECEIPTS_SCHEMA_SQL);
+ let lost=false;
+ const store={DB:{prepare(sql){
+  const statement=db.prepare(sql);
+  return {bind(...args){return{
+   async first(){return statement.get(...args)??null;},
+   async run(){
+    const result=statement.run(...args);
+    if(loseFirstInsertAcknowledgment&&!lost&&
+     sql.startsWith('INSERT OR IGNORE INTO')){
+     lost=true;
+     throw Error('Simulated lost D1 acknowledgment AFTER SQLite commit');
+    }
+    return {success:true,meta:{changes:result.changes}};
+   },
+  };}};
+ }}};
+ return {db,store};
+}
+
+test('WP3-D1SQL01 real SQLite receipt schema enforces durable idempotency and active record uniqueness',async()=>{
+ const {db,store}=realSQLite();
+ try{
+  const s=setup({store});
+  const first=await s.receipt.accept(makeRequest(),{trustedMainSha:MAIN});
+  assert.equal(first.status,'Accepted');
+  assert.equal(db.prepare('SELECT COUNT(*) AS n FROM d6_operation_receipts').get().n,1);
+  const original=db.prepare('SELECT operation_id,snapshot_sha256,state FROM d6_operation_receipts').get();
+  assert.equal(original.operation_id,first.operationId);
+  assert.match(original.snapshot_sha256,/^[a-f0-9]{64}$/);
+  assert.equal(original.state,'Accepted');
+  const replay=await s.receipt.accept(makeRequest(),{trustedMainSha:LATER});
+  assert.deepEqual(replay,first);
+  await reject(s.receipt.accept(makeRequest({name:'Altered'}),{
+   trustedMainSha:MAIN,
+  }),'KEY_REUSE');
+  await reject(s.receipt.accept(makeRequest({
+   key:'different_valid_key_12345',
+  }),{trustedMainSha:MAIN}),'RECORD_BUSY');
+  assert.equal(db.prepare('SELECT COUNT(*) AS n FROM d6_operation_receipts').get().n,1);
+  const unknown=await s.receipt.markUnknown(first.operationId);
+  assert.equal(unknown.status,'Unknown');
+  assert.equal(db.prepare('SELECT state FROM d6_operation_receipts').get().state,'Unknown');
+  await reject(s.receipt.accept(makeRequest({
+   key:'another_valid_key_12345',
+  }),{trustedMainSha:MAIN}),'RECORD_BUSY');
+  assert.equal(db.prepare('SELECT COUNT(*) AS n FROM d6_operation_receipts').get().n,1);
+ }finally{db.close();}
+});
+
+test('WP3-D1SQL02 lost SQLite INSERT acknowledgment reconciles one stored receipt without duplicate',async()=>{
+ const {db,store}=realSQLite({loseFirstInsertAcknowledgment:true});
+ try{
+  const s=setup({store});
+  await reject(s.receipt.accept(makeRequest(),{
+   trustedMainSha:MAIN,
+  }),'STORE_UNAVAILABLE');
+  const persisted=db.prepare(
+   'SELECT operation_id,state FROM d6_operation_receipts').get();
+  assert.equal(persisted.state,'Accepted');
+  assert.equal(db.prepare('SELECT COUNT(*) AS n FROM d6_operation_receipts').get().n,1);
+  const result=await s.receipt.accept(makeRequest(),{
+   trustedMainSha:LATER,
+  });
+  assert.equal(result.operationId,persisted.operation_id);
+  assert.equal(result.status,'Accepted');
+  assert.equal(db.prepare('SELECT COUNT(*) AS n FROM d6_operation_receipts').get().n,1);
+ }finally{db.close();}
 });
