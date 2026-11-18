@@ -33,6 +33,9 @@ const MAX_GITHUB_JSON_BYTES=2*1024*1024;
 // under the Workers Free 50-external-subrequest ceiling.
 const MARKDOWN_BATCH=8;
 const MAX_MARKDOWN_BATCHES=30;
+// Keep at most three GraphQL reads in flight per immutable snapshot.
+// This changes latency, never the number, scope or SHA of provider reads.
+const MAX_PARALLEL_MARKDOWN_BATCHES=3;
 const decoder=new TextDecoder('utf-8',{fatal:true});
 const encoder=new TextEncoder();
 const obj=v=>v!==null&&typeof v==='object'&&!Array.isArray(v);
@@ -259,6 +262,9 @@ export function createD6CanonicalSnapshotLoader({
   }
   need(Math.ceil(narrative.length/MARKDOWN_BATCH)<=MAX_MARKDOWN_BATCHES,
    'TOO_MANY_MARKDOWN_BATCHES');
+  // Validate the full referenced inventory and aggregate byte budget
+  // before starting any GraphQL reads; a partial batch is never returned.
+  const batches=[];
   for(let offset=0;offset<narrative.length;offset+=MARKDOWN_BATCH){
    const group=narrative.slice(offset,offset+MARKDOWN_BATCH);
    const batchEntries=group.map(path=>{
@@ -269,8 +275,20 @@ export function createD6CanonicalSnapshotLoader({
     need(bytesRead<=MAX_SOURCE_BYTES,'SOURCE_TOO_LARGE');
     return entry;
    });
-   const bodies=await githubMarkdownBatch(token,batchEntries);
-   for(let i=0;i<group.length;i++)markdown.set(group[i],bodies[i]);
+   batches.push({group,batchEntries});
+  }
+  // Bounded concurrent immutable-blob reads reduce latency without skipping
+  // Git blob integrity checks or the final canonical-main ref verification.
+  // Results are inserted in original path order, not completion order.
+  for(let offset=0;offset<batches.length;
+   offset+=MAX_PARALLEL_MARKDOWN_BATCHES){
+   const wave=batches.slice(offset,offset+MAX_PARALLEL_MARKDOWN_BATCHES);
+   const results=await Promise.all(wave.map(batch=>
+    githubMarkdownBatch(token,batch.batchEntries)));
+   for(let batch=0;batch<wave.length;batch++){
+    const {group}=wave[batch],bodies=results[batch];
+    for(let i=0;i<group.length;i++)markdown.set(group[i],bodies[i]);
+   }
   }
   // Verify links and inline image references in the same immutable Git tree.
   try{
