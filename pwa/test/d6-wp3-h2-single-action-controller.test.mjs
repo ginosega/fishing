@@ -36,6 +36,7 @@ function harness({
  mode='step',step='tree',initial='AwaitingAuthorizedWrite',
  preflightPatch={},grantPatch={},watchdogPatch={},onPatch={},
  offPatch={},failSend=null,failReconcile=false,prPatch={},
+ noFenceAfterBegin=false,noProofAfterReconcile=false,
  delayBeforeActivate=null,
 }={}) {
  const calls=[],claimed=new Set(),completed=new Map();
@@ -104,12 +105,14 @@ function harness({
    if(args.mode==='intake')return {httpStatus:202,operationId:ID,
     sourceRevision:SOURCE};
    if(args.mode==='step'){
-    state='ReconciliationRequired';
+    if(!noFenceAfterBegin)state='ReconciliationRequired';
     return {httpStatus:202};
    }
    if(failReconcile)return {httpStatus:503};
-   index++;
-   state=index===5?'VerifiedPr':'AwaitingAuthorizedWrite';
+   if(!noProofAfterReconcile){
+    index++;
+    state=index===5?'VerifiedPr':'AwaitingAuthorizedWrite';
+   }
    return {httpStatus:200};
   },
   async restoreOff(){calls.push('restoreOff');},
@@ -314,4 +317,41 @@ test('WP3-H2PH16 module contains no real Cloudflare/GitHub provider client or cr
  assert.doesNotMatch(s,/wrangler|api\.github\.com|fetch\s*\(|process\.env/);
  assert.doesNotMatch(s,/Authorization:|D6_WP3_H2_OPERATOR_APPROVED:'true'/);
  assert.doesNotMatch(s,/createD6ProductionPublishStepDispatcher/);
+});
+
+test('WP3-H2PH17 a 202 without durable Unknown fence cannot trigger reconcile',async()=>{
+ const h=harness({noFenceAfterBegin:true});
+ await deny(h.controller.runPhase(input('step','tree')),'FENCE_UNVERIFIED');
+ assert.deepEqual(h.calls.filter(x=>x.startsWith('send:')),['send:step']);
+ assert(h.calls.includes('restoreOff'));
+});
+
+test('WP3-H2PH18 readback 200 without one more verified proof is rejected',async()=>{
+ const h=harness({noProofAfterReconcile:true});
+ await assert.rejects(h.controller.runPhase(input('step','tree')));
+ assert.deepEqual(h.calls.filter(x=>x.startsWith('send:')),
+  ['send:step','send:reconcile']);
+ assert(h.calls.includes('restoreOff'));
+ assert.equal(h.completed.size,0);
+});
+
+test('WP3-H2PH19 unexpected approval fields cannot carry secrets to ON adapter',async()=>{
+ const h=harness({grantPatch:{githubToken:'do-not-store'}});
+ await deny(h.controller.runPhase(input('step','tree')),'APPROVAL_UNVERIFIED');
+ assert(!h.calls.includes('activate'));
+ assert.equal(h.claimed.size,0);
+});
+
+test('WP3-H2PH20 controller rejects concurrent phases through journal completion',async()=>{
+ let release;
+ const h=harness({delayBeforeActivate:()=>new Promise(ok=>{release=ok;})});
+ const a=h.controller.runPhase(input('step','tree'));
+ for(let i=0;i<20&&!release;i++)
+  await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(typeof release,'function');
+ await deny(h.controller.runPhase(input('step','tree')),'CONCURRENT_CONTROLLER');
+ release();
+ const result=await a;
+ assert.equal(result.checkpoint.step,'branch');
+ assert.equal(h.calls.filter(x=>x==='send:step').length,1);
 });
