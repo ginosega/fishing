@@ -56,6 +56,11 @@ function operation(receipt){
  });
 }
 const STEPS=['tree','branch','commit','advance','pr'];
+// Nonsecret internal phases, never an exception message or raw D1/GitHub code.
+const RECEIPT_PHASES=new Set([
+ 'RECEIPT_INTAKE','RECEIPT_LOOKUP','RECEIPT_SOURCE_REVIEW',
+ 'RECEIPT_CANDIDATE','RECEIPT_INSERT','RECEIPT_READBACK',
+]);
 function state(data){
  if(!data||!OP_ID.test(data.operationId??'')||
   !['AwaitingAuthorizedWrite','ReconciliationRequired',
@@ -149,12 +154,19 @@ export function createD6ProductionPublishWriteRouteCandidate({
     return stageUnavailable('MAIN_UNVERIFIED');
    if(enabled()!==true||writeEnabled()!==true)
     return stageUnavailable('GATE_REVOKED');
-   let accepted;
+   let accepted,receiptPhase='RECEIPT_ACCEPT';
+   // Only the separately enabled isolated owner diagnostic can observe
+   // fixed internal phase labels. Generic errors remain byte-for-byte safe.
+   let capture=false;
+   try{capture=diagnosticStageEnabled()===true;}catch{}
    try{
     accepted=await receipts.accept(request.clone(),{
      trustedMainSha:main.sourceRevision,
+     ...(capture?{reportDiagnosticStage:label=>{
+      if(RECEIPT_PHASES.has(label))receiptPhase=label;
+     }}:{}),
     });
-   }catch{return stageUnavailable('RECEIPT_ACCEPT');}
+   }catch{return stageUnavailable(receiptPhase);}
    try{return reply(202,operation(accepted));}
    catch{return stageUnavailable('RECEIPT_FORMAT');}
   }
