@@ -205,6 +205,7 @@ export function createD6Wp3H2PhasedController({
    });
    need(on?.verified===true&&on.traffic===100&&
     on.workerName===WORKER&&UUID.test(on.version??'')&&
+    on.version!==p.offVersion&&
     on.sourceHead===req.artifactHead&&
     on.mode===req.mode&&
     on.step===(req.step??null)&&
