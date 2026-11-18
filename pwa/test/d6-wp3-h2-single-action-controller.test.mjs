@@ -44,6 +44,8 @@ function harness({
  const p={
   verified:true,isolatedOrigin:'https://fishing-v3-wp3-test.ginosega.workers.dev',
   workerName:'fishing-v3-wp3-test',
+  repositoryFullName:'ginosega/fishing',
+  repositoryId:1350909744,ownerGitHubId:265665562,
   authDbId:'0d8da698-87b8-4b5e-a1e7-fe6de49e5afc',
   wp3DbId:'5a47841e-7874-4ec8-9fa8-be0315f6a802',
   offVerified:true,offTraffic:100,offVersion:OFF,
@@ -89,13 +91,15 @@ function harness({
   },
   async armIndependentOff(req){
    calls.push('watchdog');
-   return {armed:true,independent:true,offVersion:OFF,
+   return {armed:true,independent:true,
+    workerName:'fishing-v3-wp3-test',offVersion:OFF,
     deadline:req.deadline,...watchdogPatch};
   },
   async activate(req){
    calls.push('activate');
    if(delayBeforeActivate)await delayBeforeActivate();
    return {verified:true,traffic:100,sourceHead:HEAD,
+    workerName:'fishing-v3-wp3-test',version:OFF,
     mode:req.mode,step:req.step,operationId:req.operationId,
     ...onPatch};
   },
@@ -189,6 +193,8 @@ test('WP3-H2PH05 denied/off/foreign preflight forbids ON and POST',async()=>{
   {authDbId:'foreign'},{wp3DbId:'wrong'},
   {workerAppApiGrantVerified:false},{schemaIndexesVerified:false},
   {ownerSessionVerified:false},{currentMainSha:'b'.repeat(40)},
+  {repositoryFullName:'foreign/repo'},{repositoryId:123},
+  {ownerGitHubId:1},
   {sourceTreeVerified:false},{syntheticRecordAbsent:false},
   {otherActiveOperationAbsent:false},{artifactHead:'f'.repeat(40)},
   {envelopeSha256:'f'.repeat(64)},
@@ -220,7 +226,8 @@ test('WP3-H2PH06 no owner approval, broad phase or stale window can enable ON',a
 
 test('WP3-H2PH07 missing crash-independent OFF watchdog forbids ON and burns fence',async()=>{
  for(const bad of [{armed:false},{independent:false},
-  {offVersion:'other'},{deadline:NOW+301}]){
+  {offVersion:'other'},{workerName:'foreign-worker'},
+  {deadline:NOW+301},{deadline:NOW+10}]){
   const h=harness({watchdogPatch:bad});
   await deny(h.controller.runPhase(input('step','tree')),
    'INDEPENDENT_OFF_NOT_ARMED');
@@ -254,11 +261,16 @@ test('WP3-H2PH09 one intake 503 or lost ack is never automatically resubmitted',
 });
 
 test('WP3-H2PH10 bad ON identity always restores OFF, never sends',async()=>{
- const h=harness({onPatch:{traffic:50}});
- await deny(h.controller.runPhase(input('step','tree')),'ON_UNVERIFIED');
- assert(!h.calls.some(x=>x.startsWith('send:')));
- assert(h.calls.includes('restoreOff'));
- assert(h.calls.includes('verifyOff'));
+ for(const bad of [
+  {traffic:50},{workerName:'foreign-worker'},{version:'invalid'},
+  {sourceHead:'e'.repeat(40)},
+ ]){
+  const h=harness({onPatch:bad});
+  await deny(h.controller.runPhase(input('step','tree')),'ON_UNVERIFIED');
+  assert(!h.calls.some(x=>x.startsWith('send:')));
+  assert(h.calls.includes('restoreOff'));
+  assert(h.calls.includes('verifyOff'));
+ }
 });
 
 test('WP3-H2PH11 bad OFF independent proof overrides success with OFF_UNVERIFIED',async()=>{
@@ -354,4 +366,13 @@ test('WP3-H2PH20 controller rejects concurrent phases through journal completion
  const result=await a;
  assert.equal(result.checkpoint.step,'branch');
  assert.equal(h.calls.filter(x=>x==='send:step').length,1);
+});
+
+test('WP3-H2PH21 rejected extra input cannot influence approved operation',async()=>{
+ const h=harness();
+ await deny(h.controller.runPhase({
+  ...input('step','tree'),githubToken:'untrusted-input',
+ }),'INVALID_ACTION');
+ assert(!h.calls.includes('preflight'));
+ assert(!h.calls.includes('activate'));
 });
