@@ -89,7 +89,14 @@ export function createD6Wp3H2PhasedController({
 
  function validateApproval(a,req,p) {
   const t=now();
-  need(plain(a)&&a.approved===true&&
+  // Never carry credentials, raw auth/session context or arbitrary fields
+  // into the deploy adapter or saved journal.
+  const allowed=['approved','testName','mode','operationId','step',
+   'sourceRevision','artifactHead','envelopeSha256','offVersion',
+   'approvalRef','grantId','windowStart','windowEnd'];
+  need(plain(a)&&Object.keys(a).every(k=>allowed.includes(k)),
+   'APPROVAL_UNVERIFIED');
+  need(a.approved===true&&
    a.testName===NAME&&a.mode===req.mode&&
    a.sourceRevision===req.sourceRevision&&
    a.artifactHead===req.artifactHead&&
@@ -138,9 +145,7 @@ export function createD6Wp3H2PhasedController({
    off.writeRoutesDenied===true,'OFF_UNVERIFIED');
  }
 
- async function runPhase(req) {
-  need(!running,'CONCURRENT_CONTROLLER');
-  running=true;
+ async function executePhase(req) {
   let restoreRequired=false,p=null,grant=null,claimKey=null;
   let result;
   try{
@@ -265,8 +270,7 @@ export function createD6Wp3H2PhasedController({
      await restoreOff({offVersion:p.offVersion,claimKey});
      validOff(await verifyOff({offVersion:p.offVersion}),p);
     }
-   }catch{running=false;deny('OFF_UNVERIFIED');}
-   running=false;
+   }catch{deny('OFF_UNVERIFIED');}
   }
   // Only after the off verification is this successful phase durable as
   // an operator report. Failure to persist keeps its one-shot claim burned.
@@ -284,5 +288,13 @@ export function createD6Wp3H2PhasedController({
   });
  }
 
+ // Serialize through durable audit completion as well as provider OFF
+ // restoration; no second phase starts while this one is still being logged.
+ async function runPhase(req) {
+  need(!running,'CONCURRENT_CONTROLLER');
+  running=true;
+  try{return await executePhase(req);}
+  finally{running=false;}
+ }
  return Object.freeze({runPhase});
 }
