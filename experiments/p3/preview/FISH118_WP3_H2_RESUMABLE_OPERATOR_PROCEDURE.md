@@ -1,0 +1,68 @@
+# FISH-TODO-118 / WP3 H2 — single-operation resumable operator procedure
+
+**Status:** SOURCE-ONLY procedure and non-authorizing resume guard. This is not a Cloudflare deployment, live publisher, browser automation, operator approval, H2 hosted acceptance, or public Live. The authoritative state remains governance/project-ops/project-ops/v2/WORK_QUEUE.md. Track the H2 provider receipts in issue #377.
+
+## Purpose and bounded scope
+
+Replace repeated R8/R9 intake-window diagnostics with ONE named synthetic KB operation that can be resumed, by verifying durable state after each independent provider step. This runbook supplements (does not replace) the approved FISH118 V3 Completion Contract and H2 activation approval packet. It does not change the original publishing coordinator, GitHub writer, owner session/CSRF trust, D1 schema, APP permissions or deployment flow.
+
+Source candidate stack (all draft/unmerged at authoring): #554 receipt diagnostics; #556 canonical Markdown batching; #557 real SQLite receipt tests. Any activation must build and independently review the then-current *exact* source head, not redeploy the old #554-only R9 candidate. Prior Windows R9 result was inconclusive: its browser Console disappeared; last owner readback showed the original OFF Worker at 100%, all ten WP3 D1 operation tables empty, no publishing branch and canonical main unchanged.
+
+Fixed synthetic identity: WP3-H2-SYNTH-KB-001, id h2-synthetic-kb-publishing-proof, key wp3_h2_synthetic_kb_001, notes KB/Techniques/content/h2-synthetic-kb-publishing-proof.md, target ginosega/fishing refs/heads/main. Do not insert the synthetic record into main, merge the synthetic PR, or reuse a stale source revision/fixture hash.
+
+## Read-only plan guard (new source module)
+
+pwa/server/d6-wp3-h2-resume-plan.mjs exports planD6Wp3H2Resume. It accepts:
+
+1. A **fresh isolated WP3_DB SELECT** of the exact durable d6_operation_receipts row, including operation_id, owner_github_id, idempotency_key, domain, operation_kind, record_id, state, source_revision, snapshot_sha256, created_at and updated_at.
+2. A fresh **original authenticated D2 owner/CSRF POST status** result from /api/v3/operations/{operationId}/status, produced by the existing D1 lifecycle inspector (not a client-authored status object).
+3. Optionally the last locally retained non-secret checkpoint, which acts only as a rollback/progress alarm. The checkpoint is NEVER authority for an operation, grant or retry.
+
+The guard rejects foreign or Unknown receipt rows; changed operation IDs or source revisions; inconsistent D1 receipt vs lifecycle state; non-prefix verified steps; missing Unknown/reconciliation transition; regressions or skipped steps; malformed/forged status and false Live/publish fields. Input shape checks cannot authenticate arbitrary text: the operator MUST obtain both observations independently from the approved environment. The guard has no fetch, D1 write, GitHub API, Worker mutation, token issuer, activation window, credential or permission. Its proposed approvalPins deliberately omit operator-approved true, enabling flags, fixture envelope digest, window start/end and secrets. **Never deploy from the advisory pins alone.**
+
+Advisory outcomes:
+
+| D1-derived lifecycle status | Guard action | Allowed next operator task |
+| --- | --- | --- |
+| No verified Accepted receipt | No plan available | Stop intake ambiguity and inspect D1; NEVER repeat POST just because browser logs vanished |
+| AwaitingAuthorizedWrite for exact next step | REQUEST_EXACT_STEP_APPROVAL | Seek fresh owner approval for exactly that step before a separate beginOne |
+| ReconciliationRequired for same step | RECONCILE_ONLY | Perform existing independent GitHub GET readback via reconcileOne; NEVER call beginOne again |
+| VerifiedPr | VERIFY_UNMERGED_PR_READ_ONLY | Independently fetch exact PR, commit, tree, branch, diff and main; still not Live or mergeable by implication |
+
+Each plan records a non-secret checkpoint; after interruption, repeat the authoritative D1 + authenticated status reads, compare with the checkpoint and stop if progress changed unexpectedly. A missing checkpoint does not invalidate verified D1 facts, but requires a fresh read and reconciliation; it never permits re-posting or write replay.
+
+## Readiness gates before requesting *any* new provider activation
+
+1. Verify source stack exact head, changed files, approved bounded fixture, all required CI and immutable build. Existing draft PR and CI success is not a Cloudflare Worker version. No public V2, WP2, H1 or app-main deployment.
+2. Independently inspect the **Worker-bound** GitHub App installation through its official App API, including account/installation/repository identity, selection and approved contents:write and pull_requests:write only. The connected GitHub tool or owner UI alone is not a substitute. No new permission change without owner approval.
+3. Verify the current isolated OFF Worker version and traffic, its two exact dedicated D1 bindings/schema/indexes, seven encrypted secret *names* (not values), Pages/owner source, canonical main, synthetic ID/path absence, and all existing operation rows or absence. Do not assume historical R9 zero counts are current.
+4. Create and review a **distinct multi-phase controller** before provider use. The R9 PowerShell script is intake-only and has a five-minute auto-OFF. The H2 Worker operator currently allows only one static phase (intake OR steps), one exact next step and an interval no longer than 1800 seconds. It cannot safely be used as a one-shot full PR publisher. Preserve these restrictions. Every ON interval must have its own fail-safe OFF restoration, provider readback and fresh explicit authorization. Do not implement an unattended blanket step grant.
+5. Prove capture of sanitized HTTP results without relying on a volatile Edge Console. Never persist session cookies, CSRF, tokens, App JWT, PEM, raw authenticated request headers or secret values. Preserve only response status, safe fixed failure-stage label, operation ID, receipt status and nonsecret proof identities.
+
+**Stop here until these prerequisites and any newly proposed controller have been independently source-reviewed and exact-CI validated.** This document does not authorize publishing.
+
+## Consolidated H2 sequence once separately approved
+
+### Phase A — one exact intake
+
+Read-only prerequisites and denied OFF tests PASS. Fresh owner approves the exact candidate Worker, fixture bytes/SHA, scope and target. Activate narrowly under a separately verified interval. Submit the synthetic KB envelope exactly **once** under existing owner session and CSRF. Persist sanitized response before browser closure. Independently read back one Accepted receipt, UUID, source revision and snapshot SHA-256. If the status is 503, Unknown, absent or contradictory, restore OFF and reconcile D1/GitHub read-only. **No second POST.** If no Accepted row can be proven, stop; no provider step.
+
+### Phase B — five separately approved steps for the SAME UUID
+
+For each step in tree, branch, commit, advance, pr:
+
+1. Refresh OFF/source/owner/DB state, inspect the existing D1 lifecycle and run the read-only resume guard against the exact Accepted receipt plus optional previous checkpoint. Confirm pinned source revision and ordered prior verified prefix.
+2. For AwaitingAuthorizedWrite, request specific owner permission for THIS operation/step/window. Validate the exact H2 server authorization pins and deploy narrowly with other scopes OFF. Send one authenticated beginOne, not a second Save. A durable Unknown fence is the expected *intermediate* outcome, **not** proof that provider mutation succeeded.
+3. For ReconciliationRequired, use ONLY the existing reconcileOne independent GitHub GET/readback path, and inspect D1 verified receipt for this step. An uncertain provider write MUST NOT be retried.
+4. Preserve sanitized step outcome and nonsecret checkpoint, restore the known OFF Worker and independently confirm 100% OFF before changing the approved step or leaving the operator session. On an interruption, reread D1 first and resume from the observed Unknown or next approved step; never infer progress from clipboard, timer, HTTP success or local notes.
+5. Do not advance to the next step unless the current independent verification and immutable proof prefix match the existing lifecycle contract.
+
+The existing server authorizer permits only one approved next step and exact prior prefix; this procedure does not weaken it or grant broader provider rights. The operation ID and source revision must remain unchanged. Any unexpected main movement, missing D1 row, foreign branch/PR, mismatched Git blob, long-running or uncertain step or auth mismatch results in STOP/OFF and safe read-only reconciliation.
+
+### Phase C — VerifiedPr and OFF closure
+
+The independent verifier confirms the operation-owned branch fish-v3/publish/{operationId}, exactly the reviewed KB/kb.json plus one Techniques Markdown change, immutable PR/branch/commit/tree digest chain, original canonical main unchanged, no force update, no merge, no public Live, and the existing D1 VerifiedPr state. Verify 100% OFF, denied writable endpoints, unchanged V2/WP2, and reconciled operation tables. Leave synthetic PR unmerged and preserve receipts pending separate explicit owner disposition. Record source/CI, artifact, owner, Cloudflare/D1 and GitHub evidence in issue #377.
+
+## Boundaries and follow-up
+
+A single logical synthetic operation may span multiple separately authorized phases. **It is not equivalent to a single uninterrupted time window.** H2 VerifiedPr is only WP3 hosted publishing proof. H3 duplicate/concurrent/uncertain-write recovery, WP4 fast public Live verification, WP5 complete private hosted Windows/Android RC and WP6 public cutover remain gated by their independent acceptance contract. No production release follows from this runbook.
