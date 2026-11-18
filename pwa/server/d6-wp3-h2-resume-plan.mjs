@@ -49,8 +49,8 @@ const statusOf=v=>{
  need(plain(v)&&v.ok===true&&
   UUID.test(v.operationId??'')&&SHA.test(v.sourceRevision??'')&&
   STATES.has(v.state)&&prefix(v.verifiedSteps)&&
-  validStep(v.state,v.step,v.verifiedSteps)&&
-  v.sourceOnly!==true?false:true,'INVALID_STATUS');
+  validStep(v.state,v.step,v.verifiedSteps),
+  'INVALID_STATUS');
  // Explicit checks below keep all returned operator observations fail closed.
  need(v.sourceOnly===true&&v.canPublish===false&&v.isLive===false&&
   v.requiresHostedReleaseProof===true&&
