@@ -108,11 +108,19 @@ export function createD6ProductionOperationReceipts({
   try{return await DB.prepare(sql).bind(...args).run();}
   catch{deny('STORE_UNAVAILABLE');}
  };
- async function accept(request,{trustedMainSha}={}){
+ async function accept(request,{trustedMainSha,reportDiagnosticStage}={}){
+  // Internal, optional H2 diagnostic callback. It must never change intake
+  // behavior or throw into a trusted publishing operation.
+  const stage=label=>{
+   if(typeof reportDiagnosticStage==='function'){
+    try{reportDiagnosticStage(label);}catch{}
+   }
+  };
   active();
   need(request instanceof Request&&SHA.test(trustedMainSha??''),
    'UNVERIFIED_REQUEST');
   // Duplicate retries still require full authenticated owner/CSRF intake.
+  stage('RECEIPT_INTAKE');
   const intent=await intake.inspect(request.clone(),{trustedMainSha});
   const owner=intent.ownerGitHubId;
   need(intent.sourceOnly===true&&intent.canPublish===false&&
@@ -131,6 +139,7 @@ export function createD6ProductionOperationReceipts({
    snapshot:intent.snapshot});
   need(enc.encode(snapshotJson).length<=131072,'UNTRUSTED_INTENT');
   const snapshotHash=await digest(snapshotJson);
+  stage('RECEIPT_LOOKUP');
   const previous=await query(lookupSql,owner,intent.idempotencyKey);
   if(previous){
    // The key is permanently bound to its original submission bytes.
@@ -139,7 +148,9 @@ export function createD6ProductionOperationReceipts({
   }
   // New key: review the exact authenticated request at verified main.
   // There is no caller-supplied candidate or arbitrary repository selector.
+  stage('RECEIPT_SOURCE_REVIEW');
   const candidate=await review.review(request,{trustedMainSha});
+  stage('RECEIPT_CANDIDATE');
   need(candidate?.sourceOnly===true&&candidate?.canPublish===false&&
    candidate?.requiresDurableOperation===true&&
    candidate?.repositoryId===D6_PUBLISH_REPOSITORY.id&&
@@ -177,9 +188,11 @@ export function createD6ProductionOperationReceipts({
    'INVALID_CONFIG');
   // D1 uniqueness makes simultaneous duplicates and same-record conflicts
   // fail closed. INSERT OR IGNORE + follow-up SELECT resolves either race.
+  stage('RECEIPT_INSERT');
   await execute(insertSql,operationId,owner,intent.idempotencyKey,
    snapshotHash,snapshotJson,candidateHash,trustedMainSha,
    pkg.domain,pkg.operation,pkg.id,at,at);
+  stage('RECEIPT_READBACK');
   const stored=await query(lookupSql,owner,intent.idempotencyKey);
   if(!stored)deny('RECORD_BUSY'); // Another active operation for this record.
   need(stored.snapshot_sha256===snapshotHash,'KEY_REUSE');
