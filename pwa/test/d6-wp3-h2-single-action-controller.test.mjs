@@ -99,7 +99,8 @@ function harness({
    calls.push('activate');
    if(delayBeforeActivate)await delayBeforeActivate();
    return {verified:true,traffic:100,sourceHead:HEAD,
-    workerName:'fishing-v3-wp3-test',version:OFF,
+    workerName:'fishing-v3-wp3-test',
+    version:'11a3a0c1-1518-45d6-8541-70012b0dac4f',
     mode:req.mode,step:req.step,operationId:req.operationId,
     ...onPatch};
   },
@@ -263,7 +264,7 @@ test('WP3-H2PH09 one intake 503 or lost ack is never automatically resubmitted',
 test('WP3-H2PH10 bad ON identity always restores OFF, never sends',async()=>{
  for(const bad of [
   {traffic:50},{workerName:'foreign-worker'},{version:'invalid'},
-  {sourceHead:'e'.repeat(40)},
+  {version:OFF},{sourceHead:'e'.repeat(40)},
  ]){
   const h=harness({onPatch:bad});
   await deny(h.controller.runPhase(input('step','tree')),'ON_UNVERIFIED');
