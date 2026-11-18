@@ -333,7 +333,7 @@ test('D6-TRUST14 bounded parallel batches preserve immutable Markdown order',asy
  assert.deepEqual([...result.markdown.keys()],narratives);
  assert(result.markdown.size===narratives.length);
  assert.equal(f.calls.at(-1).url,API+'/git/ref/heads/main');
- assert.equal(f.calls.length+7<=50,
+ assert(f.calls.length+7<=50,
   'bounded source reads must preserve the Free provider budget');
 });
 
