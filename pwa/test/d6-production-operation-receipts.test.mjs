@@ -323,3 +323,40 @@ test('WP3-DOMAIN04 Gear/KB/Catch use one source-review receipt gate',async()=>{
  assert.equal(s.count().reads,3);
  assert.equal(s.store.rows.length,3);
 });
+
+test('WP3-H2 receipt phase callbacks preserve failures and do not change writes',async()=>{
+ const phases=[],s=setup();
+ const accepted=await s.receipt.accept(makeRequest(),{
+  trustedMainSha:MAIN,reportDiagnosticStage:stage=>phases.push(stage),
+ });
+ assert.equal(accepted.status,'Accepted');
+ assert.deepEqual(phases,[
+  'RECEIPT_INTAKE','RECEIPT_LOOKUP','RECEIPT_SOURCE_REVIEW',
+  'RECEIPT_CANDIDATE','RECEIPT_INSERT','RECEIPT_READBACK',
+ ]);
+ assert.deepEqual(s.store.calls,{reads:2,writes:1});
+ const ignored=setup();
+ const result=await ignored.receipt.accept(makeRequest(),{
+  trustedMainSha:MAIN,
+  reportDiagnosticStage:()=>{throw Error('diagnostic observer must not fail intake');},
+ });
+ assert.equal(result.status,'Accepted');
+ assert.equal(ignored.store.rows.length,1);
+
+ const missing=setup({store:mockD1({absent:true})}),dbStages=[];
+ await reject(missing.receipt.accept(makeRequest(),{
+  trustedMainSha:MAIN,reportDiagnosticStage:stage=>dbStages.push(stage),
+ }),'STORE_UNAVAILABLE');
+ assert.deepEqual(dbStages,['RECEIPT_INTAKE','RECEIPT_LOOKUP']);
+ assert.equal(missing.store.rows.length,0);
+ const unavailable=setup({
+  reviewOverride:{review:async()=>{throw Error('private source unavailable');}},
+ }),sourceStages=[];
+ await assert.rejects(unavailable.receipt.accept(makeRequest(),{
+  trustedMainSha:MAIN,reportDiagnosticStage:stage=>sourceStages.push(stage),
+ }));
+ assert.deepEqual(sourceStages,[
+  'RECEIPT_INTAKE','RECEIPT_LOOKUP','RECEIPT_SOURCE_REVIEW',
+ ]);
+ assert.equal(unavailable.store.rows.length,0);
+});
