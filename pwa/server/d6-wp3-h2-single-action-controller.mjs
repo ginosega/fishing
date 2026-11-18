@@ -111,18 +111,23 @@ export function createD6Wp3H2PhasedController({
   return a;
  }
 
- async function observe(req,previous) {
+ async function observe(req,previous,afterReadback=false) {
   const [receiptRow,status]=await Promise.all([
    readReceipt({operationId:req.operationId,mode:req.mode}),
    readOwnerStatus({operationId:req.operationId,mode:req.mode}),
   ]);
   const plan=planD6Wp3H2Resume({receiptRow,status,previous});
+  const i=STEPS.indexOf(req.step);
   need(plan.operationId===req.operationId&&
    plan.sourceRevision===req.sourceRevision&&
-   plan.step===req.step||plan.operationId===req.operationId&&
-   plan.sourceRevision===req.sourceRevision&&
-   plan.nextAction==='VERIFY_UNMERGED_PR_READ_ONLY'&&
-   req.step==='pr','LIFECYCLE_MISMATCH');
+   (afterReadback?
+    i===STEPS.length-1?
+     plan.nextAction==='VERIFY_UNMERGED_PR_READ_ONLY'&&
+      plan.step===null&&plan.prNumber>0:
+     plan.nextAction==='REQUEST_EXACT_STEP_APPROVAL'&&
+      plan.step===STEPS[i+1]:
+    plan.step===req.step),
+   'LIFECYCLE_MISMATCH');
   return plan;
  }
 
@@ -226,12 +231,12 @@ export function createD6Wp3H2PhasedController({
       operationId:req.operationId,step:req.step,
      });
      need(readback?.httpStatus===200,'READBACK_UNKNOWN');
-     const after=await observe(req,fenced.checkpoint);
+     const after=await observe(req,fenced.checkpoint,true);
      result={mode:'step',operationId:req.operationId,step:req.step,
       nextAction:after.nextAction,checkpoint:after.checkpoint,
       ...(after.prNumber?{prNumber:after.prNumber}:{})};
     }else{
-     const after=await observe(req,before.checkpoint);
+     const after=await observe(req,before.checkpoint,true);
      result={mode:'reconcile',operationId:req.operationId,
       step:req.step,nextAction:after.nextAction,
       checkpoint:after.checkpoint,
