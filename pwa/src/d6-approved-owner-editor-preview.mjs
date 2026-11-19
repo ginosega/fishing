@@ -332,6 +332,8 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
     if(saved?.record?.id!==candidate.id||
        saved.revision!==directRevision+1)
      throw Error('Save was not verified. Your edit is preserved.');
+    // Invalidate the in-memory Gear catalog only after verified D1 Save.
+    try{ctx.v3?.onDirectGearSaved?.();}catch{/* saved row remains authoritative */}
     saveAccepted=true;
     for(const control of form.querySelectorAll('input,select,textarea,button'))
      control.disabled=true;
