@@ -46,7 +46,6 @@ export function createApp(ctx){
  const ownerEditorGate=ownerEditorPreview?createD6OwnerEditorPreviewGate({
   root:ctx.root,releaseRevision:ctx.release.sourceRevision,
   ownerReadiness:ctx.v3.ownerReadiness,canonicalSource:ctx.v3.canonicalSource,
-  directGearPilot:ctx.v3.directGearEnabled===true,
   enabled:()=>true,online:()=>navigator.onLine===true,
   readingMode:()=>offline?.getModeAvailable?.()===true?offline.getMode():'Checking',
  }):null;
@@ -58,20 +57,32 @@ export function createApp(ctx){
  let ownerDeviceDrafts=null;
  async function verifiedPreviewContext(){
   if(!ownerEditorGate)throw Error('Owner editor preview is unavailable.');
-  const result=await ownerEditorGate.open();
-  const source=result.source;
-  // The store is constructed ONLY following fresh signed-in owner and
-  // pinned canonical-main source verification. It keeps text locally and
-  // never authorizes a publishing or media network request.
+  const direct=ctx.v3?.directGearEnabled===true;
+  let source,data,maps;
+  if(direct){
+   // A Gear edit needs owner sign-in + one D1 row read. It must not
+   // depend on a GitHub canonical-content request on every form open.
+   const connected=effectiveConnectionOnline({
+    online:navigator.onLine,
+    readingMode:offline?.getModeAvailable?.()===true?offline.getMode():'Checking',
+   });
+   if(!connected)throw Error('Work Offline: editing is read-only.');
+   const owner=await ctx.v3.ownerReadiness.check({readingMode:'Automatic'});
+   if(owner?.state!=='Owner')throw Error('Please sign in to edit Gear.');
+   source={sourceOnly:true,canPublish:false,files:exists};
+   data=ctx.data;maps=ctx.maps;
+  }else{
+   const result=await ownerEditorGate.open();
+   source=result.source;data=source.data;maps=validateRecords(data);
+  }
   if(!ownerDeviceDrafts)ownerDeviceDrafts=createD6OwnerDeviceDraftStore({
    enabled:true,root:ctx.root,
   });
-  return {...ctx,data:source.data,maps:validateRecords(source.data),
+  return {...ctx,data,maps,
    v3:{...ctx.v3,source,ownerAuthoringPreview:true,
     drafts:ownerDeviceDrafts,
-    // Enable accepted D5 local original-image and Notes insertion controls,
-    // but NEVER expose a media staging network service in WP1.
-    stageMedia:async()=>{throw Error('Media staging is unavailable in WP1 preview.');},
+    directGearCanSave:()=>ownerEditingAvailable(),
+    stageMedia:async()=>{throw Error('New media uploads are not yet enabled.');},
    }};
  }
  function notify(message,kind='info'){status(alertHost,message,kind);}
