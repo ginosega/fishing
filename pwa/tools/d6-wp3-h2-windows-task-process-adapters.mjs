@@ -12,6 +12,8 @@
  * deployment/version readback and denied write-route checks are separate.
  */
 import {execFile as nativeExecFile} from 'node:child_process';
+import {createHash} from 'node:crypto';
+import {readFile as nativeReadFile,lstat as nativeLstat} from 'node:fs/promises';
 import {promisify} from 'node:util';
 import {win32} from 'node:path';
 
@@ -19,6 +21,7 @@ const runNative=promisify(nativeExecFile);
 const WORKER='fishing-v3-wp3-test';
 const TASK=/^Fishing-WP3-H2-OFF-[a-f0-9]{16}$/;
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const SHA256=/^[a-f0-9]{64}$/;
 const SCRIPT=/^[A-Za-z]:\\[A-Za-z0-9 _\\.()-]+\.ps1$/;
 const DAY=/^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/20[0-9]{2}$/;
 const CLOCK=/^([01][0-9]|2[0-3]):[0-5][0-9]$/;
@@ -34,17 +37,33 @@ const need=(ok,code)=>{if(!ok)deny(code);};
 const own=Object.hasOwn;
 
 export function createD6H2WindowsTaskProcessAdapters({
- scriptPath,offVersion,execFile=runNative,
+ scriptPath,offVersion,expectedScriptSha256,
+ execFile=runNative,readFile=nativeReadFile,lstat=nativeLstat,
  platform=process.platform,
 }={}){
  need(platform==='win32'&&
   typeof scriptPath==='string'&&win32.isAbsolute(scriptPath)&&
   SCRIPT.test(scriptPath)&&
   !/[\r\n"'%&|<>^!]/.test(scriptPath)&&
-  UUID.test(offVersion??'')&&typeof execFile==='function',
+  UUID.test(offVersion??'')&&SHA256.test(expectedScriptSha256??'')&&
+  typeof execFile==='function'&&typeof readFile==='function'&&
+  typeof lstat==='function',
   'INVALID_PROCESS_SCOPE');
  const expectedAction='powershell.exe -NoProfile -NonInteractive '+
   '-ExecutionPolicy Bypass -File "'+scriptPath+'" -OffVersion '+offVersion;
+
+ async function verifyScript(){
+  try{
+   const stats=await lstat(scriptPath);
+   need(stats?.isFile?.()===true&&
+    stats?.isSymbolicLink?.()===false,'SCRIPT_UNTRUSTED');
+   const bytes=await readFile(scriptPath);
+   need(bytes instanceof Uint8Array&&bytes.length>0&&
+    bytes.length<=32768&&
+    createHash('sha256').update(bytes).digest('hex')===
+     expectedScriptSha256,'SCRIPT_UNTRUSTED');
+  }catch{deny('SCRIPT_UNTRUSTED');}
+ }
 
  async function invoke(command,args) {
   need(typeof command==='string'&&Array.isArray(args)&&
@@ -78,6 +97,7 @@ export function createD6H2WindowsTaskProcessAdapters({
    args[9]==='/ST'&&CLOCK.test(args[10])&&
    args[11]==='/RL'&&args[12]==='LIMITED',
    'INVALID_TASK_CREATE');
+  await verifyScript();
   await invoke('schtasks.exe',args);
   // Only claim the CLI process exited cleanly. The source supervisor MUST
   // independently call readRegisteredTask for actual task definition proof.
@@ -108,6 +128,7 @@ export function createD6H2WindowsTaskProcessAdapters({
     "runLevel=$level}",
    "$out | ConvertTo-Json -Compress -Depth 3",
   ].join(';');
+  await verifyScript();
   const stdout=await invoke('powershell.exe',[
    '-NoProfile','-NonInteractive','-Command',script,
   ]);
