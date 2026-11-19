@@ -85,7 +85,6 @@ test('WP3-H2PROC03 forged OS output or wrong task cannot count as armed',async()
   {verified:false},{enabled:false},{oneShot:false},
   {scheduler:'other'},{taskName:'fake-task'},
   {action:'powershell.exe -File C:\\danger.ps1'},
-  {deadline:NOW+99999},
  ]){
   const adapter=createD6H2WindowsTaskProcessAdapters({
    offScriptPath:OFFPATH,queryScriptPath:QUERYPATH,
@@ -99,6 +98,32 @@ test('WP3-H2PROC03 forged OS output or wrong task cannot count as armed',async()
    taskName:plan.taskName,
   }),D6H2WindowsProcessError);
  }
+});
+
+test('WP3-H2PROC03B wrong OS deadline is rejected by higher-level task supervisor',async()=>{
+ const adapters=createD6H2WindowsTaskProcessAdapters({
+  offScriptPath:OFFPATH,queryScriptPath:QUERYPATH,
+  run:async(executable)=>{
+   if(executable==='schtasks.exe')return {stdout:'created'};
+   return {stdout:JSON.stringify({
+    taskName:plan.taskName,action:plan.action,
+    deadline:NOW+99999,enabled:true,oneShot:true,
+    scheduler:'windows-task-scheduler',verified:true,
+   })};
+  },
+ });
+ // The OS readback must surface the observed deadline; it must not
+ // silently replace it with the expected value.
+ const observed=await adapters.readRegisteredTask({taskName:plan.taskName});
+ assert.equal(observed.deadline,NOW+99999);
+ const scheduler=createD6H2WindowsOffTaskSupervisor({
+  scriptPath:OFFPATH,now:()=>NOW*1000,
+  execute:adapters.execute,
+  readRegisteredTask:adapters.readRegisteredTask,
+ });
+ await assert.rejects(scheduler.arm({
+  offVersion:OFF,deadline:NOW+240,claimKey,
+ }),e=>e.code==='TASK_NOT_VERIFIED');
 });
 
 test('WP3-H2PROC04 invalid shell, arbitrary task, extra flags never execute',async()=>{
