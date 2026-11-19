@@ -43,6 +43,26 @@ export function createApp(ctx){
  const root=document.getElementById('app'),alertHost=document.getElementById('app-notice'),offlineHost=document.getElementById('offline-status');
  const routes=markdownRouteMap(ctx.data),exists=new Set(ctx.manifest.files.filter(x=>x.path.startsWith(`releases/${ctx.release.id}/content/`)).map(x=>x.path.slice(`releases/${ctx.release.id}/content/`.length)));
  let currentHash=location.hash||'#/',route=parseRoute(currentHash),editor=null,serial=0,offline=null,approvedNavigation=null,previousHash=null;
+ // Frozen static Gear remains the read-only Work Offline fallback.
+ // Only a verified Automatic-mode 100-row D1 response becomes online canonical.
+ let gearCatalogReady=false,gearCatalogPending=null;
+ async function ensureGearCatalog(){
+  if(ctx.v3?.directGearEnabled!==true||navigator.onLine!==true||
+     offline?.getModeAvailable?.()!==true||offline.getMode()!=='Automatic')return;
+  if(gearCatalogReady)return;
+  if(gearCatalogPending)return gearCatalogPending;
+  gearCatalogPending=(async()=>{
+   const items=await ctx.v3.directGearClient.list();
+   const ids=new Set(ctx.data.gear.items.map(item=>item.id));
+   if(ids.size!==100||items.some(item=>!ids.has(item.id)))
+    throw Error('Migrated Gear IDs do not match the frozen library.');
+   const data={...ctx.data,gear:{...ctx.data.gear,items}};
+   const maps=validateRecords(data);
+   ctx.data=data;ctx.maps=maps;gearCatalogReady=true;
+  })().finally(()=>{gearCatalogPending=null;});
+  return gearCatalogPending;
+ }
+ const gearPage=page=>['gear-root','gear-list','gear-detail','gear-edit'].includes(page);
  const ownerEditorGate=ownerEditorPreview&&ctx.v3?.directGearEnabled!==true?
   createD6OwnerEditorPreviewGate({
   root:ctx.root,releaseRevision:ctx.release.sourceRevision,
@@ -84,6 +104,7 @@ export function createApp(ctx){
    v3:{...ctx.v3,source,ownerAuthoringPreview:true,
     drafts:ownerDeviceDrafts,
     directGearCanSave:()=>ownerEditingAvailable(),
+    onDirectGearSaved:()=>{gearCatalogReady=false;},
     stageMedia:async()=>{throw Error('New media uploads are not yet enabled.');},
    }};
  }
@@ -110,14 +131,14 @@ export function createApp(ctx){
  function renderRoot(domain){const gear=domain==='gear',rows=gear?GEAR_CATEGORIES:KB_TYPES,all=ctx.data[domain][DOMAIN[domain].array];const page=frame(gear?'My Gear':'Knowledge Base','#/',[],ROOT_SUBTITLES[domain]);
   const searchInput=input('',{type:'search',placeholder:'Search '+(gear?'My Gear':'Knowledge Base')});const searchResults=el('div',{class:'record-grid',hidden:true});const categories=el('div',{class:'nav-grid'},...rows.map(([key,label])=>{const meta=CATEGORY_PRESENTATION[domain][key];const item=card(label,meta.description||'',categoryRoute(domain,key),meta.icon);if(meta.svg)item.querySelector('.card-icon').innerHTML=meta.svg;return item;}));
   searchInput.addEventListener('input',()=>{const q=searchInput.value.trim().toLocaleLowerCase();searchResults.hidden=!q;categories.hidden=Boolean(q);if(!q){searchResults.replaceChildren();return;}const matches=all.filter(r=>[r.name,r.type,r.description,r.manufacturer,r.model].filter(Boolean).join(' ').toLocaleLowerCase().includes(q));searchResults.replaceChildren(...(matches.length?sortNames(matches).map(r=>recordCard(domain,r)):[empty('No matching entries.')]));});
-  searchInput.setAttribute('aria-label','Search '+(gear?'My Gear':'Knowledge Base'));page.querySelector('.page-actions').prepend(searchInput);page.append(categories,searchResults,...(showEditingLinks()?[anchor(gear?'Add Gear':'Add Entry',gear?'#/inventory/add/lures':'#/kb/add/technique','page-edit-link')]:[]));return page;
+  searchInput.setAttribute('aria-label','Search '+(gear?'My Gear':'Knowledge Base'));page.querySelector('.page-actions').prepend(searchInput);page.append(categories,searchResults,...(showEditingLinks()&&!(gear&&ctx.v3?.directGearEnabled===true)?[anchor(gear?'Add Gear':'Add Entry',gear?'#/inventory/add/lures':'#/kb/add/technique','page-edit-link')]:[]));return page;
  }
  function renderList(domain,key){const gear=domain==='gear',rows=gear?GEAR_CATEGORIES:KB_TYPES;const definition=rows.find(x=>x[0]===key);if(!definition)return missing('Unknown category',rootRoute(domain));
   const records=ctx.data[domain][DOMAIN[domain].array].filter(r=>(gear?r.category:r.type)===key);
   const page=frame(definition[1],rootRoute(domain));
   if(!gear&&key==='equipment')page.append(text('p','Equipment, rig, and presentation reference','muted'));
   if(!gear&&key==='technique')page.append(text('p','Strategy, conditions, and species reference','muted'));
-  const list=listControls(domain,records,{title:definition[1],search:gear?key==='lures':key==='equipment',filter:gear,sort:gear?'gear':'name',pinnedId:gear?'':KB_PINNED_FIRST[key]||''});page.querySelector('.page-actions').prepend(...list.controls.children);page.append(list.element,...(showEditingLinks()?[anchor(gear?'Add Gear':'Add Entry',gear?`#/inventory/add/${key}`:`#/kb/add/${key}`,'page-edit-link')]:[]));return page;
+  const list=listControls(domain,records,{title:definition[1],search:gear?key==='lures':key==='equipment',filter:gear,sort:gear?'gear':'name',pinnedId:gear?'':KB_PINNED_FIRST[key]||''});page.querySelector('.page-actions').prepend(...list.controls.children);page.append(list.element,...(showEditingLinks()&&!(gear&&ctx.v3?.directGearEnabled===true)?[anchor(gear?'Add Gear':'Add Entry',gear?`#/inventory/add/${key}`:`#/kb/add/${key}`,'page-edit-link')]:[]));return page;
  }
  function missing(message,parent='#/'){const page=frame('Not found',parent);page.append(empty(message),anchor('Return to the parent page',parent));return page;}
  function appendPicture(page,record,domain){const pic=record.picture;if(!pic)return;const src=ctx.asset(pic.src),caption=pic.caption||'';const activate=record.pictureSequence?.length?()=>openSequenceViewer(record.pictureSequence.map(ctx.asset),record.name,caption):()=>openViewer(src,record.name,caption);page.append(picture(src,pic.caption||record.name,caption,activate));}
@@ -136,13 +157,9 @@ export function createApp(ctx){
  async function renderDetail(domain,id){
   let record=ctx.maps[domain].get(id),directNotes=null;
   if(!record)return missing('This item does not exist or its ID has been retired.',rootRoute(domain));
-  if(domain==='gear'&&ctx.v3?.directGearEnabled===true){
-   // A seeded Gear row uses D1. Other existing rows stay read-only
-   // until the separately approved one-time content import.
-   try{
-    const current=await ctx.v3.directGearClient.read(id);
-    record=current.record;directNotes=current.notes;
-   }catch(error){if(error?.code!=='NOT_FOUND')throw error;}
+  if(domain==='gear'&&ctx.v3?.directGearEnabled===true&&gearCatalogReady){
+   const current=await ctx.v3.directGearClient.read(id);
+   record=current.record;directNotes=current.notes;
   }
   const parent=domain==='catches'?'#/catches':categoryRoute(domain,domain==='gear'?record.category:record.type),page=frame(recordTitle(ctx,domain,record),parent,[],domain==='gear'?categoryLabel(domain,record.category)+' – '+record.type:domain==='kb'?record.description||'':'');
   if(domain==='catches'){
@@ -194,6 +211,9 @@ export function createApp(ctx){
   editor=created;page.append(created.element);return page;
  }
  async function render(){const ticket=++serial;if(offline&&!(await offline.checkCurrent()))return;if(ticket!==serial)return;disposeEditor();route=parseRoute(currentHash);root.replaceChildren(el('div',{class:'loading'},'Loading…'));
+  try{if(gearPage(route.page))await ensureGearCatalog();}
+  catch(error){if(ticket===serial){const page=missing('Unable to load the complete Gear library from D1: '+error.message);page.append(button('Retry',()=>render(),{variant:'primary'}));root.replaceChildren(page);}return;}
+  if(ticket!==serial)return;
   try{let page;
    switch(route.page){case 'home':page=renderHome();break;case 'gear-root':page=renderRoot('gear');break;case 'kb-root':page=renderRoot('kb');break;case 'gear-list':page=renderList('gear',route.category);break;case 'kb-list':page=renderList('kb',route.type);break;case 'gear-detail':page=await renderDetail('gear',route.id);break;case 'kb-detail':page=await renderDetail('kb',route.id);break;case 'catch-list':page=renderCatches();break;case 'catch-detail':page=await renderDetail('catches',route.id);break;
     case 'catch-add':page=await renderCatchPreview();break;
@@ -461,6 +481,9 @@ export function createApp(ctx){
    control.setAttribute('aria-pressed',String(available&&mode===value));
   }
   updateConnection();
+  if(ctx.v3?.directGearEnabled===true&&mode==='Automatic'&&
+     gearPage(route.page)&&!gearCatalogReady&&!dirty())
+   void render();
   const ownerMode=available?mode:'Checking';
   if(approvedConnection&&ownerMode!==lastOwnerRestoreMode){
    lastOwnerRestoreMode=ownerMode;
