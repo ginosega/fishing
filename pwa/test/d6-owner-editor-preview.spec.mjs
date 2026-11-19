@@ -204,6 +204,50 @@ test('WP1-EDITOR-B02 owner can inspect Gear and KB Notes forms without publishin
  expect(logs.writes).toEqual([]);
  expect(errors).toEqual([]);
 });
+test('V3-EDITOR-TOOLBAR01 Notes controls align and Expand opens full-page editor',async({page})=>{
+ session={authenticated:true,authorized:true,ownerLogin:'ginosega'};
+ const errors=await open(page);
+ await ownerReady(page);
+ const gear=real.gear.items.find(x=>x.notes);
+ await page.evaluate(h=>location.hash=h,'#/inventory/edit/'+gear.id);
+ const notes=page.locator('#app .notes-editor');
+ await expect(notes).toBeVisible({timeout:30000});
+ const preview=notes.getByRole('button',{name:'Preview',exact:true});
+ await expect(preview).toHaveAttribute('title','Preview Markdown');
+ await expect(preview).toHaveAttribute('aria-label','Preview');
+ const toolbar=notes.locator('.notes-toolbar');
+ const metrics=await toolbar.evaluate(element=>{
+  const buttons=[...element.querySelectorAll(':scope > button')]
+   .filter(button=>!button.hidden);
+  const rects=buttons.map(button=>button.getBoundingClientRect());
+  return {count:buttons.length,
+   heights:rects.map(rect=>rect.height),
+   gaps:rects.slice(1).map((rect,index)=>rect.left-rects[index].right)};
+ });
+ expect(metrics.count).toBe(4);
+ expect(Math.max(...metrics.heights)-Math.min(...metrics.heights)).toBeLessThan(2);
+ expect(metrics.gaps.every(gap=>gap>=7)).toBe(true);
+ const expand=notes.getByRole('button',{name:'Expand editor'});
+ await expand.click();
+ await expect(notes).toHaveClass(/expanded/);
+ await expect(notes).toHaveCSS('position','fixed');
+ await expect(notes.getByRole('button',{name:'Exit full-page editor'}))
+  .toHaveAttribute('aria-expanded','true');
+ const size=await notes.evaluate(element=>({
+  editor:element.getBoundingClientRect().height,window:window.innerHeight,
+  textarea:element.querySelector('textarea.markdown-editor').getBoundingClientRect().height,
+ }));
+ expect(size.editor/size.window).toBeGreaterThan(.85);
+ expect(size.textarea).toBeGreaterThan(350);
+ await page.keyboard.press('Escape');
+ await expect(notes).not.toHaveClass(/expanded/);
+ await expect(notes).not.toHaveCSS('position','fixed');
+ await expect(notes.getByRole('button',{name:'Expand editor'}))
+  .toHaveAttribute('aria-expanded','false');
+ expect(logs.writes).toEqual([]);
+ expect(errors).toEqual([]);
+});
+
 test('WP1-EDITOR-B03 verified owner Catch Add/Edit has no submit route',async({page})=>{
  session={authenticated:true,authorized:true,ownerLogin:'ginosega'};
  const errors=await open(page);
