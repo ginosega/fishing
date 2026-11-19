@@ -17,6 +17,11 @@ $ErrorActionPreference = 'Stop'
 $worker = 'fishing-v3-wp3-test'
 $npx = 'C:\Program Files\nodejs\npx.cmd'
 $stage = 'verify-identity'
+# Reject original failed-canary evidence filename even if its file was never created.
+# This check occurs before any attempt to write failure diagnostics.
+if ([System.IO.Path]::GetFileName($EvidencePath) -ine 'h2-readonly-stage-diagnostic.json') {
+ throw 'Separate diagnostic evidence filename required'
+}
 
 try {
  $expectedSid = [System.Security.Principal.NTAccount]::new(
