@@ -119,7 +119,17 @@ export function createApp(ctx){
  }
  async function appendMarkdown(page,pathValue,heading){if(!pathValue)return;const response=await fetch(ctx.asset(pathValue));if(!response.ok)throw new Error(`Cannot load ${pathValue}: HTTP ${response.status}`);const content=await response.text();page.append(section(heading,await markdownContent(pathValue,content)));}
  function historySection(domain,record){const catches=catchHistory(ctx.data,domain,record.id);if(!catches.length)return null;return section('Catch History',el('div',{class:'record-grid'},...catches.map(c=>recordCard('catches',c))));}
- async function renderDetail(domain,id){const record=ctx.maps[domain].get(id);if(!record)return missing('This item does not exist or its ID has been retired.',rootRoute(domain));
+ async function renderDetail(domain,id){
+  let record=ctx.maps[domain].get(id),directNotes=null;
+  if(!record)return missing('This item does not exist or its ID has been retired.',rootRoute(domain));
+  if(domain==='gear'&&ctx.v3?.directGearEnabled===true){
+   // A seeded Gear row uses D1. Other existing rows stay read-only
+   // until the separately approved one-time content import.
+   try{
+    const current=await ctx.v3.directGearClient.read(id);
+    record=current.record;directNotes=current.notes;
+   }catch(error){if(error?.code!=='NOT_FOUND')throw error;}
+  }
   const parent=domain==='catches'?'#/catches':categoryRoute(domain,domain==='gear'?record.category:record.type),page=frame(recordTitle(ctx,domain,record),parent,[],domain==='gear'?categoryLabel(domain,record.category)+' – '+record.type:domain==='kb'?record.description||'':'');
   if(domain==='catches'){
    const species=ctx.maps.kb.get(record.speciesId),location=ctx.maps.kb.get(record.locationId),lure=ctx.maps.gear.get(record.lureOrBaitId);
@@ -134,7 +144,10 @@ export function createApp(ctx){
    const details=[...(record.manufacturer?[['Manufacturer',record.manufacturer]]:[]),...(record.model?[['Model',record.model]]:[]),...(record.specifications||[]).map(s=>[s.label||'Specification',s.value])];
    if(details.length)page.append(section('Specifications',table(details)));
    if(record.links?.length)page.append(section('Links',el('div',{class:'links-list'},...record.links.map(l=>el('a',{href:l.url,target:'_blank',rel:'noopener noreferrer'},l.label,' ↗')))));
-   await appendMarkdown(page,record.notes,'Notes');
+   if(directNotes!==null){
+    if(record.notes)page.append(section('Notes',
+     await markdownContent(record.notes,directNotes)));
+   }else await appendMarkdown(page,record.notes,'Notes');
   }else{
    await appendMarkdown(page,record.content,'Notes');
   }
