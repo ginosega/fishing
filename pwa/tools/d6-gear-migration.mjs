@@ -4,6 +4,7 @@
  * Output SQL + an integrity report for owner review, never run the SQL here.
  */
 import {createHash} from 'node:crypto';
+import {execFileSync} from 'node:child_process';
 import {readFile,readdir,stat,writeFile,mkdir} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -40,6 +41,33 @@ async function scanFiles(root,relative='Gear'){
  }
  return files.sort();
 }
+function gitBytes(root,relative){
+ const name='pwa/'+safePath(relative);
+ try{
+  // Git stores canonical LF text even if Windows checked it out as CRLF.
+  // Retrieve the exact committed bytes; never import checkout conversions.
+  return execFileSync('git',['show','HEAD:'+name],{
+   cwd:path.dirname(root),windowsHide:true,maxBuffer:16*1024*1024,
+  });
+ }catch{throw Error('Could not read immutable Git blob: '+name);}
+}
+function trackedTree(root){
+ let raw;
+ try{
+  raw=execFileSync('git',['ls-tree','-r','-z','HEAD','--','pwa/Gear'],{
+   cwd:path.dirname(root),windowsHide:true,maxBuffer:4*1024*1024,
+  });
+ }catch{throw Error('Could not inspect committed Gear tree');}
+ const blobs=new Map();
+ for(const entry of raw.toString('utf8').split('\0').filter(Boolean)){
+  const match=/^100644 blob ([a-f0-9]{40})\tpwa\/(Gear\/.*)$/.exec(entry);
+  if(!match)throw Error('Unexpected committed Gear tree entry');
+  const rel=safePath(match[2]);
+  assert(!blobs.has(rel),'Duplicate tracked Gear path: '+rel);
+  blobs.set(rel,match[1]);
+ }
+ return blobs;
+}
 async function checkedFile(root,relative){
  const name=safePath(relative),absolute=path.resolve(root,...name.split('/'));
  assert(absolute.startsWith(root+path.sep),'Gear path outside checked root');
@@ -51,8 +79,12 @@ async function checkedFile(root,relative){
 
 export async function prepareD6GearMigration({root=DEFAULT_ROOT}={}){
  root=path.resolve(root);
- const catalogBytes=await readFile(path.join(root,'Gear','gear.json'));
+ const tree=trackedTree(root);
+ const catalogBytes=gitBytes(root,'Gear/gear.json');
  const actualBlob=blobHash(catalogBytes);
+ assert(tree.get('Gear/gear.json')===actualBlob,
+  'Frozen Gear catalog Git tree mismatch');
+
  assert(actualBlob===EXPECTED_BLOB,
   'Frozen Gear catalog differs from original V2 source: '+actualBlob);
  let bundle;
@@ -62,12 +94,17 @@ export async function prepareD6GearMigration({root=DEFAULT_ROOT}={}){
  const rows=bundle.items;
  assert(rows.length===100,'Unexpected Gear count: '+rows.length);
  const allFiles=await scanFiles(root),available=new Set(allFiles);
+ assert(allFiles.length===tree.size&&allFiles.every(name=>tree.has(name)),
+  'Working Gear file set differs from committed Gear tree');
+
  // Preserve all image files, including inline Notes images in /content/.
  const allAssets=allFiles.filter(name=>IMAGE.test(name));
  assert(allAssets.length===112,'Unexpected image asset count: '+allAssets.length);
  const images=[];
  for(const name of allAssets){
   const f=await checkedFile(root,name);
+  assert(blobHash(f.bytes)===tree.get(name),
+   'Gear image bytes differ from immutable Git source: '+name);
   images.push({path:f.path,sha256:f.sha256,bytes:f.size});
  }
  const imageByPath=new Map(images.map(item=>[item.path,item]));
@@ -89,11 +126,13 @@ export async function prepareD6GearMigration({root=DEFAULT_ROOT}={}){
     'Gear notes missing: '+record.id);
    assert(!usedNotes.has(record.notes),'Notes path shared: '+record.notes);
    usedNotes.add(record.notes);
-   const f=await checkedFile(root,record.notes);
-   notes=f.bytes.toString('utf8');
-   assert(Buffer.from(notes,'utf8').equals(f.bytes),
+   const bytes=gitBytes(root,record.notes);
+   assert(blobHash(bytes)===tree.get(record.notes),
+    'Notes Git blob differs from committed tree: '+record.id);
+   notes=bytes.toString('utf8');
+   assert(Buffer.from(notes,'utf8').equals(bytes),
     'Notes contain non-UTF8 data: '+record.id);
-   notesSha256=f.sha256;
+   notesSha256=digest(bytes);
   }
   const recordJSON=JSON.stringify(record);
   reportRows.push({
