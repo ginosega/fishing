@@ -6,6 +6,7 @@ import {planD6H2WindowsOffTask,
 import {readFileSync} from 'node:fs';
 
 const OFF='b552efc6-a24c-4ca1-ab6c-b88a68c99ff0';
+const OWNER='TESTPC\\Owner';
 const ID='123e4567-e89b-42d3-a456-426614174000';
 const NOW=2000000000,DEADLINE=NOW+240;
 const CLAIM='h2-begin:'+ID+':tree';
@@ -42,14 +43,16 @@ test('WP3-H2TASK02 only independent registered task evidence yields armed true',
  const calls=[];
  const p=planD6H2WindowsOffTask(params());
  const s=createD6H2WindowsOffTaskSupervisor({
-  scriptPath:SCRIPT,now:()=>NOW*1000,
+  scriptPath:SCRIPT,expectedRunAsUser:OWNER,now:()=>NOW*1000,
   async execute(c){calls.push('create');assert.deepEqual(c.args,[...p.command.args]);
    return {exitCode:0};},
   async readRegisteredTask({taskName}){
    calls.push('query');assert.equal(taskName,p.taskName);
    return {verified:true,scheduler:'windows-task-scheduler',
     taskName:p.taskName,action:p.action,deadline:p.deadline,
-    enabled:true,oneShot:true};
+    enabled:true,oneShot:true,
+    principalVerified:true,principalUser:OWNER,
+    logonType:'Interactive',runLevel:'Limited'};
   },
  });
  const r=await s.arm({offVersion:OFF,deadline:DEADLINE,claimKey:CLAIM});
@@ -65,15 +68,19 @@ test('WP3-H2TASK03 wrong registered action/deadline/disabled schedule refuses ON
   {verified:false},{scheduler:'process-timer'},
   {action:'cmd.exe /C echo off'}, {deadline:DEADLINE+600},
   {taskName:'arbitrary'}, {enabled:false},{oneShot:false},
+  {principalVerified:false},{principalUser:'OTHERPC\\Other'},
+  {logonType:'S4U'},{runLevel:'Highest'},
  ]){
   const p=planD6H2WindowsOffTask(params());
   const s=createD6H2WindowsOffTaskSupervisor({
-   scriptPath:SCRIPT,now:()=>NOW*1000,
+   scriptPath:SCRIPT,expectedRunAsUser:OWNER,now:()=>NOW*1000,
    execute:async()=>({exitCode:0}),
    readRegisteredTask:async()=>({
     verified:true,scheduler:'windows-task-scheduler',
     taskName:p.taskName,action:p.action,deadline:p.deadline,
-    enabled:true,oneShot:true,...bad,
+    enabled:true,oneShot:true,
+    principalVerified:true,principalUser:OWNER,
+    logonType:'Interactive',runLevel:'Limited',...bad,
    }),
   });
   await deniedAsync(()=>s.arm({
@@ -88,7 +95,7 @@ test('WP3-H2TASK04 error/ambiguous scheduler creation does not claim independent
   async()=>{throw Error('schtasks unavailable');},
  ]){
   const s=createD6H2WindowsOffTaskSupervisor({
-   scriptPath:SCRIPT,now:()=>NOW*1000,execute,
+   scriptPath:SCRIPT,expectedRunAsUser:OWNER,now:()=>NOW*1000,execute,
    readRegisteredTask:async()=>{throw Error('must not query');},
   });
   await deniedAsync(()=>s.arm({
