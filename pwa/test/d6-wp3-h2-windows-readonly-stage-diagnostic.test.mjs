@@ -60,7 +60,7 @@ test('WP3-H2DIAG03 exclusive evidence, no write operations, task creation or ret
 });
 
 test('WP3-H2DIAG04 code does not claim provider or recovery proof on failure',()=>{
- const failSection=script.slice(script.lastIndexOf('} catch {'));
+ const failSection=script.slice(script.indexOf('} catch {'));
  assert(failSection.includes("result = 'FAIL'"));
  assert(failSection.includes('readOnly = $true'));
  assert(failSection.includes('isLive = $false'));
