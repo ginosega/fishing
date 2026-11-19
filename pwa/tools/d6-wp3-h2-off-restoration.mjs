@@ -4,7 +4,7 @@
  * SOURCE ONLY: never called by a deployed Worker or browser. NO default
  * credential, network client, shell, scheduler or authorization. A separate
  * operator invokes this only after exact owner-approved H2 safety OFF scope.
- * It uses Wrangler's documented "versions deploy <uuid>@100 --name" command.
+ * It uses Wrangler's documented "versions deploy <uuid>@100% --name" command.
  * One attempt maximum. Always independently recheck active deployment.
  *
  * The independent deadline supervisor must live outside the controller
@@ -26,7 +26,7 @@ export function makeD6H2OffCommand({offVersion}={}){
  return Object.freeze({
   executable:'wrangler',
   args:Object.freeze([
-   'versions','deploy',offVersion+'@100',
+   'versions','deploy',offVersion+'@100%',
    '--name',WORKER,'--yes',
    '--message','WP3 H2 approved safety OFF restoration',
   ]),
