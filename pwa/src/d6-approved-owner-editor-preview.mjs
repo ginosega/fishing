@@ -390,8 +390,8 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
  });
  const actions=toolbar(prepareButton,button('Cancel',onBack));
  prepareButton.disabled=true;
- prepareButton.setAttribute('aria-label',directGear?'Save Gear':'Save unavailable in read-only preview');
- const blocked=directGear?null:text('p','Editor preview only. Save is disabled until direct database editing is enabled. Your changes have not been submitted.','hint');
+ prepareButton.setAttribute('aria-label',directGear?'Save Gear':'Save and Publish unavailable in WP1 preview');
+ const blocked=directGear?null:text('p','Editor preview only. Save and Publish is disabled until the secure production publishing pipeline is complete. Your changes have not been submitted.','hint');
  form.append(actions,actionNotice);
  host.append(notice,...(blocked?[blocked]:[]),form,output);
  return {element:host,isDirty:dirty,discardDraft,dispose:()=>{revokeLocal();notesEditor?.dispose();},record};
