@@ -235,6 +235,9 @@ export function createApp(ctx){
  let automaticModeButton=null,workOfflineButton=null,readingModeStatus=null;
  let ownerSessionStatus=null,ownerProbeSerial=0;
  let approvedController=null,approvedPresenter=null,lastPreviewOwner=false;
+ // The first verified reading mode triggers owner-session restoration,
+ // whether or not the owner ever opens Connection Status.
+ let lastOwnerRestoreMode='Checking';
  // The accepted D5 presenter has its own asynchronous command repaint after
  // sign-out, separate from the D6 adapter's onChange repaint. Keep its
  // historical return-query out of the D6-only production OAuth link after
@@ -458,8 +461,13 @@ export function createApp(ctx){
    control.setAttribute('aria-pressed',String(available&&mode===value));
   }
   updateConnection();
-  if(approvedConnection&&connectionDialog.open===true)
+  const ownerMode=available?mode:'Checking';
+  if(approvedConnection&&ownerMode!==lastOwnerRestoreMode){
+   lastOwnerRestoreMode=ownerMode;
+   // The adapter checks the authenticated same-origin session; offline
+   // and Checking states fail closed, and stale replies are fenced.
    void approvedController?.restore();
+  }
  }
  connection.addEventListener('click',()=>{
   connectionDialog.showModal();
@@ -472,8 +480,9 @@ export function createApp(ctx){
   .addEventListener('click',()=>connectionDialog.close());
  const connectionNetworkChanged=()=>{
   updateConnection();
-  if(approvedConnection&&connectionDialog.open===true)
-   void approvedController?.restore();
+  // Invalidate or restore owner state on connectivity changes even when
+  // the Connection Status dialog is closed.
+  if(approvedConnection)void approvedController?.restore();
  };
  window.addEventListener('online',connectionNetworkChanged);
  window.addEventListener('offline',connectionNetworkChanged);
