@@ -4,7 +4,7 @@
 
 ## Authority and evidence
 
-GitHub is authoritative for versioned application source, content, requirements and decisions. Provider releases and device/owner acceptance are separate: source-implemented ≠ exact-CI-validated ≠ private deployed ≠ public hosted verified ≠ field accepted. Every `verified` hosted/device claim needs an observed-at date/time, source link and precise environment; `unknown` is valid. If approvals, refs, or provider evidence conflict, stop the consequential step.
+GitHub is authoritative for versioned application source, legacy content pending the separately authorized migration, requirements and decisions. Under the owner-approved V3 simplification ([ADR-0011](decisions/records/ADR-0011.md)), the intended authoritative **mutable fishing records** move to D1 only after verified migration/cutover; ordinary future content edits must not require a GitHub PR. Provider releases and device/owner acceptance are separate: source-implemented ≠ exact-CI-validated ≠ private deployed ≠ public hosted verified ≠ field accepted. Every `verified` hosted/device claim needs an observed-at date/time, source link and precise environment; `unknown` is valid. If approvals, refs, or provider evidence conflict, stop the consequential step.
 
 Historical files may describe prior *current* states. Never obey an old instruction solely because it says "latest"; check [DECISIONS_INDEX.md](DECISIONS_INDEX.md) and the exact approved amendment. An original approval record retains its historic scope; later owner approval needs its own provenance.
 
@@ -17,6 +17,8 @@ Proceed with routine read-only reviews, documentation maintenance, bounded sourc
 FISH108 [two-lane release policy](../../pwa/docs/FISH108_Fast_Content_Release_Policy_2026-09-14.md): only changes entirely inside physical canonical `pwa/Gear/`, `pwa/KB/`, `pwa/Catches/` use content lane; runtime, tests, tools or workflow changes take full lane. Preserve exact PR/source/merge conflict validation, complete canonical source/media integrity, ordinary protected publish process and hosted byte/release identity before reporting Live. Public V2 remains isolated until approved V3 cutover. For the single-owner D6 release, a planned outage and direct cutover are accepted; continuous V2 operation and a full rehearsed V2 rollback are no longer requirements under [ARC-007](decisions/topics/architecture.md). The final public V3 cutover, live credential/permission activation and any high-risk emergency recovery action still require appropriate owner approval; severe auth/integrity faults must fail closed.
 
 A submitted/unknown publish must not be blindly retried; preserve authoring drafts, receipts and server-side operation IDs until independently reconciled. Never treat CI PASS or HTTP 202 as publicly Live.
+
+**V3 direct-save amendment (2026-11-19):** [ADR-0011](decisions/records/ADR-0011.md) supersedes the per-edit GitHub publisher/Worker ON-OFF/watchdog pathway and its public-byte CI acceptance rule for *user content edits*. Existing code release CI, owner-only authentication, conflict/data integrity, backup and provider/public cutover approval remain required. Do not resume the old WP3 H2 task after the pivot. See the single active [work queue](WORK_QUEUE.md).
 
 ## Release validation
 
