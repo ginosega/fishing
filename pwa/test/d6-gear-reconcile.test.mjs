@@ -15,15 +15,16 @@ const json=value=>new Response(JSON.stringify(value),{
  status:200,headers:{'Content-Type':'application/json; charset=utf-8'},
 });
 let prepared;
-async function setup({corruptId=null,missingAsset=false}={}){
+async function setup({corruptId=null,missingAsset=false,omittedAssetPath=null,corruptAssetPath=null}={}){
  prepared??=await prepareD6GearMigration();
  const {report}=prepared;
  const bundle=JSON.parse(await readFile(path.join(ROOT,'Gear','gear.json'),'utf8'));
  const records=new Map(bundle.items.map(row=>[row.id,row]));
+ const absent=missingAsset?report.records[0].picturePath:omittedAssetPath;
  const manifest={releaseId:RELEASE,d6DirectGearSave:true,base:'/fishing/',
-  files:report.assets.slice(missingAsset?1:0).map(x=>({
+  files:report.assets.filter(x=>x.path!==absent).map(x=>({
    path:'releases/'+RELEASE+'/content/'+x.path,
-   sha256:x.sha256,bytes:x.bytes,
+   sha256:x.path===corruptAssetPath?'0'.repeat(64):x.sha256,bytes:x.bytes,
   })),
  };
  const manifestBytes=Buffer.from(JSON.stringify(manifest));
@@ -57,7 +58,9 @@ test('V3-GEAR-RECON01 100 records, 63 Notes and all images reconcile read-only',
  assert.equal(result.records,100);
  assert.equal(result.notes,63);
  assert.equal(result.pictures,100);
- assert.equal(result.assetFiles,112);
+ assert.equal(result.sourceImageFiles,112);
+ assert.equal(result.publishedImageFiles,112);
+ assert.deepEqual(result.unreferencedSourceImages,[]);
  assert.equal(result.pilotRevision,3);
  assert.equal(x.reads(),103);
 });
@@ -70,7 +73,7 @@ test('V3-GEAR-RECON02 any Notes or media mismatch fails before acceptance',async
  const missing=await setup({missingAsset:true});
  await assert.rejects(
   reconcileD6Gear({report:missing.report,fetchImpl:missing.fetchImpl}),
-  /Gear media missing or changed/);
+  /Referenced Gear image missing from hosted release/);
 });
 
 test('V3-GEAR-RECON03 only the exact approved isolated origin is accepted',async()=>{
@@ -78,4 +81,30 @@ test('V3-GEAR-RECON03 only the exact approved isolated origin is accepted',async
  await assert.rejects(reconcileD6Gear({report:x.report,
   origin:'https://fishing.ginosega.workers.dev',fetchImpl:x.fetchImpl}),
   /Only the approved private origin/);
+});
+
+test('V3-GEAR-RECON04 unreferenced original Gear images are reported but not required in release',async()=>{
+ const absent='Gear/Equipment/content/Garmin Force Current.png';
+ const x=await setup({omittedAssetPath:absent});
+ const result=await reconcileD6Gear({report:x.report,fetchImpl:x.fetchImpl});
+ assert.equal(result.outcome,'PASS');
+ assert.equal(result.records,100);
+ assert.equal(result.sourceImageFiles,112);
+ assert.equal(result.publishedImageFiles,111);
+ assert.deepEqual(result.unreferencedSourceImages,[absent]);
+});
+
+test('V3-GEAR-RECON05 missing linked Notes image fails',async()=>{
+ const absent='Gear/Equipment/content/Wireless Foot Pedals.png';
+ const x=await setup({omittedAssetPath:absent});
+ await assert.rejects(
+  reconcileD6Gear({report:x.report,fetchImpl:x.fetchImpl}),
+  /Referenced Gear image missing from hosted release/);
+});
+
+test('V3-GEAR-RECON06 altered hosted Gear image digest fails',async()=>{
+ const x=await setup({corruptAssetPath:'Gear/Equipment/content/Wireless Foot Pedals.png'});
+ await assert.rejects(
+  reconcileD6Gear({report:x.report,fetchImpl:x.fetchImpl}),
+  /Gear media changed/);
 });
