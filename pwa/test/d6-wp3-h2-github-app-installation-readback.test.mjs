@@ -112,7 +112,7 @@ test('WP3-H2APP04 extra or wrong repository always fails closed',()=>{
   {repositories:[...repositories().repositories,{id:2}]},
   {repositories:[{...repositories().repositories[0],id:2}]},
   {repositories:[{...repositories().repositories[0],full_name:'other/fishing'}]},
-  {repositories:[{...repositories().repositories[0],private:false}]},
+  {repositories:[{...repositories().repositories[0],private:true}]},
   {repositories:[{...repositories().repositories[0],archived:true}]},
   {repositories:[{...repositories().repositories[0],default_branch:'develop'}]},
  ]){
