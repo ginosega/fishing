@@ -483,7 +483,7 @@ export function createApp(ctx){
    control.setAttribute('aria-pressed',String(available&&mode===value));
   }
   updateConnection();
-  if(ctx.v3?.directGearEnabled===true&&mode==='Automatic'&&
+  if(ctx.v3?.directGearEnabled===true&&available&&mode==='Automatic'&&
      gearPage(route.page)&&!gearCatalogReady&&!dirty())
    void render();
   const ownerMode=available?mode:'Checking';
