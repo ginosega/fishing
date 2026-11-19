@@ -34,7 +34,7 @@ function harness(){
  const AUTH_DB={prepare(sql){
   assert(sql.includes('FROM sessions'));
   return {bind:()=>({first:async()=>({github_id:265665562,
-   expires_at:2000000})})};
+   expires_at:1003600})})};
  }};
  const service=createD6DirectGearService({
   AUTH_DB,CONTENT_DB,csrfKey:'S'.repeat(64),origin,now:()=>1000000,
