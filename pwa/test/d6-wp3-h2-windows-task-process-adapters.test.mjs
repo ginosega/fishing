@@ -99,7 +99,7 @@ test('WP3-H2OS04 wrong or altered task cannot serve as watchdog',async()=>{
  for(const override of [
   {taskName:'Other-Task'}, {taskPath:'\\Microsoft\\Windows\\'},
   {action:'powershell.exe -File C:\\evil.ps1'},
-  {deadline:p().deadline+60},{enabled:false},{oneShot:false},
+  {enabled:false},{oneShot:false},
   {runLevel:'Highest'},{runLevel:'not-verified'},
  ]){
   const f=fixture({override});
@@ -172,4 +172,20 @@ test('WP3-H2OS09 modified or linked OFF script cannot register safety task',asyn
   }));
   assert.equal(f.calls.length,0);
  }
+});
+
+test('WP3-H2OS10 supervisor rejects observed deadline different from approved',async()=>{
+ const f=fixture({override:{deadline:p().deadline+60}});
+ const observed=await f.os.readRegisteredTask({
+  taskName:f.expected.taskName,
+ });
+ assert.equal(observed.deadline,p().deadline+60,
+  'OS reader must return observed, not invented, task deadline');
+ const supervisor=createD6H2WindowsOffTaskSupervisor({
+  execute:f.os.execute,readRegisteredTask:f.os.readRegisteredTask,
+  scriptPath:SCRIPT,now:()=>TIME*1000,
+ });
+ await assert.rejects(supervisor.arm({
+  offVersion:OFF,claimKey:CLAIM,deadline:TIME+240,
+ }),e=>e.code==='TASK_NOT_VERIFIED');
 });
