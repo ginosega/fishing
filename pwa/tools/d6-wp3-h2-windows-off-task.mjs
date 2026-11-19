@@ -11,11 +11,10 @@
  * powered off or has lost Cloudflare access. It is NOT proof of remote OFF.
  */
 import {createHash} from 'node:crypto';
-import {isAbsolute} from 'node:path';
+import {win32} from 'node:path';
 
 const WORKER='fishing-v3-wp3-test';
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const TASK=/^Fishing-WP3-H2-OFF-[0-9a-f]{16}$/;
 const PATH=/^[A-Za-z]:\\[A-Za-z0-9 _\\.()-]+\.ps1$/;
 const KEY=/^h2-(?:intake:WP3-H2-SYNTH-KB-001|begin:[0-9a-f-]+:(?:tree|branch|commit|advance|pr)|reconcile:[0-9a-f-]+:(?:tree|branch|commit|advance|pr):[A-Za-z0-9_.:-]+)$/;
 
@@ -33,7 +32,7 @@ export function planD6H2WindowsOffTask({
  need(UUID.test(offVersion??'')&&KEY.test(claimKey??'')&&
   Number.isSafeInteger(deadline)&&deadline>=1700000000&&
   typeof now==='function','INVALID_OFF_SCHEDULE');
- need(typeof scriptPath==='string'&&isAbsolute(scriptPath)&&
+ need(typeof scriptPath==='string'&&win32.isAbsolute(scriptPath)&&
   PATH.test(scriptPath)&&!/[\r\n"'%&|<>^!]/.test(scriptPath),
   'INVALID_SCRIPT_PATH');
  const nowSec=Math.floor(now()/1000);
@@ -68,12 +67,12 @@ export function planD6H2WindowsOffTask({
 }
 
 export function createD6H2WindowsOffTaskSupervisor({
- execute,readRegisteredTask,now=Date.now,
+ execute,readRegisteredTask,scriptPath,now=Date.now,
 }={}){
  need(typeof execute==='function'&&
   typeof readRegisteredTask==='function'&&
   typeof now==='function','INVALID_SCHEDULER');
- async function arm({offVersion,deadline,claimKey,scriptPath}={}){
+ async function arm({offVersion,deadline,claimKey}={}){
   const plan=planD6H2WindowsOffTask({
    offVersion,deadline,claimKey,scriptPath,now,
   });
