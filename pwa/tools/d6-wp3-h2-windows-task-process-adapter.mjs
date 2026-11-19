@@ -19,6 +19,7 @@ import {win32} from 'node:path';
 const execFile=promisify(execFileCallback);
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const TASK=/^Fishing-WP3-H2-OFF-[a-f0-9]{16}$/;
+const OWNER=/^[A-Za-z0-9_.-]{1,32}\\[A-Za-z0-9_.-]{1,64}$/;
 const PATH=/^[A-Za-z]:\\[A-Za-z0-9 _\\.()-]+\.ps1$/;
 const COMMAND=/^powershell\.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "([A-Za-z]:\\[A-Za-z0-9 _\\.()-]+\.ps1)" -OffVersion ([0-9a-f-]+)$/;
 const DATE=/^(?:0[1-9]|1[0-2])\/(?:0[1-9]|[12][0-9]|3[01])\/[0-9]{4}$/;
@@ -50,10 +51,11 @@ export function verifyD6H2TaskCreationArgs(args,{offScriptPath}={}){
 }
 
 export function createD6H2WindowsTaskProcessAdapters({
- offScriptPath,queryScriptPath,run=execFile,
+ offScriptPath,queryScriptPath,expectedRunAsUser,run=execFile,
 }={}){
  need(PATH.test(offScriptPath??'')&&win32.isAbsolute(offScriptPath)&&
   PATH.test(queryScriptPath??'')&&win32.isAbsolute(queryScriptPath)&&
+  OWNER.test(expectedRunAsUser??'')&&
   typeof run==='function','INVALID_CONFIG');
  const options={shell:false,windowsHide:true,timeout:10000,
   maxBuffer:MAX,encoding:'utf8'};
@@ -69,7 +71,8 @@ export function createD6H2WindowsTaskProcessAdapters({
  async function readRegisteredTask({taskName}={}){
   need(TASK.test(taskName??''),'INVALID_TASK');
   const args=['-NoProfile','-NonInteractive','-ExecutionPolicy',
-   'Bypass','-File',queryScriptPath,'-TaskName',taskName];
+   'Bypass','-File',queryScriptPath,'-TaskName',taskName,
+   '-ExpectedRunAsUser',expectedRunAsUser];
   let stdout;
   try{
    const result=await run('powershell.exe',args,{...options});
@@ -80,7 +83,11 @@ export function createD6H2WindowsTaskProcessAdapters({
   let record;
   try{record=JSON.parse(stdout);}catch{deny('TASK_QUERY_UNAVAILABLE');}
   need(record&&typeof record==='object'&&
-   record.verified===true&&
+   record.verified===true&&record.principalVerified===true&&
+   typeof record.principalUser==='string'&&
+   record.principalUser.toLowerCase()===expectedRunAsUser.toLowerCase()&&
+   ['Interactive','Password','InteractiveOrPassword'].includes(record.logonType)&&
+   record.runLevel==='Limited'&&
    record.taskName===taskName&&
    record.scheduler==='windows-task-scheduler'&&
    record.enabled===true&&record.oneShot===true&&
@@ -94,6 +101,8 @@ export function createD6H2WindowsTaskProcessAdapters({
    scheduler:'windows-task-scheduler',
    action:record.action,deadline:record.deadline,
    enabled:true,oneShot:true,
+   principalVerified:true,principalUser:expectedRunAsUser,
+   logonType:record.logonType,runLevel:'Limited',
   });
  }
  return Object.freeze({execute,readRegisteredTask});

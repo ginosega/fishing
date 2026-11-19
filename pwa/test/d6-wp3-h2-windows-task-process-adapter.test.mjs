@@ -9,6 +9,7 @@ import {
 } from '../tools/d6-wp3-h2-windows-off-task.mjs';
 
 const OFF='b552efc6-a24c-4ca1-ab6c-b88a68c99ff0';
+const OWNER='TESTPC\\Owner';
 const ID='123e4567-e89b-42d3-a456-426614174000';
 const NOW=2000000000;
 const OFFPATH='C:\\Fishing H2\\d6-wp3-h2-deadline-off.ps1';
@@ -45,6 +46,7 @@ test('WP3-H2PROC02 exact create and separately queried Task Scheduler yield veri
  const calls=[];
  const adapters=createD6H2WindowsTaskProcessAdapters({
   offScriptPath:OFFPATH,queryScriptPath:QUERYPATH,
+  expectedRunAsUser:OWNER,
   run:async(exe,args,opts)=>{
    calls.push({exe,args,opts});
    assert.equal(opts.shell,false);
@@ -55,12 +57,14 @@ test('WP3-H2PROC02 exact create and separately queried Task Scheduler yield veri
      taskName:plan.taskName,action:plan.action,
      deadline:plan.deadline,enabled:true,oneShot:true,
      scheduler:'windows-task-scheduler',verified:true,
+     principalVerified:true,principalUser:OWNER,
+     logonType:'Interactive',runLevel:'Limited',
     })};
    throw Error('unexpected process');
   },
  });
  const scheduler=createD6H2WindowsOffTaskSupervisor({
-  scriptPath:OFFPATH,now:()=>NOW*1000,
+  scriptPath:OFFPATH,expectedRunAsUser:OWNER,now:()=>NOW*1000,
   execute:adapters.execute,
   readRegisteredTask:adapters.readRegisteredTask,
  });
@@ -76,6 +80,7 @@ test('WP3-H2PROC02 exact create and separately queried Task Scheduler yield veri
  assert.deepEqual(calls[1].args,[
   '-NoProfile','-NonInteractive','-ExecutionPolicy',
   'Bypass','-File',QUERYPATH,'-TaskName',plan.taskName,
+  '-ExpectedRunAsUser',OWNER,
  ]);
  assert(!JSON.stringify(result).includes('Authorization'));
 });
@@ -84,14 +89,19 @@ test('WP3-H2PROC03 forged OS output or wrong task cannot count as armed',async()
  for(const bad of [
   {verified:false},{enabled:false},{oneShot:false},
   {scheduler:'other'},{taskName:'fake-task'},
+  {principalVerified:false},{principalUser:'OTHERPC\\Other'},
+  {logonType:'S4U'},{runLevel:'Highest'},
   {action:'powershell.exe -File C:\\danger.ps1'},
  ]){
   const adapter=createD6H2WindowsTaskProcessAdapters({
    offScriptPath:OFFPATH,queryScriptPath:QUERYPATH,
+   expectedRunAsUser:OWNER,
    run:async()=>({stdout:JSON.stringify({
     taskName:plan.taskName,action:plan.action,
     deadline:plan.deadline,enabled:true,oneShot:true,
-    scheduler:'windows-task-scheduler',verified:true,...bad,
+    scheduler:'windows-task-scheduler',verified:true,
+    principalVerified:true,principalUser:OWNER,
+    logonType:'Interactive',runLevel:'Limited',...bad,
    })}),
   });
   await assert.rejects(adapter.readRegisteredTask({
@@ -103,12 +113,15 @@ test('WP3-H2PROC03 forged OS output or wrong task cannot count as armed',async()
 test('WP3-H2PROC03B wrong OS deadline is rejected by higher-level task supervisor',async()=>{
  const adapters=createD6H2WindowsTaskProcessAdapters({
   offScriptPath:OFFPATH,queryScriptPath:QUERYPATH,
+  expectedRunAsUser:OWNER,
   run:async(executable)=>{
    if(executable==='schtasks.exe')return {stdout:'created'};
    return {stdout:JSON.stringify({
     taskName:plan.taskName,action:plan.action,
     deadline:NOW+99999,enabled:true,oneShot:true,
     scheduler:'windows-task-scheduler',verified:true,
+    principalVerified:true,principalUser:OWNER,
+    logonType:'Interactive',runLevel:'Limited',
    })};
   },
  });
@@ -117,7 +130,7 @@ test('WP3-H2PROC03B wrong OS deadline is rejected by higher-level task superviso
  const observed=await adapters.readRegisteredTask({taskName:plan.taskName});
  assert.equal(observed.deadline,NOW+99999);
  const scheduler=createD6H2WindowsOffTaskSupervisor({
-  scriptPath:OFFPATH,now:()=>NOW*1000,
+  scriptPath:OFFPATH,expectedRunAsUser:OWNER,now:()=>NOW*1000,
   execute:adapters.execute,
   readRegisteredTask:adapters.readRegisteredTask,
  });
@@ -130,6 +143,7 @@ test('WP3-H2PROC04 invalid shell, arbitrary task, extra flags never execute',asy
  let calls=0;
  const adapter=createD6H2WindowsTaskProcessAdapters({
   offScriptPath:OFFPATH,queryScriptPath:QUERYPATH,
+  expectedRunAsUser:OWNER,
   run:async()=>{calls++;return {stdout:'{}'};},
  });
  await errorAsync(()=>adapter.execute({
@@ -154,7 +168,8 @@ test('WP3-H2PROC05 process crash or unreadable task fails closed',async()=>{
   async()=>({stdout:'x'.repeat(4100)}),
  ]){
   const adapter=createD6H2WindowsTaskProcessAdapters({
-   offScriptPath:OFFPATH,queryScriptPath:QUERYPATH,run:failure,
+   offScriptPath:OFFPATH,queryScriptPath:QUERYPATH,
+   expectedRunAsUser:OWNER,run:failure,
   });
   await assert.rejects(adapter.readRegisteredTask({
    taskName:plan.taskName,
@@ -162,6 +177,7 @@ test('WP3-H2PROC05 process crash or unreadable task fails closed',async()=>{
  }
  const create=createD6H2WindowsTaskProcessAdapters({
   offScriptPath:OFFPATH,queryScriptPath:QUERYPATH,
+  expectedRunAsUser:OWNER,
   run:async()=>{throw Error('failed');},
  });
  await errorAsync(()=>create.execute({

@@ -16,6 +16,7 @@ import {win32} from 'node:path';
 const WORKER='fishing-v3-wp3-test';
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const PATH=/^[A-Za-z]:\\[A-Za-z0-9 _\\.()-]+\.ps1$/;
+const OWNER=/^[A-Za-z0-9_.-]{1,32}\\[A-Za-z0-9_.-]{1,64}$/;
 const KEY=/^h2-(?:intake:WP3-H2-SYNTH-KB-001|begin:[0-9a-f-]+:(?:tree|branch|commit|advance|pr)|reconcile:[0-9a-f-]+:(?:tree|branch|commit|advance|pr):[A-Za-z0-9_.:-]+)$/;
 
 export class D6H2OffScheduleError extends Error{
@@ -67,11 +68,12 @@ export function planD6H2WindowsOffTask({
 }
 
 export function createD6H2WindowsOffTaskSupervisor({
- execute,readRegisteredTask,scriptPath,now=Date.now,
+ execute,readRegisteredTask,scriptPath,expectedRunAsUser,now=Date.now,
 }={}){
  need(typeof execute==='function'&&
   typeof readRegisteredTask==='function'&&
-  typeof now==='function','INVALID_SCHEDULER');
+  typeof now==='function'&&OWNER.test(expectedRunAsUser??''),
+  'INVALID_SCHEDULER');
  async function arm({offVersion,deadline,claimKey}={}){
   const plan=planD6H2WindowsOffTask({
    offVersion,deadline,claimKey,scriptPath,now,
@@ -92,7 +94,12 @@ export function createD6H2WindowsOffTaskSupervisor({
    task.taskName===plan.taskName&&
    task.action===plan.action&&
    task.deadline===plan.deadline&&
-   task.enabled===true&&task.oneShot===true,
+   task.enabled===true&&task.oneShot===true&&
+   task.principalVerified===true&&
+   typeof task.principalUser==='string'&&
+   task.principalUser.toLowerCase()===expectedRunAsUser.toLowerCase()&&
+   ['Interactive','Password','InteractiveOrPassword'].includes(task.logonType)&&
+   task.runLevel==='Limited',
    'TASK_NOT_VERIFIED');
   return Object.freeze({
    armed:true,independent:true,workerName:WORKER,
