@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
 import {createD6H2WindowsTaskProcessAdapters,D6H2WindowsProcessError}
  from '../tools/d6-wp3-h2-windows-task-process-adapters.mjs';
 import {planD6H2WindowsOffTask,createD6H2WindowsOffTaskSupervisor}
@@ -8,16 +9,23 @@ import {planD6H2WindowsOffTask,createD6H2WindowsOffTaskSupervisor}
 const OFF='b552efc6-a24c-4ca1-ab6c-b88a68c99ff0';
 const ID='123e4567-e89b-42d3-a456-426614174000';
 const SCRIPT='C:\\Users\\Owner\\Fishing H2\\d6-wp3-h2-deadline-off.ps1';
+const SCRIPT_BYTES=Buffer.from('# approved H2 OFF-only script byte proof\n');
+const SCRIPT_SHA=createHash('sha256').update(SCRIPT_BYTES).digest('hex');
 const TIME=2000000000;
 const CLAIM='h2-begin:'+ID+':tree';
 const p=()=>planD6H2WindowsOffTask({
  offVersion:OFF,claimKey:CLAIM,scriptPath:SCRIPT,
  deadline:TIME+240,now:()=>TIME*1000,
 });
-function fixture({override={},failCreate=false,failRead=false}={}){
+function fixture({override={},failCreate=false,failRead=false,
+ scriptBytes=SCRIPT_BYTES,scriptSymlink=false}={}){
  const expected=p(),calls=[];
  const os=createD6H2WindowsTaskProcessAdapters({
   platform:'win32',scriptPath:SCRIPT,offVersion:OFF,
+  expectedScriptSha256:SCRIPT_SHA,
+  readFile:async()=>scriptBytes,
+  lstat:async()=>({isFile:()=>true,
+   isSymbolicLink:()=>scriptSymlink}),
   async execFile(exe,args,opts){
    calls.push({exe,args,opts});
    assert.equal(opts.shell,false);
@@ -130,6 +138,9 @@ test('WP3-H2OS07 wrong platform/script/version are rejected at construction',()=
  ]){
   assert.throws(()=>createD6H2WindowsTaskProcessAdapters({
    platform:'win32',offVersion:OFF,scriptPath:SCRIPT,
+   expectedScriptSha256:SCRIPT_SHA,
+   readFile:async()=>SCRIPT_BYTES,
+   lstat:async()=>({isFile:()=>true,isSymbolicLink:()=>false}),
    execFile:async()=>({stdout:''}),...change,
   }),D6H2WindowsProcessError);
  }
@@ -143,4 +154,22 @@ test('WP3-H2OS08 OS process errors cannot be mistaken for proof',async()=>{
  await denied('PROCESS_EXECUTION_FAILED',()=>read.os.readRegisteredTask({
   taskName:read.expected.taskName,
  }));
+});
+
+test('WP3-H2OS09 modified or linked OFF script cannot register safety task',async()=>{
+ for(const opts of [
+  {scriptBytes:Buffer.from('# replaced with a write command')},
+  {scriptSymlink:true},
+ ]){
+  const f=fixture(opts);
+  await denied('SCRIPT_UNTRUSTED',()=>f.os.execute({
+   executable:f.expected.command.executable,
+   args:[...f.expected.command.args],shell:false,
+  }));
+  assert.equal(f.calls.length,0);
+  await denied('SCRIPT_UNTRUSTED',()=>f.os.readRegisteredTask({
+   taskName:f.expected.taskName,
+  }));
+  assert.equal(f.calls.length,0);
+ }
 });
