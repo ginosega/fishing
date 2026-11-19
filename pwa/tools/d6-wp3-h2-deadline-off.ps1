@@ -17,7 +17,7 @@ $worker = 'fishing-v3-wp3-test'
 # --offline forbids a package download during crash-recovery execution.
 # The owner MUST separately preflight that 4.163.0 is cached for the
 # exact scheduled-task user, and Cloudflare auth is available there.
-$npx = 'C:\\Program Files\\nodejs\\npx.cmd'
+$npx = 'C:\Program Files\nodejs\npx.cmd'
 if (-not (Test-Path -LiteralPath $npx -PathType Leaf)) {
   throw 'Pinned npm CLI unavailable; remote OFF readback required'
 }
