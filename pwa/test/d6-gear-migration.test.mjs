@@ -1,5 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
 import {prepareD6GearMigration} from '../tools/d6-gear-migration.mjs';
 
 let cached;
@@ -49,4 +51,26 @@ test('V3-GEAR-MIG03 provenance and hashed asset entries are deterministic',async
  assert.equal(report.assets.find(x=>x.path===original.picturePath)?.sha256,
   original.pictureSha256);
  assert.equal(report.assets.every(x=>x.bytes>0),true);
+});
+
+test('V3-GEAR-MIG04 Windows CRLF checkout does not change immutable import source',async()=>{
+ const source=execFileSync('git',['show','HEAD:pwa/Gear/gear.json'],{
+  cwd:new URL('..',import.meta.url),windowsHide:true,
+ });
+ const blob=bytes=>createHash('sha1').update(Buffer.concat([
+  Buffer.from('blob '+bytes.length+'\0'),bytes,
+ ])).digest('hex');
+ // This is the *exact* hash observed on the owner's Windows clone.
+ const crlf=Buffer.from(source.toString('utf8').replace(/\n/g,'\r\n'));
+ assert.equal(blob(source),'741ba8f19c06834eb6e92fea84404fdb2ac58f88');
+ assert.equal(blob(crlf),'ceea985f54690c0031c8f7d024eb26c061a8f9b3');
+ const {report}=await prepare();
+ assert.equal(report.source.gearGitBlobSha1,blob(source));
+ // An existing multiline Notes file must be hashed from its Git blob,
+ // independent of Windows text checkout conversion.
+ const notes=report.records.find(row=>row.notesPath&&row.id!=='daiwa-tatula-xt-rod');
+ const bytes=execFileSync('git',['show','HEAD:pwa/'+notes.notesPath],{
+  cwd:new URL('..',import.meta.url),windowsHide:true,
+ });
+ assert.equal(notes.notesSha256,createHash('sha256').update(bytes).digest('hex'));
 });
