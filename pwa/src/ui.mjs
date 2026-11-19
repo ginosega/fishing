@@ -43,7 +43,8 @@ export function createApp(ctx){
  const root=document.getElementById('app'),alertHost=document.getElementById('app-notice'),offlineHost=document.getElementById('offline-status');
  const routes=markdownRouteMap(ctx.data),exists=new Set(ctx.manifest.files.filter(x=>x.path.startsWith(`releases/${ctx.release.id}/content/`)).map(x=>x.path.slice(`releases/${ctx.release.id}/content/`.length)));
  let currentHash=location.hash||'#/',route=parseRoute(currentHash),editor=null,serial=0,offline=null,approvedNavigation=null,previousHash=null;
- const ownerEditorGate=ownerEditorPreview?createD6OwnerEditorPreviewGate({
+ const ownerEditorGate=ownerEditorPreview&&ctx.v3?.directGearEnabled!==true?
+  createD6OwnerEditorPreviewGate({
   root:ctx.root,releaseRevision:ctx.release.sourceRevision,
   ownerReadiness:ctx.v3.ownerReadiness,canonicalSource:ctx.v3.canonicalSource,
   enabled:()=>true,online:()=>navigator.onLine===true,
@@ -56,8 +57,9 @@ export function createApp(ctx){
  const showEditingLinks=()=>!readerOnly||ownerEditingAvailable();
  let ownerDeviceDrafts=null;
  async function verifiedPreviewContext(){
-  if(!ownerEditorGate)throw Error('Owner editor preview is unavailable.');
+  if(!ownerEditorPreview)throw Error('Owner editor preview is unavailable.');
   const direct=ctx.v3?.directGearEnabled===true;
+  if(!direct&&!ownerEditorGate)throw Error('Owner editor preview is unavailable.');
   let source,data,maps;
   if(direct){
    // A Gear edit needs owner sign-in + one D1 row read. It must not
