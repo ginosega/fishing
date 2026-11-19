@@ -50,8 +50,10 @@ function d6Context(){
    (settings.release?.d6OwnerConnectionCandidate!==true||
     settings.manifest?.d6OwnerConnectionCandidate!==true))
   throw Error('D6 approved Connection Status build identity missing');
- if(directGearEnabled&&!d6EditorPreview)
-  throw Error('Direct Gear Save requires the approved owner editor build');
+ if(directGearEnabled&&(!d6EditorPreview||!d6Wp2Staging||
+    settings.release?.d6DirectGearSave!==true||
+    settings.manifest?.d6DirectGearSave!==true))
+  throw Error('Direct Gear pilot requires verified isolated WP2 build identity');
  if(d6EditorPreview&&(!d6OwnerConnection||
     settings.release?.d6OwnerEditorPreview!==true||
     settings.manifest?.d6OwnerEditorPreview!==true))
