@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createD6H2GitHubAppReadback,
- verifyD6H2GitHubAppInstallation,D6H2AppReadbackError}
+ verifyD6H2GitHubAppInstallation,D6H2AppReadbackError,
+ verifyD6H2InstallationRepositories,createD6H2InstallationRepositoryReadback}
  from '../tools/d6-wp3-h2-github-app-readback.mjs';
 
 const APP=765432,INSTALL=23456;
@@ -112,4 +113,94 @@ test('WP3-H2APP06 config invalid or unavailable provider never claims authority'
   network:async()=>{throw Error('network issue');},
  });
  await denyAsync(()=>r.read(),'NETWORK_UNAVAILABLE');
+});
+
+test('WP3-H2APP07 selected repository must be proven uniquely via installation token GET',async()=>{
+ const appProof=verifyD6H2GitHubAppInstallation(response(),{
+  expectedAppId:APP,
+ });
+ const calls=[];
+ const check=createD6H2InstallationRepositoryReadback({
+  getInstallationReadToken:async pins=>{
+   assert.deepEqual(pins,{
+    appId:APP,installationId:INSTALL,repositoryId:1350909744,
+   });
+   return 'ghs_app_installed_repository_list_only';
+  },
+  network:async(uri,opts)=>{
+   calls.push({uri,opts});
+   return new Response(JSON.stringify({
+    total_count:1,repositories:[{
+     id:1350909744,full_name:'ginosega/fishing',
+     owner:{id:265665562,login:'ginosega'},
+    }],
+   }),{status:200,headers:{'Content-Type':'application/json'}});
+  },
+ });
+ const proof=await check.read({appProof});
+ assert.equal(proof.verified,true);
+ assert.equal(proof.soleRepositoryProven,true);
+ assert.equal(proof.repositoryCount,1);
+ assert.equal(proof.repositoryId,1350909744);
+ assert.equal(proof.requiresIndependentRepositoryList,false);
+ assert.equal(proof.canPublish,false);
+ assert.equal(proof.isLive,false);
+ assert.equal(calls.length,1);
+ assert.equal(calls[0].uri,
+  'https://api.github.com/installation/repositories?per_page=100');
+ assert.equal(calls[0].opts.method,'GET');
+ assert.equal(calls[0].opts.redirect,'error');
+ assert(!JSON.stringify(proof).includes('ghs_'));
+});
+
+test('WP3-H2APP08 second or foreign installed repository must fail closed',()=>{
+ const proof=verifyD6H2GitHubAppInstallation(response(),{
+  expectedAppId:APP,
+ });
+ const correct={id:1350909744,full_name:'ginosega/fishing',
+  owner:{id:265665562,login:'ginosega'}};
+ for(const body of [
+  {total_count:2,repositories:[correct]},
+  {total_count:1,repositories:[correct,{id:2}]},
+  {total_count:1,repositories:[]},
+  {total_count:1,repositories:[{...correct,id:1}]},
+  {total_count:1,repositories:[{...correct,full_name:'other/repo'}]},
+  {total_count:1,repositories:[{...correct,owner:{id:1,login:'a'}}]},
+  {total_count:'1',repositories:[correct]},
+  {total_count:0,repositories:[correct]},
+ ])deny(()=>verifyD6H2InstallationRepositories(body,{appProof:proof}),
+  'REPOSITORY_SCOPE_MISMATCH');
+});
+
+test('WP3-H2APP09 incomplete first App proof cannot authorize repository readback',async()=>{
+ const read=createD6H2InstallationRepositoryReadback({
+  getInstallationReadToken:async()=>{throw Error('unavailable');},
+ });
+ await denyAsync(()=>read.read({appProof:null}),'APP_PROOF_MISSING');
+ const appProof=verifyD6H2GitHubAppInstallation(response(),{
+  expectedAppId:APP,
+ });
+ await denyAsync(()=>read.read({appProof}),'NETWORK_UNAVAILABLE');
+});
+
+test('WP3-H2APP10 repository listing HTTP errors and broad payload are not proof',async()=>{
+ const appProof=verifyD6H2GitHubAppInstallation(response(),{
+  expectedAppId:APP,
+ });
+ const cases=[
+  {status:503,body:'{}'},
+  {status:200,body:'x'.repeat(66000)},
+  {status:200,body:'bad-json'},
+  {status:200,body:JSON.stringify({
+   total_count:2,repositories:[],
+  })},
+ ];
+ for(const item of cases){
+  const reader=createD6H2InstallationRepositoryReadback({
+   getInstallationReadToken:async()=> 'ghs_app_installation_readonly_token',
+   network:async()=>new Response(item.body,{status:item.status,
+    headers:{'Content-Type':'application/json'}}),
+  });
+  await assert.rejects(reader.read({appProof}),D6H2AppReadbackError);
+ }
 });
