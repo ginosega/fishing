@@ -42,74 +42,21 @@ if ($null -eq $principal -or
  throw 'H2 task principal unavailable'
 }
 try {
- $expectedSid = (New-Object System.Security.Principal.NTAccount(
-  $ExpectedRunAsUser)).Translate(
-   [System.Security.Principal.SecurityIdentifier]).Value
+ $expectedSid = [System.Security.Principal.NTAccount]::new(
+  $ExpectedRunAsUser
+ ).Translate([System.Security.Principal.SecurityIdentifier]).Value
 } catch {
  throw 'H2 expected Windows owner identity unresolved'
 }
 try {
  $configuredUser = [string]$principal.UserId
- if ($configuredUser -match '^S-1-[0-9-]+
- taskName = $task.TaskName
- action = 'powershell.exe ' + [string]$action.Arguments
- deadline = [long]$timestamp
- enabled = [bool]$enabled
- oneShot = $true
- scheduler = 'windows-task-scheduler'
- verified = $true
- principalVerified = $true
- principalUser = $ExpectedRunAsUser
- logonType = $logonType
- runLevel = 'Limited'
-}
-$record | ConvertTo-Json -Depth 3 -Compress
-)]
- [string]$ExpectedRunAsUser
-)
-Set-StrictMode -Version Latest
-$ErrorActionPreference = 'Stop'
-$task = Get-ScheduledTask -TaskName $TaskName -ErrorAction Stop
-if ($task.TaskName -cne $TaskName -or $task.TaskPath -ne '\') {
- throw 'H2 safety task identity mismatch'
-}
-$actions = @($task.Actions)
-$triggers = @($task.Triggers)
-if ($actions.Count -ne 1 -or $triggers.Count -ne 1) {
- throw 'H2 safety task has unexpected actions/triggers'
-}
-$action = $actions[0]
-$trigger = $triggers[0]
-$exe = [System.IO.Path]::GetFileName([string]$action.Execute)
-if ($exe -ine 'powershell.exe' -or
- $trigger.CimClass.CimClassName -ne 'MSFT_TaskTimeTrigger') {
- throw 'H2 safety task action/trigger mismatch'
-}
-$timestamp = [DateTimeOffset]::Parse(
- [string]$trigger.StartBoundary,
- [Globalization.CultureInfo]::InvariantCulture,
- [Globalization.DateTimeStyles]::AssumeLocal
-).ToUnixTimeSeconds()
-$enabled = ($task.Settings.Enabled -eq $true -and
- $trigger.Enabled -eq $true -and
- $task.State -ne 'Disabled')
-$record = [ordered]@{
- taskName = $task.TaskName
- action = 'powershell.exe ' + [string]$action.Arguments
- deadline = [long]$timestamp
- enabled = [bool]$enabled
- oneShot = $true
- scheduler = 'windows-task-scheduler'
- verified = $true
-}
-$record | ConvertTo-Json -Depth 3 -Compress
-) {
-  $observedSid = (New-Object System.Security.Principal.SecurityIdentifier(
-   $configuredUser)).Value
+ if ($configuredUser -match '^S-1-[0-9-]+$') {
+  $observedSid = [System.Security.Principal.SecurityIdentifier]::new(
+   $configuredUser).Value
  } else {
-  $observedSid = (New-Object System.Security.Principal.NTAccount(
-   $configuredUser)).Translate(
-    [System.Security.Principal.SecurityIdentifier]).Value
+  $observedSid = [System.Security.Principal.NTAccount]::new(
+   $configuredUser
+  ).Translate([System.Security.Principal.SecurityIdentifier]).Value
  }
 } catch {
  throw 'H2 configured task principal unresolved'
