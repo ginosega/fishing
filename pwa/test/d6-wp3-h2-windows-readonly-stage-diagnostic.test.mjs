@@ -22,6 +22,7 @@ test('WP3-H2DIAG01 remains a distinct source-only read-only canary',()=>{
  assert(script.includes("--offline --yes 'wrangler@4.163.0' deployments list --name $worker --json"));
  assert.equal((script.match(/deployments list --name/g)||[]).length,1);
  assert(script.includes('2>$null'));
+ assert(script.includes("GetFileName($EvidencePath) -ine 'h2-readonly-stage-diagnostic.json'"));
  assert(script.includes('[System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value'));
  assert(script.includes('.Translate([System.Security.Principal.SecurityIdentifier])'));
  assert(script.includes('created_on'));
