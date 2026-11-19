@@ -119,7 +119,7 @@ export function createNotesMarkdownEditor({
  function changed(){onChange(input.value);}
  input.addEventListener('input',changed);
  const previewButton=button('Preview',()=>{
-  if(showPreview){showPreview=false;view.hidden=true;editorField.hidden=false;input.hidden=false;setPreviewButtonLabel('Preview','Preview Markdown');syncInsertionButtons();input.focus();return;}
+  if(showPreview){showPreview=false;view.hidden=true;editorField.hidden=false;input.hidden=false;previewButton.textContent='Preview';syncInsertionButtons();input.focus();return;}
   try{
    const options=previewOptions(),exists=new Set([...knownPaths(),...staged.keys()]);
    const parsed=parseMarkdown(input.value,{...options,exists,allowMissing:false,viewerImages:true});
@@ -140,21 +140,12 @@ export function createNotesMarkdownEditor({
     if(source)image.src=source;
    });
    showPreview=true;view.hidden=false;editorField.hidden=true;input.hidden=true;
-   setPreviewButtonLabel('Edit','Return to Markdown editor');
+   previewButton.textContent='Edit';
    // Preview is read-only: insertion controls cannot exit it implicitly.
    syncInsertionButtons();closeLink();closeImage();
    status(message,'Markdown preview is local and has not been saved.','info');
   }catch(error){status(message,error.message,'error');}
  });
- // Preview has visible text; the explicit label and title supply the
- // accessible name and hover help, rather than an image-only alt attribute.
- function setPreviewButtonLabel(label,description){
-  previewButton.textContent=label;
-  previewButton.setAttribute('aria-label',label);
-  previewButton.setAttribute('title',description);
-  previewButton.setAttribute('aria-pressed',String(label==='Edit'));
- }
- setPreviewButtonLabel('Preview','Preview Markdown');
  const expandButton=button('Expand',()=>setExpanded(!expanded));
  setNotesToolbarIcon(expandButton,'expand','Expand editor');
  expandButton.setAttribute('aria-expanded','false');
