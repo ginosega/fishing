@@ -253,6 +253,20 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
    // incomplete. Save and Publish retains full validateRecords/validateRecord.
    previewOptions:()=>draftNotesPreviewOptions(ctx,domain,record),
   });
+  // V3-only enhancement: retain the exact accepted D5 Notes component.
+  // A visible-text button has no image alt text; keep its accessible name
+  // and hover description in sync when Preview toggles to Edit.
+  const notesPreview=notesEditor.element.querySelector(
+   '.notes-toolbar > .btn:not(.notes-icon-button)');
+  if(!notesPreview)throw Error('Notes Preview control is unavailable.');
+  const labelPreview=()=>{
+   const label=notesPreview.textContent.trim();
+   notesPreview.setAttribute('aria-label',label);
+   notesPreview.setAttribute('title',
+    label==='Edit'?'Return to Markdown editor':'Preview Markdown');
+  };
+  labelPreview();
+  notesPreview.addEventListener('click',labelPreview);
   form.append(section('Notes',notesEditor.element));
  }else{
   const textArea=el('textarea',{rows:14,class:'markdown-editor',value:body,spellcheck:true});
