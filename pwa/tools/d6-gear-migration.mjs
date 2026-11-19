@@ -62,7 +62,8 @@ export async function prepareD6GearMigration({root=DEFAULT_ROOT}={}){
  const rows=bundle.items;
  assert(rows.length===100,'Unexpected Gear count: '+rows.length);
  const allFiles=await scanFiles(root),available=new Set(allFiles);
- const allAssets=allFiles.filter(name=>name.includes('/assets/')&&IMAGE.test(name));
+ // Preserve all image files, including inline Notes images in /content/.
+ const allAssets=allFiles.filter(name=>IMAGE.test(name));
  assert(allAssets.length===112,'Unexpected image asset count: '+allAssets.length);
  const images=[];
  for(const name of allAssets){
