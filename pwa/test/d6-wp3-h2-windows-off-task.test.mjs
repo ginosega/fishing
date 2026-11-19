@@ -121,8 +121,7 @@ test('WP3-H2TASK06 script only restores pinned Worker; never grants writer',()=>
  assert(script.includes("fishing-v3-wp3-test"));
  assert(script.includes('versions deploy'));
  assert(script.includes('@100%'));
- assert(script.includes("C:\\\\Program Files\\\\nodejs\\\\npx.cmd")||
-  script.includes("C:\\Program Files\\nodejs\\npx.cmd"));
+ assert(script.includes(["C:","Program Files","nodejs","npx.cmd"].join(String.fromCharCode(92))));
  assert(script.includes("--offline --yes 'wrangler@4.163.0'"));
  assert(!script.includes("Get-Command -Name 'wrangler'"));
  assert(!script.includes("wrangler@latest"));
