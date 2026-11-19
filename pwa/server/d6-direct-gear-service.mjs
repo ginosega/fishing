@@ -75,6 +75,26 @@ export function createD6DirectGearService({
     return reply(200,{ok:true,csrfToken:proof.csrfToken});
    }catch{return fail(401,'SIGN_IN_REQUIRED');}
   }
+  // The collection becomes canonical only after the complete frozen
+  // 100-record import has been reconciled. A partial D1 table never looks
+  // like a successfully migrated Gear library.
+  if(url.pathname==='/api/v3/content/gear'){
+   if(request.method!=='GET')return fail(405,'METHOD_NOT_ALLOWED');
+   try{
+    const result=await CONTENT_DB.prepare(
+     'SELECT id,revision,record_json,notes_text FROM d6_gear_records ORDER BY id'
+    ).all();
+    if(!Array.isArray(result?.results)||result.results.length!==100)
+     return fail(503,'GEAR_MIGRATION_INCOMPLETE');
+    const items=[],ids=new Set();
+    for(const row of result.results){
+     const item=safeRow(row,row?.id);
+     if(!item||ids.has(row.id))return fail(503,'GEAR_DATA_UNAVAILABLE');
+     ids.add(row.id);items.push(item.record);
+    }
+    return reply(200,{ok:true,count:items.length,items});
+   }catch{return fail(503,'GEAR_DATA_UNAVAILABLE');}
+  }
   const match=/^\/api\/v3\/content\/gear\/([a-z0-9-]+)$/.exec(url.pathname);
   if(!match||!ID.test(match[1])||match[1].length>160)
    return fail(404,'NOT_FOUND');
