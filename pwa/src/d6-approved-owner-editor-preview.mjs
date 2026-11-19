@@ -322,6 +322,8 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
    if(fileInfo&&knownPaths(ctx).has(candidate.picture.src)){const existingFile=knownFiles(ctx).get(candidate.picture.src);if(existingFile.sha256!==fileInfo.sha256&&!['replace-static','replace-with-static'].includes(mediaAction))throw new Error('A different file already exists at this path. Use an explicit replacement.');}
    if(sequenceSet){for(const info of sequenceInfos){const existingFile=knownFiles(ctx).get(info.path);if(existingFile&&existingFile.sha256!==info.sha256&&mediaAction==='add-sequence')throw new Error(`A different file already exists at ${info.path}. Use an explicit replacement.`);}}
    if(directGear){
+    if(ctx.v3?.directGearCanSave?.()!==true)
+     throw Error('Work Offline or signed out. Save is unavailable; your edit is preserved.');
     if(mediaAction!=='keep'||fileInfo||sequenceSet||notesUploads.length)
      throw Error('New media uploads are not yet available. Your edit is preserved.');
     const saved=await ctx.v3.directGearClient.save({
