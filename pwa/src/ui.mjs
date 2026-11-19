@@ -157,7 +157,9 @@ export function createApp(ctx){
  async function renderDetail(domain,id){
   let record=ctx.maps[domain].get(id),directNotes=null;
   if(!record)return missing('This item does not exist or its ID has been retired.',rootRoute(domain));
-  if(domain==='gear'&&ctx.v3?.directGearEnabled===true&&gearCatalogReady){
+  if(domain==='gear'&&ctx.v3?.directGearEnabled===true&&gearCatalogReady&&
+     navigator.onLine===true&&offline?.getModeAvailable?.()===true&&
+     offline.getMode()==='Automatic'){
    const current=await ctx.v3.directGearClient.read(id);
    record=current.record;directNotes=current.notes;
   }
