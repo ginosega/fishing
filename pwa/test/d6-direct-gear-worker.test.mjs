@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import {createD6DirectGearWorker} from '../server/d6-direct-gear-worker.mjs';
 import {createD6DirectGearClient} from '../src/d6-direct-gear-client.mjs';
 
@@ -74,4 +75,26 @@ test('V3-PILOT02 Worker denies wrong host or disabled direct Gear flag',async()=
  assert.equal((await worker.fetch(new Request(
   'https://other.invalid/api/v3/content/gear/test-rod'),env)).status,404);
  assert.equal((await worker.fetch(new Request(origin+'/api/v3/content/operations'),env)).status,404);
+});
+
+test('V3-PILOT03 one existing isolated Worker hosts assets and D1; no public deployment',()=>{
+ const cfg=JSON.parse(readFileSync(new URL('../wrangler.direct-gear-private.jsonc',import.meta.url),'utf8'));
+ assert.equal(cfg.name,'fishing-d6-wp2-test');
+ assert.equal(cfg.main,'./server/d6-direct-gear-worker.mjs');
+ assert.equal(cfg.vars.D6_ORIGIN,origin);
+ assert.equal(cfg.vars.D6_DIRECT_GEAR_ENABLED,'true');
+ assert.equal(cfg.workers_dev,true);
+ assert.equal(cfg.routes,undefined);
+ assert.equal(cfg.assets.base_path,'/fishing');
+ assert.equal(cfg.assets.directory,'./dist-v3-pilot');
+ assert.deepEqual(cfg.assets.run_worker_first,['/api/*','/auth/*','/session']);
+ assert.equal(cfg.d1_databases.length,2);
+ assert.deepEqual(cfg.d1_databases.map(x=>x.binding),['AUTH_DB','WP3_DB']);
+ assert.equal(cfg.d1_databases[0].database_id,'0d8da698-87b8-4b5e-a1e7-fe6de49e5afc');
+ assert.equal(cfg.d1_databases[1].database_id,'5a47841e-7874-4ec8-9fa8-be0315f6a802');
+ const seed=readFileSync(new URL('../migration/d6-direct-gear-pilot-seed.sql',import.meta.url),'utf8');
+ assert.match(seed,/INSERT INTO d6_gear_records/);
+ assert.match(seed,/daiwa-tatula-xt-rod/);
+ assert.match(seed,/ON CONFLICT\(id\) DO NOTHING;/);
+ assert.doesNotMatch(seed,/\b(?:UPDATE|DELETE|DROP)\b/i);
 });
