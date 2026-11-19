@@ -55,7 +55,12 @@ test('WP3-H2DIAG03 exclusive evidence, no write operations, task creation or ret
  assert(!/\bversions\s+(?:deploy|upload|rollback)\b/i.test(script));
  assert(!/\bwrangler\s+(?:deploy|login|secret|d1)\b/i.test(script));
  assert(!/\b(?:Invoke-WebRequest|Invoke-RestMethod|curl|fetch)\b/i.test(script));
- assert(!/api\/v3\/operations|POST\s|PUT\s|PATCH\s|DELETE\s/i.test(script));
+ const forbiddenWrite=/api\/v3\/operations|\b(?:POST|PUT|PATCH|DELETE)\s/i;
+ assert(forbiddenWrite.test('PUT /unsafe'));
+ assert(forbiddenWrite.test('POST /unsafe'));
+ assert(!forbiddenWrite.test('$output = safe data'));
+ assert(!forbiddenWrite.test('Write-Output safe'));
+ assert(!forbiddenWrite.test(script));
  assert(!/authorization|access[_-]?token|private[_-]?key|Bearer|wrangler@latest/i.test(script));
  assert(!/Start-Sleep|while\s*\(|do\s*\{|retry/i.test(script.replace(/#.*$/gm,'')));
 });
