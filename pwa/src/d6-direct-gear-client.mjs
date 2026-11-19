@@ -29,6 +29,8 @@ export function createD6DirectGearClient({
      (response.url&&response.url!==url)||
      !/^application\/json\b/i.test(response.headers.get('Content-Type')??''))
    throw error('Save result could not be verified. Your edit is preserved.','UNVERIFIED');
+  if(response.status===404)
+   throw error('This Gear record has not been imported into D1 yet.','NOT_FOUND');
   if(response.status===409)
    throw error('This item changed since you opened it. Your edit is preserved. Reload before saving.','CONFLICT');
   if(response.status===401||response.status===403)
