@@ -83,6 +83,9 @@ test('V3-PILOT03 one existing isolated Worker hosts assets and D1; no public dep
  assert.equal(cfg.main,'./server/d6-direct-gear-worker.mjs');
  assert.equal(cfg.vars.D6_ORIGIN,origin);
  assert.equal(cfg.vars.D6_DIRECT_GEAR_ENABLED,'true');
+ assert.equal(cfg.vars.D6_OAUTH_ENABLED,'true');
+ for(const name of ['D6_SOURCE_ENABLED','D6_READ_TOKEN_ENABLED','D6_SIGNER_ENABLED'])
+  assert.equal(cfg.vars[name],'false');
  assert.equal(cfg.workers_dev,true);
  assert.equal(cfg.routes,undefined);
  assert.equal(cfg.assets.base_path,'/fishing');
