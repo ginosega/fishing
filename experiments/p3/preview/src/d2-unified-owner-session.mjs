@@ -104,6 +104,22 @@ export function createD2UnifiedOwnerSession({AUTH_DB,ownerGitHubId,origin,csrfKe
    matches(received,await csrfFor(session)),'CSRF_DENIED');
   return Object.freeze({ownerGitHubId,authorized:true});
  }
+ async function authorizeDirectGearSave(request){
+  // Same existing owner session and session-bound CSRF, no GitHub publisher.
+  need(request instanceof Request&&request.method==='POST','METHOD_DENIED');
+  need(request.headers.get('Origin')===origin&&
+   request.headers.get('Sec-Fetch-Site')==='same-origin',
+   'CROSS_SITE_DENIED');
+  need(request.headers.get('X-Fish-V3-Intent')==='save-gear','INTENT_DENIED');
+  need(/^application\/json(?:\s*;\s*charset=utf-8)?$/i.test(
+   request.headers.get('Content-Type')??''),'CONTENT_TYPE_DENIED');
+  const session=await identity(request);
+  need(session,'SESSION_DENIED');
+  const received=request.headers.get('X-Fish-V3-CSRF');
+  need(typeof received==='string'&&CSRF.test(received)&&
+   matches(received,await csrfFor(session)),'CSRF_DENIED');
+  return Object.freeze({ownerGitHubId,authorized:true});
+ }
  async function authorizeMedia(request){
   // Separate POST intent and binary content type; AUTH-P0 session and CSRF
   // are identical to normal publishing, but a JSON publish request cannot
@@ -145,5 +161,5 @@ export function createD2UnifiedOwnerSession({AUTH_DB,ownerGitHubId,origin,csrfKe
    ownerLogin:ownerGitHubId===265665562?'ginosega':null,
    csrfToken:await csrfFor(session),expiresAt:session.expiresAt});
  }
- return Object.freeze({describe,authorizeWrite,authorizeMedia,authorizeStatus,authorizePilotPage});
+ return Object.freeze({describe,authorizeWrite,authorizeDirectGearSave,authorizeMedia,authorizeStatus,authorizePilotPage});
 }
