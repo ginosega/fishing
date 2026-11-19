@@ -21,7 +21,9 @@ function notesImagePaths(text,owner){
  const visit=tokens=>{
   for(const token of tokens){
    if(token.type==='image'){
-    const ref=resolveMarkdownTarget(token.attrGet('src'),{owner});
+    const ref=resolveMarkdownTarget(token.attrGet('src'),{
+     owner,assetBase:'https://example.invalid/fishing/releases/test/',
+    });
     assert(ref.kind==='local'&&/\.(?:jpe?g|png|webp|gif)$/i.test(ref.local),
      'Invalid Gear Notes image reference: '+owner);
     paths.add(ref.local);
