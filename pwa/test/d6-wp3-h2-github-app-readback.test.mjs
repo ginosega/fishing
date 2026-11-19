@@ -121,11 +121,16 @@ test('WP3-H2APP07 selected repository must be proven uniquely via installation t
  });
  const calls=[];
  const check=createD6H2InstallationRepositoryReadback({
-  getInstallationReadToken:async pins=>{
+  getUnrestrictedInstallationReadToken:async pins=>{
    assert.deepEqual(pins,{
-    appId:APP,installationId:INSTALL,repositoryId:1350909744,
+    appId:APP,installationId:INSTALL,
+    repositoryScope:'all-installation-repositories',
+    issuanceBody:{permissions:{metadata:'read'}},
    });
-   return 'ghs_app_installed_repository_list_only';
+   return {token:'ghs_app_installed_repository_list_only',
+    appId:APP,installationId:INSTALL,
+    repositoryScope:'all-installation-repositories',
+    issuanceBody:{permissions:{metadata:'read'}}};
   },
   network:async(uri,opts)=>{
    calls.push({uri,opts});
@@ -174,7 +179,7 @@ test('WP3-H2APP08 second or foreign installed repository must fail closed',()=>{
 
 test('WP3-H2APP09 incomplete first App proof cannot authorize repository readback',async()=>{
  const read=createD6H2InstallationRepositoryReadback({
-  getInstallationReadToken:async()=>{throw Error('unavailable');},
+  getUnrestrictedInstallationReadToken:async()=>{throw Error('unavailable');},
  });
  await denyAsync(()=>read.read({appProof:null}),'APP_PROOF_MISSING');
  const appProof=verifyD6H2GitHubAppInstallation(response(),{
@@ -197,10 +202,51 @@ test('WP3-H2APP10 repository listing HTTP errors and broad payload are not proof
  ];
  for(const item of cases){
   const reader=createD6H2InstallationRepositoryReadback({
-   getInstallationReadToken:async()=> 'ghs_app_installation_readonly_token',
+   getUnrestrictedInstallationReadToken:async()=>({
+    token:'ghs_app_installation_readonly_token',appId:APP,
+    installationId:INSTALL,
+    repositoryScope:'all-installation-repositories',
+    issuanceBody:{permissions:{metadata:'read'}},
+   }),
    network:async()=>new Response(item.body,{status:item.status,
     headers:{'Content-Type':'application/json'}}),
   });
   await assert.rejects(reader.read({appProof}),D6H2AppReadbackError);
  }
+});
+
+test('WP3-H2APP11 repository-scoped token cannot falsely prove sole App installation scope',async()=>{
+ const appProof=verifyD6H2GitHubAppInstallation(response(),{
+  expectedAppId:APP,
+ });
+ let called=0;
+ for(const issued of [
+  'ghs_app_installation_readonly_token',
+  {token:'ghs_app_installation_readonly_token',
+   appId:APP,installationId:INSTALL,
+   repositoryScope:'all-installation-repositories',
+   issuanceBody:{permissions:{metadata:'read'},
+    repository_ids:[1350909744]}},
+  {token:'ghs_app_installation_readonly_token',
+   appId:APP,installationId:INSTALL,
+   repositoryScope:'all-installation-repositories',
+   issuanceBody:{permissions:{metadata:'read'},
+    repositories:['fishing']}},
+  {token:'ghs_app_installation_readonly_token',
+   appId:APP,installationId:INSTALL,
+   repositoryScope:'repository-only',
+   issuanceBody:{permissions:{metadata:'read'}}},
+  {token:'ghs_app_installation_readonly_token',
+   appId:APP,installationId:INSTALL,
+   repositoryScope:'all-installation-repositories',
+   issuanceBody:{permissions:{metadata:'read',contents:'read'}}},
+ ]){
+  const reader=createD6H2InstallationRepositoryReadback({
+   getUnrestrictedInstallationReadToken:async()=>issued,
+   network:async()=>{called++;throw Error('must not reach GitHub');},
+  });
+  await denyAsync(()=>reader.read({appProof}),
+   'UNRESTRICTED_TOKEN_PROOF_MISSING');
+ }
+ assert.equal(called,0);
 });
