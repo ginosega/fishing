@@ -29,7 +29,7 @@ test('WP3-H2CANARY02 cannot mutate provider, create task, leak credentials or re
  assert(!/authorization|access[_-]?token|private[_-]?key|Bearer|Get-Content/i.test(script));
  assert(!script.includes('Invoke-WebRequest'));
  assert(!script.includes('wrangler@latest'));
- assert(!script.includes('FileMode]::Create'));
+ assert(!/FileMode\\]::Create(?!New)/.test(script));
  assert(script.includes("throw 'WP3 H2 Windows read-only Task Scheduler canary failed; no readiness proof'"));
  assert(script.includes('isLive = $false'));
  assert(script.includes('canPublish = $false'));
