@@ -120,7 +120,12 @@ test('WP3-H2TASK06 script only restores pinned Worker; never grants writer',()=>
   '../tools/d6-wp3-h2-deadline-off.ps1',import.meta.url),'utf8');
  assert(script.includes("fishing-v3-wp3-test"));
  assert(script.includes('versions deploy'));
- assert(script.includes('@100'));
+ assert(script.includes('@100%'));
+ assert(script.includes("C:\\\\Program Files\\\\nodejs\\\\npx.cmd")||
+  script.includes("C:\\Program Files\\nodejs\\npx.cmd"));
+ assert(script.includes("--offline --yes 'wrangler@4.163.0'"));
+ assert(!script.includes("Get-Command -Name 'wrangler'"));
+ assert(!script.includes("wrangler@latest"));
  assert(!script.includes('wrangler deploy '));
  assert(!/D6_WP3_(WRITE|MOUNT)_ENABLED.*true/.test(script));
  assert(!/Bearer|PRIVATE KEY|BEGIN RSA|login\.json/i.test(script));
