@@ -2,6 +2,7 @@ import {bootstrap} from './app.mjs';
 import {selectD6PublicReader} from './d6-public-reader.mjs';
 import {createD6OwnerSessionReadiness} from './d6-owner-session-readiness.mjs';
 import {createD6CanonicalSourceClient} from './d6-canonical-authoring-source.mjs';
+import {createD6DirectGearClient} from './d6-direct-gear-client.mjs';
 import {installPageHero} from './page-hero.mjs';
 const settings=globalThis.__FISHING_BOOT__;
 installPageHero();
@@ -15,6 +16,9 @@ const d6OwnerConnection=typeof __FISHING_D6_OWNER_CONNECTION__!=='undefined'&&
  __FISHING_D6_OWNER_CONNECTION__===true;
 const d6EditorPreview=typeof __FISHING_D6_OWNER_EDITOR_PREVIEW__!=='undefined'&&
  __FISHING_D6_OWNER_EDITOR_PREVIEW__===true;
+// A separate private-build flag: disabled by default in every existing build.
+const directGearEnabled=typeof __FISHING_D6_DIRECT_GEAR_SAVE__!=='undefined'&&
+ __FISHING_D6_DIRECT_GEAR_SAVE__===true;
 function d6Context(){
  if(!d6Reader)return {};
  const reader=selectD6PublicReader({enabled:true,staticStaging:d6StaticStaging,wp2Staging:d6Wp2Staging,
@@ -46,13 +50,19 @@ function d6Context(){
    (settings.release?.d6OwnerConnectionCandidate!==true||
     settings.manifest?.d6OwnerConnectionCandidate!==true))
   throw Error('D6 approved Connection Status build identity missing');
+ if(directGearEnabled&&!d6EditorPreview)
+  throw Error('Direct Gear Save requires the approved owner editor build');
  if(d6EditorPreview&&(!d6OwnerConnection||
     settings.release?.d6OwnerEditorPreview!==true||
     settings.manifest?.d6OwnerEditorPreview!==true))
   throw Error('D6 owner editor preview build identity missing');
+ const directGearClient=directGearEnabled?createD6DirectGearClient({
+  root:settings.root,request:(url,options)=>fetch(url,options),
+  enabled:()=>true,online:()=>navigator.onLine===true,
+ }):null;
  return {v3:{...reader,ownerReadiness,canonicalSource,
   wp2Staging:d6Wp2Staging,ownerConnectionCandidate:d6OwnerConnection,
-  ownerEditorPreview:d6EditorPreview}};
+  ownerEditorPreview:d6EditorPreview,directGearEnabled,directGearClient}};
 }
 Promise.resolve().then(()=>bootstrap(settings,d6Context())).catch(error=>{
  const main=document.getElementById('app');main.replaceChildren();
