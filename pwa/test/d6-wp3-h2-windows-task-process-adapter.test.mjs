@@ -57,8 +57,6 @@ test('WP3-H2PROC02 exact create and separately queried Task Scheduler yield veri
      taskName:plan.taskName,action:plan.action,
      deadline:plan.deadline,enabled:true,oneShot:true,
      scheduler:'windows-task-scheduler',verified:true,
-    principalVerified:true,principalUser:OWNER,
-    logonType:'Interactive',runLevel:'Limited',
      principalVerified:true,principalUser:OWNER,
      logonType:'Interactive',runLevel:'Limited',
     })};
@@ -98,7 +96,6 @@ test('WP3-H2PROC03 forged OS output or wrong task cannot count as armed',async()
   const adapter=createD6H2WindowsTaskProcessAdapters({
    offScriptPath:OFFPATH,queryScriptPath:QUERYPATH,
    expectedRunAsUser:OWNER,
-  expectedRunAsUser:OWNER,
    run:async()=>({stdout:JSON.stringify({
     taskName:plan.taskName,action:plan.action,
     deadline:plan.deadline,enabled:true,oneShot:true,
@@ -172,8 +169,7 @@ test('WP3-H2PROC05 process crash or unreadable task fails closed',async()=>{
  ]){
   const adapter=createD6H2WindowsTaskProcessAdapters({
    offScriptPath:OFFPATH,queryScriptPath:QUERYPATH,
-   expectedRunAsUser:OWNER,
-  expectedRunAsUser:OWNER,run:failure,
+   expectedRunAsUser:OWNER,run:failure,
   });
   await assert.rejects(adapter.readRegisteredTask({
    taskName:plan.taskName,
