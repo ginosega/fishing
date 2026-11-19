@@ -131,6 +131,28 @@ async function ownerReady(page){
   .toContainText('Automatic',{timeout:30000});
  await dlg.getByRole('button',{name:'Close'}).click();
 }
+test('V3-OWNER-START01 existing owner session restores without opening Connection Status',async({page})=>{
+ session={authenticated:true,authorized:true,ownerLogin:'ginosega'};
+ const errors=await open(page);
+ const gear=real.gear.items.find(x=>x.notes)||real.gear.items[0];
+ const route='#/inventory/item/'+gear.id;
+ await page.evaluate(hash=>{location.hash=hash;},route);
+ // Before opening the dialog, startup must verify the persisted owner
+ // session once the service worker verifies Automatic reading mode.
+ await expect(page.locator('.v3-account-body')).toContainText(
+  'Signed in as ginosega',{timeout:30000});
+ await expect(page.locator('#app .page-edit-link')).toBeVisible({timeout:30000});
+ expect(logs.sessions).toBeGreaterThan(0);
+ expect(logs.sources).toBe(0);
+ await page.reload({waitUntil:'domcontentloaded'});
+ await expect(page.locator('#app .page-header h1')).toHaveText(gear.name,{timeout:30000});
+ await expect(page.locator('#app .page-edit-link')).toBeVisible({timeout:30000});
+ await expect(page.locator('.v3-account-body')).toContainText('Signed in as ginosega');
+ expect(logs.sources).toBe(0);
+ expect(logs.writes).toEqual([]);
+ expect(errors).toEqual([]);
+});
+
 test('WP1-EDITOR-B01 anonymous cannot expose editor or fetch canonical source',async({page})=>{
  const errors=await open(page);
  const gear=real.gear.items[0];
