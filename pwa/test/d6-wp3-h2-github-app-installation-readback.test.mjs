@@ -20,7 +20,7 @@ const repositories=()=>({
  total_count:1,repositories:[{
   id:REPO_ID,name:'fishing',full_name:'ginosega/fishing',
   owner:{id:ACCOUNT,login:'ginosega'},
-  private:true,default_branch:'main',archived:false,disabled:false,
+  private:false,default_branch:'main',archived:false,disabled:false,
  }],
 });
 const json=x=>new Response(JSON.stringify(x),{
