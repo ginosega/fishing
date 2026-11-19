@@ -63,7 +63,7 @@ export function verifyD6H2AppInstallationEvidence({
  need(plain(repo)&&repo.id===REPO_ID&&repo.full_name===NAME&&
   repo.name==='fishing'&&repo.owner?.id===OWNER&&
   repo.owner?.login==='ginosega'&&
-  repo.private===true&&repo.default_branch==='main'&&
+  repo.private===false&&repo.default_branch==='main'&&
   repo.archived===false&&repo.disabled===false,
   'REPOSITORY_IDENTITY_MISMATCH');
  return Object.freeze({
