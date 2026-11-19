@@ -41,14 +41,31 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
     ctx?.v3?.source?.canPublish!==false||
     !['gear','kb'].includes(domain))
   throw Error('Verified read-only owner editor preview required.');
- const publishChange=async()=>{throw Error('Publishing is disabled in this WP1 editor preview.');};
+ const publishChange=async()=>{throw Error('Legacy GitHub publishing is disabled.');};
+ const directGear=domain==='gear'&&Boolean(baseRecord)&&
+  ctx.v3?.directGearEnabled===true&&
+  typeof ctx.v3?.directGearClient?.read==='function'&&
+  typeof ctx.v3?.directGearClient?.save==='function';
+ if(ctx.v3?.directGearEnabled===true&&domain==='gear'&&
+    Boolean(baseRecord)&&!directGear)
+  throw Error('Direct Gear service unavailable. No edit was submitted.');
+ let directRevision=null,directNotes=null;
+ if(directGear){
+  const latest=await ctx.v3.directGearClient.read(baseRecord.id);
+  if(latest.record?.id!==baseRecord.id||
+     !Number.isSafeInteger(latest.revision)||latest.revision<1)
+   throw Error('This Gear record could not be verified in D1.');
+  baseRecord=latest.record;directRevision=latest.revision;
+  directNotes=latest.notes;
+ }
  const onPrepared=null;
  const editing=Boolean(baseRecord),key=domain==='gear'?'notes':'content',record=baseRecord?clone(baseRecord):{id:'',name:'',...(domain==='gear'?{category:category||'lures',type:'',specifications:[],links:[]}:{type:type||'technique',content:''})};
  if(!editing&&domain==='gear')record.type=(record.category==='rods-reels'?ROD_TYPES:record.category==='accessories'?EQUIPMENT_TYPES:TAXONOMY[record.category])[0];
  let baseText='',body='',baseHash=null,mediaAction='keep',fileInfo=null,previewUrl=null,sequenceInfos=[],sequenceUrls=[],prepared=null,savePending=false,saveAccepted=false,notesEditor=null;
- if(baseRecord?.[key]){
+ if(directGear||baseRecord?.[key]){
   let bytes;
-  if(ctx.v3?.source?.markdown instanceof Map){
+  if(directGear)bytes=new TextEncoder().encode(directNotes);
+  else if(ctx.v3?.source?.markdown instanceof Map){
    const text=ctx.v3.source.markdown.get(baseRecord[key]);
    if(typeof text!=='string')
     throw new Error('The immutable sandbox Markdown is missing.');
@@ -101,7 +118,9 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
     warnDraft);
  };
  const dirty=()=>!saveAccepted&&(serialize(record)!==original||body!==initialBody||mediaAction!=='keep');
- function changed(){if(saveAccepted)return;prepared=null;output.replaceChildren();onDirty?.(dirty());persistDraft();}
+ function changed(){if(saveAccepted)return;prepared=null;output.replaceChildren();
+  if(directGear)prepareButton.disabled=!dirty();
+  onDirty?.(dirty());persistDraft();}
  function update(fieldName,value){optional(record,fieldName,value);changed();}
  function revokeLocal(clearInput=true){if(previewUrl){URL.revokeObjectURL(previewUrl);previewUrl=null;}for(const url of sequenceUrls)URL.revokeObjectURL(url);sequenceUrls=[];fileInfo=null;sequenceInfos=[];if(clearInput)fileInput.value='';}
  function recalcSequencePaths(){if(!sequenceInfos.length||!ID_PATTERN.test(record.id))return;for(const info of sequenceInfos)info.path=sequencePicturePath(record,info.name);record.pictureSequence=sequenceInfos.map(x=>x.path);picturePathInput.value=record.pictureSequence.at(-1);record.picture={src:picturePathInput.value,...(captionInput.value?{caption:captionInput.value}:{})};}
@@ -257,11 +276,11 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
   form.append(section('Notes',field('Markdown',textArea),previewButton,preview));
  }
  const actionNotice=el('div',{class:'editor-notice','aria-live':'assertive'});
- const prepareButton=button(publishChange?'Save and Publish':'Prepare Changes',()=>form.requestSubmit(),{variant:'primary'});
+ const prepareButton=button(directGear?'Save':'Prepare Changes',()=>form.requestSubmit(),{variant:'primary'});
  form.addEventListener('submit',async event=>{
   event.preventDefault();
   // Even programmatic submissions cannot stage media or send a write.
-  if(ctx.v3?.ownerAuthoringPreview===true)return;
+  if(ctx.v3?.ownerAuthoringPreview===true&&!directGear)return;
   if(savePending||saveAccepted)return;
   savePending=true;prepareButton.disabled=true;
   notice.replaceChildren();actionNotice.replaceChildren();
@@ -302,6 +321,25 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
    if(fileInfo&&candidate.picture.src!==picturePath(domain,candidate,fileInfo.name))throw new Error('The selected file must use its proposed repository path.');
    if(fileInfo&&knownPaths(ctx).has(candidate.picture.src)){const existingFile=knownFiles(ctx).get(candidate.picture.src);if(existingFile.sha256!==fileInfo.sha256&&!['replace-static','replace-with-static'].includes(mediaAction))throw new Error('A different file already exists at this path. Use an explicit replacement.');}
    if(sequenceSet){for(const info of sequenceInfos){const existingFile=knownFiles(ctx).get(info.path);if(existingFile&&existingFile.sha256!==info.sha256&&mediaAction==='add-sequence')throw new Error(`A different file already exists at ${info.path}. Use an explicit replacement.`);}}
+   if(directGear){
+    if(mediaAction!=='keep'||fileInfo||sequenceSet||notesUploads.length)
+     throw Error('New media uploads are not yet available. Your edit is preserved.');
+    const saved=await ctx.v3.directGearClient.save({
+     record:candidate,notes:body,expectedRevision:directRevision,
+    });
+    if(saved?.record?.id!==candidate.id||
+       saved.revision!==directRevision+1)
+     throw Error('Save was not verified. Your edit is preserved.');
+    saveAccepted=true;
+    for(const control of form.querySelectorAll('input,select,textarea,button'))
+     control.disabled=true;
+    actions.replaceChildren(button('Exit',onExit,{variant:'primary'}));
+    notice.replaceChildren();actionNotice.replaceChildren();
+    status(notice,'Saved. Your Gear item will show the updated information after reload.','success');
+    onDirty?.(false);
+    void discardDraft().catch(()=>{});
+    return;
+   }
    let pictureAction='keep';if(mediaAction==='remove-picture')pictureAction=baseRecord?.picture?'remove':'keep';else if(sequenceSet||STATIC_FILE_ACTIONS.has(mediaAction))pictureAction=editing&&baseRecord?.picture?'replace':'add';else if(editing&&!equal(baseRecord.picture,candidate.picture))pictureAction=candidate.picture?'replace':'remove';
    let pictureSequenceAction='keep';if(sequenceSet)pictureSequenceAction='set';else if(editing&&baseRecord?.pictureSequence&&!candidate.pictureSequence)pictureSequenceAction='remove';
    prepared??=await prepareChange({domain,operation:editing?'edit':'add',id:candidate.id,baseRecord,record:candidate,baseText,text:body,sourceRevision:ctx.release.sourceRevision,notesPath:candidate[key]||narrativePath(domain,candidate),baseFileHash:baseHash,pictureAction,picturePath:candidate.picture?.src,pictureFile:sequenceSet?null:fileInfo,pictureSequenceAction,pictureSequencePaths:candidate.pictureSequence,pictureSequenceFiles:sequenceSet?sequenceInfos.map(x=>({path:x.path,bytes:x.bytes,sha256:x.sha256})):undefined,notesImages:notesUploads.map(x=>({path:x.path,bytes:x.bytes,sha256:x.sha256}))});
@@ -352,10 +390,10 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
  });
  const actions=toolbar(prepareButton,button('Cancel',onBack));
  prepareButton.disabled=true;
- prepareButton.setAttribute('aria-label','Save and Publish unavailable in WP1 preview');
- const blocked=text('p','Editor preview only. Save and Publish is disabled until the secure production publishing pipeline is complete. Your changes have not been submitted.','hint');
+ prepareButton.setAttribute('aria-label',directGear?'Save Gear':'Save unavailable in read-only preview');
+ const blocked=directGear?null:text('p','Editor preview only. Save is disabled until direct database editing is enabled. Your changes have not been submitted.','hint');
  form.append(actions,actionNotice);
- host.append(notice,blocked,form,output);
+ host.append(notice,...(blocked?[blocked]:[]),form,output);
  return {element:host,isDirty:dirty,discardDraft,dispose:()=>{revokeLocal();notesEditor?.dispose();},record};
 }
 
