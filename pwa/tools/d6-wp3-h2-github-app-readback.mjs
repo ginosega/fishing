@@ -186,7 +186,7 @@ export function createD6H2InstallationRepositoryReadback({
     response.headers?.get?.('Content-Type')??''),
    'HTTP_UNVERIFIED');
   const length=response.headers?.get?.('Content-Length');
-  need(length===null||/^\\d+$/.test(length)&&Number(length)<=MAX,
+  need(length===null||/^\d+$/.test(length)&&Number(length)<=MAX,
    'BODY_UNVERIFIED');
   let payload;
   try{
