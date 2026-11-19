@@ -5,6 +5,8 @@
  */
 import {readFile,writeFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
+import MarkdownIt from 'markdown-it';
+import {resolveMarkdownTarget} from '../src/markdown.mjs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
@@ -12,6 +14,24 @@ const EXPECTED_ORIGIN='https://fishing-d6-wp2-test.ginosega.workers.dev';
 const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
 const assert=(yes,why)=>{if(!yes)throw Error(why);};
 const segments=path=>path.split('/').map(encodeURIComponent).join('/');
+const markdown=new MarkdownIt({html:false,linkify:false});
+function notesImagePaths(text,owner){
+ if(!owner||!text)return [];
+ const paths=new Set();
+ const visit=tokens=>{
+  for(const token of tokens){
+   if(token.type==='image'){
+    const ref=resolveMarkdownTarget(token.attrGet('src'),{owner});
+    assert(ref.kind==='local'&&/\.(?:jpe?g|png|webp|gif)$/i.test(ref.local),
+     'Invalid Gear Notes image reference: '+owner);
+    paths.add(ref.local);
+   }
+   if(token.children)visit(token.children);
+  }
+ };
+ visit(markdown.parse(text,{}));
+ return [...paths];
+}
 
 async function requestJSON(url,{fetchImpl=fetch}={}){
  const response=await fetchImpl(url,{
@@ -56,10 +76,19 @@ export async function reconcileD6Gear({
   manifest.base==='/fishing/',
   'Hosted manifest identity mismatch');
  const files=new Map(manifest.files.map(x=>[x.path,x]));
+ const sourceAssets=new Map(report.assets.map(x=>[x.path,x]));
+ assert(sourceAssets.size===112,'Duplicate source Gear image files');
+ // The V3 release intentionally packages referenced files only. The frozen
+ // Git inventory also includes orphaned images that V2 never published.
+ // Verify every published Gear image byte-for-byte, then require that EVERY
+ // record picture and every image linked by D1 Notes is actually published.
+ const publishedImages=new Set(),requiredImages=new Set();
  for(const asset of report.assets){
   const hosted=files.get('releases/'+pointer.id+'/content/'+asset.path);
-  assert(hosted?.sha256===asset.sha256&&hosted?.bytes===asset.bytes,
-   'Gear media missing or changed: '+asset.path);
+  if(!hosted)continue;
+  assert(hosted.sha256===asset.sha256&&hosted.bytes===asset.bytes,
+   'Gear media changed: '+asset.path);
+  publishedImages.add(asset.path);
  }
  const catalog=await requestJSON(origin+'/api/v3/content/gear',{fetchImpl});
  assert(catalog.ok===true&&catalog.count===100&&
@@ -82,7 +111,10 @@ export async function reconcileD6Gear({
     typeof row.notes==='string','Invalid D1 Gear row: '+id);
    assert(row.record.picture?.src===source.picturePath,
     'Gear image reference differs: '+id);
+   requiredImages.add(source.picturePath);
    images++;
+   for(const imagePath of notesImagePaths(row.notes,source.notesPath))
+    requiredImages.add(imagePath);
    if(source.notesPath){
     assert(row.record.notes===source.notesPath,'Notes path differs: '+id);
     notes++;
@@ -103,9 +135,20 @@ export async function reconcileD6Gear({
    verified++;
   }
  }
+ for(const imagePath of requiredImages){
+  assert(sourceAssets.has(imagePath),
+   'Referenced Gear image absent from frozen source: '+imagePath);
+  assert(publishedImages.has(imagePath),
+   'Referenced Gear image missing from hosted release: '+imagePath);
+ }
+ const unreferencedSourceImages=report.assets
+  .filter(asset=>!publishedImages.has(asset.path)).map(asset=>asset.path);
  return {
   outcome:'PASS',records:verified,notes,pictures:images,
-  assetFiles:report.assets.length,
+  sourceImageFiles:report.assets.length,
+  publishedImageFiles:publishedImages.size,
+  unreferencedSourceImages,
+  notesImageFiles:requiredImages.size,
   pilotRevision,releaseId:pointer.id,gearGitBlobSha1:report.source.gearGitBlobSha1,
  };
 }
