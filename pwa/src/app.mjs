@@ -4,12 +4,15 @@ import {DOMAIN,encodedPath} from './shared.mjs';
 
 export async function bootstrap({root,release},{v3=null}={}){
  const base=new URL('releases/'+release.id+'/',root).href;
- const data={};
- for(const [domain,config] of Object.entries(DOMAIN)){
+ // Catalogs are independent, immutable files within the pinned release.
+ // Fetch them together; preserve the fixed DOMAIN order and fail closed if
+ // any response fails. No publishing, cache or validation rules change.
+ const catalogs=await Promise.all(Object.entries(DOMAIN).map(async([domain,config])=>{
   const response=await fetch(new URL('content/'+encodedPath(config.file),base));
   if(!response.ok)throw new Error(`Unable to load ${domain}: HTTP ${response.status}`);
-  data[domain]=await response.json();
- }
+  return [domain,await response.json()];
+ }));
+ const data=Object.fromEntries(catalogs);
  const maps=validateRecords(data);
  const manifest=globalThis.__FISHING_BOOT__.manifest;
  const asset=file=>new URL('content/'+encodedPath(file),base).href;
