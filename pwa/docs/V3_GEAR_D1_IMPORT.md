@@ -20,7 +20,7 @@ New-Item -ItemType Directory -Path $Out -Force | Out-Null
 node.exe tools/d6-gear-migration.mjs --out $Out
 ```
 
-The generator **fails closed** on an unexpected Gear source SHA, counts, missing Notes/images, invalid Gear schema, or duplicate IDs. It creates exactly two new local files:
+The generator reads **committed Git blobs** for the catalog and Notes, not Windows-translated working-copy text. In particular, CRLF conversion of `Gear/gear.json` on Windows changes its raw Git-blob hash from `741ba8f19c06834eb6e92fea84404fdb2ac58f88` to `ceea985f54690c0031c8f7d024eb26c061a8f9b3` without changing the records. The generator now preserves the original LF bytes and independently checks checked-out image bytes against tracked Git blobs. It **fails closed** on unexpected committed content, counts, missing Notes/images, invalid Gear schema, or duplicate IDs. It creates exactly two new local files:
 
 - `gear-import.sql`: 99 `INSERT ... ON CONFLICT(id) DO NOTHING` statements; never replaces the pilot row and never updates existing Gear content
 - `gear-integrity.json`: source SHA, 100 IDs, record/Notes hashes and 112 image hashes; no secrets
