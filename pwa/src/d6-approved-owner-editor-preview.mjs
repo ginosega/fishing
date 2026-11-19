@@ -275,7 +275,7 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
   });
   form.append(section('Notes',field('Markdown',textArea),previewButton,preview));
  }
- const actionNotice=el('div',{class:'editor-notice editor-action-feedback','aria-live':'polite'});
+ const actionNotice=el('div',{class:'editor-notice editor-action-feedback','aria-live':'assertive'});
  const prepareButton=button(directGear?'Save':'Prepare Changes',()=>form.requestSubmit(),{variant:'primary'});
  form.addEventListener('submit',async event=>{
   event.preventDefault();
