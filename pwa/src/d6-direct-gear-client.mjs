@@ -42,6 +42,18 @@ export function createD6DirectGearClient({
   if(!data||data.ok!==true)return Promise.reject(error('Save was not confirmed.','UNVERIFIED'));
   return data;
  }
+ async function list(){
+  if(!ready())throw error('Gear catalog unavailable.','UNAVAILABLE');
+  const data=await readJSON(endpoint+'gear',{
+   method:'GET',headers:{Accept:'application/json'},
+  });
+  if(data.count!==100||!Array.isArray(data.items)||
+     data.items.length!==100||
+     new Set(data.items.map(item=>item?.id)).size!==100||
+     data.items.some(item=>!idOK(item?.id)))
+   throw error('The complete Gear catalog could not be verified.','UNVERIFIED');
+  return data.items;
+ }
  async function read(id){
   if(!ready()||!idOK(id))throw error('Gear editing unavailable.','UNAVAILABLE');
   const data=await readJSON(endpoint+'gear/'+encodeURIComponent(id),{
@@ -73,5 +85,5 @@ export function createD6DirectGearClient({
    throw error('Save response was not independently verified.','UNVERIFIED');
   return {record:data.record,notes:data.notes,revision:data.revision};
  }
- return Object.freeze({read,save});
+ return Object.freeze({read,save,list});
 }
