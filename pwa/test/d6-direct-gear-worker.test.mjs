@@ -80,6 +80,8 @@ test('V3-PILOT02 Worker denies wrong host or disabled direct Gear flag',async()=
 test('V3-PILOT03 one existing isolated Worker hosts assets and D1; no public deployment',()=>{
  const cfg=JSON.parse(readFileSync(new URL('../wrangler.direct-gear-private.jsonc',import.meta.url),'utf8'));
  assert.equal(cfg.name,'fishing-d6-wp2-test');
+ assert.equal(cfg.keep_vars,true);
+ assert.deepEqual(cfg.secrets.required,['D6_CSRF_KEY','D6_OAUTH_CLIENT_SECRET']);
  assert.equal(cfg.main,'./server/d6-direct-gear-worker.mjs');
  assert.equal(cfg.vars.D6_ORIGIN,origin);
  assert.equal(cfg.vars.D6_DIRECT_GEAR_ENABLED,'true');
