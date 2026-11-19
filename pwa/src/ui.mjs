@@ -46,6 +46,7 @@ export function createApp(ctx){
  const ownerEditorGate=ownerEditorPreview?createD6OwnerEditorPreviewGate({
   root:ctx.root,releaseRevision:ctx.release.sourceRevision,
   ownerReadiness:ctx.v3.ownerReadiness,canonicalSource:ctx.v3.canonicalSource,
+  directGearPilot:ctx.v3.directGearEnabled===true,
   enabled:()=>true,online:()=>navigator.onLine===true,
   readingMode:()=>offline?.getModeAvailable?.()===true?offline.getMode():'Checking',
  }):null;
