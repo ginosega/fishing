@@ -275,7 +275,7 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
   });
   form.append(section('Notes',field('Markdown',textArea),previewButton,preview));
  }
- const actionNotice=el('div',{class:'editor-notice','aria-live':'assertive'});
+ const actionNotice=el('div',{class:'editor-notice editor-action-feedback','aria-live':'polite'});
  const prepareButton=button(directGear?'Save':'Prepare Changes',()=>form.requestSubmit(),{variant:'primary'});
  form.addEventListener('submit',async event=>{
   event.preventDefault();
@@ -337,7 +337,10 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
      control.disabled=true;
     actions.replaceChildren(button('Exit',onExit,{variant:'primary'}));
     notice.replaceChildren();actionNotice.replaceChildren();
-    status(notice,'Saved. Your Gear item will show the updated information after reload.','success');
+    const success='Saved. Your Gear item will show the updated information after reload.';
+    status(notice,success,'success');
+    // The owner may be scrolled below the top notice at the Save action.
+    status(actionNotice,success,'success');
     onDirty?.(false);
     void discardDraft().catch(()=>{});
     return;
