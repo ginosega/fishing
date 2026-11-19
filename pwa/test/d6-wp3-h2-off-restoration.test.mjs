@@ -33,7 +33,7 @@ const opts=({approved=true,alreadyOff=false,commandStatus=0,
    assert.equal(call.expectedWorker,WORKER);
    assert.equal(call.executable,'wrangler');
    assert.deepEqual(call.args,
-    ['versions','deploy',OFF+'@100','--name',WORKER,'--yes',
+    ['versions','deploy',OFF+'@100%','--name',WORKER,'--yes',
      '--message','WP3 H2 approved safety OFF restoration']);
    return {exitCode:commandStatus};
   },
@@ -45,7 +45,7 @@ test('WP3-H2OFF01 only one exact version can be restored at 100 percent',()=>{
  const x=makeD6H2OffCommand({offVersion:OFF});
  assert.equal(x.executable,'wrangler');
  assert.deepEqual(x.args.slice(0,5),[
-  'versions','deploy',OFF+'@100','--name',WORKER]);
+  'versions','deploy',OFF+'@100%','--name',WORKER]);
  assert.equal(Object.isFrozen(x),true);
  assert.equal(Object.isFrozen(x.args),true);
  for(const v of ['anything','',ON+' --name other',null])
