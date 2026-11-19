@@ -43,5 +43,12 @@
       "/session"
     ],
     "binding": "ASSETS"
+  },
+  "keep_vars": true,
+  "secrets": {
+    "required": [
+      "D6_CSRF_KEY",
+      "D6_OAUTH_CLIENT_SECRET"
+    ]
   }
 }
