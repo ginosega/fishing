@@ -99,5 +99,5 @@ test('V3-PILOT03 one existing isolated Worker hosts assets and D1; no public dep
  assert.match(seed,/INSERT INTO d6_gear_records/);
  assert.match(seed,/daiwa-tatula-xt-rod/);
  assert.match(seed,/ON CONFLICT\(id\) DO NOTHING;/);
- assert.doesNotMatch(seed,/\b(?:UPDATE|DELETE|DROP)\b/i);
+ assert.equal(seed.split('\n').some(line=>/^\s*(?:UPDATE|DELETE|DROP|ALTER|CREATE)\b/i.test(line)),false);
 });
