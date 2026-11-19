@@ -8,8 +8,10 @@
  *
  * GET /repos/ginosega/fishing/installation proves installation on this repo
  * with the selected permission set, but not that it is the ONLY selected
- * repository. A second separately approved repository-universe proof is
- * required before claiming sole-repo scope.
+ * repository. A second repository-universe proof using an *unrestricted*
+ * installation token is required before claiming sole-repo scope. The
+ * trusted issuer must provide verifiable token-mint-request evidence;
+ * repository-scoped tokens are insufficient even if their GET lists one.
  */
 const URL='https://api.github.com/repos/ginosega/fishing/installation';
 const OWNER=265665562;
@@ -149,9 +151,9 @@ export function verifyD6H2InstallationRepositories(raw,{appProof}={}){
 }
 
 export function createD6H2InstallationRepositoryReadback({
- getInstallationReadToken,network=globalThis.fetch,
+ getUnrestrictedInstallationReadToken,network=globalThis.fetch,
 }={}){
- need(typeof getInstallationReadToken==='function'&&
+ need(typeof getUnrestrictedInstallationReadToken==='function'&&
   typeof network==='function','INVALID_CONFIG');
  const url='https://api.github.com/installation/repositories?per_page=100';
  async function read({appProof}={}){
@@ -162,10 +164,32 @@ export function createD6H2InstallationRepositoryReadback({
    'APP_PROOF_MISSING');
   let response;
   try{
-   const token=await getInstallationReadToken({
+   // GitHub installation tokens can be restricted to one repository.
+   // A single-repository GET using such a token is NOT proof of the
+   // installation's total repository scope. Require trusted issuer
+   // evidence of the exact unrestricted token-mint request (metadata
+   // read only; no repositories or repository_ids fields).
+   const issued=await getUnrestrictedInstallationReadToken({
     installationId:appProof.installationId,
-    appId:appProof.appId,repositoryId:1350909744,
+    appId:appProof.appId,
+    repositoryScope:'all-installation-repositories',
+    issuanceBody:Object.freeze({
+     permissions:Object.freeze({metadata:'read'}),
+    }),
    });
+   const body=issued?.issuanceBody;
+   need(plain(issued)&&
+    issued.installationId===appProof.installationId&&
+    issued.appId===appProof.appId&&
+    issued.repositoryScope==='all-installation-repositories'&&
+    plain(body)&&Object.keys(body).length===1&&
+    plain(body.permissions)&&
+    Object.keys(body.permissions).length===1&&
+    body.permissions.metadata==='read'&&
+    !Object.hasOwn(body,'repositories')&&
+    !Object.hasOwn(body,'repository_ids'),
+    'UNRESTRICTED_TOKEN_PROOF_MISSING');
+   const token=issued.token;
    need(typeof token==='string'&&token.length>=20&&
     token.length<=4096&&/^[A-Za-z0-9_.-]+$/.test(token),
     'TOKEN_UNAVAILABLE');
