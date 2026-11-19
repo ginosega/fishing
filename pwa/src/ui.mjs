@@ -78,7 +78,7 @@ export function createApp(ctx){
    source=result.source;data=source.data;maps=validateRecords(data);
   }
   if(!ownerDeviceDrafts)ownerDeviceDrafts=createD6OwnerDeviceDraftStore({
-   enabled:true,root:ctx.root,
+   enabled:true,root:ctx.root,privateGearPilot:direct,
   });
   return {...ctx,data,maps,
    v3:{...ctx.v3,source,ownerAuthoringPreview:true,
