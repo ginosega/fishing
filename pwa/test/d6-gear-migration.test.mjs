@@ -38,7 +38,7 @@ test('V3-GEAR-MIG02 prepared import never updates or deletes live pilot data',as
  assert.equal(sql.split('\n').some(line=>
   /^\s*(?:UPDATE|DELETE|DROP|ALTER|REPLACE|CREATE|BEGIN|COMMIT)\b/i.test(line)),false);
  assert.equal((sql.match(/ON CONFLICT\(id\) DO NOTHING;/g)||[]).length,99);
- assert.match(sql,/'7'''/); // SQL escaping protects apostrophes inside Gear JSON
+ assert.match(sql,/"value":"7''"/); // SQL escaping protects apostrophes inside Gear JSON
 });
 
 test('V3-GEAR-MIG03 provenance and hashed asset entries are deterministic',async()=>{
