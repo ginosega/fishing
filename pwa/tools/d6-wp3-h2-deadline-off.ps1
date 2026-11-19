@@ -12,11 +12,18 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $worker = 'fishing-v3-wp3-test'
-$wrangler = Get-Command -Name 'wrangler' -ErrorAction Stop
-if ($null -eq $wrangler -or [string]::IsNullOrWhiteSpace($wrangler.Source)) {
-  throw 'H2 OFF restore CLI unavailable; remote readback required'
+# Owner Windows preflight confirmed node/npx are installed here, but NOT
+# a global wrangler command. Use a fixed local executable path/version.
+# --offline forbids a package download during crash-recovery execution.
+# The owner MUST separately preflight that 4.163.0 is cached for the
+# exact scheduled-task user, and Cloudflare auth is available there.
+$npx = 'C:\\Program Files\\nodejs\\npx.cmd'
+if (-not (Test-Path -LiteralPath $npx -PathType Leaf)) {
+  throw 'Pinned npm CLI unavailable; remote OFF readback required'
 }
-& $wrangler.Source versions deploy "$OffVersion@100" --name $worker --yes --message 'WP3 H2 approved safety OFF restoration'
+# Cloudflare specifies the literal percent sign in noninteractive traffic
+# version specifications; never prompt, pick another Worker or use latest.
+& $npx --offline --yes 'wrangler@4.163.0' versions deploy "$OffVersion@100%" --name $worker --yes --message 'WP3 H2 approved safety OFF restoration'
 if ($LASTEXITCODE -ne 0) {
   throw 'H2 OFF restore command failed; remote readback required'
 }
