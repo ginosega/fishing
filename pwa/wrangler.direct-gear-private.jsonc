@@ -17,9 +17,9 @@
     "D6_SESSION_ENABLED": "true",
     "D6_OAUTH_ENABLED": "true",
     "D6_SIGNOUT_ENABLED": "true",
-    "D6_SOURCE_ENABLED": "true",
-    "D6_READ_TOKEN_ENABLED": "true",
-    "D6_SIGNER_ENABLED": "true",
+    "D6_SOURCE_ENABLED": "false",
+    "D6_READ_TOKEN_ENABLED": "false",
+    "D6_SIGNER_ENABLED": "false",
     "D6_HOSTED_PREFLIGHT_ENABLED": "false"
   },
   "d1_databases": [
