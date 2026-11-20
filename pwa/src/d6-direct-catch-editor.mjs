@@ -346,7 +346,7 @@ export async function createCatchEditor(ctx,{
   resolveSavedAsset:path=>ctx.asset(path),
   allowUpload:typeof ctx.v3.stageMedia==='function',
   linkMaps:()=>ctx.maps,
-  previewOptions:()=>({owner:record.notes||narrativePath('catches',record),
+  previewOptions:()=>({owner:record.notes||'Catches/content/'+record.id+'.md',
    maps:ctx.maps,pathRoutes:markdownRouteMap(ctx.data),assetBase:ctx.base}),
  });
   const submit=el('button',{type:'submit',class:'btn primary'},directCatch?'Save':'Save and Publish');
