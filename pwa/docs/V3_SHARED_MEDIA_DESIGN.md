@@ -1,6 +1,6 @@
 # Fishing V3 — Shared media architecture and approval gates
 
-**Status: source-only design and fail-closed UI contract.** FISH-TODO-118 / ADR-0011. No R2 bucket, D1 schema, credential, provider upload endpoint or deployment is authorized by this document. User-approved goal: one consistent image-upload feature across Gear, KB and Catches, without restoring per-edit GitHub publishing.
+**Status: source-only design, uploads-OFF UI contract, and isolated shared staging prototype.** FISH-TODO-118 / ADR-0011. Owner created and read-only verified one private R2 bucket `fishing-v3-owner-media-test` (Standard, 0 objects; `r2.dev` disabled, no custom domains). No Worker R2 binding, D1 schema, stage route, staged object, provider upload or deployment has been authorized or performed. Goal: one consistent Gear/KB/Catch image upload service without per-edit GitHub publishing.
 
 ## Verified existing implementation
 
@@ -17,6 +17,16 @@
 | **R2 bound to existing private Worker** | **Recommended**: durable object bytes, read and write without rebuilding, existing D1 retains JSON, Markdown and metadata | Requires checking whether an existing appropriate R2 bucket can be reused; otherwise explicit owner approval for new bucket/binding and R2 activation/billing |
 
 Source references: Cloudflare D1 limits <https://developers.cloudflare.com/d1/platform/limits/>; Cloudflare Worker static assets <https://developers.cloudflare.com/workers/static-assets/>; R2 Workers API <https://developers.cloudflare.com/r2/get-started/workers-api/>; R2 pricing <https://developers.cloudflare.com/r2/pricing/>. No assertion that the owner's Cloudflare account already has R2.
+
+## Completed source-only staging vertical (not routed or deployed)
+
+- `pwa/server/d6-shared-media-stage.mjs` exports one private-R2 staging handler with **default OFF**, reuses AUTH-P0 owner session and CSRF `stage-media` authorization, rejects cross-origin, bearer, wrong intent, unsupported formats, unsafe Notes asset paths, oversized streams, magic/content-type/hash mismatches, and invalid dimensions.
+- Uses a SHA-256 content-addressed `staged/v1/sha256/<digest>` key and R2 conditional `put` (no overwrite). Verifies returned R2 object metadata or a pre-existing matching object; a staging receipt explicitly says `published:false`. **It does not add a user-visible route or create live media references.**
+- Supports the **same Notes image path contract** for Gear, KB and Catches by calling the accepted `noteImagePath`. The accepted 10 MiB upload limit remains. The initial byte validator checks headers/signatures/dimensions; complete decoder parity for animated GIF/WebP and full security regression must be completed before enabling provider writes.
+- `pwa/tools/d6-media-schema.mjs` proposes `d6_media_objects` and `d6_media_refs` as a local-file-only SQL generator. **Neither table exists in live D1. Do not run the SQL without a fresh explicit owner approval and D1 backup.**
+- Targeted `pwa/test/d6-shared-media-stage.test.mjs` checks all-domain owner paths, default OFF, authorization/CSRF/cross-site denials, immutable idempotent staging, SHA mismatch/MIME/path denial and schema no-destructive-write properties. The private Worker does **not** import, mount or call the staging service.
+
+**Important missing work before provider activation:** Bind proposal must be owner-approved. Implement D1 promotion with expected-revision/atomic record+media-reference updates (also Catch Add and KB Knot sequences), public read-through for only D1-live media, dynamically verified image paths in Markdown parsing, offline/read-only semantics, draft recovery and no orphan/overwrite on failure; test full JPEG/PNG/WebP/GIF safety and 10 MiB ceiling. No current functionality implies those acceptance items are done.
 
 ## One shared media service and client (proposed API, not executable)
 
