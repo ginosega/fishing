@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {DatabaseSync} from 'node:sqlite';
+import {readFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 import {encodedPath} from '../src/shared.mjs';
 import {noteImageReference} from '../src/notes-markdown-editor.mjs';
@@ -178,7 +179,7 @@ test('V3-MEDIA-LIVE04 stale Save and path collision roll back all D1 edits',asyn
  f.beforeBatch(()=>{f.sqlite.prepare(
   'UPDATE d6_gear_records SET revision=revision+1').run();});
  outcome=await f.publish('gear');
- assert.equal(outcome.status,503);
+ assert.equal(outcome.status,409);
  assert.equal(f.query('SELECT revision FROM d6_gear_records').revision,2);
  assert.equal(f.count('d6_media_refs'),0);
  assert.equal(f.count('d6_media_objects'),0);
@@ -266,4 +267,46 @@ test('V3-MEDIA-LIVE09 plain link/comment is not an image reference',()=>{
  assert.equal(isD6NotesImageLinked('[link]('+ref+')',path),false);
  assert.equal(isD6NotesImageLinked('![alt]('+ref+')',path),true);
  assert.equal(isD6NotesImageLinked('![alt](https://elsewhere.invalid/a)',path),false);
+});
+
+test('V3-MEDIA-LIVE10 two images publish together or both roll back',async()=>{
+ const f=fixture();f.seed('gear');
+ const first=pathOf('gear');
+ const second=first.replace('/tiny.png','/second.png');
+ const markdown='![One]('+noteImageReference(first)+')'+
+  '\n\n![Two]('+noteImageReference(second)+')';
+ const multi=[...manifestOf('gear'),{...manifestOf('gear')[0],
+  logicalPath:second}];
+ let result=await f.publish('gear',{markdown,media:multi});
+ assert.equal(result.status,200);
+ assert.equal(f.count('d6_media_objects'),1);
+ assert.equal(f.count('d6_media_refs'),2);
+ assert.equal(f.query('SELECT revision FROM d6_gear_records').revision,2);
+
+ const g=fixture();g.seed('gear');
+ // An existing logical path must not be overwritten, even if its blob
+ // already has the same SHA. Failure of the second INSERT rolls back the
+ // first INSERT and the record revision update in one transaction.
+ g.sqlite.prepare('INSERT INTO d6_media_objects'+
+  ' (sha256,storage_key,mime,bytes,created_at) VALUES(?,?,?,?,?)')
+  .run(sha,key,'image/png',image.length,1);
+ g.sqlite.prepare('INSERT INTO d6_media_refs'+
+  ' (logical_path,domain,record_id,sha256,created_at)'+
+  ' VALUES(?,?,?,?,?)').run(second,'gear',
+   recordOf('gear').id,sha,1);
+ result=await g.publish('gear',{markdown,media:multi});
+ assert.equal(result.status,503);
+ assert.equal(g.count('d6_media_refs'),1);
+ assert.equal(g.query('SELECT logical_path FROM d6_media_refs').logical_path,
+  second);
+ assert.equal(g.query('SELECT revision FROM d6_gear_records').revision,1);
+ assert.equal(g.query('SELECT notes_text FROM d6_gear_records').notes_text,
+  'Original notes');
+});
+test('V3-MEDIA-LIVE11 unmounted service does not alter deployed Worker routes',()=>{
+ const worker=readFileSync(new URL('../server/d6-direct-gear-worker.mjs',
+  import.meta.url),'utf8');
+ assert.doesNotMatch(worker,/d6-shared-media-live/);
+ assert.doesNotMatch(worker,/d6-shared-media-stage/);
+ assert.doesNotMatch(worker,/\/api\/v3\/media\//);
 });
