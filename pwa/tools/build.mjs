@@ -28,6 +28,7 @@ const d6OwnerEditorPreview=args.includes('--d6-owner-editor-preview');
 const d6DirectGearSave=args.includes('--d6-direct-gear-save');
 // KB uses the same isolated Worker/owner editor, only after separate opt-in.
 const d6DirectKBSave=args.includes('--d6-direct-kb-save');
+const d6DirectCatchSave=args.includes('--d6-direct-catch-save');
 // WP2 production-shaped isolated host; never the Stage A static-only mode.
 const d6Wp2Staging=args.includes('--d6-wp2-hosted-candidate');
 if(d6Wp2Staging&&(!d6ReaderCandidate||!d6OwnerConnectionCandidate||
@@ -41,6 +42,9 @@ if(d6DirectGearSave&&(!d6Wp2Staging||!d6OwnerEditorPreview||
 if(d6DirectKBSave&&(!d6DirectGearSave||!d6Wp2Staging||
     !d6OwnerEditorPreview||d6StaticStaging))
  throw Error('Direct KB requires the already approved isolated Gear/owner build');
+if(d6DirectCatchSave&&(!d6DirectKBSave||!d6DirectGearSave||
+    !d6Wp2Staging||!d6OwnerEditorPreview||d6StaticStaging))
+ throw Error('Direct Catches requires isolated Gear/KB/owner build');
 if(d6OwnerConnectionCandidate&&(!d6ReaderCandidate||d6StaticStaging))
  throw Error('D6 owner Connection Status requires non-staging D6 reader');
 if(d6StaticStaging&&!d6ReaderCandidate)
@@ -80,7 +84,8 @@ export async function build(){
     '__FISHING_D6_WP2_STAGING__':d6Wp2Staging?'true':'false',
     '__FISHING_D6_OWNER_EDITOR_PREVIEW__':d6OwnerEditorPreview?'true':'false',
     '__FISHING_D6_DIRECT_GEAR_SAVE__':d6DirectGearSave?'true':'false',
-     '__FISHING_D6_DIRECT_KB_SAVE__':d6DirectKBSave?'true':'false'}});
+     '__FISHING_D6_DIRECT_KB_SAVE__':d6DirectKBSave?'true':'false',
+     '__FISHING_D6_DIRECT_CATCH_SAVE__':d6DirectCatchSave?'true':'false'}});
   const baseCss=await fs.readFile(path.join(repo,'pwa/src/styles.css')),cardIconCss=await fs.readFile(path.join(repo,'pwa/src/card-icons.css')),pageHeroCss=await fs.readFile(path.join(repo,'pwa/src/page-hero.css')),css=Buffer.concat([baseCss,Buffer.from('\n'),cardIconCss,Buffer.from('\n'),pageHeroCss]);
   const inputHashes=await hashFiles(content),thumbnailHashes=thumbs?await hashFiles(path.join(tmp,'card-thumbnails')):[],staticImageHashes=await hashFiles(path.join(tmp,'static-page-artwork')),originalStaticImageHashes=await hashFiles(pageAssetsRoot);const lock=await fs.readFile(path.join(repo,'pwa/package-lock.json'));
   const codeHashes=[];for(const dir of ['src','tools'])for(const file of await hashFiles(path.join(repo,'pwa',dir)))codeHashes.push({...file,path:dir+'/'+file.path});
@@ -89,6 +94,9 @@ export async function build(){
  ...(d6OwnerEditorPreview?{d6OwnerEditorPreview:true}:{}),
  ...(d6DirectGearSave?{d6DirectGearSave:true}:{}),
   ...(d6DirectKBSave?{d6DirectKBSave:true}:{}),
+  ...(d6DirectCatchSave?{d6DirectCatchSave:true}:{}),
+  ...(d6DirectCatchSave?{d6DirectCatchSave:true}:{}),
+  ...(d6DirectCatchSave?{d6DirectCatchSave:true}:{}),
     ...(d6Wp2Staging?{d6Wp2Staging:true}:{}),cardThumbnails:thumbs?.mapping||null,thumbnailFiles:thumbnailHashes,files:inputHashes,staticArt:staticImageHashes,sourceStaticArt:originalStaticImageHashes,icon:digest(icon),maskableIcon:digest(maskableIcon),app:digest(app.outputFiles[0].contents),css:digest(css),lock:digest(lock),code:codeHashes}))).slice(0,32);
   const releaseRoot=path.join(tmp,'releases',releaseId);await fs.mkdir(releaseRoot,{recursive:true});await fs.rename(content,path.join(releaseRoot,'content'));if(thumbs)await fs.rename(path.join(tmp,'card-thumbnails'),path.join(releaseRoot,'card-thumbnails'));await fs.rename(path.join(tmp,'static-page-artwork','card-icons'),path.join(releaseRoot,'card-icons'));await fs.rename(path.join(tmp,'static-page-artwork','page-hero'),path.join(releaseRoot,'page-hero'));
   await write(path.join(releaseRoot,'app.js'),app.outputFiles[0].contents);await write(path.join(releaseRoot,'styles.css'),css);

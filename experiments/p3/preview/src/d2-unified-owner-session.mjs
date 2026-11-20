@@ -126,6 +126,9 @@ export function createD2UnifiedOwnerSession({AUTH_DB,ownerGitHubId,origin,csrfKe
  async function authorizeDirectKBSave(request){
   return authorizeDirectContentSave(request,'save-kb');
  }
+ async function authorizeDirectCatchSave(request){
+  return authorizeDirectContentSave(request,'save-catch');
+ }
  async function authorizeMedia(request){
   // Separate POST intent and binary content type; AUTH-P0 session and CSRF
   // are identical to normal publishing, but a JSON publish request cannot
@@ -167,5 +170,5 @@ export function createD2UnifiedOwnerSession({AUTH_DB,ownerGitHubId,origin,csrfKe
    ownerLogin:ownerGitHubId===265665562?'ginosega':null,
    csrfToken:await csrfFor(session),expiresAt:session.expiresAt});
  }
- return Object.freeze({describe,authorizeWrite,authorizeDirectGearSave,authorizeDirectKBSave,authorizeMedia,authorizeStatus,authorizePilotPage});
+ return Object.freeze({describe,authorizeWrite,authorizeDirectGearSave,authorizeDirectKBSave,authorizeDirectCatchSave,authorizeMedia,authorizeStatus,authorizePilotPage});
 }
