@@ -125,29 +125,15 @@ export async function createCatchEditor(ctx,{
 }={}){
  if(typeof publishChange!=='function'||!ctx?.v3?.source)
   throw new Error('Owner-only Catch publishing is unavailable.');
- const directCatch=ctx.v3?.directCatchEnabled===true&&
-  typeof ctx.v3?.directCatchClient?.read==='function'&&
-  typeof ctx.v3?.directCatchClient?.save==='function';
- if(ctx.v3?.directCatchEnabled===true&&!directCatch)
-  throw Error('Direct Catch service unavailable. No edit submitted.');
- let directRevision=0,directText=null;
- if(directCatch&&baseRecord){
-  const current=await ctx.v3.directCatchClient.read(baseRecord.id);
-  baseRecord=current.record;directRevision=current.revision;
-  directText=current.notes;
- }
  const editing=Boolean(baseRecord),record=baseRecord?clone(baseRecord):
   {id:'',date:''};
  const original=JSON.stringify(record);
  let initialText='',notesText='',baseHash=null;
  if(baseRecord?.notes){
-  if(directCatch)initialText=directText;
-  else{
-   const source=ctx.v3.source.markdown;
-   if(!(source instanceof Map)||!source.has(baseRecord.notes))
-    throw new Error('The verified Catch Notes cannot be loaded.');
-   initialText=source.get(baseRecord.notes);
-  }
+  const source=ctx.v3.source.markdown;
+  if(!(source instanceof Map)||!source.has(baseRecord.notes))
+   throw new Error('The verified Catch Notes cannot be loaded.');
+  initialText=source.get(baseRecord.notes);
   if(typeof initialText!=='string')
    throw new Error('Invalid verified Catch Notes.');
   notesText=initialText;
@@ -349,7 +335,7 @@ export async function createCatchEditor(ctx,{
   previewOptions:()=>({owner:record.notes||narrativePath('catches',record),
    maps:ctx.maps,pathRoutes:markdownRouteMap(ctx.data),assetBase:ctx.base}),
  });
-  const submit=el('button',{type:'submit',class:'btn primary'},directCatch?'Save':'Save and Publish');
+  const submit=el('button',{type:'submit',class:'btn primary'},'Save and Publish');
  const actions=toolbar(submit,button('Cancel',onBack));
  form.append(
   field(baseRecord?'ID':'ID (generated automatically)',idInput),
@@ -371,43 +357,6 @@ export async function createCatchEditor(ctx,{
     const notesUploads=notesEditor.uploads();
     if(notesUploads.length&&typeof ctx.v3?.stageMedia!=='function')
      throw Error('Direct Notes image publishing requires the D4 media service.');
-   if(directCatch){
-    if(ctx.v3?.directCatchCanSave?.()!==true)
-     throw Error('Work Offline or signed out. Save unavailable; your edit is preserved.');
-    if(notesUploads.length)
-     throw Error('New Notes image uploads are unavailable. Your edit is preserved.');
-    const candidate=clone(record);
-    for(const key of ['time','size','speciesId','speciesName',
-     'locationId','locationName','lureOrBaitId','lureOrBaitName']){
-     if(!str(candidate[key]))delete candidate[key];
-     else candidate[key]=str(candidate[key]);
-    }
-    if(notesText.trim())candidate.notes=baseRecord?.notes||
-     'Catches/content/'+candidate.id+'.md';
-    else if(baseRecord?.notes)throw Error('Existing Catch Notes cannot be removed.');
-    else delete candidate.notes;
-    const maps=validateRecord(candidate,'catches',ctx.data);
-    if(notesText.trim())parseMarkdown(notesText,{
-     owner:candidate.notes,maps,exists:ctx.v3.source.files,
-     pathRoutes:markdownRouteMap(ctx.data),assetBase:ctx.base,
-    });
-    const saved=await ctx.v3.directCatchClient.save({
-     record:candidate,notes:notesText,expectedRevision:directRevision,
-    });
-    if(saved?.record?.id!==candidate.id||
-       saved.revision!==directRevision+1)
-     throw Error('Catch Save was not independently verified.');
-    try{ctx.v3.onDirectCatchSaved?.();}catch{}
-    accepted=true;
-    for(const control of form.querySelectorAll('input,select,textarea,button'))
-     control.disabled=true;
-    actions.replaceChildren(button('Exit',onExit,{variant:'primary'}));
-    output.replaceChildren();notice.replaceChildren();actionNotice.replaceChildren();
-    const message='Saved. Your Catch Log will show the updated entry after reload.';
-    status(notice,message,'success');status(actionNotice,message,'success');
-    onDirty(false);void discardDraft().catch(()=>{});
-    return;
-   }
     const pkg=await prepareCatchPackage({
     ctx,record,baseRecord,text:notesText,baseText:initialText,baseHash,
      notesImages:notesUploads.map(x=>({path:x.path,bytes:x.bytes,sha256:x.sha256})),
@@ -431,7 +380,7 @@ export async function createCatchEditor(ctx,{
    try{onPrepared(draftStore?{...receipt,draftKey}:receipt);}catch{ /* Cannot undo a durable receipt. */ }
   }catch(error){
    status(notice,catchPublicationErrorText(error),'error');
-   status(actionNotice,directCatch?'Save was not confirmed. Your edit is preserved.':'Nothing was confirmed as published. Your edit is retained.','error');
+   status(actionNotice,'Nothing was confirmed as published. Your edit is retained.','error');
   }finally{
    pending=false;if(!accepted)submit.disabled=false;
   }

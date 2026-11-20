@@ -4,6 +4,7 @@
  */
 import {el,text,button,field,input,select,section,toolbar,status,picture} from './dom.mjs';
 import {createCatchEditor} from './catch-editor.mjs';
+import {createCatchEditor as createD6DirectCatchEditor} from './d6-direct-catch-editor.mjs';
 import {DOMAIN,GEAR_CATEGORIES,KB_TYPES,ROD_TYPES,EQUIPMENT_TYPES,ID_PATTERN,categoryFolder,safePath,encodedPath,newId,suggestedFilename,sha256,sequenceFolder,sequencePicturePath} from './shared.mjs';
 import {TAXONOMY,validateRecord,validateRecords} from './validation.mjs';
 import {parseMarkdown,sanitizeHtml,markdownRouteMap} from './markdown.mjs';
@@ -444,7 +445,7 @@ export async function createD6ApprovedCatchPreview(ctx,options={}){
      ctx?.v3?.source?.sourceOnly!==true||
      ctx?.v3?.source?.canPublish!==false)
    throw Error('Verified private Catch owner editor required.');
-  return createCatchEditor(ctx,{...options,
+  return createD6DirectCatchEditor(ctx,{...options,
    publishChange:async()=>{throw Error('Legacy GitHub publishing disabled.');},
   });
  }
