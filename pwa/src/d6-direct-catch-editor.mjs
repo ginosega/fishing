@@ -344,7 +344,7 @@ export async function createCatchEditor(ctx,{
   onChange:value=>{notesText=value;updated();},
   knownPaths:()=>ctx.v3.source.files,
   resolveSavedAsset:path=>ctx.asset(path),
-  allowUpload:typeof ctx.v3.stageMedia==='function',
+  allowUpload:false,
   linkMaps:()=>ctx.maps,
   previewOptions:()=>({owner:record.notes||'Catches/content/'+record.id+'.md',
    maps:ctx.maps,pathRoutes:markdownRouteMap(ctx.data),assetBase:ctx.base}),
