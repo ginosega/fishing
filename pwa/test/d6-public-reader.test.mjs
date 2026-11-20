@@ -63,9 +63,11 @@ test('D6-A05 normal V2 Add/Edit remains, candidate hides all editing routes',()=
  const ui=readFileSync(new URL('../src/ui.mjs',import.meta.url),'utf8');
  assert.match(ui,/const readerOnly=ctx.v3\?\.enabled===true&&ctx.v3\?\.readerOnly===true/);
  assert.match(ui,/if\(readerOnly&&!ownerEditorPreview\)return missing\('V3 reader preview is read-only/);
- assert.match(ui,/page.append\(categories,searchResults,\.\.\.\(showEditingLinks\(\)&&!\(gear&&ctx.v3\?\.directGearEnabled===true\)\?\[anchor/);
+  assert.match(ui,/page.append\(categories,searchResults/);
  assert.match(ui,/approvedController\?\.current\(\)\?\.authorized===true/);
- assert.match(ui,/page.append\(list.element,\.\.\.\(showEditingLinks\(\)&&!\(gear&&ctx.v3\?\.directGearEnabled===true\)\?\[anchor/);
+  assert.match(ui,/page.append\(list.element/);
+  const addGate='showEditingLinks()&&!((gear&&ctx.v3?.directGearEnabled===true)||(!gear&&ctx.v3?.directKBEnabled===true))';
+  assert.equal(ui.split(addGate).length-1,2);
  assert.match(ui,/if\(showEditingLinks\(\)\)page.append\(anchor\('Edit item'/);
  assert.match(ui,/viewerImages:readerOnly/);
  assert.match(ui,/if\(readerOnly\)bindMarkdownPictureViewer/);
