@@ -6,6 +6,7 @@
   "workers_dev": true,
   "vars": {
     "D6_DIRECT_GEAR_ENABLED": "true",
+    "D6_DIRECT_KB_ENABLED": "true",
     "D6_PRODUCTION_ENABLED": "true",
     "D6_GATEWAY_ENABLED": "true",
     "D6_ORIGIN": "https://fishing-d6-wp2-test.ginosega.workers.dev",
