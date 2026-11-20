@@ -213,7 +213,20 @@ export async function publishD6MediaRevision({
    ).bind(asset.logicalPath,domain,record.id,asset.sha256,timestamp));
   }
   // Guarantees rollback of content Save + all media rows together.
-  const outcome=await CONTENT_DB.batch(batch);
+  let outcome;
+  try{outcome=await CONTENT_DB.batch(batch);}
+  catch{
+   // A concurrent direct editor can win between preflight and the guarded
+   // transaction. The batch rolled back; recheck exact revision for 409.
+   try{
+    const latest=await CONTENT_DB.prepare(selectSql(d))
+     .bind(record.id).first();
+    if(isNew?Boolean(latest):!latest||
+       latest.revision!==expectedRevision)
+     return {status:409,error:'RECORD_CHANGED'};
+   }catch{/* unverifiable DB state is not a conflict proof */}
+   return {status:503,error:'MEDIA_PUBLISH_UNVERIFIED'};
+  }
   if(!Array.isArray(outcome)||outcome.length!==batch.length||
      outcome.some(x=>x?.success!==true)||
      outcome[0].results?.[0]?.media_guard!==1||
