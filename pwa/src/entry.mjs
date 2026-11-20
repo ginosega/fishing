@@ -3,6 +3,7 @@ import {selectD6PublicReader} from './d6-public-reader.mjs';
 import {createD6OwnerSessionReadiness} from './d6-owner-session-readiness.mjs';
 import {createD6CanonicalSourceClient} from './d6-canonical-authoring-source.mjs';
 import {createD6DirectGearClient} from './d6-direct-gear-client.mjs';
+import {createD6DirectKBClient} from './d6-direct-kb-client.mjs';
 import {installPageHero} from './page-hero.mjs';
 const settings=globalThis.__FISHING_BOOT__;
 installPageHero();
@@ -19,6 +20,8 @@ const d6EditorPreview=typeof __FISHING_D6_OWNER_EDITOR_PREVIEW__!=='undefined'&&
 // A separate private-build flag: disabled by default in every existing build.
 const directGearEnabled=typeof __FISHING_D6_DIRECT_GEAR_SAVE__!=='undefined'&&
  __FISHING_D6_DIRECT_GEAR_SAVE__===true;
+const directKBEnabled=typeof __FISHING_D6_DIRECT_KB_SAVE__!=='undefined'&&
+ __FISHING_D6_DIRECT_KB_SAVE__===true;
 function d6Context(){
  if(!d6Reader)return {};
  const reader=selectD6PublicReader({enabled:true,staticStaging:d6StaticStaging,wp2Staging:d6Wp2Staging,
@@ -54,6 +57,10 @@ function d6Context(){
     settings.release?.d6DirectGearSave!==true||
     settings.manifest?.d6DirectGearSave!==true))
   throw Error('Direct Gear pilot requires verified isolated WP2 build identity');
+ if(directKBEnabled&&(!directGearEnabled||!d6EditorPreview||
+    settings.release?.d6DirectKBSave!==true||
+    settings.manifest?.d6DirectKBSave!==true))
+  throw Error('Direct Knowledge Base requires verified private release identity');
  if(d6EditorPreview&&(!d6OwnerConnection||
     settings.release?.d6OwnerEditorPreview!==true||
     settings.manifest?.d6OwnerEditorPreview!==true))
@@ -62,9 +69,14 @@ function d6Context(){
   root:settings.root,request:(url,options)=>fetch(url,options),
   enabled:()=>true,online:()=>navigator.onLine===true,
  }):null;
+ const directKBClient=directKBEnabled?createD6DirectKBClient({
+  root:settings.root,request:(url,options)=>fetch(url,options),
+  enabled:()=>true,online:()=>navigator.onLine===true,
+ }):null;
  return {v3:{...reader,ownerReadiness,canonicalSource,
   wp2Staging:d6Wp2Staging,ownerConnectionCandidate:d6OwnerConnection,
-  ownerEditorPreview:d6EditorPreview,directGearEnabled,directGearClient}};
+  ownerEditorPreview:d6EditorPreview,directGearEnabled,directGearClient,
+  directKBEnabled,directKBClient}};
 }
 Promise.resolve().then(()=>bootstrap(settings,d6Context())).catch(error=>{
  const main=document.getElementById('app');main.replaceChildren();
