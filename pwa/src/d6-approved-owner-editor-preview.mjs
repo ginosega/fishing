@@ -46,25 +46,34 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
   ctx.v3?.directGearEnabled===true&&
   typeof ctx.v3?.directGearClient?.read==='function'&&
   typeof ctx.v3?.directGearClient?.save==='function';
+ const directKB=domain==='kb'&&Boolean(baseRecord)&&
+  ctx.v3?.directKBEnabled===true&&
+  typeof ctx.v3?.directKBClient?.read==='function'&&
+  typeof ctx.v3?.directKBClient?.save==='function';
+ const directSave=directGear||directKB;
  if(ctx.v3?.directGearEnabled===true&&domain==='gear'&&
     Boolean(baseRecord)&&!directGear)
   throw Error('Direct Gear service unavailable. No edit was submitted.');
+ if(ctx.v3?.directKBEnabled===true&&domain==='kb'&&
+    Boolean(baseRecord)&&!directKB)
+  throw Error('Direct KB service unavailable. No edit was submitted.');
  let directRevision=null,directNotes=null;
- if(directGear){
-  const latest=await ctx.v3.directGearClient.read(baseRecord.id);
+ if(directSave){
+  const latest=await (directGear?ctx.v3.directGearClient:
+   ctx.v3.directKBClient).read(baseRecord.id);
   if(latest.record?.id!==baseRecord.id||
      !Number.isSafeInteger(latest.revision)||latest.revision<1)
-   throw Error('This Gear record could not be verified in D1.');
+   throw Error('This record could not be verified in D1.');
   baseRecord=latest.record;directRevision=latest.revision;
-  directNotes=latest.notes;
+  directNotes=directGear?latest.notes:latest.markdown;
  }
  const onPrepared=null;
  const editing=Boolean(baseRecord),key=domain==='gear'?'notes':'content',record=baseRecord?clone(baseRecord):{id:'',name:'',...(domain==='gear'?{category:category||'lures',type:'',specifications:[],links:[]}:{type:type||'technique',content:''})};
  if(!editing&&domain==='gear')record.type=(record.category==='rods-reels'?ROD_TYPES:record.category==='accessories'?EQUIPMENT_TYPES:TAXONOMY[record.category])[0];
  let baseText='',body='',baseHash=null,mediaAction='keep',fileInfo=null,previewUrl=null,sequenceInfos=[],sequenceUrls=[],prepared=null,savePending=false,saveAccepted=false,notesEditor=null;
- if(directGear||baseRecord?.[key]){
+ if(directSave||baseRecord?.[key]){
   let bytes;
-  if(directGear)bytes=new TextEncoder().encode(directNotes);
+  if(directSave)bytes=new TextEncoder().encode(directNotes);
   else if(ctx.v3?.source?.markdown instanceof Map){
    const text=ctx.v3.source.markdown.get(baseRecord[key]);
    if(typeof text!=='string')
@@ -119,7 +128,7 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
  };
  const dirty=()=>!saveAccepted&&(serialize(record)!==original||body!==initialBody||mediaAction!=='keep');
  function changed(){if(saveAccepted)return;prepared=null;output.replaceChildren();
-  if(directGear)prepareButton.disabled=!dirty();
+  if(directSave)prepareButton.disabled=!dirty();
   onDirty?.(dirty());persistDraft();}
  function update(fieldName,value){optional(record,fieldName,value);changed();}
  function revokeLocal(clearInput=true){if(previewUrl){URL.revokeObjectURL(previewUrl);previewUrl=null;}for(const url of sequenceUrls)URL.revokeObjectURL(url);sequenceUrls=[];fileInfo=null;sequenceInfos=[];if(clearInput)fileInput.value='';}
@@ -290,11 +299,11 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
   form.append(section('Notes',field('Markdown',textArea),previewButton,preview));
  }
  const actionNotice=el('div',{class:'editor-notice editor-action-feedback','aria-live':'assertive'});
- const prepareButton=button(directGear?'Save':'Prepare Changes',()=>form.requestSubmit(),{variant:'primary'});
+ const prepareButton=button(directSave?'Save':'Prepare Changes',()=>form.requestSubmit(),{variant:'primary'});
  form.addEventListener('submit',async event=>{
   event.preventDefault();
   // Even programmatic submissions cannot stage media or send a write.
-  if(ctx.v3?.ownerAuthoringPreview===true&&!directGear)return;
+  if(ctx.v3?.ownerAuthoringPreview===true&&!directSave)return;
   if(savePending||saveAccepted)return;
   savePending=true;prepareButton.disabled=true;
   notice.replaceChildren();actionNotice.replaceChildren();
@@ -335,25 +344,31 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
    if(fileInfo&&candidate.picture.src!==picturePath(domain,candidate,fileInfo.name))throw new Error('The selected file must use its proposed repository path.');
    if(fileInfo&&knownPaths(ctx).has(candidate.picture.src)){const existingFile=knownFiles(ctx).get(candidate.picture.src);if(existingFile.sha256!==fileInfo.sha256&&!['replace-static','replace-with-static'].includes(mediaAction))throw new Error('A different file already exists at this path. Use an explicit replacement.');}
    if(sequenceSet){for(const info of sequenceInfos){const existingFile=knownFiles(ctx).get(info.path);if(existingFile&&existingFile.sha256!==info.sha256&&mediaAction==='add-sequence')throw new Error(`A different file already exists at ${info.path}. Use an explicit replacement.`);}}
-   if(directGear){
-    if(ctx.v3?.directGearCanSave?.()!==true)
+   if(directSave){
+    if((directGear?ctx.v3?.directGearCanSave?.():
+       ctx.v3?.directKBCanSave?.())!==true)
      throw Error('Work Offline or signed out. Save is unavailable; your edit is preserved.');
     if(mediaAction!=='keep'||fileInfo||sequenceSet||notesUploads.length)
      throw Error('New media uploads are not yet available. Your edit is preserved.');
-    const saved=await ctx.v3.directGearClient.save({
+    const saved=directGear?await ctx.v3.directGearClient.save({
      record:candidate,notes:body,expectedRevision:directRevision,
+    }):await ctx.v3.directKBClient.save({
+     record:candidate,markdown:body,expectedRevision:directRevision,
     });
     if(saved?.record?.id!==candidate.id||
        saved.revision!==directRevision+1)
      throw Error('Save was not verified. Your edit is preserved.');
-    // Invalidate the in-memory Gear catalog only after verified D1 Save.
-    try{ctx.v3?.onDirectGearSaved?.();}catch{/* saved row remains authoritative */}
+    try{
+     if(directGear)ctx.v3?.onDirectGearSaved?.();
+     else ctx.v3?.onDirectKBSaved?.();
+    }catch{/* saved row remains authoritative */}
     saveAccepted=true;
     for(const control of form.querySelectorAll('input,select,textarea,button'))
      control.disabled=true;
     actions.replaceChildren(button('Exit',onExit,{variant:'primary'}));
     notice.replaceChildren();actionNotice.replaceChildren();
-    const success='Saved. Your Gear item will show the updated information after reload.';
+    const success=directGear?'Saved. Your Gear item will show the updated information after reload.':
+     'Saved. Your Knowledge Base entry will show the updated information after reload.';
     status(notice,success,'success');
     // The owner may be scrolled below the top notice at the Save action.
     status(actionNotice,success,'success');
@@ -411,8 +426,8 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
  });
  const actions=toolbar(prepareButton,button('Cancel',onBack));
  prepareButton.disabled=true;
- prepareButton.setAttribute('aria-label',directGear?'Save Gear':'Save and Publish unavailable in WP1 preview');
- const blocked=directGear?null:text('p','Editor preview only. Save and Publish is disabled until the secure production publishing pipeline is complete. Your changes have not been submitted.','hint');
+ prepareButton.setAttribute('aria-label',directGear?'Save Gear':directKB?'Save Knowledge Base':'Save and Publish unavailable in WP1 preview');
+ const blocked=directSave?null:text('p','Editor preview only. Save and Publish is disabled until the secure production publishing pipeline is complete. Your changes have not been submitted.','hint');
  form.append(actions,actionNotice);
  host.append(notice,...(blocked?[blocked]:[]),form,output);
  return {element:host,isDirty:dirty,discardDraft,dispose:()=>{revokeLocal();notesEditor?.dispose();},record};
