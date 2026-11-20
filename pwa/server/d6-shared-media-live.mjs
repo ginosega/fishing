@@ -48,7 +48,7 @@ const bytes=t=>new TextEncoder().encode(t).length;
 const entryKey=sha=>'staged/v1/sha256/'+sha;
 const idValid=id=>typeof id==='string'&&id.length<=160&&ID.test(id);
 const acceptedDomain=domain=>Object.hasOwn(DOMAINS,domain);
-const selectSql=d=>\`SELECT id,revision,record_json,\${d.field} FROM \${d.table} WHERE id=?\`;
+const selectSql=d=>`SELECT id,revision,record_json,${d.field} FROM ${d.table} WHERE id=?`;
 
 /** Parse actual Markdown image tokens; a comment/link/plain substring
  * never qualifies an R2 object as linked user content. */
@@ -153,12 +153,12 @@ function validRecord(domain,record,markdown,expectedRevision){
  * updates can commit if concurrent editing has changed the record. */
 function revisionGuardSQL(d,mode){
  const check=mode==='create'?
-  \`NOT EXISTS(SELECT 1 FROM \${d.table} WHERE id=?)\`:
-  \`EXISTS(SELECT 1 FROM \${d.table} WHERE id=? AND revision=?)\`;
+  `NOT EXISTS(SELECT 1 FROM ${d.table} WHERE id=?)`:
+  `EXISTS(SELECT 1 FROM ${d.table} WHERE id=? AND revision=?)`;
  // SQLite json_extract('[invalid',...) always throws malformed JSON.
  // D1.batch guarantees rollback of the entire batch on any SQL failure.
- return \`SELECT json_extract(CASE WHEN \${check}
- THEN '{"ok":1}' ELSE '[invalid' END,'$.ok') AS media_guard\`;
+ return `SELECT json_extract(CASE WHEN ${check}
+ THEN '{"ok":1}' ELSE '[invalid' END,'$.ok') AS media_guard`;
 }
 /**
  * Called only from the source-only owner-authorized HTTP wrapper below.
@@ -194,12 +194,12 @@ export async function publishD6MediaRevision({
   const guard=CONTENT_DB.prepare(revisionGuardSQL(d,isNew?'create':'update'))
    .bind(...(isNew?[record.id]:[record.id,expectedRevision]));
   const content=isNew?
-   CONTENT_DB.prepare(\`INSERT INTO \${d.table}
-    (id,revision,record_json,\${d.field},updated_at)
-    VALUES(?,1,?,?,?)\`).bind(record.id,JSON.stringify(record),markdown,timestamp):
-   CONTENT_DB.prepare(\`UPDATE \${d.table}
-    SET record_json=?,\${d.field}=?,revision=revision+1,updated_at=?
-    WHERE id=? AND revision=?\`)
+   CONTENT_DB.prepare(`INSERT INTO ${d.table}
+    (id,revision,record_json,${d.field},updated_at)
+    VALUES(?,1,?,?,?)`).bind(record.id,JSON.stringify(record),markdown,timestamp):
+   CONTENT_DB.prepare(`UPDATE ${d.table}
+    SET record_json=?,${d.field}=?,revision=revision+1,updated_at=?
+    WHERE id=? AND revision=?`)
     .bind(JSON.stringify(record),markdown,timestamp,record.id,expectedRevision);
   const batch=[guard,content];
   for(const asset of staged){
