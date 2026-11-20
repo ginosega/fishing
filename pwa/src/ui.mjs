@@ -63,7 +63,26 @@ export function createApp(ctx){
   return gearCatalogPending;
  }
  const gearPage=page=>['gear-root','gear-list','gear-detail','gear-edit'].includes(page);
- const ownerEditorGate=ownerEditorPreview&&ctx.v3?.directGearEnabled!==true?
+ // The immutable KB catalog remains the Work Offline fallback.
+ let kbCatalogReady=false,kbCatalogPending=null;
+ async function ensureKBCatalog(){
+  if(ctx.v3?.directKBEnabled!==true||navigator.onLine!==true||
+     offline?.getModeAvailable?.()!==true||offline.getMode()!=='Automatic')return;
+  if(kbCatalogReady)return;
+  if(kbCatalogPending)return kbCatalogPending;
+  kbCatalogPending=(async()=>{
+   const items=await ctx.v3.directKBClient.list();
+   const ids=new Set(ctx.data.kb.entities.map(item=>item.id));
+   if(ids.size!==60||items.some(item=>!ids.has(item.id)))
+    throw Error('Migrated Knowledge Base IDs do not match the frozen library.');
+   const data={...ctx.data,kb:{...ctx.data.kb,entities:items}};
+   const maps=validateRecords(data);
+   ctx.data=data;ctx.maps=maps;kbCatalogReady=true;
+  })().finally(()=>{kbCatalogPending=null;});
+  return kbCatalogPending;
+ }
+ const kbPage=page=>['kb-root','kb-list','kb-detail','kb-edit'].includes(page);
+ const ownerEditorGate=ownerEditorPreview&&ctx.v3?.directGearEnabled!==true&&ctx.v3?.directKBEnabled!==true?
   createD6OwnerEditorPreviewGate({
   root:ctx.root,releaseRevision:ctx.release.sourceRevision,
   ownerReadiness:ctx.v3.ownerReadiness,canonicalSource:ctx.v3.canonicalSource,
@@ -78,7 +97,7 @@ export function createApp(ctx){
  let ownerDeviceDrafts=null;
  async function verifiedPreviewContext(){
   if(!ownerEditorPreview)throw Error('Owner editor preview is unavailable.');
-  const direct=ctx.v3?.directGearEnabled===true;
+  const direct=ctx.v3?.directGearEnabled===true||ctx.v3?.directKBEnabled===true;
   if(!direct&&!ownerEditorGate)throw Error('Owner editor preview is unavailable.');
   let source,data,maps;
   if(direct){
@@ -90,7 +109,7 @@ export function createApp(ctx){
    });
    if(!connected)throw Error('Work Offline: editing is read-only.');
    const owner=await ctx.v3.ownerReadiness.check({readingMode:'Automatic'});
-   if(owner?.state!=='Owner')throw Error('Please sign in to edit Gear.');
+   if(owner?.state!=='Owner')throw Error('Please sign in to edit.');
    source={sourceOnly:true,canPublish:false,files:exists};
    data=ctx.data;maps=ctx.maps;
   }else{
@@ -105,6 +124,8 @@ export function createApp(ctx){
     drafts:ownerDeviceDrafts,
     directGearCanSave:()=>ownerEditingAvailable(),
     onDirectGearSaved:()=>{gearCatalogReady=false;},
+     directKBCanSave:()=>ownerEditingAvailable(),
+     onDirectKBSaved:()=>{kbCatalogReady=false;},
     stageMedia:async()=>{throw Error('New media uploads are not yet enabled.');},
    }};
  }
@@ -131,14 +152,14 @@ export function createApp(ctx){
  function renderRoot(domain){const gear=domain==='gear',rows=gear?GEAR_CATEGORIES:KB_TYPES,all=ctx.data[domain][DOMAIN[domain].array];const page=frame(gear?'My Gear':'Knowledge Base','#/',[],ROOT_SUBTITLES[domain]);
   const searchInput=input('',{type:'search',placeholder:'Search '+(gear?'My Gear':'Knowledge Base')});const searchResults=el('div',{class:'record-grid',hidden:true});const categories=el('div',{class:'nav-grid'},...rows.map(([key,label])=>{const meta=CATEGORY_PRESENTATION[domain][key];const item=card(label,meta.description||'',categoryRoute(domain,key),meta.icon);if(meta.svg)item.querySelector('.card-icon').innerHTML=meta.svg;return item;}));
   searchInput.addEventListener('input',()=>{const q=searchInput.value.trim().toLocaleLowerCase();searchResults.hidden=!q;categories.hidden=Boolean(q);if(!q){searchResults.replaceChildren();return;}const matches=all.filter(r=>[r.name,r.type,r.description,r.manufacturer,r.model].filter(Boolean).join(' ').toLocaleLowerCase().includes(q));searchResults.replaceChildren(...(matches.length?sortNames(matches).map(r=>recordCard(domain,r)):[empty('No matching entries.')]));});
-  searchInput.setAttribute('aria-label','Search '+(gear?'My Gear':'Knowledge Base'));page.querySelector('.page-actions').prepend(searchInput);page.append(categories,searchResults,...(showEditingLinks()&&!(gear&&ctx.v3?.directGearEnabled===true)?[anchor(gear?'Add Gear':'Add Entry',gear?'#/inventory/add/lures':'#/kb/add/technique','page-edit-link')]:[]));return page;
+  searchInput.setAttribute('aria-label','Search '+(gear?'My Gear':'Knowledge Base'));page.querySelector('.page-actions').prepend(searchInput);page.append(categories,searchResults,...(showEditingLinks()&&!((gear&&ctx.v3?.directGearEnabled===true)||(!gear&&ctx.v3?.directKBEnabled===true))?[anchor(gear?'Add Gear':'Add Entry',gear?'#/inventory/add/lures':'#/kb/add/technique','page-edit-link')]:[]));return page;
  }
  function renderList(domain,key){const gear=domain==='gear',rows=gear?GEAR_CATEGORIES:KB_TYPES;const definition=rows.find(x=>x[0]===key);if(!definition)return missing('Unknown category',rootRoute(domain));
   const records=ctx.data[domain][DOMAIN[domain].array].filter(r=>(gear?r.category:r.type)===key);
   const page=frame(definition[1],rootRoute(domain));
   if(!gear&&key==='equipment')page.append(text('p','Equipment, rig, and presentation reference','muted'));
   if(!gear&&key==='technique')page.append(text('p','Strategy, conditions, and species reference','muted'));
-  const list=listControls(domain,records,{title:definition[1],search:gear?key==='lures':key==='equipment',filter:gear,sort:gear?'gear':'name',pinnedId:gear?'':KB_PINNED_FIRST[key]||''});page.querySelector('.page-actions').prepend(...list.controls.children);page.append(list.element,...(showEditingLinks()&&!(gear&&ctx.v3?.directGearEnabled===true)?[anchor(gear?'Add Gear':'Add Entry',gear?`#/inventory/add/${key}`:`#/kb/add/${key}`,'page-edit-link')]:[]));return page;
+  const list=listControls(domain,records,{title:definition[1],search:gear?key==='lures':key==='equipment',filter:gear,sort:gear?'gear':'name',pinnedId:gear?'':KB_PINNED_FIRST[key]||''});page.querySelector('.page-actions').prepend(...list.controls.children);page.append(list.element,...(showEditingLinks()&&!((gear&&ctx.v3?.directGearEnabled===true)||(!gear&&ctx.v3?.directKBEnabled===true))?[anchor(gear?'Add Gear':'Add Entry',gear?`#/inventory/add/${key}`:`#/kb/add/${key}`,'page-edit-link')]:[]));return page;
  }
  function missing(message,parent='#/'){const page=frame('Not found',parent);page.append(empty(message),anchor('Return to the parent page',parent));return page;}
  function appendPicture(page,record,domain){const pic=record.picture;if(!pic)return;const src=ctx.asset(pic.src),caption=pic.caption||'';const activate=record.pictureSequence?.length?()=>openSequenceViewer(record.pictureSequence.map(ctx.asset),record.name,caption):()=>openViewer(src,record.name,caption);page.append(picture(src,pic.caption||record.name,caption,activate));}
@@ -157,11 +178,17 @@ export function createApp(ctx){
  async function renderDetail(domain,id){
   let record=ctx.maps[domain].get(id),directNotes=null;
   if(!record)return missing('This item does not exist or its ID has been retired.',rootRoute(domain));
-  if(domain==='gear'&&ctx.v3?.directGearEnabled===true&&gearCatalogReady&&
+  if((domain==='gear'&&ctx.v3?.directGearEnabled===true&&gearCatalogReady||
+      domain==='kb'&&ctx.v3?.directKBEnabled===true&&kbCatalogReady)&&
      navigator.onLine===true&&offline?.getModeAvailable?.()===true&&
      offline.getMode()==='Automatic'){
-   const current=await ctx.v3.directGearClient.read(id);
-   record=current.record;directNotes=current.notes;
+   if(domain==='gear'){
+    const current=await ctx.v3.directGearClient.read(id);
+    record=current.record;directNotes=current.notes;
+   }else{
+    const current=await ctx.v3.directKBClient.read(id);
+    record=current.record;directNotes=current.markdown;
+   }
   }
   const parent=domain==='catches'?'#/catches':categoryRoute(domain,domain==='gear'?record.category:record.type),page=frame(recordTitle(ctx,domain,record),parent,[],domain==='gear'?categoryLabel(domain,record.category)+' – '+record.type:domain==='kb'?record.description||'':'');
   if(domain==='catches'){
@@ -182,7 +209,9 @@ export function createApp(ctx){
      await markdownContent(record.notes,directNotes)));
    }else await appendMarkdown(page,record.notes,'Notes');
   }else{
-   await appendMarkdown(page,record.content,'Notes');
+   if(directNotes!==null)page.append(section('Notes',
+    await markdownContent(record.content,directNotes)));
+   else await appendMarkdown(page,record.content,'Notes');
   }
   const history=historySection(domain,record);if(history)page.append(history);if(showEditingLinks())page.append(anchor('Edit item',domain==='gear'?`#/inventory/edit/${record.id}`:`#/kb/edit/${record.id}`,'page-edit-link'));return page;
  }
@@ -213,8 +242,10 @@ export function createApp(ctx){
   editor=created;page.append(created.element);return page;
  }
  async function render(){const ticket=++serial;if(offline&&!(await offline.checkCurrent()))return;if(ticket!==serial)return;disposeEditor();route=parseRoute(currentHash);root.replaceChildren(el('div',{class:'loading'},'Loading…'));
-  try{if(gearPage(route.page))await ensureGearCatalog();}
-  catch(error){if(ticket===serial){const page=missing('Unable to load the complete Gear library from D1: '+error.message);page.append(button('Retry',()=>render(),{variant:'primary'}));root.replaceChildren(page);}return;}
+  try{
+   if(gearPage(route.page))await ensureGearCatalog();
+   if(kbPage(route.page))await ensureKBCatalog();
+  }catch(error){if(ticket===serial){const page=missing('Unable to load the complete D1 library: '+error.message);page.append(button('Retry',()=>render(),{variant:'primary'}));root.replaceChildren(page);}return;}
   if(ticket!==serial)return;
   try{let page;
    switch(route.page){case 'home':page=renderHome();break;case 'gear-root':page=renderRoot('gear');break;case 'kb-root':page=renderRoot('kb');break;case 'gear-list':page=renderList('gear',route.category);break;case 'kb-list':page=renderList('kb',route.type);break;case 'gear-detail':page=await renderDetail('gear',route.id);break;case 'kb-detail':page=await renderDetail('kb',route.id);break;case 'catch-list':page=renderCatches();break;case 'catch-detail':page=await renderDetail('catches',route.id);break;
@@ -483,8 +514,9 @@ export function createApp(ctx){
    control.setAttribute('aria-pressed',String(available&&mode===value));
   }
   updateConnection();
-  if(ctx.v3?.directGearEnabled===true&&available&&mode==='Automatic'&&
-     gearPage(route.page)&&!gearCatalogReady&&!dirty())
+  if(available&&mode==='Automatic'&&!dirty()&&
+     (ctx.v3?.directGearEnabled===true&&gearPage(route.page)&&!gearCatalogReady||
+      ctx.v3?.directKBEnabled===true&&kbPage(route.page)&&!kbCatalogReady))
    void render();
   const ownerMode=available?mode:'Checking';
   if(approvedConnection&&ownerMode!==lastOwnerRestoreMode){
