@@ -11,13 +11,15 @@ test('V3-KB-MIG01 original KB source, 60 Markdown and all 154 images',async()=>{
  assert.equal(report.format,'d6-direct-kb-import-v1');
  assert.equal(report.source.kbGitBlobSha1,'39217633803ad3969d710fa8d770197c0e83b2a3');
  assert.deepEqual(report.counts,{records:60,newInserts:60,linkedMarkdown:60,
-  kbImageAssets:154,recordPictureRefs:55,knotSequenceFrames:111});
+  kbImageAssets:154,externalGearImages:8,recordPictureRefs:55,knotSequenceFrames:111});
  assert.deepEqual(report.types,{location:10,species:8,equipment:23,technique:9,knot:10});
  assert.equal(report.records.length,60);
  assert.equal(new Set(report.records.map(r=>r.id)).size,60);
  assert.equal(new Set(report.records.map(r=>r.contentPath)).size,60);
  assert.equal(report.assets.length,154);
  assert.equal(new Set(report.assets.map(x=>x.path)).size,154);
+ assert.equal(report.externalAssets.length,8);
+ assert.equal(report.externalAssets.every(x=>x.path.startsWith('Gear/')),true);
  assert.equal((sql.match(/^INSERT INTO d6_kb_records\(/gm)||[]).length,60);
 });
 test('V3-KB-MIG02 insert-only, no update/delete of prior Gear or KB rows',async()=>{
