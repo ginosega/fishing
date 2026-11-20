@@ -128,15 +128,15 @@ test('V3-MEDIA-STAGE05 rejects invalid content, paths and exaggerated size',asyn
  const f=fixture(),token=await f.token();
  const stage=createD6SharedMediaStage({...f.options,enabled:()=>true});
  const attempts=[
-  {'X-Fish-V3-SHA256':'0'.repeat(64)},
-  {'Content-Type':'image/svg+xml'},
-  {'Content-Type':'image/jpeg'},
-  {'X-Fish-V3-Media-Path':'Catches/elsewhere/evil.png'},
+  [{'X-Fish-V3-SHA256':'0'.repeat(64)},400],
+  [{'Content-Type':'image/svg+xml'},403],
+  [{'Content-Type':'image/jpeg'},400],
+  [{'X-Fish-V3-Media-Path':'Catches/elsewhere/evil.png'},400],
  ];
- for(const change of attempts){
+ for(const [change,expected] of attempts){
   const res=await stage.handle(new Request(uri,{method:'POST',
    headers:{...f.header('catches',token),...change},body:png}));
-  assert.equal(res.status,400);
+  assert.equal(res.status,expected);
  }
  assert.equal(f.writes(),0);
  assert.equal(D6_MEDIA_LIMIT_BYTES,10485760);
