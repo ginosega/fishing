@@ -9,6 +9,8 @@ import {readFile,readdir,stat,writeFile,mkdir} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import Ajv2020 from 'ajv/dist/2020.js';
+import MarkdownIt from 'markdown-it';
+import {resolveMarkdownTarget} from '../src/markdown.mjs';
 import schema from '../contracts/schema.json' with {type:'json'};
 import {KB_TYPES,safePath} from '../src/shared.mjs';
 
@@ -16,6 +18,23 @@ const HERE=path.dirname(fileURLToPath(import.meta.url));
 const ROOT=path.resolve(HERE,'..');
 const FROZEN_KB_BLOB='39217633803ad3969d710fa8d770197c0e83b2a3';
 const IMAGE=/\.(?:jpe?g|png|webp|gif|svg)$/i;
+const markdownParser=new MarkdownIt({html:false,linkify:false});
+function markdownImagePaths(text,owner){
+ const paths=new Set();
+ const visit=tokens=>{for(const token of tokens){
+  if(token.type==='image'){
+   const ref=resolveMarkdownTarget(token.attrGet('src'),{
+    owner,assetBase:'https://example.invalid/fishing/releases/test/',
+   });
+   if(ref.kind==='local')paths.add(ref.local);
+   else requireOK(ref.kind==='external',
+    'Invalid local image in KB Markdown: '+owner);
+  }
+  if(token.children)visit(token.children);
+ }};
+ visit(markdownParser.parse(text,{}));
+ return [...paths];
+}
 const ID=/^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const validate=new Ajv2020({strict:true}).compile({
  $ref:'#/$defs/kbBundle',$defs:schema.$defs,
@@ -105,8 +124,10 @@ export async function prepareD6KBMigration({root=ROOT}={}){
   requireOK(gitBlob(mdBytes)===tree.get(record.content)&&
    Buffer.from(mdBytes.toString('utf8'),'utf8').equals(mdBytes),
    'KB Markdown Git blob or UTF-8 mismatch: '+record.id);
+  const markdown=mdBytes.toString('utf8');
+  const inlineImages=markdownImagePaths(markdown,record.content);
   const pictures=[...(record.picture?.src?[record.picture.src]:[]),
-   ...(record.pictureSequence||[])];
+   ...(record.pictureSequence||[]),...inlineImages];
   for(const pic of pictures){
    if(media.has(pic))continue;
    requireOK(pic.startsWith('Gear/')&&IMAGE.test(pic),
@@ -125,11 +146,11 @@ export async function prepareD6KBMigration({root=ROOT}={}){
   if(record.pictureSequence)requireOK(record.type==='knot'&&
    record.picture?.src===record.pictureSequence.at(-1),
    'Invalid KB knot sequence: '+record.id);
-  const json=JSON.stringify(record),markdown=mdBytes.toString('utf8');
+  const json=JSON.stringify(record);
   records.push({id:record.id,type:record.type,contentPath:record.content,
    recordSha256:hash(Buffer.from(json)),markdownSha256:hash(mdBytes),
    picturePath:record.picture?.src??null,
-   sequencePaths:record.pictureSequence??[]});
+   sequencePaths:record.pictureSequence??[],inlineImagePaths:inlineImages});
   sql.push('INSERT INTO d6_kb_records(id,revision,record_json,content_text,updated_at) VALUES('+
    [quote(record.id),'1',quote(json),quote(markdown),
     "CAST(strftime('%s','now') AS INTEGER)"].join(',')+
