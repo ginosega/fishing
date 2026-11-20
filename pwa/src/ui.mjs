@@ -82,7 +82,26 @@ export function createApp(ctx){
   return kbCatalogPending;
  }
  const kbPage=page=>['kb-root','kb-list','kb-detail','kb-edit'].includes(page);
- const ownerEditorGate=ownerEditorPreview&&ctx.v3?.directGearEnabled!==true&&ctx.v3?.directKBEnabled!==true?
+ const originalCatchIds=new Set(ctx.data.catches.catches.map(x=>x.id));
+ let catchCatalogReady=false,catchCatalogPending=null;
+ async function ensureCatchCatalog(){
+  if(ctx.v3?.directCatchEnabled!==true||navigator.onLine!==true||
+     offline?.getModeAvailable?.()!==true||offline.getMode()!=='Automatic')return;
+  if(catchCatalogReady)return;
+  if(catchCatalogPending)return catchCatalogPending;
+  catchCatalogPending=(async()=>{
+   const items=await ctx.v3.directCatchClient.list();
+   const ids=new Set(items.map(x=>x.id));
+   if(originalCatchIds.size!==12||
+      ![...originalCatchIds].every(id=>ids.has(id)))
+    throw Error('Migrated Catch IDs differ from frozen library.');
+   const data={...ctx.data,catches:{...ctx.data.catches,catches:items}};
+   ctx.maps=validateRecords(data);ctx.data=data;catchCatalogReady=true;
+  })().finally(()=>{catchCatalogPending=null;});
+  return catchCatalogPending;
+ }
+ const catchPage=page=>['catch-list','catch-detail','catch-edit','catch-add'].includes(page);
+ const ownerEditorGate=ownerEditorPreview&&ctx.v3?.directGearEnabled!==true&&ctx.v3?.directKBEnabled!==true&&ctx.v3?.directCatchEnabled!==true?
   createD6OwnerEditorPreviewGate({
   root:ctx.root,releaseRevision:ctx.release.sourceRevision,
   ownerReadiness:ctx.v3.ownerReadiness,canonicalSource:ctx.v3.canonicalSource,
@@ -97,7 +116,7 @@ export function createApp(ctx){
  let ownerDeviceDrafts=null;
  async function verifiedPreviewContext(){
   if(!ownerEditorPreview)throw Error('Owner editor preview is unavailable.');
-  const direct=ctx.v3?.directGearEnabled===true||ctx.v3?.directKBEnabled===true;
+  const direct=ctx.v3?.directGearEnabled===true||ctx.v3?.directKBEnabled===true||ctx.v3?.directCatchEnabled===true;
   if(!direct&&!ownerEditorGate)throw Error('Owner editor preview is unavailable.');
   let source,data,maps;
   if(direct){
@@ -126,6 +145,8 @@ export function createApp(ctx){
     onDirectGearSaved:()=>{gearCatalogReady=false;},
      directKBCanSave:()=>ownerEditingAvailable(),
      onDirectKBSaved:()=>{kbCatalogReady=false;},
+     directCatchCanSave:()=>ownerEditingAvailable(),
+     onDirectCatchSaved:()=>{catchCatalogReady=false;},
     stageMedia:async()=>{throw Error('New media uploads are not yet enabled.');},
    }};
  }
@@ -179,15 +200,19 @@ export function createApp(ctx){
   let record=ctx.maps[domain].get(id),directNotes=null;
   if(!record)return missing('This item does not exist or its ID has been retired.',rootRoute(domain));
   if((domain==='gear'&&ctx.v3?.directGearEnabled===true&&gearCatalogReady||
-      domain==='kb'&&ctx.v3?.directKBEnabled===true&&kbCatalogReady)&&
+      domain==='kb'&&ctx.v3?.directKBEnabled===true&&kbCatalogReady||
+      domain==='catches'&&ctx.v3?.directCatchEnabled===true&&catchCatalogReady)&&
      navigator.onLine===true&&offline?.getModeAvailable?.()===true&&
      offline.getMode()==='Automatic'){
    if(domain==='gear'){
     const current=await ctx.v3.directGearClient.read(id);
     record=current.record;directNotes=current.notes;
-   }else{
+   }else if(domain==='kb'){
     const current=await ctx.v3.directKBClient.read(id);
     record=current.record;directNotes=current.markdown;
+   }else{
+    const current=await ctx.v3.directCatchClient.read(id);
+    record=current.record;directNotes=current.notes;
    }
   }
   const parent=domain==='catches'?'#/catches':categoryRoute(domain,domain==='gear'?record.category:record.type),page=frame(recordTitle(ctx,domain,record),parent,[],domain==='gear'?categoryLabel(domain,record.category)+' – '+record.type:domain==='kb'?record.description||'':'');
@@ -195,7 +220,10 @@ export function createApp(ctx){
    const species=ctx.maps.kb.get(record.speciesId),location=ctx.maps.kb.get(record.locationId),lure=ctx.maps.gear.get(record.lureOrBaitId);
    if(species?.picture)appendPicture(page,{...species,name:species.name},'kb');
    page.append(table([['Date',record.date],...(record.time?[['Time',record.time]]:[]),...(record.size?[['Size',record.size]]:[]),...(species?[['Species',anchor(species.name,routeFor('kb',species.id))]]:[]),...(location?[['Location',anchor(location.name,routeFor('kb',location.id))]]:[]),...(lure?[['Lure or bait',anchor(lure.name,routeFor('gear',lure.id))]]:[])]));
-   await appendMarkdown(page,record.notes,'Notes');
+   if(directNotes!==null){
+    if(record.notes)page.append(section('Notes',
+     await markdownContent(record.notes,directNotes)));
+   }else await appendMarkdown(page,record.notes,'Notes');
    if(ownerEditingAvailable())page.append(anchor('Edit item',`#/catches/edit/${record.id}`,'page-edit-link'));
    return page;
   }
@@ -245,6 +273,10 @@ export function createApp(ctx){
   try{
    if(gearPage(route.page))await ensureGearCatalog();
    if(kbPage(route.page))await ensureKBCatalog();
+   if(catchPage(route.page)||
+      (ctx.v3?.directCatchEnabled===true&&
+       ['gear-detail','kb-detail'].includes(route.page)))
+    await ensureCatchCatalog();
   }catch(error){if(ticket===serial){const page=missing('Unable to load the complete D1 library: '+error.message);page.append(button('Retry',()=>render(),{variant:'primary'}));root.replaceChildren(page);}return;}
   if(ticket!==serial)return;
   try{let page;

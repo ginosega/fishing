@@ -95,8 +95,6 @@ export async function build(){
  ...(d6DirectGearSave?{d6DirectGearSave:true}:{}),
   ...(d6DirectKBSave?{d6DirectKBSave:true}:{}),
   ...(d6DirectCatchSave?{d6DirectCatchSave:true}:{}),
-  ...(d6DirectCatchSave?{d6DirectCatchSave:true}:{}),
-  ...(d6DirectCatchSave?{d6DirectCatchSave:true}:{}),
     ...(d6Wp2Staging?{d6Wp2Staging:true}:{}),cardThumbnails:thumbs?.mapping||null,thumbnailFiles:thumbnailHashes,files:inputHashes,staticArt:staticImageHashes,sourceStaticArt:originalStaticImageHashes,icon:digest(icon),maskableIcon:digest(maskableIcon),app:digest(app.outputFiles[0].contents),css:digest(css),lock:digest(lock),code:codeHashes}))).slice(0,32);
   const releaseRoot=path.join(tmp,'releases',releaseId);await fs.mkdir(releaseRoot,{recursive:true});await fs.rename(content,path.join(releaseRoot,'content'));if(thumbs)await fs.rename(path.join(tmp,'card-thumbnails'),path.join(releaseRoot,'card-thumbnails'));await fs.rename(path.join(tmp,'static-page-artwork','card-icons'),path.join(releaseRoot,'card-icons'));await fs.rename(path.join(tmp,'static-page-artwork','page-hero'),path.join(releaseRoot,'page-hero'));
   await write(path.join(releaseRoot,'app.js'),app.outputFiles[0].contents);await write(path.join(releaseRoot,'styles.css'),css);
@@ -107,6 +105,7 @@ export async function build(){
     ...(d6OwnerEditorPreview?{d6OwnerEditorPreview:true}:{}),
     ...(d6DirectGearSave?{d6DirectGearSave:true}:{}),
   ...(d6DirectKBSave?{d6DirectKBSave:true}:{}),
+  ...(d6DirectCatchSave?{d6DirectCatchSave:true}:{}),
     ...(d6Wp2Staging?{d6Wp2Staging:true}:{})};
   const loader=await fs.readFile(path.join(repo,'pwa/src/loader.js'));
   const index=`<!doctype html>\n<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#11665c"><meta name="description" content="Fishing reference and catch log"><link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icon.png" type="image/png"><link rel="apple-touch-icon" href="./icon.png"><style>${baseCss.toString()}</style><title>Fishing Companion</title><script defer src="./loader.js"></script></head><body><div class="preview-banner"${pendingMedia?'':' hidden'}>V2 preview · Pending media · Production remains unchanged</div><header class="site-header"><div class="header-inner"><a class="brand" data-nav href="#/">Fishing <span>Companion</span></a><button id="connection-status" class="connection-status" type="button" title="Connection status" aria-label="Connection status"><span class="connection-dot" aria-hidden="true"></span></button></div></header><main id="app" class="site-main" tabindex="-1"><p>Loading Fishing Companion…</p></main><aside id="app-notice" class="site-main" aria-live="polite" style="min-height:0;padding-top:0;padding-bottom:0"></aside><dialog id="connection-dialog" class="small-dialog" aria-labelledby="connection-title"><h2 id="connection-title">Connection status</h2><p id="connection-network"></p><div class="offline-panel"><span id="offline-status" class="offline-state" role="status">Offline library not prepared</span><div class="toolbar"><button id="offline-update" class="btn secondary" type="button" disabled>Update offline library</button><button id="offline-reload" class="btn secondary" type="button" disabled>Reload</button></div></div><button id="connection-close" class="btn secondary dialog-close" type="button">Close</button></dialog>${base==='/fishing/v2-preview/'?'<footer class="site-footer"><div class="footer-inner"><span id="release-details"></span></div></footer>':''}</body></html>\n`;
@@ -124,6 +123,7 @@ export async function build(){
     ...(d6OwnerEditorPreview?{d6OwnerEditorPreview:true}:{}),
     ...(d6DirectGearSave?{d6DirectGearSave:true}:{}),
   ...(d6DirectKBSave?{d6DirectKBSave:true}:{}),
+  ...(d6DirectCatchSave?{d6DirectCatchSave:true}:{}),
     ...(d6Wp2Staging?{d6Wp2Staging:true}:{}),files,cardThumbnails:thumbs?.mapping||null,totalBytes:files.reduce((sum,x)=>sum+x.bytes,0),counts:{gear:library.data.gear.items.length,kb:library.data.kb.entities.length,catches:library.data.catches.catches.length},unresolvedMedia:library.pending};
   const manifestBytes=stableJson(manifest);
   await write(path.join(tmp,release.manifest),manifestBytes);

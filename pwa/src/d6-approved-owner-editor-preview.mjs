@@ -439,6 +439,15 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
  * including programmatic submit events; no publishing callback is reachable.
  */
 export async function createD6ApprovedCatchPreview(ctx,options={}){
+ if(ctx?.v3?.directCatchEnabled===true){
+  if(ctx?.v3?.ownerAuthoringPreview!==true||
+     ctx?.v3?.source?.sourceOnly!==true||
+     ctx?.v3?.source?.canPublish!==false)
+   throw Error('Verified private Catch owner editor required.');
+  return createCatchEditor(ctx,{...options,
+   publishChange:async()=>{throw Error('Legacy GitHub publishing disabled.');},
+  });
+ }
  if(ctx?.v3?.ownerAuthoringPreview!==true||
     ctx?.v3?.source?.sourceOnly!==true||
     ctx?.v3?.source?.canPublish!==false)
