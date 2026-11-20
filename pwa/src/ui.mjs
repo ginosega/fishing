@@ -4,6 +4,7 @@ import {TAXONOMY,validateRecords} from './validation.mjs';
 import {createD6OwnerEditorPreviewGate} from './d6-owner-editor-preview-gate.mjs';
 import {createD6ApprovedEditorPreview,createD6ApprovedCatchPreview} from './d6-approved-owner-editor-preview.mjs';
 import {createD6OwnerDeviceDraftStore} from './d6-owner-device-drafts.mjs';
+import {DIRECT_D1_MEDIA_CAPABILITIES} from './d6-owner-media-capabilities.mjs';
 import {parseMarkdown,sanitizeHtml,markdownRouteMap} from './markdown.mjs';
 import {createEditor} from './editor.mjs';
 import {openViewer,openSequenceViewer} from './viewer.mjs';
@@ -147,7 +148,7 @@ export function createApp(ctx){
      onDirectKBSaved:()=>{kbCatalogReady=false;},
      directCatchCanSave:()=>ownerEditingAvailable(),
      onDirectCatchSaved:()=>{catchCatalogReady=false;},
-    stageMedia:async()=>{throw Error('New media uploads are not yet enabled.');},
+    mediaCapabilities:DIRECT_D1_MEDIA_CAPABILITIES,
    }};
  }
  function notify(message,kind='info'){status(alertHost,message,kind);}

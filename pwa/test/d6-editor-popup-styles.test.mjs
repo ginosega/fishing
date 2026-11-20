@@ -28,10 +28,13 @@ test('V3-UX-POP03 lure Choose has spacing and edit actions have consistent layou
 test('V3-UX-POP04 Catch exposes unsupported media honestly, never activates upload',()=>{
  const catchSource=read('d6-direct-catch-editor.mjs');
  const approved=read('notes-markdown-editor.mjs');
- assert.match(catchSource,/allowUpload:false/);
- assert.match(catchSource,/const unavailable=insertImage\.cloneNode\(true\)/);
- assert.match(catchSource,/unavailable\.hidden=false;unavailable\.disabled=true/);
- assert.match(catchSource,/New Catch image uploads are not yet available/);
+ assert.match(catchSource,/allowUpload:ctx\.v3\?\.mediaCapabilities\?\.canUploadNewImages===true/);
+ assert.match(catchSource,/presentD6OwnerImageCapability\(notesEditor\.element/);
+ const gearKB=read('d6-approved-owner-editor-preview.mjs');
+ assert.match(gearKB,/presentD6OwnerImageCapability\(notesEditor\.element/);
+ const policy=read('d6-owner-media-capabilities.mjs');
+ assert.match(policy,/unavailable\.hidden=false;unavailable\.disabled=true/);
+ assert.match(policy,/New image uploads are not yet available/);
  assert.match(approved,/imageButton\.hidden=!allowUpload/);
  assert.match(approved,/imageButton\.disabled=showPreview/);
 });

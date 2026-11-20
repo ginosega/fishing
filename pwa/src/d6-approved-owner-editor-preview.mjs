@@ -13,6 +13,8 @@ import {changePackageClipboardText} from './change-prompt.mjs';
 import {openViewer,openSequenceViewer} from './viewer.mjs';
 import {validateBrowserImage} from './image-validation.mjs';
 import {createNotesMarkdownEditor} from './notes-markdown-editor.mjs';
+import {DIRECT_D1_MEDIA_CAPABILITIES,presentD6OwnerImageCapability}
+ from './d6-owner-media-capabilities.mjs';
 import {draftNotesPreviewOptions} from './editor-preview.mjs';
 import {restoreD5EditorDraft,saveD5EditorDraft} from './d5-editor-recovery.mjs';
 
@@ -240,7 +242,7 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
   if(domain==='kb'&&record.type!=='knot'&&record.pictureSequence)pictureInfo.append(text('p','This entry still has a step-by-step sequence. Replace it with a single picture, keep only its representative picture, or remove the picture before preparing changes.','notice warning'));
   const fileLabel=sequenceMode?'Choose local pictures':'Choose a local picture';
   pictureHost.replaceChildren(field('Picture action',pictureSelect),pictureInfo,field(fileLabel,fileInput,ctx.v3?.stageMedia?(sequenceMode?'Select the complete step-01, step-02, ... sequence. Original files will upload with Save and Publish.':'The original file will upload with Save and Publish.'):(sequenceMode?'Select the complete sequence; files must be named step-01, step-02, ... and manually uploaded to the repository.':'File must be manually uploaded to repository')),field('Repository picture path',picturePathInput),field('Caption (optional)',captionInput));
-  if(publishChange&&!ctx.v3?.stageMedia){
+  if(publishChange&&ctx.v3?.mediaCapabilities?.canUploadNewImages!==true){
    // Image actions remain unavailable until authenticated D4 staging is enabled.
    // Hide the obsolete v2 manual-upload suggestion in the gated UI.
    for(const control of [pictureSelect,fileInput,picturePathInput,captionInput])
@@ -256,13 +258,16 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
   notesEditor=createNotesMarkdownEditor({
    domain,getRecord:()=>record,value:body,label:'Markdown',
    onChange:value=>{body=value;changed();},
-   knownPaths:()=>knownPaths(ctx),allowUpload:typeof ctx.v3?.stageMedia==='function',
+   knownPaths:()=>knownPaths(ctx),
+   allowUpload:ctx.v3?.mediaCapabilities?.canUploadNewImages===true,
    resolveSavedAsset:path=>ctx.asset(path),
    linkMaps:()=>ctx.maps,
    // Preview must remain available while a new record's required fields are
    // incomplete. Save and Publish retains full validateRecords/validateRecord.
    previewOptions:()=>draftNotesPreviewOptions(ctx,domain,record),
   });
+  presentD6OwnerImageCapability(notesEditor.element,
+   ctx.v3?.mediaCapabilities??DIRECT_D1_MEDIA_CAPABILITIES);
   // V3-only enhancement: retain the exact accepted D5 Notes component.
   // A visible-text button has no image alt text; keep its accessible name
   // and hover description in sync when Preview toggles to Edit.
