@@ -50,7 +50,7 @@ function fixture(){
  });
  const header=(domain,csrf,withCookie=true)=>({
   Origin:origin,'Sec-Fetch-Site':'same-origin',
-  ...(withCookie?Cookie:undefined),
+  ...(withCookie?{Cookie:cookie}:{}),
   'Content-Type':'image/png','X-Fish-V3-Intent':'stage-media',
   'X-Fish-V3-CSRF':csrf,
   'X-Fish-V3-Media-Domain':domain,
