@@ -84,6 +84,9 @@ export async function prepareD6KBMigration({root=ROOT}={}){
  }
  requireOK(images.length===154,'Original KB image count differs');
  const media=new Map(images.map(x=>[x.path,x]));
+ // Eight existing KB pictures intentionally point at Gear images. Preserve
+ // those valid cross-domain references, never duplicate their bytes in KB.
+ const externalMedia=new Map();
  const ids=new Set(),contents=new Set(),records=[],sql=[];
  const types=Object.fromEntries(KB_TYPES.map(([id])=>[id,0]));
  for(const record of bundle.entities){
@@ -104,8 +107,21 @@ export async function prepareD6KBMigration({root=ROOT}={}){
    'KB Markdown Git blob or UTF-8 mismatch: '+record.id);
   const pictures=[...(record.picture?.src?[record.picture.src]:[]),
    ...(record.pictureSequence||[])];
-  for(const pic of pictures)requireOK(media.has(pic),
-   'KB image / knot sequence frame missing: '+record.id+' / '+pic);
+  for(const pic of pictures){
+   if(media.has(pic))continue;
+   requireOK(pic.startsWith('Gear/')&&IMAGE.test(pic),
+    'KB picture points outside approved content folders: '+record.id+' / '+pic);
+   if(!externalMedia.has(pic)){
+    const sourceBytes=gitBytes(root,pic);
+    const local=path.resolve(root,...safePath(pic).split('/'));
+    requireOK(local.startsWith(root+path.sep)&&
+     (await stat(local)).isFile()&&
+     gitBlob(await readFile(local))===gitBlob(sourceBytes),
+     'Cross-domain KB/Gear picture differs from Git: '+pic);
+    externalMedia.set(pic,{path:pic,sha256:hash(sourceBytes),
+     bytes:sourceBytes.length});
+   }
+  }
   if(record.pictureSequence)requireOK(record.type==='knot'&&
    record.picture?.src===record.pictureSequence.at(-1),
    'Invalid KB knot sequence: '+record.id);
@@ -124,10 +140,12 @@ export async function prepareD6KBMigration({root=ROOT}={}){
  const report={format:'d6-direct-kb-import-v1',
   source:{kbGitBlobSha1:catalogBlob,kbSha256:hash(catalog)},
   counts:{records:60,newInserts:60,linkedMarkdown:60,
-   kbImageAssets:images.length,
+   kbImageAssets:images.length,externalGearImages:externalMedia.size,
    recordPictureRefs:records.filter(x=>x.picturePath).length,
    knotSequenceFrames:records.reduce((a,x)=>a+x.sequencePaths.length,0)},
   types,records,assets:images,
+  externalAssets:[...externalMedia.values()].sort((a,b)=>
+   a.path.localeCompare(b.path,'en')),
  };
  const generated=[
   '-- FISH-TODO-118: original 60 KB entries; SOURCE ONLY until explicit owner approval.',
