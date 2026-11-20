@@ -349,6 +349,21 @@ export async function createCatchEditor(ctx,{
   previewOptions:()=>({owner:record.notes||'Catches/content/'+record.id+'.md',
    maps:ctx.maps,pathRoutes:markdownRouteMap(ctx.data),assetBase:ctx.base}),
  });
+ // The accepted Notes editor hides Insert Image when uploads are not
+ // supported. Keep its live upload action hidden. Show a non-interactive,
+ // explicitly disabled copy so this limitation is discoverable in Catch UI.
+ const insertImage=notesEditor.element.querySelector(
+  '.notes-toolbar [aria-label="Insert Image"]');
+ if(insertImage){
+  const unavailable=insertImage.cloneNode(true);
+  unavailable.hidden=false;unavailable.disabled=true;
+  unavailable.setAttribute('title','New Catch image uploads are not available yet');
+  unavailable.setAttribute('aria-label','Insert Image unavailable');
+  insertImage.before(unavailable);
+  notesEditor.element.querySelector('.notes-toolbar')?.after(
+   el('p',{class:'hint notes-upload-limitation',role:'note'},
+    'New Catch image uploads are not yet available. Existing Notes pictures remain visible.'));
+ }
   const submit=el('button',{type:'submit',class:'btn primary'},directCatch?'Save':'Save and Publish');
  const actions=toolbar(submit,button('Cancel',onBack));
  form.append(
