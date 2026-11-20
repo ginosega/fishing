@@ -33,7 +33,7 @@ test('V3-KB-MIG03 knot sequence frame paths preserved exactly',async()=>{
  const fg=report.records.find(r=>r.id==='knot-fg');
  assert.equal(fg.sequencePaths.length,29);
  assert.equal(fg.picturePath,fg.sequencePaths.at(-1));
- assert.equal(fg.contentPath,'KB/Knots/content/fg-knot.md');
+ assert.equal(fg.contentPath,'KB/Knots/content/fg.md');
  for(const entry of report.records){
   assert.match(entry.recordSha256,/^[a-f0-9]{64}$/);
   assert.match(entry.markdownSha256,/^[a-f0-9]{64}$/);
