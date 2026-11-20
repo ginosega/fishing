@@ -2,7 +2,7 @@
 
 Last reconciled (UTC): **2026-11-20 (Nov 19 Pacific) — V3 GEAR PRIVATE END-TO-END OWNER ACCEPTED; NEXT: KNOWLEDGE BASE.** The owner-approved simple direct-D1 Save/read architecture [ADR-0011](decisions/records/ADR-0011.md) is active. Existing private Worker and OAuth reused; 99 new Gear rows imported into the existing D1, all 100 Gear records and linked Notes/media reconciled, and owner Windows Edge/Android browsing plus controlled Save→reload→restore accepted. The earlier GitHub per-edit publisher/watchdog/scheduler remains frozen. **Public V2 unchanged; public V3 cutover and app merge NOT approved.** Current source, hosted and owner receipts in [issue #377](https://github.com/ginosega/fishing/issues/377#issuecomment-7026086639); next actions and approvals in [WORK_QUEUE.md](WORK_QUEUE.md).
 
-**Earlier private D5 history (not current V3 authority):** [D5 owner acceptance](https://github.com/ginosega/fishing/issues/357) and [Android/Save evidence](https://github.com/ginosega/fishing/issues/341) were private sandbox checks, not current production permission. Their approved UX and draft protections were reused in the new direct-D1 Gear implementation; [prototype #263](https://github.com/ginosega/fishing/pull/263) stays draft.
+Source baseline: **Earlier private D5 history (not current V3 authority):** [D5 owner acceptance](https://github.com/ginosega/fishing/issues/357) and [Android/Save evidence](https://github.com/ginosega/fishing/issues/341) were private sandbox checks, not current production permission. Their approved UX and draft protections were reused in the new direct-D1 Gear implementation; [prototype #263](https://github.com/ginosega/fishing/pull/263) stays draft.
 
 ## Environments
 
