@@ -78,7 +78,7 @@ test('V3-GEAR-LIST04 online and offline safeguards and no misleading Add Gear',(
  assert.match(ui,/offline\.getMode\(\)!=='Automatic'/);
  assert.match(ui,/ctx\.data=data;ctx\.maps=maps;gearCatalogReady=true/);
  assert.match(ui,/onDirectGearSaved:\(\)=>\{gearCatalogReady=false;\}/);
- assert.match(ui,/showEditingLinks\\(\\)\\&\\&!\\(\\(gear\\&\\&ctx\\.v3\\?\\.directGearEnabled===true/);
- assert.match(ui,/!gear\\&\\&ctx\\.v3\\?\\.directKBEnabled===true/);
+ assert.match(ui,/showEditingLinks\(\)\&\&!\(\(gear\&\&ctx\.v3\?\.directGearEnabled===true/);
+ assert.match(ui,/!gear\&\&ctx\.v3\?\.directKBEnabled===true/);
  assert.match(ui,/navigator\.onLine===true&&offline\?\.getModeAvailable\?\.\(\)===true&&/);
 });
