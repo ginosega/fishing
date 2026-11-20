@@ -1,0 +1,81 @@
+/** Direct owner-only KB Save/read; same-origin browser cookie, existing Worker. */
+const ID=/^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const CSRF=/^[A-Za-z0-9_-]{43}$/;
+const error=(message,code)=>Object.assign(new Error(message),{code});
+export function createD6DirectKBClient({
+ root,request,enabled=()=>false,online=()=>true,
+}={}){
+ let app;try{app=new URL(root);}catch{throw Error('DIRECT_KB_ORIGIN_DENIED');}
+ const local=app.protocol==='http:'&&
+  ['localhost','127.0.0.1','[::1]'].includes(app.hostname);
+ if((app.protocol!=='https:'&&!local)||app.pathname!=='/fishing/'||
+    app.search||app.hash||app.username||app.password||
+    typeof request!=='function'||typeof enabled!=='function'||
+    typeof online!=='function')throw Error('DIRECT_KB_ORIGIN_DENIED');
+ const endpoint=app.origin+'/api/v3/content/';
+ const ready=()=>enabled()===true&&online()===true;
+ const idOK=id=>typeof id==='string'&&id.length<=160&&ID.test(id);
+ async function readJSON(url,options){
+  let response;
+  try{response=await request(url,{...options,credentials:'same-origin',
+   cache:'no-store',redirect:'manual'});}
+  catch{throw error('Unable to reach Fishing Companion. Your edit is preserved.','UNAVAILABLE');}
+  if(!(response instanceof Response)||response.redirected||
+     (response.url&&response.url!==url)||
+     !/^application\/json\b/i.test(response.headers.get('Content-Type')??''))
+   throw error('Result could not be verified. Your edit is preserved.','UNVERIFIED');
+  if(response.status===404)
+   throw error('This KB entry has not been imported into D1 yet.','NOT_FOUND');
+  if(response.status===409)
+   throw error('This KB entry changed since you opened it. Your edit is preserved. Reload before saving.','CONFLICT');
+  if(response.status===401||response.status===403)
+   throw error('Please sign in again. Your edit is preserved.','SIGN_IN_REQUIRED');
+  if(response.status!==200)
+   throw error('The KB entry is unavailable or was not saved. Your edit is preserved.','UNAVAILABLE');
+  let data;try{data=await response.json();}catch{
+   throw error('Result could not be independently verified.','UNVERIFIED');
+  }
+  if(!data||data.ok!==true)throw error('Save was not confirmed.','UNVERIFIED');
+  return data;
+ }
+ async function list(){
+  if(!ready())throw error('Knowledge Base unavailable.','UNAVAILABLE');
+  const data=await readJSON(endpoint+'kb',{method:'GET',
+   headers:{Accept:'application/json'}});
+  if(data.count!==60||!Array.isArray(data.items)||data.items.length!==60||
+     new Set(data.items.map(x=>x?.id)).size!==60||
+     data.items.some(x=>!idOK(x?.id)))
+   throw error('The complete Knowledge Base could not be verified.','UNVERIFIED');
+  return data.items;
+ }
+ async function read(id){
+  if(!ready()||!idOK(id))throw error('KB editing unavailable.','UNAVAILABLE');
+  const data=await readJSON(endpoint+'kb/'+encodeURIComponent(id),{
+   method:'GET',headers:{Accept:'application/json'}});
+  if(data.record?.id!==id||!Number.isSafeInteger(data.revision)||
+     data.revision<1||typeof data.markdown!=='string')
+   throw error('KB entry could not be verified.','UNVERIFIED');
+  return {record:data.record,markdown:data.markdown,revision:data.revision};
+ }
+ async function save({record,markdown,expectedRevision}={}){
+  if(!ready()||!idOK(record?.id)||!Number.isSafeInteger(expectedRevision)||
+     expectedRevision<1||typeof markdown!=='string'||!markdown.trim())
+   throw error('KB edit is not ready for Save.','UNAVAILABLE');
+  const csrf=await readJSON(endpoint+'kb-csrf',{method:'GET',
+   headers:{Accept:'application/json','X-Fish-V3-Intent':'kb-csrf'}});
+  if(!CSRF.test(csrf.csrfToken??''))
+   throw error('Owner session not verified.','SIGN_IN_REQUIRED');
+  const id=record.id;
+  const data=await readJSON(endpoint+'kb/'+encodeURIComponent(id),{
+   method:'POST',
+   headers:{Accept:'application/json','Content-Type':'application/json',
+    'X-Fish-V3-Intent':'save-kb','X-Fish-V3-CSRF':csrf.csrfToken},
+   body:JSON.stringify({record,markdown,expectedRevision}),
+  });
+  if(data.record?.id!==id||data.revision!==expectedRevision+1||
+     typeof data.markdown!=='string')
+   throw error('Save was not independently verified.','UNVERIFIED');
+  return {record:data.record,markdown:data.markdown,revision:data.revision};
+ }
+ return Object.freeze({read,save,list});
+}
