@@ -8,9 +8,9 @@
  */
 import Ajv2020 from 'ajv/dist/2020.js';
 import schema from '../contracts/schema.json' with {type:'json'};
-import MarkdownIt from 'markdown-it';
 import {ID_PATTERN,encodedPath,safePath} from '../src/shared.mjs';
-import {noteImageReference} from '../src/notes-markdown-editor.mjs';
+import {isD6NotesImageLinked} from '../src/d6-notes-image-link.mjs';
+export {isD6NotesImageLinked} from '../src/d6-notes-image-link.mjs';
 import {saveD6ContentRevision} from './d6-content-save-transaction.mjs';
 import {validateD6MediaPath,D6_MEDIA_LIMIT_BYTES}
  from './d6-shared-media-stage.mjs';
@@ -36,7 +36,6 @@ const DOMAINS=Object.freeze({
 const ajv=new Ajv2020({strict:true});
 const validators=Object.fromEntries(Object.entries(DOMAINS).map(([key,item])=>
  [key,ajv.compile({$ref:'#/$defs/'+item.schema,$defs:schema.$defs})]));
-const parser=new MarkdownIt({html:false,linkify:false,typographer:false});
 const jsonHeaders={
  'Content-Type':'application/json; charset=utf-8',
  'Cache-Control':'private, no-store, max-age=0',
@@ -53,25 +52,6 @@ const idValid=id=>typeof id==='string'&&id.length<=160&&ID.test(id);
 const acceptedDomain=domain=>Object.hasOwn(DOMAINS,domain);
 const selectSql=d=>`SELECT id,revision,record_json,${d.field} FROM ${d.table} WHERE id=?`;
 
-/** Parse actual Markdown image tokens; a comment/link/plain substring
- * never qualifies an R2 object as linked user content. */
-export function isD6NotesImageLinked(markdown,logicalPath){
- if(typeof markdown!=='string'||typeof logicalPath!=='string')return false;
- let wanted;
- try{wanted=noteImageReference(safePath(logicalPath));}
- catch{return false;}
- try{
-  const tokens=parser.parse(markdown,{});
-  const stack=[...tokens];
-  while(stack.length){
-   const token=stack.pop();
-   if(token.children)stack.push(...token.children);
-   if(token.type==='image'&&token.attrGet('src')===wanted&&
-      token.content?.trim())return true;
-  }
- }catch{return false;}
- return false;
-}
 function decodeLivePath(pathname){
  if(!pathname.startsWith(READ_PREFIX))return null;
  const encoded=pathname.slice(READ_PREFIX.length);
