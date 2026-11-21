@@ -15,6 +15,7 @@ import {validateBrowserImage} from './image-validation.mjs';
 import {createNotesMarkdownEditor} from './notes-markdown-editor.mjs';
 import {DIRECT_D1_MEDIA_CAPABILITIES,presentD6OwnerImageCapability}
  from './d6-owner-media-capabilities.mjs';
+import {saveD6OwnerEditorMedia} from './d6-owner-media-editor-save.mjs';
 import {draftNotesPreviewOptions} from './editor-preview.mjs';
 import {restoreD5EditorDraft,saveD5EditorDraft} from './d5-editor-recovery.mjs';
 
@@ -354,13 +355,32 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
     if((directGear?ctx.v3?.directGearCanSave?.():
        ctx.v3?.directKBCanSave?.())!==true)
      throw Error('Work Offline or signed out. Save is unavailable; your edit is preserved.');
-    if(mediaAction!=='keep'||fileInfo||sequenceSet||notesUploads.length)
-     throw Error('New media uploads are not yet available. Your edit is preserved.');
-    const saved=directGear?await ctx.v3.directGearClient.save({
-     record:candidate,notes:body,expectedRevision:directRevision,
-    }):await ctx.v3.directKBClient.save({
-     record:candidate,markdown:body,expectedRevision:directRevision,
-    });
+    const wantsMedia=mediaAction!=='keep'||fileInfo||sequenceSet||notesUploads.length;
+    // Browser media integration remains unreachable on the current Worker:
+    // its immutable DIRECT_D1_MEDIA_CAPABILITIES deny upload and no
+    // coordinator is installed. Never fall back to text Save for media edits.
+    let saved;
+    if(wantsMedia){
+     const uploads=sequenceSet?
+      sequenceInfos.map(x=>({path:x.path,file:x.file,role:'knot-step'})):
+      fileInfo?[{path:candidate.picture?.src,file:fileInfo.file,role:'cover'}]:[];
+     uploads.push(...notesUploads.map(x=>({
+      path:x.path,file:x.file,role:'notes',
+     })));
+     if(mediaAction!=='keep'&&!fileInfo&&!sequenceSet)
+      throw Error('Picture removal requires the verified media service. Your edit is preserved.');
+     saved=await saveD6OwnerEditorMedia({
+      domain,record:candidate,markdown:body,expectedRevision:directRevision,
+      uploads,capabilities:ctx.v3?.mediaCapabilities,
+      coordinator:ctx.v3?.ownerMediaCoordinator,
+     });
+    }else{
+     saved=directGear?await ctx.v3.directGearClient.save({
+      record:candidate,notes:body,expectedRevision:directRevision,
+     }):await ctx.v3.directKBClient.save({
+      record:candidate,markdown:body,expectedRevision:directRevision,
+     });
+    }
     if(saved?.record?.id!==candidate.id||
        saved.revision!==directRevision+1)
      throw Error('Save was not verified. Your edit is preserved.');
