@@ -48,15 +48,29 @@ function contentWrite(db,spec,domain,record,markdown,rev,time){
   'INSERT INTO d6_catch_records(id,revision,record_json,notes_text,updated_at) VALUES(?,1,?,?,?) ON CONFLICT(id) DO NOTHING'
  ).bind(id,json,markdown,time);
 }
-function revisionGuard(db,spec,id,rev){
+function revisionGuard(db,spec,domain,record,rev){
  // A failing constraint forces Cloudflare D1.batch to roll back every
- // statement. A simple zero-row UPDATE would NOT roll back media refs.
- const check=rev===0?
-  `NOT EXISTS(SELECT 1 FROM ${spec.table} WHERE id=?)`:
-  `EXISTS(SELECT 1 FROM ${spec.table} WHERE id=? AND revision=?)`;
+ // statement. A zero-row insert/UPDATE alone would NOT roll back media refs.
+ // New Gear/KB Add must also fence canonical Markdown-path aliases BEFORE
+ // any media-object/ref insertion, in the same atomic transaction.
+ const id=record.id;
+ let check,params;
+ if(rev!==0){
+  check=`EXISTS(SELECT 1 FROM ${spec.table} WHERE id=? AND revision=?)`;
+  params=[id,rev];
+ }else{
+  check=`NOT EXISTS(SELECT 1 FROM ${spec.table} WHERE id=?)`;
+  params=[id];
+  if(domain==='gear'||domain==='kb'){
+   const field=domain==='gear'?'notes':'content';
+   const path=record[field]??null;
+   check+=` AND (? IS NULL OR NOT EXISTS (SELECT 1 FROM ${spec.table} WHERE json_extract(record_json,'$.${field}')=?))`;
+   params.push(path,path);
+  }
+ }
  return db.prepare(
   `SELECT json_extract(CASE WHEN ${check} THEN '{"ok":1}' ELSE '[invalid' END,'$.ok') AS media_guard`
- ).bind(...(rev===0?[id]:[id,rev]));
+ ).bind(...params);
 }
 function stagedOK(assets){
  if(!Array.isArray(assets)||assets.length>32)return false;
@@ -100,7 +114,7 @@ export async function saveD6ContentRevision({
   const write=contentWrite(CONTENT_DB,spec,domain,record,
    markdown,expectedRevision,time);
   if(isMedia){
-   const guard=revisionGuard(CONTENT_DB,spec,id,expectedRevision);
+   const guard=revisionGuard(CONTENT_DB,spec,domain,record,expectedRevision);
    const batch=[guard,write];
    for(const item of media){
     batch.push(CONTENT_DB.prepare(
