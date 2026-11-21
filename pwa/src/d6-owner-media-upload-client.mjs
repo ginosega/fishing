@@ -29,7 +29,9 @@ export function createD6OwnerMediaUploadCoordinator({
     typeof readingMode!=='function')
   throw fail('INVALID_ORIGIN','Invalid media client configuration');
  const origin=app.origin,content=origin+'/api/v3/content/',
-  media=origin+'/api/v3/media/',receipts=new Map();
+  media=origin+'/api/v3/media/',receipts=new Map(),
+  stagePending=new Set(),stageAttempted=new Set(),
+  publishAttempted=new Set();
  const ready=()=>enabled()===true&&readingMode()==='Automatic';
  function guard(){if(!ready())throw fail('DISABLED','Media upload is not enabled');}
  async function json(url,options){
@@ -67,10 +69,16 @@ export function createD6OwnerMediaUploadCoordinator({
   if(!type||!file||typeof file.arrayBuffer!=='function'||
      typeof file.name!=='string'||mime(file.name)!==type)
    throw fail('INVALID','Image file does not match its intended path');
-  if(receipts.has(owner.logicalPath))
-   throw fail('DUPLICATE','Image already staged in this edit');
+  if(receipts.has(owner.logicalPath)||stagePending.has(owner.logicalPath)||
+     stageAttempted.has(owner.logicalPath))
+   throw fail('DUPLICATE','Image already staged or upload outcome unresolved');
+  stagePending.add(owner.logicalPath);
+  try{
   const image=await validateBrowserImage(file);
   const token=await csrf(domain);
+  // A network failure after this point may conceal a successful R2 stage.
+  // Never retry this logical path without an independent reconciliation.
+  stageAttempted.add(owner.logicalPath);
   const data=await json(media+'stage',{method:'POST',body:file,
    headers:{Accept:'application/json','Content-Type':type,
     'X-Fish-V3-Intent':'stage-media','X-Fish-V3-CSRF':token,
@@ -93,6 +101,7 @@ export function createD6OwnerMediaUploadCoordinator({
    bytes:image.bytes,contentType:type});
   receipts.set(receipt.logicalPath,receipt);
   return receipt;
+  }finally{stagePending.delete(owner.logicalPath);}
  }
  function manifest(domain,record,staged){
   if(!DOMAIN[domain]||typeof record?.id!=='string'||
@@ -122,6 +131,11 @@ export function createD6OwnerMediaUploadCoordinator({
      expectedRevision<0)throw fail('INVALID','Invalid revision or Markdown');
   const files=manifest(domain,record,staged),config=DOMAIN[domain];
   const token=await csrf(domain);
+  // A lost D1 acknowledgement is ambiguous: do not submit a second Save
+  // even while retaining the original receipts for explicit recovery.
+  if(staged.some(x=>publishAttempted.has(x)))
+   throw fail('UNVERIFIED','Earlier publish attempt requires reconciliation');
+  for(const x of staged)publishAttempted.add(x);
   const data=await json(media+'publish',{method:'POST',
    headers:{Accept:'application/json','Content-Type':'application/json',
     'X-Fish-V3-CSRF':token,'X-Fish-V3-Media-Domain':domain,
