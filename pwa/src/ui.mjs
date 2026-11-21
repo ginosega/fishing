@@ -43,13 +43,17 @@ export function createApp(ctx){
  const approvedConnection=readerOnly&&ctx.v3?.ownerConnectionCandidate===true;
  const ownerEditorPreview=approvedConnection&&ctx.v3?.ownerEditorPreview===true;
  const root=document.getElementById('app'),alertHost=document.getElementById('app-notice'),offlineHost=document.getElementById('offline-status');
- const frozenGearIds=new Set(ctx.data.gear.items.map(x=>x.id));
- const frozenKBIds=new Set(ctx.data.kb.entities.map(x=>x.id));
+ // The original release IDs are a migration fallback guard, NOT an online
+ // catalog dependency when all three records were verified directly in D1.
+ const frozenGearIds=ctx.v3?.contentSource==='d1'?null:
+  new Set(ctx.data.gear.items.map(x=>x.id));
+ const frozenKBIds=ctx.v3?.contentSource==='d1'?null:
+  new Set(ctx.data.kb.entities.map(x=>x.id));
  let routes=markdownRouteMap(ctx.data);const exists=new Set(ctx.manifest.files.filter(x=>x.path.startsWith(`releases/${ctx.release.id}/content/`)).map(x=>x.path.slice(`releases/${ctx.release.id}/content/`.length)));
  let currentHash=location.hash||'#/',route=parseRoute(currentHash),editor=null,serial=0,offline=null,approvedNavigation=null,previousHash=null;
  // Frozen static Gear remains the read-only Work Offline fallback.
  // Only a verified Automatic-mode 100-row D1 response becomes online canonical.
- let gearCatalogReady=false,gearCatalogPending=null;
+ let gearCatalogReady=ctx.v3?.contentSource==='d1',gearCatalogPending=null;
  async function ensureGearCatalog(){
   if(ctx.v3?.directGearEnabled!==true||navigator.onLine!==true||
      offline?.getModeAvailable?.()!==true||offline.getMode()!=='Automatic')return;
@@ -67,7 +71,7 @@ export function createApp(ctx){
  }
  const gearPage=page=>['gear-root','gear-list','gear-detail','gear-edit'].includes(page);
  // The immutable KB catalog remains the Work Offline fallback.
- let kbCatalogReady=false,kbCatalogPending=null;
+ let kbCatalogReady=ctx.v3?.contentSource==='d1',kbCatalogPending=null;
  async function ensureKBCatalog(){
   if(ctx.v3?.directKBEnabled!==true||navigator.onLine!==true||
      offline?.getModeAvailable?.()!==true||offline.getMode()!=='Automatic')return;
@@ -84,8 +88,9 @@ export function createApp(ctx){
   return kbCatalogPending;
  }
  const kbPage=page=>['kb-root','kb-list','kb-detail','kb-edit'].includes(page);
- const originalCatchIds=new Set(ctx.data.catches.catches.map(x=>x.id));
- let catchCatalogReady=false,catchCatalogPending=null;
+ const originalCatchIds=ctx.v3?.contentSource==='d1'?null:
+  new Set(ctx.data.catches.catches.map(x=>x.id));
+ let catchCatalogReady=ctx.v3?.contentSource==='d1',catchCatalogPending=null;
  async function ensureCatchCatalog(){
   if(ctx.v3?.directCatchEnabled!==true||navigator.onLine!==true||
      offline?.getModeAvailable?.()!==true||offline.getMode()!=='Automatic')return;
@@ -94,9 +99,11 @@ export function createApp(ctx){
   catchCatalogPending=(async()=>{
    const items=await ctx.v3.directCatchClient.list();
    const ids=new Set(items.map(x=>x.id));
-   if(originalCatchIds.size!==12||
-      ![...originalCatchIds].every(id=>ids.has(id)))
-    throw Error('Migrated Catch IDs differ from frozen library.');
+   if(!validD6Catalog('catches',{items})||
+      originalCatchIds&&
+       (originalCatchIds.size!==12||
+        ![...originalCatchIds].every(id=>ids.has(id))))
+    throw Error('The D1 Catch catalog failed completeness checks.');
    const data={...ctx.data,catches:{...ctx.data.catches,catches:items}};
    ctx.maps=validateRecords(data);ctx.data=data;routes=markdownRouteMap(data);catchCatalogReady=true;
   })().finally(()=>{catchCatalogPending=null;});
@@ -324,7 +331,7 @@ export function createApp(ctx){
  let approvedController=null,approvedPresenter=null,lastPreviewOwner=false;
  // The first verified reading mode triggers owner-session restoration,
  // whether or not the owner ever opens Connection Status.
- let lastOwnerRestoreMode='Checking';
+ let lastOwnerRestoreMode='Checking',contentBootReloadPending=false;
  // The accepted D5 presenter has its own asynchronous command repaint after
  // sign-out, separate from the D6 adapter's onChange repaint. Keep its
  // historical return-query out of the D6-only production OAuth link after
@@ -548,6 +555,20 @@ export function createApp(ctx){
    control.setAttribute('aria-pressed',String(available&&mode===value));
   }
   updateConnection();
+  // Changing between online D1 and the verified release-based Work Offline
+  // library requires a fresh bootstrap, never a mixed in-memory catalog.
+  // Preserve a dirty owner draft; never reload over unsaved editor changes.
+  if(available&&!dirty()&&!contentBootReloadPending&&
+     ((ctx.v3?.contentSource==='d1'&&mode==='Work Offline')||
+      (ctx.v3?.contentSource==='release'&&mode==='Automatic'&&
+       navigator.onLine===true&&
+       ctx.v3?.directGearEnabled===true&&
+       ctx.v3?.directKBEnabled===true&&
+       ctx.v3?.directCatchEnabled===true))){
+   contentBootReloadPending=true;
+   location.reload();
+   return;
+  }
   if(available&&mode==='Automatic'&&!dirty()&&
      (ctx.v3?.directGearEnabled===true&&gearPage(route.page)&&!gearCatalogReady||
       ctx.v3?.directKBEnabled===true&&kbPage(route.page)&&!kbCatalogReady))
