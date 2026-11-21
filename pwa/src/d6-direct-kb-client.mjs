@@ -1,4 +1,5 @@
 /** Direct owner-only KB Save/read; same-origin browser cookie, existing Worker. */
+import {validD6Catalog} from './d6-catalog-invariants.mjs';
 const ID=/^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const CSRF=/^[A-Za-z0-9_-]{43}$/;
 const error=(message,code)=>Object.assign(new Error(message),{code});
@@ -42,9 +43,7 @@ export function createD6DirectKBClient({
   if(!ready())throw error('Knowledge Base unavailable.','UNAVAILABLE');
   const data=await readJSON(endpoint+'kb',{method:'GET',
    headers:{Accept:'application/json'}});
-  if(data.count!==60||!Array.isArray(data.items)||data.items.length!==60||
-     new Set(data.items.map(x=>x?.id)).size!==60||
-     data.items.some(x=>!idOK(x?.id)))
+  if(!validD6Catalog('kb',data))
    throw error('The complete Knowledge Base could not be verified.','UNVERIFIED');
   return data.items;
  }
@@ -59,7 +58,7 @@ export function createD6DirectKBClient({
  }
  async function save({record,markdown,expectedRevision}={}){
   if(!ready()||!idOK(record?.id)||!Number.isSafeInteger(expectedRevision)||
-     expectedRevision<1||typeof markdown!=='string'||!markdown.trim())
+     expectedRevision<0||typeof markdown!=='string'||!markdown.trim())
    throw error('KB edit is not ready for Save.','UNAVAILABLE');
   const csrf=await readJSON(endpoint+'kb-csrf',{method:'GET',
    headers:{Accept:'application/json','X-Fish-V3-Intent':'kb-csrf'}});

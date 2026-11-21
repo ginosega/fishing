@@ -5,6 +5,7 @@
  */
 import Ajv2020 from 'ajv/dist/2020.js';
 import schema from '../contracts/schema.json' with {type:'json'};
+import {narrativePath} from '../src/handoff.mjs';
 import {createD2UnifiedOwnerSession}
  from '../../experiments/p3/preview/src/d2-unified-owner-session.mjs';
 
@@ -75,16 +76,14 @@ export function createD6DirectGearService({
     return reply(200,{ok:true,csrfToken:proof.csrfToken});
    }catch{return fail(401,'SIGN_IN_REQUIRED');}
   }
-  // The collection becomes canonical only after the complete frozen
-  // 100-record import has been reconciled. A partial D1 table never looks
-  // like a successfully migrated Gear library.
+  // Preserve the 100-row migration floor, while allowing owner-added rows.
   if(url.pathname==='/api/v3/content/gear'){
    if(request.method!=='GET')return fail(405,'METHOD_NOT_ALLOWED');
    try{
     const result=await CONTENT_DB.prepare(
      'SELECT id,revision,record_json,notes_text FROM d6_gear_records ORDER BY id'
     ).all();
-    if(!Array.isArray(result?.results)||result.results.length!==100)
+    if(!Array.isArray(result?.results)||result.results.length<100)
      return fail(503,'GEAR_MIGRATION_INCOMPLETE');
     const items=[],ids=new Set();
     for(const row of result.results){
@@ -122,18 +121,27 @@ export function createD6DirectGearService({
   if(!input||typeof input!=='object'||Array.isArray(input)||
      Object.keys(input).sort().join(',')!=='expectedRevision,notes,record'||
      !Number.isSafeInteger(input.expectedRevision)||
-     input.expectedRevision<1||
+     input.expectedRevision<0||
      typeof input.notes!=='string'||
      new TextEncoder().encode(input.notes).length>MAX_NOTES||
-     !validate(input.record)||input.record.id!==id)
+     !validate(input.record)||input.record.id!==id||
+     (input.expectedRevision===0&&(
+      Boolean(input.record.notes)!==Boolean(input.notes.trim())||
+      (input.record.notes&&input.record.notes!==narrativePath('gear',input.record))||
+      Boolean(input.record.picture))))
    return fail(400,'INVALID_RECORD');
 
   // One atomic conditional update. A stale browser cannot overwrite
   // somebody else's newer revision; zero affected rows means conflict.
   try{
-   const result=await CONTENT_DB.prepare(
-    'UPDATE d6_gear_records SET record_json=?,notes_text=?,revision=revision+1,updated_at=? WHERE id=? AND revision=?'
-   ).bind(JSON.stringify(input.record),input.notes,now(),id,input.expectedRevision).run();
+   const result=input.expectedRevision===0?
+    await CONTENT_DB.prepare(
+     'INSERT INTO d6_gear_records (id,revision,record_json,notes_text,updated_at)'+
+     ' VALUES(?,1,?,?,?) ON CONFLICT(id) DO NOTHING'
+    ).bind(id,JSON.stringify(input.record),input.notes,now()).run():
+    await CONTENT_DB.prepare(
+     'UPDATE d6_gear_records SET record_json=?,notes_text=?,revision=revision+1,updated_at=? WHERE id=? AND revision=?'
+    ).bind(JSON.stringify(input.record),input.notes,now(),id,input.expectedRevision).run();
    if(result?.success!==true)return fail(503,'SAVE_UNCONFIRMED');
    if(result.meta?.changes===0)return fail(409,'RECORD_CHANGED');
    if(result.meta?.changes!==1)return fail(503,'SAVE_UNCONFIRMED');

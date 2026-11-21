@@ -45,23 +45,23 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
     !['gear','kb'].includes(domain))
   throw Error('Verified read-only owner editor preview required.');
  const publishChange=async()=>{throw Error('Legacy GitHub publishing is disabled.');};
- const directGear=domain==='gear'&&Boolean(baseRecord)&&
+ const directGear=domain==='gear'&&
   ctx.v3?.directGearEnabled===true&&
   typeof ctx.v3?.directGearClient?.read==='function'&&
   typeof ctx.v3?.directGearClient?.save==='function';
- const directKB=domain==='kb'&&Boolean(baseRecord)&&
+ const directKB=domain==='kb'&&
   ctx.v3?.directKBEnabled===true&&
   typeof ctx.v3?.directKBClient?.read==='function'&&
   typeof ctx.v3?.directKBClient?.save==='function';
  const directSave=directGear||directKB;
  if(ctx.v3?.directGearEnabled===true&&domain==='gear'&&
-    Boolean(baseRecord)&&!directGear)
+    !directGear)
   throw Error('Direct Gear service unavailable. No edit was submitted.');
  if(ctx.v3?.directKBEnabled===true&&domain==='kb'&&
-    Boolean(baseRecord)&&!directKB)
+    !directKB)
   throw Error('Direct KB service unavailable. No edit was submitted.');
- let directRevision=null,directNotes=null;
- if(directSave){
+ let directRevision=directSave&&!baseRecord?0:null,directNotes=null;
+ if(directSave&&baseRecord){
   const latest=await (directGear?ctx.v3.directGearClient:
    ctx.v3.directKBClient).read(baseRecord.id);
   if(latest.record?.id!==baseRecord.id||
@@ -74,9 +74,9 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
  const editing=Boolean(baseRecord),key=domain==='gear'?'notes':'content',record=baseRecord?clone(baseRecord):{id:'',name:'',...(domain==='gear'?{category:category||'lures',type:'',specifications:[],links:[]}:{type:type||'technique',content:''})};
  if(!editing&&domain==='gear')record.type=(record.category==='rods-reels'?ROD_TYPES:record.category==='accessories'?EQUIPMENT_TYPES:TAXONOMY[record.category])[0];
  let baseText='',body='',baseHash=null,mediaAction='keep',fileInfo=null,previewUrl=null,sequenceInfos=[],sequenceUrls=[],prepared=null,savePending=false,saveAccepted=false,notesEditor=null;
- if(directSave||baseRecord?.[key]){
+ if((directSave&&baseRecord)||baseRecord?.[key]){
   let bytes;
-  if(directSave)bytes=new TextEncoder().encode(directNotes);
+  if(directSave&&baseRecord)bytes=new TextEncoder().encode(directNotes);
   else if(ctx.v3?.source?.markdown instanceof Map){
    const text=ctx.v3.source.markdown.get(baseRecord[key]);
    if(typeof text!=='string')

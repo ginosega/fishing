@@ -2,6 +2,7 @@
  * Source-only client for direct Gear editing in the approved V3 UI.
  * Uses the existing first-party owner cookie; no GitHub writer or JSON handoff.
  */
+import {validD6Catalog} from './d6-catalog-invariants.mjs';
 const ID=/^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const CSRF=/^[A-Za-z0-9_-]{43}$/;
 const error=(message,code)=>Object.assign(new Error(message),{code});
@@ -47,10 +48,7 @@ export function createD6DirectGearClient({
   const data=await readJSON(endpoint+'gear',{
    method:'GET',headers:{Accept:'application/json'},
   });
-  if(data.count!==100||!Array.isArray(data.items)||
-     data.items.length!==100||
-     new Set(data.items.map(item=>item?.id)).size!==100||
-     data.items.some(item=>!idOK(item?.id)))
+  if(!validD6Catalog('gear',data))
    throw error('The complete Gear catalog could not be verified.','UNVERIFIED');
   return data.items;
  }
@@ -66,7 +64,7 @@ export function createD6DirectGearClient({
  }
  async function save({record,notes,expectedRevision}={}){
   if(!ready()||!idOK(record?.id)||!Number.isSafeInteger(expectedRevision)||
-     expectedRevision<1||typeof notes!=='string')
+     expectedRevision<0||typeof notes!=='string')
    throw error('Gear edit is not ready for Save.','UNAVAILABLE');
   const csrf=await readJSON(endpoint+'owner-csrf',{
    method:'GET',headers:{Accept:'application/json',

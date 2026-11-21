@@ -5,6 +5,7 @@
  */
 import Ajv2020 from 'ajv/dist/2020.js';
 import schema from '../contracts/schema.json' with {type:'json'};
+import {narrativePath} from '../src/handoff.mjs';
 import {createD2UnifiedOwnerSession}
  from '../../experiments/p3/preview/src/d2-unified-owner-session.mjs';
 
@@ -74,7 +75,7 @@ export function createD6DirectKBService({
     const result=await CONTENT_DB.prepare(
      'SELECT id,revision,record_json,content_text FROM d6_kb_records ORDER BY id'
     ).all();
-    if(!Array.isArray(result?.results)||result.results.length!==60)
+    if(!Array.isArray(result?.results)||result.results.length<60)
      return fail(503,'KB_MIGRATION_INCOMPLETE');
     const ids=new Set(),items=[];
     for(const row of result.results){
@@ -112,16 +113,24 @@ export function createD6DirectKBService({
   if(!input||typeof input!=='object'||Array.isArray(input)||
      Object.keys(input).sort().join(',')!=='expectedRevision,markdown,record'||
      !Number.isSafeInteger(input.expectedRevision)||
-     input.expectedRevision<1||typeof input.markdown!=='string'||
+     input.expectedRevision<0||typeof input.markdown!=='string'||
      !input.markdown.trim()||
      new TextEncoder().encode(input.markdown).length>MAX_MARKDOWN||
-     !validate(input.record)||input.record.id!==id)
+     !validate(input.record)||input.record.id!==id||
+     (input.expectedRevision===0&&(
+      input.record.content!==narrativePath('kb',input.record)||
+      Boolean(input.record.picture)||Boolean(input.record.pictureSequence))))
    return fail(400,'INVALID_RECORD');
   // Atomic revision predicate prevents lost KB edits.
   try{
-   const result=await CONTENT_DB.prepare(
-    'UPDATE d6_kb_records SET record_json=?,content_text=?,revision=revision+1,updated_at=? WHERE id=? AND revision=?'
-   ).bind(JSON.stringify(input.record),input.markdown,now(),id,input.expectedRevision).run();
+   const result=input.expectedRevision===0?
+    await CONTENT_DB.prepare(
+     'INSERT INTO d6_kb_records (id,revision,record_json,content_text,updated_at)'+
+     ' VALUES(?,1,?,?,?) ON CONFLICT(id) DO NOTHING'
+    ).bind(id,JSON.stringify(input.record),input.markdown,now()).run():
+    await CONTENT_DB.prepare(
+     'UPDATE d6_kb_records SET record_json=?,content_text=?,revision=revision+1,updated_at=? WHERE id=? AND revision=?'
+    ).bind(JSON.stringify(input.record),input.markdown,now(),id,input.expectedRevision).run();
    if(result?.success!==true)return fail(503,'SAVE_UNCONFIRMED');
    if(result.meta?.changes===0)return fail(409,'RECORD_CHANGED');
    if(result.meta?.changes!==1)return fail(503,'SAVE_UNCONFIRMED');
