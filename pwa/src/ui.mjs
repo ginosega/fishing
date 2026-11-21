@@ -4,6 +4,8 @@ import {TAXONOMY,validateRecords} from './validation.mjs';
 import {createD6OwnerEditorPreviewGate} from './d6-owner-editor-preview-gate.mjs';
 import {createD6ApprovedEditorPreview,createD6ApprovedCatchPreview} from './d6-approved-owner-editor-preview.mjs';
 import {createD6OwnerDeviceDraftStore} from './d6-owner-device-drafts.mjs';
+import {validD6Catalog} from './d6-catalog-invariants.mjs';
+import {DIRECT_D1_MEDIA_CAPABILITIES} from './d6-owner-media-capabilities.mjs';
 import {parseMarkdown,sanitizeHtml,markdownRouteMap} from './markdown.mjs';
 import {createEditor} from './editor.mjs';
 import {openViewer,openSequenceViewer} from './viewer.mjs';
@@ -35,15 +37,81 @@ const CATEGORY_PRESENTATION={gear:{'rods-reels':{icon:'🎣'},line:{icon:'〰️
 const categoryLabel=(domain,key)=>(domain==='gear'?GEAR_CATEGORIES:KB_TYPES).find(x=>x[0]===key)?.[1]||key;
 const categoryRoute=(domain,key)=>domain==='gear'?`#/inventory/category/${key}`:`#/kb/category/${key}`;
 const rootRoute=domain=>domain==='gear'?'#/inventory':domain==='kb'?'#/kb':'#/catches';
-const recordTitle=(ctx,domain,record)=>domain==='catches'?`${ctx.maps.kb.get(record.speciesId)?.name||'Catch'} · ${record.date}`:record.name;
+const recordTitle=(ctx,domain,record)=>domain==='catches'?`${ctx.maps.kb.get(record.speciesId)?.name||record.speciesName||'Catch'} · ${record.date}`:record.name;
 export function createApp(ctx){
  const readerOnly=ctx.v3?.enabled===true&&ctx.v3?.readerOnly===true;
  const approvedConnection=readerOnly&&ctx.v3?.ownerConnectionCandidate===true;
  const ownerEditorPreview=approvedConnection&&ctx.v3?.ownerEditorPreview===true;
  const root=document.getElementById('app'),alertHost=document.getElementById('app-notice'),offlineHost=document.getElementById('offline-status');
- const routes=markdownRouteMap(ctx.data),exists=new Set(ctx.manifest.files.filter(x=>x.path.startsWith(`releases/${ctx.release.id}/content/`)).map(x=>x.path.slice(`releases/${ctx.release.id}/content/`.length)));
+ // The original release IDs are a migration fallback guard, NOT an online
+ // catalog dependency when all three records were verified directly in D1.
+ const frozenGearIds=ctx.v3?.contentSource==='d1'?null:
+  new Set(ctx.data.gear.items.map(x=>x.id));
+ const frozenKBIds=ctx.v3?.contentSource==='d1'?null:
+  new Set(ctx.data.kb.entities.map(x=>x.id));
+ let routes=markdownRouteMap(ctx.data);const exists=new Set(ctx.manifest.files.filter(x=>x.path.startsWith(`releases/${ctx.release.id}/content/`)).map(x=>x.path.slice(`releases/${ctx.release.id}/content/`.length)));
  let currentHash=location.hash||'#/',route=parseRoute(currentHash),editor=null,serial=0,offline=null,approvedNavigation=null,previousHash=null;
- const ownerEditorGate=ownerEditorPreview?createD6OwnerEditorPreviewGate({
+ // Frozen static Gear remains the read-only Work Offline fallback.
+ // Only a verified Automatic-mode 100-row D1 response becomes online canonical.
+ let gearCatalogReady=ctx.v3?.contentSource==='d1',gearCatalogPending=null;
+ async function ensureGearCatalog(){
+  if(ctx.v3?.directGearEnabled!==true||navigator.onLine!==true||
+     offline?.getModeAvailable?.()!==true||offline.getMode()!=='Automatic')return;
+  if(gearCatalogReady)return;
+  if(gearCatalogPending)return gearCatalogPending;
+  gearCatalogPending=(async()=>{
+   const items=await ctx.v3.directGearClient.list();
+   if(!validD6Catalog('gear',{items,requiredIds:frozenGearIds}))
+    throw Error('Migrated Gear IDs are missing from the D1 library.');
+   const data={...ctx.data,gear:{...ctx.data.gear,items}};
+   const maps=validateRecords(data);
+   ctx.data=data;ctx.maps=maps;routes=markdownRouteMap(data);gearCatalogReady=true;
+  })().finally(()=>{gearCatalogPending=null;});
+  return gearCatalogPending;
+ }
+ const gearPage=page=>['gear-root','gear-list','gear-detail','gear-edit'].includes(page);
+ // The immutable KB catalog remains the Work Offline fallback.
+ let kbCatalogReady=ctx.v3?.contentSource==='d1',kbCatalogPending=null;
+ async function ensureKBCatalog(){
+  if(ctx.v3?.directKBEnabled!==true||navigator.onLine!==true||
+     offline?.getModeAvailable?.()!==true||offline.getMode()!=='Automatic')return;
+  if(kbCatalogReady)return;
+  if(kbCatalogPending)return kbCatalogPending;
+  kbCatalogPending=(async()=>{
+   const items=await ctx.v3.directKBClient.list();
+   if(!validD6Catalog('kb',{items,requiredIds:frozenKBIds}))
+    throw Error('Migrated KB IDs are missing from the D1 library.');
+   const data={...ctx.data,kb:{...ctx.data.kb,entities:items}};
+   const maps=validateRecords(data);
+   ctx.data=data;ctx.maps=maps;routes=markdownRouteMap(data);kbCatalogReady=true;
+  })().finally(()=>{kbCatalogPending=null;});
+  return kbCatalogPending;
+ }
+ const kbPage=page=>['kb-root','kb-list','kb-detail','kb-edit'].includes(page);
+ const originalCatchIds=ctx.v3?.contentSource==='d1'?null:
+  new Set(ctx.data.catches.catches.map(x=>x.id));
+ let catchCatalogReady=ctx.v3?.contentSource==='d1',catchCatalogPending=null;
+ async function ensureCatchCatalog(){
+  if(ctx.v3?.directCatchEnabled!==true||navigator.onLine!==true||
+     offline?.getModeAvailable?.()!==true||offline.getMode()!=='Automatic')return;
+  if(catchCatalogReady)return;
+  if(catchCatalogPending)return catchCatalogPending;
+  catchCatalogPending=(async()=>{
+   const items=await ctx.v3.directCatchClient.list();
+   const ids=new Set(items.map(x=>x.id));
+   if(!validD6Catalog('catches',{items})||
+      originalCatchIds&&
+       (originalCatchIds.size!==12||
+        ![...originalCatchIds].every(id=>ids.has(id))))
+    throw Error('The D1 Catch catalog failed completeness checks.');
+   const data={...ctx.data,catches:{...ctx.data.catches,catches:items}};
+   ctx.maps=validateRecords(data);ctx.data=data;routes=markdownRouteMap(data);catchCatalogReady=true;
+  })().finally(()=>{catchCatalogPending=null;});
+  return catchCatalogPending;
+ }
+ const catchPage=page=>['catch-list','catch-detail','catch-edit','catch-add'].includes(page);
+ const ownerEditorGate=ownerEditorPreview&&ctx.v3?.directGearEnabled!==true&&ctx.v3?.directKBEnabled!==true&&ctx.v3?.directCatchEnabled!==true?
+  createD6OwnerEditorPreviewGate({
   root:ctx.root,releaseRevision:ctx.release.sourceRevision,
   ownerReadiness:ctx.v3.ownerReadiness,canonicalSource:ctx.v3.canonicalSource,
   enabled:()=>true,online:()=>navigator.onLine===true,
@@ -56,21 +124,39 @@ export function createApp(ctx){
  const showEditingLinks=()=>!readerOnly||ownerEditingAvailable();
  let ownerDeviceDrafts=null;
  async function verifiedPreviewContext(){
-  if(!ownerEditorGate)throw Error('Owner editor preview is unavailable.');
-  const result=await ownerEditorGate.open();
-  const source=result.source;
-  // The store is constructed ONLY following fresh signed-in owner and
-  // pinned canonical-main source verification. It keeps text locally and
-  // never authorizes a publishing or media network request.
+  if(!ownerEditorPreview)throw Error('Owner editor preview is unavailable.');
+  const direct=ctx.v3?.directGearEnabled===true||ctx.v3?.directKBEnabled===true||ctx.v3?.directCatchEnabled===true;
+  if(!direct&&!ownerEditorGate)throw Error('Owner editor preview is unavailable.');
+  let source,data,maps;
+  if(direct){
+   // A Gear edit needs owner sign-in + one D1 row read. It must not
+   // depend on a GitHub canonical-content request on every form open.
+   const connected=effectiveConnectionOnline({
+    online:navigator.onLine,
+    readingMode:offline?.getModeAvailable?.()===true?offline.getMode():'Checking',
+   });
+   if(!connected)throw Error('Work Offline: editing is read-only.');
+   const owner=await ctx.v3.ownerReadiness.check({readingMode:'Automatic'});
+   if(owner?.state!=='Owner')throw Error('Please sign in to edit.');
+   source={sourceOnly:true,canPublish:false,files:exists};
+   data=ctx.data;maps=ctx.maps;
+  }else{
+   const result=await ownerEditorGate.open();
+   source=result.source;data=source.data;maps=validateRecords(data);
+  }
   if(!ownerDeviceDrafts)ownerDeviceDrafts=createD6OwnerDeviceDraftStore({
-   enabled:true,root:ctx.root,
+   enabled:true,root:ctx.root,privateGearPilot:direct,
   });
-  return {...ctx,data:source.data,maps:validateRecords(source.data),
+  return {...ctx,data,maps,
    v3:{...ctx.v3,source,ownerAuthoringPreview:true,
     drafts:ownerDeviceDrafts,
-    // Enable accepted D5 local original-image and Notes insertion controls,
-    // but NEVER expose a media staging network service in WP1.
-    stageMedia:async()=>{throw Error('Media staging is unavailable in WP1 preview.');},
+    directGearCanSave:()=>ownerEditingAvailable(),
+    onDirectGearSaved:()=>{gearCatalogReady=false;},
+     directKBCanSave:()=>ownerEditingAvailable(),
+     onDirectKBSaved:()=>{kbCatalogReady=false;},
+     directCatchCanSave:()=>ownerEditingAvailable(),
+     onDirectCatchSaved:()=>{catchCatalogReady=false;},
+    mediaCapabilities:DIRECT_D1_MEDIA_CAPABILITIES,
    }};
  }
  function notify(message,kind='info'){status(alertHost,message,kind);}
@@ -83,7 +169,7 @@ export function createApp(ctx){
  async function copy(value){try{await navigator.clipboard.writeText(value);notify('Copied to clipboard.','success');}catch{const area=el('textarea',{readonly:true,value});alertHost.replaceChildren(text('p','Select and copy this text:'),area);area.focus();area.select();}}
  function frame(title,parent,actions=[],subtitle=''){const header=el('div',{class:'page-header'},el('div',{class:'page-heading'},text('h1',title),subtitle?text('p',subtitle,'page-subtitle'):null),el('div',{class:'page-actions'},...actions,parent?button('Back',()=>navigate(parent)):null));return el('div',{class:'page'},header);}
  function card(title,description,href,icon='',image=null){return el('a',{href,class:'nav-card',onclick:event=>{event.preventDefault();navigate(href);}},image||(icon?el('span',{class:'card-icon','aria-hidden':'true'},icon):el('span',{class:'card-thumbnail card-spacer','aria-hidden':'true'})),el('div',{},text('h2',title),description?text('p',description,'muted'):null));}
- function recordCard(domain,record){const href=routeFor(domain,record.id),pictureSrc=record.picture?.src||(domain==='catches'?ctx.maps.kb.get(record.speciesId)?.picture?.src:null),image=pictureSrc?ctx.thumbnail(pictureSrc):null;const item=card(domain==='catches'?(ctx.maps.kb.get(record.speciesId)?.name||'Catch'):recordTitle(ctx,domain,record),domain==='gear'?record.type:domain==='kb'?record.description||'':record.size||'',href,'',image?el('img',{src:image,alt:'',loading:'lazy',decoding:'async',class:'card-thumbnail',onerror:event=>{event.target.hidden=true;}}):null);if(domain==='catches')item.querySelector('h2').after(el('time',{class:'catch-date muted',datetime:record.date},record.date));return item;}
+ function recordCard(domain,record){const href=routeFor(domain,record.id),pictureSrc=record.picture?.src||(domain==='catches'?ctx.maps.kb.get(record.speciesId)?.picture?.src:null),image=pictureSrc?ctx.thumbnail(pictureSrc):null;const item=card(domain==='catches'?(ctx.maps.kb.get(record.speciesId)?.name||record.speciesName||'Catch'):recordTitle(ctx,domain,record),domain==='gear'?record.type:domain==='kb'?record.description||'':record.size||'',href,'',image?el('img',{src:image,alt:'',loading:'lazy',decoding:'async',class:'card-thumbnail',onerror:event=>{event.target.hidden=true;}}):null);if(domain==='catches')item.querySelector('h2').after(el('time',{class:'catch-date muted',datetime:record.date},record.date));return item;}
  function renderHome(){const page=frame('Fishing Companion',null);page.append(text('p','Fishing reference and catch log','lead'),el('div',{class:'nav-grid home-grid'},card('My Gear',ROOT_SUBTITLES.gear,'#/inventory','🎒'),card('Knowledge Base',ROOT_SUBTITLES.kb,'#/kb','📚'),card('Catch Log','Recorded catches','#/catches','🐟')));return page;}
  function listControls(domain,records,{search=false,filter=false,sort='name',title='',pinnedId=''}={}){
   const controls=el('div',{class:'list-controls'}),results=el('div',{class:'record-grid'}),count=text('p','','result-count');let query='',type='';
@@ -119,13 +205,34 @@ export function createApp(ctx){
  }
  async function appendMarkdown(page,pathValue,heading){if(!pathValue)return;const response=await fetch(ctx.asset(pathValue));if(!response.ok)throw new Error(`Cannot load ${pathValue}: HTTP ${response.status}`);const content=await response.text();page.append(section(heading,await markdownContent(pathValue,content)));}
  function historySection(domain,record){const catches=catchHistory(ctx.data,domain,record.id);if(!catches.length)return null;return section('Catch History',el('div',{class:'record-grid'},...catches.map(c=>recordCard('catches',c))));}
- async function renderDetail(domain,id){const record=ctx.maps[domain].get(id);if(!record)return missing('This item does not exist or its ID has been retired.',rootRoute(domain));
+ async function renderDetail(domain,id){
+  let record=ctx.maps[domain].get(id),directNotes=null;
+  if(!record)return missing('This item does not exist or its ID has been retired.',rootRoute(domain));
+  if((domain==='gear'&&ctx.v3?.directGearEnabled===true&&gearCatalogReady||
+      domain==='kb'&&ctx.v3?.directKBEnabled===true&&kbCatalogReady||
+      domain==='catches'&&ctx.v3?.directCatchEnabled===true&&catchCatalogReady)&&
+     navigator.onLine===true&&offline?.getModeAvailable?.()===true&&
+     offline.getMode()==='Automatic'){
+   if(domain==='gear'){
+    const current=await ctx.v3.directGearClient.read(id);
+    record=current.record;directNotes=current.notes;
+   }else if(domain==='kb'){
+    const current=await ctx.v3.directKBClient.read(id);
+    record=current.record;directNotes=current.markdown;
+   }else{
+    const current=await ctx.v3.directCatchClient.read(id);
+    record=current.record;directNotes=current.notes;
+   }
+  }
   const parent=domain==='catches'?'#/catches':categoryRoute(domain,domain==='gear'?record.category:record.type),page=frame(recordTitle(ctx,domain,record),parent,[],domain==='gear'?categoryLabel(domain,record.category)+' – '+record.type:domain==='kb'?record.description||'':'');
   if(domain==='catches'){
    const species=ctx.maps.kb.get(record.speciesId),location=ctx.maps.kb.get(record.locationId),lure=ctx.maps.gear.get(record.lureOrBaitId);
    if(species?.picture)appendPicture(page,{...species,name:species.name},'kb');
-   page.append(table([['Date',record.date],...(record.time?[['Time',record.time]]:[]),...(record.size?[['Size',record.size]]:[]),...(species?[['Species',anchor(species.name,routeFor('kb',species.id))]]:[]),...(location?[['Location',anchor(location.name,routeFor('kb',location.id))]]:[]),...(lure?[['Lure or bait',anchor(lure.name,routeFor('gear',lure.id))]]:[])]));
-   await appendMarkdown(page,record.notes,'Notes');
+   page.append(table([['Date',record.date],...(record.time?[['Time',record.time]]:[]),...(record.size?[['Size',record.size]]:[]),...(species||record.speciesName?[['Species',species?anchor(species.name,routeFor('kb',species.id)):record.speciesName]]:[]),...(location||record.locationName?[['Location',location?anchor(location.name,routeFor('kb',location.id)):record.locationName]]:[]),...(lure||record.lureOrBaitName?[['Lure or bait',lure?anchor(lure.name,routeFor('gear',lure.id)):record.lureOrBaitName]]:[])]));
+   if(directNotes!==null){
+    if(record.notes)page.append(section('Notes',
+     await markdownContent(record.notes,directNotes)));
+   }else await appendMarkdown(page,record.notes,'Notes');
    if(ownerEditingAvailable())page.append(anchor('Edit item',`#/catches/edit/${record.id}`,'page-edit-link'));
    return page;
   }
@@ -134,9 +241,14 @@ export function createApp(ctx){
    const details=[...(record.manufacturer?[['Manufacturer',record.manufacturer]]:[]),...(record.model?[['Model',record.model]]:[]),...(record.specifications||[]).map(s=>[s.label||'Specification',s.value])];
    if(details.length)page.append(section('Specifications',table(details)));
    if(record.links?.length)page.append(section('Links',el('div',{class:'links-list'},...record.links.map(l=>el('a',{href:l.url,target:'_blank',rel:'noopener noreferrer'},l.label,' ↗')))));
-   await appendMarkdown(page,record.notes,'Notes');
+   if(directNotes!==null){
+    if(record.notes)page.append(section('Notes',
+     await markdownContent(record.notes,directNotes)));
+   }else await appendMarkdown(page,record.notes,'Notes');
   }else{
-   await appendMarkdown(page,record.content,'Notes');
+   if(directNotes!==null)page.append(section('Notes',
+    await markdownContent(record.content,directNotes)));
+   else await appendMarkdown(page,record.content,'Notes');
   }
   const history=historySection(domain,record);if(history)page.append(history);if(showEditingLinks())page.append(anchor('Edit item',domain==='gear'?`#/inventory/edit/${record.id}`:`#/kb/edit/${record.id}`,'page-edit-link'));return page;
  }
@@ -167,6 +279,15 @@ export function createApp(ctx){
   editor=created;page.append(created.element);return page;
  }
  async function render(){const ticket=++serial;if(offline&&!(await offline.checkCurrent()))return;if(ticket!==serial)return;disposeEditor();route=parseRoute(currentHash);root.replaceChildren(el('div',{class:'loading'},'Loading…'));
+  try{
+   if(gearPage(route.page))await ensureGearCatalog();
+   if(kbPage(route.page))await ensureKBCatalog();
+   if(catchPage(route.page)||
+      (ctx.v3?.directCatchEnabled===true&&
+       ['gear-detail','kb-detail'].includes(route.page)))
+    await ensureCatchCatalog();
+  }catch(error){if(ticket===serial){const page=missing('Unable to load the complete D1 library: '+error.message);page.append(button('Retry',()=>render(),{variant:'primary'}));root.replaceChildren(page);}return;}
+  if(ticket!==serial)return;
   try{let page;
    switch(route.page){case 'home':page=renderHome();break;case 'gear-root':page=renderRoot('gear');break;case 'kb-root':page=renderRoot('kb');break;case 'gear-list':page=renderList('gear',route.category);break;case 'kb-list':page=renderList('kb',route.type);break;case 'gear-detail':page=await renderDetail('gear',route.id);break;case 'kb-detail':page=await renderDetail('kb',route.id);break;case 'catch-list':page=renderCatches();break;case 'catch-detail':page=await renderDetail('catches',route.id);break;
     case 'catch-add':page=await renderCatchPreview();break;
@@ -208,6 +329,9 @@ export function createApp(ctx){
  let automaticModeButton=null,workOfflineButton=null,readingModeStatus=null;
  let ownerSessionStatus=null,ownerProbeSerial=0;
  let approvedController=null,approvedPresenter=null,lastPreviewOwner=false;
+ // The first verified reading mode triggers owner-session restoration,
+ // whether or not the owner ever opens Connection Status.
+ let lastOwnerRestoreMode='Checking',contentBootReloadPending=false;
  // The accepted D5 presenter has its own asynchronous command repaint after
  // sign-out, separate from the D6 adapter's onChange repaint. Keep its
  // historical return-query out of the D6-only production OAuth link after
@@ -431,8 +555,31 @@ export function createApp(ctx){
    control.setAttribute('aria-pressed',String(available&&mode===value));
   }
   updateConnection();
-  if(approvedConnection&&connectionDialog.open===true)
+  // Changing between online D1 and the verified release-based Work Offline
+  // library requires a fresh bootstrap, never a mixed in-memory catalog.
+  // Preserve a dirty owner draft; never reload over unsaved editor changes.
+  if(available&&!dirty()&&!contentBootReloadPending&&
+     ((ctx.v3?.contentSource==='d1'&&mode==='Work Offline')||
+      (ctx.v3?.contentSource==='release'&&mode==='Automatic'&&
+       navigator.onLine===true&&
+       ctx.v3?.directGearEnabled===true&&
+       ctx.v3?.directKBEnabled===true&&
+       ctx.v3?.directCatchEnabled===true))){
+   contentBootReloadPending=true;
+   location.reload();
+   return;
+  }
+  if(available&&mode==='Automatic'&&!dirty()&&
+     (ctx.v3?.directGearEnabled===true&&gearPage(route.page)&&!gearCatalogReady||
+      ctx.v3?.directKBEnabled===true&&kbPage(route.page)&&!kbCatalogReady))
+   void render();
+  const ownerMode=available?mode:'Checking';
+  if(approvedConnection&&ownerMode!==lastOwnerRestoreMode){
+   lastOwnerRestoreMode=ownerMode;
+   // The adapter checks the authenticated same-origin session; offline
+   // and Checking states fail closed, and stale replies are fenced.
    void approvedController?.restore();
+  }
  }
  connection.addEventListener('click',()=>{
   connectionDialog.showModal();
@@ -445,8 +592,9 @@ export function createApp(ctx){
   .addEventListener('click',()=>connectionDialog.close());
  const connectionNetworkChanged=()=>{
   updateConnection();
-  if(approvedConnection&&connectionDialog.open===true)
-   void approvedController?.restore();
+  // Invalidate or restore owner state on connectivity changes even when
+  // the Connection Status dialog is closed.
+  if(approvedConnection)void approvedController?.restore();
  };
  window.addEventListener('online',connectionNetworkChanged);
  window.addEventListener('offline',connectionNetworkChanged);

@@ -95,3 +95,42 @@ test('WP1-DRAFT06 IndexedDB denial never grants publishing or destroys drafts',a
  await assert.rejects(bad.discard(ID),/DEVICE_DRAFT_STORAGE_UNAVAILABLE/);
  assert.deepEqual(Object.keys(bad),['read','save','discard']);
 });
+
+test('V3-GEAR-DRAFT01 private WP2 host is rejected by default, even when owner is signed in',()=>{
+ const root='https://fishing-d6-wp2-test.ginosega.workers.dev/fishing/';
+ assert.throws(()=>createD6OwnerDeviceDraftStore({
+  root,enabled:true,io:fixture().io,
+ }),/DEVICE_DRAFT_SCOPE_DENIED/);
+ for(const denied of [
+  'https://fishing-v3-wp3-test.ginosega.workers.dev/fishing/',
+  'https://fishing-d6-static-test.ginosega.workers.dev/fishing/',
+  'https://not-owned.example/fishing/',
+  'http://fishing-d6-wp2-test.ginosega.workers.dev/fishing/',
+  'https://fishing-d6-wp2-test.ginosega.workers.dev/fishing/extra/',
+  'https://fishing-d6-wp2-test.ginosega.workers.dev/fishing/?preview=1',
+ ]){
+  assert.throws(()=>createD6OwnerDeviceDraftStore({
+   root:denied,privateGearPilot:true,enabled:true,io:fixture().io,
+  }),/DEVICE_DRAFT_SCOPE_DENIED/);
+ }
+});
+
+test('V3-GEAR-DRAFT02 explicit private pilot persists draft in origin-isolated namespace',async()=>{
+ const root='https://fishing-d6-wp2-test.ginosega.workers.dev/fishing/';
+ const map=new Map();
+ const io={get:async key=>map.get(key),put:async val=>map.set(val.key,val),
+  delete:async key=>map.delete(key)};
+ const privateStore=createD6OwnerDeviceDraftStore({
+  root,enabled:true,privateGearPilot:true,io,
+ });
+ await privateStore.save(row);
+ assert.equal(map.has(root+ID),true);
+ assert.equal(map.has(ROOT+ID),false);
+ const found=await privateStore.read(ID,{sourceRevision:SHA,baseHash:null});
+ assert.equal(found.status,'ready');
+ assert.equal(found.draft.notes,row.notes);
+ const publicStore=createD6OwnerDeviceDraftStore({root:ROOT,enabled:true,io});
+ assert.equal((await publicStore.read(ID,{sourceRevision:SHA})).status,'missing');
+ await privateStore.discard(ID);
+ assert.equal(map.size,0);
+});

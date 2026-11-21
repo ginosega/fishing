@@ -160,8 +160,10 @@ test('D6-STAGEA-W07 source has no auth/store/writer implementation or new CI dep
  assert.doesNotMatch(src,/requestGitHub|issueReadToken|createD6OwnerSessionReadiness|D1Database|env\.P3_/);
  assert(src.includes("env?.D6_STAGE_A_STATIC_ENABLED==='true'"));
  assert(src.includes("redirect:'manual'"));
- assert(workflow.includes('Package and verify physical D6 Stage A Pages tree (no deploy)'));
+ // Historical Stage A code remains inert; routine V3 CI no longer
+ // rebuilds it or auto-deploys any Worker for a content edit.
  assert(!workflow.includes('deploy-d6-stage-a'));
+ assert(!/\n  push:\s*\n/.test(workflow));
 });
 
 test('D6-STAGEA-W08 planner refuses malformed configuration and unsupported paths',()=>{

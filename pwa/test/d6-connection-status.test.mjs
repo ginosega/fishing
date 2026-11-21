@@ -89,3 +89,15 @@ test('D6-CON07 reading controls are only enabled in isolated candidate, never V2
  assert.match(ui,/if\(readerOnly\)void offline\.refreshMode\(\)/);
  assert.match(ui,/if\(readerOnly\)update\.textContent=v3OfflineLibraryActionLabel\(state\)/);
 });
+
+test('V3-OWNER-AUTO01 verified reading mode restores owner without opening settings',()=>{
+ const ui=readFileSync(new URL('../src/ui.mjs',import.meta.url),'utf8');
+ // The old bug required connectionDialog.open to restore an existing
+ // owner session, even after verified Automatic mode completed at startup.
+ assert.match(ui,/let lastOwnerRestoreMode='Checking'/);
+ assert.match(ui,/const ownerMode=available\?mode:'Checking';/);
+ assert.match(ui,/approvedConnection&&ownerMode!==lastOwnerRestoreMode/);
+ assert.match(ui,/lastOwnerRestoreMode=ownerMode;/);
+ assert.match(ui,/if\(approvedConnection\)void approvedController\?\.restore\(\);/);
+ assert.doesNotMatch(ui,/if\(approvedConnection&&connectionDialog\.open===true\)\s+void approvedController\?\.restore\(\);/);
+});

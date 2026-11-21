@@ -1,0 +1,46 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {DIRECT_D1_MEDIA_CAPABILITIES as media,
+ presentD6OwnerImageCapability} from '../src/d6-owner-media-capabilities.mjs';
+
+const read=name=>readFileSync(new URL('../src/'+name,import.meta.url),'utf8');
+
+test('V3-MEDIA01 one immutable fail-closed capability covers all direct-D1 editors',()=>{
+ assert.equal(Object.isFrozen(media),true);
+ assert.equal(media.version,1);
+ assert.equal(media.canReadExistingImages,true);
+ assert.equal(media.canUploadNewImages,false);
+ assert.equal(media.canReplaceImages,false);
+ assert.equal(media.canUploadKnotSequences,false);
+ assert.throws(()=>{media.canUploadNewImages=true;},TypeError);
+});
+test('V3-MEDIA02 runtime refuses forged image-upload capabilities',()=>{
+ const fake={querySelector:()=>null};
+ assert.throws(()=>presentD6OwnerImageCapability(fake,{...media,canUploadNewImages:true}),
+  /Unverified V3 owner media capability/);
+ assert.throws(()=>presentD6OwnerImageCapability(fake,undefined),
+  /Unverified V3 owner media capability/);
+});
+test('V3-MEDIA03 a placeholder staging function does not enable new uploads',()=>{
+ const ui=read('ui.mjs');
+ const gearKB=read('d6-approved-owner-editor-preview.mjs');
+ const catches=read('d6-direct-catch-editor.mjs');
+ assert.match(ui,/mediaCapabilities:DIRECT_D1_MEDIA_CAPABILITIES/);
+ assert.doesNotMatch(ui,/stageMedia:async/);
+ for(const source of [gearKB,catches]){
+  assert.match(source,/allowUpload:ctx\.v3\?\.mediaCapabilities\?\.canUploadNewImages===true/);
+  assert.match(source,/presentD6OwnerImageCapability\(notesEditor\.element/);
+ }
+ assert.match(gearKB,/mediaCapabilities\?\.canUploadNewImages!==true/);
+ assert.match(gearKB,/mediaAction!=='keep'\|\|fileInfo\|\|sequenceSet\|\|notesUploads\.length/);
+ assert.match(catches,/if\(notesUploads\.length\)/);
+});
+test('V3-MEDIA04 shared disabled image button is only UI, not an upload',()=>{
+ const policy=read('d6-owner-media-capabilities.mjs');
+ assert.match(policy,/hiddenButton\.hidden!==true/);
+ assert.match(policy,/unavailable\.hidden=false;unavailable\.disabled=true/);
+ assert.match(policy,/New image uploads are not yet available/);
+ const accepted=read('notes-markdown-editor.mjs');
+ assert.match(accepted,/imageButton\.hidden=!allowUpload/);
+});

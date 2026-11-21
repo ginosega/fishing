@@ -1,15 +1,26 @@
 import {createApp} from './ui.mjs';
 import {validateRecords} from './validation.mjs';
 import {DOMAIN,encodedPath} from './shared.mjs';
+import {chooseD6BootstrapContent,readD6VerifiedMode} from './d6-online-content-bootstrap.mjs';
 
 export async function bootstrap({root,release},{v3=null}={}){
  const base=new URL('releases/'+release.id+'/',root).href;
- const data={};
- for(const [domain,config] of Object.entries(DOMAIN)){
-  const response=await fetch(new URL('content/'+encodedPath(config.file),base));
-  if(!response.ok)throw new Error(`Unable to load ${domain}: HTTP ${response.status}`);
-  data[domain]=await response.json();
- }
+ // Private fully migrated V3 reads current Gear, KB and Catches from D1
+ // directly in a verified Automatic session. Work Offline (and ordinary V2)
+ // still uses the existing immutable, service-worker-verified release files.
+ const selected=await chooseD6BootstrapContent({
+  v3,online:navigator.onLine===true,
+  readMode:()=>readD6VerifiedMode(),
+  loadRelease:async()=>{
+   const catalogs=await Promise.all(Object.entries(DOMAIN).map(async([domain,config])=>{
+    const response=await fetch(new URL('content/'+encodedPath(config.file),base));
+    if(!response.ok)throw new Error(`Unable to load ${domain}: HTTP ${response.status}`);
+    return [domain,await response.json()];
+   }));
+   return Object.fromEntries(catalogs);
+  },
+ });
+ const data=selected.data;
  const maps=validateRecords(data);
  const manifest=globalThis.__FISHING_BOOT__.manifest;
  const asset=file=>new URL('content/'+encodedPath(file),base).href;
@@ -18,7 +29,8 @@ export async function bootstrap({root,release},{v3=null}={}){
   return thumb?new URL('card-thumbnails/'+encodedPath(thumb),base).href:asset(file);
  };
  const context={root,base,release,manifest,data,maps,asset,thumbnail,
-  ...(v3?.enabled===true&&v3?.readerOnly===true?{v3}:{}),
+  ...(v3?.enabled===true&&v3?.readerOnly===true?{v3:{...v3,
+   contentSource:selected.source,contentReadingMode:selected.readingMode}}:{}),
  };
  window.__FISHING_V2__={releaseId:release.id,sourceRevision:release.sourceRevision,counts:{gear:data.gear.items.length,kb:data.kb.entities.length,catches:data.catches.catches.length}};
  createApp(context);
