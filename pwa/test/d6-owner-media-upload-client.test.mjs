@@ -22,7 +22,7 @@ async function bitmap(fn){
   else globalThis.createImageBitmap=before;
  }
 }
-function fixture({lostAck=false}={}){
+function fixture({lostAck=false,stagePath=gear.picture.src,stageRole='cover'}={}){
  const calls=[];
  const request=async(url,options)=>{
   calls.push({url,options});
@@ -30,7 +30,7 @@ function fixture({lostAck=false}={}){
   if(url.endsWith('/stage')){
    const digest=await sha256(png);
    return reply({ok:true,staged:true,published:false,domain:'gear',
-    recordId:gear.id,logicalPath:gear.picture.src,role:'cover',
+    recordId:gear.id,logicalPath:stagePath,role:stageRole,
     sha256:digest,bytes:png.byteLength,width:1,height:1,
     contentType:'image/png',storageKey:'staged/v1/sha256/'+digest});
   }
@@ -127,5 +127,25 @@ test('M02 unknown R2 stage acknowledgement remains blocked without retry',async(
    role:'cover',logicalPath:gear.picture.src,file:file()}),
    {code:'DUPLICATE'});
   assert.equal(stageCalls,1);
+ });
+});
+
+test('M02 upload coordinator rejects Notes link lookalikes before publishing',async()=>{
+ await bitmap(async()=>{
+  const notesPath='Gear/Lures/assets/owner-lure/notes/photo.png';
+  const f=fixture({stagePath:notesPath,stageRole:'notes'});
+  const client=create({...config,request:f.request});
+  const staged=await client.stage({domain:'gear',record:gear,
+   role:'notes',logicalPath:notesPath,file:file()});
+  const callsBefore=f.calls.length;
+  for(const markdown of [
+   '[Photo](../assets/owner-lure/notes/photo.png)',
+   'Example path: ../assets/owner-lure/notes/photo.png',
+   '`![Photo](../assets/owner-lure/notes/photo.png)`',
+  ]){
+   await assert.rejects(client.publish({domain:'gear',record:gear,
+    markdown,expectedRevision:1,staged:[staged]}),{code:'INVALID'});
+   assert.equal(f.calls.length,callsBefore,'no publish or CSRF request');
+  }
  });
 });
