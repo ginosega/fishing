@@ -20,11 +20,14 @@ export function createD6ContentImageResolver({
    typeof enabled!=='function'||typeof readingMode!=='function'||
    !(publishedPaths instanceof Set))
   throw Error('MEDIA_RESOLVER_ORIGIN_INVALID');
+ // A verified D1 manifest must be replaced as a unit after each fresh read.
+ // Do not allow later mutations of the caller's Set to authorize new paths.
+ const verifiedPaths=new Set(publishedPaths);
  function isReady(){return enabled()===true&&readingMode()==='Automatic';}
  function resolve(logicalPath){
   let path;
   try{path=safePath(logicalPath);}catch{return null;}
-  if(!isReady()||!publishedPaths.has(path)||
+  if(!isReady()||!verifiedPaths.has(path)||
      !/^(?:Gear|KB|Catches)\//.test(path)||
      !/\.(?:jpe?g|png|webp|gif)$/i.test(path))return null;
   return app.origin+'/api/v3/media/live/'+encodedPath(path);
@@ -35,14 +38,13 @@ export function createD6ContentImageResolver({
  * Once authoritative online media reads are enabled, never silently replace
  * missing D1-published media with a stale historic release picture. */
 export function d6ResolveImageForDisplay(path,{
- verifiedLive=null,frozenAsset,strictOnline=false,
+ verifiedLive=null,frozenAsset,
 }={}){
  let canonical;
  try{canonical=safePath(path);}catch{return null;}
  if(verifiedLive?.isReady?.()===true){
-  const live=verifiedLive.resolve(canonical);
-  return live??(strictOnline?null:
-   typeof frozenAsset==='function'?frozenAsset(canonical):null);
+  // A ready authoritative R2 reader MUST NOT silently use an older release.
+  return verifiedLive.resolve(canonical)??null;
  }
  return typeof frozenAsset==='function'?frozenAsset(canonical):null;
 }
