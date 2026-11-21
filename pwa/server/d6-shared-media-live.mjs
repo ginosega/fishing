@@ -150,17 +150,6 @@ function validRecord(domain,record,markdown,expectedRevision){
   return false;
  return true;
 }
-/** Throws on stale revision during the SAME batch, so no refs or row
- * updates can commit if concurrent editing has changed the record. */
-function revisionGuardSQL(d,mode){
- const check=mode==='create'?
-  `NOT EXISTS(SELECT 1 FROM ${d.table} WHERE id=?)`:
-  `EXISTS(SELECT 1 FROM ${d.table} WHERE id=? AND revision=?)`;
- // SQLite json_extract('[invalid',...) always throws malformed JSON.
- // D1.batch guarantees rollback of the entire batch on any SQL failure.
- return `SELECT json_extract(CASE WHEN ${check}
- THEN '{"ok":1}' ELSE '[invalid' END,'$.ok') AS media_guard`;
-}
 /**
  * Called only from the source-only owner-authorized HTTP wrapper below.
  * Uses a single D1.batch transaction. Never performs an R2 write here.

@@ -18,7 +18,6 @@ const DOMAIN=Object.freeze({
 const SHA=/^[a-f0-9]{64}$/;
 const ID=/^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
-export const d6SaveDomainSpec=domain=>DOMAIN[domain]??null;
 export const d6SelectSavedRow=(db,domain,id)=>{
  const spec=DOMAIN[domain];
  if(!spec||typeof db?.prepare!=='function')throw Error('SAVE_CONFIG_INVALID');
