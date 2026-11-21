@@ -11,6 +11,8 @@
 - **Offline:** explicit user-triggered verified *current content* snapshot, independently versioned from immutable software, coherent D1 records + Markdown + referenced R2 assets, installed-PWA-compatible. Work Offline stays strictly read-only, no network reads, no partial snapshot selection and no automatic full download merely for app launch. Drafts preserved and no automatic cross-revision overwrite.
 - **Safeguards:** original hashes + sizes, schema/link validation, last-known-good complete snapshot, independent software-content compatibility, cache eviction/quota handling, owner Edge + Android field acceptance. Preserve REL-007 deferral for inline Notes derivatives (card thumbnails are in scope).
 
+**C03 independent migration baseline provenance:** accepted private source `57f35b701b10cda1eb7d567b6f2a250c7b27ef38`; original Gear/KB/Catch JSON Git blob hashes `741ba8f` / `3921763` / `1522cf9`, independently matched to current source. The 172-ID proof is a read-only completeness guard, **not** a second online content store.
+
 ## Engineering acceptance items (one FISH-TODO-118 backlog)
 
 State labels mean: **source-CI PASS** = source tested but *not deployed/field accepted*; **partial-source** = code/design exists but acceptance incomplete; **open** = not yet demonstrated; **gated** = external operation needs separate explicit owner approval. Mark each item complete only with exact CI/source and, where applicable, provider/device evidence; use [WORK_QUEUE.md](WORK_QUEUE.md) for the current active *next* item. No per-checkpoint PR proliferation.
