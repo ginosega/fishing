@@ -113,6 +113,60 @@ async function digest(bytes){
  const result=await crypto.subtle.digest('SHA-256',bytes);
  return [...new Uint8Array(result)].map(n=>n.toString(16).padStart(2,'0')).join('');
 }
+/** GIF block-level limits at the trusted upload boundary.
+ * Browser decoded-frame checks are helpful but untrusted; do not accept
+ * 513+ frames, oversized accumulated canvases or incomplete image subblocks.
+ * Full decoder validation (including animated WebP) remains an M02 gate.
+ */
+export function validateD6GifFrameStructure(bytes,width,height){
+ failCheck(bytes instanceof Uint8Array&&
+  bytes.length>=20&&bytes.length<=D6_MEDIA_LIMIT_BYTES,'GIF length');
+ let offset=13,frames=0;
+ // Global colour table: 3 bytes per entry, 2–256 entries.
+ if(bytes[10]&0x80)offset+=3*(1<<((bytes[10]&7)+1));
+ failCheck(offset<bytes.length,'GIF global palette');
+ const subBlocks=()=>{
+  for(;;){
+   failCheck(offset<bytes.length,'GIF truncated subblock');
+   const count=bytes[offset++];
+   if(count===0)return;
+   failCheck(offset+count<=bytes.length,'GIF subblock overflow');
+   offset+=count;
+  }
+ };
+ while(offset<bytes.length){
+  const kind=bytes[offset++];
+  if(kind===0x3b){
+   failCheck(offset===bytes.length&&frames>0,'GIF trailer');
+   return frames;
+  }
+  if(kind===0x21){
+   failCheck(offset<bytes.length,'GIF extension label');
+   offset++;subBlocks();continue;
+  }
+  failCheck(kind===0x2c,'GIF block kind');
+  failCheck(offset+9<=bytes.length,'GIF image descriptor');
+  const left=bytes[offset]|(bytes[offset+1]<<8);
+  const top=bytes[offset+2]|(bytes[offset+3]<<8);
+  const frameWidth=bytes[offset+4]|(bytes[offset+5]<<8);
+  const frameHeight=bytes[offset+6]|(bytes[offset+7]<<8);
+  const flags=bytes[offset+8];
+  offset+=9;
+  failCheck(frameWidth>0&&frameHeight>0&&
+   left+frameWidth<=width&&top+frameHeight<=height,
+   'GIF frame dimensions');
+  if(flags&0x80)offset+=3*(1<<((flags&7)+1));
+  failCheck(offset<bytes.length,'GIF local palette');
+  const lzwCodeSize=bytes[offset++];
+  failCheck(lzwCodeSize>=2&&lzwCodeSize<=8,'GIF LZW code size');
+  subBlocks();
+  frames++;
+  failCheck(frames<=512&&width*height*frames<=512000000,
+   'GIF animation decode budget');
+ }
+ failCheck(false,'GIF missing trailer');
+}
+
 export async function validateD6MediaBytes({bytes,contentType,expectedSha256}={}){
  failCheck(bytes instanceof Uint8Array&&bytes.byteLength>0&&
   bytes.byteLength<=D6_MEDIA_LIMIT_BYTES,'size');
@@ -123,6 +177,7 @@ export async function validateD6MediaBytes({bytes,contentType,expectedSha256}={}
  failCheck(Number.isSafeInteger(width)&&Number.isSafeInteger(height)&&
   width>0&&height>0&&width<=6000&&height<=6000&&
   width*height<=36000000,'image dimensions');
+ if(contentType==='image/gif')validateD6GifFrameStructure(bytes,width,height);
  const sha256=await digest(bytes);
  failCheck(sha256===expectedSha256,'SHA-256 mismatch');
  return {sha256,size:bytes.byteLength,contentType,width,height};
