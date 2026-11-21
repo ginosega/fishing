@@ -4,7 +4,7 @@ import {createHash} from 'node:crypto';
 import {createD2UnifiedOwnerSession}
  from '../../experiments/p3/preview/src/d2-unified-owner-session.mjs';
 import {validateD6MediaPath,validateD6MediaBytes,
- createD6SharedMediaStage,D6_MEDIA_LIMIT_BYTES}
+ createD6SharedMediaStage,D6_MEDIA_LIMIT_BYTES,validateD6GifFrameStructure}
  from '../server/d6-shared-media-stage.mjs';
 import {D6_MEDIA_SCHEMA_SQL} from '../tools/d6-media-schema.mjs';
 
@@ -148,4 +148,44 @@ test('V3-MEDIA-STAGE06 proposed D1 media tables are source-only',()=>{
  assert.match(D6_MEDIA_SCHEMA_SQL,/CREATE TABLE IF NOT EXISTS d6_media_refs/);
  assert.match(D6_MEDIA_SCHEMA_SQL,/FOREIGN KEY|REFERENCES d6_media_objects/);
  assert.doesNotMatch(D6_MEDIA_SCHEMA_SQL,/\b(?:UPDATE|DELETE|DROP|REPLACE)\s+d6_/i);
+});
+
+/** Structural GIF fixture: each frame uses a bounded 1x1 image block. */
+function gifFixture(frames,{width=1,height=1}={}){
+ const b=[71,73,70,56,57,97,width&255,width>>8,
+  height&255,height>>8,0x80,0,0,0,0,0,255,255,255];
+ for(let i=0;i<frames;i++)b.push(
+  0x2c,0,0,0,0,1,0,1,0,0,2,2,0x4c,1,0);
+ b.push(0x3b);
+ return Uint8Array.from(b);
+}
+test('V3-M02 GIF upload boundary enforces frame and decode budgets',async()=>{
+ const ordinary=gifFixture(2);
+ assert.equal(validateD6GifFrameStructure(ordinary,1,1),2);
+ assert.equal((await validateD6MediaBytes({bytes:ordinary,
+  contentType:'image/gif',expectedSha256:digest(ordinary)})).width,1);
+ const maximum=gifFixture(512);
+ assert.equal(validateD6GifFrameStructure(maximum,1,1),512);
+ const tooMany=gifFixture(513);
+ await assert.rejects(validateD6MediaBytes({bytes:tooMany,
+  contentType:'image/gif',expectedSha256:digest(tooMany)}),
+  /GIF animation decode budget/);
+ // Even small frames would overrun the browser's full canvas decode budget.
+ const largeCanvas=gifFixture(15,{width:6000,height:6000});
+ await assert.rejects(validateD6MediaBytes({bytes:largeCanvas,
+  contentType:'image/gif',expectedSha256:digest(largeCanvas)}),
+  /GIF animation decode budget/);
+});
+test('V3-M02 malformed GIF subblocks and incomplete frames fail closed',async()=>{
+ const missingBlockEnd=gifFixture(1);
+ missingBlockEnd[missingBlockEnd.length-2]=2;
+ const noFrame=gifFixture(0);
+ const invalidDescriptor=gifFixture(1);
+ // Image width is zero, despite a nonzero logical screen.
+ invalidDescriptor[23]=0;
+ for(const candidate of [missingBlockEnd,noFrame,invalidDescriptor]){
+  await assert.rejects(validateD6MediaBytes({bytes:candidate,
+   contentType:'image/gif',expectedSha256:digest(candidate)}),
+   /GIF/);
+ }
 });
