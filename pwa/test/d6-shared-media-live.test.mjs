@@ -310,3 +310,86 @@ test('V3-MEDIA-LIVE11 unmounted service does not alter deployed Worker routes',(
  assert.doesNotMatch(worker,/d6-shared-media-stage/);
  assert.doesNotMatch(worker,/\/api\/v3\/media\//);
 });
+
+test('V3-M02-05 record-linked Gear and KB cover images publish and read privately',async()=>{
+ const f=fixture();
+ for(const [domain,cover] of [
+  ['gear','Gear/Lures/assets/new-gear-cover.png'],
+  ['kb','KB/Species/assets/new-fish-cover.png'],
+ ]){
+  const original=recordOf(domain),record={...original,picture:{src:cover}};
+  f.seed(domain,1,original,'Original notes');
+  const result=await f.publish(domain,{
+   record,markdown:'Valid owner content',
+   media:[{logicalPath:cover,sha256:sha,bytes:image.length,
+    contentType:'image/png'}],
+  });
+  assert.equal(result.status,200,domain+': '+result.error);
+  assert.equal(result.result.media[0].role,'cover');
+  const response=await f.live({enabled:()=>true}).handle(
+   new Request(origin+'/api/v3/media/live/'+encodedPath(cover)));
+  assert.equal(response.status,200);
+  assert.deepEqual(new Uint8Array(await response.arrayBuffer()),image);
+  // The private reader denies a removed cover even while stale D1 metadata
+  // and staged R2 bytes physically remain.
+  f.sqlite.prepare('UPDATE '+dbOf(domain)+' SET record_json=? WHERE id=?')
+   .run(JSON.stringify(original),original.id);
+  assert.equal((await f.live({enabled:()=>true}).handle(
+   new Request(origin+'/api/v3/media/live/'+encodedPath(cover)))).status,404);
+ }
+});
+test('V3-M02-06 ordered Knot steps are atomic and exactly linked before read',async()=>{
+ const f=fixture();
+ const frames=[
+  'KB/Knots/assets/knot-media-test/step-01.png',
+  'KB/Knots/assets/knot-media-test/step-02.png',
+ ];
+ const record={id:'knot-media-test',type:'knot',name:'Owner Knot',
+  content:'KB/Knots/content/Owner Knot.md',picture:{src:frames[1]},
+  pictureSequence:frames};
+ f.seed('kb',1,record,'Original article');
+ const staged=frames.map(logicalPath=>({
+  logicalPath,sha256:sha,bytes:image.length,contentType:'image/png',
+ }));
+ let result=await f.publish('kb',{record,markdown:'Owner Knot text',
+  media:[staged[0]]});
+ assert.notEqual(result.status,200,'no partial Knot publishing');
+ assert.equal(f.count('d6_media_refs'),0);
+ assert.equal(f.query('SELECT revision FROM d6_kb_records WHERE id=?',
+  record.id).revision,1);
+ result=await f.publish('kb',{record,markdown:'Owner Knot text',media:staged});
+ assert.equal(result.status,200,result.error);
+ assert.equal(f.count('d6_media_refs'),2);
+ assert.deepEqual(result.result.media.map(x=>x.role),
+  ['knot-step','knot-step']);
+ const live=f.live({enabled:()=>true});
+ for(const frame of frames){
+  assert.equal((await live.handle(new Request(origin+
+   '/api/v3/media/live/'+encodedPath(frame)))).status,200);
+ }
+ const edited={...record,pictureSequence:[frames[1],frames[0]],
+  picture:{src:frames[0]}};
+ f.sqlite.prepare('UPDATE d6_kb_records SET record_json=? WHERE id=?')
+  .run(JSON.stringify(edited),record.id);
+ for(const frame of frames)
+  assert.equal((await live.handle(new Request(origin+
+   '/api/v3/media/live/'+encodedPath(frame)))).status,404);
+});
+test('V3-M02-07 non-owned cover and forged Knot paths do not reach D1 batch',async()=>{
+ const f=fixture(),original=recordOf('gear');
+ f.seed('gear',1,original,'Original');
+ const bad='Gear/Lures/assets/nonowned-cover.png';
+ let outcome=await f.publish('gear',{record:original,
+  markdown:'Original',media:[{logicalPath:bad,sha256:sha,
+   bytes:image.length,contentType:'image/png'}]});
+ assert.notEqual(outcome.status,200);
+ assert.equal(f.batches(),0);
+ assert.equal(f.count('d6_media_refs'),0);
+ const kb=f.publish('kb',{record:{...recordOf('kb'),
+  picture:{src:'KB/Species/assets/cover.png'}},
+  markdown:'Text',media:[{logicalPath:'KB/Knots/assets/fake/step-01.png',
+   sha256:sha,bytes:image.length,contentType:'image/png'}]});
+ outcome=await kb;
+ assert.notEqual(outcome.status,200);
+ assert.equal(f.count('d6_media_refs'),0);
+});
