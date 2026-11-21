@@ -12,6 +12,7 @@ import {prepareChange,narrativePath} from './handoff.mjs';
 import {createNotesMarkdownEditor} from './notes-markdown-editor.mjs';
 import {DIRECT_D1_MEDIA_CAPABILITIES,presentD6OwnerImageCapability}
  from './d6-owner-media-capabilities.mjs';
+import {saveD6OwnerEditorMedia} from './d6-owner-media-editor-save.mjs';
 import {restoreD5EditorDraft,saveD5EditorDraft} from './d5-editor-recovery.mjs';
 import {catchLureTargets,filterCatchLureTargets,applyCatchLureSelection}
  from './catch-lure-picker.mjs';
@@ -373,12 +374,13 @@ export async function createCatchEditor(ctx,{
    notesEditor.syncPaths();
     notesText=notesEditor.value();
     const notesUploads=notesEditor.uploads();
-    if(notesUploads.length&&typeof ctx.v3?.stageMedia!=='function')
-     throw Error('Direct Notes image publishing requires the D4 media service.');
+    // Legacy GitHub D4 staging is never the direct-D1 media writer.
+    if(notesUploads.length&&!directCatch)
+     throw Error('Legacy Notes-image publication is disabled.');
    if(directCatch){
     if(ctx.v3?.directCatchCanSave?.()!==true)
      throw Error('Work Offline or signed out. Save unavailable; your edit is preserved.');
-    if(notesUploads.length)
+    if(notesUploads.length&&ctx.v3?.mediaCapabilities?.canUploadNewImages!==true)
      throw Error('New Notes image uploads are unavailable. Your edit is preserved.');
     const candidate=clone(record);
     for(const key of ['time','size','speciesId','speciesName',
@@ -392,12 +394,23 @@ export async function createCatchEditor(ctx,{
     else delete candidate.notes;
     const maps=validateRecord(candidate,'catches',ctx.data);
     if(notesText.trim())parseMarkdown(notesText,{
-     owner:candidate.notes,maps,exists:ctx.v3.source.files,
+     owner:candidate.notes,maps,
+     exists:new Set([...ctx.v3.source.files,...notesUploads.map(x=>x.path)]),
      pathRoutes:markdownRouteMap(ctx.data),assetBase:ctx.base,
     });
-    const saved=await ctx.v3.directCatchClient.save({
-     record:candidate,notes:notesText,expectedRevision:directRevision,
-    });
+    // The approved hosted Worker remains upload-OFF; only a separately
+    // authorized coordinator can stage, publish and verify D1/R2.
+    const saved=notesUploads.length?
+     await saveD6OwnerEditorMedia({
+      domain:'catches',record:candidate,markdown:notesText,
+      expectedRevision:directRevision,
+      uploads:notesUploads.map(x=>({path:x.path,file:x.file,role:'notes'})),
+      capabilities:ctx.v3?.mediaCapabilities,
+      coordinator:ctx.v3?.ownerMediaCoordinator,
+     }):
+     await ctx.v3.directCatchClient.save({
+      record:candidate,notes:notesText,expectedRevision:directRevision,
+     });
     if(saved?.record?.id!==candidate.id||
        saved.revision!==directRevision+1)
      throw Error('Catch Save was not independently verified.');
