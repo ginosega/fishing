@@ -6,7 +6,7 @@
  */
 import {validateD6MediaOwnerPath,publishedD6MediaRole,d6ValidKnotSequence}
  from './d6-content-media-contract.mjs';
-import {noteImageReference} from './notes-markdown-editor.mjs';
+import {isD6NotesImageLinked} from './d6-notes-image-link.mjs';
 
 const fail=(code,message)=>Object.assign(new Error(message),{code});
 /**
@@ -41,7 +41,7 @@ export async function saveD6OwnerEditorMedia({
   seen.add(path);
   if(publishedD6MediaRole({domain,record,logicalPath:path,
       notesLinked:upload.role==='notes'&&
-      markdown.includes(noteImageReference(path))})!==upload.role)
+      isD6NotesImageLinked(markdown,path)})!==upload.role)
    throw fail('MEDIA_INVALID','Image is not linked by the revised record');
   prepared.push({logicalPath:path,role:upload.role,file:upload.file});
  }
