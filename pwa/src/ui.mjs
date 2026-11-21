@@ -208,7 +208,8 @@ export function createApp(ctx){
  }
  async function markdownContent(owner,textValue){
   const parsed=parseMarkdown(textValue,{owner,maps:ctx.maps,assetBase:ctx.base,
-   exists,pathRoutes:routes,allowMissingImages:readerOnly,viewerImages:readerOnly});
+   exists,pathRoutes:routes,allowMissingImages:readerOnly,viewerImages:readerOnly,
+   resolveImage:ctx.mediaLiveReader===true?ctx.image:null});
   const article=el('article',{class:'markdown-body'});
   article.innerHTML=sanitizeHtml(parsed.html,window);
   if(readerOnly)bindMarkdownPictureViewer(article,{

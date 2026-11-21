@@ -215,3 +215,32 @@ test('D6-V09 opt-in image viewer leaves untagged photos ordinary',()=>{
  active.imageNode.replacement.handlers.click();
  assert.equal(args[2],'Caption of fish');
 });
+
+test('V3-M02-08 private D1 image refs resolve before HTML insertion',()=>{
+ const live='https://example.test/api/v3/media/live/KB/Knots/assets/step-01.jpg';
+ const result=parsedMarkdown('![Synthetic knot](../assets/step-01.jpg "viewer")',{
+  resolveImage:path=>path===image?live:null,
+ });
+ assert.equal(result.references.length,1);
+ assert.equal(result.references[0].target,live);
+ assert.match(result.html,/api\/v3\/media\/live\/KB\/Knots\/assets\/step-01.jpg/);
+ assert.doesNotMatch(result.html,/releases\/abc123\/content/);
+ const missing=parsedMarkdown('Before ![Missing](../assets/step-01.jpg) after',{
+  resolveImage:()=>null,
+ });
+ assert.match(missing.html,/Picture unavailable: Missing/);
+ assert.doesNotMatch(missing.html,/<img\b/i);
+ assert.equal(missing.references.length,0);
+});
+test('V3-M02-09 browser Markdown rejects foreign or query-modified R2 paths',()=>{
+ for(const live of [
+  'https://evil.example/api/v3/media/live/KB/Knots/assets/step-01.jpg',
+  'https://example.test/api/v3/media/live/KB/Knots/assets/step-01.jpg?x=1',
+  'http://example.test/api/v3/media/live/KB/Knots/assets/step-01.jpg',
+  'https://username:secret@example.test/unauthorized',
+ ]){
+  assert.throws(()=>parsedMarkdown('![Image](../assets/step-01.jpg)',{
+   resolveImage:()=>live,
+  }),/Unverified image source/);
+ }
+});

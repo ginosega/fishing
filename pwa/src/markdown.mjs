@@ -35,7 +35,7 @@ export function resolveMarkdownTarget(url,{owner,maps,assetBase,pathRoutes=new M
  if(route)return {target:route+section(fragment),kind:'internal',local};
  return {target:new URL('content/'+encodedPath(local)+query+fragment,assetBase).href,kind:'local',local};
 }
-export function parseMarkdown(text,{owner,maps,assetBase='https://example.invalid/fishing/releases/test/',exists,pathRoutes=new Map(),ownerRoute,allowMissing=false,allowMissingImages=false,viewerImages=false}={}){
+export function parseMarkdown(text,{owner,maps,assetBase='https://example.invalid/fishing/releases/test/',exists,pathRoutes=new Map(),ownerRoute,allowMissing=false,allowMissingImages=false,viewerImages=false,resolveImage=null}={}){
  const tokens=md.parse(text,{}),references=[];
  function walk(items){for(const token of items){
   if(token.children)walk(token.children);
@@ -55,6 +55,27 @@ export function parseMarkdown(text,{owner,maps,assetBase='https://example.invali
   const missing=Boolean(resolved.local&&exists&&!exists.has(resolved.local));
   if(missing&&!allowMissing&&!(image&&allowMissingImages))
    throw new Error(`Missing Markdown resource: ${owner} -> ${resolved.local}`);
+  // For a verified D1/R2 online reader, resolve before HTML insertion.
+  // A missing published image becomes plain text; never first load the
+  // stale immutable-release URL and then swap the DOM src afterward.
+  if(image&&typeof resolveImage==='function'){
+   const live=resolveImage(resolved.local);
+   if(!live){
+    const alt=token.content?.trim()||'Picture';
+    token.type='text';token.tag='';token.attrs=null;token.children=null;
+    token.content='[Picture unavailable: '+alt+']';
+    continue;
+   }
+   let url,origin;
+   try{url=new URL(live);origin=new URL(assetBase);}
+   catch{throw Error('Unverified image source: '+owner);}
+   if(url.origin!==origin.origin||url.username||url.password||
+      url.search||url.hash||!(url.protocol==='https:'||
+       (url.protocol==='http:'&&
+        ['localhost','127.0.0.1','[::1]'].includes(url.hostname))))
+    throw Error('Unverified image source: '+owner);
+   resolved.target=url.href;
+  }
   references.push({owner,kind:image?'image':'link',source:original,...resolved,
    ...(viewerImages&&image?{isImage:true,viewerEnabled:Boolean(viewerMatch),viewerCaption:viewerMatch?.[1]||''}:{}),
    ...(image&&missing&&allowMissingImages?{missing:true}:{})});
