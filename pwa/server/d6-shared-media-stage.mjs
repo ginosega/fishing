@@ -7,7 +7,7 @@
  * this service can be enabled or deployed. Never fall back to GitHub writes.
  */
 import {safePath,ID_PATTERN} from '../src/shared.mjs';
-import {noteImagePath} from '../src/notes-markdown-editor.mjs';
+import {validateD6MediaOwnerPath} from '../src/d6-content-media-contract.mjs';
 import {createD2UnifiedOwnerSession}
  from '../../experiments/p3/preview/src/d2-unified-owner-session.mjs';
 
@@ -97,7 +97,7 @@ function dimensions(bytes,mime){
  }
  return [0,0];
 }
-export function validateD6MediaPath({domain,record,logicalPath}={}){
+export function validateD6MediaPath({domain,record,logicalPath,role='notes'}={}){
  failCheck(domainSet.has(domain),'domain');
  failCheck(typeof record==='object'&&record!==null&&
   typeof record.id==='string'&&ID_PATTERN.test(record.id)&&
@@ -106,8 +106,8 @@ export function validateD6MediaPath({domain,record,logicalPath}={}){
  const name=path.split('/').at(-1);
  failCheck(typeof name==='string'&&name.length>0&&
   !name.startsWith('.')&&mediaType[extension(name)],'filename');
- failCheck(path===noteImagePath(domain,record,name),'owner Notes path');
- return {logicalPath:path,mime:mediaType[extension(name)]};
+ const owner=validateD6MediaOwnerPath({domain,record,logicalPath:path,role});
+ return {logicalPath:owner.logicalPath,mime:mediaType[extension(name)],role:owner.role};
 }
 async function digest(bytes){
  const result=await crypto.subtle.digest('SHA-256',bytes);
@@ -188,10 +188,11 @@ export function createD6SharedMediaStage({
    const recordId=request.headers.get('X-Fish-V3-Media-Record');
    const category=request.headers.get('X-Fish-V3-Media-Category');
    const name=request.headers.get('X-Fish-V3-Media-Path');
+   const role=request.headers.get('X-Fish-V3-Media-Role')||'notes';
    const record={id:recordId,
     ...(domain==='gear'?{category}:
         domain==='kb'?{type:category}:{})};
-   const path=validateD6MediaPath({domain,record,logicalPath:name});
+   const path=validateD6MediaPath({domain,record,logicalPath:name,role});
    const bytes=await boundedBytes(request);
    const validated=await validateD6MediaBytes({bytes,
     contentType:request.headers.get('Content-Type'),
@@ -219,7 +220,7 @@ export function createD6SharedMediaStage({
     return fail(503,'MEDIA_STAGE_UNVERIFIED');
    return response(200,{ok:true,staged:true,
     recordId:info.recordId,domain:info.domain,
-    logicalPath:info.logicalPath,sha256:info.sha256,
+    logicalPath:info.logicalPath,role:info.role,sha256:info.sha256,
     storageKey:key,bytes:info.size,contentType:info.contentType,
     width:info.width,height:info.height,
     published:false});

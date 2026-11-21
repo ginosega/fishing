@@ -14,6 +14,8 @@ import {noteImageReference} from '../src/notes-markdown-editor.mjs';
 import {saveD6ContentRevision} from './d6-content-save-transaction.mjs';
 import {validateD6MediaPath,D6_MEDIA_LIMIT_BYTES}
  from './d6-shared-media-stage.mjs';
+import {publishedD6MediaRole,d6ValidKnotSequence}
+ from '../src/d6-content-media-contract.mjs';
 import {createD2UnifiedOwnerSession}
  from '../../experiments/p3/preview/src/d2-unified-owner-session.mjs';
 
@@ -102,10 +104,13 @@ async function validateStagedObjects(R2,domain,record,markdown,media){
      !Number.isSafeInteger(item.bytes)||item.bytes<1||
      item.bytes>D6_MEDIA_LIMIT_BYTES||!MIME.has(item.contentType))
    throw Error('MEDIA_MANIFEST_INVALID');
+  const role=publishedD6MediaRole({domain,record,
+   logicalPath:item.logicalPath,
+   notesLinked:isD6NotesImageLinked(markdown,item.logicalPath)});
+  if(!role)throw Error('MEDIA_REFERENCE_INVALID');
   const path=validateD6MediaPath({domain,record,
-   logicalPath:item.logicalPath});
-  if(path.mime!==item.contentType||seen.has(path.logicalPath)||
-     !isD6NotesImageLinked(markdown,path.logicalPath))
+   logicalPath:item.logicalPath,role});
+  if(path.mime!==item.contentType||seen.has(path.logicalPath))
    throw Error('MEDIA_REFERENCE_INVALID');
   seen.add(path.logicalPath);
   const head=await R2.head(entryKey(item.sha256));
@@ -113,7 +118,16 @@ async function validateStagedObjects(R2,domain,record,markdown,media){
    throw Error('MEDIA_NOT_STAGED');
   validated.push({logicalPath:path.logicalPath,
    sha256:item.sha256,bytes:item.bytes,mime:item.contentType,
-   storageKey:entryKey(item.sha256)});
+   storageKey:entryKey(item.sha256),role});
+ }
+ if(validated.some(x=>x.role==='knot-step')){
+  // All ordered Knot frames publish in one D1 transaction, never a subset.
+  if(domain!=='kb'||!d6ValidKnotSequence(record)||
+     !record.pictureSequence.every(p=>validated.some(x=>
+      x.role==='knot-step'&&x.logicalPath===p))||
+     validated.filter(x=>x.role==='knot-step').length!==
+      record.pictureSequence.length)
+   throw Error('KNOT_SEQUENCE_INCOMPLETE');
  }
  return validated;
 }
@@ -188,7 +202,7 @@ export async function publishD6MediaRevision({
   return {status:200,
    result:{record,revision:saved.revision,
     [d.jsField]:markdown,media:staged.map(asset=>({
-     logicalPath:asset.logicalPath,sha256:asset.sha256,
+     logicalPath:asset.logicalPath,role:asset.role,sha256:asset.sha256,
      bytes:asset.bytes,contentType:asset.mime,
     })),published:true}};
  }catch{
@@ -268,11 +282,14 @@ export function createD6SharedMediaLive({
    if(!row||row.id!==ref.record_id)return fail(404,'NOT_FOUND');
    let record;
    try{record=JSON.parse(row.record_json);}catch{return fail(503,'MEDIA_UNVERIFIED');}
-   if(!validators[ref.domain](record)||record.id!==ref.record_id||
-      !isD6NotesImageLinked(row[d.field],path))
+   if(!validators[ref.domain](record)||record.id!==ref.record_id)
     return fail(404,'NOT_FOUND');
-   if(validateD6MediaPath({domain:ref.domain,record,
-      logicalPath:path}).mime===undefined)return fail(404,'NOT_FOUND');
+   const role=publishedD6MediaRole({domain:ref.domain,record,
+    logicalPath:path,notesLinked:isD6NotesImageLinked(row[d.field],path)});
+   if(!role)return fail(404,'NOT_FOUND');
+   const verified=validateD6MediaPath({domain:ref.domain,record,
+    logicalPath:path,role});
+   if(!verified.mime)return fail(404,'NOT_FOUND');
    const stored=await CONTENT_DB.prepare(
     'SELECT storage_key,mime,bytes FROM d6_media_objects WHERE sha256=?'
    ).bind(ref.sha256).first();
