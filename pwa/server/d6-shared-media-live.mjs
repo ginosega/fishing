@@ -156,8 +156,7 @@ function validRecord(domain,record,markdown,expectedRevision){
  if(!acceptedDomain(domain)||!idValid(record?.id)||
     !validators[domain](record)||typeof markdown!=='string'||
     bytes(markdown)>MAX_NOTES||!Number.isSafeInteger(expectedRevision)||
-    expectedRevision<0||
-    (domain!=='catches'&&expectedRevision===0))return false;
+    expectedRevision<0)return false;
  const path=record[DOMAINS[domain].fieldInRecord];
  if(typeof path!=='string'||!path.trim()||!markdown.trim())return false;
  if(domain==='catches'&&path!=='Catches/content/'+record.id+'.md')
@@ -176,7 +175,9 @@ export async function publishD6MediaRevision({
     !CONTENT_DB?.prepare||typeof CONTENT_DB.batch!=='function'||
     typeof R2?.head!=='function'||typeof now!=='function')
   return {status:400,error:'INVALID_MEDIA_EDIT'};
- const d=DOMAINS[domain],isNew=domain==='catches'&&expectedRevision===0;
+ // C01 insert-only Add is supported for Gear and KB as well as Catches.
+ // The shared D1 transaction core independently guards revision 0.
+ const d=DOMAINS[domain],isNew=expectedRevision===0;
  try{
   if(domain==='catches'&&!(await validateCatchLinks(CONTENT_DB,record)))
    return {status:400,error:'INVALID_REFERENCE'};
