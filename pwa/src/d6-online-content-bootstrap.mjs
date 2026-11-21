@@ -4,7 +4,7 @@
  * Scoped to the existing fully flagged private direct-D1 build.
  */
 import {validateRecords} from './validation.mjs';
-import {validD6Catalog} from './d6-catalog-invariants.mjs';
+import {verifyD6OriginalIds} from './d6-original-id-ledger.mjs';
 
 const DOMAINS=['gear','kb','catches'];
 export function isD6DirectContentBootstrap(v3){
@@ -69,21 +69,30 @@ export async function chooseD6BootstrapContent({
  if(!['Automatic','Work Offline'].includes(mode))
   throw Error('V3_READING_MODE_UNAVAILABLE');
  if(mode==='Work Offline')return fallback(mode);
- const [gear,kb,catches]=await Promise.all([
-  v3.directGearClient.list(),v3.directKBClient.list(),
-  v3.directCatchClient.list(),
- ]);
- const data={
-  gear:{schemaVersion:2,items:gear},
-  kb:{schemaVersion:2,entities:kb},
-  catches:{schemaVersion:2,catches},
- };
- for(const [domain,records] of [
-  ['gear',gear],['kb',kb],['catches',catches],
- ])if(!validD6Catalog(domain,{items:records,count:records.length}))
-  throw Error('D1_'+domain.toUpperCase()+'_CATALOG_UNVERIFIED');
- // Reject all cross-domain invalid references and schemas before displaying
- // or modifying app state, not one domain at a time.
- validateRecords(data);
- return {source:'d1',readingMode:'Automatic',data};
+ try{
+  const [gear,kb,catches]=await Promise.all([
+   v3.directGearClient.list(),v3.directKBClient.list(),
+   v3.directCatchClient.list(),
+  ]);
+  const data={
+   gear:{schemaVersion:2,items:gear},
+   kb:{schemaVersion:2,entities:kb},
+   catches:{schemaVersion:2,catches},
+  };
+  // These independently pinned migration IDs must ALL still exist. A D1
+  // catalog with the same row count but one substituted ID is rejected.
+  for(const [domain,records] of [
+   ['gear',gear],['kb',kb],['catches',catches],
+  ])if(!verifyD6OriginalIds(domain,records))
+   throw Error('D1_'+domain.toUpperCase()+'_BASELINE_INCOMPLETE');
+  // Schema, category, references, and relationships are checked as one graph.
+  validateRecords(data);
+  return {source:'d1',readingMode:'Automatic',data};
+ }catch(cause){
+  // Never substitute frozen release content automatically. The UI may offer
+  // a user-triggered switch ONLY through the existing verified SW offline gate.
+  throw Object.assign(new Error(
+   'Current online fishing content could not be verified. Retry online, or open a previously prepared offline library.'
+  ),{code:'D1_BOOTSTRAP_UNAVAILABLE',cause});
+ }
 }

@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createD6DirectContentFixture} from './support/d6-online-content-fixture.mjs';
+import {D6_ORIGINAL_IDS,verifyD6OriginalIds} from '../src/d6-original-id-ledger.mjs';
+import {readFileSync} from 'node:fs';
 import {chooseD6BootstrapContent,isD6DirectContentBootstrap,
  readD6VerifiedMode} from '../src/d6-online-content-bootstrap.mjs';
 
@@ -65,7 +67,8 @@ test('V3-ONLINE05 ordinary V2 or partial V3 build does not change release boot',
  }
 });
 test('V3-ONLINE06 corrupted D1 records or partial catalog fail closed, no static fallback',async()=>{
- for(const kind of ['short','duplicate','badType','missingReference']){
+ for(const kind of ['short','duplicate','badType','missingReference',
+  'sameCountSwapGear','sameCountSwapKB','sameCountSwapCatch']){
   const h=createD6DirectContentFixture({fault:kind});
   await assert.rejects(chooseD6BootstrapContent({
    v3:h.v3,online:true,readMode:async()=> 'Automatic',
@@ -103,4 +106,40 @@ test('V3-ONLINE08 service-worker reading mode request is read-only and validated
  assert.deepEqual(calls,[{type:'V3_READ_MODE'}]);
  await assert.rejects(readD6VerifiedMode({controller:null,timeoutMs:1}),
   /V3_READING_MODE_UNAVAILABLE/);
+});
+
+test('V3-C03-01 ledger exactly matches pinned original 100/60/12 sources',()=>{
+ for(const [domain,file,field] of [
+  ['gear','Gear/gear.json','items'],
+  ['kb','KB/kb.json','entities'],
+  ['catches','Catches/catches.json','catches'],
+ ]){
+  const raw=JSON.parse(readFileSync(new URL('../'+file,import.meta.url),'utf8'));
+  const original=raw[field].map(x=>x.id).sort();
+  assert.equal(new Set(original).size,original.length);
+  assert.deepEqual([...D6_ORIGINAL_IDS[domain]],original);
+  assert.equal(verifyD6OriginalIds(domain,
+   original.map(id=>({id}))),true);
+  assert.equal(verifyD6OriginalIds(domain,
+   [...original.slice(1), 'substitute-not-the-original'].map(id=>({id}))),false);
+ }
+});
+test('V3-C03-02 equal-count substitution fails before displaying D1 graph',async()=>{
+ for(const fault of ['sameCountSwapGear','sameCountSwapKB','sameCountSwapCatch']){
+  const h=createD6DirectContentFixture({fault});
+  await assert.rejects(chooseD6BootstrapContent({
+   v3:h.v3,online:true,readMode:async()=> 'Automatic',
+   loadRelease:async()=>{throw Error('Never use stale release automatically');},
+  }),error=>error.code==='D1_BOOTSTRAP_UNAVAILABLE'&&
+    /BASELINE_INCOMPLETE/.test(error.cause?.message??''));
+ }
+});
+test('V3-C03-03 live D1 network failure yields typed recovery, no legacy fallback',async()=>{
+ const h=createD6DirectContentFixture();
+ h.v3.directGearClient.list=async()=>{throw Error('HTTP 503');};
+ await assert.rejects(chooseD6BootstrapContent({
+  v3:h.v3,online:true,readMode:async()=> 'Automatic',
+  loadRelease:async()=>{throw Error('Unsafe silent fallback');},
+ }),error=>error.code==='D1_BOOTSTRAP_UNAVAILABLE'&&
+   /Retry online/.test(error.message));
 });
