@@ -71,14 +71,14 @@ test('V3-GEAR-LIST03 public collection is read-only and no authorizer is consult
  assert.equal(x.writes(),0);
 });
 
-test('V3-GEAR-LIST04 online and offline safeguards and no misleading Add Gear',()=>{
+test('V3-GEAR-LIST04 online catalog, offline safeguards and owner-gated Add Gear',()=>{
  const ui=readFileSync(new URL('../src/ui.mjs',import.meta.url),'utf8');
  assert.match(ui,/ensureGearCatalog\(\)/);
  assert.match(ui,/ctx\.v3\.directGearClient\.list\(\)/);
  assert.match(ui,/offline\.getMode\(\)!=='Automatic'/);
- assert.match(ui,/ctx\.data=data;ctx\.maps=maps;gearCatalogReady=true/);
+ assert.match(ui,/ctx\.data=data;ctx\.maps=maps;routes=markdownRouteMap\(data\);gearCatalogReady=true/);
  assert.match(ui,/onDirectGearSaved:\(\)=>\{gearCatalogReady=false;\}/);
- assert.match(ui,/showEditingLinks\(\)\&\&!\(\(gear\&\&ctx\.v3\?\.directGearEnabled===true/);
- assert.match(ui,/!gear\&\&ctx\.v3\?\.directKBEnabled===true/);
+ assert.match(ui,/showEditingLinks\(\)\?/);
+ assert.match(ui,/requiredIds:frozenGearIds/);
  assert.match(ui,/navigator\.onLine===true&&offline\?\.getModeAvailable\?\.\(\)===true&&/);
 });

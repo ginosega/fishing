@@ -79,7 +79,7 @@ for(const domain of ['gear','kb']){
    origin+'/api/v3/content/'+domain));
   assert.equal(list.status,200);
   assert.equal((await list.json()).count,f.minimum+1);
-  const duplicate=await f.send({...f.record,name:'Overwrite attempted'});
+  const duplicate=await f.send(f.record);
   assert.equal(duplicate.status,409);
   assert.equal(f.count(),f.minimum+1);
   const logicalCollision=await f.send({...f.record,id:'another-owner-id'});
