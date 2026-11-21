@@ -7,6 +7,7 @@ import {validateBrowserImage} from './image-validation.mjs';
 import {validateD6MediaOwnerPath,publishedD6MediaRole,d6ValidKnotSequence}
  from './d6-content-media-contract.mjs';
 import {encodedPath} from './shared.mjs';
+import {isD6NotesImageLinked} from './d6-notes-image-link.mjs';
 const CSRF=/^[A-Za-z0-9_-]{43}$/;
 const MIME={png:'image/png',gif:'image/gif',jpg:'image/jpeg',
  jpeg:'image/jpeg',webp:'image/webp'};
@@ -103,7 +104,7 @@ export function createD6OwnerMediaUploadCoordinator({
   return receipt;
   }finally{stagePending.delete(owner.logicalPath);}
  }
- function manifest(domain,record,staged){
+ function manifest(domain,record,markdown,staged){
   if(!DOMAIN[domain]||typeof record?.id!=='string'||
      !Array.isArray(staged)||staged.length<1||staged.length>32)
    throw fail('INVALID','Invalid image manifest');
@@ -112,7 +113,8 @@ export function createD6OwnerMediaUploadCoordinator({
    if(!x||x.domain!==domain||x.recordId!==record.id||
       receipts.get(x.logicalPath)!==x||paths.has(x.logicalPath)||
       publishedD6MediaRole({domain,record,logicalPath:x.logicalPath,
-       notesLinked:true})!==x.role)
+       notesLinked:x.role==='notes'&&
+        isD6NotesImageLinked(markdown,x.logicalPath)})!==x.role)
     throw fail('INVALID','Image receipt is not owned by revised record');
    paths.add(x.logicalPath);
   }
@@ -129,7 +131,7 @@ export function createD6OwnerMediaUploadCoordinator({
   guard();
   if(typeof markdown!=='string'||!Number.isSafeInteger(expectedRevision)||
      expectedRevision<0)throw fail('INVALID','Invalid revision or Markdown');
-  const files=manifest(domain,record,staged),config=DOMAIN[domain];
+  const files=manifest(domain,record,markdown,staged),config=DOMAIN[domain];
   const token=await csrf(domain);
   // A lost D1 acknowledgement is ambiguous: do not submit a second Save
   // even while retaining the original receipts for explicit recovery.
