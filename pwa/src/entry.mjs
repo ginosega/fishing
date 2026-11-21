@@ -1,4 +1,5 @@
 import {bootstrap} from './app.mjs';
+import {mountD6OfflineRecovery} from './d6-online-recovery.mjs';
 import {selectD6PublicReader} from './d6-public-reader.mjs';
 import {createD6OwnerSessionReadiness} from './d6-owner-session-readiness.mjs';
 import {createD6CanonicalSourceClient} from './d6-canonical-authoring-source.mjs';
@@ -94,5 +95,7 @@ Promise.resolve().then(()=>bootstrap(settings,d6Context())).catch(error=>{
  const heading=document.createElement('h1');heading.textContent='Fishing Companion could not load';
  const message=document.createElement('p');message.textContent=error.message;
  const retry=document.createElement('button');retry.textContent='Retry';retry.onclick=()=>location.reload();
- main.append(heading,message,retry);console.error(error);
+ main.append(heading,message,retry);
+ mountD6OfflineRecovery({main,error,releaseId:settings.release?.id});
+ console.error(error);
 });
