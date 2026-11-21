@@ -2,8 +2,7 @@ import {createApp} from './ui.mjs';
 import {validateRecords} from './validation.mjs';
 import {DOMAIN,encodedPath} from './shared.mjs';
 import {chooseD6BootstrapContent,readD6VerifiedMode} from './d6-online-content-bootstrap.mjs';
-import {createD6ContentImageResolver,d6ResolveImageForDisplay}
- from './d6-content-image-resolver.mjs';
+import {createD6ContentImageResolver,d6ResolveImageForDisplay} from './d6-content-image-resolver.mjs';
 
 export async function bootstrap({root,release},{v3=null}={}){
  const base=new URL('releases/'+release.id+'/',root).href;
