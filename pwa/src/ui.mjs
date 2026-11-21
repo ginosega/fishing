@@ -45,7 +45,7 @@ export function createApp(ctx){
  const root=document.getElementById('app'),alertHost=document.getElementById('app-notice'),offlineHost=document.getElementById('offline-status');
  const frozenGearIds=new Set(ctx.data.gear.items.map(x=>x.id));
  const frozenKBIds=new Set(ctx.data.kb.entities.map(x=>x.id));
- const routes=markdownRouteMap(ctx.data),exists=new Set(ctx.manifest.files.filter(x=>x.path.startsWith(`releases/${ctx.release.id}/content/`)).map(x=>x.path.slice(`releases/${ctx.release.id}/content/`.length)));
+ let routes=markdownRouteMap(ctx.data);const exists=new Set(ctx.manifest.files.filter(x=>x.path.startsWith(`releases/${ctx.release.id}/content/`)).map(x=>x.path.slice(`releases/${ctx.release.id}/content/`.length)));
  let currentHash=location.hash||'#/',route=parseRoute(currentHash),editor=null,serial=0,offline=null,approvedNavigation=null,previousHash=null;
  // Frozen static Gear remains the read-only Work Offline fallback.
  // Only a verified Automatic-mode 100-row D1 response becomes online canonical.
@@ -61,7 +61,7 @@ export function createApp(ctx){
     throw Error('Migrated Gear IDs are missing from the D1 library.');
    const data={...ctx.data,gear:{...ctx.data.gear,items}};
    const maps=validateRecords(data);
-   ctx.data=data;ctx.maps=maps;gearCatalogReady=true;
+   ctx.data=data;ctx.maps=maps;routes=markdownRouteMap(data);gearCatalogReady=true;
   })().finally(()=>{gearCatalogPending=null;});
   return gearCatalogPending;
  }
@@ -79,7 +79,7 @@ export function createApp(ctx){
     throw Error('Migrated KB IDs are missing from the D1 library.');
    const data={...ctx.data,kb:{...ctx.data.kb,entities:items}};
    const maps=validateRecords(data);
-   ctx.data=data;ctx.maps=maps;kbCatalogReady=true;
+   ctx.data=data;ctx.maps=maps;routes=markdownRouteMap(data);kbCatalogReady=true;
   })().finally(()=>{kbCatalogPending=null;});
   return kbCatalogPending;
  }
@@ -98,7 +98,7 @@ export function createApp(ctx){
       ![...originalCatchIds].every(id=>ids.has(id)))
     throw Error('Migrated Catch IDs differ from frozen library.');
    const data={...ctx.data,catches:{...ctx.data.catches,catches:items}};
-   ctx.maps=validateRecords(data);ctx.data=data;catchCatalogReady=true;
+   ctx.maps=validateRecords(data);ctx.data=data;routes=markdownRouteMap(data);catchCatalogReady=true;
   })().finally(()=>{catchCatalogPending=null;});
   return catchCatalogPending;
  }
