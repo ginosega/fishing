@@ -6,6 +6,7 @@
 import Ajv2020 from 'ajv/dist/2020.js';
 import schema from '../contracts/schema.json' with {type:'json'};
 import {narrativePath} from '../src/handoff.mjs';
+import {saveD6ContentRevision} from './d6-content-save-transaction.mjs';
 import {createD2UnifiedOwnerSession}
  from '../../experiments/p3/preview/src/d2-unified-owner-session.mjs';
 
@@ -131,28 +132,15 @@ export function createD6DirectGearService({
       Boolean(input.record.picture))))
    return fail(400,'INVALID_RECORD');
 
-  // One atomic conditional update. A stale browser cannot overwrite
-  // somebody else's newer revision; zero affected rows means conflict.
-  try{
-   const result=input.expectedRevision===0?
-    await CONTENT_DB.prepare(
-     'INSERT INTO d6_gear_records (id,revision,record_json,notes_text,updated_at)'+
-     ' SELECT ?,1,?,?,? WHERE (? IS NULL OR NOT EXISTS ('+
-     "SELECT 1 FROM d6_gear_records WHERE json_extract(record_json,'$.notes')=?))"+
-     ' ON CONFLICT(id) DO NOTHING'
-    ).bind(id,JSON.stringify(input.record),input.notes,now(),
-     input.record.notes??null,input.record.notes??null).run():
-    await CONTENT_DB.prepare(
-     'UPDATE d6_gear_records SET record_json=?,notes_text=?,revision=revision+1,updated_at=? WHERE id=? AND revision=?'
-    ).bind(JSON.stringify(input.record),input.notes,now(),id,input.expectedRevision).run();
-   if(result?.success!==true)return fail(503,'SAVE_UNCONFIRMED');
-   if(result.meta?.changes===0)return fail(409,'RECORD_CHANGED');
-   if(result.meta?.changes!==1)return fail(503,'SAVE_UNCONFIRMED');
-   const saved=safeRow(await getRow(CONTENT_DB,id),id);
-   if(!saved||saved.revision!==input.expectedRevision+1)
-    return fail(503,'SAVE_UNCONFIRMED');
-   return reply(200,{ok:true,...saved});
-  }catch{return fail(503,'SAVE_UNCONFIRMED');}
+  // Shared D1 mutation contract also used by the disabled media service.
+  // Existing text-only saves still use one exact-revision conditional .run().
+  const saved=await saveD6ContentRevision({
+   CONTENT_DB,domain:'gear',record:input.record,markdown:input.notes,
+   expectedRevision:input.expectedRevision,now,
+  });
+  if(saved.status!==200)return fail(saved.status,saved.error);
+  const safe=safeRow(saved.row,id);
+  return safe?reply(200,{ok:true,...safe}):fail(503,'SAVE_UNCONFIRMED');
  }
  return Object.freeze({handle});
 }

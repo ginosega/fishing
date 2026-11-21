@@ -4,6 +4,7 @@
  */
 import Ajv2020 from 'ajv/dist/2020.js';
 import schema from '../contracts/schema.json' with {type:'json'};
+import {saveD6ContentRevision} from './d6-content-save-transaction.mjs';
 import {createD2UnifiedOwnerSession}
  from '../../experiments/p3/preview/src/d2-unified-owner-session.mjs';
 
@@ -149,28 +150,19 @@ export function createD6DirectCatchService({
   try{
    if(!(await validReferences(CONTENT_DB,input.record)))
     return fail(400,'INVALID_REFERENCE');
-   const json=JSON.stringify(input.record),time=now();
-   let result;
-   if(input.expectedRevision===0){
-    result=await CONTENT_DB.prepare(
-     'INSERT INTO d6_catch_records(id,revision,record_json,notes_text,updated_at) VALUES(?,1,?,?,?) ON CONFLICT(id) DO NOTHING'
-    ).bind(id,json,input.notes,time).run();
-   }else{
+   if(input.expectedRevision>0){
     const previous=safeRow(await select(CONTENT_DB,id),id);
     if(!previous)return fail(409,'RECORD_CHANGED');
     if(previous.record.notes&&!input.record.notes)
      return fail(400,'CANNOT_REMOVE_EXISTING_NOTES');
-    result=await CONTENT_DB.prepare(
-     'UPDATE d6_catch_records SET record_json=?,notes_text=?,revision=revision+1,updated_at=? WHERE id=? AND revision=?'
-    ).bind(json,input.notes,time,id,input.expectedRevision).run();
    }
-   if(result?.success!==true)return fail(503,'SAVE_UNCONFIRMED');
-   if(result.meta?.changes===0)return fail(409,'RECORD_CHANGED');
-   if(result.meta?.changes!==1)return fail(503,'SAVE_UNCONFIRMED');
-   const saved=safeRow(await select(CONTENT_DB,id),id);
-   if(!saved||saved.revision!==input.expectedRevision+1)
-    return fail(503,'SAVE_UNCONFIRMED');
-   return reply(200,{ok:true,...saved});
+   const saved=await saveD6ContentRevision({
+    CONTENT_DB,domain:'catches',record:input.record,markdown:input.notes,
+    expectedRevision:input.expectedRevision,now,
+   });
+   if(saved.status!==200)return fail(saved.status,saved.error);
+   const safe=safeRow(saved.row,id);
+   return safe?reply(200,{ok:true,...safe}):fail(503,'SAVE_UNCONFIRMED');
   }catch{return fail(503,'SAVE_UNCONFIRMED');}
  }
  return Object.freeze({handle});

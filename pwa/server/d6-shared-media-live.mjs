@@ -11,6 +11,7 @@ import schema from '../contracts/schema.json' with {type:'json'};
 import MarkdownIt from 'markdown-it';
 import {ID_PATTERN,encodedPath,safePath} from '../src/shared.mjs';
 import {noteImageReference} from '../src/notes-markdown-editor.mjs';
+import {saveD6ContentRevision} from './d6-content-save-transaction.mjs';
 import {validateD6MediaPath,D6_MEDIA_LIMIT_BYTES}
  from './d6-shared-media-stage.mjs';
 import {createD2UnifiedOwnerSession}
@@ -188,56 +189,13 @@ export async function publishD6MediaRevision({
       (domain==='catches'&&previous.notes&&!record.notes))
     return {status:400,error:'INVALID_MEDIA_EDIT'};
   }
-  const timestamp=now();
-  if(!Number.isSafeInteger(timestamp)||timestamp<0)
-   return {status:503,error:'CLOCK_UNAVAILABLE'};
-  const guard=CONTENT_DB.prepare(revisionGuardSQL(d,isNew?'create':'update'))
-   .bind(...(isNew?[record.id]:[record.id,expectedRevision]));
-  const content=isNew?
-   CONTENT_DB.prepare(`INSERT INTO ${d.table}
-    (id,revision,record_json,${d.field},updated_at)
-    VALUES(?,1,?,?,?)`).bind(record.id,JSON.stringify(record),markdown,timestamp):
-   CONTENT_DB.prepare(`UPDATE ${d.table}
-    SET record_json=?,${d.field}=?,revision=revision+1,updated_at=?
-    WHERE id=? AND revision=?`)
-    .bind(JSON.stringify(record),markdown,timestamp,record.id,expectedRevision);
-  const batch=[guard,content];
-  for(const asset of staged){
-   batch.push(CONTENT_DB.prepare(
-    'INSERT INTO d6_media_objects (sha256,storage_key,mime,bytes,created_at)'+
-    ' VALUES(?,?,?,?,?) ON CONFLICT(sha256) DO NOTHING'
-   ).bind(asset.sha256,asset.storageKey,asset.mime,asset.bytes,timestamp));
-   batch.push(CONTENT_DB.prepare(
-    'INSERT INTO d6_media_refs (logical_path,domain,record_id,sha256,created_at)'+
-    ' VALUES(?,?,?,?,?)'
-   ).bind(asset.logicalPath,domain,record.id,asset.sha256,timestamp));
-  }
-  // Guarantees rollback of content Save + all media rows together.
-  let outcome;
-  try{outcome=await CONTENT_DB.batch(batch);}
-  catch{
-   // A concurrent direct editor can win between preflight and the guarded
-   // transaction. The batch rolled back; recheck exact revision for 409.
-   try{
-    const latest=await CONTENT_DB.prepare(selectSql(d))
-     .bind(record.id).first();
-    if(isNew?Boolean(latest):!latest||
-       latest.revision!==expectedRevision)
-     return {status:409,error:'RECORD_CHANGED'};
-   }catch{/* unverifiable DB state is not a conflict proof */}
-   return {status:503,error:'MEDIA_PUBLISH_UNVERIFIED'};
-  }
-  if(!Array.isArray(outcome)||outcome.length!==batch.length||
-     outcome.some(x=>x?.success!==true)||
-     outcome[0].results?.[0]?.media_guard!==1||
-     outcome[1].meta?.changes!==1||
-     staged.some((_,i)=>outcome[3+2*i]?.meta?.changes!==1))
-   return {status:503,error:'MEDIA_PUBLISH_UNVERIFIED'};
-  const saved=await CONTENT_DB.prepare(selectSql(d)).bind(record.id).first();
-  if(!saved||saved.revision!==expectedRevision+1||
-     saved.record_json!==JSON.stringify(record)||
-     saved[d.field]!==markdown)
-   return {status:503,error:'MEDIA_PUBLISH_UNVERIFIED'};
+  const saved=await saveD6ContentRevision({
+   CONTENT_DB,domain,record,markdown,expectedRevision,media:staged,now,
+  });
+  if(saved.status!==200)return {
+   status:saved.status,
+   error:saved.status===409?'RECORD_CHANGED':'MEDIA_PUBLISH_UNVERIFIED',
+  };
   return {status:200,
    result:{record,revision:saved.revision,
     [d.jsField]:markdown,media:staged.map(asset=>({
