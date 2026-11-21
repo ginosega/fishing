@@ -83,7 +83,8 @@ test('M02 malformed or incomplete image manifests make zero provider calls',asyn
  ];
  for(const input of bad){
   const h=harness();
-  await assert.rejects(use(h,input),/MEDIA_INVALID|not linked|Knot|cover/);
+  await assert.rejects(use(h,input),e=>
+   e.code==='MEDIA_INVALID'||/MEDIA_INVALID/.test(e.message));
   assert.equal(h.calls.length,0);
  }
 });
