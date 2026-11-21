@@ -54,7 +54,8 @@ function setup(domain){
   const csrf=(await session.describe(new Request(origin+'/fishing/',{
    headers:{Cookie:cookie,'Sec-Fetch-Site':'same-origin'},
   }))).csrfToken;
-  const response=await service.handle(new Request(url,{
+  const endpoint=origin+'/api/v3/content/'+domain+'/'+recordOverride.id;
+  const response=await service.handle(new Request(endpoint,{
    method:'POST',headers:{Origin:origin,
     Cookie:cookie,'Sec-Fetch-Site':'same-origin',
     'X-Fish-V3-Intent':'save-'+domain,'X-Fish-V3-CSRF':csrf,
@@ -80,6 +81,9 @@ for(const domain of ['gear','kb']){
   assert.equal((await list.json()).count,f.minimum+1);
   const duplicate=await f.send({...f.record,name:'Overwrite attempted'});
   assert.equal(duplicate.status,409);
+  assert.equal(f.count(),f.minimum+1);
+  const logicalCollision=await f.send({...f.record,id:'another-owner-id'});
+  assert.equal(logicalCollision.status,409);
   assert.equal(f.count(),f.minimum+1);
   const edited=await f.send({...f.record,name:'Updated after create'},1);
   assert.equal(edited.status,200);

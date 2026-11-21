@@ -137,8 +137,11 @@ export function createD6DirectGearService({
    const result=input.expectedRevision===0?
     await CONTENT_DB.prepare(
      'INSERT INTO d6_gear_records (id,revision,record_json,notes_text,updated_at)'+
-     ' VALUES(?,1,?,?,?) ON CONFLICT(id) DO NOTHING'
-    ).bind(id,JSON.stringify(input.record),input.notes,now()).run():
+     ' SELECT ?,1,?,?,? WHERE (? IS NULL OR NOT EXISTS ('+
+     "SELECT 1 FROM d6_gear_records WHERE json_extract(record_json,'$.notes')=?))"+
+     ' ON CONFLICT(id) DO NOTHING'
+    ).bind(id,JSON.stringify(input.record),input.notes,now(),
+     input.record.notes??null,input.record.notes??null).run():
     await CONTENT_DB.prepare(
      'UPDATE d6_gear_records SET record_json=?,notes_text=?,revision=revision+1,updated_at=? WHERE id=? AND revision=?'
     ).bind(JSON.stringify(input.record),input.notes,now(),id,input.expectedRevision).run();

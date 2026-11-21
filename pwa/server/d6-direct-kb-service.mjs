@@ -126,8 +126,11 @@ export function createD6DirectKBService({
    const result=input.expectedRevision===0?
     await CONTENT_DB.prepare(
      'INSERT INTO d6_kb_records (id,revision,record_json,content_text,updated_at)'+
-     ' VALUES(?,1,?,?,?) ON CONFLICT(id) DO NOTHING'
-    ).bind(id,JSON.stringify(input.record),input.markdown,now()).run():
+     ' SELECT ?,1,?,?,? WHERE NOT EXISTS ('+
+     "SELECT 1 FROM d6_kb_records WHERE json_extract(record_json,'$.content')=?)"+
+     ' ON CONFLICT(id) DO NOTHING'
+    ).bind(id,JSON.stringify(input.record),input.markdown,now(),
+     input.record.content).run():
     await CONTENT_DB.prepare(
      'UPDATE d6_kb_records SET record_json=?,content_text=?,revision=revision+1,updated_at=? WHERE id=? AND revision=?'
     ).bind(JSON.stringify(input.record),input.markdown,now(),id,input.expectedRevision).run();
