@@ -113,7 +113,7 @@ test('M02 shared browser and server proof accepts only real Markdown images',()=
   '[Fish]('+ref+')',
   'Plain path: '+ref,
   '`![Fish]('+ref+')`',
-  '```md\\n![Fish]('+ref+')\\n```',
+  '```md\n![Fish]('+ref+')\n```',
   '![]('+ref+')',
  ]){
   assert.equal(isD6NotesImageLinked(markdown,notesPath),false);
