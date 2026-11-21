@@ -226,6 +226,59 @@ test('V3-MEDIA-LIVE07 Catch Add with expectedRevision 0 is atomic',async()=>{
  assert.equal((await f.publish('catches',{expectedRevision:0})).status,409);
  assert.equal(f.count('d6_media_refs'),1);
 });
+test('M02 Gear and KB revision-zero media Add is insert-only and readable',async()=>{
+ for(const domain of ['gear','kb']){
+  const f=fixture();
+  const created=await f.publish(domain,{expectedRevision:0});
+  assert.equal(created.status,200,domain+': '+created.error);
+  assert.equal(created.result.revision,1);
+  assert.equal(f.count(dbOf(domain)),1);
+  assert.equal(f.count('d6_media_refs'),1);
+  assert.equal((await f.live({enabled:()=>true}).handle(
+   new Request(f.url(domain)))).status,200);
+  const duplicate=await f.publish(domain,{expectedRevision:0});
+  assert.equal(duplicate.status,409,'revision zero must never edit');
+  assert.equal(f.count(dbOf(domain)),1);
+  assert.equal(f.count('d6_media_refs'),1);
+ }
+});
+test('M02 new Gear/KB cover images insert atomically with owner records',async()=>{
+ for(const domain of ['gear','kb']){
+  const f=fixture();
+  const path=domain==='gear'?
+   'Gear/Lures/assets/new-cover.png':
+   'KB/Species/assets/new-cover.png';
+  const record={...recordOf(domain),picture:{src:path}};
+  const result=await f.publish(domain,{record,expectedRevision:0,
+   markdown:'An owner record with a new cover',
+   media:[{logicalPath:path,sha256:sha,bytes:image.length,
+    contentType:'image/png'}]});
+  assert.equal(result.status,200,domain+': '+result.error);
+  assert.equal(result.result.revision,1);
+  assert.equal(f.count('d6_media_refs'),1);
+  assert.equal((await f.live({enabled:()=>true}).handle(new Request(
+   origin+'/api/v3/media/live/'+encodedPath(path)))).status,200);
+ }
+});
+test('M02 Gear/KB duplicate Markdown-path Add rolls back media metadata',async()=>{
+ for(const domain of ['gear','kb']){
+  const f=fixture();f.seed(domain);
+  const record={...recordOf(domain),id:'other-owner-id'};
+  const path=domain==='gear'?
+   'Gear/Lures/assets/other-owner-id/notes/tiny.png':
+   'KB/Species/assets/other-owner-id/notes/tiny.png';
+  const result=await f.publish(domain,{record,expectedRevision:0,
+   markdown:'![New image]('+noteImageReference(path)+')',
+   media:[{logicalPath:path,sha256:sha,bytes:image.length,
+    contentType:'image/png'}]});
+  assert.notEqual(result.status,200);
+  assert.equal(f.count(dbOf(domain)),1,'no duplicate owner created');
+  assert.equal(f.count('d6_media_refs'),0,'no orphan image link committed');
+  assert.equal(f.count('d6_media_objects'),0,'no partial D1 media object');
+  assert.equal(f.query('SELECT id FROM '+dbOf(domain)+' WHERE id=?',
+   record.id),undefined);
+ }
+});
 test('V3-MEDIA-LIVE08 owner HTTP gate, CSRF, scope and canonical paths',async()=>{
  const f=fixture();f.seed('gear');
  const svc=f.live({enabled:()=>true});
