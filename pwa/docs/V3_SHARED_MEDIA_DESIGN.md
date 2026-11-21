@@ -1,5 +1,12 @@
 # Fishing V3 — Shared media architecture and approval gates
 
+## M02 source-only shared image reader checkpoint (2026-11-21)
+
+**Source status:** Shared client/server roles, strict logical paths, private D1-published image ownership checks, complete atomic KB Knot sequence enforcement, same-origin fail-closed image resolver for cards/detail/Markdown, and browser Markdown URL resolution before HTML insertion are implemented and CI-tested in draft PR #567. Covers can now be associated with owner Gear/KB records, and multi-step Knot frames with exact ordered KB record paths in the still-unmounted source media service. Catch Notes and existing Gear/KB Notes paths remain supported. All media endpoints remain **OFF and unmounted**; the public V2 application, accepted private Worker and D1/R2 provider data are unaffected.
+
+**Not yet accepted:** No verified D1 live-media-registry fetch is wired to enable the browser resolver; activation requires separate owner approval, D1 metadata schema/row writes and Worker R2 binding/deployment. The owner image uploader is still disabled and the browser editor has not yet implemented the end-to-end stage → transactionally publish → reload workflow; offline image snapshots, local draft handling for staged binary uploads, full decoder/animated-frame security validation, actual historical R2 migration/9 unreferenced-image review, M03 thumbnails and Edge/Android field acceptance also remain pending. Do not enable `liveMediaReadApproved` or pretend the source-only image roles mean the media service is deployed. **M02 remains partial-source, not complete.**
+
+
 **Status: source-only design, uploads-OFF UI contract, and isolated shared staging prototype.** FISH-TODO-118 / ADR-0011 and approved ADR-0012. Owner created and read-only verified one private R2 bucket `fishing-v3-owner-media-test` (Standard, 0 objects; `r2.dev` disabled, no custom domains). No Worker R2 binding, D1 schema, stage route, staged object, provider upload or deployment has been authorized or performed. Goal: one consistent Gear/KB/Catch image upload service without per-edit GitHub publishing.
 
 ## Verified existing implementation
