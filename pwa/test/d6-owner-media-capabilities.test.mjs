@@ -33,8 +33,12 @@ test('V3-MEDIA03 a placeholder staging function does not enable new uploads',()=
   assert.match(source,/presentD6OwnerImageCapability\(notesEditor\.element/);
  }
  assert.match(gearKB,/mediaCapabilities\?\.canUploadNewImages!==true/);
- assert.match(gearKB,/mediaAction!=='keep'\|\|fileInfo\|\|sequenceSet\|\|notesUploads\.length/);
- assert.match(catches,/if\(notesUploads\.length\)/);
+ assert.match(gearKB,/const wantsMedia=mediaAction!=='keep'\\|\\|fileInfo\\|\\|sequenceSet\\|\\|notesUploads\\.length/);
+ assert.match(gearKB,/saved=await saveD6OwnerEditorMedia/);
+ assert.match(gearKB,/coordinator:ctx\\.v3\\?\\.ownerMediaCoordinator/);
+ assert.match(catches,/if\\(notesUploads\\.length&&ctx\\.v3\\?\\.mediaCapabilities\\?\\.canUploadNewImages!==true\\)/);
+ assert.match(catches,/await saveD6OwnerEditorMedia/);
+ assert.match(catches,/coordinator:ctx\\.v3\\?\\.ownerMediaCoordinator/);
 });
 test('V3-MEDIA04 shared disabled image button is only UI, not an upload',()=>{
  const policy=read('d6-owner-media-capabilities.mjs');
