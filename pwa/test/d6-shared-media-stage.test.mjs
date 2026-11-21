@@ -182,7 +182,7 @@ test('V3-M02 malformed GIF subblocks and incomplete frames fail closed',async()=
  const noFrame=gifFixture(0);
  const invalidDescriptor=gifFixture(1);
  // Image width is zero, despite a nonzero logical screen.
- invalidDescriptor[23]=0;
+ invalidDescriptor[24]=0;
  for(const candidate of [missingBlockEnd,noFrame,invalidDescriptor]){
   await assert.rejects(validateD6MediaBytes({bytes:candidate,
    contentType:'image/gif',expectedSha256:digest(candidate)}),
