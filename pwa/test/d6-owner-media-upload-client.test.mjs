@@ -89,6 +89,10 @@ test('M02 client preserves staged receipt on ambiguous publish; no auto-retry',a
    markdown:'Owner notes',expectedRevision:1,staged:[staged]}),
    {code:'UNVERIFIED'});
   assert.equal(f.calls.filter(x=>x.url.endsWith('/publish')).length,1);
+  await assert.rejects(client.publish({domain:'gear',record:gear,
+   markdown:'Owner notes',expectedRevision:1,staged:[staged]}),
+   {code:'UNVERIFIED'});
+  assert.equal(f.calls.filter(x=>x.url.endsWith('/publish')).length,1);
   await assert.rejects(client.stage({domain:'gear',record:gear,
    role:'cover',logicalPath:gear.picture.src,file:file()}),{code:'DUPLICATE'});
  });
@@ -103,4 +107,25 @@ test('M02 invalid files and fabricated receipts fail before provider writes',asy
    domain:'gear',recordId:gear.id,logicalPath:gear.picture.src,
    role:'cover'}]}),{code:'INVALID'});
  assert.equal(f.calls.length,0);
+});
+
+test('M02 unknown R2 stage acknowledgement remains blocked without retry',async()=>{
+ await bitmap(async()=>{
+  const f=fixture();let stageCalls=0;
+  const request=async(url,options)=>{
+   if(url.endsWith('/stage')){
+    stageCalls++;
+    throw Error('lost R2 stage acknowledgement');
+   }
+   return f.request(url,options);
+  };
+  const client=create({...config,request});
+  await assert.rejects(client.stage({domain:'gear',record:gear,
+   role:'cover',logicalPath:gear.picture.src,file:file()}),
+   {code:'UNVERIFIED'});
+  await assert.rejects(client.stage({domain:'gear',record:gear,
+   role:'cover',logicalPath:gear.picture.src,file:file()}),
+   {code:'DUPLICATE'});
+  assert.equal(stageCalls,1);
+ });
 });
