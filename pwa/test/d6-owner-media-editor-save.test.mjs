@@ -3,6 +3,9 @@ import assert from 'node:assert/strict';
 import {saveD6OwnerEditorMedia as save}
  from '../src/d6-owner-media-editor-save.mjs';
 import {noteImageReference} from '../src/notes-markdown-editor.mjs';
+import {isD6NotesImageLinked} from '../src/d6-notes-image-link.mjs';
+import {isD6NotesImageLinked as serverImageLinked}
+ from '../server/d6-shared-media-live.mjs';
 
 const caps={canUploadNewImages:true};
 const file=()=>({name:'image.png',arrayBuffer:async()=>new ArrayBuffer(4)});
@@ -100,4 +103,34 @@ test('M02 failed staging, ambiguous publication and unverified readback never fa
  h.coordinator.publish=async()=>({verified:false,record:gear,revision:2});
  await assert.rejects(use(h,{domain:'gear',record:gear,
   uploads:[upload(gear.picture.src,'cover')]}),{code:'MEDIA_UNVERIFIED'});
+});
+
+test('M02 shared browser and server proof accepts only real Markdown images',()=>{
+ assert.strictEqual(isD6NotesImageLinked,serverImageLinked);
+ const ref=noteImageReference(notesPath);
+ assert.equal(isD6NotesImageLinked('![Fish]('+ref+')',notesPath),true);
+ for(const markdown of [
+  '[Fish]('+ref+')',
+  'Plain path: '+ref,
+  '`![Fish]('+ref+')`',
+  '```md\\n![Fish]('+ref+')\\n```',
+  '![]('+ref+')',
+ ]){
+  assert.equal(isD6NotesImageLinked(markdown,notesPath),false);
+ }
+});
+test('M02 Notes preflight denies misleading Markdown before any R2 stage',async()=>{
+ const ref=noteImageReference(notesPath);
+ for(const markdown of [
+  '[Fish]('+ref+')',
+  'Plain path: '+ref,
+  '`![Fish]('+ref+')`',
+  '![]('+ref+')',
+ ]){
+  const h=harness();
+  await assert.rejects(use(h,{domain:'catches',record:catchRecord,
+   markdown,uploads:[upload(notesPath,'notes')]}),
+   e=>e?.code==='MEDIA_INVALID');
+  assert.equal(h.calls.length,0,'no stage or publish');
+ }
 });
