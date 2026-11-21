@@ -77,6 +77,13 @@ test('V3-M02-03 image resolver defaults OFF and enforces release/media separatio
  assert.equal(on.resolve(knot.pictureSequence[0]),
   'https://example.invalid/api/v3/media/live/KB/Knots/assets/owner-knot/step-01.png');
  assert.equal(on.resolve('Gear/Lures/assets/unpublished.png'),null);
+ // The resolver snapshots verified D1 paths; callers cannot grant new reads
+ // through mutation of the Set after readiness was established.
+ publishedPaths.add('Gear/Lures/assets/unpublished.png');
+ assert.equal(on.resolve('Gear/Lures/assets/unpublished.png'),null);
+ // A ready R2 authority never silently falls back to stale release images.
+ assert.equal(d6ResolveImageForDisplay('Gear/Lures/assets/unpublished.png',{
+  verifiedLive:on,frozenAsset:()=> 'STALE_RELEASE'}),null);
  assert.equal(d6ResolveImageForDisplay('Gear/Lures/assets/unpublished.png',{
   verifiedLive:on,strictOnline:true,frozenAsset:()=> 'STALE_RELEASE'}),null);
  assert.equal(d6ResolveImageForDisplay(gear.picture.src,{
