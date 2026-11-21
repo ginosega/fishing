@@ -13,7 +13,13 @@ const DOMAIN={gear:{file:'Gear/gear.json'},kb:{file:'KB/kb.json'},
 function setup({bad=null}={}){
  const pending=new Map(),started=[],accepted=[];
  const context={
-  URL,Promise,Error,Object,DOMAIN,
+  URL,Promise,Error,Object,DOMAIN,navigator:{onLine:true},
+  // This VM intentionally removes ESM imports. Exercise the unchanged V2
+  // release loader; the real D1-mode choice has separate full module tests.
+  chooseD6BootstrapContent:async({loadRelease})=>({
+   source:'release',readingMode:'Legacy',data:await loadRelease(),
+  }),
+  readD6VerifiedMode:()=>{throw Error('V2 must not probe V3 mode');},
   encodedPath:value=>value,
   validateRecords:()=>({valid:true}),
   createApp:ctx=>accepted.push(ctx),
