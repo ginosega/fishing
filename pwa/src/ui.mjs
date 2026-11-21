@@ -50,6 +50,8 @@ export function createApp(ctx){
  const frozenKBIds=ctx.v3?.contentSource==='d1'?null:
   new Set(ctx.data.kb.entities.map(x=>x.id));
  let routes=markdownRouteMap(ctx.data);const exists=new Set(ctx.manifest.files.filter(x=>x.path.startsWith(`releases/${ctx.release.id}/content/`)).map(x=>x.path.slice(`releases/${ctx.release.id}/content/`.length)));
+ if(ctx.mediaLiveReader===true&&ctx.mediaPublishedPaths instanceof Set)
+  for(const verified of ctx.mediaPublishedPaths)exists.add(verified);
  let currentHash=location.hash||'#/',route=parseRoute(currentHash),editor=null,serial=0,offline=null,approvedNavigation=null,previousHash=null;
  // Frozen static Gear remains the read-only Work Offline fallback.
  // Only a verified Automatic-mode 100-row D1 response becomes online canonical.
@@ -192,14 +194,26 @@ export function createApp(ctx){
   const list=listControls(domain,records,{title:definition[1],search:gear?key==='lures':key==='equipment',filter:gear,sort:gear?'gear':'name',pinnedId:gear?'':KB_PINNED_FIRST[key]||''});page.querySelector('.page-actions').prepend(...list.controls.children);page.append(list.element,...(showEditingLinks()?[anchor(gear?'Add Gear':'Add Entry',gear?`#/inventory/add/${key}`:`#/kb/add/${key}`,'page-edit-link')]:[]));return page;
  }
  function missing(message,parent='#/'){const page=frame('Not found',parent);page.append(empty(message),anchor('Return to the parent page',parent));return page;}
- function appendPicture(page,record,domain){const pic=record.picture;if(!pic)return;const src=ctx.asset(pic.src),caption=pic.caption||'';const activate=record.pictureSequence?.length?()=>openSequenceViewer(record.pictureSequence.map(ctx.asset),record.name,caption):()=>openViewer(src,record.name,caption);page.append(picture(src,pic.caption||record.name,caption,activate));}
+ function appendPicture(page,record,domain){
+  const pic=record.picture;if(!pic)return;
+  const resolve=ctx.image||ctx.asset,src=resolve(pic.src),caption=pic.caption||'';
+  const frames=record.pictureSequence?.length?record.pictureSequence.map(resolve):null;
+  if(!src||(frames&&frames.some(x=>!x))){
+   page.append(text('p','Picture is not available in the verified content library.','hint'));
+   return;
+  }
+  const activate=frames?()=>openSequenceViewer(frames,record.name,caption):
+   ()=>openViewer(src,record.name,caption);
+  page.append(picture(src,pic.caption||record.name,caption,activate));
+ }
  async function markdownContent(owner,textValue){
   const parsed=parseMarkdown(textValue,{owner,maps:ctx.maps,assetBase:ctx.base,
    exists,pathRoutes:routes,allowMissingImages:readerOnly,viewerImages:readerOnly});
   const article=el('article',{class:'markdown-body'});
   article.innerHTML=sanitizeHtml(parsed.html,window);
   if(readerOnly)bindMarkdownPictureViewer(article,{
-   references:parsed.references,resolveAsset:ctx.asset,openViewer});
+   references:parsed.references,resolveAsset:ctx.image||ctx.asset,
+    resolveAllImages:ctx.mediaLiveReader===true,openViewer});
   article.addEventListener('click',event=>{const a=event.target.closest('a[href^="#/"]');if(a){event.preventDefault();navigate(a.getAttribute('href'));}});
   return article;
  }
