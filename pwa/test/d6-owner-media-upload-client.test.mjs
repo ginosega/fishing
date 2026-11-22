@@ -149,3 +149,15 @@ test('M02 upload coordinator rejects Notes link lookalikes before publishing',as
   }
  });
 });
+
+
+test('M02 coordinator publishes a Notes-only Save with no stage or R2 HEAD',async()=>{
+ const f=fixture(),client=create({...config,request:f.request});
+ const saved=await client.publish({domain:'gear',record:gear,
+  markdown:'Owner notes',expectedRevision:1,staged:[]});
+ assert.equal(saved.verified,true);
+ assert.equal(saved.revision,2);
+ assert.equal(f.calls.filter(x=>x.url.endsWith('/publish')).length,1);
+ assert.equal(f.calls.filter(x=>x.url.endsWith('/stage')).length,0);
+ assert.equal(f.calls.filter(x=>x.options.method==='HEAD').length,0);
+});
