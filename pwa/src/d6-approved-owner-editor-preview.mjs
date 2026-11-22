@@ -384,15 +384,14 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
     // its immutable DIRECT_D1_MEDIA_CAPABILITIES deny upload and no
     // coordinator is installed. Never fall back to text Save for media edits.
     let saved;
-    if(wantsMedia){
+    const privateMedia=ctx.v3?.mediaCapabilities?.canUploadNewImages===true;
+    if(wantsMedia||privateMedia){
      const uploads=sequenceSet?
       sequenceInfos.map(x=>({path:x.path,file:x.file,role:'knot-step'})):
       fileInfo?[{path:candidate.picture?.src,file:fileInfo.file,role:'cover'}]:[];
      uploads.push(...notesUploads.map(x=>({
       path:x.path,file:x.file,role:'notes',
      })));
-     if(mediaAction!=='keep'&&!fileInfo&&!sequenceSet)
-      throw Error('Picture removal requires the verified media service. Your edit is preserved.');
      saved=await saveD6OwnerEditorMedia({
       domain,record:candidate,markdown:body,expectedRevision:directRevision,
       uploads,capabilities:ctx.v3?.mediaCapabilities,
