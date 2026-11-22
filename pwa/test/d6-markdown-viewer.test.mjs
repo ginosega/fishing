@@ -286,3 +286,62 @@ test('M03 foreign Notes derivative URL is never displayed',()=>{
  });
  assert.equal(imageNode.src,'https://example.test/original.jpg');
 });
+
+// M03 owner Notes Preview is a local, uncommitted view. Reuse the same binder,
+// allowing only an exact staged object URL from the locally selected image.
+test('M03 Preview activates viewer for staged local picture without Save',()=>{
+ const parsed=parsedMarkdown('![New fish](../assets/step-01.jpg "viewer-thumb: Before Save")');
+ const {article,imageNode}=fixture({src:parsed.references[0].target,alt:'New fish'});
+ article.ownerDocument.baseURI='https://example.test/fishing/';
+ const local='blob:https://example.test/preview-123';
+ let received=null;
+ assert.equal(bindMarkdownPictureViewer(article,{
+  references:parsed.references,
+  resolveAsset:()=>local,
+  resolveStagedAsset:path=>path===image?local:null,
+  resolveAllImages:true,
+  openViewer:(...args)=>{received=args;},
+ }),true);
+ assert.equal(imageNode.src,local);
+ assert.equal(imageNode.replacement.tag,'button');
+ imageNode.replacement.handlers.click();
+ assert.deepEqual(received,[local,'New fish','Before Save']);
+});
+test('M03 Preview uses original to open the viewer, WebP only inline',()=>{
+ const parsed=parsedMarkdown('![Old fish](../assets/step-01.jpg "viewer-thumb: Saved picture")');
+ const {article,imageNode}=fixture({src:parsed.references[0].target,alt:'Old fish'});
+ const original='https://example.test/api/v3/media/live/KB/Knots/assets/step-01.jpg';
+ const thumb='https://example.test/api/v3/media/thumb/KB/Knots/assets/step-01.jpg';
+ let opened=null;
+ bindMarkdownPictureViewer(article,{
+  references:parsed.references,
+  resolveAsset:()=>original,resolveThumbnail:()=>thumb,
+  resolveAllImages:true,openViewer:(...args)=>{opened=args;},
+ });
+ assert.equal(imageNode.src,thumb);
+ imageNode.replacement.handlers.click();
+ assert.deepEqual(opened,[original,'Old fish','Saved picture']);
+});
+test('M03 Preview does not attach Picture Viewer to unchecked images or forged blobs',()=>{
+ const plain=parsedMarkdown('![Plain](../assets/step-01.jpg)');
+ const {article,imageNode}=fixture({src:plain.references[0].target});
+ article.ownerDocument.baseURI='https://example.test/fishing/';
+ const stage='blob:https://example.test/preview-valid';
+ bindMarkdownPictureViewer(article,{
+  references:plain.references,resolveAsset:()=>stage,
+  resolveStagedAsset:()=>stage,resolveAllImages:true,
+  openViewer:()=>{throw Error('Viewer must remain disabled');},
+ });
+ assert.equal(imageNode.src,stage);
+ assert.equal(imageNode.replacement,null);
+ const enabled=parsedMarkdown('![Tagged](../assets/step-01.jpg "viewer")');
+ const forged=fixture({src:enabled.references[0].target});
+ forged.article.ownerDocument.baseURI='https://example.test/fishing/';
+ const foreign='blob:https://evil.example/forged';
+ bindMarkdownPictureViewer(forged.article,{
+  references:enabled.references,resolveAsset:()=>foreign,
+  resolveStagedAsset:()=>foreign,resolveAllImages:true,
+  openViewer:()=>{throw Error('Foreign blob must not open');},
+ });
+ assert.equal(forged.imageNode.replacement,null);
+});

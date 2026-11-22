@@ -30,7 +30,9 @@ const hash=data=>createHash('sha1')
 // https://github.com/ginosega/fishing/issues/377#issuecomment-7086996544
 // Preserve the original D5 blob above for provenance; pin the narrowly reviewed
 // M03 replacement separately. All other twelve accepted D5 files stay exact.
-const reviewedM03Notes='fcce1d1187c1e06fee26a43699bb48ee1f490d20';
+// The 2026-11-22 owner-requested Preview viewer is part of M03's accepted
+// opt-in editor UX. Review the concrete change before changing this pin.
+const reviewedM03Notes='521cb9a4e648f123a73c37458690a5eccbb9e79f';
 test('D6-UX-PORT01 twelve D5 exact-byte imports and approved M03 Notes extension',()=>{
  assert.equal(Object.keys(accepted).length,13);
  for(const [name,expected] of Object.entries(accepted))

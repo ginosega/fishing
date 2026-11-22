@@ -5,6 +5,8 @@ import {categoryFolder,ID_PATTERN,safePath} from './shared.mjs';
 import {validateBrowserImage} from './image-validation.mjs';
 import {parseMarkdown,sanitizeHtml} from './markdown.mjs';
 import {setNotesToolbarIcon} from './notes-toolbar-icons.mjs';
+import {bindMarkdownPictureViewer} from './markdown-viewer.mjs';
+import {openViewer} from './viewer.mjs';
 import {notesLinkTargets,findNotesLinkTargets,notesLinkMarkdown} from './notes-link.mjs';
 
 export function noteImagePath(domain,record,filename){
@@ -103,10 +105,18 @@ export function createNotesMarkdownEditor({
     const actual=new URL(image.getAttribute('src')||'',document.baseURI).href;
     if(actual!==new URL(ref.target).href)
      throw Error('Markdown image preview mismatch.');
-    const source=notesPreviewSource(ref,{staged,knownPaths:verifiedPaths,
-     resolveSavedAsset,resolveSavedThumbnail});
-    if(source)image.src=source;
    });
+   const original=path=>notesPreviewSource(
+    {isImage:true,kind:'local',local:path},
+    {staged,knownPaths:verifiedPaths,resolveSavedAsset});
+   if(!bindMarkdownPictureViewer(view,{
+    references:parsed.references,
+    resolveAsset:original,
+    resolveThumbnail:path=>staged.has(path)?null:
+     resolveSavedThumbnail?.(path)??null,
+    resolveStagedAsset:path=>staged.get(path)?.url??null,
+    resolveAllImages:true,openViewer,
+   }))throw Error('Markdown image preview mismatch.');
    showPreview=true;view.hidden=false;editorField.hidden=true;input.hidden=true;
    previewButton.textContent='Edit';
    // Preview is read-only: insertion controls cannot exit it implicitly.

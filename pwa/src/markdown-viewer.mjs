@@ -1,7 +1,7 @@
 // D6 opt-in reader Markdown original-image viewer behavior. The parser has already
 // resolved every image to a repository-local source and rejected remote URLs.
 // This module never loads arbitrary URLs or invents missing source references.
-export function bindMarkdownPictureViewer(article,{references,resolveAsset,resolveThumbnail=null,openViewer,resolveAllImages=false}){
+export function bindMarkdownPictureViewer(article,{references,resolveAsset,resolveThumbnail=null,resolveStagedAsset=null,openViewer,resolveAllImages=false}){
  const images=[...article.querySelectorAll('img')];
  const allowed=references.filter(ref=>ref.isImage===true);
  // Fail closed if sanitized DOM no longer matches the validated Markdown
@@ -40,7 +40,11 @@ export function bindMarkdownPictureViewer(article,{references,resolveAsset,resol
   // has been validated as a repository-local reference.
   let url;
   try{url=new URL(source);}catch{return;}
-  if(url.protocol!=='https:'&&!(url.protocol==='http:'&&
+  const localPreviewBlob=url.protocol==='blob:'&&
+   typeof resolveStagedAsset==='function'&&
+   resolveStagedAsset(reference.local)===source&&
+   url.origin===new URL(article.ownerDocument.baseURI||reference.target).origin;
+  if(!localPreviewBlob&&url.protocol!=='https:'&&!(url.protocol==='http:'&&
     ['localhost','127.0.0.1','[::1]'].includes(url.hostname)))return;
   if(url.username||url.password){
    if(resolveAllImages)img.replaceWith(fallback());return;

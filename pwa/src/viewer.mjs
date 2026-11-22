@@ -48,7 +48,7 @@ function fullscreenSurface(dialog,view,controls,onEnter=()=>{}){
   document.removeEventListener('fullscreenchange',sync);
   if(document.fullscreenElement===surface)void document.exitFullscreen();
  });
- controls.prepend(enter);
+ controls.insertBefore(enter,controls.lastElementChild);
  surface.append(view.stage,exit);
  return surface;
 }
@@ -59,7 +59,7 @@ export function openViewer(src,alt,caption=''){
  function syncZoom(){zoomLabel.textContent=Math.round(view.getScale()*100)+'%';}
  function zoom(next){view.zoom(next);syncZoom();}
  const close=()=>dialog.close();
- const controls=el('div',{class:'viewer-controls'},button('−',()=>zoom(view.getScale()/1.3),{title:'Zoom out','aria-label':'Zoom out'}),zoomLabel,button('+',()=>zoom(view.getScale()*1.3),{title:'Zoom in','aria-label':'Zoom in'}),button('Reset',()=>{view.reset();syncZoom();}),button('Close',close,{variant:'primary'}));
+ const controls=el('div',{class:'viewer-controls'},button('−',()=>zoom(view.getScale()/1.3),{title:'Zoom out','aria-label':'Zoom out'}),zoomLabel,button('+',()=>zoom(view.getScale()*1.3),{title:'Zoom in','aria-label':'Zoom in'}),button('Close',close,{variant:'primary'}));
  dialog.addEventListener('keydown',event=>{if(event.key==='+'||event.key==='=')zoom(view.getScale()*1.3);if(event.key==='-')zoom(view.getScale()/1.3);if(event.key==='0'){view.reset();syncZoom();}});
  dialog.addEventListener('close',()=>{dialog.remove();prior?.focus();});
  dialog.append(el('div',{class:'viewer-top'},text('strong',alt)),fullscreenSurface(dialog,view,controls),...(caption?[text('p',caption,'viewer-caption')]:[]),controls);

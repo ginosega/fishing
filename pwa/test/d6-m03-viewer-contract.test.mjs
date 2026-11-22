@@ -15,3 +15,11 @@ test('M03 fullscreen uses exactly Notes editor expand and restore icons',()=>{
  assert.match(viewer,/fullscreenSurface\(dialog,view,controls,stop\)/);
  assert.match(viewer,/fullscreenSurface\(dialog,view,controls\)/);
 });
+
+test('M03 user-requested regular Viewer order omits Reset and places expand before Close',()=>{
+ assert.doesNotMatch(viewer,/button\('Reset'/);
+ assert.match(viewer,/button\('−'/);
+ assert.match(viewer,/button\('\+'/);
+ assert.match(viewer,/controls\.insertBefore\(enter,controls\.lastElementChild\)/);
+ assert.match(viewer,/button\('Close',close/);
+});
