@@ -74,7 +74,7 @@ function storedObjectOK(row,sha,bytesCount,mime){
  return true;
 }
 async function validateStagedObjects(R2,domain,record,markdown,media){
- if(!Array.isArray(media)||media.length<1||media.length>32)
+ if(!Array.isArray(media)||media.length>32)
   throw Error('MEDIA_MANIFEST_INVALID');
  const seen=new Set(),validated=[];
  for(const item of media){
@@ -138,10 +138,13 @@ function validRecord(domain,record,markdown,expectedRevision){
     bytes(markdown)>MAX_NOTES||!Number.isSafeInteger(expectedRevision)||
     expectedRevision<0)return false;
  const path=record[DOMAINS[domain].fieldInRecord];
- if(typeof path!=='string'||!path.trim()||!markdown.trim())return false;
- if(domain==='catches'&&path!=='Catches/content/'+record.id+'.md')
-  return false;
- return true;
+ if(domain==='kb')return typeof path==='string'&&
+  Boolean(path.trim())&&Boolean(markdown.trim());
+ if(domain==='catches')return Boolean(path)===Boolean(markdown.trim())&&
+  (!path||path==='Catches/content/'+record.id+'.md');
+ // Gear Notes may be empty after deleting all embedded pictures.
+ return (!markdown.trim()||typeof path==='string'&&Boolean(path.trim()))&&
+  (path===undefined||typeof path==='string'&&Boolean(path.trim()));
 }
 /**
  * Called only from the source-only owner-authorized HTTP wrapper below.
@@ -162,6 +165,17 @@ export async function publishD6MediaRevision({
   if(domain==='catches'&&!(await validateCatchLinks(CONTENT_DB,record)))
    return {status:400,error:'INVALID_REFERENCE'};
   const staged=await validateStagedObjects(R2,domain,record,markdown,media);
+  // The current record's D1 image references are authoritative. Remove only
+  // paths that the revised record/Markdown no longer links; R2 bytes remain.
+  const existing=await CONTENT_DB.prepare(
+   'SELECT logical_path FROM d6_media_refs WHERE domain=? AND record_id=?'
+  ).bind(domain,record.id).all();
+  if(!Array.isArray(existing?.results)||existing.results.length>10000||
+     existing.results.some(x=>typeof x.logical_path!=='string'))
+   return {status:503,error:'MEDIA_REGISTRY_UNVERIFIED'};
+  const retiredPaths=existing.results.map(x=>x.logical_path).filter(path=>
+   !publishedD6MediaRole({domain,record,logicalPath:path,
+    notesLinked:isD6NotesImageLinked(markdown,path)}));
   const current=await CONTENT_DB.prepare(selectSql(d)).bind(record.id).first();
   if(isNew?Boolean(current):!current||current.revision!==expectedRevision)
    return {status:409,error:'RECORD_CHANGED'};
@@ -174,7 +188,8 @@ export async function publishD6MediaRevision({
     return {status:400,error:'INVALID_MEDIA_EDIT'};
   }
   const saved=await saveD6ContentRevision({
-   CONTENT_DB,domain,record,markdown,expectedRevision,media:staged,now,
+   CONTENT_DB,domain,record,markdown,expectedRevision,media:staged,
+   retiredPaths,syncMedia:true,now,
   });
   if(saved.status!==200)return {
    status:saved.status,
