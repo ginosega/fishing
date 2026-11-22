@@ -1070,7 +1070,7 @@ test('M03 private card derivatives reuse D1/R2 publication and preserve full ori
   assert.deepEqual(new Uint8Array(body),image);
   return {transform(options){
    assert.deepEqual(options,{width:512,height:270,fit:'scale-down'});
-   return {output(options){
+   return {async output(options){
     assert.deepEqual(options,{format:'image/webp',quality:80,anim:false});
     return {response({headers}){
      transforms++;

@@ -6,6 +6,8 @@ const script=readFileSync(new URL('../tools/d6-m02-private-deploy.ps1',import.me
 test('M02 private deployment is approved only for existing owner test host',()=>{
  assert.equal(config.name,'fishing-d6-wp2-test');
  assert.equal(config.vars.D6_M02_MEDIA_ENABLED,'true');
+ assert.equal(config.vars.D6_M03_THUMBNAILS_ENABLED,'true');
+ assert.deepEqual(config.images,{binding:'IMAGES'});
  assert.deepEqual(config.r2_buckets,[{
   binding:'MEDIA_R2',bucket_name:'fishing-v3-owner-media-test',
  }]);
@@ -15,7 +17,8 @@ test('M02 private deployment is approved only for existing owner test host',()=>
 });
 test('M02 guided deployment builds and checks exact private source first',()=>{
  for(const marker of ['[ValidatePattern(', 'git rev-parse HEAD',
-  '--d6-owner-media-upload', 'tools/verify.mjs', '--dry-run',
+  '--d6-owner-media-upload', '--d6-r2-card-thumbnails',
+  "Require-Equal $Config.images.binding 'IMAGES'", 'tools/verify.mjs', '--dry-run',
   'd1 execute fishing-v3-wp3-operations-test --remote --json --command',
   'if(-not $Deploy)', 'deploy --config $ConfigFile',
   'Private manifest denies anonymous requests (403)']){

@@ -23,7 +23,8 @@
     "D6_READ_TOKEN_ENABLED": "false",
     "D6_SIGNER_ENABLED": "false",
     "D6_HOSTED_PREFLIGHT_ENABLED": "false",
-    "D6_M02_MEDIA_ENABLED": "true"
+    "D6_M02_MEDIA_ENABLED": "true",
+    "D6_M03_THUMBNAILS_ENABLED": "true"
   },
   "d1_databases": [
     {
@@ -43,6 +44,9 @@
       "bucket_name": "fishing-v3-owner-media-test"
     }
   ],
+  "images": {
+    "binding": "IMAGES"
+  },
   "assets": {
     "directory": "./dist-v3-pilot",
     "base_path": "/fishing",

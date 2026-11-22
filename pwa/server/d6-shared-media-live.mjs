@@ -400,10 +400,12 @@ export function createD6SharedMediaLive({
      }});
     // Existing D1/R2 proof above protects both full-size and card routes.
     // Only a fixed bounded first-frame WebP derivative is served.
-    const transformed=IMAGES.input(original.body)
+    // Cloudflare Images .output() is asynchronous; do not infer completion
+    // from a synchronous mock of the transformation binding.
+    const output=await IMAGES.input(original.body)
      .transform({width:512,height:270,fit:'scale-down'})
-     .output({format:'image/webp',quality:80,anim:false})
-     .response({headers:{
+     .output({format:'image/webp',quality:80,anim:false});
+    const transformed=await output.response({headers:{
       'Cache-Control':'private, no-cache',
       'X-Content-Type-Options':'nosniff',
       'Content-Disposition':'inline',

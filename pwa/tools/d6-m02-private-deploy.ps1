@@ -1,4 +1,4 @@
-# Approved M02 private-only deployment of the Fishing Companion test Worker.
+# Approved M02 + M03 private-only deployment of the Fishing Companion test Worker.
 # Run on the owner's Windows PC; Cloudflare credentials stay local.
 # -Deploy is required to publish. Without it, only local + D1 preflights run.
 param(
@@ -30,6 +30,8 @@ Require-Equal $Config.name 'fishing-d6-wp2-test' 'Worker name'
 Require-Equal $Config.main './server/d6-direct-gear-worker.mjs' 'Worker script'
 Require-Equal $Config.vars.D6_ORIGIN $Origin 'private origin'
 Require-Equal $Config.vars.D6_M02_MEDIA_ENABLED 'true' 'owner-approved M02 flag'
+Require-Equal $Config.vars.D6_M03_THUMBNAILS_ENABLED 'true' 'owner-approved M03 flag'
+Require-Equal $Config.images.binding 'IMAGES' 'owner-approved Images binding'
 Require-Equal $Config.workers_dev $true 'private workers.dev host'
 if($null -ne $Config.routes){throw 'Public routes are not permitted.'}
 if(@($Config.r2_buckets).Count -ne 1){throw 'Unexpected R2 binding count.'}
@@ -67,7 +69,8 @@ $BuildOptions=@(
  '--d6-direct-gear-save',
  '--d6-direct-kb-save',
  '--d6-direct-catch-save',
- '--d6-owner-media-upload'
+ '--d6-owner-media-upload',
+ '--d6-r2-card-thumbnails'
 )
 & node @BuildOptions
 Check-Exit 'M02 private UI build'
@@ -79,14 +82,14 @@ $ManifestFile=Join-Path $Output ($Release.manifest.Replace('/','\'))
 $Manifest=Get-Content $ManifestFile -Raw | ConvertFrom-Json
 Require-Equal $Manifest.releaseId $Release.id 'manifest release ID'
 Require-Equal $Manifest.base '/fishing/' 'manifest base'
-foreach($flag in @('d6ReaderCandidate','d6Wp2Staging','d6OwnerConnectionCandidate','d6OwnerEditorPreview','d6DirectGearSave','d6DirectKBSave','d6DirectCatchSave','d6OwnerMediaUpload')){
+foreach($flag in @('d6ReaderCandidate','d6Wp2Staging','d6OwnerConnectionCandidate','d6OwnerEditorPreview','d6DirectGearSave','d6DirectKBSave','d6DirectCatchSave','d6OwnerMediaUpload','d6R2CardThumbnails')){
  Require-Equal $Release.$flag $true "release $flag"
  Require-Equal $Manifest.$flag $true "manifest $flag"
 }
 Require-Equal $Manifest.counts.gear 100 'Gear catalog'
 Require-Equal $Manifest.counts.kb 60 'KB catalog'
 Require-Equal $Manifest.counts.catches 12 'Catches catalog'
-Write-Host 'PASS: Exact private M02 build and immutable release verified.'
+Write-Host 'PASS: Exact private M02 + M03 build and immutable release verified.'
 
 # Wrangler dry-run creates no live Worker deployment.
 & npx --yes wrangler@4.166.0 deploy --config $ConfigFile --dry-run
@@ -126,7 +129,7 @@ if(-not $Deploy){
  Write-Host 'M02 PRIVATE PREFLIGHT PASS. No deployment performed.'
  exit 0
 }
-Write-Host 'DEPLOY: Approved M02 private test Worker only.'
+Write-Host 'DEPLOY: Approved M03 images binding on existing private Worker only.'
 & npx --yes wrangler@4.166.0 deploy --config $ConfigFile
 Check-Exit 'Approved private M02 deployment'
 Write-Host 'PASS: Wrangler private deployment completed.'
@@ -136,6 +139,7 @@ $Remote=Invoke-RestMethod -Uri "$Origin/fishing/release.json?m02=$($Release.id)"
 Require-Equal $Remote.id $Release.id 'hosted release ID'
 Require-Equal $Remote.sourceRevision $ExpectedRevision 'hosted source'
 Require-Equal $Remote.d6OwnerMediaUpload $true 'hosted media flag'
+Require-Equal $Remote.d6R2CardThumbnails $true 'hosted M03 thumbnail flag'
 Write-Host 'PASS: Hosted private release pointer matches M02 source.'
 $Status=0
 try{
@@ -147,4 +151,4 @@ try{
 }
 Require-Equal $Status 403 'unauthenticated media protection'
 Write-Host 'PASS: Private manifest denies anonymous requests (403).'
-Write-Host 'M02 PRIVATE DEPLOYMENT SMOKE PASS; owner browser acceptance remains.'
+Write-Host 'M03 PRIVATE DEPLOYMENT SMOKE PASS; owner browser thumbnail acceptance remains.'
