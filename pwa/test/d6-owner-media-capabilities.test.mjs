@@ -64,11 +64,13 @@ test('M02 V3 media previews reuse accepted Notes parser and verified R2 resolver
  const notes=read('notes-markdown-editor.mjs');
  for(const editor of [gearKB,catches]){
   assert.ok(editor.includes('resolveSavedAsset:path=>(ctx.image||ctx.asset)(path)'));
-  assert.ok(editor.includes('ctx.mediaLiveReader===true?{resolveImage:ctx.image}'));
+  assert.ok(!editor.includes('ctx.mediaLiveReader===true?{resolveImage:ctx.image}'),
+   'local Notes preview must retain staged image blob URLs');
  }
  assert.ok(gearKB.includes('const resolveSavedImage=ctx.image||ctx.asset'));
  assert.ok(gearKB.includes('sequence.length>=2&&sequence.every(Boolean)'));
- assert.ok(gearKB.includes('ctx.mediaPublishedPaths instanceof Set'));
+ assert.ok(gearKB.includes('new Set(ctx.mediaPublishedPaths??[])'),
+  'online previews must not resolve stale release content');
  assert.ok(notes.includes('const parsed=parseMarkdown(input.value'));
  assert.ok(!notes.includes('strictMediaResolution'));
 });

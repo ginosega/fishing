@@ -280,16 +280,18 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
   notesEditor=createNotesMarkdownEditor({
    domain,getRecord:()=>record,value:body,label:'Markdown',
    onChange:value=>{body=value;changed();},
-   knownPaths:()=>knownPaths(ctx),
+   // In live-media mode only D1-published originals are previewable.
+   // The accepted Notes editor adds locally selected files itself.
+   knownPaths:()=>ctx.mediaLiveReader===true?
+    new Set(ctx.mediaPublishedPaths??[]):knownPaths(ctx),
    allowUpload:ctx.v3?.mediaCapabilities?.canUploadNewImages===true,
    resolveSavedAsset:path=>(ctx.image||ctx.asset)(path),
    linkMaps:()=>ctx.maps,
    // Preview must remain available while a new record's required fields are
    // incomplete. Save and Publish retains full validateRecords/validateRecord.
-   previewOptions:()=>({
-    ...draftNotesPreviewOptions(ctx,domain,record),
-    ...(ctx.mediaLiveReader===true?{resolveImage:ctx.image}:{}),
-   }),
+   // Use the accepted local Notes preview: unpublished selections use their
+   // in-memory blob URLs; saved assets still use ctx.image for private R2.
+   previewOptions:()=>draftNotesPreviewOptions(ctx,domain,record),
   });
   presentD6OwnerImageCapability(notesEditor.element,
    ctx.v3?.mediaCapabilities??DIRECT_D1_MEDIA_CAPABILITIES);

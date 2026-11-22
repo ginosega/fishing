@@ -345,17 +345,13 @@ export async function createCatchEditor(ctx,{
   domain:'catches',getRecord:()=>record,value:notesText,
   label:'Notes (Markdown, optional)',
   onChange:value=>{notesText=value;updated();},
-  knownPaths:()=>new Set([
-   ...ctx.v3.source.files,
-   ...(ctx.mediaLiveReader===true&&ctx.mediaPublishedPaths instanceof Set?
-    ctx.mediaPublishedPaths:[]),
-  ]),
+  knownPaths:()=>ctx.mediaLiveReader===true?
+   new Set(ctx.mediaPublishedPaths??[]):new Set(ctx.v3.source.files),
   resolveSavedAsset:path=>(ctx.image||ctx.asset)(path),
   allowUpload:ctx.v3?.mediaCapabilities?.canUploadNewImages===true,
   linkMaps:()=>ctx.maps,
   previewOptions:()=>({owner:record.notes||'Catches/content/'+record.id+'.md',
    maps:ctx.maps,pathRoutes:markdownRouteMap(ctx.data),assetBase:ctx.base,
-   ...(ctx.mediaLiveReader===true?{resolveImage:ctx.image}:{}),
   }),
  });
  presentD6OwnerImageCapability(notesEditor.element,
