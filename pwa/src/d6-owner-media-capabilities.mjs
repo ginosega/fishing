@@ -18,16 +18,40 @@ export const DIRECT_D1_MEDIA_CAPABILITIES=Object.freeze({
  state:'read-only-original-media',
 });
 
+// Eligible only for a separately approved private M02 build and verified
+// existing owner-session/media coordinator. The shipped app still selects the
+// immutable read-only capability above; this alone cannot enable a route.
+export const PRIVATE_D1_MEDIA_CAPABILITIES=Object.freeze({
+ version:1,
+ canReadExistingImages:true,
+ canUploadNewImages:true,
+ canReplaceImages:true,
+ canUploadKnotSequences:true,
+ state:'owner-private-media',
+});
+
+export function selectD6OwnerMediaCapabilities({
+ approved=false,coordinator=null,
+}={}){
+ return approved===true&&
+  typeof coordinator?.ready==='function'&&
+  coordinator.ready()===true&&
+  typeof coordinator.stage==='function'&&
+  typeof coordinator.publish==='function'?
+  PRIVATE_D1_MEDIA_CAPABILITIES:DIRECT_D1_MEDIA_CAPABILITIES;
+}
+
 export function presentD6OwnerImageCapability(editor,capabilities){
  if(!editor||typeof editor.querySelector!=='function'||
-    capabilities!==DIRECT_D1_MEDIA_CAPABILITIES)
+    ![DIRECT_D1_MEDIA_CAPABILITIES,PRIVATE_D1_MEDIA_CAPABILITIES]
+     .includes(capabilities))
   throw Error('Unverified V3 owner media capability');
  const toolbar=editor.querySelector('.notes-toolbar');
  const hiddenButton=toolbar?.querySelector('[aria-label="Insert Image"]');
  if(!toolbar||!hiddenButton||
-    capabilities.canUploadNewImages!==false||
-    hiddenButton.hidden!==true)
+    hiddenButton.hidden!==(capabilities===DIRECT_D1_MEDIA_CAPABILITIES))
   throw Error('Shared Notes image capability differs from approved state');
+ if(capabilities===PRIVATE_D1_MEDIA_CAPABILITIES)return;
  // Keep the accepted shared Markdown component exact-byte. Add a
  // visible-but-disabled explanatory control, consistent across domains.
  const unavailable=hiddenButton.cloneNode(true);
