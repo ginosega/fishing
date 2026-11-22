@@ -193,6 +193,10 @@ test('V3-MEDIA-LIVE04 stale Save and path collision roll back all D1 edits',asyn
  outcome=await f.publish('gear',{expectedRevision:2});
  assert.equal(outcome.status,200);
  const first=f.query('SELECT revision,record_json FROM d6_gear_records');
+ // Model a path held by another owner: same-owner replacement is valid,
+ // cross-owner takeover must still abort the whole D1 batch.
+ f.sqlite.prepare('UPDATE d6_media_refs SET record_id=? WHERE logical_path=?')
+  .run('other-gear',pathOf('gear'));
  outcome=await f.publish('gear',{expectedRevision:3,
   record:{...recordOf('gear'),name:'This update must roll back'}});
  assert.equal(outcome.status,503);
@@ -343,16 +347,15 @@ test('V3-MEDIA-LIVE10 two images publish together or both roll back',async()=>{
  assert.equal(f.query('SELECT revision FROM d6_gear_records').revision,2);
 
  const g=fixture();g.seed('gear');
- // An existing logical path must not be overwritten, even if its blob
- // already has the same SHA. Failure of the second INSERT rolls back the
- // first INSERT and the record revision update in one transaction.
+ // The path is registered to a *different* owner. An attempted takeover
+ // must fail the second INSERT and roll back the first and the record edit.
  g.sqlite.prepare('INSERT INTO d6_media_objects'+
   ' (sha256,storage_key,mime,bytes,created_at) VALUES(?,?,?,?,?)')
   .run(sha,key,'image/png',image.length,1);
  g.sqlite.prepare('INSERT INTO d6_media_refs'+
   ' (logical_path,domain,record_id,sha256,created_at)'+
   ' VALUES(?,?,?,?,?)').run(second,'gear',
-   recordOf('gear').id,sha,1);
+   'other-gear',sha,1);
  result=await g.publish('gear',{markdown,media:multi});
  assert.equal(result.status,503);
  assert.equal(g.count('d6_media_refs'),1);
