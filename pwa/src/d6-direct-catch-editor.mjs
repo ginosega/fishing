@@ -421,13 +421,13 @@ export async function createCatchEditor(ctx,{
     accepted=true;
     for(const control of form.querySelectorAll('input,select,textarea,button'))
      control.disabled=true;
-        // After verified direct D1 Save, Exit returns to the item and reloads
+    // After verified direct D1 Save, Exit returns to the item and reloads
     // the current D1 catalog and R2 image manifest. Cancel never reloads.
     actions.replaceChildren(button('Exit',()=>{
      onExit();window.location.reload();
     },{variant:'primary'}));
     output.replaceChildren();notice.replaceChildren();actionNotice.replaceChildren();
-    const message='Saved. Your Catch Log will show the updated entry after reload.';
+    const message='Saved. Click Exit to return to the refreshed Catch Log.';
     status(notice,message,'success');status(actionNotice,message,'success');
     onDirty(false);void discardDraft().catch(()=>{});
     return;
