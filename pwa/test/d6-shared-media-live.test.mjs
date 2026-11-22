@@ -446,3 +446,56 @@ test('V3-M02-07 non-owned cover and forged Knot paths do not reach D1 batch',asy
  assert.notEqual(outcome.status,200);
  assert.equal(f.count('d6_media_refs'),0);
 });
+
+test('M02 D1 manifest is owner-only and includes only published linked paths',async()=>{
+ const f=fixture(),url=origin+'/api/v3/media/manifest';
+ const live=f.live({enabled:()=>true});
+ assert.equal((await f.live().handle(new Request(url))).status,503);
+ assert.equal((await live.handle(new Request(url))).status,403);
+ assert.equal((await live.handle(new Request(url,{method:'POST',
+  headers:{Cookie:cookie,'Sec-Fetch-Site':'same-origin'}}))).status,405);
+ const owner=()=>new Request(url,{
+  headers:{Cookie:cookie,'Sec-Fetch-Site':'same-origin'},
+ });
+ const empty=await live.handle(owner());
+ assert.equal(empty.status,200);
+ assert.deepEqual(await empty.json(),{ok:true,version:1,paths:[]});
+ f.seed('gear');
+ assert.equal((await f.publish('gear')).status,200);
+ const published=await live.handle(owner());
+ assert.equal(published.status,200);
+ assert.deepEqual(await published.json(),
+  {ok:true,version:1,paths:[pathOf('gear')]});
+ assert.equal(published.headers.get('Cache-Control'),
+  'private, no-store, max-age=0');
+});
+test('M02 D1 manifest refuses unlinked or incomplete media refs',async()=>{
+ const f=fixture(),url=origin+'/api/v3/media/manifest';
+ f.seed('gear');
+ const live=f.live({enabled:()=>true});
+ const owner=()=>new Request(url,{
+  headers:{Cookie:cookie,'Sec-Fetch-Site':'same-origin'},
+ });
+ f.sqlite.prepare('INSERT INTO d6_media_objects'+
+  ' (sha256,storage_key,mime,bytes,created_at) VALUES(?,?,?,?,?)')
+  .run(sha,key,'image/png',image.length,1);
+ f.sqlite.prepare('INSERT INTO d6_media_refs'+
+  ' (logical_path,domain,record_id,sha256,created_at)'+
+  ' VALUES(?,?,?,?,?)')
+  .run(pathOf('gear'),'gear',recordOf('gear').id,sha,1);
+ // The D1 record has no Markdown image token: a raw media ref is insufficient.
+ assert.equal((await live.handle(owner())).status,503);
+ f.sqlite.prepare('UPDATE d6_gear_records SET notes_text=?')
+  .run(markdownOf('gear'));
+ assert.equal((await live.handle(owner())).status,200);
+ // No matching media object makes the registry unverifiable, not complete.
+ f.sqlite.prepare('DELETE FROM d6_media_refs').run();
+ f.sqlite.prepare('DELETE FROM d6_media_objects').run();
+ const fakeSha='a'.repeat(64);
+ f.sqlite.exec('PRAGMA foreign_keys=OFF');
+ f.sqlite.prepare('INSERT INTO d6_media_refs'+
+  ' (logical_path,domain,record_id,sha256,created_at)'+
+  ' VALUES(?,?,?,?,?)')
+  .run(pathOf('gear'),'gear',recordOf('gear').id,fakeSha,1);
+ assert.equal((await live.handle(owner())).status,503);
+});
