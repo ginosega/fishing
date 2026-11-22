@@ -102,7 +102,7 @@ test('V3-C04-02 shared D1 batch atomically publishes several validated media ref
  assert.equal(f.count('d6_media_refs'),2);
  assert.equal(f.read('gear',record.id).revision,2);
 });
-test('V3-C04-03 collision on second media ref aborts the shared D1 record transaction',async()=>{
+test('V3-C04-03 cross-owner collision on second media ref aborts shared D1 transaction',async()=>{
  const f=fixture({schema:true}),record=records.gear;
  f.seed('gear',record,'Old notes');
  const sha='b'.repeat(64),key='staged/v1/sha256/'+sha;
@@ -115,7 +115,7 @@ test('V3-C04-03 collision on second media ref aborts the shared D1 record transa
   .run(sha,key,'image/png',67,1);
  f.sqlite.prepare('INSERT INTO d6_media_refs'+
   ' (logical_path,domain,record_id,sha256,created_at) VALUES(?,?,?,?,?)')
-  .run(refs[1].logicalPath,'gear',record.id,sha,1);
+  .run(refs[1].logicalPath,'gear','different-gear-owner',sha,1);
  const result=await f.save('gear',record,'Should never save',1,refs);
  assert.equal(result.status,503);
  assert.equal(f.count('d6_media_refs'),1);
