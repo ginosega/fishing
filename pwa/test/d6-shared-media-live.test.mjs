@@ -699,6 +699,8 @@ test('M02 remove Knot sequence keeps representative final frame linked',async()=
 test('M02 source-only owner editor → private stage → atomic D1 Save → R2 readback',async()=>{
  const f=fixture();
  f.seed('gear');
+ // Force a new R2 stage rather than reusing the fixture's preseeded object.
+ f.objects.clear();
  const cover='Gear/Lures/assets/owner-cover.png';
  const record={...recordOf('gear'),picture:{src:cover}};
  // This test uses in-memory SQLite and a fake, private R2 object store.
@@ -762,6 +764,8 @@ test('M02 source-only owner editor → private stage → atomic D1 Save → R2 r
   assert.equal(saved.revision,2);
   assert.equal(f.count('d6_media_refs'),1);
   assert.equal(f.count('d6_media_objects'),1);
+  assert.equal(f.objects.size,1,'one original was actually staged');
+  assert.deepEqual(f.objects.get('staged/v1/sha256/'+sha)?.bytes,image);
   assert.equal(f.query('SELECT revision FROM d6_gear_records').revision,2);
   assert.deepEqual(calls.filter(x=>x.method==='POST').map(x=>x.url),[
    origin+'/api/v3/media/stage',origin+'/api/v3/media/publish']);
