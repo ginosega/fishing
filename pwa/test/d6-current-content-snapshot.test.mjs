@@ -124,6 +124,7 @@ test('O01 omits inert historical media associations but leaves them untouched',a
   const baseline=await createD6CurrentContentSnapshot(f);
   const photo=baseline.images.find(x=>x.mime==='image/jpeg');
   assert.ok(photo);
+  const refsBefore=f.sqlite.prepare('SELECT COUNT(*) AS n FROM d6_media_refs').get().n;
   f.sqlite.prepare('INSERT INTO d6_media_refs VALUES (?,?,?,?,?)')
    .run('Gear/Lures/assets/deleted-image.jpg',
     'gear','berkley-warpig',photo.sha256,1);
@@ -133,9 +134,7 @@ test('O01 omits inert historical media associations but leaves them untouched',a
    baseline.counts.retainedUnlinkedRefs+1);
   assert.ok(!next.images.some(x=>x.logicalPath==='Gear/Lures/assets/deleted-image.jpg'));
   assert.equal(f.sqlite.prepare('SELECT COUNT(*) AS n FROM d6_media_refs').get().n,
-   inventory.assets.reduce((n,x)=>n+x.references.length,0)+1-
-   (inventory.assets.reduce((n,x)=>n+x.references.length,0)-
-    f.sqlite.prepare('SELECT COUNT(*) AS n FROM d6_media_refs').get().n+0));
+   refsBefore+1,'snapshot must not alter historical D1 refs');
  }finally{f.close();}
 });
 
