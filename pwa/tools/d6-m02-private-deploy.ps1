@@ -51,7 +51,7 @@ if(-not (Test-Path 'node_modules\esbuild') -or -not (Test-Path 'node_modules\sha
  Check-Exit 'Local dependency installation'
 }
 $Output=Join-Path (Get-Location).Path 'dist-v3-pilot'
-$Args=@(
+$BuildOptions=@(
  'tools/build.mjs',
  '--base=/fishing/',
  "--out=$Output",
@@ -66,7 +66,7 @@ $Args=@(
  '--d6-direct-catch-save',
  '--d6-owner-media-upload'
 )
-& node @Args
+& node @BuildOptions
 Check-Exit 'M02 private UI build'
 & node tools/verify.mjs "--out=$Output"
 Check-Exit 'M02 immutable release verification'
