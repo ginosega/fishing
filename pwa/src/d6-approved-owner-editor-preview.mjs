@@ -416,7 +416,11 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
     saveAccepted=true;
     for(const control of form.querySelectorAll('input,select,textarea,button'))
      control.disabled=true;
-    actions.replaceChildren(button('Exit',onExit,{variant:'primary'}));
+        // After verified direct D1 Save, Exit returns to the item and reloads
+    // the current D1 catalog and R2 image manifest. Cancel never reloads.
+    actions.replaceChildren(button('Exit',()=>{
+     onExit();window.location.reload();
+    },{variant:'primary'}));
     notice.replaceChildren();actionNotice.replaceChildren();
     const success=directGear?'Saved. Your Gear item will show the updated information after reload.':
      'Saved. Your Knowledge Base entry will show the updated information after reload.';
