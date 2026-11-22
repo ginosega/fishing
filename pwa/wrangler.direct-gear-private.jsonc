@@ -22,7 +22,8 @@
     "D6_SOURCE_ENABLED": "false",
     "D6_READ_TOKEN_ENABLED": "false",
     "D6_SIGNER_ENABLED": "false",
-    "D6_HOSTED_PREFLIGHT_ENABLED": "false"
+    "D6_HOSTED_PREFLIGHT_ENABLED": "false",
+    "D6_M02_MEDIA_ENABLED": "false"
   },
   "d1_databases": [
     {
@@ -34,6 +35,12 @@
       "binding": "WP3_DB",
       "database_name": "fishing-v3-wp3-operations-test",
       "database_id": "5a47841e-7874-4ec8-9fa8-be0315f6a802"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "MEDIA_R2",
+      "bucket_name": "fishing-v3-owner-media-test"
     }
   ],
   "assets": {

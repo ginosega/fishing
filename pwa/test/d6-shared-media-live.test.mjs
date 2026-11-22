@@ -377,10 +377,11 @@ test('V3-MEDIA-LIVE11 existing Worker stages source routes only behind opt-in',(
  assert.match(worker,/env\.MEDIA_R2/);
  const deployed=JSON.parse(readFileSync(new URL(
   '../wrangler.direct-gear-private.jsonc',import.meta.url),'utf8'));
- assert.notEqual(deployed.vars.D6_M02_MEDIA_ENABLED,'true',
-  'deployed Worker configuration must not enable source-only M02 routes');
- assert.equal(deployed.r2_buckets,undefined,
-  'R2 binding still requires separate provider approval');
+ assert.equal(deployed.vars.D6_M02_MEDIA_ENABLED,'false',
+  'R2 declaration must not enable source-only M02 routes');
+ assert.deepEqual(deployed.r2_buckets,[{
+  binding:'MEDIA_R2',bucket_name:'fishing-v3-owner-media-test',
+ }], 'owner-approved private R2 binding is source-only until deployment');
 });
 
 test('V3-M02-05 record-linked Gear and KB cover images publish and read privately',async()=>{

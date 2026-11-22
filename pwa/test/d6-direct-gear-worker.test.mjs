@@ -88,6 +88,11 @@ test('V3-PILOT03 one existing isolated Worker hosts assets and D1; no public dep
  assert.equal(cfg.vars.D6_OAUTH_ENABLED,'true');
  for(const name of ['D6_SOURCE_ENABLED','D6_READ_TOKEN_ENABLED','D6_SIGNER_ENABLED'])
   assert.equal(cfg.vars[name],'false');
+ assert.equal(cfg.vars.D6_M02_MEDIA_ENABLED,'false',
+  'configuring R2 does not activate private media routes');
+ assert.deepEqual(cfg.r2_buckets,[{
+  binding:'MEDIA_R2',bucket_name:'fishing-v3-owner-media-test',
+ }],'one existing private bucket, no public endpoint or additional storage');
  assert.equal(cfg.workers_dev,true);
  assert.equal(cfg.routes,undefined);
  assert.equal(cfg.assets.base_path,'/fishing');
