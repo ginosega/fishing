@@ -106,7 +106,7 @@ export function createD6OwnerMediaUploadCoordinator({
  }
  function manifest(domain,record,markdown,staged){
   if(!DOMAIN[domain]||typeof record?.id!=='string'||
-     !Array.isArray(staged)||staged.length<1||staged.length>32)
+     !Array.isArray(staged)||staged.length>32)
    throw fail('INVALID','Invalid image manifest');
   const paths=new Set();
   for(const x of staged){
