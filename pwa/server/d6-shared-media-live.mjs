@@ -27,6 +27,7 @@ const SHA=/^[a-f0-9]{64}$/;
 const MIME=new Set(['image/jpeg','image/png','image/webp','image/gif']);
 const ORIGIN_PATH='/api/v3/media/';
 const READ_PREFIX=ORIGIN_PATH+'live/';
+const THUMB_PREFIX=ORIGIN_PATH+'thumb/';
 const MAX_BODY=192*1024,MAX_NOTES=128*1024;
 const DOMAINS=Object.freeze({
  gear:{table:'d6_gear_records',field:'notes_text',fieldInRecord:'notes',
@@ -55,9 +56,9 @@ const idValid=id=>typeof id==='string'&&id.length<=160&&ID.test(id);
 const acceptedDomain=domain=>Object.hasOwn(DOMAINS,domain);
 const selectSql=d=>`SELECT id,revision,record_json,${d.field} FROM ${d.table} WHERE id=?`;
 
-function decodeLivePath(pathname){
- if(!pathname.startsWith(READ_PREFIX))return null;
- const encoded=pathname.slice(READ_PREFIX.length);
+function decodeLivePath(pathname,prefix=READ_PREFIX){
+ if(!pathname.startsWith(prefix))return null;
+ const encoded=pathname.slice(prefix.length);
  if(!encoded||encoded.includes('//'))return null;
  try{
   const local=encoded.split('/').map(decodeURIComponent).join('/');
@@ -214,12 +215,13 @@ export async function publishD6MediaRevision({
  }
 }
 export function createD6SharedMediaLive({
- AUTH_DB,CONTENT_DB,R2,csrfKey,origin,enabled=()=>false,
- now=()=>Math.floor(Date.now()/1000),
+ AUTH_DB,CONTENT_DB,R2,IMAGES,csrfKey,origin,enabled=()=>false,
+ thumbnailEnabled=()=>false,now=()=>Math.floor(Date.now()/1000),
 }={}){
  if(typeof origin!=='string'||!origin.startsWith('https://')||
     new URL(origin).origin!==origin||
-    typeof enabled!=='function'||typeof now!=='function')
+    typeof enabled!=='function'||typeof thumbnailEnabled!=='function'||
+    typeof now!=='function')
   throw Error('Invalid live media configuration');
  const ready=()=>enabled()===true&&
   typeof AUTH_DB?.prepare==='function'&&
@@ -324,8 +326,12 @@ export function createD6SharedMediaLive({
     fail(result.status,result.error);
   }
   // Read only fully published D1 refs and real Markdown image tokens.
-  const path=decodeLivePath(url.pathname);
+  const thumbnail=url.pathname.startsWith(THUMB_PREFIX);
+  const path=decodeLivePath(url.pathname,thumbnail?THUMB_PREFIX:READ_PREFIX);
   if(!path)return fail(404,'NOT_FOUND');
+  // Transformations stay disabled without separate owner approval.
+  if(thumbnail&&(!thumbnailEnabled()||typeof IMAGES?.input!=='function'))
+   return fail(503,'THUMBNAIL_NOT_ENABLED');
   if(request.method!=='GET'&&request.method!=='HEAD')
    return fail(405,'METHOD_NOT_ALLOWED');
   if(request.headers.has('Range'))return fail(416,'RANGE_NOT_SUPPORTED');
@@ -383,6 +389,31 @@ export function createD6SharedMediaLive({
    if(!original||!storedObjectOK(original,selected,
       stored.bytes,stored.mime)||!original.body)
     return fail(503,'MEDIA_UNVERIFIED');
+   if(thumbnail){
+    // Existing D1/R2 proof above protects both full-size and card routes.
+    // Only a fixed bounded first-frame WebP derivative is served.
+    const transformed=IMAGES.input(original.body)
+     .transform({width:512,height:270,fit:'scale-down'})
+     .output({format:'image/webp',quality:80,anim:false})
+     .response({headers:{
+      'Cache-Control':'private, no-store',
+      'X-Content-Type-Options':'nosniff',
+      'Content-Disposition':'inline',
+      'Vary':'Cookie',
+     }});
+    if(!(transformed instanceof Response)||transformed.status!==200||
+       !/^image\/webp\b/i.test(transformed.headers.get('Content-Type')??''))
+     return fail(503,'THUMBNAIL_UNAVAILABLE');
+    const headers=new Headers(transformed.headers);
+    headers.set('Cache-Control','private, no-store');
+    headers.set('X-Content-Type-Options','nosniff');
+    headers.set('Content-Disposition','inline');
+    headers.set('Vary','Cookie');
+    headers.set('ETag','"'+selected+'-card512x270-v1"');
+    return new Response(request.method==='HEAD'?null:transformed.body,{
+     status:200,headers,
+    });
+   }
    const headers=new Headers({
     'Content-Type':stored.mime,
     'Content-Length':String(stored.bytes),

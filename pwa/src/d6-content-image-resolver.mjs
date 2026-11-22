@@ -55,7 +55,7 @@ export async function loadD6PublishedMediaPaths({
 
 export function createD6ContentImageResolver({
  root,enabled=()=>false,readingMode=()=> 'Checking',
- publishedPaths=new Set(),
+ publishedPaths=new Set(),thumbnailEnabled=()=>false,
 }={}){
  let app;
  try{app=new URL(root);}catch{throw Error('MEDIA_RESOLVER_ORIGIN_INVALID');}
@@ -64,7 +64,7 @@ export function createD6ContentImageResolver({
  if((app.protocol!=='https:'&&!local)||app.pathname!=='/fishing/'||
    app.username||app.password||app.search||app.hash||
    typeof enabled!=='function'||typeof readingMode!=='function'||
-   !(publishedPaths instanceof Set))
+   !(publishedPaths instanceof Set)||typeof thumbnailEnabled!=='function')
   throw Error('MEDIA_RESOLVER_ORIGIN_INVALID');
  // A verified D1 manifest must be replaced as a unit after each fresh read.
  // Do not allow later mutations of the caller's Set to authorize new paths.
@@ -78,7 +78,13 @@ export function createD6ContentImageResolver({
      !/\.(?:jpe?g|png|webp|gif)$/i.test(path))return null;
   return app.origin+'/api/v3/media/live/'+encodedPath(path);
  }
- return Object.freeze({resolve,isReady});
+ function resolveThumbnail(logicalPath){
+  if(thumbnailEnabled()!==true)return null;
+  if(!resolve(logicalPath))return null;
+  const path=safePath(logicalPath);
+  return app.origin+'/api/v3/media/thumb/'+encodedPath(path);
+ }
+ return Object.freeze({resolve,resolveThumbnail,isReady});
 }
 /** UI composition contract: the V2/legacy release path remains unchanged.
  * Once authoritative online media reads are enabled, never silently replace

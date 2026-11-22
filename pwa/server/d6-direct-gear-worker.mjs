@@ -65,8 +65,10 @@ export function createD6DirectGearWorker({
    if(!mediaEnabled(env))return respond(503,'UNAVAILABLE');
    try{
     const options={AUTH_DB:env.AUTH_DB,CONTENT_DB:env.WP3_DB,
-     R2:env.MEDIA_R2,csrfKey:env.D6_CSRF_KEY,origin:ORIGIN,
-     enabled:()=>mediaEnabled(env),now};
+     R2:env.MEDIA_R2,IMAGES:env.IMAGES,
+     csrfKey:env.D6_CSRF_KEY,origin:ORIGIN,
+     enabled:()=>mediaEnabled(env),
+     thumbnailEnabled:()=>env.D6_M03_THUMBNAILS_ENABLED==='true',now};
     if(url.pathname==='/api/v3/media/stage')
      return await createD6SharedMediaStage(options).handle(request);
     return await createD6SharedMediaLive(options).handle(request);

@@ -41,12 +41,14 @@ export async function bootstrap({root,release},{v3=null}={}){
   createD6ContentImageResolver({
    root,enabled:()=>true,readingMode:()=>selected.readingMode,
    publishedPaths:mediaPaths,
+   thumbnailEnabled:()=>v3?.thumbnailReadApproved===true,
   }):null;
  const image=file=>liveMedia?
   d6ResolveImageForDisplay(file,{verifiedLive:liveMedia,
    frozenAsset:asset,strictOnline:true}):asset(file);
  const thumbnail=file=>{
-  if(liveMedia)return image(file);
+  if(liveMedia)return v3?.thumbnailReadApproved===true?
+   liveMedia.resolveThumbnail(file):image(file);
   const thumb=manifest.cardThumbnails?.[file];
   return thumb?new URL('card-thumbnails/'+encodedPath(thumb),base).href:asset(file);
  };

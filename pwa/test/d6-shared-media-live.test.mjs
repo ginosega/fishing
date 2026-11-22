@@ -1059,3 +1059,73 @@ test('M02 Catch Notes and Knot frames use the real stage → D1 Save → R2 read
   else globalThis.createImageBitmap=bitmap;
  }
 });
+
+test('M03 private card derivatives reuse D1/R2 publication and preserve full originals',async()=>{
+ const f=fixture();f.seed('gear');
+ const thumbUrl=f.url('gear').replace('/media/live/','/media/thumb/');
+ assert.equal((await f.live({enabled:()=>true}).handle(
+  ownerImageRequest(thumbUrl))).status,503);
+ let transforms=0;
+ const IMAGES={input(body){
+  assert.deepEqual(new Uint8Array(body),image);
+  return {transform(options){
+   assert.deepEqual(options,{width:512,height:270,fit:'scale-down'});
+   return {output(options){
+    assert.deepEqual(options,{format:'image/webp',quality:80,anim:false});
+    return {response({headers}){
+     transforms++;
+     return new Response(Uint8Array.from([82,73,70,70]),{
+      status:200,headers:{...headers,'Content-Type':'image/webp'},
+     });
+    }};
+   }};
+  }};
+ }};
+ const service=f.live({enabled:()=>true,IMAGES,thumbnailEnabled:()=>true});
+ assert.equal((await service.handle(ownerImageRequest(thumbUrl))).status,404,
+  'unlinked stage-only image cannot be thumbnailed');
+ assert.equal(transforms,0);
+ assert.equal((await f.publish('gear')).status,200);
+ assert.equal((await service.handle(new Request(thumbUrl))).status,403,
+  'anonymous callers cannot access private thumbnail bytes');
+ assert.equal(transforms,0);
+ const thumb=await service.handle(ownerImageRequest(thumbUrl));
+ assert.equal(thumb.status,200);
+ assert.equal(thumb.headers.get('Content-Type'),'image/webp');
+ assert.equal(thumb.headers.get('Cache-Control'),'private, no-store');
+ assert.equal(thumb.headers.get('ETag'),'"'+sha+'-card512x270-v1"');
+ assert.deepEqual(new Uint8Array(await thumb.arrayBuffer()),Uint8Array.from([82,73,70,70]));
+ assert.equal(transforms,1);
+ const head=await service.handle(ownerImageRequest(thumbUrl,{method:'HEAD'}));
+ assert.equal(head.status,200);
+ assert.equal((await head.arrayBuffer()).byteLength,0);
+ const original=await service.handle(ownerImageRequest(f.url('gear')));
+ assert.equal(original.status,200);
+ assert.equal(original.headers.get('Content-Type'),'image/png');
+ assert.deepEqual(new Uint8Array(await original.arrayBuffer()),image);
+ f.sqlite.prepare('DELETE FROM d6_media_refs WHERE logical_path=?')
+  .run(pathOf('gear'));
+ assert.equal((await service.handle(ownerImageRequest(thumbUrl))).status,404,
+  'retired D1 media references are immediately denied');
+});
+
+test('M03 browser thumbnail route is default-OFF and limited to verified paths',()=>{
+ const published=new Set([pathOf('gear')]);
+ let enabled=false,mode='Automatic';
+ const resolver=createD6ContentImageResolver({
+  root:origin+'/fishing/',enabled:()=>true,readingMode:()=>mode,
+  publishedPaths:published,thumbnailEnabled:()=>enabled,
+ });
+ const full=origin+'/api/v3/media/live/'+encodedPath(pathOf('gear'));
+ const card=origin+'/api/v3/media/thumb/'+encodedPath(pathOf('gear'));
+ assert.equal(resolver.resolve(pathOf('gear')),full);
+ assert.equal(resolver.resolveThumbnail(pathOf('gear')),null);
+ enabled=true;
+ assert.equal(resolver.resolveThumbnail(pathOf('gear')),card);
+ assert.equal(resolver.resolve(pathOf('gear')),full);
+ assert.equal(resolver.resolveThumbnail('Gear/Other/unlinked.png'),null);
+ published.add('Gear/Other/unlinked.png');
+ assert.equal(resolver.resolveThumbnail('Gear/Other/unlinked.png'),null);
+ mode='Work Offline';
+ assert.equal(resolver.resolveThumbnail(pathOf('gear')),null);
+});
