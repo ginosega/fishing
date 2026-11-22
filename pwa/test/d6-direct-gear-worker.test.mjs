@@ -103,3 +103,36 @@ test('V3-PILOT03 one existing isolated Worker hosts assets and D1; no public dep
  assert.match(seed,/ON CONFLICT\(id\) DO NOTHING;/);
  assert.equal(seed.split('\n').some(line=>/^\s*(?:UPDATE|DELETE|DROP|ALTER|CREATE)\b/i.test(line)),false);
 });
+
+
+test('M02 Worker default-OFF denies private media routes without R2/flag',async()=>{
+ const {env,worker}=pilot();
+ const names=[
+  '/api/v3/media/manifest','/api/v3/media/stage',
+  '/api/v3/media/publish','/api/v3/media/live/Gear/Lures/assets/a.png',
+ ];
+ for(const suffix of names){
+  const call=await worker.fetch(new Request(origin+suffix),env);
+  assert.equal(call.status,503,suffix+' must remain OFF');
+ }
+ let calls=0;
+ const fakeR2={
+  head:async()=>{calls++;return null;},
+  get:async()=>{calls++;return null;},
+  put:async()=>{calls++;return null;},
+ };
+ const bound={...env,MEDIA_R2:fakeR2,WP3_DB:{...env.WP3_DB,
+  batch:async()=>[]}};
+ assert.equal((await worker.fetch(new Request(origin+names[0]),bound)).status,503,
+  'R2 binding alone cannot enable media');
+ assert.equal(calls,0);
+ // This is a source-only configured mock, not any real Cloudflare binding.
+ const opted={...bound,D6_M02_MEDIA_ENABLED:'true',
+  D6_DIRECT_KB_ENABLED:'true',D6_DIRECT_CATCH_ENABLED:'true'};
+ const denial=await worker.fetch(new Request(origin+names[0]),opted);
+ assert.equal(denial.status,403,
+  'even with mock opt-in an owner session is required');
+ assert.equal((await worker.fetch(new Request(origin+names[1]),opted)).status,405,
+  'stage is POST only');
+ assert.equal(calls,0,'no R2 access for unauthorized requests');
+});

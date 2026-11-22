@@ -368,12 +368,19 @@ test('V3-MEDIA-LIVE10 two images publish together or both roll back',async()=>{
  assert.equal(g.query('SELECT notes_text FROM d6_gear_records').notes_text,
   'Original notes');
 });
-test('V3-MEDIA-LIVE11 unmounted service does not alter deployed Worker routes',()=>{
+test('V3-MEDIA-LIVE11 existing Worker stages source routes only behind opt-in',()=>{
  const worker=readFileSync(new URL('../server/d6-direct-gear-worker.mjs',
   import.meta.url),'utf8');
- assert.doesNotMatch(worker,/d6-shared-media-live/);
- assert.doesNotMatch(worker,/d6-shared-media-stage/);
- assert.doesNotMatch(worker,/\/api\/v3\/media\//);
+ assert.match(worker,/d6-shared-media-live/);
+ assert.match(worker,/d6-shared-media-stage/);
+ assert.match(worker,/env\.D6_M02_MEDIA_ENABLED==='true'/);
+ assert.match(worker,/env\.MEDIA_R2/);
+ const deployed=JSON.parse(readFileSync(new URL(
+  '../wrangler.direct-gear-private.jsonc',import.meta.url),'utf8'));
+ assert.notEqual(deployed.vars.D6_M02_MEDIA_ENABLED,'true',
+  'deployed Worker configuration must not enable source-only M02 routes');
+ assert.equal(deployed.r2_buckets,undefined,
+  'R2 binding still requires separate provider approval');
 });
 
 test('V3-M02-05 record-linked Gear and KB cover images publish and read privately',async()=>{
