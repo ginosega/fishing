@@ -12,6 +12,9 @@ import {ID_PATTERN,encodedPath,safePath} from '../src/shared.mjs';
 import {isD6NotesImageLinked} from '../src/d6-notes-image-link.mjs';
 export {isD6NotesImageLinked} from '../src/d6-notes-image-link.mjs';
 import {saveD6ContentRevision} from './d6-content-save-transaction.mjs';
+import {d6ReadableMediaRole,d6HistoricalMime}
+ from '../src/d6-historical-media-link.mjs';
+
 import {validateD6MediaPath,D6_MEDIA_LIMIT_BYTES}
  from './d6-shared-media-stage.mjs';
 import {publishedD6MediaRole,d6ValidKnotSequence}
@@ -259,7 +262,7 @@ export function createD6SharedMediaLive({
     `).bind().all();
     if(!Array.isArray(query?.results)||query.results.length>10000)
      return fail(503,'MEDIA_REGISTRY_UNVERIFIED');
-    const paths=[];
+    const paths=new Set();
     for(const row of query.results){
      const d=DOMAINS[row.domain];
      if(!d||!idValid(row.record_id)||!SHA.test(row.sha256??'')||
@@ -272,19 +275,15 @@ export function createD6SharedMediaLive({
      catch{return fail(503,'MEDIA_REGISTRY_UNVERIFIED');}
      if(!validators[row.domain](record)||record.id!==row.record_id)
       return fail(503,'MEDIA_REGISTRY_UNVERIFIED');
-     const role=publishedD6MediaRole({
+     const role=d6ReadableMediaRole({
       domain:row.domain,record,logicalPath:row.logical_path,
-      notesLinked:isD6NotesImageLinked(row.markdown,row.logical_path),
+      markdown:row.markdown,
      });
-     if(!role)return fail(503,'MEDIA_REGISTRY_UNVERIFIED');
-     const verified=validateD6MediaPath({
-      domain:row.domain,record,logicalPath:row.logical_path,role,
-     });
-     if(verified.mime!==row.mime)
+     if(!role||d6HistoricalMime(row.logical_path)!==row.mime)
       return fail(503,'MEDIA_REGISTRY_UNVERIFIED');
-     paths.push(row.logical_path);
+     paths.add(row.logical_path);
     }
-    return response(200,{ok:true,version:1,paths});
+    return response(200,{ok:true,version:1,paths:[...paths]});
    }catch{return fail(503,'MEDIA_REGISTRY_UNVERIFIED');}
   }
   if(url.pathname===ORIGIN_PATH+'publish'){
@@ -337,30 +336,42 @@ export function createD6SharedMediaLive({
     new Request(request,{method:'GET'}):request);
   }catch{return fail(403,'MEDIA_NOT_AUTHORIZED');}
   try{
-   const ref=await CONTENT_DB.prepare(
+   // A historical photo can be referenced by several records. All rows
+   // must identify the same immutable object; a currently linked owner must
+   // exist before any bytes can be returned.
+   const refs=await CONTENT_DB.prepare(
     'SELECT domain,record_id,sha256 FROM d6_media_refs WHERE logical_path=?'
-   ).bind(path).first();
-   if(!ref||!acceptedDomain(ref.domain)||!idValid(ref.record_id)||
-      !SHA.test(ref.sha256))return fail(404,'NOT_FOUND');
-   const d=DOMAINS[ref.domain];
-   const row=await CONTENT_DB.prepare(selectSql(d)).bind(ref.record_id).first();
-   if(!row||row.id!==ref.record_id)return fail(404,'NOT_FOUND');
-   let record;
-   try{record=JSON.parse(row.record_json);}catch{return fail(503,'MEDIA_UNVERIFIED');}
-   if(!validators[ref.domain](record)||record.id!==ref.record_id)
-    return fail(404,'NOT_FOUND');
-   const role=publishedD6MediaRole({domain:ref.domain,record,
-    logicalPath:path,notesLinked:isD6NotesImageLinked(row[d.field],path)});
-   if(!role)return fail(404,'NOT_FOUND');
-   const verified=validateD6MediaPath({domain:ref.domain,record,
-    logicalPath:path,role});
-   if(!verified.mime)return fail(404,'NOT_FOUND');
+   ).bind(path).all();
+   if(!Array.isArray(refs?.results)||!refs.results.length||
+      refs.results.length>172)return fail(404,'NOT_FOUND');
+   let selected=null;
+   for(const ref of refs.results){
+    if(!acceptedDomain(ref.domain)||!idValid(ref.record_id)||
+       !SHA.test(ref.sha256)||
+       selected&&selected!==ref.sha256)return fail(503,'MEDIA_UNVERIFIED');
+    selected=ref.sha256;
+   }
+   let linked=false;
+   for(const ref of refs.results){
+    const d=DOMAINS[ref.domain];
+    const row=await CONTENT_DB.prepare(selectSql(d)).bind(ref.record_id).first();
+    if(!row||row.id!==ref.record_id)continue;
+    let record;
+    try{record=JSON.parse(row.record_json);}catch{continue;}
+    if(!validators[ref.domain](record)||record.id!==ref.record_id)continue;
+    if(d6ReadableMediaRole({domain:ref.domain,record,
+      logicalPath:path,markdown:row[d.field]})){
+     linked=true;break;
+    }
+   }
+   if(!linked)return fail(404,'NOT_FOUND');
    const stored=await CONTENT_DB.prepare(
     'SELECT storage_key,mime,bytes FROM d6_media_objects WHERE sha256=?'
-   ).bind(ref.sha256).first();
+   ).bind(selected).first();
    if(!stored||!MIME.has(stored.mime)||stored.bytes<1||
       stored.bytes>D6_MEDIA_LIMIT_BYTES||
-      stored.storage_key!==entryKey(ref.sha256))
+      d6HistoricalMime(path)!==stored.mime||
+      stored.storage_key!==entryKey(selected))
     return fail(503,'MEDIA_UNVERIFIED');
    const original=await R2.get(stored.storage_key);
    if(!original||!storedObjectOK(original,ref.sha256,
@@ -372,7 +383,7 @@ export function createD6SharedMediaLive({
     'Cache-Control':'private, no-store',
     'X-Content-Type-Options':'nosniff',
     'Content-Disposition':'inline',
-    'ETag':'"'+ref.sha256+'"',
+    'ETag':'"'+selected+'"',
     'Accept-Ranges':'none',
    });
    return new Response(request.method==='HEAD'?null:original.body,{
