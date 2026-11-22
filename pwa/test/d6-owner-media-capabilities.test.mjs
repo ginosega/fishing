@@ -28,12 +28,12 @@ test('V3-MEDIA03 a placeholder staging function does not enable new uploads',()=
  const ui=read('ui.mjs');
  const gearKB=read('d6-approved-owner-editor-preview.mjs');
  const catches=read('d6-direct-catch-editor.mjs');
- assert.match(ui,/selectD6OwnerMediaCapabilities\\(/);
- assert.match(ui,/ownerMediaCoordinator:mediaCapabilities===DIRECT_D1_MEDIA_CAPABILITIES/);
+ assert.ok(ui.includes('selectD6OwnerMediaCapabilities('));
+ assert.ok(ui.includes('ownerMediaCoordinator:mediaCapabilities===DIRECT_D1_MEDIA_CAPABILITIES'));
  const entry=read('entry.mjs');
- assert.match(entry,/__FISHING_D6_OWNER_MEDIA_UPLOAD__/);
- assert.match(entry,/settings\\.release\\?\\.d6OwnerMediaUpload!==true/);
- assert.match(entry,/settings\\.manifest\\?\\.d6OwnerMediaUpload!==true/);
+ assert.ok(entry.includes('__FISHING_D6_OWNER_MEDIA_UPLOAD__'));
+ assert.ok(entry.includes('settings.release?.d6OwnerMediaUpload!==true'));
+ assert.ok(entry.includes('settings.manifest?.d6OwnerMediaUpload!==true'));
  assert.doesNotMatch(ui,/stageMedia:async/);
  for(const source of [gearKB,catches]){
   assert.match(source,/allowUpload:ctx\.v3\?\.mediaCapabilities\?\.canUploadNewImages===true/);
