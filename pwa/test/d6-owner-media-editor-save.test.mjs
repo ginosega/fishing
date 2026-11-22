@@ -134,3 +134,22 @@ test('M02 Notes preflight denies misleading Markdown before any R2 stage',async(
   assert.equal(h.calls.length,0,'no stage or publish');
  }
 });
+
+
+test('M02 private Notes-only Save calls publish once with zero R2 stages',async()=>{
+ for(const domain of ['gear','kb','catches']){
+  const h=harness(),record=domain==='gear'?gear:
+   domain==='kb'?kb:catchRecord;
+  const saved=await use(h,{domain,record,markdown:'Revised Notes',
+   uploads:[]});
+  assert.equal(saved.verified,true);
+  assert.deepEqual(h.calls.map(x=>x.type),['publish']);
+  assert.deepEqual(h.calls[0].receipts,[]);
+ }
+ const h=harness();
+ await assert.rejects(save({domain:'gear',record:gear,
+  markdown:'Revised Notes',expectedRevision:1,uploads:[],
+  capabilities:{canUploadNewImages:false},coordinator:h.coordinator}),
+  {code:'MEDIA_DISABLED'});
+ assert.equal(h.calls.length,0);
+});
