@@ -406,7 +406,8 @@ export async function createCatchEditor(ctx,{
     });
     // The approved hosted Worker remains upload-OFF; only a separately
     // authorized coordinator can stage, publish and verify D1/R2.
-    const saved=notesUploads.length?
+    const saved=(notesUploads.length||
+     ctx.v3?.mediaCapabilities?.canUploadNewImages===true)?
      await saveD6OwnerEditorMedia({
       domain:'catches',record:candidate,markdown:notesText,
       expectedRevision:directRevision,
