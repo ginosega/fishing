@@ -149,3 +149,20 @@ test('V3-C04-05 all three owner endpoints and media publisher use SAME write cor
   import.meta.url),'utf8');
  assert.doesNotMatch(live,/d6-shared-media-live/);
 });
+
+
+test('M02 obsolete reference guard rolls back if a D1 link vanished',async()=>{
+ const f=fixture({schema:true}),record=records.gear;
+ f.seed('gear',record,'Before');
+ const before=f.read('gear',record.id);
+ const result=await saveD6ContentRevision({
+  CONTENT_DB:f.CONTENT_DB,domain:'gear',record,markdown:'After',
+  expectedRevision:1,media:[],retiredPaths:[
+   'Gear/Lures/assets/gear-unit/notes/not-published.png'],
+  syncMedia:true,now:()=>1000,
+ });
+ assert.equal(result.status,503);
+ assert.deepEqual(f.read('gear',record.id),before);
+ assert.equal(f.count('d6_media_objects'),0);
+ assert.equal(f.count('d6_media_refs'),0);
+});
