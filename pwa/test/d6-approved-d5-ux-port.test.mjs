@@ -26,11 +26,17 @@ const read=name=>readFileSync(new URL('../src/'+name,import.meta.url));
 const hash=data=>createHash('sha1')
  .update('blob '+data.byteLength+'\0').update(data).digest('hex');
 
-test('D6-UX-PORT01 thirteen accepted D5 sources are exact-byte imports',()=>{
+// Owner explicitly approved extending the shared Notes editor for M03:
+// https://github.com/ginosega/fishing/issues/377#issuecomment-7086996544
+// Preserve the original D5 blob above for provenance; pin the narrowly reviewed
+// M03 replacement separately. All other twelve accepted D5 files stay exact.
+const reviewedM03Notes='fcce1d1187c1e06fee26a43699bb48ee1f490d20';
+test('D6-UX-PORT01 twelve D5 exact-byte imports and approved M03 Notes extension',()=>{
  assert.equal(Object.keys(accepted).length,13);
  for(const [name,expected] of Object.entries(accepted))
-  assert.equal(hash(read(name)),expected,
-   'Approved D5 source drift without review: '+name);
+  assert.equal(hash(read(name)),
+   name==='notes-markdown-editor.mjs'?reviewedM03Notes:expected,
+   'Approved D5/M03 source drift without review: '+name);
 });
 test('D6-UX-PORT02 approved Connection Status implementation stays unmodified',()=>{
  const acceptedFile=read('v3-connection-experience.mjs').toString();
