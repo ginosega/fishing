@@ -876,3 +876,125 @@ test('M02 source-only owner editor → private stage → atomic D1 Save → R2 r
   else globalThis.createImageBitmap=previousBitmap;
  }
 });
+
+
+test('M02 Catch Notes and Knot frames use the real stage → D1 Save → R2 reader bridge',async()=>{
+ const plans=[
+  {domain:'catches',record:recordOf('catches'),
+   markdown:'Catch Notes\n\n![Fresh catch]('+
+    noteImageReference('Catches/assets/catch-media-test/notes/catch.png')+')',
+   files:[{role:'notes',path:'Catches/assets/catch-media-test/notes/catch.png',
+    filename:'catch.png'}]},
+  {domain:'kb',record:{
+    id:'knot-media-test',type:'knot',name:'Owner Knot',
+    content:'KB/Knots/content/Owner Knot.md',
+    picture:{src:'KB/Knots/assets/knot-media-test/step-02.png'},
+    pictureSequence:[
+     'KB/Knots/assets/knot-media-test/step-01.png',
+     'KB/Knots/assets/knot-media-test/step-02.png',
+    ],
+   },
+   markdown:'Original knot instructions with ordered pictures',
+   files:[
+    {role:'knot-step',path:'KB/Knots/assets/knot-media-test/step-01.png',
+     filename:'step-01.png'},
+    {role:'knot-step',path:'KB/Knots/assets/knot-media-test/step-02.png',
+     filename:'step-02.png'},
+   ]},
+ ];
+ const bitmap=globalThis.createImageBitmap;
+ globalThis.createImageBitmap=async()=>({width:1,height:1,close(){}});
+ try{
+  for(const {domain,record,markdown,files} of plans){
+   const f=fixture();
+   f.seed(domain,1,record,'Original article/notes');
+   f.objects.clear();
+   let created=0;
+   f.R2.put=async(storageKey,bytes,options)=>{
+    assert.deepEqual(options.onlyIf,{etagDoesNotMatch:'*'});
+    if(f.objects.has(storageKey))return null;
+    const stored={key:storageKey,size:bytes.byteLength,
+     bytes:new Uint8Array(bytes),
+     httpMetadata:options.httpMetadata,
+     customMetadata:options.customMetadata};
+    f.objects.set(storageKey,stored);created++;
+    return stored;
+   };
+   const stage=createD6SharedMediaStage({...f.params,enabled:()=>true});
+   const live=f.live({enabled:()=>true});
+   const csrf=(await f.auth.describe(ownerImageRequest(origin+'/fishing/'))).csrfToken;
+   const reply=value=>new Response(JSON.stringify(value),{
+    status:200,headers:{'Content-Type':'application/json'},
+   });
+   const requests=[];
+   const request=async(url,options={})=>{
+    requests.push({url,method:options.method});
+    if(url.endsWith('-csrf'))return reply({ok:true,csrfToken:csrf});
+    if(url===origin+'/api/v3/content/'+domain+'/'+record.id){
+     const saved=f.query('SELECT revision,record_json,'+fieldOf(domain)+
+      ' AS content FROM '+dbOf(domain)+' WHERE id=?',record.id);
+     return reply({ok:true,revision:saved.revision,
+      record:JSON.parse(saved.record_json),
+      [domain==='kb'?'markdown':'notes']:saved.content});
+    }
+    const actual=ownerImageRequest(url,{
+     method:options.method,
+     headers:{...options.headers,Origin:origin},
+     ...(options.body!==undefined?{body:options.body}:{}),
+    });
+    if(url===origin+'/api/v3/media/stage')return stage.handle(actual);
+    return live.handle(actual);
+   };
+   const coordinator=createD6OwnerMediaUploadCoordinator({
+    root:origin+'/fishing/',request,enabled:()=>true,
+    readingMode:()=> 'Automatic',
+   });
+   const uploads=files.map(x=>({path:x.path,role:x.role,
+    file:new File([image],x.filename,{type:'image/png'})}));
+   const saved=await saveD6OwnerEditorMedia({
+    domain,record,markdown,expectedRevision:1,uploads,
+    capabilities:{canUploadNewImages:true},coordinator,
+   });
+   assert.equal(saved.verified,true,domain);
+   assert.equal(saved.revision,2,domain);
+   assert.equal(f.count('d6_media_refs'),files.length,domain);
+   assert.equal(f.count('d6_media_objects'),1,
+    'identical originals are stored by SHA, not filename');
+   assert.equal(created,1,'R2 staging deduplicates same original');
+   assert.equal(requests.filter(x=>x.url.endsWith('/media/stage')).length,
+    files.length,domain);
+   assert.equal(requests.filter(x=>x.url.endsWith('/media/publish')).length,
+    1,'one atomic D1 Save for the whole sequence');
+   const paths=await loadD6PublishedMediaPaths({
+    root:origin+'/fishing/',request,enabled:()=>true,
+    readingMode:()=> 'Automatic',
+   });
+   assert.deepEqual([...paths].sort(),files.map(x=>x.path).sort());
+   const resolver=createD6ContentImageResolver({
+    root:origin+'/fishing/',enabled:()=>true,
+    readingMode:()=> 'Automatic',publishedPaths:paths,
+   });
+   for(const x of files){
+    const url=resolver.resolve(x.path);
+    assert.equal(url,origin+'/api/v3/media/live/'+encodedPath(x.path));
+    const response=await live.handle(ownerImageRequest(url));
+    assert.equal(response.status,200,x.path);
+    assert.deepEqual(new Uint8Array(await response.arrayBuffer()),image);
+    assert.equal((await live.handle(new Request(url))).status,403);
+   }
+   const beforeOffline=requests.length;
+   const offline=createD6OwnerMediaUploadCoordinator({
+    root:origin+'/fishing/',request,enabled:()=>true,
+    readingMode:()=> 'Work Offline',
+   });
+   await assert.rejects(saveD6OwnerEditorMedia({
+    domain,record,markdown,expectedRevision:2,uploads,
+    capabilities:{canUploadNewImages:true},coordinator:offline,
+   }),{code:'MEDIA_DISABLED'});
+   assert.equal(requests.length,beforeOffline,'offline refuses every provider call');
+  }
+ }finally{
+  if(bitmap===undefined)delete globalThis.createImageBitmap;
+  else globalThis.createImageBitmap=bitmap;
+ }
+});
