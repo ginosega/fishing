@@ -41,6 +41,13 @@ const SEQUENCE_ACTIONS=new Set(['add-sequence','replace-with-sequence','replace-
 const STATIC_FILE_ACTIONS=new Set(['add-static','replace-static','replace-with-static']);
 const acceptedImages='.jpg,.jpeg,.png,.webp,.gif,image/jpeg,image/png,image/webp,image/gif';
 
+// Existing Gear entries can predate their first Notes document. When the
+// first Notes text or image is added, the Save must also name that document.
+export function d6GearNotesPathForSave(record,markdown){
+ return record?.notes||(typeof markdown==='string'&&markdown.trim()?
+  narrativePath('gear',record):undefined);
+}
+
 export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,category=null,type=null,onBack=()=>{},onExit=()=>{},onDirty=()=>{}}={}){
  // WP1 only: the D5 controls have NO saving or publishing capability.
  // The full WP3 coordinator will be integrated only after later gates.
@@ -370,6 +377,8 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
    if(mediaAction==='keep'&&candidate.picture)optional(candidate.picture,'caption',captionInput.value);
    if(candidate.pictureSequence&&candidate.type!=='knot')throw new Error('Step-by-step sequences are Knot-only. Resolve the sequence before changing this entry to another Type.');
    if(!editing){if(body)candidate[key]=narrativePath(domain,candidate);else delete candidate[key];}
+   if(domain==='gear'&&body.trim()&&!candidate.notes)
+    candidate.notes=d6GearNotesPathForSave(candidate,body);
    if(domain==='kb'&&!body.trim())throw new Error('Knowledge Base Notes are required.');
    const result=editorMaps(ctx,domain,candidate);validateRecord(candidate,domain,ctx.data);
    const owner=candidate[key]||narrativePath(domain,candidate),parsed=parseMarkdown(body,{owner,maps:result.maps,assetBase:ctx.base,exists:new Set([...knownPaths(ctx),...notesUploads.map(x=>x.path)]),pathRoutes:result.routes});void parsed;

@@ -886,6 +886,59 @@ test('M02 source-only owner editor → private stage → atomic D1 Save → R2 r
 });
 
 
+
+test('M02 existing Gear first Notes plus replacement cover publish together, never partially',async()=>{
+ const f=fixture();
+ const before='Gear/Equipment/assets/Skylety Fishing Hook Sharpener.png';
+ const cover='Gear/Equipment/assets/mountain lake kayak bass leaping jig.png';
+ const notes='Gear/Equipment/assets/skylety-fishing-hook-sharpener/notes/detail.png';
+ const original={id:'skylety-fishing-hook-sharpener',
+  name:'Skylety Fishing Hook Sharpener',category:'accessories',
+  type:'Tools',picture:{src:before}};
+ f.seed('gear',1,original,'');
+ // Original M01 historical picture referenced by the same owner.
+ f.sqlite.prepare('INSERT INTO d6_media_objects'+
+  ' (sha256,storage_key,mime,bytes,created_at) VALUES(?,?,?,?,?)')
+  .run(sha,key,'image/png',image.length,1);
+ f.sqlite.prepare('INSERT INTO d6_media_refs'+
+  ' (logical_path,domain,record_id,sha256,created_at,historical)'+
+  ' VALUES(?,?,?,?,?,1)')
+  .run(before,'gear',original.id,sha,1);
+ const markdown='![Hook detail]('+noteImageReference(notes)+')';
+ const revisions=[cover,notes].map(logicalPath=>({
+  logicalPath,sha256:sha,bytes:image.length,contentType:'image/png',
+ }));
+ const missingNotesPath={...original,picture:{src:cover}};
+ const blocked=await f.publish('gear',{record:missingNotesPath,
+  markdown,media:revisions});
+ assert.equal(blocked.status,400,
+  'server rejects nonempty Notes without the document path');
+ assert.equal(f.query('SELECT revision FROM d6_gear_records').revision,1);
+ assert.equal(f.count('d6_media_refs'),1);
+ assert.equal(f.batches(),0,'rejected Save did not mutate D1');
+ const updated={...missingNotesPath,
+  notes:'Gear/Equipment/content/Skylety Fishing Hook Sharpener.md'};
+ const result=await f.publish('gear',{record:updated,markdown,
+  media:revisions});
+ assert.equal(result.status,200,result.error);
+ assert.equal(result.result.revision,2);
+ assert.equal(f.batches(),1,'one atomic D1 batch for both new images');
+ assert.equal(f.query('SELECT notes_text FROM d6_gear_records').notes_text,
+  markdown);
+ assert.equal(f.count('d6_media_refs'),2,
+  'old cover retired, new cover and Notes image both linked');
+ assert.equal(f.query('SELECT COUNT(*) AS n FROM d6_media_refs WHERE historical=1').n,0);
+ for(const path of [cover,notes]){
+  assert.equal(f.query('SELECT historical FROM d6_media_refs WHERE logical_path=?',path).historical,0);
+  const response=await f.live({enabled:()=>true}).handle(ownerImageRequest(
+   origin+'/api/v3/media/live/'+encodedPath(path)));
+  assert.equal(response.status,200,path);
+ }
+ const old=await f.live({enabled:()=>true}).handle(ownerImageRequest(
+  origin+'/api/v3/media/live/'+encodedPath(before)));
+ assert.equal(old.status,404,'replaced historical cover no longer has a live link');
+});
+
 test('M02 Catch Notes and Knot frames use the real stage → D1 Save → R2 reader bridge',async()=>{
  const plans=[
   {domain:'catches',record:recordOf('catches'),

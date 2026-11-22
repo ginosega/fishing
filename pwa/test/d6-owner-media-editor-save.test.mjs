@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {saveD6OwnerEditorMedia as save}
  from '../src/d6-owner-media-editor-save.mjs';
 import {noteImageReference} from '../src/notes-markdown-editor.mjs';
+import {d6GearNotesPathForSave} from '../src/d6-approved-owner-editor-preview.mjs';
 import {isD6NotesImageLinked} from '../src/d6-notes-image-link.mjs';
 import {isD6NotesImageLinked as serverImageLinked}
  from '../server/d6-shared-media-live.mjs';
@@ -152,4 +153,29 @@ test('M02 private Notes-only Save calls publish once with zero R2 stages',async(
   capabilities:{canUploadNewImages:false},coordinator:h.coordinator}),
   {code:'MEDIA_DISABLED'});
  assert.equal(h.calls.length,0);
+});
+
+
+test('M02 existing Gear without Notes assigns document path before combined cover + Notes Save',async()=>{
+ const original={id:'skylety-fishing-hook-sharpener',
+  name:'Skylety Fishing Hook Sharpener',category:'accessories',
+  type:'Tools'};
+ const cover='Gear/Equipment/assets/mountain lake kayak bass leaping jig.png';
+ const notes='Gear/Equipment/assets/skylety-fishing-hook-sharpener/notes/detail.png';
+ const markdown='![Hook detail]('+noteImageReference(notes)+')';
+ assert.equal(d6GearNotesPathForSave(original,''),undefined,
+  'empty Notes does not create a document');
+ const path=d6GearNotesPathForSave(original,markdown);
+ assert.equal(path,'Gear/Equipment/content/Skylety Fishing Hook Sharpener.md');
+ assert.equal(d6GearNotesPathForSave({...original,notes:'Gear/Equipment/content/Existing.md'},markdown),
+  'Gear/Equipment/content/Existing.md','existing Notes path is unchanged');
+ const record={...original,notes:path,picture:{src:cover}};
+ const h=harness();
+ const result=await use(h,{domain:'gear',record,markdown,
+  uploads:[upload(cover,'cover'),upload(notes,'notes')]});
+ assert.equal(result.verified,true);
+ assert.deepEqual(h.calls.map(x=>x.type),['stage','stage','publish']);
+ assert.deepEqual(h.calls.filter(x=>x.type==='stage').map(x=>x.role),['cover','notes']);
+ assert.equal(h.calls.filter(x=>x.type==='publish').length,1,
+  'combined edits publish as a single D1 revision');
 });
