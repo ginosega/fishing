@@ -95,7 +95,7 @@ function setNotesToolbarIcon(control,kind,label){
 export function createNotesMarkdownEditor({
  domain,getRecord,value='',label='Markdown',onChange=()=>{},previewOptions,
  knownPaths=()=>new Set(),allowUpload=false,linkMaps=()=>previewOptions().maps,
- resolveSavedAsset=null,
+ resolveSavedAsset=null,strictMediaResolution=false,
 }={}){
  if(!['gear','kb','catches'].includes(domain)||typeof getRecord!=='function'||
   typeof previewOptions!=='function')throw Error('Invalid Markdown editor configuration');
@@ -138,6 +138,8 @@ export function createNotesMarkdownEditor({
     const source=notesPreviewSource(ref,{staged,knownPaths:verifiedPaths,
      resolveSavedAsset});
     if(source)image.src=source;
+   else if(strictMediaResolution===true)
+    image.replaceWith(document.createTextNode('[Picture unavailable]'));
    });
    showPreview=true;view.hidden=false;editorField.hidden=true;input.hidden=true;
    previewButton.textContent='Edit';
