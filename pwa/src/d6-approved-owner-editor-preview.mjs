@@ -23,11 +23,15 @@ const clone=value=>structuredClone(value);
 function serialize(record){return JSON.stringify(record);}
 function optional(record,key,value){if(value.trim())record[key]=value.trim();else delete record[key];}
 function knownFiles(ctx){
- if(ctx.v3?.source?.files instanceof Set)
-  return new Map([...ctx.v3.source.files].map(path=>[path,{path}]));
- const prefix=`releases/${ctx.release.id}/content/`;
- return new Map(ctx.manifest.files.filter(x=>x.path.startsWith(prefix))
-  .map(x=>[x.path.slice(prefix.length),x]));
+ const files=ctx.v3?.source?.files instanceof Set?
+  new Map([...ctx.v3.source.files].map(path=>[path,{path}])):
+  new Map(ctx.manifest.files.filter(x=>
+   x.path.startsWith(`releases/${ctx.release.id}/content/`))
+   .map(x=>[x.path.slice(`releases/${ctx.release.id}/content/`.length),x]));
+ // A new image may be in verified D1/R2 but not in an old software release.
+ if(ctx.mediaLiveReader===true&&ctx.mediaPublishedPaths instanceof Set)
+  for(const path of ctx.mediaPublishedPaths)files.set(path,{path});
+ return files;
 }
 function knownPaths(ctx){return new Set(knownFiles(ctx).keys());}
 function editorMaps(ctx,domain,record){const data=clone(ctx.data),key=DOMAIN[domain].array;data[domain][key]=data[domain][key].filter(x=>x.id!==record.id).concat(record);return {data,maps:validateRecords(data),routes:markdownRouteMap(data)};}
@@ -233,8 +237,25 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
  function renderPicture(){
   pictureInfo.replaceChildren();const sequenceMode=SEQUENCE_ACTIONS.has(mediaAction),existingSequence=Boolean(record.pictureSequence?.length),hasLocalSequence=sequenceInfos.length>0;
   fileInput.multiple=sequenceMode;fileInput.disabled=!(sequenceMode||STATIC_FILE_ACTIONS.has(mediaAction));picturePathInput.readOnly=sequenceMode||(mediaAction==='keep'&&existingSequence);
-  const src=mediaAction==='remove-picture'?null:hasLocalSequence?sequenceUrls.at(-1):previewUrl||((record.picture?.src&&knownPaths(ctx).has(record.picture.src))?ctx.asset(record.picture.src):null);
-  if(src){const activate=(hasLocalSequence||existingSequence)&&mediaAction!=='remove-sequence-keep-picture'&&mediaAction!=='replace-with-static'?()=>openSequenceViewer(hasLocalSequence?sequenceUrls:record.pictureSequence.map(ctx.asset),record.name||'Picture',captionInput.value):()=>openViewer(src,record.name||'Picture',captionInput.value);pictureInfo.append(picture(src,record.name||'Picture',captionInput.value,activate));}
+  const resolveSavedImage=ctx.image||ctx.asset;
+  const savedPaths=knownPaths(ctx);
+  const src=mediaAction==='remove-picture'?null:hasLocalSequence?
+   sequenceUrls.at(-1):previewUrl||(
+    record.picture?.src&&savedPaths.has(record.picture.src)?
+     resolveSavedImage(record.picture.src):null);
+  if(src){
+   const sequence=hasLocalSequence?sequenceUrls:
+    (record.pictureSequence||[]).map(path=>
+     savedPaths.has(path)?resolveSavedImage(path):null);
+   const canViewSequence=(hasLocalSequence||existingSequence)&&
+    mediaAction!=='remove-sequence-keep-picture'&&
+    mediaAction!=='replace-with-static'&&
+    sequence.length>=2&&sequence.every(Boolean);
+   const activate=canViewSequence?
+    ()=>openSequenceViewer(sequence,record.name||'Picture',captionInput.value):
+    ()=>openViewer(src,record.name||'Picture',captionInput.value);
+   pictureInfo.append(picture(src,record.name||'Picture',captionInput.value,activate));
+  }
   if(fileInfo)pictureInfo.append(text('p',`${fileInfo.name} · ${fileInfo.width} × ${fileInfo.height} · ${fileInfo.bytes.toLocaleString()} bytes`,'hint'));
   if(sequenceInfos.length)pictureInfo.append(text('p',`${sequenceInfos.length} pictures selected`,'hint'),text('p',`First frame: ${sequenceInfos[0].name}`,'hint'),text('p',`Representative picture: ${sequenceInfos.at(-1).name}`,'hint'));
   else if(existingSequence&&mediaAction!=='remove-sequence-keep-picture'&&mediaAction!=='replace-with-static')pictureInfo.append(text('p',`${record.pictureSequence.length} pictures in current sequence`,'hint'));
@@ -261,7 +282,7 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
    onChange:value=>{body=value;changed();},
    knownPaths:()=>knownPaths(ctx),
    allowUpload:ctx.v3?.mediaCapabilities?.canUploadNewImages===true,
-   resolveSavedAsset:path=>ctx.asset(path),
+   resolveSavedAsset:path=>(ctx.image||ctx.asset)(path),
    linkMaps:()=>ctx.maps,
    // Preview must remain available while a new record's required fields are
    // incomplete. Save and Publish retains full validateRecords/validateRecord.
