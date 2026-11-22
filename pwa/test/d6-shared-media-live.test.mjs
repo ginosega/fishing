@@ -605,3 +605,89 @@ test('M02 a different owner cannot steal a published cover reference',async()=>{
   cover).record_id,first.id);
  assert.equal(f.count('d6_media_refs'),1);
 });
+
+test('M02 different-filename cover replacement retires only the old D1 link',async()=>{
+ const f=fixture(),oldPath='Gear/Lures/assets/old-cover.png',
+  newPath='Gear/Lures/assets/new-cover.png';
+ const oldRecord={...recordOf('gear'),picture:{src:oldPath}};
+ const newRecord={...oldRecord,picture:{src:newPath}};
+ const media=logicalPath=>[{
+  logicalPath,sha256:sha,bytes:image.length,contentType:'image/png',
+ }];
+ f.seed('gear',1,oldRecord,'Owner notes');
+ assert.equal((await f.publish('gear',{record:oldRecord,
+  markdown:'Owner notes',media:media(oldPath)})).status,200);
+ const result=await f.publish('gear',{record:newRecord,
+  markdown:'Owner notes',expectedRevision:2,media:media(newPath)});
+ assert.equal(result.status,200,result.error);
+ assert.equal(result.result.revision,3);
+ assert.equal(f.count('d6_media_refs'),1);
+ assert.equal(f.query('SELECT logical_path FROM d6_media_refs').logical_path,newPath);
+ const live=f.live({enabled:()=>true});
+ const img=path=>ownerImageRequest(origin+'/api/v3/media/live/'+encodedPath(path));
+ assert.equal((await live.handle(img(oldPath))).status,404);
+ assert.equal((await live.handle(img(newPath))).status,200);
+ const manifest=await live.handle(ownerImageRequest(origin+'/api/v3/media/manifest'));
+ assert.equal(manifest.status,200);
+ assert.deepEqual((await manifest.json()).paths,[newPath]);
+ assert.equal(f.count('d6_media_objects'),1,'original object metadata retained');
+ assert.deepEqual((await f.R2.get(key)).bytes,image,'original R2 bytes retained');
+});
+test('M02 picture removal and Notes image deletion retire links without uploads',async()=>{
+ for(const mode of ['cover','notes']){
+  const f=fixture(),record=mode==='cover'?
+   {...recordOf('gear'),picture:{src:'Gear/Lures/assets/cover.png'}}:
+   recordOf('gear');
+  const logicalPath=mode==='cover'?record.picture.src:pathOf('gear');
+  const firstMarkdown=mode==='notes'?markdownOf('gear'):'Owner Notes';
+  f.seed('gear',1,record,firstMarkdown);
+  const media=[{logicalPath,sha256:sha,bytes:image.length,
+   contentType:'image/png'}];
+  assert.equal((await f.publish('gear',{record,markdown:firstMarkdown,
+   media})).status,200);
+  const stale=await f.publish('gear',{record:mode==='cover'?
+   recordOf('gear'):record,expectedRevision:1,markdown:'Plain notes',media:[]});
+  assert.equal(stale.status,409,'stale revision cannot retire media');
+  assert.equal(f.count('d6_media_refs'),1);
+  const revised=mode==='cover'?recordOf('gear'):record;
+  const saved=await f.publish('gear',{record:revised,
+   expectedRevision:2,markdown:'Plain notes',media:[]});
+  assert.equal(saved.status,200,saved.error);
+  assert.equal(saved.result.revision,3);
+  assert.equal(f.count('d6_media_refs'),0);
+  assert.equal(f.count('d6_media_objects'),1,'old R2 object metadata remains');
+  assert.ok(f.objects.has(key),'original R2 bytes retained');
+  const live=f.live({enabled:()=>true});
+  assert.equal((await live.handle(ownerImageRequest(
+   origin+'/api/v3/media/live/'+encodedPath(logicalPath)))).status,404);
+  const manifest=await live.handle(ownerImageRequest(origin+'/api/v3/media/manifest'));
+  assert.equal(manifest.status,200);
+  assert.deepEqual((await manifest.json()).paths,[]);
+ }
+});
+test('M02 remove Knot sequence keeps representative final frame linked',async()=>{
+ const f=fixture();
+ const frames=['KB/Knots/assets/knot-media-test/step-01.png',
+  'KB/Knots/assets/knot-media-test/step-02.png'];
+ const record={id:'knot-media-test',type:'knot',name:'Owner Knot',
+  content:'KB/Knots/content/Owner Knot.md',
+  picture:{src:frames[1]},pictureSequence:frames};
+ const media=frames.map(logicalPath=>({logicalPath,sha256:sha,
+  bytes:image.length,contentType:'image/png'}));
+ f.seed('kb',1,record,'Original Knot');
+ const first=await f.publish('kb',{record,markdown:'Owner Knot',
+  media});
+ assert.equal(first.status,200,first.error);
+ const {pictureSequence,...singlePicture}=record;
+ const saved=await f.publish('kb',{record:singlePicture,
+  expectedRevision:2,markdown:'Owner Knot',media:[]});
+ assert.equal(saved.status,200,saved.error);
+ assert.equal(f.count('d6_media_refs'),1);
+ assert.equal(f.query('SELECT logical_path FROM d6_media_refs').logical_path,
+  frames[1]);
+ const live=f.live({enabled:()=>true});
+ const img=path=>ownerImageRequest(origin+'/api/v3/media/live/'+encodedPath(path));
+ assert.equal((await live.handle(img(frames[0]))).status,404);
+ assert.equal((await live.handle(img(frames[1]))).status,200);
+ assert.equal(f.count('d6_media_objects'),1);
+});
