@@ -1,8 +1,9 @@
 /**
  * M02 — source-only bridge from the accepted Gear/KB/Catch editors to the
  * unmounted R2 stage + revision-conditional D1 publication coordinator.
- * No provider, Worker or build flag enables this path. Text-only Save stays
- * on the existing accepted D1 client; this bridge never uses GitHub writes.
+ * No provider or Worker route enables this path. After explicit approval,
+ * text-only edits also use this transaction to retire obsolete media links.
+ * Current upload-OFF Saves keep the accepted direct D1 client.
  */
 import {validateD6MediaOwnerPath,publishedD6MediaRole,d6ValidKnotSequence}
  from './d6-content-media-contract.mjs';
@@ -27,7 +28,7 @@ export async function saveD6OwnerEditorMedia({
     !record||typeof record.id!=='string'||
     typeof markdown!=='string'||
     !Number.isSafeInteger(expectedRevision)||expectedRevision<0||
-    !Array.isArray(uploads)||uploads.length<1||uploads.length>32)
+    !Array.isArray(uploads)||uploads.length>32)
   throw fail('MEDIA_INVALID','Invalid media Save request');
  const prepared=[],seen=new Set();
  for(const upload of uploads){
