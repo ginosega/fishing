@@ -26,6 +26,10 @@ test('M02 guided deployment builds and checks exact private source first',()=>{
   'new uploads must not fail the historical-total baseline');
  assert.match(script,/Require-Equal \(\[int\]\$D1\.\$key\)/,
   'original historical associations and content counts stay exact');
- assert.match(script,/@\('historical',276\)/);
+ assert.match(script,/@\('associations',276\)/);
+ assert.match(script,/historical=0\) AS new_refs/);
+ assert.match(script,/\$D1\.historical\+\[int\]\$D1\.new_refs/);
+ assert.doesNotMatch(script,/@\('historical',276\)/,
+  'original M01 media associations may be replaced by new ones');
  assert.doesNotMatch(script,/r2 bucket (?:create|delete)|d1 migrations apply/);
 });

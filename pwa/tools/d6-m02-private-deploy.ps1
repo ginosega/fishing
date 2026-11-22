@@ -94,7 +94,7 @@ Check-Exit 'Wrangler dry-run'
 Write-Host 'PASS: Private Worker dry-run. No live changes made.'
 
 # Read-only database guard. No D1 writes or original-image R2 copies.
-$Sql="SELECT (SELECT COUNT(*) FROM d6_media_objects) AS objects, (SELECT COUNT(*) FROM d6_media_refs) AS associations, (SELECT COUNT(DISTINCT logical_path) FROM d6_media_refs) AS paths, (SELECT COUNT(*) FROM d6_media_refs WHERE historical=1) AS historical, (SELECT COUNT(*) FROM d6_gear_records) AS gear, (SELECT COUNT(*) FROM d6_kb_records) AS kb, (SELECT COUNT(*) FROM d6_catch_records) AS catches;"
+$Sql="SELECT (SELECT COUNT(*) FROM d6_media_objects) AS objects, (SELECT COUNT(*) FROM d6_media_refs) AS associations, (SELECT COUNT(DISTINCT logical_path) FROM d6_media_refs) AS paths, (SELECT COUNT(*) FROM d6_media_refs WHERE historical=1) AS historical, (SELECT COUNT(*) FROM d6_media_refs WHERE historical=0) AS new_refs, (SELECT COUNT(*) FROM d6_gear_records) AS gear, (SELECT COUNT(*) FROM d6_kb_records) AS kb, (SELECT COUNT(*) FROM d6_catch_records) AS catches;"
 $Raw=@(& npx --yes wrangler@4.166.0 d1 execute fishing-v3-wp3-operations-test --remote --json --command $Sql)
 Check-Exit 'Read-only live D1 preflight'
 try{$Results=@(ConvertFrom-Json -InputObject ($Raw -join [Environment]::NewLine))}
@@ -109,11 +109,18 @@ foreach($check in @(@('objects',272),@('associations',276),@('paths',265))){
  $key=$check[0]
  Require-AtLeast ([int]$D1.$key) ([int]$check[1]) "live D1 $key"
 }
-foreach($check in @(@('historical',276),@('gear',100),@('kb',60),@('catches',12))){
+# A verified replacement can retire one historical=1 association and
+# insert one historical=0 association for the same Gear record.
+# Check the complete refs partition, rather than freezing historic=276.
+if(([int]$D1.historical+[int]$D1.new_refs) -ne [int]$D1.associations){
+ throw 'Live D1 media association classification mismatch. Stop.'
+}
+foreach($check in @(@('gear',100),@('kb',60),@('catches',12))){
  $key=$check[0]
  Require-Equal ([int]$D1.$key) ([int]$check[1]) "live D1 $key"
 }
-Write-Host 'PASS: Live D1 media/content preflight (read-only).'
+Write-Host ('PASS: Live D1 media/content preflight (read-only): historical='+
+ $D1.historical+' new_refs='+$D1.new_refs+'.')
 
 if(-not $Deploy){
  Write-Host 'M02 PRIVATE PREFLIGHT PASS. No deployment performed.'
