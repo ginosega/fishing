@@ -351,6 +351,7 @@ export async function createCatchEditor(ctx,{
     ctx.mediaPublishedPaths:[]),
   ]),
   resolveSavedAsset:path=>(ctx.image||ctx.asset)(path),
+  strictMediaResolution:ctx.mediaLiveReader===true,
   allowUpload:ctx.v3?.mediaCapabilities?.canUploadNewImages===true,
   linkMaps:()=>ctx.maps,
   previewOptions:()=>({owner:record.notes||'Catches/content/'+record.id+'.md',
