@@ -26,6 +26,11 @@ const directKBEnabled=typeof __FISHING_D6_DIRECT_KB_SAVE__!=='undefined'&&
  __FISHING_D6_DIRECT_KB_SAVE__===true;
 const directCatchEnabled=typeof __FISHING_D6_DIRECT_CATCH_SAVE__!=='undefined'&&
  __FISHING_D6_DIRECT_CATCH_SAVE__===true;
+// M02 upload path: absent from every existing build. Future private releases
+// must explicitly opt in and carry matching release + manifest identity.
+const privateOwnerMediaCandidate=
+ typeof __FISHING_D6_OWNER_MEDIA_UPLOAD__!=='undefined'&&
+ __FISHING_D6_OWNER_MEDIA_UPLOAD__===true;
 function d6Context(){
  if(!d6Reader)return {};
  const reader=selectD6PublicReader({enabled:true,staticStaging:d6StaticStaging,wp2Staging:d6Wp2Staging,
@@ -73,6 +78,12 @@ function d6Context(){
     settings.release?.d6OwnerEditorPreview!==true||
     settings.manifest?.d6OwnerEditorPreview!==true))
   throw Error('D6 owner editor preview build identity missing');
+ if(privateOwnerMediaCandidate&&(!d6Reader||!d6OwnerConnection||
+    !d6EditorPreview||!directGearEnabled||!directKBEnabled||
+    !directCatchEnabled||
+    settings.release?.d6OwnerMediaUpload!==true||
+    settings.manifest?.d6OwnerMediaUpload!==true))
+  throw Error('Private owner media requires separately verified release identity');
  const directGearClient=directGearEnabled?createD6DirectGearClient({
   root:settings.root,request:(url,options)=>fetch(url,options),
   enabled:()=>true,online:()=>navigator.onLine===true,
@@ -88,7 +99,9 @@ function d6Context(){
  return {v3:{...reader,ownerReadiness,canonicalSource,
   wp2Staging:d6Wp2Staging,ownerConnectionCandidate:d6OwnerConnection,
   ownerEditorPreview:d6EditorPreview,directGearEnabled,directGearClient,
-  directKBEnabled,directKBClient,directCatchEnabled,directCatchClient}};
+  directKBEnabled,directKBClient,directCatchEnabled,directCatchClient,
+  liveMediaReadApproved:privateOwnerMediaCandidate,
+  ownerMediaUploadCandidate:privateOwnerMediaCandidate}};
 }
 Promise.resolve().then(()=>bootstrap(settings,d6Context())).catch(error=>{
  const main=document.getElementById('app');main.replaceChildren();
