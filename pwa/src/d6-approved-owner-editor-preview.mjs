@@ -283,11 +283,13 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
    knownPaths:()=>knownPaths(ctx),
    allowUpload:ctx.v3?.mediaCapabilities?.canUploadNewImages===true,
    resolveSavedAsset:path=>(ctx.image||ctx.asset)(path),
-   strictMediaResolution:ctx.mediaLiveReader===true,
    linkMaps:()=>ctx.maps,
    // Preview must remain available while a new record's required fields are
    // incomplete. Save and Publish retains full validateRecords/validateRecord.
-   previewOptions:()=>draftNotesPreviewOptions(ctx,domain,record),
+   previewOptions:()=>({
+    ...draftNotesPreviewOptions(ctx,domain,record),
+    ...(ctx.mediaLiveReader===true?{resolveImage:ctx.image}:{}),
+   }),
   });
   presentD6OwnerImageCapability(notesEditor.element,
    ctx.v3?.mediaCapabilities??DIRECT_D1_MEDIA_CAPABILITIES);
