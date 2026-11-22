@@ -1092,10 +1092,15 @@ test('M03 private card derivatives reuse D1/R2 publication and preserve full ori
  const thumb=await service.handle(ownerImageRequest(thumbUrl));
  assert.equal(thumb.status,200);
  assert.equal(thumb.headers.get('Content-Type'),'image/webp');
- assert.equal(thumb.headers.get('Cache-Control'),'private, no-store');
+ assert.equal(thumb.headers.get('Cache-Control'),'private, no-cache');
  assert.equal(thumb.headers.get('ETag'),'"'+sha+'-card512x270-v1"');
  assert.deepEqual(new Uint8Array(await thumb.arrayBuffer()),Uint8Array.from([82,73,70,70]));
  assert.equal(transforms,1);
+ const unchanged=await service.handle(ownerImageRequest(thumbUrl,{
+  headers:{'If-None-Match':'"'+sha+'-card512x270-v1"'},
+ }));
+ assert.equal(unchanged.status,304);
+ assert.equal(transforms,1,'revalidated cached thumbnail does not re-transform');
  const head=await service.handle(ownerImageRequest(thumbUrl,{method:'HEAD'}));
  assert.equal(head.status,200);
  assert.equal((await head.arrayBuffer()).byteLength,0);
@@ -1105,8 +1110,10 @@ test('M03 private card derivatives reuse D1/R2 publication and preserve full ori
  assert.deepEqual(new Uint8Array(await original.arrayBuffer()),image);
  f.sqlite.prepare('DELETE FROM d6_media_refs WHERE logical_path=?')
   .run(pathOf('gear'));
- assert.equal((await service.handle(ownerImageRequest(thumbUrl))).status,404,
-  'retired D1 media references are immediately denied');
+ assert.equal((await service.handle(ownerImageRequest(thumbUrl,{
+  headers:{'If-None-Match':'"'+sha+'-card512x270-v1"'},
+ }))).status,404,
+  'retired media cannot return a stale cached 304');
 });
 
 test('M03 browser thumbnail route is default-OFF and limited to verified paths',()=>{

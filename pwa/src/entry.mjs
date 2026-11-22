@@ -31,6 +31,10 @@ const directCatchEnabled=typeof __FISHING_D6_DIRECT_CATCH_SAVE__!=='undefined'&&
 const privateOwnerMediaCandidate=
  typeof __FISHING_D6_OWNER_MEDIA_UPLOAD__!=='undefined'&&
  __FISHING_D6_OWNER_MEDIA_UPLOAD__===true;
+// M03 remains OFF in existing private/public builds.
+const privateR2CardThumbnails=
+ typeof __FISHING_D6_R2_CARD_THUMBNAILS__!=='undefined'&&
+ __FISHING_D6_R2_CARD_THUMBNAILS__===true;
 function d6Context(){
  if(!d6Reader)return {};
  const reader=selectD6PublicReader({enabled:true,staticStaging:d6StaticStaging,wp2Staging:d6Wp2Staging,
@@ -84,6 +88,10 @@ function d6Context(){
     settings.release?.d6OwnerMediaUpload!==true||
     settings.manifest?.d6OwnerMediaUpload!==true))
   throw Error('Private owner media requires separately verified release identity');
+ if(privateR2CardThumbnails&&(!privateOwnerMediaCandidate||
+    settings.release?.d6R2CardThumbnails!==true||
+    settings.manifest?.d6R2CardThumbnails!==true))
+  throw Error('Private M03 thumbnails require verified release identity');
  const directGearClient=directGearEnabled?createD6DirectGearClient({
   root:settings.root,request:(url,options)=>fetch(url,options),
   enabled:()=>true,online:()=>navigator.onLine===true,
@@ -101,6 +109,7 @@ function d6Context(){
   ownerEditorPreview:d6EditorPreview,directGearEnabled,directGearClient,
   directKBEnabled,directKBClient,directCatchEnabled,directCatchClient,
   liveMediaReadApproved:privateOwnerMediaCandidate,
+  thumbnailReadApproved:privateR2CardThumbnails,
   ownerMediaUploadCandidate:privateOwnerMediaCandidate}};
 }
 Promise.resolve().then(()=>bootstrap(settings,d6Context())).catch(error=>{

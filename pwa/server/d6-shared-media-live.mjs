@@ -390,13 +390,21 @@ export function createD6SharedMediaLive({
       stored.bytes,stored.mime)||!original.body)
     return fail(503,'MEDIA_UNVERIFIED');
    if(thumbnail){
+    // Reuse private browser-cached bytes only after checking current D1/R2
+    // identity; replacing an original changes the ETag and invalidates it.
+    const thumbETag='"'+selected+'-card512x270-v1"';
+    if(request.headers.get('If-None-Match')===thumbETag)
+     return new Response(null,{status:304,headers:{
+      'Cache-Control':'private, no-cache','ETag':thumbETag,
+      'Vary':'Cookie','X-Content-Type-Options':'nosniff',
+     }});
     // Existing D1/R2 proof above protects both full-size and card routes.
     // Only a fixed bounded first-frame WebP derivative is served.
     const transformed=IMAGES.input(original.body)
      .transform({width:512,height:270,fit:'scale-down'})
      .output({format:'image/webp',quality:80,anim:false})
      .response({headers:{
-      'Cache-Control':'private, no-store',
+      'Cache-Control':'private, no-cache',
       'X-Content-Type-Options':'nosniff',
       'Content-Disposition':'inline',
       'Vary':'Cookie',
@@ -405,11 +413,11 @@ export function createD6SharedMediaLive({
        !/^image\/webp\b/i.test(transformed.headers.get('Content-Type')??''))
      return fail(503,'THUMBNAIL_UNAVAILABLE');
     const headers=new Headers(transformed.headers);
-    headers.set('Cache-Control','private, no-store');
+    headers.set('Cache-Control','private, no-cache');
     headers.set('X-Content-Type-Options','nosniff');
     headers.set('Content-Disposition','inline');
     headers.set('Vary','Cookie');
-    headers.set('ETag','"'+selected+'-card512x270-v1"');
+    headers.set('ETag',thumbETag);
     return new Response(request.method==='HEAD'?null:transformed.body,{
      status:200,headers,
     });
