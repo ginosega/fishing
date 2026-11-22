@@ -1,4 +1,5 @@
 import {el,button,text} from './dom.mjs';
+import {setNotesToolbarIcon} from './notes-toolbar-icons.mjs';
 
 function imageStage(src,alt){
  const stage=el('div',{class:'image-stage'}),img=el('img',{src,alt,draggable:false});
@@ -15,6 +16,43 @@ function imageStage(src,alt){
  apply();return {stage,img,zoom,reset,getScale:()=>scale};
 }
 
+
+/* Fullscreen promotes only the image surface, leaving modal controls outside
+ * the top layer. This preserves pinch/pan and the original full-size image. */
+function fullscreenSurface(dialog,view,controls,onEnter=()=>{}){
+ const surface=el('div',{class:'viewer-fullscreen-surface'});
+ const enter=button('',()=>{
+  if(typeof surface.requestFullscreen==='function')
+   void surface.requestFullscreen().catch(()=>{});
+ });
+ setNotesToolbarIcon(enter,'expand','View Full Screen');
+ enter.classList.add('viewer-fullscreen-enter');
+ const exit=button('',()=>{
+  if(document.fullscreenElement===surface)void document.exitFullscreen();
+ });
+ setNotesToolbarIcon(exit,'restore','Exit Full Screen');
+ exit.classList.add('viewer-fullscreen-exit');
+ exit.hidden=true;
+ let wasActive=false;
+ const sync=()=>{
+  const active=document.fullscreenElement===surface;
+  enter.hidden=active;exit.hidden=!active;
+  if(active!==wasActive){
+   view.reset();
+   if(active)onEnter();
+   wasActive=active;
+  }
+ };
+ document.addEventListener('fullscreenchange',sync);
+ dialog.addEventListener('close',()=>{
+  document.removeEventListener('fullscreenchange',sync);
+  if(document.fullscreenElement===surface)void document.exitFullscreen();
+ });
+ controls.prepend(enter);
+ surface.append(view.stage,exit);
+ return surface;
+}
+
 export function openViewer(src,alt,caption=''){
  const dialog=el('dialog',{class:'image-dialog','aria-label':'Image viewer'}),view=imageStage(src,alt),prior=document.activeElement;
  const zoomLabel=text('span','100%','zoom-label');
@@ -24,7 +62,7 @@ export function openViewer(src,alt,caption=''){
  const controls=el('div',{class:'viewer-controls'},button('−',()=>zoom(view.getScale()/1.3),{title:'Zoom out','aria-label':'Zoom out'}),zoomLabel,button('+',()=>zoom(view.getScale()*1.3),{title:'Zoom in','aria-label':'Zoom in'}),button('Reset',()=>{view.reset();syncZoom();}),button('Close',close,{variant:'primary'}));
  dialog.addEventListener('keydown',event=>{if(event.key==='+'||event.key==='=')zoom(view.getScale()*1.3);if(event.key==='-')zoom(view.getScale()/1.3);if(event.key==='0'){view.reset();syncZoom();}});
  dialog.addEventListener('close',()=>{dialog.remove();prior?.focus();});
- dialog.append(el('div',{class:'viewer-top'},text('strong',alt)),view.stage,...(caption?[text('p',caption,'viewer-caption')]:[]),controls);
+ dialog.append(el('div',{class:'viewer-top'},text('strong',alt)),fullscreenSurface(dialog,view,controls),...(caption?[text('p',caption,'viewer-caption')]:[]),controls);
  document.body.append(dialog);dialog.showModal();syncZoom();
 }
 
@@ -53,7 +91,7 @@ export function openSequenceViewer(sources,alt,caption=''){
   if(event.key==='0')view.reset();
  });
  dialog.addEventListener('close',()=>{stop();for(const image of preloads)image.src='';dialog.remove();prior?.focus();});
- dialog.append(el('div',{class:'viewer-top'},text('strong',alt)),view.stage,...(caption?[text('p',caption,'viewer-caption')]:[]),indicator,failure,controls);
+ dialog.append(el('div',{class:'viewer-top'},text('strong',alt)),fullscreenSurface(dialog,view,controls,stop),...(caption?[text('p',caption,'viewer-caption')]:[]),indicator,failure,controls);
  document.body.append(dialog);dialog.showModal();sync();
  for(const source of sources.slice(1)){const image=new Image();image.src=source;preloads.push(image);}
 }
