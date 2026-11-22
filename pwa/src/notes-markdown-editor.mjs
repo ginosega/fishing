@@ -122,9 +122,14 @@ export function createNotesMarkdownEditor({
   if(showPreview){showPreview=false;view.hidden=true;editorField.hidden=false;input.hidden=false;previewButton.textContent='Preview';syncInsertionButtons();input.focus();return;}
   try{
    const options=previewOptions(),exists=new Set([...knownPaths(),...staged.keys()]);
-   const parsed=parseMarkdown(input.value,{...options,exists,allowMissing:false,viewerImages:true});
-   view.innerHTML=sanitizeHtml(parsed.html,window);
-   const images=[...view.querySelectorAll('img')];
+   // The online D1 resolver only knows published originals. A newly selected
+   // Notes image is still local, so resolve its preview from the staged blob.
+   // Keep the parsed markup inert until every image source is replaced.
+   const {resolveImage,...preview}=options;
+   const parsed=parseMarkdown(input.value,{...preview,exists,allowMissing:false,viewerImages:true});
+   const fragment=document.createElement('template');
+   fragment.innerHTML=sanitizeHtml(parsed.html,window);
+   const images=[...fragment.content.querySelectorAll('img')];
    const refs=parsed.references.filter(x=>x.isImage);
    // Do not rebind images unless sanitized DOM still matches the exact
    // parser references in order. Never infer assets from alt text.
@@ -138,7 +143,11 @@ export function createNotesMarkdownEditor({
     const source=notesPreviewSource(ref,{staged,knownPaths:verifiedPaths,
      resolveSavedAsset});
     if(source)image.src=source;
+    else if(typeof resolveImage==='function')
+     image.replaceWith(document.createTextNode(
+      '[Picture unavailable: '+(image.getAttribute('alt')||'Picture')+']'));
    });
+   view.replaceChildren(fragment.content);
    showPreview=true;view.hidden=false;editorField.hidden=true;input.hidden=true;
    previewButton.textContent='Edit';
    // Preview is read-only: insertion controls cannot exit it implicitly.
