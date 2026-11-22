@@ -233,7 +233,7 @@ export function createD6SharedMediaLive({
       CASE r.domain WHEN 'gear' THEN g.notes_text
        WHEN 'kb' THEN k.content_text ELSE c.notes_text END AS markdown
      FROM d6_media_refs r
-     JOIN d6_media_objects o ON o.sha256=r.sha256
+     LEFT JOIN d6_media_objects o ON o.sha256=r.sha256
      LEFT JOIN d6_gear_records g
       ON r.domain='gear' AND g.id=r.record_id
      LEFT JOIN d6_kb_records k
