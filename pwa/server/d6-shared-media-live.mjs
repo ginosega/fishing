@@ -310,6 +310,14 @@ export function createD6SharedMediaLive({
   if(request.method!=='GET'&&request.method!=='HEAD')
    return fail(405,'METHOD_NOT_ALLOWED');
   if(request.headers.has('Range'))return fail(416,'RANGE_NOT_SUPPORTED');
+  // One existing owner-only session check protects both the manifest and
+  // referenced R2 originals. No second media auth mechanism or public URL.
+  try{
+   const auth=createD2UnifiedOwnerSession({
+    AUTH_DB,ownerGitHubId:265665562,origin,csrfKey,now,
+   });
+   await auth.authorizeStatus(request);
+  }catch{return fail(403,'MEDIA_NOT_AUTHORIZED');}
   try{
    const ref=await CONTENT_DB.prepare(
     'SELECT domain,record_id,sha256 FROM d6_media_refs WHERE logical_path=?'
