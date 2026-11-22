@@ -351,11 +351,12 @@ export async function createCatchEditor(ctx,{
     ctx.mediaPublishedPaths:[]),
   ]),
   resolveSavedAsset:path=>(ctx.image||ctx.asset)(path),
-  strictMediaResolution:ctx.mediaLiveReader===true,
   allowUpload:ctx.v3?.mediaCapabilities?.canUploadNewImages===true,
   linkMaps:()=>ctx.maps,
   previewOptions:()=>({owner:record.notes||'Catches/content/'+record.id+'.md',
-   maps:ctx.maps,pathRoutes:markdownRouteMap(ctx.data),assetBase:ctx.base}),
+   maps:ctx.maps,pathRoutes:markdownRouteMap(ctx.data),assetBase:ctx.base,
+   ...(ctx.mediaLiveReader===true?{resolveImage:ctx.image}:{}),
+  }),
  });
  presentD6OwnerImageCapability(notesEditor.element,
   ctx.v3?.mediaCapabilities??DIRECT_D1_MEDIA_CAPABILITIES);
