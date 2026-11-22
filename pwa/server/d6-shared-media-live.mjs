@@ -241,7 +241,7 @@ export function createD6SharedMediaLive({
      LEFT JOIN d6_catch_records c
       ON r.domain='catches' AND c.id=r.record_id
      ORDER BY r.logical_path
-    `).all();
+    `).bind().all();
     if(!Array.isArray(query?.results)||query.results.length>10000)
      return fail(503,'MEDIA_REGISTRY_UNVERIFIED');
     const paths=[];
