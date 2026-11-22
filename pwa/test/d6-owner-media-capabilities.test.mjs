@@ -2,7 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {DIRECT_D1_MEDIA_CAPABILITIES as media,
- presentD6OwnerImageCapability} from '../src/d6-owner-media-capabilities.mjs';
+ PRIVATE_D1_MEDIA_CAPABILITIES as privateMedia,
+ selectD6OwnerMediaCapabilities,presentD6OwnerImageCapability}
+ from '../src/d6-owner-media-capabilities.mjs';
 
 const read=name=>readFileSync(new URL('../src/'+name,import.meta.url),'utf8');
 
@@ -26,7 +28,12 @@ test('V3-MEDIA03 a placeholder staging function does not enable new uploads',()=
  const ui=read('ui.mjs');
  const gearKB=read('d6-approved-owner-editor-preview.mjs');
  const catches=read('d6-direct-catch-editor.mjs');
- assert.match(ui,/mediaCapabilities:DIRECT_D1_MEDIA_CAPABILITIES/);
+ assert.match(ui,/selectD6OwnerMediaCapabilities\\(/);
+ assert.match(ui,/ownerMediaCoordinator:mediaCapabilities===DIRECT_D1_MEDIA_CAPABILITIES/);
+ const entry=read('entry.mjs');
+ assert.match(entry,/__FISHING_D6_OWNER_MEDIA_UPLOAD__/);
+ assert.match(entry,/settings\\.release\\?\\.d6OwnerMediaUpload!==true/);
+ assert.match(entry,/settings\\.manifest\\?\\.d6OwnerMediaUpload!==true/);
  assert.doesNotMatch(ui,/stageMedia:async/);
  for(const source of [gearKB,catches]){
   assert.match(source,/allowUpload:ctx\.v3\?\.mediaCapabilities\?\.canUploadNewImages===true/);
@@ -62,4 +69,25 @@ test('M02 V3 media previews reuse accepted Notes parser and verified R2 resolver
  assert.ok(gearKB.includes('ctx.mediaPublishedPaths instanceof Set'));
  assert.ok(notes.includes('const parsed=parseMarkdown(input.value'));
  assert.ok(!notes.includes('strictMediaResolution'));
+});
+
+test('M02 private editor capabilities require ready coordinator and explicit approval',()=>{
+ const ready={ready:()=>true,stage:async()=>{},publish:async()=>{}};
+ for(const params of [{},{approved:true},{coordinator:ready},
+  {approved:true,coordinator:{...ready,ready:()=>false}},
+  {approved:true,coordinator:{...ready,publish:null}}]){
+  assert.strictEqual(selectD6OwnerMediaCapabilities(params),media);
+ }
+ const enabled=selectD6OwnerMediaCapabilities({approved:true,coordinator:ready});
+ assert.strictEqual(enabled,privateMedia);
+ assert.equal(Object.isFrozen(enabled),true);
+ assert.equal(enabled.canUploadNewImages,true);
+ assert.equal(enabled.canReplaceImages,true);
+ assert.equal(enabled.canUploadKnotSequences,true);
+ const button={hidden:false},toolbar={querySelector:()=>button};
+ const editor={querySelector:()=>toolbar};
+ assert.doesNotThrow(()=>presentD6OwnerImageCapability(editor,enabled));
+ button.hidden=true;
+ assert.throws(()=>presentD6OwnerImageCapability(editor,enabled),
+  /Shared Notes image capability/);
 });
