@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import {validateD6MediaOwnerPath,publishedD6MediaRole,
  d6ValidKnotSequence,D6_IMAGE_ROLES}
  from '../src/d6-content-media-contract.mjs';
-import {createD6ContentImageResolver,d6ResolveImageForDisplay}
+import {createD6ContentImageResolver,d6ResolveImageForDisplay,loadD6PublishedMediaPaths}
  from '../src/d6-content-image-resolver.mjs';
 import {validateD6MediaPath} from '../server/d6-shared-media-stage.mjs';
 
@@ -110,4 +110,62 @@ test('V3-M02-04 active reader cannot be spoofed using another origin or path',()
  const contract=readFileSync(new URL('../src/d6-content-image-resolver.mjs',
   import.meta.url),'utf8');
  assert.doesNotMatch(contract,/fetch\(|localStorage|sessionStorage/);
+});
+
+test('M02 D1 media manifest loads only in approved Automatic mode',async()=>{
+ const root='https://example.invalid/fishing/',calls=[];
+ const request=async(url,options)=>{
+  calls.push({url,options});
+  return new Response(JSON.stringify({ok:true,version:1,paths:[
+   gear.picture.src,knot.pictureSequence[0],
+  ]}),{status:200,headers:{'Content-Type':'application/json'}});
+ };
+ const config={root,request,enabled:()=>true,readingMode:()=> 'Automatic'};
+ for(const disabled of [{enabled:()=>false},{readingMode:()=> 'Work Offline'}]){
+  await assert.rejects(loadD6PublishedMediaPaths({...config,...disabled}),
+   /MEDIA_REGISTRY_DISABLED/);
+ }
+ assert.equal(calls.length,0,'not a single offline/provider request');
+ const paths=await loadD6PublishedMediaPaths(config);
+ assert.equal(paths.size,2);
+ const resolver=createD6ContentImageResolver({
+  root,enabled:()=>true,readingMode:()=> 'Automatic',
+  publishedPaths:paths,
+ });
+ assert.ok(resolver.resolve(gear.picture.src)?.includes('/api/v3/media/live/'));
+ assert.equal(resolver.resolve('Gear/Lures/assets/unpublished.png'),null);
+ assert.deepEqual(calls.map(x=>x.url),[
+  'https://example.invalid/api/v3/media/manifest',
+ ]);
+ assert.equal(calls[0].options.credentials,'same-origin');
+ assert.equal(calls[0].options.method,'GET');
+});
+test('M02 unverified D1 media manifest fails before any live-image authorization',async()=>{
+ const root='https://example.invalid/fishing/';
+ const config={root,enabled:()=>true,readingMode:()=> 'Automatic'};
+ const payloads=[
+  {ok:true,version:1,paths:[gear.picture.src,gear.picture.src]},
+  {ok:true,version:1,paths:['../private.jpg']},
+  {ok:true,version:1,paths:['https://elsewhere.invalid/x.png']},
+  {ok:true,version:1,paths:['Gear/Lures/assets/image.svg']},
+  {ok:true,version:2,paths:[gear.picture.src]},
+ ];
+ for(const data of payloads){
+  await assert.rejects(loadD6PublishedMediaPaths({...config,
+   request:async()=>new Response(JSON.stringify(data),{
+    status:200,headers:{'Content-Type':'application/json'},
+   }),
+  }),/MEDIA_REGISTRY_UNVERIFIED/);
+ }
+ await assert.rejects(loadD6PublishedMediaPaths({...config,
+  request:async()=>new Response(JSON.stringify({
+   ok:true,version:1,paths:[gear.picture.src],
+  }),{status:403,headers:{'Content-Type':'application/json'}}),
+ }),/MEDIA_REGISTRY_UNAVAILABLE/);
+ for(const bad of ['http://example.invalid/fishing/',
+  'https://example.invalid/other/']){
+  await assert.rejects(loadD6PublishedMediaPaths({...config,root:bad,
+   request:async()=>{throw Error('MUST NOT CALL');},
+  }),/MEDIA_REGISTRY_INVALID/);
+ }
 });
