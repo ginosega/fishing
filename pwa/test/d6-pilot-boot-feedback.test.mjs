@@ -105,8 +105,8 @@ test('V3-BOOT04 offline, foreign or unverified worker cannot bypass activation',
 });
 
 test('V3-UX01 successful Gear Save appears both above and below actions',()=>{
-  assert.match(editor,/const success=directGear\?'Saved\. Your Gear item will show the updated information after reload\.'/);
-  assert.match(editor,/Saved\. Your Knowledge Base entry will show the updated information after reload\./);
+  assert.match(editor,/const success=directGear\?'Saved\. Click Exit to return to the refreshed Gear item\.'/);
+  assert.match(editor,/Saved\. Click Exit to return to the refreshed Knowledge Base entry\./);
  assert.match(editor,/status\(notice,success,'success'\);/);
  assert.match(editor,/status\(actionNotice,success,'success'\);/);
  assert.match(editor,/form\.append\(actions,actionNotice\);/);
