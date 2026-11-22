@@ -262,7 +262,7 @@ test('M02 new Gear/KB cover images insert atomically with owner records',async()
   assert.equal(result.status,200,domain+': '+result.error);
   assert.equal(result.result.revision,1);
   assert.equal(f.count('d6_media_refs'),1);
-  assert.equal((await f.live({enabled:()=>true}).handle(new Request(
+  assert.equal((await f.live({enabled:()=>true}).handle(ownerImageRequest(
    origin+'/api/v3/media/live/'+encodedPath(path)))).status,200);
  }
 });
