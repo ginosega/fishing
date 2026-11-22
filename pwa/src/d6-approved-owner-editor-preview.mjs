@@ -293,6 +293,7 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
     new Set(ctx.mediaPublishedPaths??[]):knownPaths(ctx),
    allowUpload:ctx.v3?.mediaCapabilities?.canUploadNewImages===true,
    resolveSavedAsset:path=>(ctx.image||ctx.asset)(path),
+   resolveSavedThumbnail:ctx.notesThumbnail,
    linkMaps:()=>ctx.maps,
    // Preview must remain available while a new record's required fields are
    // incomplete. Save and Publish retains full validateRecords/validateRecord.

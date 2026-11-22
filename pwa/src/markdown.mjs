@@ -47,9 +47,10 @@ export function parseMarkdown(text,{owner,maps,assetBase='https://example.invali
    if(resolved.kind!=='local'||!imageExtension.test(resolved.local)||/[?#]/.test(original))throw new Error(`Remote or unsafe Markdown image: ${owner} -> ${original}`);
   }
   const title=image?token.attrGet('title')||'':'';
-  const viewerMatch=viewerImages&&image?/^viewer(?:\s*:\s*(.*))?$/i.exec(title.trim()):null;
+  const viewerMatch=viewerImages&&image?/^viewer(-thumb)?(?:\s*:\s*(.*))?$/i.exec(title.trim()):null;
   if(viewerMatch){
-   if(viewerMatch[1])token.attrSet('title',viewerMatch[1]);
+   if(viewerMatch[1])token.attrSet('class','notes-inline-thumbnail');
+   if(viewerMatch[2])token.attrSet('title',viewerMatch[2]);
    else token.attrs=token.attrs?.filter(([key])=>key!=='title')||[];
   }
   const missing=Boolean(resolved.local&&exists&&!exists.has(resolved.local));
@@ -77,7 +78,7 @@ export function parseMarkdown(text,{owner,maps,assetBase='https://example.invali
    resolved.target=url.href;
   }
   references.push({owner,kind:image?'image':'link',source:original,...resolved,
-   ...(viewerImages&&image?{isImage:true,viewerEnabled:Boolean(viewerMatch),viewerCaption:viewerMatch?.[1]||''}:{}),
+   ...(viewerImages&&image?{isImage:true,viewerEnabled:Boolean(viewerMatch),viewerCaption:viewerMatch?.[2]||'',viewerThumbnail:Boolean(viewerMatch?.[1])}:{}),
    ...(image&&missing&&allowMissingImages?{missing:true}:{})});
   token.attrSet(attr,resolved.target);
   if(!image&&resolved.kind==='external'){

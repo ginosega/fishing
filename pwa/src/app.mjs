@@ -52,7 +52,9 @@ export async function bootstrap({root,release},{v3=null}={}){
   const thumb=manifest.cardThumbnails?.[file];
   return thumb?new URL('card-thumbnails/'+encodedPath(thumb),base).href:asset(file);
  };
- const context={root,base,release,manifest,data,maps,asset,thumbnail,image,
+ const notesThumbnail=file=>liveMedia&&v3?.thumbnailReadApproved===true?
+  liveMedia.resolveThumbnail(file):null;
+ const context={root,base,release,manifest,data,maps,asset,thumbnail,image,notesThumbnail,
   mediaLiveReader:Boolean(liveMedia),
   mediaPublishedPaths:mediaPaths?new Set(mediaPaths):null,
   ...(v3?.enabled===true&&v3?.readerOnly===true?{v3:{...v3,

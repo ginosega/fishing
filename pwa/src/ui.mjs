@@ -235,6 +235,7 @@ export function createApp(ctx){
   article.innerHTML=sanitizeHtml(parsed.html,window);
   if(readerOnly)bindMarkdownPictureViewer(article,{
    references:parsed.references,resolveAsset:ctx.image||ctx.asset,
+    resolveThumbnail:ctx.notesThumbnail,
     resolveAllImages:ctx.mediaLiveReader===true,openViewer});
   article.addEventListener('click',event=>{const a=event.target.closest('a[href^="#/"]');if(a){event.preventDefault();navigate(a.getAttribute('href'));}});
   return article;

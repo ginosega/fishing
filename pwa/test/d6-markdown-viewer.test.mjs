@@ -244,3 +244,45 @@ test('V3-M02-09 browser Markdown rejects foreign or query-modified R2 paths',()=
   }),/Unverified image source/);
  }
 });
+
+test('M03 opt-in Notes thumbnails preserve older viewer metadata',()=>{
+ const old=parsedMarkdown('![Synthetic knot](../assets/step-01.jpg "viewer: Existing caption")');
+ assert.equal(old.references[0].viewerEnabled,true);
+ assert.equal(old.references[0].viewerThumbnail,false);
+ assert.equal(old.references[0].viewerCaption,'Existing caption');
+ const compact=parsedMarkdown('![Synthetic knot](../assets/step-01.jpg "viewer-thumb: Compact caption")');
+ assert.equal(compact.references[0].viewerEnabled,true);
+ assert.equal(compact.references[0].viewerThumbnail,true);
+ assert.equal(compact.references[0].viewerCaption,'Compact caption');
+ assert.match(compact.html,/notes-inline-thumbnail/);
+ const captionless=parsedMarkdown('![Synthetic knot](../assets/step-01.jpg "viewer-thumb")');
+ assert.equal(captionless.references[0].viewerThumbnail,true);
+ assert.equal(captionless.references[0].viewerCaption,'');
+});
+test('M03 Notes derivative displays but clicking opens the original',()=>{
+ const parsed=parsedMarkdown('![Synthetic knot](../assets/step-01.jpg "viewer-thumb")');
+ const {article,imageNode}=fixture({src:parsed.references[0].target});
+ let opened=null;
+ bindMarkdownPictureViewer(article,{
+  references:parsed.references,
+  resolveAsset:()=> 'https://example.test/api/v3/media/live/KB/Knots/assets/step-01.jpg',
+  resolveThumbnail:()=> 'https://example.test/api/v3/media/thumb/KB/Knots/assets/step-01.jpg',
+  openViewer:(...args)=>{opened=args;},
+ });
+ assert.equal(imageNode.src,'https://example.test/api/v3/media/thumb/KB/Knots/assets/step-01.jpg');
+ imageNode.replacement.handlers.click();
+ assert.equal(opened[0],'https://example.test/api/v3/media/live/KB/Knots/assets/step-01.jpg');
+ imageNode.handlers.error();
+ assert.equal(imageNode.src,'https://example.test/api/v3/media/live/KB/Knots/assets/step-01.jpg');
+});
+test('M03 foreign Notes derivative URL is never displayed',()=>{
+ const parsed=parsedMarkdown('![Synthetic knot](../assets/step-01.jpg "viewer-thumb")');
+ const {article,imageNode}=fixture({src:parsed.references[0].target});
+ bindMarkdownPictureViewer(article,{
+  references:parsed.references,
+  resolveAsset:()=> 'https://example.test/original.jpg',
+  resolveThumbnail:()=> 'https://evil.example/api/v3/media/thumb/KB/Knots/assets/step-01.jpg',
+  openViewer:()=>{},
+ });
+ assert.equal(imageNode.src,'https://example.test/original.jpg');
+});

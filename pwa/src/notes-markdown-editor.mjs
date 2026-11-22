@@ -26,27 +26,28 @@ export function noteImageReference(path){
   encodeURIComponent(part).replace(/[()]/g,ch=>'%'+ch.charCodeAt(0).toString(16).toUpperCase())
  ).join('/');
 }
-export function viewerMarkdownTitle(enabled,caption=''){
+export function viewerMarkdownTitle(enabled,caption='',thumbnail=false){
  if(!enabled)return '';
  const safe=caption.trim().replace(/[\r\n"\\]/g,' ');
- return ' "'+(safe?'viewer: '+safe:'viewer')+'"';
+ return ' "'+(thumbnail?'viewer-thumb':'viewer')+(safe?': '+safe:'')+'"';
 }
-export function notesImageMarkdown(path,alt,{viewer=false,caption=''}={}){
+export function notesImageMarkdown(path,alt,{viewer=false,caption='',thumbnail=false}={}){
  const name=alt.trim().replace(/[\r\n\[\]\\]/g,' ');
  if(!name)throw Error('Image alternative text is required.');
- return '!['+name+']('+noteImageReference(path)+viewerMarkdownTitle(viewer,caption)+')';
+ return '!['+name+']('+noteImageReference(path)+viewerMarkdownTitle(viewer,caption,thumbnail)+')';
 }
 // Resolve saved private originals from the already verified source inventory.
 // Newly staged originals use their in-memory object URLs; a missing/foreign
 // source is never substituted with a public V2 release URL.
-export function notesPreviewSource(reference,{staged,knownPaths,resolveSavedAsset}={}){
+export function notesPreviewSource(reference,{staged,knownPaths,resolveSavedAsset,resolveSavedThumbnail}={}){
  if(reference?.isImage!==true||reference.kind!=='local'||
     typeof reference.local!=='string')return null;
  const local=staged?.get(reference.local);
  if(local?.url)return local.url;
  if(!knownPaths?.has(reference.local)||typeof resolveSavedAsset!=='function')
   return null;
- const url=resolveSavedAsset(reference.local);
+ const url=(reference.viewerThumbnail&&typeof resolveSavedThumbnail==='function'?
+  resolveSavedThumbnail(reference.local):null)||resolveSavedAsset(reference.local);
  if(typeof url!=='string')return null;
  let parsed;
  try{parsed=new URL(url);}catch{return null;}
@@ -60,7 +61,7 @@ export function notesPreviewSource(reference,{staged,knownPaths,resolveSavedAsse
 export function createNotesMarkdownEditor({
  domain,getRecord,value='',label='Markdown',onChange=()=>{},previewOptions,
  knownPaths=()=>new Set(),allowUpload=false,linkMaps=()=>previewOptions().maps,
- resolveSavedAsset=null,
+ resolveSavedAsset=null,resolveSavedThumbnail=null,
 }={}){
  if(!['gear','kb','catches'].includes(domain)||typeof getRecord!=='function'||
   typeof previewOptions!=='function')throw Error('Invalid Markdown editor configuration');
@@ -78,6 +79,8 @@ export function createNotesMarkdownEditor({
  const viewer=el('input',{type:'checkbox'});
  const caption=el('input',{type:'text',maxlength:160,placeholder:'Caption (optional)'});
  const captionField=field('Picture Viewer caption (optional)',caption);
+ const thumbnail=el('input',{type:'checkbox'});
+ const thumbnailField=el('label',{class:'notes-viewer-checkbox'},thumbnail,' Generate thumbnail');
  const previewThumb=el('div',{class:'notes-image-thumb'});
  const imageMessage=el('div',{'aria-live':'polite'});
  let candidate=null,expanded=false,showPreview=false,selection=[0,0];
@@ -101,7 +104,7 @@ export function createNotesMarkdownEditor({
     if(actual!==new URL(ref.target).href)
      throw Error('Markdown image preview mismatch.');
     const source=notesPreviewSource(ref,{staged,knownPaths:verifiedPaths,
-     resolveSavedAsset});
+     resolveSavedAsset,resolveSavedThumbnail});
     if(source)image.src=source;
    });
    showPreview=true;view.hidden=false;editorField.hidden=true;input.hidden=true;
@@ -219,6 +222,8 @@ export function createNotesMarkdownEditor({
    button('Cancel',closeLink),confirmLink));
  function closeImage(){
   details.hidden=true;candidate=null;choose.value='';imageMessage.replaceChildren();
+  viewer.checked=false;caption.value='';captionField.hidden=true;
+  thumbnail.checked=false;thumbnailField.hidden=true;
   previewThumb.replaceChildren();
  }
  const imageButton=button('Insert image',()=>{
@@ -233,8 +238,12 @@ export function createNotesMarkdownEditor({
   linkButton.disabled=showPreview;
   imageButton.disabled=showPreview;
  }
- viewer.addEventListener('change',()=>{captionField.hidden=!viewer.checked;});
- captionField.hidden=true;
+ viewer.addEventListener('change',()=>{
+  captionField.hidden=!viewer.checked;
+  thumbnailField.hidden=!viewer.checked;
+  if(!viewer.checked)thumbnail.checked=false;
+ });
+ captionField.hidden=true;thumbnailField.hidden=true;
  choose.addEventListener('change',async()=>{
   candidate=null;previewThumb.replaceChildren();imageMessage.replaceChildren();
   const file=choose.files?.[0];if(!file)return;
@@ -256,7 +265,7 @@ export function createNotesMarkdownEditor({
    let path=noteImagePath(domain,record,name),suffix=2;
    while(existing.has(path)){path=noteImagePath(domain,record,stem+'-'+suffix+ext);suffix++;}
    const url=URL.createObjectURL(candidate.file);previews.add(url);
-   const markdown=notesImageMarkdown(path,alt.value,{viewer:viewer.checked,caption:caption.value});
+   const markdown=notesImageMarkdown(path,alt.value,{viewer:viewer.checked,caption:caption.value,thumbnail:thumbnail.checked});
    staged.set(path,{path,file:candidate.file,url,bytes:candidate.info.bytes,sha256:candidate.info.sha256});
    insertAtCursor(markdown);
    closeImage();
@@ -265,7 +274,7 @@ export function createNotesMarkdownEditor({
  details.append(el('h3',{},'Insert image'),field('Choose image',choose),
   previewThumb,field('Alternative text (required)',alt),
   el('label',{class:'notes-viewer-checkbox'},viewer,' Enable Picture Viewer'),
-  captionField,imageMessage,el('div',{class:'notes-image-actions'},
+  captionField,thumbnailField,imageMessage,el('div',{class:'notes-image-actions'},
    button('Cancel',closeImage),insert));
  toolbar.append(linkButton,imageButton,previewButton,expandButton);
  outer.append(toolbar,editorField,view,linkPanel,details,message);
