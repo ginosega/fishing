@@ -345,8 +345,12 @@ export async function createCatchEditor(ctx,{
   domain:'catches',getRecord:()=>record,value:notesText,
   label:'Notes (Markdown, optional)',
   onChange:value=>{notesText=value;updated();},
-  knownPaths:()=>ctx.v3.source.files,
-  resolveSavedAsset:path=>ctx.asset(path),
+  knownPaths:()=>new Set([
+   ...ctx.v3.source.files,
+   ...(ctx.mediaLiveReader===true&&ctx.mediaPublishedPaths instanceof Set?
+    ctx.mediaPublishedPaths:[]),
+  ]),
+  resolveSavedAsset:path=>(ctx.image||ctx.asset)(path),
   allowUpload:ctx.v3?.mediaCapabilities?.canUploadNewImages===true,
   linkMaps:()=>ctx.maps,
   previewOptions:()=>({owner:record.notes||'Catches/content/'+record.id+'.md',
