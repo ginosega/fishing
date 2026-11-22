@@ -14,6 +14,9 @@ function Check-Exit([string]$Name){
 function Require-Equal($Actual,$Expected,[string]$Name){
  if($Actual -ne $Expected){throw "Unexpected $Name. Stop."}
 }
+function Require-AtLeast([int]$Actual,[int]$Minimum,[string]$Name){
+ if($Actual -lt $Minimum){throw "Missing original M01 $Name. Stop."}
+}
 $Head=(& git rev-parse HEAD).Trim()
 Check-Exit 'Source revision'
 Require-Equal $Head $ExpectedRevision 'source revision'
@@ -100,7 +103,13 @@ if($Results.Count -ne 1 -or $Results[0].success -ne $true -or @($Results[0].resu
  throw 'Invalid live D1 verification response; no deployment.'
 }
 $D1=$Results[0].results[0]
-foreach($check in @(@('objects',272),@('associations',276),@('paths',265),@('historical',276),@('gear',100),@('kb',60),@('catches',12))){
+# New owner uploads legitimately increase total objects/refs/paths.
+# Preserve the verified M01 historical import, not stale exact totals.
+foreach($check in @(@('objects',272),@('associations',276),@('paths',265))){
+ $key=$check[0]
+ Require-AtLeast ([int]$D1.$key) ([int]$check[1]) "live D1 $key"
+}
+foreach($check in @(@('historical',276),@('gear',100),@('kb',60),@('catches',12))){
  $key=$check[0]
  Require-Equal ([int]$D1.$key) ([int]$check[1]) "live D1 $key"
 }

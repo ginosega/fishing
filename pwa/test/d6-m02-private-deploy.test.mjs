@@ -22,5 +22,10 @@ test('M02 guided deployment builds and checks exact private source first',()=>{
   assert.ok(script.includes(marker),'Missing '+marker);
  }
  assert.ok(script.indexOf('--dry-run')<script.lastIndexOf('deploy --config $ConfigFile'));
+ assert.match(script,/Require-AtLeast \(\[int\]\$D1\.\$key\)/,
+  'new uploads must not fail the historical-total baseline');
+ assert.match(script,/Require-Equal \(\[int\]\$D1\.\$key\)/,
+  'original historical associations and content counts stay exact');
+ assert.match(script,/@\('historical',276\)/);
  assert.doesNotMatch(script,/r2 bucket (?:create|delete)|d1 migrations apply/);
 });
