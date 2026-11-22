@@ -4,6 +4,8 @@ import {DatabaseSync} from 'node:sqlite';
 import {readFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 import {encodedPath} from '../src/shared.mjs';
+import {loadD6PublishedMediaPaths,createD6ContentImageResolver,
+ d6ResolveImageForDisplay} from '../src/d6-content-image-resolver.mjs';
 import {noteImageReference} from '../src/notes-markdown-editor.mjs';
 import {D6_MEDIA_SCHEMA_SQL} from '../tools/d6-media-schema.mjs';
 import {createD2UnifiedOwnerSession}
@@ -498,4 +500,39 @@ test('M02 D1 manifest refuses unlinked or incomplete media refs',async()=>{
   ' VALUES(?,?,?,?,?)')
   .run(pathOf('gear'),'gear',recordOf('gear').id,fakeSha,1);
  assert.equal((await live.handle(owner())).status,503);
+});
+
+test('M02 end-to-end D1 manifest to verified browser R2 image read',async()=>{
+ const f=fixture(),live=f.live({enabled:()=>true});
+ const root=origin+'/fishing/';
+ const path=pathOf('gear');
+ f.seed('gear');
+ const result=await f.publish('gear');
+ assert.equal(result.status,200,result.error);
+ const requests=[];
+ // Simulate the browser carrying its existing owner session cookie.
+ const request=async(url,options)=>{
+  requests.push({url,options});
+  return live.handle(new Request(url,{method:options.method,
+   headers:{Cookie:cookie,'Sec-Fetch-Site':'same-origin'}}));
+ };
+ const paths=await loadD6PublishedMediaPaths({root,request,
+  enabled:()=>true,readingMode:()=> 'Automatic'});
+ assert.deepEqual([...paths],[path]);
+ assert.equal(requests.length,1,'one existing D1 manifest endpoint');
+ assert.equal(requests[0].url,origin+'/api/v3/media/manifest');
+ const resolver=createD6ContentImageResolver({root,
+  enabled:()=>true,readingMode:()=> 'Automatic',publishedPaths:paths});
+ const url=d6ResolveImageForDisplay(path,{verifiedLive:resolver,
+  frozenAsset:()=>{throw Error('No stale release fallback');}});
+ assert.equal(url,origin+'/api/v3/media/live/'+encodedPath(path));
+ const response=await live.handle(new Request(url));
+ assert.equal(response.status,200);
+ assert.equal(response.headers.get('Content-Type'),'image/png');
+ assert.deepEqual(new Uint8Array(await response.arrayBuffer()),image);
+ assert.equal(d6ResolveImageForDisplay('Gear/Lures/assets/unpublished.png',{
+  verifiedLive:resolver,frozenAsset:()=>{throw Error('No fallback');}}),null);
+ assert.equal((await f.live().handle(new Request(
+  origin+'/api/v3/media/manifest'))).status,503,
+  'no registry when private provider disabled');
 });
