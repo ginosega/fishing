@@ -316,7 +316,10 @@ export function createD6SharedMediaLive({
    const auth=createD2UnifiedOwnerSession({
     AUTH_DB,ownerGitHubId:265665562,origin,csrfKey,now,
    });
-   await auth.authorizeStatus(request);
+   // The existing session validator accepts GET; authenticate HEAD using
+   // an equivalent read-only GET request, then return no response body.
+   await auth.authorizeStatus(request.method==='HEAD'?
+    new Request(request,{method:'GET'}):request);
   }catch{return fail(403,'MEDIA_NOT_AUTHORIZED');}
   try{
    const ref=await CONTENT_DB.prepare(
