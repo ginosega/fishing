@@ -89,8 +89,11 @@ export function publishedD6MediaRole({domain,record,logicalPath,
  catch{return null;}
  if(notesOwned(domain,record,path))
   return notesLinked?'notes':null;
- if(domain==='kb'&&stepOwned(record,path)&&
-    d6ValidKnotSequence(record)&&record.pictureSequence.includes(path))
+ if(domain==='kb'&&stepOwned(record,path)&&(
+    d6ValidKnotSequence(record)&&record.pictureSequence.includes(path)||
+    // "Remove sequence, keep representative picture" retains the final
+    // step as one standalone image without copying or deleting its R2 bytes.
+    !record.pictureSequence?.length&&record.picture?.src===path))
   return 'knot-step';
  if(record.picture?.src===path&&coverOwned(domain,record,path)&&
     !(domain==='kb'&&record.pictureSequence?.length))
