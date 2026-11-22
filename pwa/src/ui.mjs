@@ -5,7 +5,10 @@ import {createD6OwnerEditorPreviewGate} from './d6-owner-editor-preview-gate.mjs
 import {createD6ApprovedEditorPreview,createD6ApprovedCatchPreview} from './d6-approved-owner-editor-preview.mjs';
 import {createD6OwnerDeviceDraftStore} from './d6-owner-device-drafts.mjs';
 import {validD6Catalog} from './d6-catalog-invariants.mjs';
-import {DIRECT_D1_MEDIA_CAPABILITIES} from './d6-owner-media-capabilities.mjs';
+import {DIRECT_D1_MEDIA_CAPABILITIES,selectD6OwnerMediaCapabilities}
+ from './d6-owner-media-capabilities.mjs';
+import {createD6OwnerMediaUploadCoordinator}
+ from './d6-owner-media-upload-client.mjs';
 import {parseMarkdown,sanitizeHtml,markdownRouteMap} from './markdown.mjs';
 import {createEditor} from './editor.mjs';
 import {openViewer,openSequenceViewer} from './viewer.mjs';
@@ -149,6 +152,22 @@ export function createApp(ctx){
   if(!ownerDeviceDrafts)ownerDeviceDrafts=createD6OwnerDeviceDraftStore({
    enabled:true,root:ctx.root,privateGearPilot:direct,
   });
+  // Source-only opt-in: current release identity does not authorize this.
+  // Reuse existing owner session + Automatic reading-mode gates, not another
+  // media service or a synthetic staging-only upload capability.
+  const privateMedia=direct&&
+   ctx.v3?.ownerMediaUploadCandidate===true&&
+   ctx.mediaLiveReader===true&&ownerEditingAvailable();
+  const ownerMediaCoordinator=privateMedia?
+   createD6OwnerMediaUploadCoordinator({
+    root:ctx.root,request:(url,options)=>fetch(url,options),
+    enabled:()=>ownerEditingAvailable(),
+    readingMode:()=>offline?.getModeAvailable?.()===true?
+     offline.getMode():'Checking',
+   }):null;
+  const mediaCapabilities=selectD6OwnerMediaCapabilities({
+   approved:privateMedia,coordinator:ownerMediaCoordinator,
+  });
   return {...ctx,data,maps,
    v3:{...ctx.v3,source,ownerAuthoringPreview:true,
     drafts:ownerDeviceDrafts,
@@ -158,7 +177,9 @@ export function createApp(ctx){
      onDirectKBSaved:()=>{kbCatalogReady=false;},
      directCatchCanSave:()=>ownerEditingAvailable(),
      onDirectCatchSaved:()=>{catchCatalogReady=false;},
-    mediaCapabilities:DIRECT_D1_MEDIA_CAPABILITIES,
+    mediaCapabilities,
+    ownerMediaCoordinator:mediaCapabilities===DIRECT_D1_MEDIA_CAPABILITIES?
+     null:ownerMediaCoordinator,
    }};
  }
  function notify(message,kind='info'){status(alertHost,message,kind);}
