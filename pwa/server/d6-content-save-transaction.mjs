@@ -48,7 +48,7 @@ function contentWrite(db,spec,domain,record,markdown,rev,time){
   'INSERT INTO d6_catch_records(id,revision,record_json,notes_text,updated_at) VALUES(?,1,?,?,?) ON CONFLICT(id) DO NOTHING'
  ).bind(id,json,markdown,time);
 }
-function revisionGuard(db,spec,domain,record,rev){
+function revisionGuard(db,spec,domain,record,rev,retiredPaths=[]){
  // A failing constraint forces Cloudflare D1.batch to roll back every
  // statement. A zero-row insert/UPDATE alone would NOT roll back media refs.
  // New Gear/KB Add must also fence canonical Markdown-path aliases BEFORE
@@ -67,6 +67,12 @@ function revisionGuard(db,spec,domain,record,rev){
    check+=` AND (? IS NULL OR NOT EXISTS (SELECT 1 FROM ${spec.table} WHERE json_extract(record_json,'$.${field}')=?))`;
    params.push(path,path);
   }
+ }
+ // A deleted/moved ref must abort the entire batch BEFORE content changes.
+ // D1.batch is atomic; a zero-row DELETE alone would silently commit Save.
+ for(const path of retiredPaths){
+  check+=' AND EXISTS(SELECT 1 FROM d6_media_refs WHERE domain=? AND record_id=? AND logical_path=?)';
+  params.push(domain,id,path);
  }
  return db.prepare(
   `SELECT json_extract(CASE WHEN ${check} THEN '{"ok":1}' ELSE '[invalid' END,'$.ok') AS media_guard`
@@ -117,7 +123,7 @@ export async function saveD6ContentRevision({
   const write=contentWrite(CONTENT_DB,spec,domain,record,
    markdown,expectedRevision,time);
   if(isMedia){
-   const guard=revisionGuard(CONTENT_DB,spec,domain,record,expectedRevision);
+   const guard=revisionGuard(CONTENT_DB,spec,domain,record,expectedRevision,retiredPaths);
    const batch=[guard,write];
    // Remove only this record's obsolete links, never its immutable R2 bytes.
    // The guarded revision and all metadata changes share one D1 batch.
