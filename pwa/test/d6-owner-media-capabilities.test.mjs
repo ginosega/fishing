@@ -49,7 +49,9 @@ test('V3-MEDIA03 a placeholder staging function does not enable new uploads',()=
 });
 test('V3-MEDIA04 shared disabled image button is only UI, not an upload',()=>{
  const policy=read('d6-owner-media-capabilities.mjs');
- assert.match(policy,/hiddenButton\.hidden!==true/);
+ assert.ok(policy.includes(
+  'hiddenButton.hidden!==(capabilities===DIRECT_D1_MEDIA_CAPABILITIES)'));
+ assert.ok(policy.includes('if(capabilities===PRIVATE_D1_MEDIA_CAPABILITIES)return;'));
  assert.match(policy,/unavailable\.hidden=false;unavailable\.disabled=true/);
  assert.match(policy,/New image uploads are not yet available/);
  const accepted=read('notes-markdown-editor.mjs');
