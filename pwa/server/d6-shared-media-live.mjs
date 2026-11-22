@@ -245,7 +245,7 @@ export function createD6SharedMediaLive({
     // Join current D1 records and published references in one read.
     // Stage-only R2 objects have no D1 reference and cannot enter the list.
     const query=await CONTENT_DB.prepare(`
-     SELECT r.logical_path,r.domain,r.record_id,r.sha256,
+     SELECT r.logical_path,r.domain,r.record_id,r.sha256,r.historical,
       o.storage_key,o.mime,o.bytes,
       COALESCE(g.record_json,k.record_json,c.record_json) AS record_json,
       CASE r.domain WHEN 'gear' THEN g.notes_text
@@ -277,7 +277,7 @@ export function createD6SharedMediaLive({
       return fail(503,'MEDIA_REGISTRY_UNVERIFIED');
      const role=d6ReadableMediaRole({
       domain:row.domain,record,logicalPath:row.logical_path,
-      markdown:row.markdown,
+      markdown:row.markdown,allowLegacy:row.historical===1,
      });
      if(!role||d6HistoricalMime(row.logical_path)!==row.mime)
       return fail(503,'MEDIA_REGISTRY_UNVERIFIED');
@@ -340,7 +340,7 @@ export function createD6SharedMediaLive({
    // must identify the same immutable object; a currently linked owner must
    // exist before any bytes can be returned.
    const refs=await CONTENT_DB.prepare(
-    'SELECT domain,record_id,sha256 FROM d6_media_refs WHERE logical_path=?'
+    'SELECT domain,record_id,sha256,historical FROM d6_media_refs WHERE logical_path=?'
    ).bind(path).all();
    if(!Array.isArray(refs?.results)||!refs.results.length||
       refs.results.length>172)return fail(404,'NOT_FOUND');
@@ -360,7 +360,8 @@ export function createD6SharedMediaLive({
     try{record=JSON.parse(row.record_json);}catch{continue;}
     if(!validators[ref.domain](record)||record.id!==ref.record_id)continue;
     if(d6ReadableMediaRole({domain:ref.domain,record,
-      logicalPath:path,markdown:row[d.field]})){
+      logicalPath:path,markdown:row[d.field],
+      allowLegacy:ref.historical===1})){
      linked=true;break;
     }
    }

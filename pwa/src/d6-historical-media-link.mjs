@@ -53,7 +53,8 @@ export function d6HistoricalMarkdownLinked(text,logicalPath,owner){
  }
  return false;
 }
-export function d6ReadableMediaRole({domain,record,logicalPath,markdown}={}){
+export function d6ReadableMediaRole({domain,record,logicalPath,markdown,
+ allowLegacy=false}={}){
  if(!['gear','kb','catches'].includes(domain)||!record||
   !d6HistoricalMime(logicalPath))return null;
  const strict=publishedD6MediaRole({
@@ -61,6 +62,7 @@ export function d6ReadableMediaRole({domain,record,logicalPath,markdown}={}){
   notesLinked:isD6NotesImageLinked(markdown,logicalPath),
  });
  if(strict)return strict;
+ if(allowLegacy!==true)return null;
  // Historical records may have a cover in a different folder, cross-domain
  // KB→Gear picture, or noncanonical original Knot frame names.
  if(domain!=='catches'&&record.picture?.src===logicalPath)
