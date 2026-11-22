@@ -94,16 +94,19 @@ function stagedOK(assets){
  */
 export async function saveD6ContentRevision({
  CONTENT_DB,domain,record,markdown,expectedRevision,
- now=()=>Math.floor(Date.now()/1000),media=[],
+ now=()=>Math.floor(Date.now()/1000),media=[],retiredPaths=[],syncMedia=false,
 }={}){
  const spec=DOMAIN[domain];
  if(!spec||typeof CONTENT_DB?.prepare!=='function'||
     typeof now!=='function'||typeof record?.id!=='string'||
     !ID.test(record.id)||record.id.length>160||
     typeof markdown!=='string'||!Number.isSafeInteger(expectedRevision)||
-    expectedRevision<0||!stagedOK(media))
+    expectedRevision<0||!stagedOK(media)||
+    !Array.isArray(retiredPaths)||retiredPaths.length>10000||
+    new Set(retiredPaths).size!==retiredPaths.length||
+    retiredPaths.some(p=>typeof p!=='string'||p.length<1||p.length>600))
   return {status:400,error:'INVALID_RECORD'};
- const isMedia=media.length>0;
+ const isMedia=syncMedia===true||media.length>0||retiredPaths.length>0;
  if(isMedia&&typeof CONTENT_DB.batch!=='function')
   return {status:503,error:'SAVE_UNCONFIRMED'};
  const id=record.id;
@@ -116,6 +119,13 @@ export async function saveD6ContentRevision({
   if(isMedia){
    const guard=revisionGuard(CONTENT_DB,spec,domain,record,expectedRevision);
    const batch=[guard,write];
+   // Remove only this record's obsolete links, never its immutable R2 bytes.
+   // The guarded revision and all metadata changes share one D1 batch.
+   for(const path of retiredPaths){
+    batch.push(CONTENT_DB.prepare(
+     'DELETE FROM d6_media_refs WHERE domain=? AND record_id=? AND logical_path=?'
+    ).bind(domain,id,path));
+   }
    for(const item of media){
     batch.push(CONTENT_DB.prepare(
      'INSERT INTO d6_media_objects (sha256,storage_key,mime,bytes,created_at)'+
@@ -148,7 +158,8 @@ export async function saveD6ContentRevision({
       result.some(x=>x?.success!==true)||
       result[0]?.results?.[0]?.media_guard!==1||
       result[1]?.meta?.changes!==1||
-      media.some((_,i)=>result[4+3*i]?.meta?.changes!==1))
+      retiredPaths.some((_,i)=>result[2+i]?.meta?.changes!==1)||
+      media.some((_,i)=>result[4+retiredPaths.length+3*i]?.meta?.changes!==1))
     return {status:503,error:'SAVE_UNCONFIRMED'};
   }else{
    const result=await write.run();
