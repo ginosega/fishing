@@ -147,7 +147,12 @@ test('V3-C04-05 all three owner endpoints and media publisher use SAME write cor
  }
  const live=readFileSync(new URL('../server/d6-direct-gear-worker.mjs',
   import.meta.url),'utf8');
- assert.doesNotMatch(live,/d6-shared-media-live/);
+ assert.match(live,/d6-shared-media-live/);
+ assert.match(live,/env\\.D6_M02_MEDIA_ENABLED==='true'/);
+ const config=JSON.parse(readFileSync(new URL(
+  '../wrangler.direct-gear-private.jsonc',import.meta.url),'utf8'));
+ assert.notEqual(config.vars.D6_M02_MEDIA_ENABLED,'true');
+ assert.equal(config.r2_buckets,undefined);
 });
 
 

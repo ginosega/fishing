@@ -106,7 +106,12 @@ test('V3-M02-04 active reader cannot be spoofed using another origin or path',()
  }
  const source=readFileSync(new URL('../server/d6-direct-gear-worker.mjs',
   import.meta.url),'utf8');
- assert.doesNotMatch(source,/d6-shared-media-(?:stage|live)/);
+ assert.match(source,/env\\.D6_M02_MEDIA_ENABLED==='true'/);
+ // Importing an OFF-by-default handler is not provider activation.
+ const config=JSON.parse(readFileSync(new URL(
+  '../wrangler.direct-gear-private.jsonc',import.meta.url),'utf8'));
+ assert.notEqual(config.vars.D6_M02_MEDIA_ENABLED,'true');
+ assert.equal(config.r2_buckets,undefined);
  const contract=readFileSync(new URL('../src/d6-content-image-resolver.mjs',
   import.meta.url),'utf8');
  assert.doesNotMatch(contract,/fetch\(|localStorage|sessionStorage/);
