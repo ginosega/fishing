@@ -60,10 +60,10 @@ function matchingSQL(row){
  requireOK(checks.size,'image has no supported original record role');
  const expected=EDITED[row.domain];
  const revision=expected?.id===row.recordId?expected.revision:1;
- return 'INSERT INTO d6_media_refs(logical_path,domain,record_id,sha256,created_at) '+
+ return 'INSERT INTO d6_media_refs(logical_path,domain,record_id,sha256,created_at,historical) '+
   'SELECT '+[
    quote(row.logicalPath),quote(row.domain),quote(row.recordId),
-   quote(row.sha256),"CAST(strftime('%s','now') AS INTEGER)",
+   quote(row.sha256),"CAST(strftime('%s','now') AS INTEGER)",'1',
   ].join(',')+' FROM '+spec.table+' WHERE id='+quote(row.recordId)+
   ' AND revision='+revision+' AND ('+[...checks].join(' OR ')+');';
 }
@@ -150,10 +150,10 @@ export async function prepareM01D1MediaPlan({reportFile}={}){
 }
 async function main(){
  const args=process.argv.slice(2),mode=args[0];
- requireOK((mode==='--check'||mode==='--out')&&args.length===4&&
-  args[2]==='--report'&&args[1]&&args[3],
-  'usage: --check <unused> --report <inventory.json> OR --out <NEW-plan.json> --report <inventory.json>');
- const plan=await prepareM01D1MediaPlan({reportFile:args[3]});
+ requireOK((mode==='--check'&&args.length===3&&args[1]==='--report'&&args[2])||
+  (mode==='--out'&&args.length===4&&args[2]==='--report'&&args[1]&&args[3]),
+  'usage: --check --report <inventory.json> OR --out <NEW-plan.json> --report <inventory.json>');
+ const plan=await prepareM01D1MediaPlan({reportFile:mode==='--check'?args[2]:args[3]});
  console.log('M01 D1 SOURCE PLAN VERIFIED: '+JSON.stringify(plan.expected));
  console.log('Batches: '+plan.objectBatches.length+' object; '+
   plan.referenceBatches.length+' record-reference. No provider calls.');

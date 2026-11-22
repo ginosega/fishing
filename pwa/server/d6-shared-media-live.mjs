@@ -374,7 +374,7 @@ export function createD6SharedMediaLive({
       stored.storage_key!==entryKey(selected))
     return fail(503,'MEDIA_UNVERIFIED');
    const original=await R2.get(stored.storage_key);
-   if(!original||!storedObjectOK(original,ref.sha256,
+   if(!original||!storedObjectOK(original,selected,
       stored.bytes,stored.mime)||!original.body)
     return fail(503,'MEDIA_UNVERIFIED');
    const headers=new Headers({
