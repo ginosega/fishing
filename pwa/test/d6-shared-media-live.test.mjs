@@ -15,6 +15,10 @@ import {createD6SharedMediaLive,publishD6MediaRevision,
 
 const origin='https://fishing-d6-wp2-test.ginosega.workers.dev';
 const cookie='__Host-fish_p0_session='+'A'.repeat(43);
+const ownerImageRequest=(url,options={})=>new Request(url,{
+ ...options,
+ headers:{Cookie:cookie,'Sec-Fetch-Site':'same-origin',...options.headers},
+});
 const image=Uint8Array.from(Buffer.from(
  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+i1ZkAAAAASUVORK5CYII=','base64'));
 const sha=createHash('sha256').update(image).digest('hex');
@@ -132,7 +136,7 @@ function fixture(){
 test('V3-MEDIA-LIVE01 default OFF; existing record and metadata untouched',async()=>{
  const f=fixture();f.seed('gear');
  const svc=f.live();
- assert.equal((await svc.handle(new Request(f.url('gear')))).status,503);
+ assert.equal((await svc.handle(ownerImageRequest(f.url('gear')))).status,503);
  assert.equal((await svc.handle(new Request(origin+'/api/v3/media/publish',{
   method:'POST',headers:{'Content-Type':'application/json'},
   body:'{}',
@@ -151,23 +155,23 @@ test('V3-MEDIA-LIVE02 real SQLite batch atomically commits all 3 domains',async(
   assert.equal(f.query('SELECT revision FROM '+dbOf(domain)+
    ' WHERE id=?',recordOf(domain).id).revision,2);
   assert.equal((await f.live({enabled:()=>true}).handle(
-   new Request(f.url(domain)))).status,200);
+   ownerImageRequest(f.url(domain)))).status,200);
  }
  assert.equal(f.count('d6_media_objects'),1);
  assert.equal(f.count('d6_media_refs'),3);
- const got=await f.live({enabled:()=>true}).handle(new Request(f.url('kb')));
+ const got=await f.live({enabled:()=>true}).handle(ownerImageRequest(f.url('kb')));
  assert.equal(got.headers.get('Content-Type'),'image/png');
  assert.equal(got.headers.get('Cache-Control'),'private, no-store');
  assert.equal(got.headers.get('ETag'),'"'+sha+'"');
  assert.deepEqual(new Uint8Array(await got.arrayBuffer()),image);
  assert.equal((await f.live({enabled:()=>true}).handle(
-  new Request(f.url('kb'),{method:'HEAD'}))).status,200);
+  ownerImageRequest(f.url('kb'),{method:'HEAD'}))).status,200);
 });
 test('V3-MEDIA-LIVE03 missing D1 ref never exposes staged R2 bytes',async()=>{
  const f=fixture();f.seed('gear');
  const service=f.live({enabled:()=>true});
- assert.equal((await service.handle(new Request(f.url('gear')))).status,404);
- assert.equal((await service.handle(new Request(origin+
+ assert.equal((await service.handle(ownerImageRequest(f.url('gear')))).status,404);
+ assert.equal((await service.handle(ownerImageRequest(origin+
   '/api/v3/media/live/staged/v1/sha256/'+sha))).status,404);
  assert.equal(f.count('d6_media_refs'),0);
 });
@@ -212,11 +216,11 @@ test('V3-MEDIA-LIVE06 deleted Markdown image becomes unreadable',async()=>{
  const f=fixture();f.seed('gear');
  assert.equal((await f.publish('gear')).status,200);
  assert.equal((await f.live({enabled:()=>true}).handle(
-  new Request(f.url('gear')))).status,200);
+  ownerImageRequest(f.url('gear')))).status,200);
  f.sqlite.prepare('UPDATE d6_gear_records SET notes_text=?')
   .run('Image no longer linked');
  assert.equal((await f.live({enabled:()=>true}).handle(
-  new Request(f.url('gear')))).status,404);
+  ownerImageRequest(f.url('gear')))).status,404);
 });
 test('V3-MEDIA-LIVE07 Catch Add with expectedRevision 0 is atomic',async()=>{
  const f=fixture();
@@ -237,7 +241,7 @@ test('M02 Gear and KB revision-zero media Add is insert-only and readable',async
   assert.equal(f.count(dbOf(domain)),1);
   assert.equal(f.count('d6_media_refs'),1);
   assert.equal((await f.live({enabled:()=>true}).handle(
-   new Request(f.url(domain)))).status,200);
+   ownerImageRequest(f.url(domain)))).status,200);
   const duplicate=await f.publish(domain,{expectedRevision:0});
   assert.equal(duplicate.status,409,'revision zero must never edit');
   assert.equal(f.count(dbOf(domain)),1);
@@ -310,9 +314,9 @@ test('V3-MEDIA-LIVE08 owner HTTP gate, CSRF, scope and canonical paths',async()=
  }));
  assert.equal(allowed.status,200);
  assert.equal(f.count('d6_media_refs'),1);
- assert.equal((await svc.handle(new Request(f.url('gear')+'?r=1'))).status,404);
- assert.equal((await svc.handle(new Request(origin+'/api/v3/media/live/'))).status,404);
- assert.equal((await svc.handle(new Request(f.url('gear'),{
+ assert.equal((await svc.handle(ownerImageRequest(f.url('gear')+'?r=1'))).status,404);
+ assert.equal((await svc.handle(ownerImageRequest(origin+'/api/v3/media/live/'))).status,404);
+ assert.equal((await svc.handle(ownerImageRequest(f.url('gear'),{
   headers:{Range:'bytes=0-3'},
  }))).status,416);
 });
@@ -382,7 +386,7 @@ test('V3-M02-05 record-linked Gear and KB cover images publish and read privatel
   assert.equal(result.status,200,domain+': '+result.error);
   assert.equal(result.result.media[0].role,'cover');
   const response=await f.live({enabled:()=>true}).handle(
-   new Request(origin+'/api/v3/media/live/'+encodedPath(cover)));
+   ownerImageRequest(origin+'/api/v3/media/live/'+encodedPath(cover)));
   assert.equal(response.status,200);
   assert.deepEqual(new Uint8Array(await response.arrayBuffer()),image);
   // The private reader denies a removed cover even while stale D1 metadata
@@ -390,7 +394,7 @@ test('V3-M02-05 record-linked Gear and KB cover images publish and read privatel
   f.sqlite.prepare('UPDATE '+dbOf(domain)+' SET record_json=? WHERE id=?')
    .run(JSON.stringify(original),original.id);
   assert.equal((await f.live({enabled:()=>true}).handle(
-   new Request(origin+'/api/v3/media/live/'+encodedPath(cover)))).status,404);
+   ownerImageRequest(origin+'/api/v3/media/live/'+encodedPath(cover)))).status,404);
  }
 });
 test('V3-M02-06 ordered Knot steps are atomic and exactly linked before read',async()=>{
@@ -419,7 +423,7 @@ test('V3-M02-06 ordered Knot steps are atomic and exactly linked before read',as
   ['knot-step','knot-step']);
  const live=f.live({enabled:()=>true});
  for(const frame of frames){
-  assert.equal((await live.handle(new Request(origin+
+  assert.equal((await live.handle(ownerImageRequest(origin+
    '/api/v3/media/live/'+encodedPath(frame)))).status,200);
  }
  const edited={...record,pictureSequence:[frames[1],frames[0]],
@@ -427,7 +431,7 @@ test('V3-M02-06 ordered Knot steps are atomic and exactly linked before read',as
  f.sqlite.prepare('UPDATE d6_kb_records SET record_json=? WHERE id=?')
   .run(JSON.stringify(edited),record.id);
  for(const frame of frames)
-  assert.equal((await live.handle(new Request(origin+
+  assert.equal((await live.handle(ownerImageRequest(origin+
    '/api/v3/media/live/'+encodedPath(frame)))).status,404);
 });
 test('V3-M02-07 non-owned cover and forged Knot paths do not reach D1 batch',async()=>{
@@ -526,7 +530,7 @@ test('M02 end-to-end D1 manifest to verified browser R2 image read',async()=>{
  const url=d6ResolveImageForDisplay(path,{verifiedLive:resolver,
   frozenAsset:()=>{throw Error('No stale release fallback');}});
  assert.equal(url,origin+'/api/v3/media/live/'+encodedPath(path));
- const response=await live.handle(new Request(url));
+ const response=await live.handle(ownerImageRequest(url));
  assert.equal(response.status,200);
  assert.equal(response.headers.get('Content-Type'),'image/png');
  assert.deepEqual(new Uint8Array(await response.arrayBuffer()),image);
@@ -535,4 +539,15 @@ test('M02 end-to-end D1 manifest to verified browser R2 image read',async()=>{
  assert.equal((await f.live().handle(new Request(
   origin+'/api/v3/media/manifest'))).status,503,
   'no registry when private provider disabled');
+});
+
+test('M02 private published R2 originals require the owner session',async()=>{
+ const f=fixture();f.seed('gear');
+ assert.equal((await f.publish('gear')).status,200);
+ const live=f.live({enabled:()=>true});
+ const imageUrl=f.url('gear');
+ assert.equal((await live.handle(new Request(imageUrl))).status,403);
+ assert.equal((await live.handle(new Request(imageUrl,{method:'HEAD'}))).status,403);
+ assert.equal((await live.handle(ownerImageRequest(imageUrl))).status,200);
+ assert.equal((await live.handle(ownerImageRequest(imageUrl,{method:'HEAD'}))).status,200);
 });
