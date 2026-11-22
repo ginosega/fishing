@@ -48,3 +48,18 @@ test('V3-MEDIA04 shared disabled image button is only UI, not an upload',()=>{
  const accepted=read('notes-markdown-editor.mjs');
  assert.match(accepted,/imageButton\.hidden=!allowUpload/);
 });
+
+test('M02 owner previews resolve registered D1 media, never stale online photos',()=>{
+ const gearKB=read('d6-approved-owner-editor-preview.mjs');
+ const catches=read('d6-direct-catch-editor.mjs');
+ const notes=read('notes-markdown-editor.mjs');
+ for(const editor of [gearKB,catches]){
+  assert.match(editor,/resolveSavedAsset:path=>\\(ctx\\.image\\|\\|ctx\\.asset\\)\\(path\\)/);
+  assert.match(editor,/strictMediaResolution:ctx\\.mediaLiveReader===true/);
+ }
+ assert.match(gearKB,/const resolveSavedImage=ctx\\.image\\|\\|ctx\\.asset/);
+ assert.match(gearKB,/sequence\\.length>=2&&sequence\\.every\\(Boolean\\)/);
+ assert.match(gearKB,/ctx\\.mediaPublishedPaths instanceof Set/);
+ assert.match(notes,/else if\\(strictMediaResolution===true\\)/);
+ assert.match(notes,/image\\.replaceWith\\(document\\.createTextNode/);
+});
