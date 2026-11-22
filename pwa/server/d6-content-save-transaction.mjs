@@ -121,6 +121,12 @@ export async function saveD6ContentRevision({
      'INSERT INTO d6_media_objects (sha256,storage_key,mime,bytes,created_at)'+
      ' VALUES(?,?,?,?,?) ON CONFLICT(sha256) DO NOTHING'
     ).bind(item.sha256,item.storageKey,item.mime,item.bytes,time));
+    // Replace the same owner's logical path in this one D1 transaction.
+    // A different owner cannot be deleted; its UNIQUE constraint makes the
+    // following INSERT fail and rolls back the entire content/metadata Save.
+    batch.push(CONTENT_DB.prepare(
+     'DELETE FROM d6_media_refs WHERE logical_path=? AND domain=? AND record_id=?'
+    ).bind(item.logicalPath,domain,id));
     batch.push(CONTENT_DB.prepare(
      'INSERT INTO d6_media_refs (logical_path,domain,record_id,sha256,created_at)'+
      ' VALUES(?,?,?,?,?)'
@@ -142,7 +148,7 @@ export async function saveD6ContentRevision({
       result.some(x=>x?.success!==true)||
       result[0]?.results?.[0]?.media_guard!==1||
       result[1]?.meta?.changes!==1||
-      media.some((_,i)=>result[3+2*i]?.meta?.changes!==1))
+      media.some((_,i)=>result[4+3*i]?.meta?.changes!==1))
     return {status:503,error:'SAVE_UNCONFIRMED'};
   }else{
    const result=await write.run();
