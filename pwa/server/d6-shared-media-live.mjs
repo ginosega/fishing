@@ -171,14 +171,19 @@ export async function publishD6MediaRevision({
   // The current record's D1 image references are authoritative. Remove only
   // paths that the revised record/Markdown no longer links; R2 bytes remain.
   const existing=await CONTENT_DB.prepare(
-   'SELECT logical_path FROM d6_media_refs WHERE domain=? AND record_id=?'
+   'SELECT logical_path,historical FROM d6_media_refs WHERE domain=? AND record_id=?'
   ).bind(domain,record.id).all();
   if(!Array.isArray(existing?.results)||existing.results.length>10000||
-     existing.results.some(x=>typeof x.logical_path!=='string'))
+     existing.results.some(x=>typeof x.logical_path!=='string'||
+      ![0,1].includes(x.historical)))
    return {status:503,error:'MEDIA_REGISTRY_UNVERIFIED'};
-  const retiredPaths=existing.results.map(x=>x.logical_path).filter(path=>
-   !publishedD6MediaRole({domain,record,logicalPath:path,
-    notesLinked:isD6NotesImageLinked(markdown,path)}));
+  // M01 imported references have their own verified historical path rules.
+  // A V3 text edit must not silently retire unchanged original Catch Notes,
+  // old Knot frames, or shared KB→Gear pictures simply because they predate
+  // the V3 upload-folder convention. New V3 refs remain strictly validated.
+  const retiredPaths=existing.results.filter(x=>
+   !d6ReadableMediaRole({domain,record,logicalPath:x.logical_path,
+    markdown,allowLegacy:x.historical===1})).map(x=>x.logical_path);
   const current=await CONTENT_DB.prepare(selectSql(d)).bind(record.id).first();
   if(isNew?Boolean(current):!current||current.revision!==expectedRevision)
    return {status:409,error:'RECORD_CHANGED'};

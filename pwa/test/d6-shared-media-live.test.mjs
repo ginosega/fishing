@@ -696,6 +696,87 @@ test('M02 remove Knot sequence keeps representative final frame linked',async()=
 });
 
 
+
+test('M02 M01 historical Catch Notes + shared KB→Gear cover survive live Save',async()=>{
+ const f=fixture(),live=f.live({enabled:()=>true});
+ const historicalCover='Gear/Lures/assets/legacy-shared.png';
+ const gear={...recordOf('gear'),picture:{src:historicalCover}};
+ const kb={...recordOf('kb'),picture:{src:historicalCover}};
+ const caught={...recordOf('catches')};
+ f.seed('gear',1,gear,'Old Gear Notes');
+ f.seed('kb',1,kb,'Old KB article');
+ f.seed('catches',3,caught,'Original Catch Notes');
+ f.sqlite.prepare(
+  'INSERT INTO d6_media_objects(sha256,storage_key,mime,bytes,created_at) VALUES(?,?,?,?,?)'
+ ).run(sha,key,'image/png',image.length,1);
+ const addRef=(logicalPath,domain,recordId)=>{
+  f.sqlite.prepare('INSERT INTO d6_media_refs'+
+   ' (logical_path,domain,record_id,sha256,created_at,historical)'+
+   ' VALUES(?,?,?,?,?,1)').run(logicalPath,domain,recordId,sha,1);
+ };
+ addRef(historicalCover,'gear',gear.id);
+ addRef(historicalCover,'kb',kb.id);
+ // The original file extension and image MIME must match.
+ // Use a dedicated JPEG-shaped media object entry for Catch.
+ const jpgPath='Catches/content/catch-media-test.png';
+ const markdown='Old image\n\n![A catch](./catch-media-test.png)';
+ f.sqlite.prepare('UPDATE d6_catch_records SET notes_text=? WHERE id=?')
+  .run(markdown,caught.id);
+ addRef(jpgPath,'catches',caught.id);
+ const manifestUrl=origin+'/api/v3/media/manifest';
+ const parsed=await (await live.handle(ownerImageRequest(manifestUrl))).json();
+ assert.deepEqual(parsed.paths.sort(),[historicalCover,jpgPath].sort(),
+  'the D1 reader deduplicates shared historical logical paths');
+ const loader=async(url,options)=>live.handle(ownerImageRequest(url,{
+  method:options.method,
+ }));
+ const paths=await loadD6PublishedMediaPaths({
+  root:origin+'/fishing/',request:loader,enabled:()=>true,
+  readingMode:()=> 'Automatic',
+ });
+ assert.equal(paths.size,2);
+ const browser=createD6ContentImageResolver({root:origin+'/fishing/',
+  publishedPaths:paths,enabled:()=>true,readingMode:()=> 'Automatic'});
+ for(const path of [historicalCover,jpgPath]){
+  const url=browser.resolve(path);
+  assert.equal(url,origin+'/api/v3/media/live/'+encodedPath(path));
+  const photo=await live.handle(ownerImageRequest(url));
+  assert.equal(photo.status,200,path);
+  assert.deepEqual(new Uint8Array(await photo.arrayBuffer()),image);
+ }
+ assert.equal((await live.handle(new Request(browser.resolve(jpgPath)))).status,403,
+  'historical photos remain owner-only');
+ let saved=await f.publish('kb',{record:kb,expectedRevision:1,
+  markdown:'Revised KB article',media:[]});
+ assert.equal(saved.status,200,saved.error);
+ assert.equal(f.count('d6_media_refs'),3,
+  'ordinary KB text edit must preserve cross-domain cover ref');
+ saved=await f.publish('catches',{record:caught,expectedRevision:3,
+  markdown,media:[]});
+ assert.equal(saved.status,200,saved.error);
+ assert.equal(f.count('d6_media_refs'),3,
+  'ordinary Catch text Save must preserve original relative picture');
+ assert.equal((await live.handle(ownerImageRequest(browser.resolve(jpgPath)))).status,200);
+ const noCover={...kb};delete noCover.picture;
+ saved=await f.publish('kb',{record:noCover,expectedRevision:2,
+  markdown:'Revised KB article',media:[]});
+ assert.equal(saved.status,200,saved.error);
+ assert.equal(f.count('d6_media_refs'),2,
+  'removing a KB cover retires only the KB association');
+ assert.equal((await live.handle(ownerImageRequest(browser.resolve(historicalCover)))).status,200,
+  'Gear remains a valid second owner of shared original');
+ saved=await f.publish('gear',{record:gear,expectedRevision:1,
+  markdown:'Updated Gear Notes',media:[]});
+ assert.equal(saved.status,200,saved.error);
+ assert.equal(f.count('d6_media_refs'),2);
+ saved=await f.publish('catches',{record:caught,expectedRevision:4,
+  markdown:'Photo removed from Notes',media:[]});
+ assert.equal(saved.status,200,saved.error);
+ assert.equal(f.count('d6_media_refs'),1);
+ assert.equal((await live.handle(ownerImageRequest(browser.resolve(jpgPath)))).status,404);
+ assert.equal(f.count('d6_media_objects'),1,'immutable R2 object retained');
+});
+
 test('M02 source-only owner editor → private stage → atomic D1 Save → R2 readback',async()=>{
  const f=fixture();
  f.seed('gear');
