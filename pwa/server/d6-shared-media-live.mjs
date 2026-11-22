@@ -214,6 +214,64 @@ export function createD6SharedMediaLive({
      !url.pathname.startsWith(ORIGIN_PATH))
    return fail(404,'NOT_FOUND');
   if(!ready())return fail(503,'MEDIA_NOT_ENABLED');
+  if(url.pathname===ORIGIN_PATH+'manifest'){
+   if(request.method!=='GET')return fail(405,'METHOD_NOT_ALLOWED');
+   // One existing owner-session gate; no second account or media service.
+   try{
+    const auth=createD2UnifiedOwnerSession({
+     AUTH_DB,ownerGitHubId:265665562,origin,csrfKey,now,
+    });
+    await auth.authorizeStatus(request);
+   }catch{return fail(403,'MEDIA_NOT_AUTHORIZED');}
+   try{
+    // Join current D1 records and published references in one read.
+    // Stage-only R2 objects have no D1 reference and cannot enter the list.
+    const query=await CONTENT_DB.prepare(`
+     SELECT r.logical_path,r.domain,r.record_id,r.sha256,
+      o.storage_key,o.mime,o.bytes,
+      COALESCE(g.record_json,k.record_json,c.record_json) AS record_json,
+      CASE r.domain WHEN 'gear' THEN g.notes_text
+       WHEN 'kb' THEN k.content_text ELSE c.notes_text END AS markdown
+     FROM d6_media_refs r
+     JOIN d6_media_objects o ON o.sha256=r.sha256
+     LEFT JOIN d6_gear_records g
+      ON r.domain='gear' AND g.id=r.record_id
+     LEFT JOIN d6_kb_records k
+      ON r.domain='kb' AND k.id=r.record_id
+     LEFT JOIN d6_catch_records c
+      ON r.domain='catches' AND c.id=r.record_id
+     ORDER BY r.logical_path
+    `).all();
+    if(!Array.isArray(query?.results)||query.results.length>10000)
+     return fail(503,'MEDIA_REGISTRY_UNVERIFIED');
+    const paths=[];
+    for(const row of query.results){
+     const d=DOMAINS[row.domain];
+     if(!d||!idValid(row.record_id)||!SHA.test(row.sha256??'')||
+        row.storage_key!==entryKey(row.sha256)||
+        !MIME.has(row.mime)||!Number.isSafeInteger(row.bytes)||
+        row.bytes<1||row.bytes>D6_MEDIA_LIMIT_BYTES)
+      return fail(503,'MEDIA_REGISTRY_UNVERIFIED');
+     let record;
+     try{record=JSON.parse(row.record_json);}
+     catch{return fail(503,'MEDIA_REGISTRY_UNVERIFIED');}
+     if(!validators[row.domain](record)||record.id!==row.record_id)
+      return fail(503,'MEDIA_REGISTRY_UNVERIFIED');
+     const role=publishedD6MediaRole({
+      domain:row.domain,record,logicalPath:row.logical_path,
+      notesLinked:isD6NotesImageLinked(row.markdown,row.logical_path),
+     });
+     if(!role)return fail(503,'MEDIA_REGISTRY_UNVERIFIED');
+     const verified=validateD6MediaPath({
+      domain:row.domain,record,logicalPath:row.logical_path,role,
+     });
+     if(verified.mime!==row.mime)
+      return fail(503,'MEDIA_REGISTRY_UNVERIFIED');
+     paths.push(row.logical_path);
+    }
+    return response(200,{ok:true,version:1,paths});
+   }catch{return fail(503,'MEDIA_REGISTRY_UNVERIFIED');}
+  }
   if(url.pathname===ORIGIN_PATH+'publish'){
    if(request.method!=='POST')return fail(405,'METHOD_NOT_ALLOWED');
    const domain=request.headers.get('X-Fish-V3-Media-Domain');
