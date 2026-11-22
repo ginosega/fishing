@@ -8,6 +8,9 @@ import {loadD6PublishedMediaPaths,createD6ContentImageResolver,
  d6ResolveImageForDisplay} from '../src/d6-content-image-resolver.mjs';
 import {noteImageReference} from '../src/notes-markdown-editor.mjs';
 import {D6_MEDIA_SCHEMA_SQL} from '../tools/d6-media-schema.mjs';
+import {createD6SharedMediaStage} from '../server/d6-shared-media-stage.mjs';
+import {createD6OwnerMediaUploadCoordinator} from '../src/d6-owner-media-upload-client.mjs';
+import {saveD6OwnerEditorMedia} from '../src/d6-owner-media-editor-save.mjs';
 import {createD2UnifiedOwnerSession}
  from '../../experiments/p3/preview/src/d2-unified-owner-session.mjs';
 import {createD6SharedMediaLive,publishD6MediaRevision,
@@ -690,4 +693,101 @@ test('M02 remove Knot sequence keeps representative final frame linked',async()=
  assert.equal((await live.handle(img(frames[0]))).status,404);
  assert.equal((await live.handle(img(frames[1]))).status,200);
  assert.equal(f.count('d6_media_objects'),1);
+});
+
+
+test('M02 source-only owner editor → private stage → atomic D1 Save → R2 readback',async()=>{
+ const f=fixture();
+ f.seed('gear');
+ const cover='Gear/Lures/assets/owner-cover.png';
+ const record={...recordOf('gear'),picture:{src:cover}};
+ // This test uses in-memory SQLite and a fake, private R2 object store.
+ // It never mounts media routes in a Worker or modifies provider state.
+ f.R2.put=async(storageKey,bytes,options)=>{
+  assert.deepEqual(options.onlyIf,{etagDoesNotMatch:'*'});
+  if(f.objects.has(storageKey))return null;
+  const stored={key:storageKey,size:bytes.byteLength,
+   bytes:new Uint8Array(bytes),
+   httpMetadata:options.httpMetadata,
+   customMetadata:options.customMetadata};
+  f.objects.set(storageKey,stored);
+  return stored;
+ };
+ const stage=createD6SharedMediaStage({...f.params,enabled:()=>true});
+ const live=f.live({enabled:()=>true});
+ const csrf=(await f.auth.describe(ownerImageRequest(origin+'/fishing/'))).csrfToken;
+ assert.match(csrf,/^[A-Za-z0-9_-]{43}$/);
+ const calls=[];
+ const reply=body=>new Response(JSON.stringify(body),{
+  status:200,headers:{'Content-Type':'application/json'},
+ });
+ const request=async(url,options={})=>{
+  calls.push({url,method:options.method});
+  if(url.endsWith('-csrf'))return reply({ok:true,csrfToken:csrf});
+  if(url===origin+'/api/v3/content/gear/'+record.id){
+   const row=f.query('SELECT revision,record_json,notes_text '+
+    'FROM d6_gear_records WHERE id=?',record.id);
+   return reply({ok:true,revision:row.revision,
+    record:JSON.parse(row.record_json),notes:row.notes_text});
+  }
+  const actual=ownerImageRequest(url,{
+   method:options.method,
+   headers:{...options.headers,Origin:origin},
+   ...(options.body!==undefined?{body:options.body}:{}),
+  });
+  if(url===origin+'/api/v3/media/stage')
+   return stage.handle(actual);
+  return live.handle(actual);
+ };
+ const previousBitmap=globalThis.createImageBitmap;
+ // Node has no browser image decoder; use the real PNG bytes and a
+ // deterministic 1x1 bitmap for the browser-only dimension probe.
+ globalThis.createImageBitmap=async()=>({
+  width:1,height:1,close(){},
+ });
+ try{
+  const client=createD6OwnerMediaUploadCoordinator({
+   root:origin+'/fishing/',request,enabled:()=>true,
+   readingMode:()=> 'Automatic',
+  });
+  const file=new File([image],'owner-cover.png',{type:'image/png'});
+  const saved=await saveD6OwnerEditorMedia({
+   domain:'gear',record,markdown:'Updated owner Notes',
+   expectedRevision:1,
+   uploads:[{path:cover,role:'cover',file}],
+   capabilities:{canUploadNewImages:true},
+   coordinator:client,
+  });
+  assert.equal(saved.verified,true);
+  assert.equal(saved.revision,2);
+  assert.equal(f.count('d6_media_refs'),1);
+  assert.equal(f.count('d6_media_objects'),1);
+  assert.equal(f.query('SELECT revision FROM d6_gear_records').revision,2);
+  assert.deepEqual(calls.filter(x=>x.method==='POST').map(x=>x.url),[
+   origin+'/api/v3/media/stage',origin+'/api/v3/media/publish']);
+  assert.equal(calls.filter(x=>x.method==='HEAD').length,1);
+  const manifest=await live.handle(ownerImageRequest(
+   origin+'/api/v3/media/manifest'));
+  assert.equal(manifest.status,200);
+  assert.deepEqual((await manifest.json()).paths,[cover]);
+  const img=await live.handle(ownerImageRequest(
+   origin+'/api/v3/media/live/'+encodedPath(cover)));
+  assert.equal(img.status,200);
+  assert.deepEqual(new Uint8Array(await img.arrayBuffer()),image);
+  assert.equal((await live.handle(new Request(
+   origin+'/api/v3/media/live/'+encodedPath(cover)))).status,403,
+   'private content images still require the owner session');
+  const before=calls.length;
+  const offline=createD6OwnerMediaUploadCoordinator({
+   root:origin+'/fishing/',request,enabled:()=>true,
+   readingMode:()=> 'Work Offline',
+  });
+  await assert.rejects(offline.stage({
+   domain:'gear',record,logicalPath:cover,role:'cover',file,
+  }),{code:'DISABLED'});
+  assert.equal(calls.length,before,'Work Offline did not call a provider');
+ }finally{
+  if(previousBitmap===undefined)delete globalThis.createImageBitmap;
+  else globalThis.createImageBitmap=previousBitmap;
+ }
 });
