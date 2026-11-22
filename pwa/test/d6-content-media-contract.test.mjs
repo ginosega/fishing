@@ -106,7 +106,7 @@ test('V3-M02-04 active reader cannot be spoofed using another origin or path',()
  }
  const source=readFileSync(new URL('../server/d6-direct-gear-worker.mjs',
   import.meta.url),'utf8');
- assert.match(source,/env\\.D6_M02_MEDIA_ENABLED==='true'/);
+ assert.ok(source.includes("env.D6_M02_MEDIA_ENABLED==='true'"));
  // Importing an OFF-by-default handler is not provider activation.
  const config=JSON.parse(readFileSync(new URL(
   '../wrangler.direct-gear-private.jsonc',import.meta.url),'utf8'));
