@@ -551,3 +551,54 @@ test('M02 private published R2 originals require the owner session',async()=>{
  assert.equal((await live.handle(ownerImageRequest(imageUrl))).status,200);
  assert.equal((await live.handle(ownerImageRequest(imageUrl,{method:'HEAD'}))).status,200);
 });
+
+test('M02 same-owner image replacement changes only its D1 reference',async()=>{
+ const f=fixture();f.seed('gear');
+ assert.equal((await f.publish('gear')).status,200);
+ // Different staged object receipt; image decoding is tested at stage.
+ const replacement=image.slice();
+ replacement[replacement.length-1]^=1;
+ const secondSha=createHash('sha256').update(replacement).digest('hex');
+ const secondKey='staged/v1/sha256/'+secondSha;
+ f.objects.set(secondKey,{
+  key:secondKey,size:replacement.length,bytes:replacement,
+  httpMetadata:{contentType:'image/png'},
+  customMetadata:{sha256:secondSha},
+ });
+ const second=await f.publish('gear',{expectedRevision:2,
+  media:[{logicalPath:pathOf('gear'),sha256:secondSha,
+   bytes:replacement.length,contentType:'image/png'}]});
+ assert.equal(second.status,200,second.error);
+ assert.equal(second.result.revision,3);
+ assert.equal(f.count('d6_media_refs'),1);
+ assert.equal(f.count('d6_media_objects'),2);
+ const ref=f.query('SELECT sha256 FROM d6_media_refs WHERE logical_path=?',
+  pathOf('gear'));
+ assert.equal(ref.sha256,secondSha);
+ const response=await f.live({enabled:()=>true}).handle(
+  ownerImageRequest(f.url('gear')));
+ assert.equal(response.status,200);
+ assert.equal(response.headers.get('ETag'),'"'+secondSha+'"');
+ assert.deepEqual(new Uint8Array(await response.arrayBuffer()),replacement);
+});
+test('M02 a different owner cannot steal a published cover reference',async()=>{
+ const f=fixture(),cover='Gear/Lures/assets/shared-cover.png';
+ const first={...recordOf('gear'),picture:{src:cover}};
+ const second={...recordOf('gear'),id:'other-lure',
+  name:'Another lure',notes:'Gear/Lures/content/Other Lure.md',
+  picture:{src:cover}};
+ const uploaded=[{logicalPath:cover,sha256:sha,bytes:image.length,
+  contentType:'image/png'}];
+ f.seed('gear',1,first,'First');
+ assert.equal((await f.publish('gear',{record:first,markdown:'First',
+  media:uploaded})).status,200);
+ f.seed('gear',1,second,'Second base');
+ const conflict=await f.publish('gear',{record:second,markdown:'Second',
+  media:uploaded});
+ assert.notEqual(conflict.status,200);
+ assert.equal(f.query('SELECT revision FROM d6_gear_records WHERE id=?',
+  second.id).revision,1,'the other record is not partly saved');
+ assert.equal(f.query('SELECT record_id FROM d6_media_refs WHERE logical_path=?',
+  cover).record_id,first.id);
+ assert.equal(f.count('d6_media_refs'),1);
+});
