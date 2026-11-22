@@ -23,7 +23,7 @@
     "D6_READ_TOKEN_ENABLED": "false",
     "D6_SIGNER_ENABLED": "false",
     "D6_HOSTED_PREFLIGHT_ENABLED": "false",
-    "D6_M02_MEDIA_ENABLED": "false"
+    "D6_M02_MEDIA_ENABLED": "true"
   },
   "d1_databases": [
     {

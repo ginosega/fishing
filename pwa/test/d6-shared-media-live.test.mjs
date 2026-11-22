@@ -377,8 +377,8 @@ test('V3-MEDIA-LIVE11 existing Worker stages source routes only behind opt-in',(
  assert.match(worker,/env\.MEDIA_R2/);
  const deployed=JSON.parse(readFileSync(new URL(
   '../wrangler.direct-gear-private.jsonc',import.meta.url),'utf8'));
- assert.equal(deployed.vars.D6_M02_MEDIA_ENABLED,'false',
-  'R2 declaration must not enable source-only M02 routes');
+ assert.equal(deployed.vars.D6_M02_MEDIA_ENABLED,'true',
+  'M02 activation is approved for the isolated private Worker only');
  assert.deepEqual(deployed.r2_buckets,[{
   binding:'MEDIA_R2',bucket_name:'fishing-v3-owner-media-test',
  }], 'owner-approved private R2 binding is source-only until deployment');
