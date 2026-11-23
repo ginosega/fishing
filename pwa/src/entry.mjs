@@ -8,6 +8,8 @@ import {createD6DirectKBClient} from './d6-direct-kb-client.mjs';
 import {createD6DirectCatchClient} from './d6-direct-catch-client.mjs';
 import {createD6OfflineContentTransport}
  from './d6-offline-content-transport.mjs';
+import {readD6OfflineContent}
+ from './d6-offline-content-reader.mjs';
 import {installPageHero} from './page-hero.mjs';
 const settings=globalThis.__FISHING_BOOT__;
 installPageHero();
@@ -41,6 +43,10 @@ const privateR2CardThumbnails=
 const privateOfflineContentPrep=
  typeof __FISHING_D6_O02_OFFLINE_CONTENT__!=='undefined'&&
  __FISHING_D6_O02_OFFLINE_CONTENT__===true;
+// O03 is a separate, source-only reader flag. O02 hosted release is untouched.
+const privateOfflineContentRead=
+ typeof __FISHING_D6_O03_OFFLINE_READING__!=='undefined'&&
+ __FISHING_D6_O03_OFFLINE_READING__===true;
 function d6Context(){
  if(!d6Reader)return {};
  const reader=selectD6PublicReader({enabled:true,staticStaging:d6StaticStaging,wp2Staging:d6Wp2Staging,
@@ -103,6 +109,13 @@ function d6Context(){
     settings.release?.d6OfflineContentPreparation!==true||
     settings.manifest?.d6OfflineContentPreparation!==true))
   throw Error('O02 offline preparation needs verified private M03 release identity');
+ if(privateOfflineContentRead&&(!privateOfflineContentPrep||
+    settings.release?.d6OfflineContentReading!==true||
+    settings.manifest?.d6OfflineContentReading!==true))
+  throw Error('O03 offline reading requires verified private O02 release identity');
+ const offlineContentReader=privateOfflineContentRead?
+  ()=>readD6OfflineContent({caches:globalThis.caches,
+   scope:settings.root}):null;
  const offlineContentTransportFactory=privateOfflineContentPrep?
   ({readingMode})=>createD6OfflineContentTransport({
    root:settings.root,request:(url,options)=>fetch(url,options),
@@ -127,7 +140,7 @@ function d6Context(){
   liveMediaReadApproved:privateOwnerMediaCandidate,
   thumbnailReadApproved:privateR2CardThumbnails,
   ownerMediaUploadCandidate:privateOwnerMediaCandidate,
-  offlineContentTransportFactory}};
+  offlineContentTransportFactory,offlineContentReader}};
 }
 Promise.resolve().then(()=>bootstrap(settings,d6Context())).catch(error=>{
  const main=document.getElementById('app');main.replaceChildren();
