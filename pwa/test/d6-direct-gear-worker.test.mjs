@@ -141,3 +141,22 @@ test('M02 Worker default-OFF denies private media routes without R2/flag',async(
   'stage is POST only');
  assert.equal(calls,0,'no R2 access for unauthorized requests');
 });
+
+test('O02-HTTP05 existing Worker denies new route without BOTH private gates',async()=>{
+ const {env,worker}=pilot();
+ const route=origin+'/api/v3/content/offline-snapshot';
+ assert.equal((await worker.fetch(new Request(route),env)).status,503);
+ const R2={head:async()=>null,get:async()=>null,put:async()=>null};
+ const bound={...env,WP3_DB:{...env.WP3_DB,batch:async()=>[]},
+  MEDIA_R2:R2,D6_DIRECT_KB_ENABLED:'true',
+  D6_DIRECT_CATCH_ENABLED:'true',D6_M02_MEDIA_ENABLED:'true'};
+ assert.equal((await worker.fetch(new Request(route),bound)).status,503);
+ const opt={...bound,D6_O02_OFFLINE_SNAPSHOT_ENABLED:'true'};
+ assert.equal((await worker.fetch(new Request(route),opt)).status,403,
+  'owner auth remains mandatory, even with source-only flag enabled');
+ assert.equal((await worker.fetch(new Request(route+'?id=1'),opt)).status,404);
+ const cfg=JSON.parse(readFileSync(new URL(
+  '../wrangler.direct-gear-private.jsonc',import.meta.url),'utf8'));
+ assert.equal(cfg.vars.D6_O02_OFFLINE_SNAPSHOT_ENABLED,undefined,
+  'already approved private config must NOT activate O02');
+});
