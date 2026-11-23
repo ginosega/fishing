@@ -8,6 +8,7 @@ import {readVerifiedD6OfflineContent}
 import {validateRecords,validateLibraryPaths} from './validation.mjs';
 import {verifyD6OriginalIds} from './d6-original-id-ledger.mjs';
 import {DOMAIN} from './shared.mjs';
+import {parseMarkdown} from './markdown.mjs';
 
 const unavailable=()=>Object.assign(
  new Error('The current offline content library is unavailable. Connect online and update the offline library.'),
@@ -35,11 +36,28 @@ export async function readD6OfflineContent({
    }else if(row.markdown)throw unavailable();
   }
  }
- try{validateRecords(data);validateLibraryPaths(data);}
+ let maps,routes;
+ try{maps=validateRecords(data);routes=validateLibraryPaths(data);}
  catch{throw unavailable();}
  for(const image of snapshot.images){
   if(images.has(image.logicalPath))throw unavailable();
   images.set(image.logicalPath,image);
+ }
+ // A damaged or incomplete snapshot must never silently omit a visible
+ // Cover, Knot sequence frame or Notes image while reporting offline ready.
+ const exists=new Set([...images.keys(),...markdown.keys()]);
+ for(const row of snapshot.records){
+  const pic=row.record.picture?.src;
+  if(pic&&!images.has(pic))throw unavailable();
+  for(const path of row.record.pictureSequence??[])
+   if(!images.has(path))throw unavailable();
+  const owner=row.record[row.domain==='kb'?'content':'notes'];
+  if(row.markdown){
+   try{parseMarkdown(row.markdown,{
+    owner,maps,pathRoutes:routes,exists,
+    assetBase:scope,allowMissingImages:false,
+   });}catch{throw unavailable();}
+  }
  }
  const base=new URL(scope);
  const image=path=>{
