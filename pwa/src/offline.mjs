@@ -122,6 +122,25 @@ export function createOffline({root,releaseId,onStatus,isDirty,notify,
    window.addEventListener('online',becameActive);
    document.addEventListener('visibilitychange',becameActive);
    await navigator.serviceWorker.ready;await command('STATUS');
+   // O03 restores verified *content* readiness independently after restart.
+   // Software Ready alone must never imply that a V3 fishing snapshot exists.
+   if(typeof verifyContent==='function'){
+    try{
+     const content=await verifyContent();
+     if(content?.source!=='v3-content'||!content.contentId||
+        !Number.isSafeInteger(content.imageObjects))
+      throw Error('Current content not verified');
+     publish({contentPreparation:{
+      phase:'complete',libraryReady:true,previousVerified:true,
+      completed:content.imageObjects,total:content.imageObjects,
+      restored:true,
+     }});
+    }catch{
+     publish({contentPreparation:{
+      phase:'error',reason:'content',previousVerified:false,
+     }});
+    }
+   }
    await refreshMode();await checkCurrent();
   }catch(error){publish({state:'Incomplete',message:error.message});}
  }
