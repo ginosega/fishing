@@ -33,6 +33,8 @@ const d6DirectCatchSave=args.includes('--d6-direct-catch-save');
 const d6OwnerMediaUpload=args.includes('--d6-owner-media-upload');
 // M03 private card derivatives require an explicit source-build opt-in.
 const d6R2CardThumbnails=args.includes('--d6-r2-card-thumbnails');
+// O02 private source-only opt-in, separate from all existing releases.
+const d6OfflineContentPreparation=args.includes('--d6-o02-offline-content');
 // WP2 production-shaped isolated host; never the Stage A static-only mode.
 const d6Wp2Staging=args.includes('--d6-wp2-hosted-candidate');
 if(d6Wp2Staging&&(!d6ReaderCandidate||!d6OwnerConnectionCandidate||
@@ -56,6 +58,8 @@ if(d6OwnerMediaUpload&&(!d6ReaderCandidate||!d6Wp2Staging||
  throw Error('Private owner media requires complete isolated direct-D1 owner build');
 if(d6R2CardThumbnails&&!d6OwnerMediaUpload)
  throw Error('M03 R2 card thumbnails require private owner media build');
+if(d6OfflineContentPreparation&&!d6R2CardThumbnails)
+ throw Error('O02 offline preparation requires isolated private M03 build');
 if(d6OwnerConnectionCandidate&&(!d6ReaderCandidate||d6StaticStaging))
  throw Error('D6 owner Connection Status requires non-staging D6 reader');
 if(d6StaticStaging&&!d6ReaderCandidate)
@@ -98,7 +102,8 @@ export async function build(){
      '__FISHING_D6_DIRECT_KB_SAVE__':d6DirectKBSave?'true':'false',
      '__FISHING_D6_DIRECT_CATCH_SAVE__':d6DirectCatchSave?'true':'false',
      '__FISHING_D6_OWNER_MEDIA_UPLOAD__':d6OwnerMediaUpload?'true':'false',
-     '__FISHING_D6_R2_CARD_THUMBNAILS__':d6R2CardThumbnails?'true':'false'}});
+     '__FISHING_D6_R2_CARD_THUMBNAILS__':d6R2CardThumbnails?'true':'false',
+      '__FISHING_D6_O02_OFFLINE_CONTENT__':d6OfflineContentPreparation?'true':'false'}});
   const baseCss=await fs.readFile(path.join(repo,'pwa/src/styles.css')),cardIconCss=await fs.readFile(path.join(repo,'pwa/src/card-icons.css')),pageHeroCss=await fs.readFile(path.join(repo,'pwa/src/page-hero.css')),css=Buffer.concat([baseCss,Buffer.from('\n'),cardIconCss,Buffer.from('\n'),pageHeroCss]);
   const inputHashes=await hashFiles(content),thumbnailHashes=thumbs?await hashFiles(path.join(tmp,'card-thumbnails')):[],staticImageHashes=await hashFiles(path.join(tmp,'static-page-artwork')),originalStaticImageHashes=await hashFiles(pageAssetsRoot);const lock=await fs.readFile(path.join(repo,'pwa/package-lock.json'));
   const codeHashes=[];for(const dir of ['src','tools'])for(const file of await hashFiles(path.join(repo,'pwa',dir)))codeHashes.push({...file,path:dir+'/'+file.path});
@@ -110,6 +115,7 @@ export async function build(){
   ...(d6DirectCatchSave?{d6DirectCatchSave:true}:{}),
   ...(d6OwnerMediaUpload?{d6OwnerMediaUpload:true}:{}),
   ...(d6R2CardThumbnails?{d6R2CardThumbnails:true}:{}),
+   ...(d6OfflineContentPreparation?{d6OfflineContentPreparation:true}:{}),
     ...(d6Wp2Staging?{d6Wp2Staging:true}:{}),cardThumbnails:thumbs?.mapping||null,thumbnailFiles:thumbnailHashes,files:inputHashes,staticArt:staticImageHashes,sourceStaticArt:originalStaticImageHashes,icon:digest(icon),maskableIcon:digest(maskableIcon),app:digest(app.outputFiles[0].contents),css:digest(css),lock:digest(lock),code:codeHashes}))).slice(0,32);
   const releaseRoot=path.join(tmp,'releases',releaseId);await fs.mkdir(releaseRoot,{recursive:true});await fs.rename(content,path.join(releaseRoot,'content'));if(thumbs)await fs.rename(path.join(tmp,'card-thumbnails'),path.join(releaseRoot,'card-thumbnails'));await fs.rename(path.join(tmp,'static-page-artwork','card-icons'),path.join(releaseRoot,'card-icons'));await fs.rename(path.join(tmp,'static-page-artwork','page-hero'),path.join(releaseRoot,'page-hero'));
   await write(path.join(releaseRoot,'app.js'),app.outputFiles[0].contents);await write(path.join(releaseRoot,'styles.css'),css);
@@ -123,6 +129,7 @@ export async function build(){
   ...(d6DirectCatchSave?{d6DirectCatchSave:true}:{}),
   ...(d6OwnerMediaUpload?{d6OwnerMediaUpload:true}:{}),
   ...(d6R2CardThumbnails?{d6R2CardThumbnails:true}:{}),
+   ...(d6OfflineContentPreparation?{d6OfflineContentPreparation:true}:{}),
     ...(d6Wp2Staging?{d6Wp2Staging:true}:{})};
   const loader=await fs.readFile(path.join(repo,'pwa/src/loader.js'));
   const index=`<!doctype html>\n<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#11665c"><meta name="description" content="Fishing reference and catch log"><link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icon.png" type="image/png"><link rel="apple-touch-icon" href="./icon.png"><style>${baseCss.toString()}</style><title>Fishing Companion</title><script defer src="./loader.js"></script></head><body><div class="preview-banner"${pendingMedia?'':' hidden'}>V2 preview · Pending media · Production remains unchanged</div><header class="site-header"><div class="header-inner"><a class="brand" data-nav href="#/">Fishing <span>Companion</span></a><button id="connection-status" class="connection-status" type="button" title="Connection status" aria-label="Connection status"><span class="connection-dot" aria-hidden="true"></span></button></div></header><main id="app" class="site-main" tabindex="-1"><p>Loading Fishing Companion…</p></main><aside id="app-notice" class="site-main" aria-live="polite" style="min-height:0;padding-top:0;padding-bottom:0"></aside><dialog id="connection-dialog" class="small-dialog" aria-labelledby="connection-title"><h2 id="connection-title">Connection status</h2><p id="connection-network"></p><div class="offline-panel"><span id="offline-status" class="offline-state" role="status">Offline library not prepared</span><div class="toolbar"><button id="offline-update" class="btn secondary" type="button" disabled>Update offline library</button><button id="offline-reload" class="btn secondary" type="button" disabled>Reload</button></div></div><button id="connection-close" class="btn secondary dialog-close" type="button">Close</button></dialog>${base==='/fishing/v2-preview/'?'<footer class="site-footer"><div class="footer-inner"><span id="release-details"></span></div></footer>':''}</body></html>\n`;
@@ -143,6 +150,7 @@ export async function build(){
   ...(d6DirectCatchSave?{d6DirectCatchSave:true}:{}),
   ...(d6OwnerMediaUpload?{d6OwnerMediaUpload:true}:{}),
   ...(d6R2CardThumbnails?{d6R2CardThumbnails:true}:{}),
+   ...(d6OfflineContentPreparation?{d6OfflineContentPreparation:true}:{}),
     ...(d6Wp2Staging?{d6Wp2Staging:true}:{}),files,cardThumbnails:thumbs?.mapping||null,totalBytes:files.reduce((sum,x)=>sum+x.bytes,0),counts:{gear:library.data.gear.items.length,kb:library.data.kb.entities.length,catches:library.data.catches.catches.length},unresolvedMedia:library.pending};
   const manifestBytes=stableJson(manifest);
   await write(path.join(tmp,release.manifest),manifestBytes);
