@@ -129,8 +129,14 @@ export function createD6DirectGearWorker({
   // All other routes delegate to the previously reviewed WP2 OAuth/read
   // runtime. No GitHub write authority is constructed or requested here.
   try{
+   // V3 retains GitHub OAuth for owner identity, never the retired
+   // GitHub authoring-source or App blob/content reader. These gates remain
+   // OFF even if an obsolete staging variable is accidentally reenabled.
+   const authEnv={...env,
+    D6_SOURCE_ENABLED:'false',D6_READ_TOKEN_ENABLED:'false',
+    D6_SIGNER_ENABLED:'false',D6_HOSTED_PREFLIGHT_ENABLED:'false'};
    const read=createD6ProductionRuntimeBindingContract({
-    env,network,cryptoApi,now,
+    env:authEnv,network,cryptoApi,now,
    });
    return await read.fetch(request);
   }catch{return respond(503,'UNAVAILABLE');}
