@@ -24,7 +24,8 @@
     "D6_SIGNER_ENABLED": "false",
     "D6_HOSTED_PREFLIGHT_ENABLED": "false",
     "D6_M02_MEDIA_ENABLED": "true",
-    "D6_M03_THUMBNAILS_ENABLED": "true"
+    "D6_M03_THUMBNAILS_ENABLED": "true",
+    "D6_O02_OFFLINE_SNAPSHOT_ENABLED": "true"
   },
   "d1_databases": [
     {
