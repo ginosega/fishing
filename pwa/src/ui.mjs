@@ -56,8 +56,10 @@ export function createApp(ctx){
  let routes=markdownRouteMap(ctx.data);const exists=new Set(ctx.manifest.files.filter(x=>x.path.startsWith(`releases/${ctx.release.id}/content/`)).map(x=>x.path.slice(`releases/${ctx.release.id}/content/`.length)));
  if(ctx.mediaLiveReader===true&&ctx.mediaPublishedPaths instanceof Set)
   for(const verified of ctx.mediaPublishedPaths)exists.add(verified);
+ if(ctx.offlineMarkdown instanceof Map)
+  for(const verified of ctx.offlineMarkdown.keys())exists.add(verified);
  let currentHash=location.hash||'#/',route=parseRoute(currentHash),editor=null,serial=0,offline=null,approvedNavigation=null,previousHash=null;
- // Frozen static Gear remains the read-only Work Offline fallback.
+ // O03 reads the verified V3 content cache in Work Offline.
  // Only a verified Automatic-mode 100-row D1 response becomes online canonical.
  let gearCatalogReady=ctx.v3?.contentSource==='d1',gearCatalogPending=null;
  async function ensureGearCatalog(){
@@ -76,7 +78,7 @@ export function createApp(ctx){
   return gearCatalogPending;
  }
  const gearPage=page=>['gear-root','gear-list','gear-detail','gear-edit'].includes(page);
- // The immutable KB catalog remains the Work Offline fallback.
+ // O03 uses the same coherent V3 KB snapshot.
  let kbCatalogReady=ctx.v3?.contentSource==='d1',kbCatalogPending=null;
  async function ensureKBCatalog(){
   if(ctx.v3?.directKBEnabled!==true||navigator.onLine!==true||
@@ -241,7 +243,20 @@ export function createApp(ctx){
   article.addEventListener('click',event=>{const a=event.target.closest('a[href^="#/"]');if(a){event.preventDefault();navigate(a.getAttribute('href'));}});
   return article;
  }
- async function appendMarkdown(page,pathValue,heading){if(!pathValue)return;const response=await fetch(ctx.asset(pathValue));if(!response.ok)throw new Error(`Cannot load ${pathValue}: HTTP ${response.status}`);const content=await response.text();page.append(section(heading,await markdownContent(pathValue,content)));}
+ async function appendMarkdown(page,pathValue,heading){
+  if(!pathValue)return;
+  let content;
+  if(ctx.offlineMarkdown instanceof Map){
+   if(!ctx.offlineMarkdown.has(pathValue))
+    throw Error('Verified offline Notes unavailable: '+pathValue);
+   content=ctx.offlineMarkdown.get(pathValue);
+  }else{
+   const response=await fetch(ctx.asset(pathValue));
+   if(!response.ok)throw new Error(`Cannot load ${pathValue}: HTTP ${response.status}`);
+   content=await response.text();
+  }
+  page.append(section(heading,await markdownContent(pathValue,content)));
+ }
  function historySection(domain,record){const catches=catchHistory(ctx.data,domain,record.id);if(!catches.length)return null;return section('Catch History',el('div',{class:'record-grid'},...catches.map(c=>recordCard('catches',c))));}
  async function renderDetail(domain,id){
   let record=ctx.maps[domain].get(id),directNotes=null;
@@ -602,7 +617,7 @@ export function createApp(ctx){
   // Preserve a dirty owner draft; never reload over unsaved editor changes.
   if(available&&!dirty()&&!contentBootReloadPending&&
      ((ctx.v3?.contentSource==='d1'&&mode==='Work Offline')||
-      (ctx.v3?.contentSource==='release'&&mode==='Automatic'&&
+      (['release','v3-content'].includes(ctx.v3?.contentSource)&&mode==='Automatic'&&
        navigator.onLine===true&&
        ctx.v3?.directGearEnabled===true&&
        ctx.v3?.directKBEnabled===true&&
