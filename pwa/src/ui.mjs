@@ -16,6 +16,7 @@ import {bindMarkdownPictureViewer} from './markdown-viewer.mjs';
 import {createOffline} from './offline.mjs';
 import {effectiveConnectionOnline} from './connection-indicator.mjs';
 import {v3OfflineLibraryActionLabel} from './v3-offline-library-action.mjs';
+import {v3OfflineLibraryDisplay} from './v3-offline-library-status.mjs';
 import {createD6OwnerConnectionAdapter} from './d6-owner-connection-adapter.mjs';
 import {mountV3ConnectionExperience} from './v3-connection-experience.mjs';
 import {formatV3Diagnostics} from './diagnostics.mjs';
@@ -340,19 +341,16 @@ export function createApp(ctx){
   root:ctx.root,releaseId:ctx.release.id,v3ReadingMode:readerOnly,
   onMode:(_mode,_available,feedback)=>updateModeControls(feedback),
   onStatus:state=>{
-   const needsUpdate=state.state==='Incomplete'&&Boolean(state.message);
-   const label=state.state==='Ready'?(navigator.onLine?
-    (state.releaseId===ctx.release.id?`Offline library ready · current · ${state.files||0} files`:
-    `Offline library ready · update available · ${state.files||0} files`):
-    `Offline library ready · ${state.files||0} files`):
-    state.state==='Downloading'?
-     `Preparing offline library · ${state.completed||0}/${state.files||'?'} files`:
-     needsUpdate?'Offline library needs update':'Offline library not prepared';
-   offlineHost.replaceChildren(text('span',label),
-    ...(state.message?[text('span',state.message,'hint')]:[]));
+   // Source-only O02 status events do not replace the old FISH091 contract.
+   // Only a separately verified future bridge sets contentPreparation.
+   const display=v3OfflineLibraryDisplay(state,{
+    online:navigator.onLine,currentReleaseId:ctx.release.id,
+   });
+   offlineHost.replaceChildren(text('span',display.label),
+    ...(display.message?[text('span',display.message,'hint')]:[]));
    offlineHost.dataset.state=state.state;
    offlineHost.dataset.releaseId=state.releaseId||'';
-   const busy=Boolean(state.updating)||state.state==='Downloading';
+   const busy=display.busy;
    if(!readerOnly)document.getElementById('offline-reload').disabled=busy;
    const update=document.getElementById('offline-update');
    if(readerOnly)update.textContent=v3OfflineLibraryActionLabel(state);
