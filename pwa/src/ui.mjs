@@ -63,7 +63,8 @@ export function createApp(ctx){
  // Only a verified Automatic-mode 100-row D1 response becomes online canonical.
  let gearCatalogReady=ctx.v3?.contentSource==='d1',gearCatalogPending=null;
  async function ensureGearCatalog(){
-  if(ctx.v3?.directGearEnabled!==true||navigator.onLine!==true||
+  if(ctx.v3?.contentSource==='v3-content'||
+     ctx.v3?.directGearEnabled!==true||navigator.onLine!==true||
      offline?.getModeAvailable?.()!==true||offline.getMode()!=='Automatic')return;
   if(gearCatalogReady)return;
   if(gearCatalogPending)return gearCatalogPending;
@@ -81,7 +82,8 @@ export function createApp(ctx){
  // O03 uses the same coherent V3 KB snapshot.
  let kbCatalogReady=ctx.v3?.contentSource==='d1',kbCatalogPending=null;
  async function ensureKBCatalog(){
-  if(ctx.v3?.directKBEnabled!==true||navigator.onLine!==true||
+  if(ctx.v3?.contentSource==='v3-content'||
+     ctx.v3?.directKBEnabled!==true||navigator.onLine!==true||
      offline?.getModeAvailable?.()!==true||offline.getMode()!=='Automatic')return;
   if(kbCatalogReady)return;
   if(kbCatalogPending)return kbCatalogPending;
@@ -100,7 +102,8 @@ export function createApp(ctx){
   new Set(ctx.data.catches.catches.map(x=>x.id));
  let catchCatalogReady=ctx.v3?.contentSource==='d1',catchCatalogPending=null;
  async function ensureCatchCatalog(){
-  if(ctx.v3?.directCatchEnabled!==true||navigator.onLine!==true||
+  if(ctx.v3?.contentSource==='v3-content'||
+     ctx.v3?.directCatchEnabled!==true||navigator.onLine!==true||
      offline?.getModeAvailable?.()!==true||offline.getMode()!=='Automatic')return;
   if(catchCatalogReady)return;
   if(catchCatalogPending)return catchCatalogPending;
@@ -361,7 +364,9 @@ export function createApp(ctx){
     options=>ctx.v3.offlineContentTransportFactory({
      readingMode:()=>offline?.getMode?.()||'Checking',
     }).prepare(options):null,
-  onMode:(_mode,_available,feedback)=>updateModeControls(feedback),
+  verifyContent:readerOnly&&typeof ctx.v3?.offlineContentReader==='function'?
+    ()=>ctx.v3.offlineContentReader():null,
+   onMode:(_mode,_available,feedback)=>updateModeControls(feedback),
   onStatus:state=>{
    // Source-only O02 status events do not replace the old FISH091 contract.
    // Only a separately verified future bridge sets contentPreparation.
@@ -671,7 +676,14 @@ export function createApp(ctx){
  const initialEditorRoute=ownerEditorPreview&&
   ['gear-edit','gear-add','kb-edit','kb-add','catch-edit','catch-add']
    .includes(route.page);
- if(initialEditorRoute){
+ // Reconnecting in Automatic re-bootstraps the entire D1 graph.
+  // Never mix D1 records into an older V3 offline snapshot.
+  if(ctx.v3?.contentSource==='v3-content')
+   window.addEventListener('online',()=>{
+    if(offline?.getMode?.()==='Automatic'&&!dirty())
+     location.reload();
+   });
+  if(initialEditorRoute){
   root.replaceChildren(el('div',{class:'loading'},'Loading…'));
   void offline.start().then(()=>render());
  }else{
