@@ -93,7 +93,7 @@ test('O02 reuses hash-verified unchanged R2 bytes and fetches only new image',as
   fetchImage:async()=>new Response('image-one')});
  const calls=[];
  const result=await prepareD6OfflineContent({
-  snapshot:newer,caches,scope,nonce:()=>nonce()+'-next',
+  snapshot:newer,caches,scope,nonce:()=> '2bcde123-1234-1234-1234-123456789abc',
   fetchImage:async image=>{
    calls.push(image.logicalPath);
    return new Response('image-two');
@@ -113,7 +113,7 @@ test('O02 rejects R2 size/digest mismatch, retains last good selection',async()=
  await prepareD6OfflineContent({snapshot:old,caches,scope,nonce,
   fetchImage:async()=>new Response('image-one')});
  await assert.rejects(prepareD6OfflineContent({
-  snapshot:newer,caches,scope,nonce:()=>nonce()+'-bad',
+  snapshot:newer,caches,scope,nonce:()=> '3bcde123-1234-1234-1234-123456789abc',
   fetchImage:async()=>new Response('tampered'),
  }),/O02_CONTENT_UNVERIFIED: R2 image (size|digest) mismatch/);
  assert.equal((await readVerifiedD6OfflineContent({caches,scope})).contentId,
@@ -128,7 +128,7 @@ test('O02 aborts quota failure without selecting incomplete generation',async()=
  caches.setFailure((name,url)=>name.includes('generation:')&&
   url.includes('__fishing_v3_content_image__/'));
  await assert.rejects(prepareD6OfflineContent({
-  snapshot:newer,caches,scope,nonce:()=>nonce()+'-quota',
+  snapshot:newer,caches,scope,nonce:()=> '4bcde123-1234-1234-1234-123456789abc',
   fetchImage:async()=>new Response('image-two'),
  }),/QuotaExceededError|Quota exceeded/);
  assert.equal((await readVerifiedD6OfflineContent({caches,scope})).contentId,
