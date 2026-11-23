@@ -174,7 +174,7 @@ export async function createCatchEditor(ctx,{
   (JSON.stringify(record)!==original||notesText!==initialText);
  const host=el('div',{class:'editor'}),form=el('form',{class:'editor-form'}),
   notice=el('div',{class:'editor-notice','aria-live':'polite'}),
-  actionNotice=el('div',{'aria-live':'polite'}),
+  actionNotice=el('div',{class:'editor-notice editor-action-feedback','aria-live':'polite'}),
   output=el('div',{class:'handoff-output'});
  if(recovery.message)status(notice,recovery.message,
   recovery.status==='restored'||recovery.status==='discarded'?'info':'warning');
