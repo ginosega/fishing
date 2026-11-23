@@ -32,7 +32,7 @@ function normalized(row){
   !validRecord(row.domain,row.record)||typeof row.notes!=='string'||
   typeof row.requiresMedia!=='boolean'||typeof row.updatedAt!=='number')
   throw Error('INVALID_DEVICE_DRAFT');
- const safe={version:1,key:row.key,domain:row.domain,
+ const safe={version:row.version,key:row.key,domain:row.domain,
   sourceRevision:row.sourceRevision,baseHash:row.baseHash,
   ...(row.version===2?{baseRevision:row.baseRevision}:{}),
   record:clone(row.record),notes:row.notes,
