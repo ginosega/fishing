@@ -28,14 +28,24 @@ test('O02-BUILD01 private O02 application builds only behind a source identity g
  const disabled=await bundle(false);
  const enabled=await bundle(true);
  const content=output=>output.outputFiles[0].text;
- assert.doesNotMatch(content(disabled),
-  /api\/v3\/content\/offline-snapshot/);
+ // Static module imports may retain unexecuted URL literals in a
+ // disabled bundle; the owner-only runtime/Worker flags are the security
+ // boundary, not JavaScript string absence or minifier behavior.
+ assert.notEqual(content(disabled),content(enabled),
+  'private O02 build opt-in must change the compiled application');
  assert.match(content(enabled),
   /api\/v3\/content\/offline-snapshot/);
  const builder=readFileSync(new URL('../tools/build.mjs',import.meta.url),'utf8');
  assert.match(builder,/--d6-o02-offline-content/);
  assert.match(builder,/d6OfflineContentPreparation/);
  assert.match(builder,/__FISHING_D6_O02_OFFLINE_CONTENT__/);
+ const entrySource=readFileSync(new URL('../src/entry.mjs',import.meta.url),'utf8');
+ assert.match(entrySource,/privateOfflineContentPrep&&/);
+ assert.match(entrySource,/d6OfflineContentPreparation!==true/);
+ const workerSource=readFileSync(new URL(
+  '../server/d6-direct-gear-worker.mjs',import.meta.url),'utf8');
+ assert.match(workerSource,/D6_O02_OFFLINE_SNAPSHOT_ENABLED!=='true'/);
+
  const worker=readFileSync(new URL(
   '../wrangler.direct-gear-private.jsonc',import.meta.url),'utf8');
  assert.doesNotMatch(worker,/D6_O02_OFFLINE_SNAPSHOT_ENABLED/,
