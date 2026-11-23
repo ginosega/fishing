@@ -5,7 +5,9 @@ import {readD6OfflineImage} from './d6-offline-content-image-route.mjs';
 
 const scope=self.registration.scope;
 const base=new URL(scope).pathname;
-const prefix='fishing-v2:'+base+':';
+const standaloneV3=typeof __FISHING_D6_STANDALONE_V3__!=='undefined'&&
+ __FISHING_D6_STANDALONE_V3__===true;
+const prefix=(standaloneV3?'fishing-v3-software:':'fishing-v2:')+base+':';
 const metadataName=prefix+'metadata';
 const marker=new URL('__fishing_complete__',scope).href;
 const selectionKey=new URL('__fishing_selected__',scope).href;
@@ -186,7 +188,7 @@ self.addEventListener('install',event=>event.waitUntil(self.skipWaiting()));
 self.addEventListener('activate',event=>event.waitUntil((async()=>{await self.clients.claim();await broadcast('FISHING_V2_STATUS',await state());})()));
 self.addEventListener('message',event=>{
  const message=event.data||{};
- if(message.type==='HELLO')event.ports[0]?.postMessage({protocol:'fishing-companion-v2',base,capabilities:{onlineDefault:true,explicitOffline:true}});
+ if(message.type==='HELLO')event.ports[0]?.postMessage({protocol:standaloneV3?'fishing-companion-v3':'fishing-companion-v2',base,capabilities:{onlineDefault:true,explicitOffline:true}});
  if(message.type==='STATUS')event.waitUntil(state().then(status=>event.ports[0]?.postMessage({type:'FISHING_V2_STATUS',status})));
  if(message.type==='V3_READ_MODE'&&v3ReadingMode)event.waitUntil(
   readingMode().then(mode=>event.ports[0]?.postMessage({
