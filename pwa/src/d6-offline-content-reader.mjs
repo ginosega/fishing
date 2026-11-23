@@ -66,6 +66,7 @@ export async function readD6OfflineContent({
  };
  return Object.freeze({
   source:'v3-content',contentId:verified.contentId,
-  data,markdown,images,image,thumbnail:image,
+  data,markdown,images,imageObjects:snapshot.counts.imageObjects,
+  image,thumbnail:image,
  });
 }
