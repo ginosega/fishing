@@ -167,21 +167,26 @@ async function seedLegacyCache(caches,content){
   new Response(content));
  return cacheName;
 }
-test('O02-NET06 first prep reuses existing FISH091 images only after current SHA proof',async()=>{
+test('L01-NET06 matching V2 FISH091 cache is ignored; clean V3 downloads from R2',async()=>{
  const caches=storage(),current=await snapshot();
  const legacy=await seedLegacyCache(caches,'picture-one');
+ const guarded={...caches,async open(name){
+  assert.equal(name.startsWith('fishing-v2:'),false,
+   'standalone V3 must never read a V2 cache');
+  return caches.open(name);
+ }};
  const {client,calls}=transport(current);
- const result=await client.prepare({caches,scope});
- assert.equal(result.reused,1);
- assert.equal(result.downloaded,0);
- assert.equal(calls.length,1,'no duplicate image download for current SHA');
+ const result=await client.prepare({caches:guarded,scope});
+ assert.equal(result.reused,0);
+ assert.equal(result.downloaded,1);
+ assert.equal(calls.length,2,'first V3 preparation downloads from authenticated R2');
  assert((await caches.keys()).includes(legacy),
-  'existing FISH091 offline library must remain untouched');
- assert.equal((await readVerifiedD6OfflineContent({caches,scope})).contentId,
+  'V2 data remains untouched for owner-manual cleanup');
+ assert.equal((await readVerifiedD6OfflineContent({caches:guarded,scope})).contentId,
   current.contentId);
 });
 
-test('O02-NET07 stale FISH091 candidate never bypasses private R2 fetch',async()=>{
+test('L01-NET07 stale V2 cache cannot influence clean V3 preparation',async()=>{
  const caches=storage(),current=await snapshot();
  await seedLegacyCache(caches,'corrupt-one');
  const {client,calls}=transport(current);

@@ -26,35 +26,6 @@ function originFor(root){
  return app.origin;
 }
 /**
- * Read an already-cached immutable-release image only as a candidate blob.
- * The O02 snapshot engine independently rehashes it against CURRENT R2
- * identity; it must never treat old software content as a second authority.
- * The FISH091 cache and its selected marker are NEVER mutated here.
- */
-async function cachedFISH091Original({caches,scope,image,origin}){
- try{
-  const app=new URL(scope),prefix='fishing-v2:'+app.pathname+':';
-  if(app.origin!==origin||app.pathname!=='/fishing/'||
-     typeof caches?.open!=='function')return null;
-  const metadata=await caches.open(prefix+'metadata');
-  const marker=await metadata.match(new URL('__fishing_selected__',scope).href);
-  if(!marker)return null;
-  const selected=await marker.json();
-  if(typeof selected?.cacheName!=='string'||
-     !selected.cacheName.startsWith(prefix+'offline:')||
-     !/^[a-f0-9]{32}$/.test(selected.releaseId??''))return null;
-  const release=await caches.open(selected.cacheName);
-  const url=new URL('releases/'+selected.releaseId+
-   '/content/'+encodedPath(image.logicalPath),scope).href;
-  const saved=await release.match(url);
-  if(!saved)return null;
-  const expected=saved.headers.get('Content-Length');
-  if(expected!==null&&Number(expected)!==image.bytes)return null;
-  const bytes=await saved.arrayBuffer();
-  return bytes.byteLength===image.bytes?bytes:null;
- }catch{return null;}
-}
-/**
  * Caller must explicitly invoke prepare from the existing Update action.
  * All private media requests remain owner-authenticated and no-store.
  */
@@ -142,9 +113,6 @@ export function createD6OfflineContentTransport({
    const result=await prepareD6OfflineContent({
     snapshot,caches,scope,
     fetchImage:image=>fetchOriginal(image,expected),
-    reuseImage:image=>cachedFISH091Original({
-     caches,scope,image,origin,
-    }),
     onProgress,
     onStatus:value=>{
      // Only signal completion once the selected generation has been
