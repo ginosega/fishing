@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createOffline} from '../src/offline.mjs';
+import {v3OfflineLibraryActionLabel} from '../src/v3-offline-library-action.mjs';
 
 const root='https://example.test/fishing/';
 const releaseId='b'.repeat(32);
@@ -60,9 +61,12 @@ test('O03-MODE01 incomplete content prevents Work Offline even if software is Re
   verified++;
   throw Error('Current content missing');
  },async({offline,calls,notices})=>{
+  assert.equal(offline.getStatus().contentPreparation?.phase,'error');
+  assert.equal(v3OfflineLibraryActionLabel(offline.getStatus()),'Prepare');
   const ok=await offline.setMode('Work Offline');
   assert.equal(ok,false);
-  assert.equal(verified,1);
+  assert.equal(verified,2,
+   'startup verification and mode-change verification both run');
   assert.equal(offline.getMode(),'Automatic');
   assert.equal(calls.includes('V3_SET_MODE'),false);
   assert.ok(notices.some(x=>/Current offline content is unavailable/.test(x)));
@@ -70,20 +74,19 @@ test('O03-MODE01 incomplete content prevents Work Offline even if software is Re
 });
 test('O03-MODE02 verified content authorizes existing software integrity mode gate',async()=>{
  let verified=0;
- await device(async()=>{verified++;return {contentId:'a'.repeat(64)};},
+ await device(async()=>{verified++;return {source:'v3-content',contentId:'a'.repeat(64),imageObjects:1};},
  async({offline,calls})=>{
   assert.equal(await offline.setMode('Work Offline'),true);
-  assert.equal(verified,1);
+  assert.equal(verified,2);
   assert.equal(offline.getMode(),'Work Offline');
   assert.ok(calls.includes('V3_SET_MODE'));
   assert.equal(await offline.setMode('Automatic'),true);
-  assert.equal(verified,1,'switching online needs no V3 snapshot read');
+  assert.equal(verified,2,'switching online needs no extra snapshot read');
  });
 });
-test('O03-MODE03 unflagged V2 mode uses no V3 content verification',async()=>{
- let calls=0;
- await device(async()=>{calls++;},async({calls:workerCalls})=>{
-  assert.ok(workerCalls.includes('V3_READ_MODE'));
-  assert.equal(calls,0);
+test('O03-MODE03 no O03 callback preserves the existing mode behavior',async()=>{
+ await device(null,async({offline,calls})=>{
+  assert.ok(calls.includes('V3_READ_MODE'));
+  assert.equal(offline.getStatus().contentPreparation,undefined);
  });
 });
