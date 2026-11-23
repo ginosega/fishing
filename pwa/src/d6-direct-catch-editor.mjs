@@ -159,12 +159,15 @@ export async function createCatchEditor(ctx,{
  const draftStore=ctx.v3?.drafts??null;
  const draftKey='catches:'+(editing?'edit:'+baseRecord.id:'add:catch');
  const recovery=await restoreD5EditorDraft({store:draftStore,key:draftKey,
-  sourceRevision:ctx.release.sourceRevision,baseHash});
- if(recovery.status==='restored'){
+  sourceRevision:ctx.release.sourceRevision,baseHash,
+  baseRevision:directCatch?directRevision:null});
+ if(recovery.status==='restored'||recovery.status==='review'){
   for(const name of Object.keys(record))delete record[name];
   Object.assign(record,recovery.record);notesText=recovery.notes;
  }
- const draftWritable=!['stale','corrupt','unavailable'].includes(recovery.status);
+ const reviewOnly=recovery.reviewOnly===true;
+ const draftWritable=!reviewOnly&&
+  !['stale','corrupt','unavailable','conflict','legacy'].includes(recovery.status);
  const restoredMediaMissing=recovery.status==='restored'&&recovery.requiresMedia===true;
  let pending=false,accepted=false,notesEditor=null;
  const dirty=()=>!accepted&&
@@ -178,6 +181,11 @@ export async function createCatchEditor(ctx,{
  let draftSequence=0;
  const warnDraft=()=>status(notice,
   'Device draft could not be saved. Keep this editor open until the changes are safely submitted.','warning');
+ const reviewAction=reviewOnly?toolbar(button('Discard saved draft and reload',async()=>{
+  if(!confirm('Discard this saved draft permanently and reload the current server record?'))return;
+  try{await draftStore.discard(draftKey);location.reload();}
+  catch{status(notice,'The saved draft could not be discarded. It was retained.','warning');}
+ },{variant:'danger'})):null;
  const discardDraft=async()=>{
   ++draftSequence;
   if(draftStore&&draftWritable)await draftStore.discard(draftKey);
@@ -192,7 +200,8 @@ export async function createCatchEditor(ctx,{
    return;
   }
   void saveD5EditorDraft({store:draftStore,key:draftKey,domain:'catches',
-   sourceRevision:ctx.release.sourceRevision,baseHash,record,
+   sourceRevision:ctx.release.sourceRevision,baseHash,
+   baseRevision:directCatch?directRevision:null,record,
    notes:notesText,requiresMedia:Boolean(notesEditor?.uploads().length)})
    .then(()=>{if(sequence===draftSequence&&!accepted)
     status(notice,'Draft saved on this device. Nothing has been published.','info');},
@@ -358,6 +367,7 @@ export async function createCatchEditor(ctx,{
   ctx.v3?.mediaCapabilities??DIRECT_D1_MEDIA_CAPABILITIES);
   const submit=el('button',{type:'submit',class:'btn primary'},directCatch?'Save':'Save and Publish');
  const actions=toolbar(submit,button('Cancel',onBack));
+ if(reviewOnly)submit.disabled=true;
  form.append(
   field(baseRecord?'ID':'ID (generated automatically)',idInput),
   field('Date',dateInput),field('Time (optional)',timeInput),
@@ -369,6 +379,7 @@ export async function createCatchEditor(ctx,{
  form.addEventListener('submit',async event=>{
   event.preventDefault();
   if(pending||accepted)return;
+  if(reviewOnly){status(notice,'This saved draft is for copying only. Save is blocked until you discard it and open a fresh edit.','warning');return;}
   pending=true;submit.disabled=true;
   notice.replaceChildren();actionNotice.replaceChildren();
   try{
@@ -457,12 +468,12 @@ export async function createCatchEditor(ctx,{
    status(notice,catchPublicationErrorText(error),'error');
    status(actionNotice,directCatch?'Save was not confirmed. Your edit is preserved.':'Nothing was confirmed as published. Your edit is retained.','error');
   }finally{
-   pending=false;if(!accepted)submit.disabled=false;
+   pending=false;if(!accepted)submit.disabled=reviewOnly;
   }
  });
  if(ctx.v3.source.sandboxOnly===true)
   host.append(text('p',
    'Private sandbox: use fabricated test Catch data only. Real catches belong in the eventual production release.','hint'));
- host.append(notice,form,output);
+ host.append(notice,...(reviewAction?[reviewAction]:[]),form,output);
  return {element:host,isDirty:dirty,discardDraft,dispose:()=>notesEditor.dispose(),record};
 }
