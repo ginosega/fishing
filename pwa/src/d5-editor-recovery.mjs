@@ -1,11 +1,10 @@
 // Provisional D5 editor draft adapter. No background publishing or uploads.
 export async function restoreD5EditorDraft({
- store,key,sourceRevision,baseHash=null,baseRevision=null,
- ask=globalThis.confirm,
+ store,key,sourceRevision,baseHash=null,ask=globalThis.confirm,
 }={}){
  if(!store)return {status:'disabled'};
  let result;
- try{result=await store.read(key,{sourceRevision,baseHash,baseRevision});}
+ try{result=await store.read(key,{sourceRevision,baseHash});}
  catch{return {status:'unavailable',message:'Device draft storage is unavailable; your editor remains usable.'};}
  if(result?.status==='ready'){
   let approved=false;
@@ -18,20 +17,6 @@ export async function restoreD5EditorDraft({
     'Unsent device draft restored. Nothing was published.'};
   try{await store.discard(key);return {status:'discarded'};}
   catch{return {status:'unavailable',message:'Draft could not be discarded. No new changes were made.'};}
- }
- // Changed D1 row or old v1 draft without an auditable row revision.
- // Explicitly allow copying the locally saved text, but never permit a
- // publishing Save or automatic rewrite on top of the newer server record.
- if(['conflict','legacy'].includes(result?.status)&&result?.draft){
-  let approved=false;
-  try{approved=ask('This device draft is not verified against the current record revision. Restore it for copying only? Save will remain blocked. Select Cancel to keep the draft untouched.')===true;}
-  catch{return {status:result.status,
-   message:'The existing device draft was retained. No changes were made.'};}
-  if(approved)return {status:'review',record:result.draft.record,
-   notes:result.draft.notes,requiresMedia:result.draft.requiresMedia,
-   reviewOnly:true,message:'Draft restored for copying only. The server record may have changed; Save is blocked. Copy your edits to a fresh editor, or explicitly discard this saved draft.'};
-  return {status:result.status,
-   message:'The existing device draft was retained. Automatic draft writes are paused to avoid overwriting it.'};
  }
  if(['stale','corrupt'].includes(result?.status)){
   const incompatible=result.status==='stale'?'based on different source content':'invalid';
@@ -50,9 +35,8 @@ export async function restoreD5EditorDraft({
  return {status:'missing'};
 }
 export async function saveD5EditorDraft({store,key,domain,sourceRevision,
- baseHash=null,baseRevision=null,record,notes,requiresMedia=false}={}){
+ baseHash=null,record,notes,requiresMedia=false}={}){
  if(!store)return false;
- await store.save({key,domain,sourceRevision,baseHash,baseRevision,
-  record,notes,requiresMedia});
+ await store.save({key,domain,sourceRevision,baseHash,record,notes,requiresMedia});
  return true;
 }
