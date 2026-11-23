@@ -191,10 +191,10 @@ test('O01 rejects broken Markdown record links and missing local resources',asyn
   const setMarkdown=text=>f.sqlite.prepare(
    'UPDATE d6_kb_records SET content_text=? WHERE id=?'
   ).run(text,'bowline-knot');
-  setMarkdown(original+'\\n\\n[Missing](kb://missing-record)');
+  setMarkdown(original+'\n\n[Missing](kb://missing-record)');
   await assert.rejects(createD6CurrentContentSnapshot(f),
    /O01_SNAPSHOT_UNVERIFIED: Invalid Markdown link/);
-  setMarkdown(original+'\\n\\n[Missing](missing-article.md)');
+  setMarkdown(original+'\n\n[Missing](missing-article.md)');
   await assert.rejects(createD6CurrentContentSnapshot(f),
    /O01_SNAPSHOT_UNVERIFIED: Unresolved Markdown link resource/);
   setMarkdown(original);
