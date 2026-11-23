@@ -8,9 +8,8 @@ import {createCatchEditor as createD6DirectCatchEditor} from './d6-direct-catch-
 import {DOMAIN,GEAR_CATEGORIES,KB_TYPES,ROD_TYPES,EQUIPMENT_TYPES,ID_PATTERN,categoryFolder,safePath,encodedPath,newId,suggestedFilename,sha256,sequenceFolder,sequencePicturePath} from './shared.mjs';
 import {TAXONOMY,validateRecord,validateRecords} from './validation.mjs';
 import {parseMarkdown,sanitizeHtml,markdownRouteMap} from './markdown.mjs';
-import {prepareChange,narrativePath,picturePath,equal} from './handoff.mjs';
+import {narrativePath,picturePath} from './handoff.mjs';
 import {newNarrativePath} from './d6-v3-content-paths.mjs';
-import {changePackageClipboardText} from './change-prompt.mjs';
 import {openViewer,openSequenceViewer} from './viewer.mjs';
 import {validateBrowserImage} from './image-validation.mjs';
 import {createNotesMarkdownEditor} from './notes-markdown-editor.mjs';
@@ -38,8 +37,6 @@ function knownFiles(ctx){
 }
 function knownPaths(ctx){return new Set(knownFiles(ctx).keys());}
 function editorMaps(ctx,domain,record){const data=clone(ctx.data),key=DOMAIN[domain].array;data[domain][key]=data[domain][key].filter(x=>x.id!==record.id).concat(record);return {data,maps:validateRecords(data),routes:markdownRouteMap(data)};}
-function linkToUpload(path){const dir=path.split('/').slice(0,-1).map(encodeURIComponent).join('/');return `https://github.com/ginosega/fishing/tree/main/pwa/${dir}`;}
-function linkToSequenceUpload(folder){return `https://github.com/ginosega/fishing/upload/main/pwa/${encodedPath(folder)}`;}
 const SEQUENCE_ACTIONS=new Set(['add-sequence','replace-with-sequence','replace-sequence']);
 const STATIC_FILE_ACTIONS=new Set(['add-static','replace-static','replace-with-static']);
 const acceptedImages='.jpg,.jpeg,.png,.webp,.gif,image/jpeg,image/png,image/webp,image/gif';
@@ -59,9 +56,6 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
     ctx?.v3?.source?.canPublish!==false||
     !['gear','kb'].includes(domain))
   throw Error('Verified read-only owner editor preview required.');
- const publishChange=standaloneV3?null:async()=>{
-  throw Error('Legacy GitHub publishing is disabled.');
- };
  const directGear=domain==='gear'&&
   ctx.v3?.directGearEnabled===true&&
   typeof ctx.v3?.directGearClient?.read==='function'&&
@@ -89,10 +83,9 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
   baseRecord=latest.record;directRevision=latest.revision;
   directNotes=directGear?latest.notes:latest.markdown;
  }
- const onPrepared=null;
  const editing=Boolean(baseRecord),key=domain==='gear'?'notes':'content',record=baseRecord?clone(baseRecord):{id:'',name:'',...(domain==='gear'?{category:category||'lures',type:'',specifications:[],links:[]}:{type:type||'technique',content:''})};
  if(!editing&&domain==='gear')record.type=(record.category==='rods-reels'?ROD_TYPES:record.category==='accessories'?EQUIPMENT_TYPES:TAXONOMY[record.category])[0];
- let baseText='',body='',baseHash=null,mediaAction='keep',fileInfo=null,previewUrl=null,sequenceInfos=[],sequenceUrls=[],prepared=null,savePending=false,saveAccepted=false,notesEditor=null;
+ let baseText='',body='',baseHash=null,mediaAction='keep',fileInfo=null,previewUrl=null,sequenceInfos=[],sequenceUrls=[],savePending=false,saveAccepted=false,notesEditor=null;
  if((directSave&&baseRecord)||baseRecord?.[key]){
   let bytes;
   if(directSave&&baseRecord)bytes=new TextEncoder().encode(directNotes);
@@ -126,7 +119,7 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
  const draftWritable=!reviewOnly&&
   !['stale','corrupt','unavailable','conflict','legacy'].includes(recovery.status);
  const restoredMediaMissing=recovery.status==='restored'&&recovery.requiresMedia===true;
- const host=el('div',{class:'editor'}),notice=el('div',{class:'editor-notice','aria-live':'polite'}),form=el('form',{class:'editor-form'}),output=el('div',{class:'handoff-output'});
+ const host=el('div',{class:'editor'}),notice=el('div',{class:'editor-notice','aria-live':'polite'}),form=el('form',{class:'editor-form'});
  if(recovery.message)status(notice,recovery.message,
   recovery.status==='restored'||recovery.status==='discarded'?'info':'warning');
  let draftSequence=0;
@@ -158,7 +151,7 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
     warnDraft);
  };
  const dirty=()=>!saveAccepted&&(serialize(record)!==original||body!==initialBody||mediaAction!=='keep');
- function changed(){if(saveAccepted)return;prepared=null;output.replaceChildren();
+ function changed(){if(saveAccepted)return;
   if(directSave)prepareButton.disabled=reviewOnly||!dirty();
   onDirty?.(dirty());persistDraft();}
  function update(fieldName,value){optional(record,fieldName,value);changed();}
@@ -469,45 +462,7 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
     void discardDraft().catch(()=>{});
     return;
    }
-   if(!standaloneV3){
-   let pictureAction='keep';if(mediaAction==='remove-picture')pictureAction=baseRecord?.picture?'remove':'keep';else if(sequenceSet||STATIC_FILE_ACTIONS.has(mediaAction))pictureAction=editing&&baseRecord?.picture?'replace':'add';else if(editing&&!equal(baseRecord.picture,candidate.picture))pictureAction=candidate.picture?'replace':'remove';
-   let pictureSequenceAction='keep';if(sequenceSet)pictureSequenceAction='set';else if(editing&&baseRecord?.pictureSequence&&!candidate.pictureSequence)pictureSequenceAction='remove';
-   prepared??=await prepareChange({domain,operation:editing?'edit':'add',id:candidate.id,baseRecord,record:candidate,baseText,text:body,sourceRevision:ctx.release.sourceRevision,notesPath:candidate[key]||narrativePath(domain,candidate),baseFileHash:baseHash,pictureAction,picturePath:candidate.picture?.src,pictureFile:sequenceSet?null:fileInfo,pictureSequenceAction,pictureSequencePaths:candidate.pictureSequence,pictureSequenceFiles:sequenceSet?sequenceInfos.map(x=>({path:x.path,bytes:x.bytes,sha256:x.sha256})):undefined,notesImages:notesUploads.map(x=>({path:x.path,bytes:x.bytes,sha256:x.sha256}))});
-   if(publishChange){
-    // Isolated V3 owner-only interface. The server independently verifies
-    // authentication, CSRF, canonical source and repository target.
-    if((pictureAction!=='keep'||pictureSequenceAction!=='keep'||notesUploads.length)&&
-      typeof ctx.v3?.stageMedia!=='function')
-     throw new Error('Direct picture publishing requires the D4 media service. Your edit is preserved.');
-    const files=sequenceSet?sequenceInfos.map(i=>({path:i.path,file:i.file})):
-     fileInfo?[{path:candidate.picture.src,file:fileInfo.file}]:[];
-    files.push(...notesUploads.map(x=>({path:x.path,file:x.file})));
-    const receipt=await publishChange(prepared,files);
-    if(receipt?.accepted!==true||!/^p3_[a-f0-9-]{36}$/.test(receipt.operationId??''))
-     throw new Error('A durable publication receipt was not confirmed. Keep your edit.');
-    saveAccepted=true;
-    // Accepted content may have an outdated base; never re-enable editing
-    // until the next independently loaded canonical release.
-    for(const control of form.querySelectorAll('input,select,textarea,button'))
-     control.disabled=true;
-    // Keep the accepted form visible and locked for review. Replace only
-    // Save and Publish / Cancel with a single Exit action. A rejected save
-    // does not reach this branch and retains editable actions.
-    actions.replaceChildren(button('Exit',onExit,{variant:'primary'}));
-    output.replaceChildren(text('p',
-     'Publication accepted. Verification and publishing are in progress. You may leave the editor and check publication status in the Connection Status screen.',
-     'hint'));
-    notice.replaceChildren();
-    actionNotice.replaceChildren();
-    onDirty?.(false);
-    try{onPrepared?.(draftStore?{...receipt,draftKey}:receipt);}catch{ /* Callback cannot undo server acceptance. */ }
-    return;
-   }
-   const copyNotice=el('div',{'aria-live':'polite',class:'copy-notice'}),clipboardText=changePackageClipboardText(prepared),area=el('textarea',{rows:12,readonly:true,class:'package-text',value:clipboardText}),exit=button('Exit',onExit);exit.hidden=true;
-   const upload=sequenceSet?[text('p','Upload the selected originals to:','hint'),el('code',{},sequenceFolder(candidate)+'/'),el('p',{},el('a',{href:linkToSequenceUpload(sequenceFolder(candidate)),target:'_blank',rel:'noopener noreferrer'},'Open the repository upload folder'))]:fileInfo?[text('p','Upload the selected original to the repository path before promotion:','hint'),el('code',{},candidate.picture.src),el('p',{},el('a',{href:linkToUpload(candidate.picture.src),target:'_blank',rel:'noopener noreferrer'},'Open the repository upload folder'))]:[];
-   output.replaceChildren(text('h3','Prepared change package'),text('p','Copy this instruction and change package into the Fishing project chat. Preparing is not saving.','hint'),area,copyNotice,toolbar(button('Copy Changes',async()=>{try{const copying=prepared;await navigator.clipboard.writeText(clipboardText);if(prepared!==copying||!output.contains(area))return;exit.hidden=false;status(copyNotice,'Changes copied to clipboard. Paste them into the Fishing project chat for implementation and deployment.','success');}catch{area.focus();area.select();status(copyNotice,'Clipboard unavailable. Select and copy the package manually, then paste it into the Fishing project chat for implementation and deployment.','warning');}},{variant:'primary'}),button('Select text',()=>{area.focus();area.select();}),exit),...upload);
-   status(notice,'Package prepared. Nothing has been saved.','success');onPrepared?.(prepared);output.scrollIntoView({block:'nearest'});
-   }
+
   }catch(error){
    const message=error?.code==='PREVIOUS_PUBLICATION_NOT_LIVE'?
     'The previous publication is not yet verified Live. Check Connection Status before starting another publication. No new publication was submitted.':
@@ -525,7 +480,7 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
  const blocked=standaloneV3||directSave?null:text('p','Editor preview only. Save and Publish is disabled until the secure production publishing pipeline is complete. Your changes have not been submitted.','hint');
  form.append(actions,actionNotice);
  host.append(notice,...(reviewAction?[reviewAction]:[]),
-  ...(blocked?[blocked]:[]),form,output);
+  ...(blocked?[blocked]:[]),form);
  return {element:host,isDirty:dirty,discardDraft,dispose:()=>{revokeLocal();notesEditor?.dispose();},record};
 }
 
