@@ -54,13 +54,16 @@ export function readD6VerifiedMode({
  * graph. D1 failures are fatal, not silent stale-catalog fallback.
  */
 export async function chooseD6BootstrapContent({
- v3,online,readMode,loadRelease,
+ v3,standalone=false,online,readMode,loadRelease,
 }={}){
  if(typeof loadRelease!=='function')throw Error('V3_BOOT_CONFIG_INVALID');
- const fallback=async mode=>({
-  source:'release',readingMode:mode,
-  data:await loadRelease(),
- });
+ if(standalone===true&&(!isD6DirectContentBootstrap(v3)||
+    typeof v3.offlineContentReader!=='function'))
+  throw Error('STANDALONE_V3_CONTENT_REQUIRED');
+ const fallback=async mode=>{
+  if(standalone===true)throw Error('STANDALONE_V3_NO_RELEASE_FALLBACK');
+  return {source:'release',readingMode:mode,data:await loadRelease()};
+ };
  if(!isD6DirectContentBootstrap(v3))
   return fallback('Legacy');
  // O03 is an isolated opt-in. Never read a frozen release once enabled.
