@@ -535,6 +535,8 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
  * including programmatic submit events; no publishing callback is reachable.
  */
 export async function createD6ApprovedCatchPreview(ctx,options={}){
+ if(standaloneV3&&ctx?.v3?.directCatchEnabled!==true)
+  throw Error('Standalone V3 requires direct Catch Save.');
  if(ctx?.v3?.directCatchEnabled===true){
   if(ctx?.v3?.ownerAuthoringPreview!==true||
      ctx?.v3?.source?.sourceOnly!==true||
@@ -548,6 +550,7 @@ export async function createD6ApprovedCatchPreview(ctx,options={}){
     ctx?.v3?.source?.sourceOnly!==true||
     ctx?.v3?.source?.canPublish!==false)
   throw Error('Verified read-only owner Catch editor preview required.');
+ if(standaloneV3)throw Error('Legacy Catch publication is disabled in V3.');
  const editor=await createCatchEditor(ctx,{
   ...options,publishChange:async()=>{
    throw Error('Publishing is disabled in this WP1 preview.');
