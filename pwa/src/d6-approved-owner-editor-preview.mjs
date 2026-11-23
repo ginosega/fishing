@@ -20,6 +20,8 @@ import {saveD6OwnerEditorMedia} from './d6-owner-media-editor-save.mjs';
 import {draftNotesPreviewOptions} from './editor-preview.mjs';
 import {restoreD6RevisionAwareDraft,saveD6RevisionAwareDraft} from './d6-revision-aware-draft-recovery.mjs';
 
+const standaloneV3=typeof __FISHING_D6_STANDALONE_V3__!=='undefined'&&
+ __FISHING_D6_STANDALONE_V3__===true;
 const clone=value=>structuredClone(value);
 function serialize(record){return JSON.stringify(record);}
 function optional(record,key,value){if(value.trim())record[key]=value.trim();else delete record[key];}
@@ -57,7 +59,9 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
     ctx?.v3?.source?.canPublish!==false||
     !['gear','kb'].includes(domain))
   throw Error('Verified read-only owner editor preview required.');
- const publishChange=async()=>{throw Error('Legacy GitHub publishing is disabled.');};
+ const publishChange=standaloneV3?null:async()=>{
+  throw Error('Legacy GitHub publishing is disabled.');
+ };
  const directGear=domain==='gear'&&
   ctx.v3?.directGearEnabled===true&&
   typeof ctx.v3?.directGearClient?.read==='function'&&
@@ -67,6 +71,8 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
   typeof ctx.v3?.directKBClient?.read==='function'&&
   typeof ctx.v3?.directKBClient?.save==='function';
  const directSave=directGear||directKB;
+ if(standaloneV3&&!directSave)
+  throw Error('Standalone V3 requires authenticated direct D1 Save.');
  if(ctx.v3?.directGearEnabled===true&&domain==='gear'&&
     !directGear)
   throw Error('Direct Gear service unavailable. No edit was submitted.');
@@ -106,7 +112,7 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
  if(!editing&&domain==='kb')body='';
  // Keep pristine server data distinct from a restored local draft.
  const original=serialize(record),initialBody=body;
- const draftStore=publishChange?ctx.v3?.drafts??null:null;
+ const draftStore=ctx.v3?.drafts??null;
  const draftKey=domain+':'+(editing?'edit:'+baseRecord.id:
   'add:'+(domain==='gear'?record.category:record.type));
  const recovery=await restoreD6RevisionAwareDraft({store:draftStore,key:draftKey,
@@ -292,7 +298,7 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
     sequenceMode?'Select ordered step-01, step-02, ... files. All upload with Save.':
     'The original picture uploads with Save.'),
    field('Caption (optional)',captionInput));
-  if(publishChange&&ctx.v3?.mediaCapabilities?.canUploadNewImages!==true){
+  if(ctx.v3?.mediaCapabilities?.canUploadNewImages!==true){
    // Image actions remain unavailable until authenticated D4 staging is enabled.
    // Hide the obsolete v2 manual-upload suggestion in the gated UI.
    for(const control of [pictureSelect,fileInput,captionInput])
@@ -303,7 +309,7 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
  renderActionOptions(false);renderPicture();
  form.insertBefore(section('Picture',pictureHost),nameField.nextElementSibling.nextElementSibling);
 
- const v3Notes=Boolean(publishChange&&ctx.v3?.source);
+ const v3Notes=Boolean(ctx.v3?.source);
  if(v3Notes){
   notesEditor=createNotesMarkdownEditor({
    domain,getRecord:()=>record,value:body,label:'Markdown',
@@ -361,7 +367,7 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
   form.append(section('Notes',field('Markdown',textArea),previewButton,preview));
  }
  const actionNotice=el('div',{class:'editor-notice editor-action-feedback','aria-live':'assertive'});
- const prepareButton=button(directSave?'Save':'Prepare Changes',()=>form.requestSubmit(),{variant:'primary'});
+ const prepareButton=button(standaloneV3||directSave?'Save':'Prepare Changes',()=>form.requestSubmit(),{variant:'primary'});
  form.addEventListener('submit',async event=>{
   event.preventDefault();
   // Even programmatic submissions cannot stage media or send a write.
@@ -463,6 +469,7 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
     void discardDraft().catch(()=>{});
     return;
    }
+   if(!standaloneV3){
    let pictureAction='keep';if(mediaAction==='remove-picture')pictureAction=baseRecord?.picture?'remove':'keep';else if(sequenceSet||STATIC_FILE_ACTIONS.has(mediaAction))pictureAction=editing&&baseRecord?.picture?'replace':'add';else if(editing&&!equal(baseRecord.picture,candidate.picture))pictureAction=candidate.picture?'replace':'remove';
    let pictureSequenceAction='keep';if(sequenceSet)pictureSequenceAction='set';else if(editing&&baseRecord?.pictureSequence&&!candidate.pictureSequence)pictureSequenceAction='remove';
    prepared??=await prepareChange({domain,operation:editing?'edit':'add',id:candidate.id,baseRecord,record:candidate,baseText,text:body,sourceRevision:ctx.release.sourceRevision,notesPath:candidate[key]||narrativePath(domain,candidate),baseFileHash:baseHash,pictureAction,picturePath:candidate.picture?.src,pictureFile:sequenceSet?null:fileInfo,pictureSequenceAction,pictureSequencePaths:candidate.pictureSequence,pictureSequenceFiles:sequenceSet?sequenceInfos.map(x=>({path:x.path,bytes:x.bytes,sha256:x.sha256})):undefined,notesImages:notesUploads.map(x=>({path:x.path,bytes:x.bytes,sha256:x.sha256}))});
@@ -500,6 +507,7 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
    const upload=sequenceSet?[text('p','Upload the selected originals to:','hint'),el('code',{},sequenceFolder(candidate)+'/'),el('p',{},el('a',{href:linkToSequenceUpload(sequenceFolder(candidate)),target:'_blank',rel:'noopener noreferrer'},'Open the repository upload folder'))]:fileInfo?[text('p','Upload the selected original to the repository path before promotion:','hint'),el('code',{},candidate.picture.src),el('p',{},el('a',{href:linkToUpload(candidate.picture.src),target:'_blank',rel:'noopener noreferrer'},'Open the repository upload folder'))]:[];
    output.replaceChildren(text('h3','Prepared change package'),text('p','Copy this instruction and change package into the Fishing project chat. Preparing is not saving.','hint'),area,copyNotice,toolbar(button('Copy Changes',async()=>{try{const copying=prepared;await navigator.clipboard.writeText(clipboardText);if(prepared!==copying||!output.contains(area))return;exit.hidden=false;status(copyNotice,'Changes copied to clipboard. Paste them into the Fishing project chat for implementation and deployment.','success');}catch{area.focus();area.select();status(copyNotice,'Clipboard unavailable. Select and copy the package manually, then paste it into the Fishing project chat for implementation and deployment.','warning');}},{variant:'primary'}),button('Select text',()=>{area.focus();area.select();}),exit),...upload);
    status(notice,'Package prepared. Nothing has been saved.','success');onPrepared?.(prepared);output.scrollIntoView({block:'nearest'});
+   }
   }catch(error){
    const message=error?.code==='PREVIOUS_PUBLICATION_NOT_LIVE'?
     'The previous publication is not yet verified Live. Check Connection Status before starting another publication. No new publication was submitted.':
@@ -514,7 +522,7 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
  const actions=toolbar(prepareButton,button('Cancel',onBack));
  prepareButton.disabled=true;
  prepareButton.setAttribute('aria-label',directGear?'Save Gear':directKB?'Save Knowledge Base':'Save and Publish unavailable in WP1 preview');
- const blocked=directSave?null:text('p','Editor preview only. Save and Publish is disabled until the secure production publishing pipeline is complete. Your changes have not been submitted.','hint');
+ const blocked=standaloneV3||directSave?null:text('p','Editor preview only. Save and Publish is disabled until the secure production publishing pipeline is complete. Your changes have not been submitted.','hint');
  form.append(actions,actionNotice);
  host.append(notice,...(reviewAction?[reviewAction]:[]),
   ...(blocked?[blocked]:[]),form,output);
