@@ -5,7 +5,7 @@ import {readFileSync} from 'node:fs';
 import {gunzipSync} from 'node:zlib';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {createD6CurrentContentSnapshot}
+import {createD6CurrentContentSnapshot,isD6CurrentContentSnapshotCompatible}
  from '../server/d6-current-content-snapshot.mjs';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
@@ -97,6 +97,10 @@ test('O01 reads one coherent D1 transaction and hashes current content independe
   assert.match(first.contentId,/^[a-f0-9]{64}$/);
   assert.equal(second.contentId,first.contentId);
   assert.equal(first.mediaVerification,'registry-only');
+  assert.equal(isD6CurrentContentSnapshotCompatible(first),true);
+  assert.equal(isD6CurrentContentSnapshotCompatible(first,2),false);
+  assert.equal(isD6CurrentContentSnapshotCompatible({...first,
+   readerCompatibility:{min:2,max:3}}),false);
   const reads=f.reads();
   assert.equal(reads.batchCalls,2);
   assert.equal(reads.statementsSeen.length,5);
@@ -161,5 +165,40 @@ test('O01 refuses malformed D1 record content and no incomplete manifest escapes
    .run('{"id":"berkley-warpig"}','berkley-warpig');
   await assert.rejects(createD6CurrentContentSnapshot(f),
    /O01_SNAPSHOT_UNVERIFIED/);
+ }finally{f.close();}
+});
+
+test('O01 rejects an extra nonhistorical ref but preserves inert historic refs',async()=>{
+ const f=fixture();
+ try{
+  const baseline=await createD6CurrentContentSnapshot(f);
+  const photo=baseline.images.find(x=>x.mime==='image/jpeg');
+  assert.ok(photo);
+  f.sqlite.prepare('INSERT INTO d6_media_refs VALUES (?,?,?,?,?)')
+   .run('Gear/Lures/assets/unlinked-new-photo.jpg',
+    'gear','berkley-warpig',photo.sha256,0);
+  await assert.rejects(createD6CurrentContentSnapshot(f),
+   /O01_SNAPSHOT_UNVERIFIED: Unlinked current media association/);
+ }finally{f.close();}
+});
+
+test('O01 rejects broken Markdown record links and missing local resources',async()=>{
+ const f=fixture();
+ try{
+  const original=f.sqlite.prepare(
+   'SELECT content_text FROM d6_kb_records WHERE id=?'
+  ).get('bowline-knot').content_text;
+  const setMarkdown=text=>f.sqlite.prepare(
+   'UPDATE d6_kb_records SET content_text=? WHERE id=?'
+  ).run(text,'bowline-knot');
+  setMarkdown(original+'\\n\\n[Missing](kb://missing-record)');
+  await assert.rejects(createD6CurrentContentSnapshot(f),
+   /O01_SNAPSHOT_UNVERIFIED: Invalid Markdown link/);
+  setMarkdown(original+'\\n\\n[Missing](missing-article.md)');
+  await assert.rejects(createD6CurrentContentSnapshot(f),
+   /O01_SNAPSHOT_UNVERIFIED: Unresolved Markdown link resource/);
+  setMarkdown(original);
+  const baseline=await createD6CurrentContentSnapshot(f);
+  assert.equal(baseline.counts.kb,60);
  }finally{f.close();}
 });
