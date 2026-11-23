@@ -155,3 +155,95 @@ test('O02 refuses a tampered manifest before writing or fetching anything',async
  }),/O02_CONTENT_UNVERIFIED/);
  assert.equal(await readVerifiedD6OfflineContent({caches,scope}),null);
 });
+
+test('O02-UX07 emits checking, increasing image counts, verification then complete',async()=>{
+ const caches=fakeCaches(),data=await snapshot({
+  files:[['one.jpg','image-one'],['two.jpg','image-two']],
+ });
+ const statuses=[],counts=[];
+ await prepareD6OfflineContent({snapshot:data,caches,scope,nonce,
+  fetchImage:async image=>new Response(
+   image.logicalPath.endsWith('one.jpg')?'image-one':'image-two'),
+  onStatus:value=>statuses.push(value),
+  onProgress:value=>counts.push(value.completed),
+ });
+ assert.deepEqual(statuses.map(x=>x.phase),[
+  'checking','images','images','images','verifying','complete',
+ ]);
+ assert.deepEqual(counts,[1,2]);
+ assert.deepEqual(statuses.filter(x=>x.phase==='images')
+  .map(x=>[x.completed,x.total]),[[0,2],[1,2],[2,2]]);
+ assert.equal(statuses.at(-1).completed,2);
+ assert.equal(statuses.at(-1).total,2);
+ assert.equal(statuses.at(-1).previousVerified,false);
+ const unchanged=[];
+ await prepareD6OfflineContent({snapshot:data,caches,scope,nonce,
+  fetchImage:()=>{throw Error('Already ready: no fetch expected');},
+  onStatus:status=>unchanged.push(status),
+ });
+ assert.deepEqual(unchanged.map(x=>x.phase),['checking','unchanged']);
+ assert.equal(unchanged.at(-1).previousVerified,true);
+});
+
+test('O02-UX08 reports image failure without falsely claiming completion',async()=>{
+ const caches=fakeCaches(),data=await snapshot(),statuses=[];
+ await assert.rejects(prepareD6OfflineContent({
+  snapshot:data,caches,scope,nonce,
+  fetchImage:async()=>new Response('invalid-image-bytes'),
+  onStatus:status=>statuses.push(status),
+ }),/O02_CONTENT_UNVERIFIED/);
+ assert.deepEqual(statuses.map(x=>x.phase),[
+  'checking','images','error',
+ ]);
+ assert.equal(statuses.at(-1).reason,'image');
+ assert.equal(statuses.at(-1).previousVerified,false);
+ assert.equal(await readVerifiedD6OfflineContent({caches,scope}),null);
+});
+
+test('O02-UX09 categorizes network and storage failures and retains old generation',async()=>{
+ const caches=fakeCaches(),old=await snapshot();
+ const newer=await snapshot({
+  rev:2,files:[['one.jpg','image-one'],['two.jpg','image-two']],
+ });
+ await prepareD6OfflineContent({snapshot:old,caches,scope,nonce,
+  fetchImage:async()=>new Response('image-one')});
+ const network=[];
+ await assert.rejects(prepareD6OfflineContent({
+  snapshot:newer,caches,scope,
+  nonce:()=> '5bcde123-1234-1234-1234-123456789abc',
+  fetchImage:async()=>{throw new TypeError('Failed to fetch');},
+  onStatus:s=>network.push(s),
+ }),/R2_IMAGE_NETWORK_UNAVAILABLE/);
+ assert.equal(network.at(-1).phase,'error');
+ assert.equal(network.at(-1).reason,'network');
+ assert.equal(network.at(-1).previousVerified,true);
+ assert.equal((await readVerifiedD6OfflineContent({caches,scope})).contentId,
+  old.contentId);
+ caches.setFailure((name,url)=>name.includes('generation:')&&
+  url.includes('__fishing_v3_content_image__/'));
+ const storage=[];
+ await assert.rejects(prepareD6OfflineContent({
+  snapshot:newer,caches,scope,
+  nonce:()=> '6bcde123-1234-1234-1234-123456789abc',
+  fetchImage:async()=>new Response('image-two'),
+  onStatus:s=>storage.push(s),
+ }),/Quota exceeded/);
+ assert.equal(storage.at(-1).phase,'error');
+ assert.equal(storage.at(-1).reason,'storage');
+ assert.equal(storage.at(-1).previousVerified,true);
+ assert.equal((await readVerifiedD6OfflineContent({caches,scope})).contentId,
+  old.contentId);
+});
+
+test('O02-UX10 presentation exceptions never corrupt verified staging',async()=>{
+ const caches=fakeCaches(),data=await snapshot();
+ const result=await prepareD6OfflineContent({
+  snapshot:data,caches,scope,nonce,
+  fetchImage:async()=>new Response('image-one'),
+  onProgress:()=>{throw Error('UI progress failed');},
+  onStatus:()=>{throw Error('UI feedback failed');},
+ });
+ assert.equal(result.changed,true);
+ assert.equal((await readVerifiedD6OfflineContent({caches,scope})).contentId,
+  data.contentId);
+});
