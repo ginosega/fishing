@@ -143,3 +143,19 @@ test('V3-C03-03 live D1 network failure yields typed recovery, no legacy fallbac
  }),error=>error.code==='D1_BOOTSTRAP_UNAVAILABLE'&&
    /Retry online/.test(error.message));
 });
+
+test('L01-BOOT01 standalone V3 fails closed rather than loading a frozen release',async()=>{
+ const valid=createD6DirectContentFixture().v3;
+ let frozenReads=0;
+ const args={standalone:true,online:true,
+  loadRelease:async()=>{frozenReads++;throw Error('Frozen content requested');},
+  readMode:async()=> 'Automatic'};
+ await assert.rejects(chooseD6BootstrapContent({...args,v3:null}),
+  /STANDALONE_V3_CONTENT_REQUIRED/);
+ await assert.rejects(chooseD6BootstrapContent({...args,v3:valid}),
+  /STANDALONE_V3_CONTENT_REQUIRED/);
+ await assert.rejects(chooseD6BootstrapContent({...args,
+  v3:{...valid,offlineContentReader:async()=>{throw Error('not prepared');}},
+  online:false}),/not prepared/);
+ assert.equal(frozenReads,0);
+});
