@@ -102,7 +102,17 @@ export async function build(){
   }
   const thumbs=!d6StandaloneV3&&cardThumbnails?await generateCardThumbnails({data:library.data,source,destination:path.join(tmp,'card-thumbnails')}):null;
   const artwork=await generateStaticPageArtwork({assets:pageAssetsRoot,destination:path.join(tmp,'static-page-artwork')});
-  const app=await esbuild.build({entryPoints:[path.join(repo,'pwa/src/entry.mjs')],bundle:true,format:'iife',platform:'browser',target:'es2022',minify:true,write:false,legalComments:'none',define:{'process.env.NODE_ENV':'"production"',
+  const app=await esbuild.build({entryPoints:[path.join(repo,'pwa/src/entry.mjs')],bundle:true,format:'iife',platform:'browser',target:'es2022',minify:true,write:false,legalComments:'none',
+   metafile:d6StandaloneV3,
+   plugins:d6StandaloneV3?[{
+    name:'l01-remove-v2-editor',
+    setup(builder){
+     builder.onResolve({filter:/^\.\/editor\.mjs$/},args=>{
+      if(path.basename(args.importer)!=='ui.mjs')return null;
+      return {path:path.join(repo,'pwa/src/d6-legacy-editor-denial.mjs')};
+     });
+    },
+   }]:[],define:{'process.env.NODE_ENV':'"production"',
     '__FISHING_D6_PUBLIC_READER__':d6ReaderCandidate?'true':'false',
      '__FISHING_D6_STATIC_STAGING__':d6StaticStaging?'true':'false',
     '__FISHING_D6_OWNER_CONNECTION__':d6OwnerConnectionCandidate?'true':'false',
@@ -116,6 +126,13 @@ export async function build(){
       '__FISHING_D6_O02_OFFLINE_CONTENT__':d6OfflineContentPreparation?'true':'false',
       '__FISHING_D6_O03_OFFLINE_READING__':d6OfflineContentReading?'true':'false',
       '__FISHING_D6_STANDALONE_V3__':d6StandaloneV3?'true':'false'}});
+  if(d6StandaloneV3){
+   const activeModules=Object.keys(app.metafile?.inputs??{});
+   if(activeModules.some(file=>/(?:^|\/)(?:editor|handoff|change-prompt)\.mjs$/.test(file)))
+    throw Error('Standalone V3 must not bundle legacy GitHub handoff/editor modules');
+   if(!activeModules.some(file=>file.endsWith('/d6-legacy-editor-denial.mjs')))
+    throw Error('Standalone V3 legacy editor boundary was not applied');
+  }
   const baseCss=await fs.readFile(path.join(repo,'pwa/src/styles.css')),cardIconCss=await fs.readFile(path.join(repo,'pwa/src/card-icons.css')),pageHeroCss=await fs.readFile(path.join(repo,'pwa/src/page-hero.css')),css=Buffer.concat([baseCss,Buffer.from('\n'),cardIconCss,Buffer.from('\n'),pageHeroCss]);
   const inputHashes=d6StandaloneV3?[]:await hashFiles(content),thumbnailHashes=thumbs?await hashFiles(path.join(tmp,'card-thumbnails')):[],staticImageHashes=await hashFiles(path.join(tmp,'static-page-artwork')),originalStaticImageHashes=await hashFiles(pageAssetsRoot);const lock=await fs.readFile(path.join(repo,'pwa/package-lock.json'));
   const codeHashes=[];for(const dir of ['src','tools'])for(const file of await hashFiles(path.join(repo,'pwa',dir)))codeHashes.push({...file,path:dir+'/'+file.path});
