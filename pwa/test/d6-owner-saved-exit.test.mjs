@@ -13,7 +13,14 @@ for(const [domain,path] of [
    'exactly one successful direct-Save Exit reload handler');
   assert.match(source,/button\('Cancel',onBack\)/,
    'Cancel keeps its existing no-reload handler');
-  assert.match(source,/actions\.replaceChildren\(button\('Exit',onExit,\{variant:'primary'\}\)\)/,
-   'other Exit paths must retain their existing behavior');
+  assert.doesNotMatch(source,/Prepared change package|Publication accepted/,
+   'the old GitHub publisher is not part of the direct editor');
  });
 }
+
+
+test('L01 verified Add Save navigates to its newly persisted record',()=>{
+ const ui=readFileSync(new URL('../src/ui.mjs',import.meta.url),'utf8');
+ assert.match(ui,/savedId\?routeFor\(domain,savedId\):exitTarget/);
+ assert.match(ui,/savedId\?routeFor\('catches',savedId\):'#\/catches'/);
+});
