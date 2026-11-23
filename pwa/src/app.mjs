@@ -7,8 +7,8 @@ import {createD6ContentImageResolver,d6ResolveImageForDisplay,loadD6PublishedMed
 export async function bootstrap({root,release},{v3=null}={}){
  const base=new URL('releases/'+release.id+'/',root).href;
  // Private fully migrated V3 reads current Gear, KB and Catches from D1
- // directly in a verified Automatic session. Work Offline (and ordinary V2)
- // still uses the existing immutable, service-worker-verified release files.
+ // directly in verified Automatic. Opted-in O03 Work Offline reads the
+ // complete V3 content cache, never a frozen release or network fallback.
  const selected=await chooseD6BootstrapContent({
   v3,online:navigator.onLine===true,
   readMode:()=>readD6VerifiedMode(),
@@ -23,6 +23,8 @@ export async function bootstrap({root,release},{v3=null}={}){
  });
  const data=selected.data;
  const maps=validateRecords(data);
+ const offlineContent=selected.source==='v3-content'?
+  selected.offlineReader:null;
  const manifest=globalThis.__FISHING_BOOT__.manifest;
  const asset=file=>new URL('content/'+encodedPath(file),base).href;
  // Live media URLs are selectable ONLY with an independent verified D1
@@ -43,10 +45,11 @@ export async function bootstrap({root,release},{v3=null}={}){
    publishedPaths:mediaPaths,
    thumbnailEnabled:()=>v3?.thumbnailReadApproved===true,
   }):null;
- const image=file=>liveMedia?
-  d6ResolveImageForDisplay(file,{verifiedLive:liveMedia,
+ const image=file=>offlineContent?offlineContent.image(file):
+  liveMedia?d6ResolveImageForDisplay(file,{verifiedLive:liveMedia,
    frozenAsset:asset,strictOnline:true}):asset(file);
  const thumbnail=file=>{
+  if(offlineContent)return offlineContent.thumbnail(file);
   if(liveMedia)return v3?.thumbnailReadApproved===true?
    liveMedia.resolveThumbnail(file):image(file);
   const thumb=manifest.cardThumbnails?.[file];
@@ -55,8 +58,11 @@ export async function bootstrap({root,release},{v3=null}={}){
  const notesThumbnail=file=>liveMedia&&v3?.thumbnailReadApproved===true?
   liveMedia.resolveThumbnail(file):null;
  const context={root,base,release,manifest,data,maps,asset,thumbnail,image,notesThumbnail,
-  mediaLiveReader:Boolean(liveMedia),
-  mediaPublishedPaths:mediaPaths?new Set(mediaPaths):null,
+  offlineMarkdown:offlineContent?.markdown??null,
+  mediaLiveReader:Boolean(liveMedia||offlineContent),
+  mediaPublishedPaths:offlineContent?
+   new Set(offlineContent.images.keys()):
+   mediaPaths?new Set(mediaPaths):null,
   ...(v3?.enabled===true&&v3?.readerOnly===true?{v3:{...v3,
    contentSource:selected.source,contentReadingMode:selected.readingMode}}:{}),
  };
