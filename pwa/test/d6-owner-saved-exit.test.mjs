@@ -8,7 +8,7 @@ for(const [domain,path] of [
 ]){
  test('M02 '+domain+' verified Save Exit refreshes, while Cancel does not',()=>{
   const source=readFileSync(new URL(path,import.meta.url),'utf8');
-  const callback=/button\('Exit',\(\)=>\{\s*onExit\(\);window\.location\.reload\(\);\s*\},\{variant:'primary'\}\)/g;
+  const callback=/button\('Exit',\(\)=>\{\s*onExit\(\{savedId:candidate\.id\}\);window\.location\.reload\(\);\s*\},\{variant:'primary'\}\)/g;
   assert.equal([...source.matchAll(callback)].length,1,
    'exactly one successful direct-Save Exit reload handler');
   assert.match(source,/button\('Cancel',onBack\)/,
