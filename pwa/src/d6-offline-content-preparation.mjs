@@ -161,7 +161,7 @@ async function pruneRetiredContentGenerations(caches,scope,selectedName){
  * only the new stage; existing selection, cache and drafts are never touched.
  */
 export async function prepareD6OfflineContent({
- snapshot,caches,scope,fetchImage,
+ snapshot,caches,scope,fetchImage,reuseImage=async()=>null,
  onProgress=()=>{},onStatus=()=>{},nonce=()=>crypto.randomUUID(),
 }={}){
  let previous=null,stageName=null,selectedNew=false;
@@ -187,7 +187,8 @@ export async function prepareD6OfflineContent({
   scope=originScope(scope);
   check(caches&&typeof caches.open==='function'&&
    typeof caches.delete==='function'&&typeof fetchImage==='function'&&
-   typeof nonce==='function','Preparation unavailable');
+   typeof reuseImage==='function'&&typeof nonce==='function',
+   'Preparation unavailable');
   emit('checking');
   const images=await verifyD6OfflineContentManifest(snapshot);
   total=images.size;
@@ -207,6 +208,16 @@ export async function prepareD6OfflineContent({
   for(const image of images.values()){
    const key=imageKey(scope,image.sha256);
    let bytes=await cachedBytes(previous?.cache,key,image);
+   if(!bytes){
+    // A prior FISH091 immutable release may already hold the same original
+    // image. Reuse ONLY if its actual bytes match the current O01 R2 SHA.
+    // This is a byte optimization, never an alternate content authority.
+    try{
+     const candidate=await reuseImage(image);
+     if(candidate instanceof ArrayBuffer)
+      bytes=await verifyImage(candidate,image);
+    }catch{/* Unverified older bytes must be downloaded afresh. */}
+   }
    if(bytes){reused++;}
    else{
     let raw;
