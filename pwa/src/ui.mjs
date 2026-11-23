@@ -330,7 +330,7 @@ export function createApp(ctx){
   const record=id?approvedCtx.maps[domain].get(id):null;if(id&&!record)return missing('This item does not exist or its ID has been retired.',rootRoute(domain));const fallback=categoryRoute(domain,domain==='gear'?category:type);const origin=previousHash===rootRoute(domain)||previousHash===fallback?previousHash:fallback;const parent=record?routeFor(domain,record.id):fallback;const exitTarget=record?parent:origin;
   const page=frame(record?'Edit '+record.name:domain==='gear'?'Add Gear':'Add Entry',parent,record?[button('Create Link',()=>copyLink(domain,record.id))]:[]);
   const create=ownerEditorPreview?createD6ApprovedEditorPreview:createEditor;
-  const created=await create(approvedCtx,{domain,baseRecord:record,category,type,onBack:()=>navigate(parent),onExit:()=>{disposeEditor();navigate(exitTarget);},onDirty:()=>{}});
+  const created=await create(approvedCtx,{domain,baseRecord:record,category,type,onBack:()=>navigate(parent),onExit:({savedId}={})=>{disposeEditor();navigate(savedId?routeFor(domain,savedId):exitTarget);},onDirty:()=>{}});
   editor=created;page.append(created.element);return page;
  }
  async function renderCatchPreview(id=null){
@@ -342,7 +342,7 @@ export function createApp(ctx){
   const page=frame(record?'Edit Catch':'Add Catch',parent);
   const created=await createD6ApprovedCatchPreview(approvedCtx,{
    baseRecord:record,onBack:()=>navigate(parent),
-   onExit:()=>{disposeEditor();navigate('#/catches');},
+   onExit:({savedId}={})=>{disposeEditor();navigate(savedId?routeFor('catches',savedId):'#/catches');},
    onDirty:()=>{},
   });
   editor=created;page.append(created.element);return page;
