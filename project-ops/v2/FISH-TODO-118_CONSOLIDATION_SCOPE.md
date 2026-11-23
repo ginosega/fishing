@@ -1,6 +1,6 @@
 # FISH-TODO-118 — V3 content architecture consolidation scope and acceptance ledger
 
-**Status:** M01–M03, O02 and O03 privately owner-accepted; O01 source-CI verified. O03 owner reports Edge/Android PASS ([receipt](https://github.com/ginosega/fishing/issues/377#issuecomment-7092816372)); D01 source next, L01/A01 open. Final standalone V3 and manual three-device V2 removal remain required.
+**Status:** M01–M03, O02 and O03 privately owner-accepted; O01 source-CI verified. D01 SOURCE-ONLY CI PASS ([receipt](https://github.com/ginosega/fishing/issues/377#issuecomment-7092977384)); private D01 owner acceptance not yet approved or performed. L01/A01 open. Final standalone V3 and manual three-device V2 removal remain required.
 **Parent / sole priority authority:** [FISH-TODO-118 in WORK_QUEUE.md](WORK_QUEUE.md). This is **not a second work queue** or a new workstream. Stable codes below identify bounded **acceptance obligations**, not new projects, external issues or deploy milestones. [ADR-0012](decisions/records/ADR-0012.md) is the decision authority; [issue #377](https://github.com/ginosega/fishing/issues/377#issuecomment-7058493017) holds original owner direction and dated technical receipts. [Draft source PR #567](https://github.com/ginosega/fishing/pull/567) holds current implementation; never infer deployment from code, tests or this document.
 
 ## Final single-authority contract
