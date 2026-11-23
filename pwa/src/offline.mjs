@@ -1,19 +1,22 @@
 // D6 selectively adopts the accepted V3 reading preference over the
 // existing explicit, verified offline library. No private owner pilot or writer.
 export function createOffline({root,releaseId,onStatus,isDirty,notify,
- v3ReadingMode=false,onMode=()=>{},prepareContent=null,
+ v3ReadingMode=false,standaloneV3=false,onMode=()=>{},prepareContent=null,
  verifyContent=null}){
  let registration=null,updating=false,checking=null,switching=false,warned=false;
  let mode='Automatic',modeAvailable=false;
  let status={state:'Incomplete',releaseId:null,files:0,bytes:0,failed:[]};
+ const statusType=standaloneV3?'FISHING_V3_STATUS':'FISHING_V2_STATUS';
+ const progressType=standaloneV3?'FISHING_V3_PROGRESS':'FISHING_V2_PROGRESS';
+ const currentType=standaloneV3?'FISHING_V3_CURRENT':'FISHING_V2_CURRENT';
  const publish=next=>{status={...status,...next};onStatus({...status,updating});};
- const handler=event=>{const msg=event.data||{};if(msg.type==='FISHING_V2_STATUS'||msg.type==='FISHING_V2_PROGRESS')publish(msg.status);};
+ const handler=event=>{const msg=event.data||{};if(msg.type===statusType||msg.type===progressType)publish(msg.status);};
  navigator.serviceWorker?.addEventListener('message',handler);
  async function command(type){
   const controller=registration?.active||navigator.serviceWorker?.controller;if(!controller)return;
   return new Promise((resolve,reject)=>{
    const channel=new MessageChannel();const timeout=setTimeout(()=>{channel.port1.close();reject(new Error('The offline operation did not respond.'));},180000);
-   channel.port1.onmessage=e=>{clearTimeout(timeout);channel.port1.close();if(e.data?.type==='FISHING_V2_STATUS'){publish(e.data.status);resolve(e.data.status);}else reject(new Error('Unexpected offline response'));};
+   channel.port1.onmessage=e=>{clearTimeout(timeout);channel.port1.close();if(e.data?.type===statusType){publish(e.data.status);resolve(e.data.status);}else reject(new Error('Unexpected offline response'));};
    controller.postMessage({type},[channel.port2]);
   });
  }
@@ -99,7 +102,7 @@ export function createOffline({root,releaseId,onStatus,isDirty,notify,
     channel.port1.onmessage=event=>{clearTimeout(timeout);channel.port1.close();resolve(event.data);};
     try{controller.postMessage({type:'CHECK_CURRENT'},[channel.port2]);}catch{clearTimeout(timeout);channel.port1.close();resolve(null);}
    });
-   if(response?.type!=='FISHING_V2_CURRENT'||!response.releaseId||response.releaseId===releaseId)return true;
+   if(response?.type!==currentType||!response.releaseId||response.releaseId===releaseId)return true;
    if(isDirty()){
     if(!warned){notify('A new Fishing Companion release is available. Finish or copy your unsaved changes before reloading.','warning');warned=true;}
     return false;

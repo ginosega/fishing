@@ -370,6 +370,7 @@ export function createApp(ctx){
  for(const a of document.querySelectorAll('[data-nav]'))a.addEventListener('click',event=>{event.preventDefault();navigate(a.getAttribute('href'));});
  offline=createOffline({
   root:ctx.root,releaseId:ctx.release.id,v3ReadingMode:readerOnly,
+  standaloneV3:ctx.release.standaloneV3===true,
   // No current release supplies this opt-in transport. Explicit user action
   // is the only way to invoke it once a separately verified build does.
   prepareContent:readerOnly&&

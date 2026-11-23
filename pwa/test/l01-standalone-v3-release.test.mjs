@@ -76,6 +76,11 @@ test('L01-BUILD01 standalone V3 contains only verified software, never frozen re
    waitUntil:value=>{pending=value;}});
   await pending;
   assert.equal(reply?.mode,'Automatic');
+  message({data:{type:'STATUS'},ports:[{postMessage:value=>{reply=value;}}],
+   waitUntil:value=>{pending=value;}});
+  await pending;
+  assert.equal(reply?.type,'FISHING_V3_STATUS');
+  assert.equal(reply?.status?.state,'Incomplete');
   assert(opened.length>0);
   assert(opened.every(name=>name.startsWith('fishing-v3-software:')),
    'standalone V3 never opens V2 software caches');
