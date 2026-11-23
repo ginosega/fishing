@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {createD6OwnerDeviceDraftStore}
  from '../src/d6-owner-device-drafts.mjs';
-import {restoreD5EditorDraft,saveD5EditorDraft}
- from '../src/d5-editor-recovery.mjs';
+import {restoreD6RevisionAwareDraft,saveD6RevisionAwareDraft}
+ from '../src/d6-revision-aware-draft-recovery.mjs';
 
 const ROOT='https://fishing-d6-wp2-test.ginosega.workers.dev/fishing/';
 const FIRST='a'.repeat(40),NEXT='b'.repeat(40),HASH='c'.repeat(64);
@@ -24,7 +24,7 @@ function fixture(){
 
 test('D01-01 D1 revision, not software SHA, governs clean Restore after upgrade',async()=>{
  const x=fixture(),store=x.open();
- await saveD5EditorDraft({store,...base,baseRevision:7});
+ await saveD6RevisionAwareDraft({store,...base,baseRevision:7});
  assert.equal(x.map.get(x.scoped).version,2);
  assert.equal(x.map.get(x.scoped).baseRevision,7);
  const resumed=await x.open().read(KEY,{
@@ -32,7 +32,7 @@ test('D01-01 D1 revision, not software SHA, governs clean Restore after upgrade'
  assert.equal(resumed.status,'ready');
  assert.equal(resumed.draft.record.name,'Unsent changes');
  assert.equal(resumed.draft.sourceRevision,FIRST);
- const recovery=await restoreD5EditorDraft({store:x.open(),key:KEY,
+ const recovery=await restoreD6RevisionAwareDraft({store:x.open(),key:KEY,
   sourceRevision:NEXT,baseHash:HASH,baseRevision:7,ask:()=>true});
  assert.equal(recovery.status,'restored');
  assert.equal(recovery.notes,'Local notes');
@@ -47,11 +47,11 @@ test('D01-02 same Notes hash never overrides a changed D1 row revision',async()=
  assert.equal(changed.status,'conflict');
  assert.equal(changed.draft.baseRevision,5);
  assert.equal(x.map.get(x.scoped).baseRevision,5);
- const keep=await restoreD5EditorDraft({store,key:KEY,baseRevision:6,
+ const keep=await restoreD6RevisionAwareDraft({store,key:KEY,baseRevision:6,
   sourceRevision:FIRST,baseHash:HASH,ask:()=>false});
  assert.equal(keep.status,'conflict');
  assert.equal(x.map.get(x.scoped).record.name,'Unsent changes');
- const review=await restoreD5EditorDraft({store,key:KEY,baseRevision:6,
+ const review=await restoreD6RevisionAwareDraft({store,key:KEY,baseRevision:6,
   sourceRevision:FIRST,baseHash:HASH,ask:()=>true});
  assert.equal(review.status,'review');
  assert.equal(review.reviewOnly,true);
@@ -78,7 +78,7 @@ test('D01-04 pre-D01 v1 draft is preserved as review-only in direct-D1 editor',a
  // D01 cannot infer a D1 revision from Git SHA or the Notes hash.
  assert.equal((await x.open().read(KEY,{
   sourceRevision:FIRST,baseHash:HASH,baseRevision:1})).status,'legacy');
- const restored=await restoreD5EditorDraft({store,key:KEY,
+ const restored=await restoreD6RevisionAwareDraft({store,key:KEY,
   sourceRevision:NEXT,baseHash:HASH,baseRevision:1,ask:()=>true});
  assert.equal(restored.status,'review');
  assert.equal(restored.reviewOnly,true);
