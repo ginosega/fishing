@@ -1,12 +1,12 @@
 # Fishing project router — durable workstream pointer
 
-**Scope:** This small router is published on repository default `main` when the P5 owner-authorized operating-model activation is complete. The exact same text also exists on the canonical governance branch. **If encountered only on a non-default draft branch, it does not itself establish adoption.**
+**Scope:** This small router is published on repository default `main` when the P5 owner-authorized operating-model activation is complete. Its routed governance documents remain authoritative for dynamic project state; review this default-branch router first. **If encountered only on a non-default draft branch, it does not itself establish adoption.**
 
-Primary workstream: Fishing Companion V3 development ([draft PR #263](https://github.com/ginosega/fishing/pull/263)); resume only after independently reconciling its current source, CI, hosted and owner acceptance evidence. Operating Model v2 governance is the continuing support workstream ([issue #282](https://github.com/ginosega/fishing/issues/282)).
-Active workstreams: Fishing Companion V3 (development branch `feature/fish118-p3-mock-publisher`, verify current GitHub PR); Project governance (canonical branch `governance/project-ops`).
+Primary workstream: Fishing Companion V3 development ([current draft PR #567](https://github.com/ginosega/fishing/pull/567)); resume only after verifying live refs and reconciling source/CI, private hosted and owner acceptance evidence with the canonical [WORK_QUEUE](https://github.com/ginosega/fishing/blob/governance/project-ops/project-ops/v2/WORK_QUEUE.md) and [issue #377](https://github.com/ginosega/fishing/issues/377). Operating Model v2 governance is the continuing support workstream ([issue #282](https://github.com/ginosega/fishing/issues/282)).
+Active workstreams: Fishing Companion V3 (development branch `feature/fish118-v3-direct-gear-save`, verify current GitHub PR and exact SHA); Project governance (canonical branch `governance/project-ops`).
 Routed branch: `governance/project-ops`
 Entry point: `project-ops/v2/START_HERE.md`
-Routing reviewed at: 2026-11-01
+Routing reviewed at: 2026-11-23
 Evidence: [P1 owner design acceptance](https://github.com/ginosega/fishing/blob/governance/project-ops/project-ops/v2/P1_DESIGN_APPROVAL_2026-11-01.md) · [independent governance amendment](https://github.com/ginosega/fishing/blob/governance/project-ops/project-ops/v2/OWNER_AMENDMENT_INDEPENDENT_GOVERNANCE_2026-11-01.md) · [P4 passed](https://github.com/ginosega/fishing/blob/governance/project-ops/project-ops/v2/P4_RECOVERY_ACCEPTANCE_2026-11-01.md) · [P5 owner directive](https://github.com/ginosega/fishing/blob/governance/project-ops/project-ops/v2/P5_OWNER_DIRECTIVE_COMPLETE_GOVERNANCE_2026-11-01.md).
 
 ## Safe routing
