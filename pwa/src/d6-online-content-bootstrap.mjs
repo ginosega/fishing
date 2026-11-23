@@ -63,7 +63,22 @@ export async function chooseD6BootstrapContent({
  });
  if(!isD6DirectContentBootstrap(v3))
   return fallback('Legacy');
- if(online!==true)return fallback('Offline');
+ // O03 is an isolated opt-in. Never read a frozen release once enabled.
+ // The selected current-content cache is independently verified before use.
+ // No D1/R2 network is attempted in Work Offline or while disconnected.
+ if(typeof v3?.offlineContentReader==='function'){
+  if(typeof readMode!=='function')throw Error('V3_READING_MODE_UNAVAILABLE');
+  const mode=await readMode();
+  if(!['Automatic','Work Offline'].includes(mode))
+   throw Error('V3_READING_MODE_UNAVAILABLE');
+  if(mode==='Work Offline'||online!==true){
+   const offlineReader=await v3.offlineContentReader();
+   if(offlineReader?.source!=='v3-content'||!offlineReader.data)
+    throw Error('D6_V3_OFFLINE_CONTENT_UNAVAILABLE');
+   return {source:'v3-content',readingMode:mode,
+    data:offlineReader.data,offlineReader};
+  }
+ }else if(online!==true)return fallback('Offline');
  if(typeof readMode!=='function')throw Error('V3_READING_MODE_UNAVAILABLE');
  const mode=await readMode();
  if(!['Automatic','Work Offline'].includes(mode))
