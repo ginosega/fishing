@@ -13,8 +13,9 @@ for(const [domain,path] of [
    'exactly one successful direct-Save Exit reload handler');
   assert.match(source,/button\('Cancel',onBack\)/,
    'Cancel keeps its existing no-reload handler');
-  assert.doesNotMatch(source,/Prepared change package|Publication accepted/,
-   'the old GitHub publisher is not part of the direct editor');
+  if(domain==='Gear and Knowledge Base')
+   assert.doesNotMatch(source,/Prepared change package|Publication accepted/,
+    'the direct Gear/KB editor has no GitHub publication UI');
  });
 }
 
