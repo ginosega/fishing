@@ -170,14 +170,8 @@ export async function build(){
    ...(d6OfflineContentPreparation?{d6OfflineContentPreparation:true}:{}),
     ...(d6OfflineContentReading?{d6OfflineContentReading:true}:{}),
     ...(d6Wp2Staging?{d6Wp2Staging:true}:{})};
-  const originalLoader=await fs.readFile(path.join(repo,'pwa/src/loader.js'),'utf8');
-  const loader=d6StandaloneV3?originalLoader
-   .replace("e.data?.protocol==='fishing-companion-v2'",
-    "e.data?.protocol==='fishing-companion-v3'")
-   .replace('V1 and production v2 share sw.js. Wait only for a FISH091-capable worker',
-    'Standalone V3 waits only for its own service worker'):
-   originalLoader;
-  if(d6StandaloneV3&&loader===originalLoader)throw Error('V3 loader handshake not rewritten');
+  const loader=await fs.readFile(path.join(repo,'pwa/src',
+   d6StandaloneV3?'loader-v3.js':'loader.js'));
   const previewBanner=d6StandaloneV3?'':`<div class="preview-banner"${pendingMedia?'':' hidden'}>V2 preview · Pending media · Production remains unchanged</div>`;
   const index=`<!doctype html>\n<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#11665c"><meta name="description" content="Fishing reference and catch log"><link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icon.png" type="image/png"><link rel="apple-touch-icon" href="./icon.png"><style>${baseCss.toString()}</style><title>Fishing Companion</title><script defer src="./loader.js"></script></head><body>${previewBanner}<header class="site-header"><div class="header-inner"><a class="brand" data-nav href="#/">Fishing <span>Companion</span></a><button id="connection-status" class="connection-status" type="button" title="Connection status" aria-label="Connection status"><span class="connection-dot" aria-hidden="true"></span></button></div></header><main id="app" class="site-main" tabindex="-1"><p>Loading Fishing Companion…</p></main><aside id="app-notice" class="site-main" aria-live="polite" style="min-height:0;padding-top:0;padding-bottom:0"></aside><dialog id="connection-dialog" class="small-dialog" aria-labelledby="connection-title"><h2 id="connection-title">Connection status</h2><p id="connection-network"></p><div class="offline-panel"><span id="offline-status" class="offline-state" role="status">Offline library not prepared</span><div class="toolbar"><button id="offline-update" class="btn secondary" type="button" disabled>Update offline library</button><button id="offline-reload" class="btn secondary" type="button" disabled>Reload</button></div></div><button id="connection-close" class="btn secondary dialog-close" type="button">Close</button></dialog>${base==='/fishing/v2-preview/'?'<footer class="site-footer"><div class="footer-inner"><span id="release-details"></span></div></footer>':''}</body></html>\n`;
   await write(path.join(tmp,'index.html'),index);await write(path.join(tmp,'loader.js'),loader);

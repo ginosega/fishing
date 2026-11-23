@@ -36,6 +36,8 @@ async function network(path){const response=await fetch(networkUrl(path),{cache:
 async function loadOnlineContext(){
  const pointerBytes=await network('release.json');
  const pointer=validatePointer(JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(pointerBytes)));
+ if(standaloneV3&&pointer.standaloneV3!==true)
+  throw Error('Standalone V3 software release required');
  const manifestBytes=await network(pointer.manifest);
  const manifest=await decodeVerifiedJson(manifestBytes,pointer.manifestSha256);
  const entries=validateManifest(manifest,pointer,base);
@@ -52,6 +54,7 @@ async function completed(){
    const pointerResponse=await cache.match(absolute('release.json'));if(!pointerResponse)continue;
    const pointerBytes=await pointerResponse.arrayBuffer();
    const pointer=validatePointer(await decodeVerifiedJson(pointerBytes,meta.pointerSha256));
+   if(standaloneV3&&pointer.standaloneV3!==true)continue;
    if(pointer.id!==meta.releaseId||pointer.manifestSha256!==meta.manifestSha256)continue;
    const manifestResponse=await cache.match(absolute(pointer.manifest));if(!manifestResponse)continue;
    const manifestBytes=await manifestResponse.arrayBuffer();
