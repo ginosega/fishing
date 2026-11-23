@@ -26,6 +26,7 @@ const fakeCaches=()=>{
    };
   },
   async delete(name){return tables.delete(name);},
+  async keys(){return [...tables.keys()];},
   setFailure(fn){deny=fn;},
   async corruptImage(){
    const current=await readVerifiedD6OfflineContent({caches:api,scope});
@@ -246,4 +247,24 @@ test('O02-UX10 presentation exceptions never corrupt verified staging',async()=>
  assert.equal(result.changed,true);
  assert.equal((await readVerifiedD6OfflineContent({caches,scope})).contentId,
   data.contentId);
+});
+
+test('O02 clears prior content generations only AFTER successful promotion',async()=>{
+ const caches=fakeCaches(),old=await snapshot(),
+  next=await snapshot({rev:2,
+   files:[['one.jpg','image-one'],['two.jpg','image-two']]});
+ await prepareD6OfflineContent({snapshot:old,caches,scope,nonce,
+  fetchImage:async()=>new Response('image-one')});
+ const before=(await caches.keys()).filter(x=>x.includes('generation:'));
+ assert.equal(before.length,1);
+ await prepareD6OfflineContent({snapshot:next,caches,scope,
+  nonce:()=> '7bcde123-1234-1234-1234-123456789abc',
+  fetchImage:async()=>new Response('image-two')});
+ const after=(await caches.keys()).filter(x=>x.includes('generation:'));
+ assert.equal(after.length,1);
+ assert.notEqual(after[0],before[0]);
+ assert.equal((await readVerifiedD6OfflineContent({caches,scope})).contentId,
+  next.contentId);
+ assert.ok((await caches.keys()).some(x=>x.endsWith(':metadata')),
+  'selection metadata remains present');
 });
