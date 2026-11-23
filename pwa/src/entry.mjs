@@ -47,6 +47,8 @@ const privateOfflineContentPrep=
 const privateOfflineContentRead=
  typeof __FISHING_D6_O03_OFFLINE_READING__!=='undefined'&&
  __FISHING_D6_O03_OFFLINE_READING__===true;
+const standaloneV3=typeof __FISHING_D6_STANDALONE_V3__!=='undefined'&&
+ __FISHING_D6_STANDALONE_V3__===true;
 function d6Context(){
  if(!d6Reader)return {};
  const reader=selectD6PublicReader({enabled:true,staticStaging:d6StaticStaging,wp2Staging:d6Wp2Staging,
@@ -63,7 +65,8 @@ function d6Context(){
   wp2Staging:d6Wp2Staging,
   enabled:()=>true,online:()=>navigator.onLine===true,
  });
- const canonicalSource=createD6CanonicalSourceClient({
+ // Standalone V3 reads online content only from D1, never GitHub main.
+ const canonicalSource=standaloneV3?null:createD6CanonicalSourceClient({
   root:settings.root,expectedReleaseRevision:settings.release.sourceRevision,
   wp2Staging:d6Wp2Staging,
   request:(url,options)=>fetch(url,options),

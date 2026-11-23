@@ -59,6 +59,7 @@ test('L01-BUILD01 standalone V3 contains only verified software, never frozen re
   assert.doesNotMatch(app,/fishing-companion-change-v2/);
   assert.match(app,/V3_LEGACY_GITHUB_AUTHORING_DISABLED/);
   assert.match(app,/V3_LEGACY_GITHUB_CHANGE_PACKAGE_DISABLED/);
+  assert.doesNotMatch(app,/Canonical GitHub authoring source not verified/);
   assert.doesNotMatch(html,/V2 preview|Pending media/);
   assert.match(loader,/fishing-companion-v3/);
   assert.match(loader,/Standalone V3 software manifest required/);

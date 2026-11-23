@@ -107,12 +107,13 @@ export async function build(){
    plugins:d6StandaloneV3?[{
     name:'l01-remove-v2-editor',
     setup(builder){
-     builder.onResolve({filter:/^\.\/(?:editor|handoff|change-prompt)\.mjs$/},args=>{
+     builder.onResolve({filter:/^\.\/(?:editor|handoff|change-prompt|d6-canonical-authoring-source)\.mjs$/},args=>{
       if(!args.importer.includes('/pwa/src/'))return null;
       const replacements={
        './editor.mjs':'d6-legacy-editor-denial.mjs',
        './handoff.mjs':'d6-v3-content-paths.mjs',
        './change-prompt.mjs':'d6-legacy-change-prompt-denial.mjs',
+       './d6-canonical-authoring-source.mjs':'d6-legacy-source-denial.mjs',
       };
       return {path:path.join(repo,'pwa/src',replacements[args.path])};
      });
@@ -133,10 +134,10 @@ export async function build(){
       '__FISHING_D6_STANDALONE_V3__':d6StandaloneV3?'true':'false'}});
   if(d6StandaloneV3){
    const activeModules=Object.keys(app.metafile?.inputs??{});
-   if(activeModules.some(file=>/(?:^|\/)(?:editor|handoff|change-prompt)\.mjs$/.test(file)))
+   if(activeModules.some(file=>/(?:^|\/)(?:editor|handoff|change-prompt|d6-canonical-authoring-source)\.mjs$/.test(file)))
     throw Error('Standalone V3 must not bundle legacy GitHub handoff/editor modules');
    if(!['d6-legacy-editor-denial.mjs','d6-v3-content-paths.mjs',
-     'd6-legacy-change-prompt-denial.mjs'].every(name=>
+     'd6-legacy-change-prompt-denial.mjs','d6-legacy-source-denial.mjs'].every(name=>
      activeModules.some(file=>file.endsWith('/'+name))))
     throw Error('Standalone V3 legacy editor boundary was not applied');
   }
