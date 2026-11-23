@@ -133,6 +133,9 @@ export function createD6DirectGearWorker({
    // GitHub authoring-source or App blob/content reader. These gates remain
    // OFF even if an obsolete staging variable is accidentally reenabled.
    const authEnv={...env,
+    // Cloudflare Assets serves the software release; the old Pages proxy
+    // must never fetch GitHub Pages content in standalone V3.
+    D6_STATIC_ENABLED:'false',
     D6_SOURCE_ENABLED:'false',D6_READ_TOKEN_ENABLED:'false',
     D6_SIGNER_ENABLED:'false',D6_HOSTED_PREFLIGHT_ENABLED:'false'};
    const read=createD6ProductionRuntimeBindingContract({

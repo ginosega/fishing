@@ -77,6 +77,15 @@ test('V3-PILOT02 Worker denies wrong host or disabled direct Gear flag',async()=
  assert.equal((await worker.fetch(new Request(origin+'/api/v3/content/operations'),env)).status,404);
 });
 
+test('L01 final Worker denies GitHub content reads and old static Pages gateway',async()=>{
+ const source=readFileSync(new URL('../server/d6-direct-gear-worker.mjs',
+  import.meta.url),'utf8');
+ for(const disabled of ['D6_STATIC_ENABLED','D6_SOURCE_ENABLED',
+  'D6_READ_TOKEN_ENABLED','D6_SIGNER_ENABLED',
+  'D6_HOSTED_PREFLIGHT_ENABLED'])
+  assert.match(source,new RegExp(disabled+":'false'"));
+});
+
 test('V3-PILOT03 one existing isolated Worker hosts assets and D1; no public deployment',()=>{
  const cfg=JSON.parse(readFileSync(new URL('../wrangler.direct-gear-private.jsonc',import.meta.url),'utf8'));
  assert.equal(cfg.name,'fishing-d6-wp2-test');
