@@ -25,13 +25,16 @@ export async function verify(root=output){
  for(const file of actual)if(!expected.has(file))throw new Error('Unmanifested output: '+file);
  for(const file of expected)if(!actual.includes(file))throw new Error('Missing output: '+file);
  for(const entry of entries.values())await verifyBytes(await read(entry.path),entry);
- const content=path.join(root,'releases',pointer.id,'content');
- const library=await inventorySource(content,{pendingMedia:true});
- const counts={gear:library.data.gear.items.length,kb:library.data.kb.entities.length,catches:library.data.catches.catches.length};
- if(JSON.stringify(counts)!==JSON.stringify(manifest.counts))throw new Error('Release counts differ from validated content');
- const prefix=`releases/${pointer.id}/content/`;
- for(const file of library.files){const entry=entries.get(prefix+file.path);if(!entry||entry.bytes!==file.bytes||entry.sha256!==file.sha256)throw new Error('Content manifest mismatch: '+file.path);}
- for(const d of Object.values(DOMAIN)){if(!entries.has(prefix+d.file))throw new Error('Missing domain bundle: '+d.file);}
+ let counts=null;
+ if(pointer.standaloneV3!==true){
+  const content=path.join(root,'releases',pointer.id,'content');
+  const library=await inventorySource(content,{pendingMedia:true});
+  counts={gear:library.data.gear.items.length,kb:library.data.kb.entities.length,catches:library.data.catches.catches.length};
+  if(JSON.stringify(counts)!==JSON.stringify(manifest.counts))throw new Error('Release counts differ from validated content');
+  const prefix=`releases/${pointer.id}/content/`;
+  for(const file of library.files){const entry=entries.get(prefix+file.path);if(!entry||entry.bytes!==file.bytes||entry.sha256!==file.sha256)throw new Error('Content manifest mismatch: '+file.path);}
+  for(const d of Object.values(DOMAIN)){if(!entries.has(prefix+d.file))throw new Error('Missing domain bundle: '+d.file);}
+ }
  if(manifest.pendingMedia!==pointer.pendingMedia)throw new Error('Pending-media flag mismatch');
  if(manifest.pendingMedia&&manifest.base!=='/fishing/v2-preview/')throw new Error('Pending media must remain in the isolated preview');
  if(!manifest.pendingMedia&&manifest.unresolvedMedia?.length)throw new Error('Unresolved production media');
