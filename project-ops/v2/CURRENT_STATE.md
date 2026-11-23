@@ -1,6 +1,6 @@
 # Fishing Project — current state
 
-Last reconciled (UTC): **2026-11-23 — O03 PRIVATE OWNER PASS; D01 source next.** App [draft PR #567](https://github.com/ginosega/fishing/pull/567) `201396405561aba9`; [exact-head CI #45116096198](https://github.com/ginosega/fishing/actions/runs/45116096198) 702/702 PASS. Worker `62c84098`, release `b63a756ced263e5d691c1a6126391cdb`; Edge + Android [owner acceptance](https://github.com/ginosega/fishing/issues/377#issuecomment-7092816372). Public V2 unchanged; no merge or cutover.
+Last reconciled (UTC): **2026-11-23 — D01 SOURCE-ONLY CI PASS; PRIVATE OWNER DEPLOYMENT PENDING.** App [draft PR #567](https://github.com/ginosega/fishing/pull/567) `e104416f`; [exact-head CI #45121508697](https://github.com/ginosega/fishing/actions/runs/45121508697) 709/709 PASS. O03 Edge/Android owner accepted. [D01 receipt](https://github.com/ginosega/fishing/issues/377#issuecomment-7092977384). Public V2 unchanged; no merge, private D01 deployment or cutover.
 
 **O01 source-only exit (2026-11-22 Pacific):** App PR #567 `9534a633`, [exact-head CI #45086501775](https://github.com/ginosega/fishing/actions/runs/45086501775) PASS (647/647; seven O01 tests). One D1.batch captures content/Markdown and R2 registry SHA/size, compatibility and references, rejecting broken links and races; inert historical refs retained. **Not deployed; no R2 bytes, offline cache or field PASS.** [Receipt #377](https://github.com/ginosega/fishing/issues/377#issuecomment-7088054611).
 
