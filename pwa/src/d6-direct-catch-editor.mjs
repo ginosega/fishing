@@ -13,7 +13,7 @@ import {createNotesMarkdownEditor} from './notes-markdown-editor.mjs';
 import {DIRECT_D1_MEDIA_CAPABILITIES,presentD6OwnerImageCapability}
  from './d6-owner-media-capabilities.mjs';
 import {saveD6OwnerEditorMedia} from './d6-owner-media-editor-save.mjs';
-import {restoreD5EditorDraft,saveD5EditorDraft} from './d5-editor-recovery.mjs';
+import {restoreD6RevisionAwareDraft,saveD6RevisionAwareDraft} from './d6-revision-aware-draft-recovery.mjs';
 import {catchLureTargets,filterCatchLureTargets,applyCatchLureSelection}
  from './catch-lure-picker.mjs';
 
@@ -158,7 +158,7 @@ export async function createCatchEditor(ctx,{
  }
  const draftStore=ctx.v3?.drafts??null;
  const draftKey='catches:'+(editing?'edit:'+baseRecord.id:'add:catch');
- const recovery=await restoreD5EditorDraft({store:draftStore,key:draftKey,
+ const recovery=await restoreD6RevisionAwareDraft({store:draftStore,key:draftKey,
   sourceRevision:ctx.release.sourceRevision,baseHash,
   baseRevision:directCatch?directRevision:null});
  if(recovery.status==='restored'||recovery.status==='review'){
@@ -199,7 +199,7 @@ export async function createCatchEditor(ctx,{
    void draftStore.discard(draftKey).catch(warnDraft);
    return;
   }
-  void saveD5EditorDraft({store:draftStore,key:draftKey,domain:'catches',
+  void saveD6RevisionAwareDraft({store:draftStore,key:draftKey,domain:'catches',
    sourceRevision:ctx.release.sourceRevision,baseHash,
    baseRevision:directCatch?directRevision:null,record,
    notes:notesText,requiresMedia:Boolean(notesEditor?.uploads().length)})
