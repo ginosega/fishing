@@ -339,6 +339,13 @@ export function createApp(ctx){
  for(const a of document.querySelectorAll('[data-nav]'))a.addEventListener('click',event=>{event.preventDefault();navigate(a.getAttribute('href'));});
  offline=createOffline({
   root:ctx.root,releaseId:ctx.release.id,v3ReadingMode:readerOnly,
+  // No current release supplies this opt-in transport. Explicit user action
+  // is the only way to invoke it once a separately verified build does.
+  prepareContent:readerOnly&&
+   typeof ctx.v3?.offlineContentTransportFactory==='function'?
+    options=>ctx.v3.offlineContentTransportFactory({
+     readingMode:()=>offline?.getMode?.()||'Checking',
+    }).prepare(options):null,
   onMode:(_mode,_available,feedback)=>updateModeControls(feedback),
   onStatus:state=>{
    // Source-only O02 status events do not replace the old FISH091 contract.
