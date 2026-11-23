@@ -55,3 +55,13 @@ test('O02-DEPLOY03 existing accepted M02 script cannot activate O02',()=>{
  assert.doesNotMatch(priorScript,/--d6-o02-offline-content/);
  assert.doesNotMatch(priorScript,/D6_O02_OFFLINE_SNAPSHOT_ENABLED/);
 });
+
+test('O02-DEPLOY04 preflight selects its own working directory',()=>{
+ assert.match(script,/Set-Location \(Split-Path -Parent \$PSScriptRoot\)/,
+  'PowerShell script must derive the PWA directory from its own location');
+ const instructions=read('../docs/O02_PRIVATE_DEPLOYMENT.md');
+ assert.doesNotMatch(instructions,/^cd pwa\s*$/m,
+  'owner must never be asked to change directories');
+ assert.match(instructions,/git -C \$Repo fetch origin/);
+ assert.match(instructions,/Join-Path \$Repo 'pwa\\tools\\d6-o02-private-deploy\.ps1'/);
+});
