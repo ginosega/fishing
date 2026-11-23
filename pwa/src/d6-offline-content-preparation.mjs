@@ -151,38 +151,78 @@ async function selected({caches,scope}){
  */
 export async function prepareD6OfflineContent({
  snapshot,caches,scope,fetchImage,
- onProgress=()=>{},nonce=()=>crypto.randomUUID(),
+ onProgress=()=>{},onStatus=()=>{},nonce=()=>crypto.randomUUID(),
 }={}){
- scope=originScope(scope);
- check(caches&&typeof caches.open==='function'&&
-  typeof caches.delete==='function'&&typeof fetchImage==='function'&&
-  typeof nonce==='function','Preparation unavailable');
- const images=await verifyD6OfflineContentManifest(snapshot);
- let previous=await selected({caches,scope});
- if(previous?.snapshot.contentId===snapshot.contentId)
-  return {contentId:snapshot.contentId,changed:false,
-   reused:images.size,downloaded:0};
- const stageName=prefix(scope)+'generation:'+snapshot.contentId+':'+nonce();
- check(stageName.length<320&&/:[0-9a-f-]{8,}$/.test(stageName),
-  'Invalid stage identity');
- const stage=await caches.open(stageName);
- let reused=0,downloaded=0,selectedNew=false;
+ let previous=null,stageName=null,selectedNew=false;
+ let total=0,completed=0,step='checking',reused=0,downloaded=0;
+ // The UI receives only bounded phase/number/error codes, not raw exception
+ // details, user content, R2 keys or network response bodies.
+ const emit=(phase,detail={})=>{
+  try{onStatus({phase,completed,total,
+   previousVerified:Boolean(previous),...detail});}
+  catch{/* Presentation cannot affect content integrity. */}
+ };
+ const reason=error=>{
+  if(error?.name==='QuotaExceededError')return 'storage';
+  if(error?.code==='NETWORK_UNAVAILABLE'||
+     globalThis.navigator?.onLine===false)return 'network';
+  if(step==='images'&&
+     (error?.code==='IMAGE_UNAVAILABLE'||
+      String(error?.message||'').includes('R2 image')))
+   return 'image';
+  return 'content';
+ };
  try{
+  scope=originScope(scope);
+  check(caches&&typeof caches.open==='function'&&
+   typeof caches.delete==='function'&&typeof fetchImage==='function'&&
+   typeof nonce==='function','Preparation unavailable');
+  emit('checking');
+  const images=await verifyD6OfflineContentManifest(snapshot);
+  total=images.size;
+  previous=await selected({caches,scope});
+  if(previous?.snapshot.contentId===snapshot.contentId){
+   completed=total;
+   emit('unchanged',{reused:total,downloaded:0});
+   return {contentId:snapshot.contentId,changed:false,
+    reused:total,downloaded:0};
+  }
+  stageName=prefix(scope)+'generation:'+snapshot.contentId+':'+nonce();
+  check(stageName.length<320&&/:[0-9a-f-]{8,}$/.test(stageName),
+   'Invalid stage identity');
+  const stage=await caches.open(stageName);
+  step='images';
+  emit('images',{reused,downloaded});
   for(const image of images.values()){
    const key=imageKey(scope,image.sha256);
    let bytes=await cachedBytes(previous?.cache,key,image);
    if(bytes){reused++;}
    else{
-    const raw=await fetchImage(image);
+    let raw;
+    try{raw=await fetchImage(image);}
+    catch(error){
+     // A browser network failure differs from a fetched image with a
+     // mismatched SHA/size; both retain the last complete generation.
+     if(error?.name==='TypeError'){
+      const networkError=Error('R2_IMAGE_NETWORK_UNAVAILABLE');
+      networkError.code='NETWORK_UNAVAILABLE';
+      throw networkError;
+     }
+     throw error;
+    }
     check(raw instanceof Response&&raw.ok&&raw.type!=='opaque',
      'R2 image unavailable');
     bytes=await verifyImage(await raw.arrayBuffer(),image);
     downloaded++;
    }
    await stage.put(key,response(bytes));
-   try{onProgress({completed:reused+downloaded,total:images.size});}
-   catch{/* UI progress must not alter the verified operation */}
+   completed++;
+   try{onProgress({completed,total,reused,downloaded});}
+   catch{/* Progress cannot affect verified cache writes. */}
+   emit('images',{reused,downloaded});
   }
+  step='verifying';
+  emit('verifying',{reused,downloaded});
   await stage.put(manifestKey(scope),jsonResponse(snapshot));
   await stage.put(markerKey(scope),jsonResponse({
    complete:true,contentId:snapshot.contentId,
@@ -193,12 +233,15 @@ export async function prepareD6OfflineContent({
    contentId:snapshot.contentId,cacheName:stageName,
   }));
   selectedNew=true;
+  emit('complete',{reused,downloaded});
   return {contentId:snapshot.contentId,changed:true,reused,downloaded};
  }catch(error){
-  if(!selectedNew)try{await caches.delete(stageName);}catch{}
+  if(stageName&&!selectedNew)try{await caches.delete(stageName);}catch{}
+  emit('error',{reason:reason(error),reused,downloaded});
   throw error;
  }
 }
+
 /** Never report ready on metadata alone: verify selected payload and images. */
 export async function readVerifiedD6OfflineContent({caches,scope}={}){
  scope=originScope(scope);
