@@ -147,3 +147,14 @@ test('O02-UX11 Prepare/Update button stays disabled until combined verification'
   phase:'error',reason:'network',previousVerified:false,
  },'Incomplete')),'Prepare');
 });
+
+test('O02-UX12 failure/success messages do not enable a still-running update',()=>{
+ for(const phase of ['error','complete','unchanged']){
+  const task={phase,previousVerified:true,libraryReady:true,
+   reason:'network',completed:272,total:272};
+  const value=v3OfflineLibraryDisplay({
+   ...status(task),updating:true,
+  },context);
+  assert.equal(value.busy,true);
+ }
+});
