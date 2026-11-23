@@ -144,6 +144,17 @@ async function selected({caches,scope}){
   return entry.snapshot.contentId===selection.contentId?entry:null;
  }catch{return null;}
 }
+// Keep only the selected complete content generation after successful
+// promotion. Never touch FISH091 software caches or unrelated storage.
+// A failed cache deletion is harmless: a later explicit update retries.
+async function pruneRetiredContentGenerations(caches,scope,selectedName){
+ if(typeof caches.keys!=='function')return;
+ let names;
+ try{names=await caches.keys();}catch{return;}
+ for(const name of names)if(name.startsWith(prefix(scope)+'generation:')&&
+    name!==selectedName)
+  try{await caches.delete(name);}catch{/* keep last selected intact */}
+}
 /**
  * Explicit user action only. All writes are to a new private generation;
  * selection changes last, after complete cache byte readback. Errors remove
@@ -233,6 +244,7 @@ export async function prepareD6OfflineContent({
    contentId:snapshot.contentId,cacheName:stageName,
   }));
   selectedNew=true;
+  await pruneRetiredContentGenerations(caches,scope,stageName);
   emit('complete',{reused,downloaded});
   return {contentId:snapshot.contentId,changed:true,reused,downloaded};
  }catch(error){
