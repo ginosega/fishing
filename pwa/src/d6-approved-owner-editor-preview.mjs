@@ -451,7 +451,7 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
     // After verified direct D1 Save, Exit returns to the item and reloads
     // the current D1 catalog and R2 image manifest. Cancel never reloads.
     actions.replaceChildren(button('Exit',()=>{
-     onExit();window.location.reload();
+     onExit({savedId:candidate.id});window.location.reload();
     },{variant:'primary'}));
     notice.replaceChildren();actionNotice.replaceChildren();
     const success=directGear?'Saved. Click Exit to return to the refreshed Gear item.':
