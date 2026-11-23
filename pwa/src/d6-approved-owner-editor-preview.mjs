@@ -17,7 +17,7 @@ import {DIRECT_D1_MEDIA_CAPABILITIES,presentD6OwnerImageCapability}
  from './d6-owner-media-capabilities.mjs';
 import {saveD6OwnerEditorMedia} from './d6-owner-media-editor-save.mjs';
 import {draftNotesPreviewOptions} from './editor-preview.mjs';
-import {restoreD5EditorDraft,saveD5EditorDraft} from './d5-editor-recovery.mjs';
+import {restoreD6RevisionAwareDraft,saveD6RevisionAwareDraft} from './d6-revision-aware-draft-recovery.mjs';
 
 const clone=value=>structuredClone(value);
 function serialize(record){return JSON.stringify(record);}
@@ -108,7 +108,7 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
  const draftStore=publishChange?ctx.v3?.drafts??null:null;
  const draftKey=domain+':'+(editing?'edit:'+baseRecord.id:
   'add:'+(domain==='gear'?record.category:record.type));
- const recovery=await restoreD5EditorDraft({store:draftStore,key:draftKey,
+ const recovery=await restoreD6RevisionAwareDraft({store:draftStore,key:draftKey,
   sourceRevision:ctx.release.sourceRevision,baseHash,
   baseRevision:directSave?directRevision:null});
  if(recovery.status==='restored'||recovery.status==='review'){
@@ -141,7 +141,7 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
    void draftStore.discard(draftKey).catch(warnDraft);
    return;
   }
-  void saveD5EditorDraft({store:draftStore,key:draftKey,domain,
+  void saveD6RevisionAwareDraft({store:draftStore,key:draftKey,domain,
    sourceRevision:ctx.release.sourceRevision,baseHash,
    baseRevision:directSave?directRevision:null,
    record,notes:body,requiresMedia:mediaAction!=='keep'||
