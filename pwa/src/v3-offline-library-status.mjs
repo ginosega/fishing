@@ -65,7 +65,8 @@ export function v3OfflineLibraryDisplay(status,options={}){
   const retained=status?.state==='Ready'&&task.previousVerified===true;
   const reason=Object.hasOwn(ISSUES,task.reason)?task.reason:'content';
   return {label:retained?legacy.label:'Offline library not prepared',
-   message:ISSUES[reason][retained?'retained':'first'],busy:false};
+   message:ISSUES[reason][retained?'retained':'first'],
+   busy:status.updating===true};
  }
  if(phase==='complete'||phase==='unchanged'){
   // The O02 source component alone does NOT prove that the existing
@@ -73,7 +74,7 @@ export function v3OfflineLibraryDisplay(status,options={}){
   if(status?.state==='Ready'&&task.libraryReady===true){
    return {label:legacy.label,message:phase==='unchanged'?
     'Offline library is already up to date.':
-    'Offline library is ready for offline use.',busy:false};
+    'Offline library is ready for offline use.',busy:status.updating===true};
   }
   return {label:'Preparing offline library'+countLabel(task,'images'),
    message:'Verifying offline library integrity…',busy:true};
