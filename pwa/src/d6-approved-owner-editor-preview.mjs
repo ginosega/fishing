@@ -222,11 +222,11 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
   const hasPicture=Boolean(baseRecord?.picture||
    (mediaAction==='keep'&&record.picture));
   if(hasSequence){
-   if(domain==='kb'&&record.type==='knot')return [['keep','Keep current sequence'],['replace-sequence','Replace step-by-step sequence'],['replace-with-static','Replace with single picture'],['remove-sequence-keep-picture','Remove sequence, keep representative picture'],['remove-picture','Remove picture']];
-   return [['keep','Keep current sequence'],['replace-with-static','Replace with single picture'],['remove-sequence-keep-picture','Remove sequence, keep representative picture'],['remove-picture','Remove picture']];
+   if(domain==='kb'&&record.type==='knot')return [['keep','Keep current sequence'],['replace-sequence','Replace step-by-step sequence'],['replace-with-static','Replace with single picture'],['remove-sequence-keep-picture','Remove sequence, keep representative picture'],['remove-picture','Remove picture from item']];
+   return [['keep','Keep current sequence'],['replace-with-static','Replace with single picture'],['remove-sequence-keep-picture','Remove sequence, keep representative picture'],['remove-picture','Remove picture from item']];
   }
-  if(domain==='kb'&&record.type==='knot')return hasPicture?[['keep','Keep current picture'],['replace-static','Replace picture'],['replace-with-sequence','Replace with step-by-step sequence'],['remove-picture','Remove picture']]:[['keep','Keep no picture'],['add-static','Add picture'],['add-sequence','Add step-by-step sequence']];
-  return hasPicture?[['keep','Keep current picture'],['replace-static','Replace picture'],['remove-picture','Remove picture']]:[['keep','Keep no picture'],['add-static','Add picture']];
+  if(domain==='kb'&&record.type==='knot')return hasPicture?[['keep','Keep current picture'],['replace-static','Replace picture'],['replace-with-sequence','Replace with step-by-step sequence'],['remove-picture','Remove picture from item']]:[['keep','Keep no picture'],['add-static','Add picture'],['add-sequence','Add step-by-step sequence']];
+  return hasPicture?[['keep','Keep current picture'],['replace-static','Replace picture'],['remove-picture','Remove picture from item']]:[['keep','Keep no picture'],['add-static','Add picture']];
  }
  function renderActionOptions(typeChanged=false){
   const options=actionOptions();if(!options.some(([value])=>value===mediaAction)){const hadLocal=Boolean(fileInfo||sequenceInfos.length);revokeLocal();mediaAction='keep';
