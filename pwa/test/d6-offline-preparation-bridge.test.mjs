@@ -17,9 +17,12 @@ async function withWorker({prepareState='Ready',content=null},check){
   if(message.type==='CHECK_CURRENT'){
    ports[0].postMessage({type:'FISHING_V2_CURRENT',releaseId});return;
   }
-  const status=message.type==='PREPARE'&&prepareState!=='Ready'?
+  const status=message.type==='PREPARE'&&prepareState==='Incomplete'?
    {state:'Incomplete',releaseId:null,files:0,bytes:0,
-    failed:[],message:'Software verification failed'}:ready();
+    failed:[],message:'Software verification failed'}:
+   message.type==='PREPARE'&&prepareState==='OldReadyAfterFailure'?
+    {...ready(),message:'Update incomplete; prior software retained.'}:
+   ready();
   ports[0].postMessage({type:'FISHING_V2_STATUS',status});
  }};
  const reg={active:worker,installing:null,update:async()=>{}};
@@ -115,5 +118,17 @@ test('O02-BRIDGE04 existing FISH091-only preparation stays unchanged',async()=>{
   assert.equal(offline.getStatus().contentPreparation,null);
   assert.equal(offline.getStatus().state,'Ready');
   assert.equal(calls.includes('PREPARE'),true);
+ });
+});
+
+test('O02-BRIDGE05 a failed FISH091 update reporting old Ready blocks content',async()=>{
+ let contentCalls=0;
+ await withWorker({prepareState:'OldReadyAfterFailure',
+  content:async()=>{contentCalls++;}},
+ ({offline})=>{
+  assert.equal(contentCalls,0);
+  assert.equal(offline.getStatus().contentPreparation,null);
+  assert.equal(offline.getStatus().state,'Ready',
+   'the previous complete software library remains usable');
  });
 });
