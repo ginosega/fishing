@@ -8,26 +8,35 @@ O02 source gate: [draft PR #567](https://github.com/ginosega/fishing/pull/567). 
 
 ## Owner Windows deployment (no credentials shared)
 
-With a clean checkout of the exact, verified PR #567 head:
+From **any PowerShell directory**, use a dedicated checkout at `$HOME\fishing-o02-private`. These commands handle checkout location themselves. The deployment script uses `$PSScriptRoot` to select its own `pwa` directory, so you never need to run `cd` or `Set-Location`.
 
 ```powershell
-git fetch origin feature/fish118-v3-direct-gear-save
-git switch feature/fish118-v3-direct-gear-save
-git pull --ff-only origin feature/fish118-v3-direct-gear-save
-cd pwa
-git rev-parse HEAD
+$Repo = Join-Path $HOME 'fishing-o02-private'
+$Branch = 'feature/fish118-v3-direct-gear-save'
+if (-not (Test-Path (Join-Path $Repo '.git'))) {
+  if (Test-Path $Repo) { throw 'O02 checkout path exists but is not a Git repository.' }
+  git clone --single-branch --branch $Branch https://github.com/ginosega/fishing.git $Repo
+  if ($LASTEXITCODE -ne 0) { throw 'O02 clone failed; stop.' }
+} else {
+  git -C $Repo fetch origin $Branch
+  if ($LASTEXITCODE -ne 0) { throw 'O02 fetch failed; stop.' }
+  git -C $Repo switch $Branch
+  if ($LASTEXITCODE -ne 0) { throw 'O02 checkout failed; stop.' }
+  git -C $Repo pull --ff-only origin $Branch
+  if ($LASTEXITCODE -ne 0) { throw 'O02 fast-forward failed; stop.' }
+}
 ```
 
-Copy the **40-character** verified SHA from the source checkpoint into `-ExpectedRevision`. First run the non-mutating preflight:
+Copy the **40-character** verified SHA from the current exact-head CI checkpoint into `-ExpectedRevision`. First run the non-mutating preflight:
 
 ```powershell
-.\tools\d6-o02-private-deploy.ps1 -ExpectedRevision <verified-full-40-character-SHA>
+& (Join-Path $Repo 'pwa\tools\d6-o02-private-deploy.ps1') -ExpectedRevision <verified-full-40-character-SHA>
 ```
 
-On `O02 PRIVATE PREFLIGHT PASS`, run the explicitly approved deployment:
+Only after `O02 PRIVATE PREFLIGHT PASS`, run the separately approved deployment, still from **any** PowerShell directory:
 
 ```powershell
-.\tools\d6-o02-private-deploy.ps1 -ExpectedRevision <same-verified-full-40-character-SHA> -Deploy
+& (Join-Path $Repo 'pwa\tools\d6-o02-private-deploy.ps1') -ExpectedRevision <same-verified-full-40-character-SHA> -Deploy
 ```
 
 The script requires exact source, clean tracked files, Node.js 24, unchanged private origin, D1/R2/Images bindings and secrets, prior M02/M03 flags, correct release/manifest identities, source build validation, Wrangler dry-run, and **read-only live D1 totals**. Only after these pass and `-Deploy` is present does it deploy the *existing* private Worker. It then checks hosted source/release identity, anonymous media denial, and anonymous snapshot denial (expected 403).
