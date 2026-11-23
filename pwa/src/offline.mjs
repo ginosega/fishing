@@ -146,7 +146,8 @@ export function createOffline({root,releaseId,onStatus,isDirty,notify,
    if(typeof prepareContent==='function'){
     // Never stage current D1/R2 content unless the FISH091 software
     // release is already verified and complete.
-    if(prepared?.state!=='Ready')
+    if(prepared?.state!=='Ready'||!prepared.releaseId||
+       prepared.message||prepared.failed?.length)
      throw Error('Offline software release was not verified');
     contentStarted=true;
     await prepareContent({
@@ -161,8 +162,10 @@ export function createOffline({root,releaseId,onStatus,isDirty,notify,
     // A complete content cache alone does not authorize a Ready message:
     // recheck the separate software-release FISH091 integrity gate first.
     const verified=await command('STATUS');
-    if(verified?.state!=='Ready')
-     throw Error('Offline software release was not verified');
+    if(verified?.state!=='Ready'||
+       verified.releaseId!==prepared.releaseId||
+       verified.message||verified.failed?.length)
+     throw Error('Offline software release changed during preparation');
     if(!['complete','unchanged'].includes(lastContentStatus?.phase))
      throw Error('Offline content result was not verified');
     publish({message:'',contentPreparation:{
