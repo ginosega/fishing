@@ -109,12 +109,15 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
  const draftKey=domain+':'+(editing?'edit:'+baseRecord.id:
   'add:'+(domain==='gear'?record.category:record.type));
  const recovery=await restoreD5EditorDraft({store:draftStore,key:draftKey,
-  sourceRevision:ctx.release.sourceRevision,baseHash});
- if(recovery.status==='restored'){
+  sourceRevision:ctx.release.sourceRevision,baseHash,
+  baseRevision:directSave?directRevision:null});
+ if(recovery.status==='restored'||recovery.status==='review'){
   for(const fieldName of Object.keys(record))delete record[fieldName];
   Object.assign(record,recovery.record);body=recovery.notes;
  }
- const draftWritable=!['stale','corrupt','unavailable'].includes(recovery.status);
+ const reviewOnly=recovery.reviewOnly===true;
+ const draftWritable=!reviewOnly&&
+  !['stale','corrupt','unavailable','conflict','legacy'].includes(recovery.status);
  const restoredMediaMissing=recovery.status==='restored'&&recovery.requiresMedia===true;
  const host=el('div',{class:'editor'}),notice=el('div',{class:'editor-notice','aria-live':'polite'}),form=el('form',{class:'editor-form'}),output=el('div',{class:'handoff-output'});
  if(recovery.message)status(notice,recovery.message,
@@ -122,6 +125,11 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
  let draftSequence=0;
  const warnDraft=()=>status(notice,
   'Device draft could not be saved. Keep this editor open until the changes are safely submitted.','warning');
+ const reviewAction=reviewOnly?toolbar(button('Discard saved draft and reload',async()=>{
+  if(!confirm('Discard this saved draft permanently and reload the current server record?'))return;
+  try{await draftStore.discard(draftKey);location.reload();}
+  catch{status(notice,'The saved draft could not be discarded. It was retained.','warning');}
+ },{variant:'danger'})):null;
  const discardDraft=async()=>{
   ++draftSequence;
   if(draftStore&&draftWritable)await draftStore.discard(draftKey);
@@ -135,6 +143,7 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
   }
   void saveD5EditorDraft({store:draftStore,key:draftKey,domain,
    sourceRevision:ctx.release.sourceRevision,baseHash,
+   baseRevision:directSave?directRevision:null,
    record,notes:body,requiresMedia:mediaAction!=='keep'||
     Boolean(notesEditor?.uploads().length)})
    .then(()=>{if(sequence===draftSequence&&!saveAccepted)
@@ -143,7 +152,7 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
  };
  const dirty=()=>!saveAccepted&&(serialize(record)!==original||body!==initialBody||mediaAction!=='keep');
  function changed(){if(saveAccepted)return;prepared=null;output.replaceChildren();
-  if(directSave)prepareButton.disabled=!dirty();
+  if(directSave)prepareButton.disabled=reviewOnly||!dirty();
   onDirty?.(dirty());persistDraft();}
  function update(fieldName,value){optional(record,fieldName,value);changed();}
  function revokeLocal(clearInput=true){if(previewUrl){URL.revokeObjectURL(previewUrl);previewUrl=null;}for(const url of sequenceUrls)URL.revokeObjectURL(url);sequenceUrls=[];fileInfo=null;sequenceInfos=[];if(clearInput)fileInput.value='';}
@@ -346,6 +355,7 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
   // Even programmatic submissions cannot stage media or send a write.
   if(ctx.v3?.ownerAuthoringPreview===true&&!directSave)return;
   if(savePending||saveAccepted)return;
+  if(reviewOnly){status(notice,'This saved draft is for copying only. Save is blocked until you discard it and open a fresh edit.','warning');return;}
   savePending=true;prepareButton.disabled=true;
   notice.replaceChildren();actionNotice.replaceChildren();
   try{
@@ -487,14 +497,15 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
    status(notice,message,'error');
    status(actionNotice,message,'error');
   }
-  finally{savePending=false;if(!saveAccepted)prepareButton.disabled=false;}
+  finally{savePending=false;if(!saveAccepted)prepareButton.disabled=reviewOnly;}
  });
  const actions=toolbar(prepareButton,button('Cancel',onBack));
  prepareButton.disabled=true;
  prepareButton.setAttribute('aria-label',directGear?'Save Gear':directKB?'Save Knowledge Base':'Save and Publish unavailable in WP1 preview');
  const blocked=directSave?null:text('p','Editor preview only. Save and Publish is disabled until the secure production publishing pipeline is complete. Your changes have not been submitted.','hint');
  form.append(actions,actionNotice);
- host.append(notice,...(blocked?[blocked]:[]),form,output);
+ host.append(notice,...(reviewAction?[reviewAction]:[]),
+  ...(blocked?[blocked]:[]),form,output);
  return {element:host,isDirty:dirty,discardDraft,dispose:()=>{revokeLocal();notesEditor?.dispose();},record};
 }
 
