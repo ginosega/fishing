@@ -107,9 +107,14 @@ export async function build(){
    plugins:d6StandaloneV3?[{
     name:'l01-remove-v2-editor',
     setup(builder){
-     builder.onResolve({filter:/^\.\/editor\.mjs$/},args=>{
-      if(path.basename(args.importer)!=='ui.mjs')return null;
-      return {path:path.join(repo,'pwa/src/d6-legacy-editor-denial.mjs')};
+     builder.onResolve({filter:/^\.\/(?:editor|handoff|change-prompt)\.mjs$/},args=>{
+      if(!args.importer.includes('/pwa/src/'))return null;
+      const replacements={
+       './editor.mjs':'d6-legacy-editor-denial.mjs',
+       './handoff.mjs':'d6-v3-content-paths.mjs',
+       './change-prompt.mjs':'d6-legacy-change-prompt-denial.mjs',
+      };
+      return {path:path.join(repo,'pwa/src',replacements[args.path])};
      });
     },
    }]:[],define:{'process.env.NODE_ENV':'"production"',
@@ -130,7 +135,9 @@ export async function build(){
    const activeModules=Object.keys(app.metafile?.inputs??{});
    if(activeModules.some(file=>/(?:^|\/)(?:editor|handoff|change-prompt)\.mjs$/.test(file)))
     throw Error('Standalone V3 must not bundle legacy GitHub handoff/editor modules');
-   if(!activeModules.some(file=>file.endsWith('/d6-legacy-editor-denial.mjs')))
+   if(!['d6-legacy-editor-denial.mjs','d6-v3-content-paths.mjs',
+     'd6-legacy-change-prompt-denial.mjs'].every(name=>
+     activeModules.some(file=>file.endsWith('/'+name))))
     throw Error('Standalone V3 legacy editor boundary was not applied');
   }
   const baseCss=await fs.readFile(path.join(repo,'pwa/src/styles.css')),cardIconCss=await fs.readFile(path.join(repo,'pwa/src/card-icons.css')),pageHeroCss=await fs.readFile(path.join(repo,'pwa/src/page-hero.css')),css=Buffer.concat([baseCss,Buffer.from('\n'),cardIconCss,Buffer.from('\n'),pageHeroCss]);

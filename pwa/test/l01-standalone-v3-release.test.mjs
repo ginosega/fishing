@@ -58,6 +58,7 @@ test('L01-BUILD01 standalone V3 contains only verified software, never frozen re
   const app=await fs.readFile(path.join(out,'releases',pointer.id,'app.js'),'utf8');
   assert.doesNotMatch(app,/fishing-companion-change-v2/);
   assert.match(app,/V3_LEGACY_GITHUB_AUTHORING_DISABLED/);
+  assert.match(app,/V3_LEGACY_GITHUB_CHANGE_PACKAGE_DISABLED/);
   assert.doesNotMatch(html,/V2 preview|Pending media/);
   assert.match(loader,/fishing-companion-v3/);
   assert.doesNotMatch(loader,/fishing-companion-v2/);
