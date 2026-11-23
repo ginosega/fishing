@@ -1,7 +1,7 @@
 // D6 selectively adopts the accepted V3 reading preference over the
 // existing explicit, verified offline library. No private owner pilot or writer.
 export function createOffline({root,releaseId,onStatus,isDirty,notify,
- v3ReadingMode=false,onMode=()=>{}}){
+ v3ReadingMode=false,onMode=()=>{},prepareContent=null}){
  let registration=null,updating=false,checking=null,switching=false,warned=false;
  let mode='Automatic',modeAvailable=false;
  let status={state:'Incomplete',releaseId:null,files:0,bytes:0,failed:[]};
@@ -116,21 +116,71 @@ export function createOffline({root,releaseId,onStatus,isDirty,notify,
  }
  async function update(){
   if(updating)return;
-  if(!navigator.onLine){publish({...status,message:'Reconnect to the internet before updating the offline library.'});return;}
+  if(!navigator.onLine){
+   publish({...status,message:'Reconnect to the internet before updating the offline library.'});
+   return;
+  }
   updating=true;
   if(!registration){await start();if(!registration){updating=false;return;}}
-  publish({state:'Downloading',releaseId:status.releaseId,message:'Checking the current production release…'});
+  // The accepted V2/FISH091 path is unchanged when no owner-authorized
+  // O02 transport has been explicitly supplied by a verified V3 build.
+  publish({state:'Downloading',releaseId:status.releaseId,
+   contentPreparation:null,
+   message:'Checking the current production release…'});
+  let contentStarted=false,lastContentStatus=null;
   try{
-   // A worker update is lightweight under FISH091; it never provisions content.
    await registration.update();
    const worker=registration.installing;
    if(worker)await new Promise((resolve,reject)=>{
-    const changed=()=>{if(worker.state==='activated'){worker.removeEventListener('statechange',changed);resolve();}else if(worker.state==='redundant'){worker.removeEventListener('statechange',changed);reject(new Error('The current service worker could not activate.'));}};
+    const changed=()=>{
+     if(worker.state==='activated'){
+      worker.removeEventListener('statechange',changed);resolve();
+     }else if(worker.state==='redundant'){
+      worker.removeEventListener('statechange',changed);
+      reject(new Error('The current service worker could not activate.'));
+     }
+    };
     worker.addEventListener('statechange',changed);changed();
    });
-   await command('PREPARE');
+   const prepared=await command('PREPARE');
+   if(typeof prepareContent==='function'){
+    // Never stage current D1/R2 content unless the FISH091 software
+    // release is already verified and complete.
+    if(prepared?.state!=='Ready')
+     throw Error('Offline software release was not verified');
+    contentStarted=true;
+    await prepareContent({
+     caches:globalThis.caches,scope:root,
+     onStatus:progress=>{
+      lastContentStatus=progress;
+      publish({message:'',contentPreparation:{
+       ...progress,libraryReady:false,
+      }});
+     },
+    });
+    // A complete content cache alone does not authorize a Ready message:
+    // recheck the separate software-release FISH091 integrity gate first.
+    const verified=await command('STATUS');
+    if(verified?.state!=='Ready')
+     throw Error('Offline software release was not verified');
+    if(!['complete','unchanged'].includes(lastContentStatus?.phase))
+     throw Error('Offline content result was not verified');
+    publish({message:'',contentPreparation:{
+     ...lastContentStatus,libraryReady:true,
+    }});
+   }
    if(v3ReadingMode)await refreshMode();
-  }catch(error){await command('STATUS').catch(()=>{});publish({...status,message:error.message});}finally{updating=false;publish(status);}
+  }catch(error){
+   await command('STATUS').catch(()=>{});
+   if(contentStarted){
+    const latest=status.contentPreparation;
+    if(latest?.phase!=='error')publish({contentPreparation:{
+     phase:'error',reason:'content',
+     previousVerified:latest?.previousVerified===true,
+    }});
+    publish({message:''});
+   }else publish({...status,message:error.message});
+  }finally{updating=false;publish(status);}
  }
  function reload(){if(updating){notify('The offline update is still running. Reload when it finishes.');return;}if(isDirty()&&!confirm('Your prepared changes have not been saved. Discard the current edit and reload?'))return;location.reload();}
  function dispose(){navigator.serviceWorker?.removeEventListener('message',handler);navigator.serviceWorker?.removeEventListener('controllerchange',controllerChanged);window.removeEventListener('focus',becameActive);window.removeEventListener('pageshow',becameActive);window.removeEventListener('online',becameActive);document.removeEventListener('visibilitychange',becameActive);}
