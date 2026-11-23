@@ -1,6 +1,7 @@
 /* Verified online-current releases plus explicit complete offline-library generations. */
 import {encodedPath} from './shared.mjs';
 import {validatePointer,validateManifest,verifyBytes,decodeVerifiedJson,isReleaseId,isDigest} from './release.mjs';
+import {readD6OfflineImage} from './d6-offline-content-image-route.mjs';
 
 const scope=self.registration.scope;
 const base=new URL(scope).pathname;
@@ -10,6 +11,9 @@ const marker=new URL('__fishing_complete__',scope).href;
 const selectionKey=new URL('__fishing_selected__',scope).href;
 const v3ReadingMode=typeof __FISHING_V3_READING_MODE__!=='undefined'&&
  __FISHING_V3_READING_MODE__===true;
+// This route is absent from the deployed O02 service worker.
+const o03OfflineContent=typeof __FISHING_D6_O03_OFFLINE_READING__!=='undefined'&&
+ __FISHING_D6_O03_OFFLINE_READING__===true;
 const readingModeKey=new URL('__fishing_v3_reading_mode__',scope).href;
 const absolute=relative=>new URL(encodedPath(relative),scope).href;
 const clientContexts=new Map();
@@ -205,6 +209,13 @@ self.addEventListener('fetch',event=>{
  event.respondWith((async()=>{
   const offlineOnly=(await readingMode())==='Work Offline';
   let relative;try{relative=decodeURIComponent(url.pathname.slice(scopeUrl.pathname.length));}catch{return new Response('Invalid resource path',{status:400});}
+  // Only a selected complete V3 content generation may serve SHA-addressed images.
+  // No network, legacy image path or R2 fallback is available here.
+  if(o03OfflineContent&&/^__fishing_v3_content_image__\/[a-f0-9]{64}$/.test(relative))
+   return readD6OfflineImage({caches,scope,
+    digest:relative.slice('__fishing_v3_content_image__/'.length)});
+  if(relative.startsWith('__fishing_v3_content_image__/'))
+   return new Response('Not found',{status:404});
   if(relative==='__fishing_complete__'||relative==='__fishing_selected__'||
      relative==='__fishing_v3_reading_mode__')return new Response('Not found',{status:404});
   const target=request.mode==='navigate'&&(!relative||relative==='index.html')?'index.html':relative;
