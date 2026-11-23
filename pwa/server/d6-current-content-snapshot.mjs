@@ -35,23 +35,40 @@ const ownerKey = (domain,id) => domain+'/'+id;
 const refKey = (domain,id,path) => JSON.stringify([domain,id,path]);
 const byteLength = text => UTF8.encode(text).byteLength;
 const ordered = (a,b) => a < b ? -1 : a > b ? 1 : 0;
+export const D6_CONTENT_READER_VERSION=1;
+export function isD6CurrentContentSnapshotCompatible(snapshot,
+ readerVersion=D6_CONTENT_READER_VERSION){
+ const range=snapshot?.readerCompatibility,schemas=snapshot?.schemaVersions;
+ return snapshot?.format==='fishing-content-snapshot-v1'&&
+  Number.isSafeInteger(readerVersion)&&readerVersion>0&&
+  Number.isSafeInteger(range?.min)&&Number.isSafeInteger(range?.max)&&
+  range.min<=readerVersion&&readerVersion<=range.max&&
+  schemas?.gear===2&&schemas?.kb===2&&schemas?.catches===2;
+}
 
-function imagePaths(text,owner){
+function imagePaths(text,owner,maps,pathRoutes){
  if(!text)return [];
  if(!owner)return fail('Markdown has no owning path');
- const found = new Set(),stack = md.parse(text,{}).slice();
+ const found=new Set(),stack=md.parse(text,{}).slice();
  while(stack.length){
   const token=stack.pop();
   if(token.children)stack.push(...token.children);
-  if(token.type!=='image')continue;
-  if(!token.content?.trim())fail('Image missing alternative text');
-  const value=token.attrGet('src');
-  if(typeof value!=='string'||/[?#]/.test(value))
-   fail('Unsafe Markdown image URL');
+  if(token.type!=='image'&&token.type!=='link_open')continue;
+  const image=token.type==='image';
+  if(image&&!token.content?.trim())fail('Image missing alternative text');
+  const value=token.attrGet(image?'src':'href');
+  if(typeof value!=='string'||image&&/[?#]/.test(value))
+   fail(image?'Unsafe Markdown image URL':'Invalid Markdown link');
   let resolved;
-  try{resolved=resolveMarkdownTarget(value,{owner,
+  try{resolved=resolveMarkdownTarget(value,{owner,maps,pathRoutes,
    assetBase:'https://example.invalid/fishing/'});}
-  catch{fail('Unsafe Markdown image URL');}
+  catch{fail(image?'Unsafe Markdown image URL':'Invalid Markdown link');}
+  if(!image){
+   // Every local link must resolve to a current record route; a stale file
+   // link cannot be advertised as usable in the independently cached graph.
+   if(resolved.kind==='local')fail('Unresolved Markdown link resource');
+   continue;
+  }
   if(resolved.kind!=='local'||!d6HistoricalMime(resolved.local))
    fail('Nonlocal or unsupported Markdown image');
   found.add(resolved.local);
@@ -108,6 +125,8 @@ export async function createD6CurrentContentSnapshot({CONTENT_DB}={}){
    try{record=JSON.parse(row.record_json);}
    catch{fail('Invalid D1 record JSON');}
    if(!record||record.id!==row.id)fail('Record ID mismatch');
+   if(row.markdown.trim()&&!record[spec.path])
+    fail('Markdown has no owning path');
    const source=canonical(record);
    const entry={domain:spec.domain,id:row.id,revision:row.revision,
     record,recordBytes:byteLength(source),recordSha256:await sha256(source),
@@ -120,7 +139,8 @@ export async function createD6CurrentContentSnapshot({CONTENT_DB}={}){
    fail('Original '+spec.domain+' identities missing');
   data[spec.domain]={schemaVersion:2,[spec.bundle]:items};
  }
- try{validateRecords(data);validateLibraryPaths(data);}
+ let maps,pathRoutes;
+ try{maps=validateRecords(data);pathRoutes=validateLibraryPaths(data);}
  catch{fail('Invalid cross-domain content graph');}
 
  const objectRows=readRows(batches,4),objects=new Map();
@@ -163,7 +183,8 @@ export async function createD6CurrentContentSnapshot({CONTENT_DB}={}){
   const wanted=new Set();
   if(entry.record.picture?.src)wanted.add(entry.record.picture.src);
   for(const path of entry.record.pictureSequence||[])wanted.add(path);
-  for(const path of imagePaths(entry.markdown,owner))wanted.add(path);
+  for(const path of imagePaths(entry.markdown,owner,maps,pathRoutes))
+   wanted.add(path);
   for(const raw of wanted){
    let path;
    try{path=safePath(raw);}catch{fail('Invalid linked image path');}
@@ -184,6 +205,8 @@ export async function createD6CurrentContentSnapshot({CONTENT_DB}={}){
    usedRefs.add(key);
   }
  }
+ for(const [key,ref] of refs)if(!usedRefs.has(key)&&ref.historical===0)
+  fail('Unlinked current media association');
  const images=[...linked.values()].sort((a,b)=>ordered(a.logicalPath,b.logicalPath));
  for(const item of images)item.owners.sort((a,b)=>
   ordered(ownerKey(a.domain,a.recordId),ownerKey(b.domain,b.recordId)));
