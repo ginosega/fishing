@@ -6,6 +6,8 @@ import {createD6CanonicalSourceClient} from './d6-canonical-authoring-source.mjs
 import {createD6DirectGearClient} from './d6-direct-gear-client.mjs';
 import {createD6DirectKBClient} from './d6-direct-kb-client.mjs';
 import {createD6DirectCatchClient} from './d6-direct-catch-client.mjs';
+import {createD6OfflineContentTransport}
+ from './d6-offline-content-transport.mjs';
 import {installPageHero} from './page-hero.mjs';
 const settings=globalThis.__FISHING_BOOT__;
 installPageHero();
@@ -35,6 +37,10 @@ const privateOwnerMediaCandidate=
 const privateR2CardThumbnails=
  typeof __FISHING_D6_R2_CARD_THUMBNAILS__!=='undefined'&&
  __FISHING_D6_R2_CARD_THUMBNAILS__===true;
+// O02 source-only opt-in; absent from all existing release identities.
+const privateOfflineContentPrep=
+ typeof __FISHING_D6_O02_OFFLINE_CONTENT__!=='undefined'&&
+ __FISHING_D6_O02_OFFLINE_CONTENT__===true;
 function d6Context(){
  if(!d6Reader)return {};
  const reader=selectD6PublicReader({enabled:true,staticStaging:d6StaticStaging,wp2Staging:d6Wp2Staging,
@@ -92,6 +98,16 @@ function d6Context(){
     settings.release?.d6R2CardThumbnails!==true||
     settings.manifest?.d6R2CardThumbnails!==true))
   throw Error('Private M03 thumbnails require verified release identity');
+ if(privateOfflineContentPrep&&(!privateR2CardThumbnails||
+    !privateOwnerMediaCandidate||!directCatchEnabled||
+    settings.release?.d6OfflineContentPreparation!==true||
+    settings.manifest?.d6OfflineContentPreparation!==true))
+  throw Error('O02 offline preparation needs verified private M03 release identity');
+ const offlineContentTransportFactory=privateOfflineContentPrep?
+  ({readingMode})=>createD6OfflineContentTransport({
+   root:settings.root,request:(url,options)=>fetch(url,options),
+   enabled:()=>true,readingMode,
+  }):null;
  const directGearClient=directGearEnabled?createD6DirectGearClient({
   root:settings.root,request:(url,options)=>fetch(url,options),
   enabled:()=>true,online:()=>navigator.onLine===true,
@@ -110,7 +126,8 @@ function d6Context(){
   directKBEnabled,directKBClient,directCatchEnabled,directCatchClient,
   liveMediaReadApproved:privateOwnerMediaCandidate,
   thumbnailReadApproved:privateR2CardThumbnails,
-  ownerMediaUploadCandidate:privateOwnerMediaCandidate}};
+  ownerMediaUploadCandidate:privateOwnerMediaCandidate,
+  offlineContentTransportFactory}};
 }
 Promise.resolve().then(()=>bootstrap(settings,d6Context())).catch(error=>{
  const main=document.getElementById('app');main.replaceChildren();
