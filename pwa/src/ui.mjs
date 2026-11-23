@@ -188,7 +188,20 @@ export function createApp(ctx){
      null:ownerMediaCoordinator,
    }};
  }
- function notify(message,kind='info'){status(alertHost,message,kind);}
+ const offlineEditorWarning='The unsaved editor stays open, but publishing is disabled in Work Offline.';
+ function notify(message,kind='info'){
+  // A dirty editor must show the Work Offline warning at its Save/Cancel
+  // actions, not in the page-level alert beneath the entire editor.
+  const actionNotice=message===offlineEditorWarning&&dirty()?
+   editor?.element?.querySelector('.editor-action-feedback'):null;
+  if(actionNotice){
+   alertHost.replaceChildren();
+   actionNotice.classList.add('editor-offline-action-feedback');
+   status(actionNotice,message,kind);
+   return;
+  }
+  status(alertHost,message,kind);
+ }
  function dirty(){return Boolean(editor?.isDirty());}
  function canLeave(){return !dirty()||confirm('Your changes have not been saved. Discard this edit and leave?');}
  function disposeEditor(){editor?.dispose?.();editor=null;}
@@ -608,6 +621,15 @@ export function createApp(ctx){
   if(!readerOnly||!readingModeStatus)return;
   const available=offline.getModeAvailable()===true;
   const mode=offline.getMode();
+  // Retire only our temporary Work Offline warning when returning to
+  // Automatic; never clear unrelated Save results or draft notices.
+  if(mode==='Automatic'){
+   const actionNotice=editor?.element?.querySelector('.editor-offline-action-feedback');
+   if(actionNotice){
+    actionNotice.classList.remove('editor-offline-action-feedback');
+    actionNotice.replaceChildren();
+   }
+  }
   readingModeStatus.textContent=feedback.message||
    (available?'Reading mode: '+mode:'Reading controls unavailable.');
   if(approvedConnection)readingModeStatus.hidden=available&&!feedback.message;
