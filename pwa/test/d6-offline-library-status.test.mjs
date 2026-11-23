@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {v3OfflineLibraryDisplay}
  from '../src/v3-offline-library-status.mjs';
+import {v3OfflineLibraryActionLabel}
+ from '../src/v3-offline-library-action.mjs';
 
 const context={online:true,currentReleaseId:'abc123'};
 const status=(contentPreparation,state='Ready')=>({
@@ -127,4 +129,21 @@ test('O02-UX06 UI keeps existing two spans without a new progress panel',()=>{
  assert.match(ui,/display\.message\?\[text\('span',display\.message,'hint'\)\]/);
  assert.match(ui,/const busy=display\.busy/);
  assert.doesNotMatch(ui,/O02_PROGRESS_BAR|v3-new-offline-progress-bar/);
+});
+
+test('O02-UX11 Prepare/Update button stays disabled until combined verification',()=>{
+ for(const phase of ['checking','images','verifying','complete','unchanged']){
+  assert.equal(v3OfflineLibraryActionLabel(status({
+   phase,libraryReady:false,
+  })),'Preparing…');
+ }
+ assert.equal(v3OfflineLibraryActionLabel(status({
+  phase:'complete',libraryReady:true,
+ })),'Update');
+ assert.equal(v3OfflineLibraryActionLabel(status({
+  phase:'error',reason:'storage',previousVerified:true,
+ })),'Update');
+ assert.equal(v3OfflineLibraryActionLabel(status({
+  phase:'error',reason:'network',previousVerified:false,
+ },'Incomplete')),'Prepare');
 });
