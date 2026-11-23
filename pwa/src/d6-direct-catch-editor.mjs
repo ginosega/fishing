@@ -435,7 +435,7 @@ export async function createCatchEditor(ctx,{
     // After verified direct D1 Save, Exit returns to the item and reloads
     // the current D1 catalog and R2 image manifest. Cancel never reloads.
     actions.replaceChildren(button('Exit',()=>{
-     onExit();window.location.reload();
+     onExit({savedId:candidate.id});window.location.reload();
     },{variant:'primary'}));
     output.replaceChildren();notice.replaceChildren();actionNotice.replaceChildren();
     const message='Saved. Click Exit to return to the refreshed Catch Log.';
