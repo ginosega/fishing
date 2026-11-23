@@ -66,9 +66,11 @@ export async function chooseD6BootstrapContent({
  // O03 is an isolated opt-in. Never read a frozen release once enabled.
  // The selected current-content cache is independently verified before use.
  // No D1/R2 network is attempted in Work Offline or while disconnected.
+ let verifiedMode=null;
  if(typeof v3?.offlineContentReader==='function'){
   if(typeof readMode!=='function')throw Error('V3_READING_MODE_UNAVAILABLE');
   const mode=await readMode();
+  verifiedMode=mode;
   if(!['Automatic','Work Offline'].includes(mode))
    throw Error('V3_READING_MODE_UNAVAILABLE');
   if(mode==='Work Offline'||online!==true){
@@ -80,7 +82,7 @@ export async function chooseD6BootstrapContent({
   }
  }else if(online!==true)return fallback('Offline');
  if(typeof readMode!=='function')throw Error('V3_READING_MODE_UNAVAILABLE');
- const mode=await readMode();
+ const mode=verifiedMode??await readMode();
  if(!['Automatic','Work Offline'].includes(mode))
   throw Error('V3_READING_MODE_UNAVAILABLE');
  if(mode==='Work Offline')return fallback(mode);
