@@ -154,3 +154,41 @@ test('O02-NET05 changed R2 bytes or unavailable image retains old selection',asy
    initial.contentId,'previously verified content must remain selected');
  }
 });
+
+async function seedLegacyCache(caches,content){
+ const releaseId='b'.repeat(32);
+ const cacheName='fishing-v2:/fishing/:offline:owner-existing:'+releaseId;
+ const metadata=await caches.open('fishing-v2:/fishing/:metadata');
+ await metadata.put(new URL('__fishing_selected__',scope).href,
+  new Response(JSON.stringify({cacheName,releaseId})));
+ const legacy=await caches.open(cacheName);
+ await legacy.put(new URL('releases/'+releaseId+
+  '/content/Gear/Lures/assets/owner-original.jpg',scope).href,
+  new Response(content));
+ return cacheName;
+}
+test('O02-NET06 first prep reuses existing FISH091 images only after current SHA proof',async()=>{
+ const caches=storage(),current=await snapshot();
+ const legacy=await seedLegacyCache(caches,'picture-one');
+ const {client,calls}=transport(current);
+ const result=await client.prepare({caches,scope});
+ assert.equal(result.reused,1);
+ assert.equal(result.downloaded,0);
+ assert.equal(calls.length,1,'no duplicate image download for current SHA');
+ assert((await caches.keys()).includes(legacy),
+  'existing FISH091 offline library must remain untouched');
+ assert.equal((await readVerifiedD6OfflineContent({caches,scope})).contentId,
+  current.contentId);
+});
+
+test('O02-NET07 stale FISH091 candidate never bypasses private R2 fetch',async()=>{
+ const caches=storage(),current=await snapshot();
+ await seedLegacyCache(caches,'corrupt-one');
+ const {client,calls}=transport(current);
+ const result=await client.prepare({caches,scope});
+ assert.equal(result.reused,0);
+ assert.equal(result.downloaded,1);
+ assert.equal(calls.length,2,'fallback fetches authenticated R2 original');
+ assert.equal((await readVerifiedD6OfflineContent({caches,scope})).contentId,
+  current.contentId);
+});
