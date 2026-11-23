@@ -2,15 +2,20 @@ import {createApp} from './ui.mjs';
 import {validateRecords} from './validation.mjs';
 import {DOMAIN,encodedPath} from './shared.mjs';
 import {chooseD6BootstrapContent,readD6VerifiedMode} from './d6-online-content-bootstrap.mjs';
-import {createD6ContentImageResolver,d6ResolveImageForDisplay,loadD6PublishedMediaPaths} from './d6-content-image-resolver.mjs';
+import {createD6ContentImageResolver,loadD6PublishedMediaPaths} from './d6-content-image-resolver.mjs';
 
 export async function bootstrap({root,release},{v3=null}={}){
  const base=new URL('releases/'+release.id+'/',root).href;
+ const standalone=release.standaloneV3===true;
+ if(standalone&&(!(v3?.enabled===true&&v3?.readerOnly===true)||
+    typeof v3.offlineContentReader!=='function'||
+    v3.liveMediaReadApproved!==true))
+  throw Error('STANDALONE_V3_CONTENT_RUNTIME_UNAVAILABLE');
  // Private fully migrated V3 reads current Gear, KB and Catches from D1
  // directly in verified Automatic. Opted-in O03 Work Offline reads the
  // complete V3 content cache, never a frozen release or network fallback.
  const selected=await chooseD6BootstrapContent({
-  v3,online:navigator.onLine===true,
+  v3,standalone,online:navigator.onLine===true,
   readMode:()=>readD6VerifiedMode(),
   loadRelease:async()=>{
    const catalogs=await Promise.all(Object.entries(DOMAIN).map(async([domain,config])=>{
@@ -26,7 +31,8 @@ export async function bootstrap({root,release},{v3=null}={}){
  const offlineContent=selected.source==='v3-content'?
   selected.offlineReader:null;
  const manifest=globalThis.__FISHING_BOOT__.manifest;
- const asset=file=>new URL('content/'+encodedPath(file),base).href;
+ const asset=file=>standalone?null:
+  new URL('content/'+encodedPath(file),base).href;
  // Live media URLs are selectable ONLY with an independent verified D1
  // media registry and an explicitly approved, separately mounted reader.
  // This flag is not configured in the current Worker or V3 owner client.
@@ -45,13 +51,15 @@ export async function bootstrap({root,release},{v3=null}={}){
    publishedPaths:mediaPaths,
    thumbnailEnabled:()=>v3?.thumbnailReadApproved===true,
   }):null;
+ if(standalone&&selected.source==='d1'&&!liveMedia)
+  throw Error('STANDALONE_V3_MEDIA_UNAVAILABLE');
  const image=file=>offlineContent?offlineContent.image(file):
-  liveMedia?d6ResolveImageForDisplay(file,{verifiedLive:liveMedia,
-   frozenAsset:asset,strictOnline:true}):asset(file);
+  liveMedia?liveMedia.resolve(file):asset(file);
  const thumbnail=file=>{
   if(offlineContent)return offlineContent.thumbnail(file);
   if(liveMedia)return v3?.thumbnailReadApproved===true?
    liveMedia.resolveThumbnail(file):image(file);
+  if(standalone)return null;
   const thumb=manifest.cardThumbnails?.[file];
   return thumb?new URL('card-thumbnails/'+encodedPath(thumb),base).href:asset(file);
  };
@@ -66,6 +74,8 @@ export async function bootstrap({root,release},{v3=null}={}){
   ...(v3?.enabled===true&&v3?.readerOnly===true?{v3:{...v3,
    contentSource:selected.source,contentReadingMode:selected.readingMode}}:{}),
  };
- window.__FISHING_V2__={releaseId:release.id,sourceRevision:release.sourceRevision,counts:{gear:data.gear.items.length,kb:data.kb.entities.length,catches:data.catches.catches.length}};
+ const runtimeInfo={releaseId:release.id,sourceRevision:release.sourceRevision,counts:{gear:data.gear.items.length,kb:data.kb.entities.length,catches:data.catches.catches.length}};
+ if(standalone)window.__FISHING_V3__=runtimeInfo;
+ else window.__FISHING_V2__=runtimeInfo;
  createApp(context);
 }
