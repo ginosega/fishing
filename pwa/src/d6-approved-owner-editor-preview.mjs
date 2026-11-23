@@ -9,6 +9,7 @@ import {DOMAIN,GEAR_CATEGORIES,KB_TYPES,ROD_TYPES,EQUIPMENT_TYPES,ID_PATTERN,cat
 import {TAXONOMY,validateRecord,validateRecords} from './validation.mjs';
 import {parseMarkdown,sanitizeHtml,markdownRouteMap} from './markdown.mjs';
 import {prepareChange,narrativePath,picturePath,equal} from './handoff.mjs';
+import {newNarrativePath} from './d6-v3-content-paths.mjs';
 import {changePackageClipboardText} from './change-prompt.mjs';
 import {openViewer,openSequenceViewer} from './viewer.mjs';
 import {validateBrowserImage} from './image-validation.mjs';
@@ -170,10 +171,7 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
     recalcSequencePaths();
     // An unsubmitted new record's image and Knot paths follow its
     // generated ID when the owner changes Name after selecting files.
-    if(fileInfo&&record.picture&&record.id){
-     const path=picturePath(domain,record,fileInfo.name);
-     record.picture.src=path;picturePathInput.value=path;
-    }
+    refreshSelectedPicturePath();
     renderPicture();
    }
    changed();
@@ -188,7 +186,7 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
   'ID (generated automatically)',idInput));
  const categoryControls=el('div',{class:'form-grid'});let typeSelect=null;
  if(domain==='gear'){
-  const categorySelect=select(GEAR_CATEGORIES.map(r=>[r[0],r[1]]),record.category,()=>{record.category=categorySelect.value;const choices=typesFor(record.category);if(!choices.includes(record.type))record.type=choices[0];typeSelect.replaceChildren(...choices.map(x=>el('option',{value:x},x)));typeSelect.value=record.type;notesEditor?.syncPaths();changed();});
+  const categorySelect=select(GEAR_CATEGORIES.map(r=>[r[0],r[1]]),record.category,()=>{record.category=categorySelect.value;const choices=typesFor(record.category);if(!choices.includes(record.type))record.type=choices[0];typeSelect.replaceChildren(...choices.map(x=>el('option',{value:x},x)));typeSelect.value=record.type;notesEditor?.syncPaths();refreshSelectedPicturePath();renderPicture();changed();});
   const typesFor=c=>c==='rods-reels'?ROD_TYPES:c==='accessories'?EQUIPMENT_TYPES:TAXONOMY[c];
   typeSelect=select(typesFor(record.category),record.type,()=>{record.type=typeSelect.value;notesEditor?.syncPaths();changed();});
   categoryControls.append(field('Category',categorySelect),field('Type',typeSelect));
@@ -201,14 +199,22 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
   }
   form.append(repeater('Specifications','specifications',[['label','Label (optional)'],['value','Value']]),repeater('Links','links',[['label','Label'],['url','URL']]));
  }else{
-  typeSelect=select(KB_TYPES.map(r=>[r[0],r[1]]),record.type,()=>{record.type=typeSelect.value;notesEditor?.syncPaths();renderActionOptions(true);renderPicture();changed();});
+  typeSelect=select(KB_TYPES.map(r=>[r[0],r[1]]),record.type,()=>{record.type=typeSelect.value;notesEditor?.syncPaths();renderActionOptions(true);refreshSelectedPicturePath();renderPicture();changed();});
   form.append(field('Type',typeSelect),control('Description',record.description||'',value=>update('description',value),{maxlength:80,hint:'Optional, maximum 80 characters.'}));
  }
 
- const pictureHost=el('div',{class:'picture-editor'}),pictureInfo=el('div',{}),fileInput=el('input',{type:'file',accept:acceptedImages}),picturePathInput=input(record.picture?.src||'',{placeholder:'Repository-relative picture path'}),captionInput=input(record.picture?.caption||'',{maxlength:1000}),pictureSelect=select([],mediaAction,()=>{mediaAction=pictureSelect.value;revokeLocal();applyAction();renderActionOptions(false);renderPicture();changed();});
+ const pictureHost=el('div',{class:'picture-editor'}),pictureInfo=el('div',{}),fileInput=el('input',{type:'file',accept:acceptedImages}),picturePathInput={value:record.picture?.src||''},captionInput=input(record.picture?.caption||'',{maxlength:1000}),pictureSelect=select([],mediaAction,()=>{mediaAction=pictureSelect.value;revokeLocal();applyAction();renderActionOptions(false);renderPicture();changed();});
+ // Logical paths remain internal; the owner selects a file, never a repository path.
+ function refreshSelectedPicturePath(){
+  if(!fileInfo||!record.picture||!ID_PATTERN.test(record.id))return;
+  const path=picturePath(domain,record,fileInfo.name);
+  record.picture.src=path;picturePathInput.value=path;
+ }
  function actionOptions(){
-  const hasSequence=Boolean(record.pictureSequence?.length||baseRecord?.pictureSequence?.length);
-  const hasPicture=Boolean(record.picture||baseRecord?.picture);
+  const hasSequence=Boolean(baseRecord?.pictureSequence?.length||
+   (mediaAction==='keep'&&record.pictureSequence?.length));
+  const hasPicture=Boolean(baseRecord?.picture||
+   (mediaAction==='keep'&&record.picture));
   if(hasSequence){
    if(domain==='kb'&&record.type==='knot')return [['keep','Keep current sequence'],['replace-sequence','Replace step-by-step sequence'],['replace-with-static','Replace with single picture'],['remove-sequence-keep-picture','Remove sequence, keep representative picture'],['remove-picture','Remove picture']];
    return [['keep','Keep current sequence'],['replace-with-static','Replace with single picture'],['remove-sequence-keep-picture','Remove sequence, keep representative picture'],['remove-picture','Remove picture']];
@@ -217,7 +223,9 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
   return hasPicture?[['keep','Keep current picture'],['replace-static','Replace picture'],['remove-picture','Remove picture']]:[['keep','Keep no picture'],['add-static','Add picture']];
  }
  function renderActionOptions(typeChanged=false){
-  const options=actionOptions();if(!options.some(([value])=>value===mediaAction)){revokeLocal();mediaAction='keep';if(typeChanged&&baseRecord){if(baseRecord.picture===undefined)delete record.picture;else record.picture=clone(baseRecord.picture);
+  const options=actionOptions();if(!options.some(([value])=>value===mediaAction)){const hadLocal=Boolean(fileInfo||sequenceInfos.length);revokeLocal();mediaAction='keep';
+    if(!editing&&hadLocal){delete record.picture;delete record.pictureSequence;picturePathInput.value='';}
+    if(typeChanged&&baseRecord){if(baseRecord.picture===undefined)delete record.picture;else record.picture=clone(baseRecord.picture);
      if(baseRecord.pictureSequence===undefined)delete record.pictureSequence;
      else record.pictureSequence=clone(baseRecord.pictureSequence);} }
   pictureSelect.replaceChildren(...options.map(([value,label])=>el('option',{value,selected:value===mediaAction},label)));pictureSelect.value=mediaAction;
@@ -231,7 +239,6 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
   if(mediaAction==='remove-sequence-keep-picture'){if(baseRecord?.picture)record.picture=clone(baseRecord.picture);delete record.pictureSequence;picturePathInput.value=record.picture?.src||'';captionInput.value=record.picture?.caption||captionInput.value;}
   if(mediaAction==='replace-with-static'){delete record.pictureSequence;}
  }
- picturePathInput.addEventListener('input',()=>{if(picturePathInput.readOnly)return;fileInfo=null;if(previewUrl){URL.revokeObjectURL(previewUrl);previewUrl=null;}if(mediaAction==='keep')mediaAction=record.picture?'replace-static':'add-static';renderActionOptions(false);if(picturePathInput.value)record.picture={src:picturePathInput.value,...(captionInput.value?{caption:captionInput.value}:{})};renderPicture();changed();});
  function refreshCaptionPreview(){const figure=pictureInfo.querySelector('figure.picture');if(!figure)return;let caption=figure.querySelector('figcaption');if(captionInput.value){if(!caption){caption=el('figcaption',{});figure.append(caption);}caption.textContent=captionInput.value;}else caption?.remove();}
  captionInput.addEventListener('input',()=>{if(record.picture)optional(record.picture,'caption',captionInput.value);refreshCaptionPreview();changed();});
  function orderedSequenceFiles(files){
@@ -252,7 +259,7 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
  fileInput.addEventListener('change',chooseFile);
  function renderPicture(){
   pictureInfo.replaceChildren();const sequenceMode=SEQUENCE_ACTIONS.has(mediaAction),existingSequence=Boolean(record.pictureSequence?.length),hasLocalSequence=sequenceInfos.length>0;
-  fileInput.multiple=sequenceMode;fileInput.disabled=!(sequenceMode||STATIC_FILE_ACTIONS.has(mediaAction));picturePathInput.readOnly=sequenceMode||(mediaAction==='keep'&&existingSequence);
+  fileInput.multiple=sequenceMode;fileInput.disabled=!(sequenceMode||STATIC_FILE_ACTIONS.has(mediaAction))||!ID_PATTERN.test(record.id);
   const resolveSavedImage=ctx.image||ctx.asset;
   const savedPaths=knownPaths(ctx);
   const src=mediaAction==='remove-picture'?null:hasLocalSequence?
@@ -279,11 +286,16 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
   if(mediaAction==='remove-sequence-keep-picture')pictureInfo.append(text('p','The sequence reference will be removed; the representative picture will remain. Source bytes are not deleted.','hint'));
   if(domain==='kb'&&record.type!=='knot'&&record.pictureSequence)pictureInfo.append(text('p','This entry still has a step-by-step sequence. Replace it with a single picture, keep only its representative picture, or remove the picture before preparing changes.','notice warning'));
   const fileLabel=sequenceMode?'Choose local pictures':'Choose a local picture';
-  pictureHost.replaceChildren(field('Picture action',pictureSelect),pictureInfo,field(fileLabel,fileInput,ctx.v3?.mediaCapabilities?.canUploadNewImages===true?(sequenceMode?'Select the ordered step-01, step-02, ... originals. All will upload with Save.':'The original image will upload with Save.'):(sequenceMode?'Select the complete sequence; files must be named step-01, step-02, ... and manually uploaded to the repository.':'File must be manually uploaded to repository')),field('Repository picture path',picturePathInput),field('Caption (optional)',captionInput));
+  pictureHost.replaceChildren(field('Picture action',pictureSelect),pictureInfo,
+   field(fileLabel,fileInput,!ID_PATTERN.test(record.id)?
+    'Enter the item Name before selecting pictures.':
+    sequenceMode?'Select ordered step-01, step-02, ... files. All upload with Save.':
+    'The original picture uploads with Save.'),
+   field('Caption (optional)',captionInput));
   if(publishChange&&ctx.v3?.mediaCapabilities?.canUploadNewImages!==true){
    // Image actions remain unavailable until authenticated D4 staging is enabled.
    // Hide the obsolete v2 manual-upload suggestion in the gated UI.
-   for(const control of [pictureSelect,fileInput,picturePathInput,captionInput])
+   for(const control of [pictureSelect,fileInput,captionInput])
     control.disabled=true;
    pictureHost.replaceChildren(pictureInfo,text('p','Image changes and Knot sequences will become available with integrated uploads. Existing images are preserved.','hint'));
   }
@@ -387,14 +399,14 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
    }
    if(mediaAction==='keep'&&candidate.picture)optional(candidate.picture,'caption',captionInput.value);
    if(candidate.pictureSequence&&candidate.type!=='knot')throw new Error('Step-by-step sequences are Knot-only. Resolve the sequence before changing this entry to another Type.');
-   if(!editing){if(body)candidate[key]=narrativePath(domain,candidate);else delete candidate[key];}
+   if(!editing){if(body)candidate[key]=directSave?newNarrativePath(domain,candidate):narrativePath(domain,candidate);else delete candidate[key];}
    if(domain==='gear'&&body.trim()&&!candidate.notes)
     candidate.notes=d6GearNotesPathForSave(candidate,body);
    if(domain==='kb'&&!body.trim())throw new Error('Knowledge Base Notes are required.');
    const result=editorMaps(ctx,domain,candidate);validateRecord(candidate,domain,ctx.data);
    const owner=candidate[key]||narrativePath(domain,candidate),parsed=parseMarkdown(body,{owner,maps:result.maps,assetBase:ctx.base,exists:new Set([...knownPaths(ctx),...notesUploads.map(x=>x.path)]),pathRoutes:result.routes});void parsed;
-   if(candidate.picture&&!knownPaths(ctx).has(candidate.picture.src)&&!fileInfo&&!sequenceSet)throw new Error('The picture is not in this release. Select its local file before preparing or upload the original to the repository first.');
-   if(fileInfo&&candidate.picture.src!==picturePath(domain,candidate,fileInfo.name))throw new Error('The selected file must use its proposed repository path.');
+   if(candidate.picture&&!knownPaths(ctx).has(candidate.picture.src)&&!fileInfo&&!sequenceSet)throw new Error('This picture is not saved. Select its original image file before saving.');
+   if(fileInfo&&candidate.picture.src!==picturePath(domain,candidate,fileInfo.name))throw new Error('The selected picture no longer matches this item. Select the original file again.');
    if(fileInfo&&knownPaths(ctx).has(candidate.picture.src)){const existingFile=knownFiles(ctx).get(candidate.picture.src);if(existingFile.sha256!==fileInfo.sha256&&!['replace-static','replace-with-static'].includes(mediaAction))throw new Error('A different file already exists at this path. Use an explicit replacement.');}
    if(sequenceSet){for(const info of sequenceInfos){const existingFile=knownFiles(ctx).get(info.path);if(existingFile&&existingFile.sha256!==info.sha256&&mediaAction==='add-sequence')throw new Error(`A different file already exists at ${info.path}. Use an explicit replacement.`);}}
    if(directSave){
