@@ -6,7 +6,7 @@
 
 State: closed
 Owner: project owner; assistant implementation
-Next safe action: Routine in-place upkeep only, through protected governance PRs; do not reopen migration solely because PWA app development resumes.
+**Next safe action: L01 SOURCE ONLY** — audit and remove V2-only runtime paths on [app draft #567](https://github.com/ginosega/fishing/pull/567) `ebb2eb24` ([CI 711/711](https://github.com/ginosega/fishing/actions/runs/45125958392)). Preserve V3 D1/R2, verified offline content and drafts. No deploy/merge/public cutover approval. A01 remains OPEN. Carry forward the undeployed D01 warning-spacing visual check to the next approved private deployment ([receipt](https://github.com/ginosega/fishing/issues/377#issuecomment-7093627469)).
 Prerequisites: P1 design approval and independence amendment; completed P2, P3, P4 and P5 evidence.
 Acceptance: Five bounded current documents, permanent static transfer prompt/router, indexed accepted/rejected/deferred/superseded lessons and original sources, no duplicate active authority; owner-approved full adoption.
 Evidence: [Owner directive](P5_OWNER_DIRECTIVE_COMPLETE_GOVERNANCE_2026-11-01.md), [P4 acceptance](P4_RECOVERY_ACCEPTANCE_2026-11-01.md), [main router PR #292](https://github.com/ginosega/fishing/pull/292), [ruleset #26335925](https://github.com/ginosega/fishing/rules/26335925).
@@ -48,7 +48,7 @@ Next safe action: **L01 SOURCE-ONLY AUDIT AND MINIMAL STANDALONE V3 RUNTIME CLEA
 
 **O01 source-only exit (2026-11-22 Pacific):** App PR #567 `9534a633`, [CI](https://github.com/ginosega/fishing/actions/runs/45086501775) PASS 647/647. Coherent read-only D1/Markdown/R2 registry manifest; source only, no independent R2/provider proof. [Receipt](https://github.com/ginosega/fishing/issues/377#issuecomment-7088054611).
 
-**Latest private acceptance (2026-11-22 Pacific): D01 FUNCTIONAL OWNER PASS.** Private Worker `0c14c2e2` using source `e104416f` hosted and owner security smoke PASS ([receipt](https://github.com/ginosega/fishing/issues/377#issuecomment-7093169330)); Edge + Android local Restore/Discard testing owner-PASS ([receipt](https://github.com/ginosega/fishing/issues/377#issuecomment-7093730903)). Latest app source `ebb2eb24fb335e1d732f37e9c58e1a46078c8457` [CI 711/711](https://github.com/ginosega/fishing/actions/runs/45125958392) contains the **not deployed** under-button warning-spacing correction; owner explicitly deferred visual verification to next release ([receipt](https://github.com/ginosega/fishing/issues/377#issuecomment-7093627469)). O03 remains accepted, including deliberate Automatic↔Work Offline refresh. Public V2 unchanged; L01/A01 OPEN.
+**D01 private functional acceptance (2026-11-22 Pacific): PASS.** Worker `0c14c2e2` deployed with earlier `e104416f` D01 source; owner Windows Edge and Android local Restore/Discard PASS ([receipt](https://github.com/ginosega/fishing/issues/377#issuecomment-7093730903)). The subsequent 12px warning-spacing change is **source-CI-only**, not deployed ([CI](https://github.com/ginosega/fishing/actions/runs/45125958392)); visual check deferred by owner. O03 accepted; public V2 untouched.
 
 **O02 owner receipt (2026-11-22 Pacific):** Private deployment and tests PASS; [receipt](https://github.com/ginosega/fishing/issues/377#issuecomment-7091119413), [CI](https://github.com/ginosega/fishing/actions/runs/45097701645) 688/688 at app PR #567 `0337f33f`. Hosted Worker/release IDs unavailable; owner-reported only.
 
