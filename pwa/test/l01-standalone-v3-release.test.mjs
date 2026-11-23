@@ -60,6 +60,12 @@ test('L01-BUILD01 standalone V3 contains only verified software, never frozen re
   assert.match(app,/V3_LEGACY_GITHUB_AUTHORING_DISABLED/);
   assert.match(app,/V3_LEGACY_GITHUB_CHANGE_PACKAGE_DISABLED/);
   assert.doesNotMatch(app,/Canonical GitHub authoring source not verified/);
+  // Retired GitHub content-publication controls must not ship in the V3 UI.
+  for(const legacy of [/Repository picture path/,/Copy Changes/,
+   /Open the repository upload folder/,/manual(?:ly)? uploaded to (?:the )?repository/i,
+   /Prepared change package/])
+   assert.doesNotMatch(app,legacy);
+  assert.match(app,/Remove picture from item/);
   assert.doesNotMatch(html,/V2 preview|Pending media/);
   assert.match(loader,/fishing-companion-v3/);
   assert.match(loader,/Standalone V3 software manifest required/);
