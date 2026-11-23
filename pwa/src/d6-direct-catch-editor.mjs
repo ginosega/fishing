@@ -17,6 +17,8 @@ import {restoreD6RevisionAwareDraft,saveD6RevisionAwareDraft} from './d6-revisio
 import {catchLureTargets,filterCatchLureTargets,applyCatchLureSelection}
  from './catch-lure-picker.mjs';
 
+const standaloneV3=typeof __FISHING_D6_STANDALONE_V3__!=='undefined'&&
+ __FISHING_D6_STANDALONE_V3__===true;
 const clone=value=>structuredClone(value);
 const str=value=>typeof value==='string'?value.trim():'';
 const allowed=new Set(['id','date','time','size','speciesId',
@@ -133,6 +135,8 @@ export async function createCatchEditor(ctx,{
   typeof ctx.v3?.directCatchClient?.save==='function';
  if(ctx.v3?.directCatchEnabled===true&&!directCatch)
   throw Error('Direct Catch service unavailable. No edit submitted.');
+ if(standaloneV3&&!directCatch)
+  throw Error('Standalone V3 requires direct Catch Save.');
  let directRevision=0,directText=null;
  if(directCatch&&baseRecord){
   const current=await ctx.v3.directCatchClient.read(baseRecord.id);
@@ -365,7 +369,7 @@ export async function createCatchEditor(ctx,{
  });
  presentD6OwnerImageCapability(notesEditor.element,
   ctx.v3?.mediaCapabilities??DIRECT_D1_MEDIA_CAPABILITIES);
-  const submit=el('button',{type:'submit',class:'btn primary'},directCatch?'Save':'Save and Publish');
+  const submit=el('button',{type:'submit',class:'btn primary'},standaloneV3||directCatch?'Save':'Save and Publish');
  const actions=toolbar(submit,button('Cancel',onBack));
  if(reviewOnly)submit.disabled=true;
  form.append(
@@ -443,6 +447,7 @@ export async function createCatchEditor(ctx,{
     onDirty(false);void discardDraft().catch(()=>{});
     return;
    }
+   if(!standaloneV3){
     const pkg=await prepareCatchPackage({
     ctx,record,baseRecord,text:notesText,baseText:initialText,baseHash,
      notesImages:notesUploads.map(x=>({path:x.path,bytes:x.bytes,sha256:x.sha256})),
@@ -464,6 +469,7 @@ export async function createCatchEditor(ctx,{
    actionNotice.replaceChildren();
    onDirty(false);
    try{onPrepared(draftStore?{...receipt,draftKey}:receipt);}catch{ /* Cannot undo a durable receipt. */ }
+   }
   }catch(error){
    status(notice,catchPublicationErrorText(error),'error');
    status(actionNotice,directCatch?'Save was not confirmed. Your edit is preserved.':'Nothing was confirmed as published. Your edit is retained.','error');
