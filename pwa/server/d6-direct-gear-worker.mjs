@@ -16,6 +16,8 @@ import {createD6DirectCatchService}
  from './d6-direct-catch-service.mjs';
 import {createD6SharedMediaStage} from './d6-shared-media-stage.mjs';
 import {createD6SharedMediaLive} from './d6-shared-media-live.mjs';
+import {createD6OfflineContentSnapshotRoute}
+ from './d6-offline-content-snapshot-route.mjs';
 
 const ORIGIN=D6_WP2_STAGING_ORIGIN;
 const respond=(status,error)=>new Response(JSON.stringify({ok:false,error}),{
@@ -78,6 +80,20 @@ export function createD6DirectGearWorker({
   if(url.pathname.startsWith('/api/v3/content/')){
    if(!supported(env))return respond(503,'UNAVAILABLE');
    try{
+    // Source-only O02 snapshot route: reuses the EXISTING authenticated
+    // M02 D1/R2 bindings. A separate explicit opt-in prevents exposure
+    // from code presence alone; no Cloudflare config enables this yet.
+    if(url.pathname==='/api/v3/content/offline-snapshot'){
+     if(!mediaEnabled(env)||env.D6_O02_OFFLINE_SNAPSHOT_ENABLED!=='true')
+      return respond(503,'UNAVAILABLE');
+     return await createD6OfflineContentSnapshotRoute({
+      AUTH_DB:env.AUTH_DB,CONTENT_DB:env.WP3_DB,
+      csrfKey:env.D6_CSRF_KEY,origin:ORIGIN,
+      enabled:()=>mediaEnabled(env)&&
+       env.D6_O02_OFFLINE_SNAPSHOT_ENABLED==='true',
+      now,
+     }).handle(request);
+    }
     // Catches require their own one-time D1 import and deployment approval.
     if(url.pathname==='/api/v3/content/catches'||
        url.pathname==='/api/v3/content/catches-csrf'||
