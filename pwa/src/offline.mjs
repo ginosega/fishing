@@ -1,7 +1,8 @@
 // D6 selectively adopts the accepted V3 reading preference over the
 // existing explicit, verified offline library. No private owner pilot or writer.
 export function createOffline({root,releaseId,onStatus,isDirty,notify,
- v3ReadingMode=false,onMode=()=>{},prepareContent=null}){
+ v3ReadingMode=false,onMode=()=>{},prepareContent=null,
+ verifyContent=null}){
  let registration=null,updating=false,checking=null,switching=false,warned=false;
  let mode='Automatic',modeAvailable=false;
  let status={state:'Incomplete',releaseId:null,files:0,bytes:0,failed:[]};
@@ -65,6 +66,16 @@ export function createOffline({root,releaseId,onStatus,isDirty,notify,
   reportMode(next==='Work Offline'?
    'Verifying the offline library...':
    'Switching to Automatic…',true);
+  // O03 requires a complete verified V3 content generation in addition
+  // to the existing software integrity gate before Work Offline.
+  if(next==='Work Offline'&&typeof verifyContent==='function'){
+   try{await verifyContent();}
+   catch{
+    const message='Current offline content is unavailable. Connect online and update the offline library.';
+    reportMode(message);notify(message,'warning');
+    return false;
+   }
+  }
   const result=await modeCommand('V3_SET_MODE',next);
   if(!setModeState(result)){
    notify('Reading-mode change could not be verified. Previous mode retained.','warning');
