@@ -58,7 +58,7 @@ test('L01-BUILD01 standalone V3 contains only verified software, never frozen re
   const app=await fs.readFile(path.join(out,'releases',pointer.id,'app.js'),'utf8');
   assert.doesNotMatch(app,/fishing-companion-change-v2/);
   assert.match(app,/V3_LEGACY_GITHUB_AUTHORING_DISABLED/);
-  assert.match(app,/V3_LEGACY_GITHUB_CHANGE_PACKAGE_DISABLED/);
+  assert.doesNotMatch(app,/V3_LEGACY_GITHUB_CHANGE_PACKAGE_DISABLED/);
   assert.doesNotMatch(app,/Canonical GitHub authoring source not verified/);
   // Retired GitHub content-publication controls must not ship in the V3 UI.
   for(const legacy of [/Repository picture path/,/Copy Changes/,
