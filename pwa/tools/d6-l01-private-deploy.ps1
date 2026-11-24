@@ -141,12 +141,17 @@ $LedgerRaw=& node --input-type=module -e "import {D6_NORMALIZED_IDS} from './src
 Check-Exit 'Canonical original-ID ledger'
 $Ledger=$LedgerRaw | Out-String | ConvertFrom-Json
 $Normalized=([int]$D1.obsolete_gear -eq 0 -and [int]$D1.obsolete_kb -eq 0)
+Write-Host ('Obsolete categories: gear='+$D1.obsolete_gear+' kb='+$D1.obsolete_kb)
 foreach($domain in @('gear','kb','catches')){
  $idField=$domain+'_ids'
- $ActualIds=@(ConvertFrom-Json -InputObject $D1.$idField)
- foreach($id in $Ledger.$domain){
-  if($ActualIds -cnotcontains $id){$Normalized=$false}
- }
+ # Windows PowerShell 5.1 emits the decoded JSON array as one pipeline object.
+ # Assign first; wrapping ConvertFrom-Json directly in @() can nest that array.
+ $DecodedIds=ConvertFrom-Json -InputObject ([string]$D1.$idField)
+ $ActualIds=@($DecodedIds)
+ if($ActualIds.Count -ne [int]$D1.$domain){throw "Unexpected $domain ID list length. No deployment."}
+ $Missing=@($Ledger.$domain | Where-Object {$ActualIds -cnotcontains $_})
+ if($Missing.Count -ne 0){$Normalized=$false}
+ Write-Host ("Canonical $domain IDs: actual="+$ActualIds.Count+" missing="+$Missing.Count)
 }
 if(-not $Normalized){
  if($Deploy){throw 'Canonical D1 migration is not verified. No deployment.'}

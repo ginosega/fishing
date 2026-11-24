@@ -38,3 +38,15 @@ test('L01 source-pinned private deploy uses the same O02 host and bindings with 
  assert.match(script,/d6-normalized-id-ledger\.mjs/);
  assert.ok(script.indexOf('Canonical D1 migration is not verified')<script.lastIndexOf('deploy --config $ConfigFile'));
 });
+
+// Windows PowerShell 5.1 does not enumerate JSON array output by default.
+// Keep the decode assignment distinct from array collection, and retain exact
+// membership and count checks rather than treating a parse failure as PASS.
+test('L01 canonical ID guard flattens the decoded array before checking membership',()=>{
+ assert.match(script,/\$DecodedIds=ConvertFrom-Json -InputObject \(\[string\]\$D1\.\$idField\)/);
+ assert.match(script,/\$ActualIds=@\(\$DecodedIds\)/);
+ assert.match(script,/\$ActualIds\.Count -ne \[int\]\$D1\.\$domain/);
+ assert.match(script,/\$ActualIds -cnotcontains \$_/);
+ assert.match(script,/\$Missing\.Count -ne 0\)\{\$Normalized=\$false\}/);
+ assert.doesNotMatch(script,/\$ActualIds=@\(ConvertFrom-Json/);
+});
