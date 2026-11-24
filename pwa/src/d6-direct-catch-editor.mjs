@@ -259,10 +259,12 @@ export async function createCatchEditor(ctx,{
   speciesPanel.hidden=true;speciesNameInput.value='';
  };
  const openSpecies=button('Add new species',()=>{
+  if(reviewOnly)return;
   speciesPanel.hidden=false;
   speciesNameInput.focus();
  });
  const speciesCancel=button('Cancel',closeSpecies);
+ openSpecies.disabled=reviewOnly;
  const speciesAdd=button('Add',async()=>{
   if(speciesAdd.disabled||pending||accepted)return;
   const name=speciesNameInput.value.trim();
@@ -291,6 +293,7 @@ export async function createCatchEditor(ctx,{
   }
  },{variant:'primary'});
  speciesPanel.append(field('New species',speciesNameInput),
+  text('p','Adding a species saves it to Knowledge Base immediately, even if you later cancel the Catch.','hint'),
   toolbar(speciesAdd,speciesCancel));
  const speciesField=el('div',{class:'gear-choice-control'},
   field('Species',speciesSelect),openSpecies,speciesPanel,speciesMessage);
