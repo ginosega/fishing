@@ -64,5 +64,8 @@
       "D6_CSRF_KEY",
       "D6_OAUTH_CLIENT_SECRET"
     ]
+  },
+  "define": {
+    "__FISHING_D6_STANDALONE_V3__": "true"
   }
 }

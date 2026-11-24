@@ -1,9 +1,10 @@
+import {KB_LOCATIONS} from '../src/taxonomy.mjs';
 /**
  * FISH-TODO-118 — direct private Catch Log (12 frozen rows plus owner additions).
  * No GitHub content writer, queue, new storage, or public cutover.
  */
 import Ajv2020 from 'ajv/dist/2020.js';
-import schema from '../contracts/schema.json' with {type:'json'};
+import {schema} from '../src/content-schema.mjs';
 import {saveD6ContentRevision} from './d6-content-save-transaction.mjs';
 import {createD2UnifiedOwnerSession}
  from '../../experiments/p3/preview/src/d2-unified-owner-session.mjs';
@@ -39,7 +40,7 @@ function safeRow(row,id){
 async function validReferences(db,record){
  for(const [field,table,type] of [
   ['speciesId','d6_kb_records','species'],
-  ['locationId','d6_kb_records','location'],
+  ['locationId','d6_kb_records',KB_LOCATIONS],
   ['lureOrBaitId','d6_gear_records','lure'],
  ]){
   if(!record[field])continue;

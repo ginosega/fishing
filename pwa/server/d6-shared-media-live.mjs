@@ -1,3 +1,4 @@
+import {KB_LOCATIONS} from '../src/taxonomy.mjs';
 /**
  * FISH-TODO-118 — source-only, NOT ROUTED shared media publication + read.
  *
@@ -7,7 +8,7 @@
  * no Worker import/config binding is provided in this milestone.
  */
 import Ajv2020 from 'ajv/dist/2020.js';
-import schema from '../contracts/schema.json' with {type:'json'};
+import {schema} from '../src/content-schema.mjs';
 import {ID_PATTERN,encodedPath,safePath} from '../src/shared.mjs';
 import {isD6NotesImageLinked} from '../src/d6-notes-image-link.mjs';
 export {isD6NotesImageLinked} from '../src/d6-notes-image-link.mjs';
@@ -118,7 +119,7 @@ async function validateStagedObjects(R2,domain,record,markdown,media){
 async function validateCatchLinks(db,record){
  for(const [field,table,type] of [
   ['speciesId','d6_kb_records','species'],
-  ['locationId','d6_kb_records','location'],
+  ['locationId','d6_kb_records',KB_LOCATIONS],
   ['lureOrBaitId','d6_gear_records','lure'],
  ]){
   if(!record[field])continue;

@@ -107,7 +107,7 @@ test('V3-BOOT04 offline, foreign or unverified worker cannot bypass activation',
 test('V3-UX01 verified Gear Save stays busy until automatic return to the saved record',()=>{
   assert.match(editor,/prepareButton\.textContent='Saving…'/);
   assert.match(editor,/status\(actionNotice,'Saving changes and pictures…','info'\)/);
-  assert.match(editor,/onExit\(\{savedId:candidate\.id\}\);/);
+  assert.match(editor,/onExit\(\{savedId:candidate\.id,savedRecord:candidate\}\);/);
   assert.match(editor,/window\.location\.reload\(\);/);
   assert.doesNotMatch(editor,/Saved\. Click Exit to return/);
   assert.match(editor,/form\.append\(actions,actionNotice\);/);

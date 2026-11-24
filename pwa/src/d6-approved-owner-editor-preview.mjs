@@ -1,3 +1,4 @@
+import {GEAR_EQUIPMENT,KB_TECHNIQUES,KB_KNOTS} from './taxonomy.mjs';
 /** WP1 preview-only port of the accepted D5 Gear/KB editor.
  * No live writer; immutable source must pass the D6 owner preview gate.
  * The existing V2 editor.mjs is intentionally untouched.
@@ -83,8 +84,8 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
   baseRecord=latest.record;directRevision=latest.revision;
   directNotes=directGear?latest.notes:latest.markdown;
  }
- const editing=Boolean(baseRecord),key=domain==='gear'?'notes':'content',record=baseRecord?clone(baseRecord):{id:'',name:'',...(domain==='gear'?{category:category||'lures',type:'',specifications:[],links:[]}:{type:type||'technique',content:''})};
- if(!editing&&domain==='gear')record.type=(record.category==='rods-reels'?ROD_TYPES:record.category==='accessories'?EQUIPMENT_TYPES:TAXONOMY[record.category])[0];
+ const editing=Boolean(baseRecord),key=domain==='gear'?'notes':'content',record=baseRecord?clone(baseRecord):{id:'',name:'',...(domain==='gear'?{category:category||'lures',type:'',specifications:[],links:[]}:{type:type||KB_TECHNIQUES,content:''})};
+ if(!editing&&domain==='gear')record.type=(record.category==='rods-reels'?ROD_TYPES:record.category===GEAR_EQUIPMENT?EQUIPMENT_TYPES:TAXONOMY[record.category]||[])[0]||'';
  let baseText='',body='',baseHash=null,mediaAction='keep',fileInfo=null,previewUrl=null,sequenceInfos=[],sequenceUrls=[],savePending=false,saveAccepted=false,notesEditor=null;
  if((directSave&&baseRecord)||baseRecord?.[key]){
   let bytes;
@@ -194,7 +195,7 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
    setCategory(categorySelect.value);
   });
   const typesFor=c=>[...new Set([
-   ...(c==='rods-reels'?ROD_TYPES:c==='accessories'?EQUIPMENT_TYPES:TAXONOMY[c]||[]),
+   ...(c==='rods-reels'?ROD_TYPES:c===GEAR_EQUIPMENT?EQUIPMENT_TYPES:TAXONOMY[c]||[]),
    ...ctx.data.gear.items.filter(item=>item.category===c).map(item=>item.type),
   ])].filter(Boolean).sort((a,b)=>a.localeCompare(b));
   typeSelect=select([],record.type,()=>{
@@ -306,10 +307,10 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
   const hasPicture=Boolean(baseRecord?.picture||
    (mediaAction==='keep'&&record.picture));
   if(hasSequence){
-   if(domain==='kb'&&record.type==='knot')return [['keep','Keep current sequence'],['replace-sequence','Replace step-by-step sequence'],['replace-with-static','Replace with single picture'],['remove-sequence-keep-picture','Remove sequence, keep representative picture'],['remove-picture','Remove picture from item']];
+   if(domain==='kb'&&record.type===KB_KNOTS)return [['keep','Keep current sequence'],['replace-sequence','Replace step-by-step sequence'],['replace-with-static','Replace with single picture'],['remove-sequence-keep-picture','Remove sequence, keep representative picture'],['remove-picture','Remove picture from item']];
    return [['keep','Keep current sequence'],['replace-with-static','Replace with single picture'],['remove-sequence-keep-picture','Remove sequence, keep representative picture'],['remove-picture','Remove picture from item']];
   }
-  if(domain==='kb'&&record.type==='knot')return hasPicture?[['keep','Keep current picture'],['replace-static','Replace picture'],['replace-with-sequence','Replace with step-by-step sequence'],['remove-picture','Remove picture from item']]:[['keep','Keep no picture'],['add-static','Add picture'],['add-sequence','Add step-by-step sequence']];
+  if(domain==='kb'&&record.type===KB_KNOTS)return hasPicture?[['keep','Keep current picture'],['replace-static','Replace picture'],['replace-with-sequence','Replace with step-by-step sequence'],['remove-picture','Remove picture from item']]:[['keep','Keep no picture'],['add-static','Add picture'],['add-sequence','Add step-by-step sequence']];
   return hasPicture?[['keep','Keep current picture'],['replace-static','Replace picture'],['remove-picture','Remove picture from item']]:[['keep','Keep no picture'],['add-static','Add picture']];
  }
  function renderActionOptions(typeChanged=false){
@@ -374,7 +375,7 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
   else if(existingSequence&&mediaAction!=='remove-sequence-keep-picture'&&mediaAction!=='replace-with-static')pictureInfo.append(text('p',`${record.pictureSequence.length} pictures in current sequence`,'hint'));
   if(mediaAction==='remove-picture')pictureInfo.append(text('p','The picture and any sequence reference will be removed; source bytes are not deleted.','hint'));
   if(mediaAction==='remove-sequence-keep-picture')pictureInfo.append(text('p','The sequence reference will be removed; the representative picture will remain. Source bytes are not deleted.','hint'));
-  if(domain==='kb'&&record.type!=='knot'&&record.pictureSequence)pictureInfo.append(text('p','This entry still has a step-by-step sequence. Replace it with a single picture, keep only its representative picture, or remove the picture before preparing changes.','notice warning'));
+  if(domain==='kb'&&record.type!==KB_KNOTS&&record.pictureSequence)pictureInfo.append(text('p','This entry still has a step-by-step sequence. Replace it with a single picture, keep only its representative picture, or remove the picture before preparing changes.','notice warning'));
   const fileLabel=sequenceMode?'Choose local pictures':'Choose a local picture';
   pictureHost.replaceChildren(field('Picture action',pictureSelect),pictureInfo,
    field(fileLabel,fileInput,!ID_PATTERN.test(record.id)?
@@ -489,7 +490,7 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
     candidate.picture={src:safePath(picturePathInput.value),...(captionInput.value.trim()?{caption:captionInput.value.trim()}:{})};if(mediaAction==='replace-with-static')delete candidate.pictureSequence;
    }
    if(mediaAction==='keep'&&candidate.picture)optional(candidate.picture,'caption',captionInput.value);
-   if(candidate.pictureSequence&&candidate.type!=='knot')throw new Error('Step-by-step sequences are Knot-only. Resolve the sequence before changing this entry to another Type.');
+   if(candidate.pictureSequence&&candidate.type!==KB_KNOTS)throw new Error('Step-by-step sequences are Knot-only. Resolve the sequence before changing this entry to another Type.');
    if(!editing){if(body)candidate[key]=directSave?newNarrativePath(domain,candidate):narrativePath(domain,candidate);else delete candidate[key];}
    if(domain==='gear'&&body.trim()&&!candidate.notes)
     candidate.notes=d6GearNotesPathForSave(candidate,body);

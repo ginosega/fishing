@@ -1,3 +1,4 @@
+import {NORMALIZED_V3} from '../src/taxonomy.mjs';
 /**
  * O01 — source-only, coherent current-content snapshot for V3.
  *
@@ -35,7 +36,7 @@ const ownerKey = (domain,id) => domain+'/'+id;
 const refKey = (domain,id,path) => JSON.stringify([domain,id,path]);
 const byteLength = text => UTF8.encode(text).byteLength;
 const ordered = (a,b) => a < b ? -1 : a > b ? 1 : 0;
-export const D6_CONTENT_READER_VERSION=1;
+export const D6_CONTENT_READER_VERSION=NORMALIZED_V3?2:1;
 export function isD6CurrentContentSnapshotCompatible(snapshot,
  readerVersion=D6_CONTENT_READER_VERSION){
  const range=snapshot?.readerCompatibility,schemas=snapshot?.schemaVersions;
@@ -219,7 +220,7 @@ export async function createD6CurrentContentSnapshot({CONTENT_DB}={}){
   fail('Snapshot byte-count overflow');
  const payload={
   format:'fishing-content-snapshot-v1',
-  readerCompatibility:{min:1,max:1},
+  readerCompatibility:{min:D6_CONTENT_READER_VERSION,max:D6_CONTENT_READER_VERSION},
   schemaVersions:{gear:2,kb:2,catches:2},
   counts:{gear:data.gear.items.length,kb:data.kb.entities.length,
    catches:data.catches.catches.length,imagePaths:images.length,

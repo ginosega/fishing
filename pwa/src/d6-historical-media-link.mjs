@@ -1,3 +1,4 @@
+import {KB_KNOTS} from './taxonomy.mjs';
 /**
  * One source of live image truth: D1 refs + the actual current D1 record.
  * This compatibility adapter recognizes original V1/V2 image paths without
@@ -66,9 +67,9 @@ export function d6ReadableMediaRole({domain,record,logicalPath,markdown,
  // Historical records may have a cover in a different folder, cross-domain
  // KB→Gear picture, or noncanonical original Knot frame names.
  if(domain!=='catches'&&record.picture?.src===logicalPath)
-  return record.type==='knot'&&record.pictureSequence?.includes(logicalPath)?
+  return record.type===KB_KNOTS&&record.pictureSequence?.includes(logicalPath)?
    'knot-step':'cover';
- if(domain==='kb'&&record.type==='knot'&&
+ if(domain==='kb'&&record.type===KB_KNOTS&&
     record.pictureSequence?.includes(logicalPath))
   return 'knot-step';
  const owner=domain==='kb'?record.content:record.notes;

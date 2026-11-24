@@ -1,3 +1,4 @@
+import {KB_KNOTS} from './taxonomy.mjs';
 /**
  * M02 — one immutable source-side logical media-path contract for Gear/KB/Catch.
  * The Notes path remains the accepted D5 editor path. Cover images stay in
@@ -40,7 +41,7 @@ function coverOwned(domain,record,path){
  return path.startsWith(prefix)&&!path.slice(prefix.length).includes('/');
 }
 function stepOwned(record,path){
- if(record.type!=='knot')return false;
+ if(record.type!==KB_KNOTS)return false;
  const prefix=sequenceFolder(record)+'/';
  if(!path.startsWith(prefix))return false;
  const tail=path.slice(prefix.length);
@@ -49,7 +50,7 @@ function stepOwned(record,path){
 /** All frames must be strictly numbered in canonical order; final frame
  * is the representative cover. No loose subset may become live. */
 export function d6ValidKnotSequence(record){
- if(record?.type!=='knot'||!Array.isArray(record.pictureSequence)||
+ if(record?.type!==KB_KNOTS||!Array.isArray(record.pictureSequence)||
   record.pictureSequence.length<2||record.pictureSequence.length>32||
   record.picture?.src!==record.pictureSequence.at(-1))return false;
  try{

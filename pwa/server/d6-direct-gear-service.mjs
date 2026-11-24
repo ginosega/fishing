@@ -4,7 +4,7 @@
  * No GitHub content publisher, PR, scheduler, watchdog or media mutation.
  */
 import Ajv2020 from 'ajv/dist/2020.js';
-import schema from '../contracts/schema.json' with {type:'json'};
+import {schema} from '../src/content-schema.mjs';
 import {narrativePath} from '../src/handoff.mjs';
 import {saveD6ContentRevision} from './d6-content-save-transaction.mjs';
 import {createD2UnifiedOwnerSession}

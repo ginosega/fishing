@@ -4,8 +4,8 @@
  * Source-only until owner approves schema/data import and private deployment.
  */
 import Ajv2020 from 'ajv/dist/2020.js';
-import schema from '../contracts/schema.json' with {type:'json'};
-import {narrativePath} from '../src/handoff.mjs';
+import {schema} from '../src/content-schema.mjs';
+import {narrativePath} from '../src/d6-v3-content-paths.mjs';
 import {saveD6ContentRevision} from './d6-content-save-transaction.mjs';
 import {createD2UnifiedOwnerSession}
  from '../../experiments/p3/preview/src/d2-unified-owner-session.mjs';

@@ -1,3 +1,4 @@
+import {KB_LOCATIONS} from './taxonomy.mjs';
 /* FISH118 D4: V3 owner-only Catch Add/Edit, canonical text-only workflow.
  * No Catch images, GPS, offline writes, copy/export, or separate confirmation.
  * This module is unreachable from published V2 routes and never grants
@@ -38,13 +39,12 @@ export function catchPublicationErrorText(error){
 }
 
 export function suggestedCatchId(record,existing,{sandboxOnly=false}={}){
- const location=(record.locationId??record.locationName??'')
-  .replace(/^location-/,'');
- const species=(record.speciesId??record.speciesName??'')
-  .replace(/^species-/,'');
+ const location=record.locationId??record.locationName??'';
+ const species=record.speciesId??record.speciesName??'';
+ if(standaloneV3)return newId([record.date||'undated',location||'unknown',species||'fish'].join('-'),existing);
  return newId([sandboxOnly?'p3-test-catch':'catch',
-  record.date||'undated',location||'unknown',
-  species||'fish'].join('-'),existing);
+  record.date||'undated',location.replace(/^location-/,'')||'unknown',
+  species.replace(/^species-/,'')||'fish'].join('-'),existing);
 }
 
 /**
@@ -300,10 +300,10 @@ export async function createCatchEditor(ctx,{
  const locationEntry=el('input',{type:'text',maxlength:160,
   placeholder:'Enter lake, river, or specific location',
   value:catchFieldValue(record,'location',ctx.data.kb.entities
-   .filter(e=>e.type==='location'))});
+   .filter(e=>e.type===KB_LOCATIONS))});
  locationEntry.addEventListener('input',()=>{
   applyCatchField(record,'location',locationEntry.value,
-   ctx.data.kb.entities.filter(e=>e.type==='location'));
+   ctx.data.kb.entities.filter(e=>e.type===KB_LOCATIONS));
   generateId();updated();
  });
  const locationField=field('Location',locationEntry);

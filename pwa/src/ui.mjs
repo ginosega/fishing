@@ -1,3 +1,4 @@
+import {GEAR_EQUIPMENT,KB_LOCATIONS,KB_GUIDES,KB_TECHNIQUES,KB_KNOTS} from './taxonomy.mjs';
 import {el,text,button,link,field,input,select,empty,status,picture,waitForDetailPicture,section,toolbar,table} from './dom.mjs';
 import {DOMAIN,GEAR_CATEGORIES,gearCategoryLabel,gearCategoryChoices,KB_TYPES,ROD_TYPES,sortGear,sortNames,sortCatches,catchHistory,parseRoute,routeFor,rootRoute,categoryRoute,addRoute,editRoute,encodedPath} from './shared.mjs';
 import {TAXONOMY,validateRecords} from './validation.mjs';
@@ -38,8 +39,8 @@ const KAYAK_ICON=`<svg viewBox="0 0 64 64" role="img" aria-label="Kayak">
   </g>
 </svg>`;
 const ROOT_SUBTITLES={gear:'Browse your inventory of equipment, tackle, and bait',kb:'Fishing reference library'};
-const KB_PINNED_FIRST={knot:'line-tackle-knot-reference'};
-const CATEGORY_PRESENTATION={gear:{'rods-reels':{icon:'🎣'},line:{icon:'〰️'},weights:{icon:'⚓'},'snaps-swivels':{icon:'🔗'},hooks:{icon:'🪝'},lures:{icon:'🐟'},bait:{icon:'🪱'},accessories:{icon:'🛶',svg:KAYAK_ICON}},kb:{location:{icon:'📍',description:'Waters, access, seasonal patterns, and local observations'},species:{icon:'🐟',description:'Fish identification, behavior, habitat, and targeting notes'},equipment:{icon:'🧰',description:'Equipment, rig, and presentation reference'},technique:{icon:'🧭',description:'Strategy, conditions, and species reference'},knot:{icon:'🪢',description:'Connection guidance, cautions, and learning resources'}}};
+const KB_PINNED_FIRST={[KB_KNOTS]:'line-tackle-knot-reference'};
+const CATEGORY_PRESENTATION={gear:{'rods-reels':{icon:'🎣'},line:{icon:'〰️'},weights:{icon:'⚓'},'snaps-swivels':{icon:'🔗'},hooks:{icon:'🪝'},lures:{icon:'🐟'},bait:{icon:'🪱'},[GEAR_EQUIPMENT]:{icon:'🛶',svg:KAYAK_ICON}},kb:{[KB_LOCATIONS]:{icon:'📍',description:'Waters, access, seasonal patterns, and local observations'},species:{icon:'🐟',description:'Fish identification, behavior, habitat, and targeting notes'},[KB_GUIDES]:{icon:'🧰',description:'Equipment, rig, and presentation reference'},[KB_TECHNIQUES]:{icon:'🧭',description:'Strategy, conditions, and species reference'},[KB_KNOTS]:{icon:'🪢',description:'Connection guidance, cautions, and learning resources'}}};
 const categoryLabel=(domain,key)=>domain==='gear'?gearCategoryLabel(key):KB_TYPES.find(x=>x[0]===key)?.[1]||key;
 const recordTitle=(ctx,domain,record)=>domain==='catches'?`${ctx.maps.kb.get(record.speciesId)?.name||record.speciesName||'Catch'} · ${record.date}`:record.name;
 export function createApp(ctx){
@@ -235,14 +236,14 @@ export function createApp(ctx){
  function renderRoot(domain){const gear=domain==='gear',all=ctx.data[domain][DOMAIN[domain].array],rows=gear?gearCategoryChoices(all):KB_TYPES;const page=frame(gear?'My Gear':'Knowledge Base','#/',[],ROOT_SUBTITLES[domain]);
   const searchInput=input('',{type:'search',placeholder:'Search '+(gear?'My Gear':'Knowledge Base')});const searchResults=el('div',{class:'record-grid',hidden:true});const categories=el('div',{class:'nav-grid'},...rows.map(([key,label])=>{const meta=CATEGORY_PRESENTATION[domain][key]||{icon:'📦'};const item=artCard(label,meta.description||'',categoryRoute(domain,key),meta.icon,domain+'-'+key);if(meta.svg)item.querySelector('.card-icon').innerHTML=meta.svg;return item;}));
   searchInput.addEventListener('input',()=>{const q=searchInput.value.trim().toLocaleLowerCase();searchResults.hidden=!q;categories.hidden=Boolean(q);if(!q){searchResults.replaceChildren();return;}const matches=all.filter(r=>[r.name,r.type,r.description,r.manufacturer,r.model].filter(Boolean).join(' ').toLocaleLowerCase().includes(q));searchResults.replaceChildren(...(matches.length?sortNames(matches).map(r=>recordCard(domain,r)):[empty('No matching entries.')]));});
-  searchInput.setAttribute('aria-label','Search '+(gear?'My Gear':'Knowledge Base'));page.querySelector('.page-actions').prepend(searchInput);page.append(categories,searchResults,...(showEditingLinks()?[anchor(gear?'Add Gear':'Add Entry',addRoute(domain,gear?'lures':'technique'),'page-edit-link')]:[]));return page;
+  searchInput.setAttribute('aria-label','Search '+(gear?'My Gear':'Knowledge Base'));page.querySelector('.page-actions').prepend(searchInput);page.append(categories,searchResults,...(showEditingLinks()?[anchor(gear?'Add Gear':'Add Entry',addRoute(domain,gear?'lures':KB_TECHNIQUES),'page-edit-link')]:[]));return page;
  }
  function renderList(domain,key){const gear=domain==='gear',rows=gear?gearCategoryChoices(ctx.data.gear.items):KB_TYPES;const definition=rows.find(x=>x[0]===key);if(!definition)return missing('Unknown category',rootRoute(domain));
   const records=ctx.data[domain][DOMAIN[domain].array].filter(r=>(gear?r.category:r.type)===key);
   const page=frame(definition[1],rootRoute(domain));
-  if(!gear&&key==='equipment')page.append(text('p','Equipment, rig, and presentation reference','muted'));
-  if(!gear&&key==='technique')page.append(text('p','Strategy, conditions, and species reference','muted'));
-  const list=listControls(domain,records,{title:definition[1],search:gear?key==='lures':key==='equipment',filter:gear,sort:gear?'gear':'name',pinnedId:gear?'':KB_PINNED_FIRST[key]||''});page.querySelector('.page-actions').prepend(...list.controls.children);page.append(list.element,...(showEditingLinks()?[anchor(gear?'Add Gear':'Add Entry',addRoute(domain,key),'page-edit-link')]:[]));return page;
+  if(!gear&&key===KB_GUIDES)page.append(text('p','Equipment, rig, and presentation reference','muted'));
+  if(!gear&&key===KB_TECHNIQUES)page.append(text('p','Strategy, conditions, and species reference','muted'));
+  const list=listControls(domain,records,{title:definition[1],search:gear?key==='lures':key===KB_GUIDES,filter:gear,sort:gear?'gear':'name',pinnedId:gear?'':KB_PINNED_FIRST[key]||''});page.querySelector('.page-actions').prepend(...list.controls.children);page.append(list.element,...(showEditingLinks()?[anchor(gear?'Add Gear':'Add Entry',addRoute(domain,key),'page-edit-link')]:[]));return page;
  }
  function missing(message,parent='#/'){const page=frame('Not found',parent);page.append(empty(message),anchor('Return to the parent page',parent));return page;}
  function loadError(message){const page=frame('Unable to load page','#/');page.append(empty(message),anchor('Return to the parent page','#/'));return page;}

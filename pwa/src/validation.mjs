@@ -1,5 +1,6 @@
 import Ajv2020 from 'ajv/dist/2020.js';
-import schema from '../contracts/schema.json' with {type:'json'};
+import {schema} from './content-schema.mjs';
+import {GEAR_EQUIPMENT} from './taxonomy.mjs';
 import {DOMAIN,validateSemantics,safePath,pathKey,assert,sequenceFolder} from './shared.mjs';
 import {parseMarkdown,markdownRouteMap} from './markdown.mjs';
 export const TAXONOMY={
@@ -8,7 +9,7 @@ export const TAXONOMY={
  'snaps-swivels':['Snaps','Swivels','Snap swivels'],
  hooks:['Wacky','Ned rig','Drop shot','Soft plastics','Swimbait jighead','Trout/bait'],
  lures:['Chatterbaits / bladed jigs','Spinnerbaits','Crankbaits and hard jerkbaits','Inline spinners','Spoons','Trolling lures','Topwater','Jigs','Soft plastics and swimbaits'],
- bait:['Trout bait'],accessories:['Kayaks','Accessories','Tools','Tackle Management','Electronics','Storage']
+ bait:['Trout bait'],[GEAR_EQUIPMENT]:['Kayaks','Accessories','Tools','Tackle Management','Electronics','Storage']
 };
 const ajv=new Ajv2020({allErrors:true,strict:true});
 const validators=Object.fromEntries(Object.entries(DOMAIN).map(([key,d])=>[key,ajv.compile({$ref:'#/$defs/'+d.definition,$defs:schema.$defs})]));

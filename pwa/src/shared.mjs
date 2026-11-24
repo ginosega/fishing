@@ -1,5 +1,7 @@
-import {routeFor,rootRoute} from './browser-routes.mjs';
-export {parseRoute,routeFor,rootRoute,categoryRoute,addRoute,editRoute} from './browser-routes.mjs';
+import {NORMALIZED_V3,GEAR_EQUIPMENT,KB_LOCATIONS,KB_GUIDES,KB_TECHNIQUES,KB_KNOTS} from './taxonomy.mjs';
+import * as archivedRoutes from './browser-routes.mjs';
+import * as normalizedRoutes from './v3-routes.mjs';
+export const {parseRoute,routeFor,rootRoute,categoryRoute,addRoute,editRoute}=NORMALIZED_V3?normalizedRoutes:archivedRoutes;
 // Shared, framework-free domain and authoring primitives. No browser storage.
 export const DOMAIN = {
   gear: {file:'Gear/gear.json', array:'items', definition:'gearBundle'},
@@ -9,7 +11,7 @@ export const DOMAIN = {
 export const GEAR_CATEGORIES = [
   ['rods-reels','Rods & Reels','Rods-Reels'],['line','Line','Line'],
   ['weights','Weights','Weights'],['snaps-swivels','Snaps & Swivels','Snaps-Swivels'],['hooks','Hooks','Hooks'],['lures','Lures','Lures'],['bait','Bait','Bait'],
-  ['accessories','Equipment','Equipment']
+  [GEAR_EQUIPMENT,'Equipment','Equipment']
 ];
 // Built-in categories retain their approved paths. Owner-added categories use
 // lowercase stable keys and an independent Custom namespace.
@@ -36,8 +38,8 @@ export function gearCategoryChoices(records=[]){
 }
 
 export const KB_TYPES = [
-  ['location','Locations','Locations'],['species','Species','Species'],
-  ['equipment','Gear Guides','Gear-Guides'],['technique','Techniques','Techniques'],['knot','Knots','Knots']
+  [KB_LOCATIONS,'Locations','Locations'],['species','Species','Species'],
+  [KB_GUIDES,'Gear Guides','Gear-Guides'],[KB_TECHNIQUES,'Techniques','Techniques'],[KB_KNOTS,'Knots','Knots']
 ];
 export const ROD_TYPES = ['Baitcasting rod','Spinning rod','Spincasting rod','Baitcasting reel','Spinning reel','Spincasting reel'];
 export const EQUIPMENT_TYPES = ['Kayaks','Tools','Tackle Management','Electronics','Storage','Accessories'];
@@ -73,7 +75,7 @@ export async function fingerprint(value) {return sha256(canonical(value));}
 export function assert(condition,message) {if(!condition)throw new Error(message);}
 function validatePictureSequence(record,domain){
   if(record.pictureSequence===undefined)return;
-  assert(domain==='kb'&&record.type==='knot',`Picture sequence is Knot-only: ${record.id}`);
+  assert(domain==='kb'&&record.type===KB_KNOTS,`Picture sequence is Knot-only: ${record.id}`);
   assert(record.picture&&typeof record.picture.src==='string',`Picture sequence requires representative picture: ${record.id}`);
   assert(Array.isArray(record.pictureSequence)&&record.pictureSequence.length>=2,`Picture sequence requires at least two frames: ${record.id}`);
   const folder=sequenceFolder(record)+'/',seen=new Set();
@@ -91,7 +93,7 @@ export function validateSemantics(data, taxonomy={}) {
     const records=data[domain]?.[config.array];assert(Array.isArray(records),`Missing ${domain} records`);
     maps[domain]=new Map();
     for(const r of records) {
-      assert(ID_PATTERN.test(r.id),`Invalid ${domain} ID: ${r.id}`);
+      assert(ID_PATTERN.test(r.id)&&(!NORMALIZED_V3||!['add','edit'].includes(r.id)),`Invalid ${domain} ID: ${r.id}`);
       assert(!maps[domain].has(r.id),`Duplicate ${domain} ID: ${r.id}`);
       maps[domain].set(r.id,r);
       if(domain==='gear') {
@@ -108,7 +110,7 @@ export function validateSemantics(data, taxonomy={}) {
     }
   }
   for(const c of maps.catches.values()) {
-    for(const [key,domain,type] of [['speciesId','kb','species'],['locationId','kb','location']])if(c[key])assert(maps[domain].get(c[key])?.type===type,`Invalid Catch ${key}: ${c.id}`);
+    for(const [key,domain,type] of [['speciesId','kb','species'],['locationId','kb',KB_LOCATIONS]])if(c[key])assert(maps[domain].get(c[key])?.type===type,`Invalid Catch ${key}: ${c.id}`);
     if(c.lureOrBaitId)assert(['lures','bait'].includes(maps.gear.get(c.lureOrBaitId)?.category),`Invalid Catch lure/bait: ${c.id}`);
   }
   return maps;
@@ -119,7 +121,7 @@ export function sortCatches(items) {return [...items].sort((a,b)=>b.date.localeC
 export function catchHistory(data, domain, id) {
   const field=domain==='gear'?'lureOrBaitId':data.kb.entities.find(x=>x.id===id)?.type==='species'?'speciesId':'locationId';
   if(domain==='gear'&&!['lures','bait'].includes(data.gear.items.find(x=>x.id===id)?.category))return [];
-  if(domain==='kb'&&!['species','location'].includes(data.kb.entities.find(x=>x.id===id)?.type))return [];
+  if(domain==='kb'&&!['species',KB_LOCATIONS].includes(data.kb.entities.find(x=>x.id===id)?.type))return [];
   return sortCatches(data.catches.catches.filter(c=>c[field]===id));
 }
 // Only approved navigation pages and existing canonical records resolve.
@@ -136,4 +138,4 @@ export function internalLink(uri,maps) {
 }
 export function categoryFolder(domain,key) {const row=(domain==='gear'?GEAR_CATEGORIES:KB_TYPES).find(x=>x[0]===key);if(row)return (domain==='gear'?'Gear/':'KB/')+row[2];assert(domain==='gear'&&typeof key==='string'&&/^[a-z0-9][a-z0-9-]*$/.test(key)&&key.length<=80,`Unknown category: ${key}`);return safePath('Gear/Custom/'+key);}
 export function suggestedFilename(name,ext='.md') {const text=name.normalize('NFC').replace(/[<>:"\\/|?*\x00-\x1f\x7f]/g,'').replace(/[. ]+$/,'').slice(0,175);return text+ext;}
-export function newId(name,existing) {const base=name.normalize('NFKD').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'item';let id=base;let n=2;while(existing.has(id))id=base+'-'+n++;return id;}
+export function newId(name,existing) {const base=name.normalize('NFKD').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'item';let id=base;let n=2;while(existing.has(id)||(NORMALIZED_V3&&['add','edit'].includes(id)))id=base+'-'+n++;return id;}

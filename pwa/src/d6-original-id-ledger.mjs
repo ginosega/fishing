@@ -1,3 +1,5 @@
+import {NORMALIZED_V3} from './taxonomy.mjs';
+import {D6_NORMALIZED_IDS} from './d6-normalized-id-ledger.mjs';
 /**
  * Frozen independent MIGRATION-COMPLETENESS PROOF for V3's initial D1 rows.
  * Each list is extracted from the three approved immutable original JSON blobs
@@ -20,7 +22,7 @@ export const D6_ORIGINAL_IDS=Object.freeze({
  catches:Object.freeze(["catch-2026-07-27-silver-lake-largemouth-01","catch-2026-08-04-lake-sammamish-largemouth-01","catch-2026-08-04-lake-sammamish-perch-01","catch-2026-08-19-mayfield-pikeminnow-01","catch-2026-08-20-mayfield-pikeminnow-01","catch-2026-09-17-lake-sammamish-largemouth-01","catch-2026-09-24-banks-lake-largemouth-01","catch-2026-09-24-banks-lake-smallmouth-01","catch-2026-09-24-banks-lake-smallmouth-02","catch-2026-09-24-banks-lake-smallmouth-03","catch-2026-09-24-banks-lake-whitefish-01","catch-2026-10-02-lake-sammamish-perch-01"]),
 });
 export function verifyD6OriginalIds(domain,items){
- const original=D6_ORIGINAL_IDS[domain];
+ const original=(NORMALIZED_V3?D6_NORMALIZED_IDS:D6_ORIGINAL_IDS)[domain];
  if(!original||!validD6Catalog(domain,{items,count:items?.length}))return false;
  const present=new Set(items.map(x=>x.id));
  return original.every(id=>present.has(id));
