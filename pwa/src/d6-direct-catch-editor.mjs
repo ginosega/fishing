@@ -172,7 +172,6 @@ export async function createCatchEditor(ctx,{
  const reviewOnly=recovery.reviewOnly===true;
  const draftWritable=!reviewOnly&&
   !['stale','corrupt','unavailable','conflict','legacy'].includes(recovery.status);
- const restoredMediaMissing=recovery.status==='restored'&&recovery.requiresMedia===true;
  let pending=false,accepted=false,notesEditor=null;
  const dirty=()=>!accepted&&
   (JSON.stringify(record)!==original||notesText!==initialText);
@@ -370,7 +369,8 @@ export async function createCatchEditor(ctx,{
  presentD6OwnerImageCapability(notesEditor.element,
   ctx.v3?.mediaCapabilities??DIRECT_D1_MEDIA_CAPABILITIES);
   const submit=el('button',{type:'submit',class:'btn primary'},standaloneV3||directCatch?'Save':'Save and Publish');
- const actions=toolbar(submit,button('Cancel',onBack));
+ const cancelButton=button('Cancel',onBack);
+ const actions=toolbar(submit,cancelButton);
  if(reviewOnly)submit.disabled=true;
  form.append(
   field(baseRecord?'ID':'ID (generated automatically)',idInput),
@@ -384,10 +384,11 @@ export async function createCatchEditor(ctx,{
   event.preventDefault();
   if(pending||accepted)return;
   if(reviewOnly){status(notice,'This saved draft is for copying only. Save is blocked until you discard it and open a fresh edit.','warning');return;}
-  pending=true;submit.disabled=true;
+  pending=true;submit.disabled=true;cancelButton.disabled=true;
+  submit.textContent='Saving…';submit.setAttribute('aria-busy','true');
   notice.replaceChildren();actionNotice.replaceChildren();
+  status(actionNotice,'Saving changes and pictures…','info');
   try{
-   if(restoredMediaMissing)throw Error('This restored draft referenced local pictures that were not saved on this device. Copy the recovered notes to a fresh edit and reselect the originals before publishing.');
    notesEditor.syncPaths();
     notesText=notesEditor.value();
     const notesUploads=notesEditor.uploads();
@@ -474,7 +475,8 @@ export async function createCatchEditor(ctx,{
    status(notice,catchPublicationErrorText(error),'error');
    status(actionNotice,directCatch?'Save was not confirmed. Your edit is preserved.':'Nothing was confirmed as published. Your edit is retained.','error');
   }finally{
-   pending=false;if(!accepted)submit.disabled=reviewOnly;
+   pending=false;submit.removeAttribute('aria-busy');
+   if(!accepted){submit.textContent='Save';submit.disabled=reviewOnly;cancelButton.disabled=false;}
   }
  });
  if(ctx.v3.source.sandboxOnly===true)
