@@ -118,7 +118,6 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
  const reviewOnly=recovery.reviewOnly===true;
  const draftWritable=!reviewOnly&&
   !['stale','corrupt','unavailable','conflict','legacy'].includes(recovery.status);
- const restoredMediaMissing=recovery.status==='restored'&&recovery.requiresMedia===true;
  const host=el('div',{class:'editor'}),notice=el('div',{class:'editor-notice','aria-live':'polite'}),form=el('form',{class:'editor-form'});
  if(recovery.message)status(notice,recovery.message,
   recovery.status==='restored'||recovery.status==='discarded'?'info':'warning');
@@ -152,7 +151,7 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
  };
  const dirty=()=>!saveAccepted&&(serialize(record)!==original||body!==initialBody||mediaAction!=='keep');
  function changed(){if(saveAccepted)return;
-  if(directSave)prepareButton.disabled=reviewOnly||!dirty();
+  if(directSave)prepareButton.disabled=savePending||reviewOnly||!dirty();
   onDirty?.(dirty());persistDraft();}
  function update(fieldName,value){optional(record,fieldName,value);changed();}
  function revokeLocal(clearInput=true){if(previewUrl){URL.revokeObjectURL(previewUrl);previewUrl=null;}for(const url of sequenceUrls)URL.revokeObjectURL(url);sequenceUrls=[];fileInfo=null;sequenceInfos=[];if(clearInput)fileInput.value='';}
@@ -367,10 +366,11 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
   if(ctx.v3?.ownerAuthoringPreview===true&&!directSave)return;
   if(savePending||saveAccepted)return;
   if(reviewOnly){status(notice,'This saved draft is for copying only. Save is blocked until you discard it and open a fresh edit.','warning');return;}
-  savePending=true;prepareButton.disabled=true;
+  savePending=true;prepareButton.disabled=true;cancelButton.disabled=true;
+  prepareButton.textContent='Saving…';prepareButton.setAttribute('aria-busy','true');
   notice.replaceChildren();actionNotice.replaceChildren();
+  status(actionNotice,'Saving changes and pictures…','info');
   try{
-   if(restoredMediaMissing)throw new Error('This restored draft referenced local media that was not saved on this device. Copy the recovered text to a fresh edit and reselect the originals before publishing.');
    if(!ID_PATTERN.test(record.id))throw new Error('The ID must use lowercase letters, numbers and hyphens.');
    const existing=ctx.data[domain][DOMAIN[domain].array];if(!editing&&existing.some(x=>x.id===record.id))throw new Error('This ID already exists.');
    // Sandbox source is exclusively synthetic. Refuse production-like IDs
@@ -472,9 +472,11 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
    status(notice,message,'error');
    status(actionNotice,message,'error');
   }
-  finally{savePending=false;if(!saveAccepted)prepareButton.disabled=reviewOnly;}
+  finally{savePending=false;prepareButton.removeAttribute('aria-busy');
+   if(!saveAccepted){prepareButton.textContent='Save';prepareButton.disabled=reviewOnly||!dirty();cancelButton.disabled=false;}}
  });
- const actions=toolbar(prepareButton,button('Cancel',onBack));
+ const cancelButton=button('Cancel',onBack);
+ const actions=toolbar(prepareButton,cancelButton);
  prepareButton.disabled=true;
  prepareButton.setAttribute('aria-label',directGear?'Save Gear':directKB?'Save Knowledge Base':'Save and Publish unavailable in WP1 preview');
  const blocked=standaloneV3||directSave?null:text('p','Editor preview only. Save and Publish is disabled until the secure production publishing pipeline is complete. Your changes have not been submitted.','hint');
