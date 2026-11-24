@@ -185,50 +185,101 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
   'ID (generated automatically)',idInput));
  const categoryControls=el('div',{class:'form-grid'});let typeSelect=null;
  if(domain==='gear'){
-  // Editable suggestions: the stored category is a stable slug; types are
-  // free-text and the saved catalog makes newly used values available next time.
+  // Use native select controls on Windows and Android; native datalist input
+  // suggestions did not reliably expose existing choices on mobile browsers.
+  // Explicit Add buttons keep user-defined values available without editing
+  // the selection text or changing historical category keys.
   const categoryRows=gearCategoryChoices(ctx.data.gear.items);
-  const categoryInput=input(gearCategoryLabel(record.category),{required:true,maxlength:80});
-  const categoryList=el('datalist',{id:'gear-category-choices'},
-   categoryRows.map(([key,label])=>el('option',{value:label},label)));
-  categoryInput.setAttribute('list',categoryList.id);
+  const categorySelect=select(categoryRows,record.category,()=>{
+   setCategory(categorySelect.value);
+  });
   const typesFor=c=>[...new Set([
    ...(c==='rods-reels'?ROD_TYPES:c==='accessories'?EQUIPMENT_TYPES:TAXONOMY[c]||[]),
    ...ctx.data.gear.items.filter(item=>item.category===c).map(item=>item.type),
-  ])].sort((a,b)=>a.localeCompare(b));
-  typeSelect=input(record.type,{required:true,maxlength:160});
-  const typeList=el('datalist',{id:'gear-type-choices'});
-  typeSelect.setAttribute('list',typeList.id);
-  function updateTypes(reset){
-   const choices=typesFor(record.category);
-   typeList.replaceChildren(...choices.map(value=>el('option',{value})));
-   if(reset){
-    record.type=choices[0]||'';
-    typeSelect.value=record.type;
-   }
-  }
-  updateTypes(false);
-  categoryInput.addEventListener('change',()=>{
-   const key=gearCategoryKey(categoryInput.value);
-   const changedCategory=key!==record.category;
-   record.category=key;
-   if(changedCategory){
-    updateTypes(true);
-    if(key){
-     notesEditor?.syncPaths();
-     refreshSelectedPicturePath();
-     renderPicture();
-    }
-   }
-   changed();
-  });
-  typeSelect.addEventListener('input',()=>{
+  ])].filter(Boolean).sort((a,b)=>a.localeCompare(b));
+  typeSelect=select([],record.type,()=>{
    record.type=typeSelect.value;
    notesEditor?.syncPaths();
    changed();
   });
-  categoryControls.append(field('Category',categoryInput),categoryList,
-   field('Type',typeSelect),typeList);
+  function updateTypes(reset){
+   const choices=typesFor(record.category);
+   if(reset)record.type=choices[0]||'';
+   typeSelect.replaceChildren(...(choices.length?
+    choices.map(value=>el('option',{value},value)):
+    [el('option',{value:''},'Select or add a type')]));
+   if(record.type&&!choices.includes(record.type))
+    typeSelect.append(el('option',{value:record.type},record.type));
+   typeSelect.value=record.type;
+  }
+  function setCategory(key){
+   if(key===record.category)return;
+   record.category=key;
+   updateTypes(true);
+   notesEditor?.syncPaths();
+   refreshSelectedPicturePath();
+   renderPicture();
+   changed();
+  }
+  updateTypes(false);
+
+  function addValueControl({label,maxlength,onUse}){
+   const valueInput=input('',{maxlength,placeholder:'New '+label.toLowerCase()});
+   const panel=el('div',{class:'new-choice'});
+   panel.hidden=true;
+   const open=button('Add new '+label.toLowerCase(),()=>{
+    panel.hidden=false;
+    valueInput.focus();
+   });
+   const apply=button('Use '+label.toLowerCase(),()=>{
+    const value=valueInput.value.trim();
+    if(!value){status(notice,'Enter a new '+label.toLowerCase()+' first.','error');return;}
+    if(onUse(value)!==true)return;
+    panel.hidden=true;
+    valueInput.value='';
+   },{variant:'primary'});
+   const cancel=button('Cancel new '+label.toLowerCase(),()=>{
+    panel.hidden=true;valueInput.value='';
+   });
+   panel.append(field('New '+label.toLowerCase(),valueInput),
+    toolbar(apply,cancel));
+   return {open,panel};
+  }
+  const newCategory=addValueControl({label:'Category',maxlength:80,onUse:label=>{
+   const key=gearCategoryKey(label);
+   if(!key||key.length>80||!/^[a-z0-9][a-z0-9-]*$/.test(key)){
+    status(notice,'Category must use a name of up to 80 characters.','error');
+    return false;
+   }
+   if(!categoryRows.some(row=>row[0]===key)){
+    const name=gearCategoryLabel(key);
+    categoryRows.push([key,name]);
+    categorySelect.append(el('option',{value:key},name));
+   }
+   categorySelect.value=key;
+   setCategory(key);
+   return true;
+  }});
+  const newType=addValueControl({label:'Type',maxlength:160,onUse:label=>{
+   if(label.length>160){
+    status(notice,'Type must be 160 characters or fewer.','error');
+    return false;
+   }
+   const existing=Array.from(typeSelect.options).find(option=>
+    option.value.toLowerCase()===label.toLowerCase());
+   const selected=existing?.value||label;
+   if(!existing)typeSelect.append(el('option',{value:selected},selected));
+   typeSelect.value=selected;
+   record.type=selected;
+   notesEditor?.syncPaths();
+   changed();
+   return true;
+  }});
+  categoryControls.append(
+   el('div',{},field('Category',categorySelect),
+    newCategory.open,newCategory.panel),
+   el('div',{},field('Type',typeSelect),
+    newType.open,newType.panel));
   form.append(categoryControls,el('div',{class:'form-grid'},control('Manufacturer',record.manufacturer||'',value=>update('manufacturer',value),{maxlength:120}),control('Model',record.model||'',value=>update('model',value),{maxlength:160})));
   function repeater(title,keyName,fields){
    const holder=el('div',{class:'repeater'}),rows=el('div',{});
