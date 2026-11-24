@@ -72,9 +72,7 @@ export function v3OfflineLibraryDisplay(status,options={}){
   // The O02 source component alone does NOT prove that the existing
   // software release and current content are jointly usable offline.
   if(status?.state==='Ready'&&task.libraryReady===true){
-   return {label:legacy.label,message:phase==='unchanged'?
-    'Offline library is already up to date.':
-    'Offline library is ready for offline use.',busy:status.updating===true};
+   return {label:legacy.label,message:'',busy:status.updating===true};
   }
   return {label:'Preparing offline library'+countLabel(task,'images'),
    message:'Verifying offline library integrity…',busy:true};

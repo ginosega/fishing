@@ -72,9 +72,7 @@ test('O02-UX03 completion or no changes is not Ready before combined integrity g
    phase,completed:272,total:272,libraryReady:true,
   }),context);
   assert.equal(verified.label,'Offline library ready · current · 575 files');
-  assert.equal(verified.message,phase==='unchanged'?
-   'Offline library is already up to date.':
-   'Offline library is ready for offline use.');
+  assert.equal(verified.message,'');
   assert.equal(verified.busy,false);
  }
  assert.equal(v3OfflineLibraryDisplay(status({
