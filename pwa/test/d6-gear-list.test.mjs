@@ -80,5 +80,6 @@ test('V3-GEAR-LIST04 online catalog, offline safeguards and owner-gated Add Gear
  assert.match(ui,/onDirectGearSaved:\(\)=>\{gearCatalogReady=false;\}/);
  assert.match(ui,/showEditingLinks\(\)\?/);
  assert.match(ui,/requiredIds:frozenGearIds/);
- assert.match(ui,/navigator\.onLine===true&&offline\?\.getModeAvailable\?\.\(\)===true&&/);
+ assert.match(ui,/canReadD6DirectNotes\(\{/);
+ assert.match(ui,/online:navigator\.onLine,modeAvailable:offline\?\.getModeAvailable\?\.\(\)/);
 });
