@@ -6,6 +6,40 @@ const md=new MarkdownIt({html:false,linkify:false,typographer:false,breaks:false
 md.validateLink=url=>!(/^(?:javascript|vbscript|data|file|blob):/i.test(url)||url.startsWith('//'));
 const rawImage=md.renderer.rules.image||((tokens,i,options,env,self)=>self.renderToken(tokens,i,options,env,self));
 md.renderer.rules.image=(tokens,i,options,env,self)=>{tokens[i].attrSet('loading','lazy');tokens[i].attrSet('decoding','async');return rawImage(tokens,i,options,env,self);};
+// Markdown pipe tables cannot contain block lists. Allow simple inline lists
+// separated by <br>, <br/> or </br> inside a table cell, without enabling HTML.
+const ordinaryInline=md.renderer.rules.inline;
+md.renderer.rules.inline=(tokens,index,options,env,self)=>{
+ const grouped=tokens[index].meta?.tableList;
+ if(!grouped)return ordinaryInline?ordinaryInline(tokens,index,options,env,self):
+  md.renderer.renderInline(tokens[index].children,options,env);
+ const tag=grouped.ordered?'ol':'ul';
+ const start=grouped.ordered&&grouped.start!==1?
+  ' start="'+grouped.start+'"':'';
+ return '<'+tag+start+'>'+grouped.items.map(children=>
+  '<li>'+md.renderer.renderInline(children,options,env)+'</li>'
+ ).join('')+'</'+tag+'>';
+};
+function inlineTableLists(tokens){
+ let inCell=false;
+ for(const token of tokens){
+  if(token.type==='th_open'||token.type==='td_open')inCell=true;
+  else if(token.type==='th_close'||token.type==='td_close')inCell=false;
+  if(!inCell||token.type!=='inline'||!/<\/?br\s*\/?>/i.test(token.content))continue;
+  const fragments=token.content.split(/<\/?br\s*\/?>/i)
+   .map(x=>x.trim()).filter(Boolean);
+  if(fragments.length<2)continue;
+  const items=fragments.map(x=>/^([-*+]|\d+[.)])\s+(.+)$/s.exec(x));
+  if(items.some(x=>!x))continue;
+  const ordered=/^\d/.test(items[0][1]);
+  if(!items.every(x=>/^\d/.test(x[1])===ordered))continue;
+  const start=ordered?Number.parseInt(items[0][1],10):1;
+  if(!Number.isSafeInteger(start)||start<1||start>9999)continue;
+  token.meta={...token.meta,tableList:{ordered,start,
+   items:items.map(x=>md.parseInline(x[2],{})[0].children)}};
+ }
+}
+
 const imageExtension=/\.(?:jpe?g|png|webp|gif)$/i;
 function slug(value){return value.normalize('NFKD').toLowerCase().replace(/[^\p{L}\p{N}\s-]/gu,'').trim().replace(/\s+/g,'-');}
 function splitTarget(value){const match=/^([^?#]*)(\?[^#]*)?(#.*)?$/.exec(value);return {path:match[1],query:match[2]||'',fragment:match[3]||''};}
@@ -37,8 +71,10 @@ export function resolveMarkdownTarget(url,{owner,maps,assetBase,pathRoutes=new M
 }
 export function parseMarkdown(text,{owner,maps,assetBase='https://example.invalid/fishing/releases/test/',exists,pathRoutes=new Map(),ownerRoute,allowMissing=false,allowMissingImages=false,viewerImages=false,resolveImage=null}={}){
  const tokens=md.parse(text,{}),references=[];
+ inlineTableLists(tokens);
  function walk(items){for(const token of items){
   if(token.children)walk(token.children);
+  if(token.meta?.tableList)for(const item of token.meta.tableList.items)walk(item);
   if(token.type!=='link_open'&&token.type!=='image')continue;
   const image=token.type==='image',attr=image?'src':'href',original=token.attrGet(attr);
   if(image&&!token.content?.trim())throw new Error(`Image alternative text required: ${owner}`);
