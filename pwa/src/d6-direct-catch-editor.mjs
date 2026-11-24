@@ -3,7 +3,7 @@
  * This module is unreachable from published V2 routes and never grants
  * server authorization. Source-aware verification remains server-side.
  */
-import {el,text,button,field,toolbar,status} from './dom.mjs';
+import {el,text,button,field,select,toolbar,status} from './dom.mjs';
 import {DOMAIN,ID_PATTERN,newId,sha256} from './shared.mjs';
 import {validateRecord} from './validation.mjs';
 import {parseMarkdown,markdownRouteMap,sanitizeHtml} from './markdown.mjs';
@@ -16,6 +16,7 @@ import {saveD6OwnerEditorMedia} from './d6-owner-media-editor-save.mjs';
 import {restoreD6RevisionAwareDraft,saveD6RevisionAwareDraft} from './d6-revision-aware-draft-recovery.mjs';
 import {catchLureTargets,filterCatchLureTargets,applyCatchLureSelection}
  from './catch-lure-picker.mjs';
+import {createCatchSpecies} from './d6-catch-species.mjs';
 
 const standaloneV3=typeof __FISHING_D6_STANDALONE_V3__!=='undefined'&&
  __FISHING_D6_STANDALONE_V3__===true;
@@ -238,20 +239,61 @@ export async function createCatchEditor(ctx,{
  });
  const species=speciesCatchChoices(ctx.data),
   lure=lureCatchChoices(ctx.data);
- const createAutocomplete=(key,label,choices)=>{
-  const id='catch-'+key+'-options';
-  const list=el('datalist',{id},choices.map(name=>el('option',{value:name})));
-  const entry=el('input',{type:'text',list:id,maxlength:160,
-   autocomplete:'off',value:catchFieldValue(record,key,
-    key==='species'?species.linked:lure.linked)});
-  entry.addEventListener('input',()=>{
-   applyCatchField(record,key,entry.value,
-    key==='species'?species.linked:lure.linked);
+ // The same standard native selector used for Gear Category and Type.
+ // Historical Catch-only names remain selectable without manufacturing KB rows.
+ const initialSpecies=catchFieldValue(record,'species',species.linked);
+ const speciesNames=[...species.suggestions];
+ if(initialSpecies&&!speciesNames.includes(initialSpecies))
+  speciesNames.push(initialSpecies);
+ const speciesSelect=select([['','Choose species'],
+  ...speciesNames.map(name=>[name,name])],initialSpecies,()=>{
+   applyCatchField(record,'species',speciesSelect.value,species.linked);
    generateId();updated();
-  });
-  return el('div',{class:'catch-combobox'},field(label,entry),list);
+ });
+ speciesSelect.required=false;
+ const speciesNameInput=el('input',{type:'text',maxlength:160,
+  placeholder:'New species name'});
+ const speciesPanel=el('div',{class:'new-choice',hidden:true});
+ const speciesMessage=el('div',{'aria-live':'polite'});
+ const closeSpecies=()=>{
+  speciesPanel.hidden=true;speciesNameInput.value='';
  };
- const speciesField=createAutocomplete('species','Species',species.suggestions);
+ const openSpecies=button('Add new species',()=>{
+  speciesPanel.hidden=false;
+  speciesNameInput.focus();
+ });
+ const speciesCancel=button('Cancel',closeSpecies);
+ const speciesAdd=button('Add',async()=>{
+  if(speciesAdd.disabled||pending||accepted)return;
+  const name=speciesNameInput.value.trim();
+  if(!name){status(speciesMessage,'Enter a species name first.','error');return;}
+  speciesAdd.disabled=true;speciesCancel.disabled=true;
+  submit.disabled=true;cancelButton.disabled=true;
+  speciesAdd.textContent='Adding…';
+  status(speciesMessage,'Adding the new Knowledge Base species…','info');
+  try{
+   const created=await createCatchSpecies({name,context:ctx});
+   species.linked.push({id:created.id,name:created.name});
+   if(!Array.from(speciesSelect.options).some(x=>x.value===created.name))
+    speciesSelect.append(el('option',{value:created.name},created.name));
+   speciesSelect.value=created.name;
+   record.speciesId=created.id;delete record.speciesName;
+   generateId();updated();
+   closeSpecies();
+   status(speciesMessage,
+    'Species added to Knowledge Base. You can edit its details there. The Catch has not been saved.','success');
+  }catch(error){
+   status(speciesMessage,error?.message||'Species was not added.','error');
+  }finally{
+   speciesAdd.textContent='Add';speciesAdd.disabled=false;
+   speciesCancel.disabled=false;
+   if(!pending&&!accepted){submit.disabled=reviewOnly;cancelButton.disabled=false;}
+  }
+ },{variant:'primary'});
+ speciesPanel.append(field('New species',speciesNameInput),
+  toolbar(speciesAdd,speciesCancel));
+ const speciesField=el('div',{class:'gear-choice-control'},
+  field('Species',speciesSelect),openSpecies,speciesPanel,speciesMessage);
  const locationEntry=el('input',{type:'text',maxlength:160,
   placeholder:'Enter lake, river, or specific location',
   value:catchFieldValue(record,'location',ctx.data.kb.entities
