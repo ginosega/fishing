@@ -1,8 +1,6 @@
 // Owner-only V3 Connection Status presentation. The existing controller and
 // polling panel remain the source of truth, not a second publication engine.
 import {rememberD5OwnerAuthReturn} from './d5-auth-return.mjs';
-const standaloneV3=typeof __FISHING_D6_STANDALONE_V3__!=='undefined'&&
- __FISHING_D6_STANDALONE_V3__===true;
 const ACTIVE=new Set(['Accepted','Validating','Checking','Merging','Deploying','Verifying']);
 const TERMINAL=new Set(['Failed','Conflict']);
 const TYPES=Object.freeze({gear:'Gear',kb:'Knowledge Base',catches:'Catch'});
@@ -59,7 +57,7 @@ export function mountV3ConnectionExperience({
  const anchor=dialog.querySelector?.('.v3-connection-help')||
   dialog.querySelector?.('#connection-close')||null;
  dialog.insertBefore(account,anchor);
- if(!standaloneV3)dialog.insertBefore(publishing,anchor);
+ dialog.insertBefore(publishing,anchor);
  let statusError='';
  const command=(label,call)=>{
   const control=btn(label,()=>{
@@ -81,7 +79,6 @@ export function mountV3ConnectionExperience({
  };
  let latestIndicatorActive=false;
  function paintIndicator(display){
-  if(standaloneV3)return;
   // Keep the dot synchronized with the same verified tone as the header.
   // Publication polling must NEVER change an already-open disclosure:
   // the owner may choose to inspect the completed result or keep it closed.
@@ -97,7 +94,6 @@ export function mountV3ConnectionExperience({
   }
  }
  function onDialogOpen(){
-  if(standaloneV3)return;
   // Apply the default only on each new dialog opening, not on publication
   // transition or network repaint while the dialog remains visible.
   publishing.open=latestIndicatorActive;
@@ -143,9 +139,10 @@ export function mountV3ConnectionExperience({
     accountBody.append(a);
    }
   }
-  // Direct D1/R2 Save is synchronous from the owner's perspective. No
-  // legacy GitHub publication operation is reported in standalone V3.
-  if(standaloneV3||!authorized)return;
+  if(!authorized){
+   publicationBody.append(caption('Sign in to view publishing status.'));
+   return;
+  }
   const phase=state.publication,summary=state.summary;
   if(TERMINAL.has(phase)){
    const guidance=publicationGuidance(phase,summary?.reasonCode);
