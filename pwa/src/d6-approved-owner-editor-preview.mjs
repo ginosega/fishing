@@ -5,7 +5,7 @@
 import {el,text,button,field,input,select,section,toolbar,status,picture} from './dom.mjs';
 import {createCatchEditor} from './catch-editor.mjs';
 import {createCatchEditor as createD6DirectCatchEditor} from './d6-direct-catch-editor.mjs';
-import {DOMAIN,GEAR_CATEGORIES,KB_TYPES,ROD_TYPES,EQUIPMENT_TYPES,ID_PATTERN,categoryFolder,safePath,encodedPath,newId,suggestedFilename,sha256,sequenceFolder,sequencePicturePath} from './shared.mjs';
+import {DOMAIN,GEAR_CATEGORIES,gearCategoryLabel,gearCategoryKey,gearCategoryChoices,KB_TYPES,ROD_TYPES,EQUIPMENT_TYPES,ID_PATTERN,categoryFolder,safePath,encodedPath,newId,suggestedFilename,sha256,sequenceFolder,sequencePicturePath} from './shared.mjs';
 import {TAXONOMY,validateRecord,validateRecords} from './validation.mjs';
 import {parseMarkdown,sanitizeHtml,markdownRouteMap} from './markdown.mjs';
 import {narrativePath,picturePath} from './handoff.mjs';
@@ -184,10 +184,50 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
   'ID (generated automatically)',idInput));
  const categoryControls=el('div',{class:'form-grid'});let typeSelect=null;
  if(domain==='gear'){
-  const categorySelect=select(GEAR_CATEGORIES.map(r=>[r[0],r[1]]),record.category,()=>{record.category=categorySelect.value;const choices=typesFor(record.category);if(!choices.includes(record.type))record.type=choices[0];typeSelect.replaceChildren(...choices.map(x=>el('option',{value:x},x)));typeSelect.value=record.type;notesEditor?.syncPaths();refreshSelectedPicturePath();renderPicture();changed();});
-  const typesFor=c=>c==='rods-reels'?ROD_TYPES:c==='accessories'?EQUIPMENT_TYPES:TAXONOMY[c];
-  typeSelect=select(typesFor(record.category),record.type,()=>{record.type=typeSelect.value;notesEditor?.syncPaths();changed();});
-  categoryControls.append(field('Category',categorySelect),field('Type',typeSelect));
+  // Editable suggestions: the stored category is a stable slug; types are
+  // free-text and the saved catalog makes newly used values available next time.
+  const categoryRows=gearCategoryChoices(ctx.data.gear.items);
+  const categoryInput=input(gearCategoryLabel(record.category),{required:true,maxlength:80});
+  const categoryList=el('datalist',{id:'gear-category-choices'},
+   categoryRows.map(([key,label])=>el('option',{value:label},label)));
+  categoryInput.setAttribute('list',categoryList.id);
+  const typesFor=c=>[...new Set([
+   ...(c==='rods-reels'?ROD_TYPES:c==='accessories'?EQUIPMENT_TYPES:TAXONOMY[c]||[]),
+   ...ctx.data.gear.items.filter(item=>item.category===c).map(item=>item.type),
+  ])].sort((a,b)=>a.localeCompare(b));
+  typeSelect=input(record.type,{required:true,maxlength:160});
+  const typeList=el('datalist',{id:'gear-type-choices'});
+  typeSelect.setAttribute('list',typeList.id);
+  function updateTypes(reset){
+   const choices=typesFor(record.category);
+   typeList.replaceChildren(...choices.map(value=>el('option',{value})));
+   if(reset){
+    record.type=choices[0]||'';
+    typeSelect.value=record.type;
+   }
+  }
+  updateTypes(false);
+  categoryInput.addEventListener('change',()=>{
+   const key=gearCategoryKey(categoryInput.value);
+   const changedCategory=key!==record.category;
+   record.category=key;
+   if(changedCategory){
+    updateTypes(true);
+    if(key){
+     notesEditor?.syncPaths();
+     refreshSelectedPicturePath();
+     renderPicture();
+    }
+   }
+   changed();
+  });
+  typeSelect.addEventListener('input',()=>{
+   record.type=typeSelect.value;
+   notesEditor?.syncPaths();
+   changed();
+  });
+  categoryControls.append(field('Category',categoryInput),categoryList,
+   field('Type',typeSelect),typeList);
   form.append(categoryControls,el('div',{class:'form-grid'},control('Manufacturer',record.manufacturer||'',value=>update('manufacturer',value),{maxlength:120}),control('Model',record.model||'',value=>update('model',value),{maxlength:160})));
   function repeater(title,keyName,fields){
    const holder=el('div',{class:'repeater'}),rows=el('div',{});
