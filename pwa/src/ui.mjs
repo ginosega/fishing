@@ -20,6 +20,7 @@ import {v3OfflineLibraryDisplay} from './v3-offline-library-status.mjs';
 import {createD6OwnerConnectionAdapter} from './d6-owner-connection-adapter.mjs';
 import {mountV3ConnectionExperience} from './v3-connection-experience.mjs';
 import {formatV3Diagnostics} from './diagnostics.mjs';
+import {v3DeviceDraftLeaveMessage} from './d6-v3-draft-leave.mjs';
 
 const KAYAK_ICON=`<svg viewBox="0 0 64 64" role="img" aria-label="Kayak">
   <defs><linearGradient id="kayakHull" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a2def7"/><stop offset="1" stop-color="#76c8ef"/></linearGradient></defs>
@@ -203,7 +204,17 @@ export function createApp(ctx){
   status(alertHost,message,kind);
  }
  function dirty(){return Boolean(editor?.isDirty());}
- function canLeave(){return !dirty()||confirm('Your changes have not been saved. Discard this edit and leave?');}
+ function canLeave(){return !dirty()||confirm(ctx.release.standaloneV3===true?
+  'These changes have not been published. Leaving closes this edit. Any successfully saved device draft remains available for recovery. Leave this editor?':
+  'Your changes have not been saved. Discard this edit and leave?');}
+ function leaveWithSavedDraft(hash,{needsReselect=false}={}){
+  const unavailable=offline?.getMode?.()!=='Automatic'||
+   approvedController?.current()?.authorized!==true;
+  if(!confirm(v3DeviceDraftLeaveMessage({unavailable,needsReselect})))return;
+  // This path is used only after the editor confirms its latest device draft
+  // was durably saved. Bypass the generic dirty-edit warning exactly once.
+  disposeEditor();approvedNavigation=hash;location.hash=hash;
+ }
  function disposeEditor(){editor?.dispose?.();editor=null;}
  function navigate(hash){if(hash===currentHash){if(!dirty())render();return;}if(!canLeave())return;disposeEditor();approvedNavigation=hash;location.hash=hash;}
  function anchor(label,href,cls=''){const a=link(label,href,cls);if(href.startsWith('#/'))a.addEventListener('click',event=>{event.preventDefault();navigate(href);});return a;}
@@ -330,7 +341,9 @@ export function createApp(ctx){
   const record=id?approvedCtx.maps[domain].get(id):null;if(id&&!record)return missing('This item does not exist or its ID has been retired.',rootRoute(domain));const fallback=categoryRoute(domain,domain==='gear'?category:type);const origin=previousHash===rootRoute(domain)||previousHash===fallback?previousHash:fallback;const parent=record?routeFor(domain,record.id):fallback;const exitTarget=record?parent:origin;
   const page=frame(record?'Edit '+record.name:domain==='gear'?'Add Gear':'Add Entry',parent,record?[button('Create Link',()=>copyLink(domain,record.id))]:[]);
   const create=ownerEditorPreview?createD6ApprovedEditorPreview:createEditor;
-  const created=await create(approvedCtx,{domain,baseRecord:record,category,type,onBack:()=>navigate(parent),onExit:({savedId}={})=>{disposeEditor();if(savedId){history.replaceState(null,'',routeFor(domain,savedId));return;}navigate(exitTarget);},onDirty:()=>{}});
+  const created=await create(approvedCtx,{domain,baseRecord:record,category,type,onBack:({deviceDraftSaved=false,needsReselect=false}={})=>
+   deviceDraftSaved?leaveWithSavedDraft(parent,{needsReselect}):navigate(parent),
+   onExit:({savedId}={})=>{disposeEditor();if(savedId){history.replaceState(null,'',routeFor(domain,savedId));return;}navigate(exitTarget);},onDirty:()=>{}});
   editor=created;page.append(created.element);return page;
  }
  async function renderCatchPreview(id=null){
@@ -341,7 +354,9 @@ export function createApp(ctx){
   const parent=record?routeFor('catches',record.id):'#/catches';
   const page=frame(record?'Edit Catch':'Add Catch',parent);
   const created=await createD6ApprovedCatchPreview(approvedCtx,{
-   baseRecord:record,onBack:()=>navigate(parent),
+   baseRecord:record,
+   onBack:({deviceDraftSaved=false,needsReselect=false}={})=>
+    deviceDraftSaved?leaveWithSavedDraft(parent,{needsReselect}):navigate(parent),
    onExit:({savedId}={})=>{disposeEditor();if(savedId){history.replaceState(null,'',routeFor('catches',savedId));return;}navigate('#/catches');},
    onDirty:()=>{},
   });
