@@ -55,5 +55,7 @@ test('O03-BUILD02 UI keeps cached Markdown local and no D1 catalog mixing',()=>{
  assert.match(ui,/ctx\.offlineMarkdown\.get\(pathValue\)/);
  assert.match(ui,/ctx\.v3\?\.contentSource==='v3-content'/);
  assert.match(ui,/verifyContent:readerOnly/);
- assert.match(ui,/\['release','v3-content'\]/);
+ assert.match(ui,/needsContentModeReload\(\{source:ctx\.v3\?\.contentSource,mode,/);
+ const transition=read('../src/d6-content-mode-reload.mjs');
+ assert.match(transition,/\['release','v3-content'\]\.includes\(source\)&&mode==='Automatic'/);
 });
