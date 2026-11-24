@@ -11,7 +11,7 @@ for(const [domain,path] of [
   const callback=/button\('Exit',\(\)=>\{\s*onExit\(\{savedId:candidate\.id\}\);window\.location\.reload\(\);\s*\},\{variant:'primary'\}\)/g;
   assert.equal([...source.matchAll(callback)].length,1,
    'exactly one successful direct-Save Exit reload handler');
-  assert.match(source,/button\('Cancel',onBack\)/,
+  assert.match(source,/const cancelButton=button\('Cancel',onBack\)/,
    'Cancel keeps its existing no-reload handler');
   if(domain==='Gear and Knowledge Base')
    assert.doesNotMatch(source,/Prepared change package|Publication accepted/,
@@ -22,6 +22,7 @@ for(const [domain,path] of [
 
 test('L01 verified Add Save navigates to its newly persisted record',()=>{
  const ui=readFileSync(new URL('../src/ui.mjs',import.meta.url),'utf8');
- assert.match(ui,/savedId\?routeFor\(domain,savedId\):exitTarget/);
- assert.match(ui,/savedId\?routeFor\('catches',savedId\):'#\/catches'/);
+ assert.match(ui,/history\.replaceState\(null,'',routeFor\(domain,savedId\)\)/);
+ assert.match(ui,/history\.replaceState\(null,'',routeFor\('catches',savedId\)\)/);
+ assert.doesNotMatch(ui,/navigate\(savedId\?routeFor/);
 });
