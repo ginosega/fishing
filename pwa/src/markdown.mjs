@@ -8,18 +8,6 @@ const rawImage=md.renderer.rules.image||((tokens,i,options,env,self)=>self.rende
 md.renderer.rules.image=(tokens,i,options,env,self)=>{tokens[i].attrSet('loading','lazy');tokens[i].attrSet('decoding','async');return rawImage(tokens,i,options,env,self);};
 // Markdown pipe tables cannot contain block lists. Allow simple inline lists
 // separated by <br>, <br/> or </br> inside a table cell, without enabling HTML.
-const ordinaryInline=md.renderer.rules.inline;
-md.renderer.rules.inline=(tokens,index,options,env,self)=>{
- const grouped=tokens[index].meta?.tableList;
- if(!grouped)return ordinaryInline?ordinaryInline(tokens,index,options,env,self):
-  md.renderer.renderInline(tokens[index].children,options,env);
- const tag=grouped.ordered?'ol':'ul';
- const start=grouped.ordered&&grouped.start!==1?
-  ' start="'+grouped.start+'"':'';
- return '<'+tag+start+'>'+grouped.items.map(children=>
-  '<li>'+md.renderer.renderInline(children,options,env)+'</li>'
- ).join('')+'</'+tag+'>';
-};
 function inlineTableLists(tokens){
  let inCell=false;
  for(const token of tokens){
@@ -35,8 +23,20 @@ function inlineTableLists(tokens){
   if(!items.every(x=>/^\d/.test(x[1])===ordered))continue;
   const start=ordered?Number.parseInt(items[0][1],10):1;
   if(!Number.isSafeInteger(start)||start<1||start>9999)continue;
-  token.meta={...token.meta,tableList:{ordered,start,
-   items:items.map(x=>md.parseInline(x[2],{})[0].children)}};
+  // Markdown-it renders inline tokens directly from token.children; its
+  // renderer.rules.inline hook is not invoked by the block renderer.
+  // Construct only trusted list tag tokens, never HTML from the Notes text.
+  const html=content=>{const t=new token.constructor('html_inline','',0);
+   t.content=content;return t;};
+  const tag=ordered?'ol':'ul';
+  const startAttr=ordered&&start!==1?' start="'+start+'"':'';
+  const children=[html('<'+tag+startAttr+'>')];
+  for(const item of items){
+   children.push(html('<li>'),...md.parseInline(item[2],{})[0].children,
+    html('</li>'));
+  }
+  children.push(html('</'+tag+'>'));
+  token.children=children;
  }
 }
 
@@ -74,7 +74,6 @@ export function parseMarkdown(text,{owner,maps,assetBase='https://example.invali
  inlineTableLists(tokens);
  function walk(items){for(const token of items){
   if(token.children)walk(token.children);
-  if(token.meta?.tableList)for(const item of token.meta.tableList.items)walk(item);
   if(token.type!=='link_open'&&token.type!=='image')continue;
   const image=token.type==='image',attr=image?'src':'href',original=token.attrGet(attr);
   if(image&&!token.content?.trim())throw new Error(`Image alternative text required: ${owner}`);
