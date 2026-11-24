@@ -54,6 +54,8 @@ export function v3OfflineLibraryDisplay(status,options={}){
  const legacy=legacyView(status,options);
  const task=status?.contentPreparation;
  const phase=task?.phase;
+ if(phase==='unprepared')return {label:'Offline library not prepared',
+  message:status?.message||'',busy:status?.updating===true};
  if(ACTIVE.has(phase)){
   const progress=phase==='checking'?'':countLabel(task,'images');
   return {label:'Preparing offline library'+progress,

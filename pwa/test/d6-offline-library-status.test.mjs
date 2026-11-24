@@ -156,3 +156,13 @@ test('O02-UX12 failure/success messages do not enable a still-running update',()
   assert.equal(value.busy,true);
  }
 });
+
+test('L01 missing or incompatible startup content is unprepared, not a failed download',()=>{
+ for(const state of ['Ready','Incomplete']){
+  const unprepared=status({phase:'unprepared'},state);
+  assert.deepEqual(v3OfflineLibraryDisplay(unprepared,context),{
+   label:'Offline library not prepared',message:'',busy:false,
+  });
+  assert.equal(v3OfflineLibraryActionLabel(unprepared),'Prepare');
+ }
+});

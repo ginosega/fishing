@@ -5,7 +5,8 @@ export function createOffline({root,releaseId,onStatus,isDirty,notify,
  verifyContent=null}){
  let registration=null,updating=false,checking=null,switching=false,warned=false;
  let mode='Automatic',modeAvailable=false;
- let status={state:'Incomplete',releaseId:null,files:0,bytes:0,failed:[]};
+ let status={state:'Incomplete',releaseId:null,files:0,bytes:0,failed:[],
+  ...(typeof verifyContent==='function'?{contentPreparation:{phase:'unprepared'}}:{})};
  const statusType=standaloneV3?'FISHING_V3_STATUS':'FISHING_V2_STATUS';
  const progressType=standaloneV3?'FISHING_V3_PROGRESS':'FISHING_V2_PROGRESS';
  const currentType=standaloneV3?'FISHING_V3_CURRENT':'FISHING_V2_CURRENT';
@@ -139,9 +140,10 @@ export function createOffline({root,releaseId,onStatus,isDirty,notify,
       restored:true,
      }});
     }catch{
-     publish({contentPreparation:{
-      phase:'error',reason:'content',previousVerified:false,
-     }});
+     // A startup cache probe is not a preparation attempt. An absent or
+     // incompatible snapshot is simply not prepared; actual update errors
+     // are reported by update() below.
+     publish({contentPreparation:{phase:'unprepared'}});
     }
    }
    await refreshMode();await checkCurrent();

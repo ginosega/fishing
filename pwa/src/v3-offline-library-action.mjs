@@ -7,6 +7,7 @@ export function v3OfflineLibraryActionLabel(status){
      status.contentPreparation.libraryReady!==true)
   return 'Preparing…';
  if(status?.state==='Downloading'||status?.updating===true)return 'Preparing…';
+ if(phase==='unprepared')return 'Prepare';
  if(phase==='error'&&status?.contentPreparation?.previousVerified!==true)
   return 'Prepare';
  return status?.state==='Ready'?'Update':'Prepare';

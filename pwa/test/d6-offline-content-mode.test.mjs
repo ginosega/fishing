@@ -61,7 +61,8 @@ test('O03-MODE01 incomplete content prevents Work Offline even if software is Re
   verified++;
   throw Error('Current content missing');
  },async({offline,calls,notices})=>{
-  assert.equal(offline.getStatus().contentPreparation?.phase,'error');
+  assert.equal(offline.getStatus().contentPreparation?.phase,'unprepared');
+  assert.equal(offline.getStatus().contentPreparation?.reason,undefined);
   assert.equal(v3OfflineLibraryActionLabel(offline.getStatus()),'Prepare');
   const ok=await offline.setMode('Work Offline');
   assert.equal(ok,false);

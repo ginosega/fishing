@@ -1,3 +1,4 @@
+import {needsContentModeReload} from './d6-content-mode-reload.mjs';
 import {GEAR_EQUIPMENT,KB_LOCATIONS,KB_GUIDES,KB_TECHNIQUES,KB_KNOTS} from './taxonomy.mjs';
 import {el,text,button,link,field,input,select,empty,status,picture,waitForDetailPicture,section,toolbar,table} from './dom.mjs';
 import {DOMAIN,GEAR_CATEGORIES,gearCategoryLabel,gearCategoryChoices,KB_TYPES,ROD_TYPES,sortGear,sortNames,sortCatches,catchHistory,parseRoute,routeFor,rootRoute,categoryRoute,addRoute,editRoute,encodedPath} from './shared.mjs';
@@ -370,7 +371,20 @@ export function createApp(ctx){
   });
   editor=created;page.append(created.element);return page;
  }
- async function render(){const ticket=++serial;if(offline&&!(await offline.checkCurrent()))return;if(ticket!==serial)return;disposeEditor();route=parseRoute(currentHash);root.replaceChildren(el('div',{class:'loading'},'Loading…'));
+ // Recheck at navigation as well as mode-change time: a dirty editor can
+ // defer the mode switch bootstrap until it is exited (even after Undo).
+ function reloadForContentMode(){
+  if(contentBootReloadPending)return true;
+  if(offline?.getModeAvailable?.()!==true||dirty())return false;
+  const mode=offline.getMode();
+  if(!needsContentModeReload({source:ctx.v3?.contentSource,mode,
+   online:navigator.onLine,direct:ctx.v3?.directGearEnabled===true&&
+    ctx.v3?.directKBEnabled===true&&ctx.v3?.directCatchEnabled===true}))return false;
+  contentBootReloadPending=true;
+  location.reload();
+  return true;
+ }
+ async function render(){const ticket=++serial;if(offline&&!(await offline.checkCurrent()))return;if(ticket!==serial||reloadForContentMode())return;disposeEditor();route=parseRoute(currentHash);root.replaceChildren(el('div',{class:'loading'},'Loading…'));
   try{
    if(gearPage(route.page))await ensureGearCatalog();
    if(kbPage(route.page))await ensureKBCatalog();
@@ -676,20 +690,7 @@ export function createApp(ctx){
    control.setAttribute('aria-pressed',String(available&&mode===value));
   }
   updateConnection();
-  // Changing between online D1 and the verified release-based Work Offline
-  // library requires a fresh bootstrap, never a mixed in-memory catalog.
-  // Preserve a dirty owner draft; never reload over unsaved editor changes.
-  if(available&&!dirty()&&!contentBootReloadPending&&
-     ((ctx.v3?.contentSource==='d1'&&mode==='Work Offline')||
-      (['release','v3-content'].includes(ctx.v3?.contentSource)&&mode==='Automatic'&&
-       navigator.onLine===true&&
-       ctx.v3?.directGearEnabled===true&&
-       ctx.v3?.directKBEnabled===true&&
-       ctx.v3?.directCatchEnabled===true))){
-   contentBootReloadPending=true;
-   location.reload();
-   return;
-  }
+  if(reloadForContentMode())return;
   if(available&&mode==='Automatic'&&!dirty()&&
      (ctx.v3?.directGearEnabled===true&&gearPage(route.page)&&!gearCatalogReady||
       ctx.v3?.directKBEnabled===true&&kbPage(route.page)&&!kbCatalogReady))
