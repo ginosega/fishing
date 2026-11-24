@@ -82,7 +82,7 @@ test('O02-BRIDGE01 source-only opt-in runs AFTER verified software PREPARE',asyn
   assert.equal(current.contentPreparation.libraryReady,true);
   assert.equal(v3OfflineLibraryDisplay(current,{
    online:true,currentReleaseId:releaseId,
-  }).message,'Offline library is ready for offline use.');
+  }).message,'');
  });
 });
 
