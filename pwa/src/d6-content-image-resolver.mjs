@@ -30,6 +30,12 @@ export async function loadD6PublishedMediaPaths({
  try{
   reply=await request(endpoint,{method:'GET',credentials:'same-origin',
    cache:'no-store',redirect:'manual',headers:{Accept:'application/json'}});
+ }catch{throw Error('MEDIA_REGISTRY_UNAVAILABLE');}
+ // A fresh browser does not share the owner's session with another browser.
+ // Keep the manifest private, but let the shell offer the existing OAuth login.
+ if(reply instanceof Response&&[401,403].includes(reply.status))
+  throw Error('MEDIA_REGISTRY_SIGN_IN_REQUIRED');
+ try{
   if(!(reply instanceof Response)||reply.status!==200||
      reply.redirected===true||(reply.url&&reply.url!==endpoint)||
      !/^application\/json\b/i.test(reply.headers.get('Content-Type')??''))
