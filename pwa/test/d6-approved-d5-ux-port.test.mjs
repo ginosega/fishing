@@ -29,18 +29,22 @@ const hash=data=>createHash('sha1')
 // Owner explicitly approved extending the shared Notes editor for M03:
 // https://github.com/ginosega/fishing/issues/377#issuecomment-7086996544
 // Preserve the original D5 blob above for provenance; pin the narrowly reviewed
-// M03 replacement separately. All other twelve accepted D5 files stay exact.
+// M03 replacement separately. Eleven unchanged D5 files stay exact.
 // The 2026-11-22 owner-requested Preview viewer is part of M03's accepted
 // opt-in editor UX. Review the concrete change before changing this pin.
 const reviewedM03Notes='521cb9a4e648f123a73c37458690a5eccbb9e79f';
-test('D6-UX-PORT01 twelve D5 exact-byte imports and approved M03 Notes extension',()=>{
+// L01 owner-approved offline Account caption only; preserve the D5 origin pin.
+// https://github.com/ginosega/fishing/issues/377#issuecomment-7136894392
+const reviewedL01Connection='31fe59a9bdcb05b12056e9b4c472cdfdbc5d572c';
+test('D6-UX-PORT01 eleven D5 exact-byte imports and approved M03/L01 extensions',()=>{
  assert.equal(Object.keys(accepted).length,13);
  for(const [name,expected] of Object.entries(accepted))
   assert.equal(hash(read(name)),
-   name==='notes-markdown-editor.mjs'?reviewedM03Notes:expected,
-   'Approved D5/M03 source drift without review: '+name);
+   name==='notes-markdown-editor.mjs'?reviewedM03Notes:
+   name==='v3-connection-experience.mjs'?reviewedL01Connection:expected,
+   'Approved D5/M03/L01 source drift without review: '+name);
 });
-test('D6-UX-PORT02 approved Connection Status implementation stays unmodified',()=>{
+test('D6-UX-PORT02 approved Connection Status implementation preserves its contract',()=>{
  const acceptedFile=read('v3-connection-experience.mjs').toString();
  assert.match(acceptedFile,/v3-connection-section v3-account/);
  assert.match(acceptedFile,/v3-connection-section v3-publishing/);
