@@ -11,8 +11,8 @@ for(const [domain,path] of [
   const callback=/button\('Exit',\(\)=>\{\s*onExit\(\{savedId:candidate\.id\}\);window\.location\.reload\(\);\s*\},\{variant:'primary'\}\)/g;
   assert.equal([...source.matchAll(callback)].length,1,
    'exactly one successful direct-Save Exit reload handler');
-  assert.match(source,/const cancelButton=button\('Cancel',onBack\)/,
-   'Cancel keeps its existing no-reload handler');
+  assert.match(source,/const cancelButton=button\('Cancel',async\(\)=>\{/,
+   'Cancel first verifies device draft persistence; it does not reload');
   if(domain==='Gear and Knowledge Base')
    assert.doesNotMatch(source,/Prepared change package|Publication accepted/,
     'the direct Gear/KB editor has no GitHub publication UI');
