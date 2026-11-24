@@ -499,7 +499,7 @@ export async function createCatchEditor(ctx,{
      control.disabled=true;
     onDirty(false);
     try{await discardDraft();}catch{/* verified Catch remains authoritative */}
-    onExit({savedId:candidate.id});
+    onExit({savedId:candidate.id,savedRecord:candidate});
     window.location.reload();
     return;
    }

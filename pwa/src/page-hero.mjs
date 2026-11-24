@@ -1,4 +1,5 @@
-const HERO_ROUTES=new Set(['#/','#/inventory','#/kb']);
+import {rootRoute} from './shared.mjs';
+const HERO_ROUTES=new Set(['#/',rootRoute('gear'),rootRoute('kb')]);
 
 export function isPageHeroRoute(hash){
  return HERO_ROUTES.has(hash||'#/');

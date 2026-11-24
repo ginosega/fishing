@@ -1,5 +1,5 @@
 import {el,text,button,link,field,input,select,empty,status,picture,waitForDetailPicture,section,toolbar,table} from './dom.mjs';
-import {DOMAIN,GEAR_CATEGORIES,gearCategoryLabel,gearCategoryChoices,KB_TYPES,ROD_TYPES,sortGear,sortNames,sortCatches,catchHistory,parseRoute,routeFor,encodedPath} from './shared.mjs';
+import {DOMAIN,GEAR_CATEGORIES,gearCategoryLabel,gearCategoryChoices,KB_TYPES,ROD_TYPES,sortGear,sortNames,sortCatches,catchHistory,parseRoute,routeFor,rootRoute,categoryRoute,addRoute,editRoute,encodedPath} from './shared.mjs';
 import {TAXONOMY,validateRecords} from './validation.mjs';
 import {createD6OwnerEditorPreviewGate} from './d6-owner-editor-preview-gate.mjs';
 import {createD6ApprovedEditorPreview,createD6ApprovedCatchPreview} from './d6-approved-owner-editor-preview.mjs';
@@ -41,8 +41,6 @@ const ROOT_SUBTITLES={gear:'Browse your inventory of equipment, tackle, and bait
 const KB_PINNED_FIRST={knot:'line-tackle-knot-reference'};
 const CATEGORY_PRESENTATION={gear:{'rods-reels':{icon:'🎣'},line:{icon:'〰️'},weights:{icon:'⚓'},'snaps-swivels':{icon:'🔗'},hooks:{icon:'🪝'},lures:{icon:'🐟'},bait:{icon:'🪱'},accessories:{icon:'🛶',svg:KAYAK_ICON}},kb:{location:{icon:'📍',description:'Waters, access, seasonal patterns, and local observations'},species:{icon:'🐟',description:'Fish identification, behavior, habitat, and targeting notes'},equipment:{icon:'🧰',description:'Equipment, rig, and presentation reference'},technique:{icon:'🧭',description:'Strategy, conditions, and species reference'},knot:{icon:'🪢',description:'Connection guidance, cautions, and learning resources'}}};
 const categoryLabel=(domain,key)=>domain==='gear'?gearCategoryLabel(key):KB_TYPES.find(x=>x[0]===key)?.[1]||key;
-const categoryRoute=(domain,key)=>domain==='gear'?`#/inventory/category/${key}`:`#/kb/category/${key}`;
-const rootRoute=domain=>domain==='gear'?'#/inventory':domain==='kb'?'#/kb':'#/catches';
 const recordTitle=(ctx,domain,record)=>domain==='catches'?`${ctx.maps.kb.get(record.speciesId)?.name||record.speciesName||'Catch'} · ${record.date}`:record.name;
 export function createApp(ctx){
  const readerOnly=ctx.v3?.enabled===true&&ctx.v3?.readerOnly===true;
@@ -219,12 +217,13 @@ export function createApp(ctx){
  function disposeEditor(){editor?.dispose?.();editor=null;}
  function navigate(hash){if(hash===currentHash){if(!dirty())render();return;}if(!canLeave())return;disposeEditor();approvedNavigation=hash;location.hash=hash;}
  function anchor(label,href,cls=''){const a=link(label,href,cls);if(href.startsWith('#/'))a.addEventListener('click',event=>{event.preventDefault();navigate(href);});return a;}
- function copyLink(domain,id){const uri=domain+'://'+id;const full=new URL(routeFor(domain,id),ctx.root).href;const box=el('div',{class:'copy-dialog'},text('p','Internal link'),el('code',{},uri),text('p','Shareable browser URL'),el('code',{},full),toolbar(button('Copy internal link',()=>copy(uri)),button('Copy browser URL',()=>copy(full))));const dialog=el('dialog',{class:'small-dialog','aria-label':'Create Link'},box,button('Close',()=>dialog.close()));dialog.addEventListener('close',()=>dialog.remove());document.body.append(dialog);dialog.showModal();}
+ function copyLink(domain,id){const uri=domain+'://'+id;const full=new URL(routeFor(domain,ctx.maps[domain].get(id)),ctx.root).href;const box=el('div',{class:'copy-dialog'},text('p','Internal link'),el('code',{},uri),text('p','Shareable browser URL'),el('code',{},full),toolbar(button('Copy internal link',()=>copy(uri)),button('Copy browser URL',()=>copy(full))));const dialog=el('dialog',{class:'small-dialog','aria-label':'Create Link'},box,button('Close',()=>dialog.close()));dialog.addEventListener('close',()=>dialog.remove());document.body.append(dialog);dialog.showModal();}
  async function copy(value){try{await navigator.clipboard.writeText(value);notify('Copied to clipboard.','success');}catch{const area=el('textarea',{readonly:true,value});alertHost.replaceChildren(text('p','Select and copy this text:'),area);area.focus();area.select();}}
  function frame(title,parent,actions=[],subtitle=''){const header=el('div',{class:'page-header'},el('div',{class:'page-heading'},text('h1',title),subtitle?text('p',subtitle,'page-subtitle'):null),el('div',{class:'page-actions'},...actions,parent?button('Back',()=>navigate(parent)):null));return el('div',{class:'page'},header);}
  function card(title,description,href,icon='',image=null){return el('a',{href,class:'nav-card',onclick:event=>{event.preventDefault();navigate(href);}},image||(icon?el('span',{class:'card-icon','aria-hidden':'true'},icon):el('span',{class:'card-thumbnail card-spacer','aria-hidden':'true'})),el('div',{},text('h2',title),description?text('p',description,'muted'):null));}
- function recordCard(domain,record){const href=routeFor(domain,record.id),pictureSrc=record.picture?.src||(domain==='catches'?ctx.maps.kb.get(record.speciesId)?.picture?.src:null),image=pictureSrc?ctx.thumbnail(pictureSrc):null;const item=card(domain==='catches'?(ctx.maps.kb.get(record.speciesId)?.name||record.speciesName||'Catch'):recordTitle(ctx,domain,record),domain==='gear'?record.type:domain==='kb'?record.description||'':record.size||'',href,'',image?el('img',{src:image,alt:'',loading:'lazy',decoding:'async',class:'card-thumbnail',onerror:event=>{event.target.classList.add('card-spacer');}}):null);if(domain==='catches')item.querySelector('h2').after(el('time',{class:'catch-date muted',datetime:record.date},record.date));return item;}
- function renderHome(){const page=frame('Fishing Companion',null);page.append(text('p','Fishing reference and catch log','lead'),el('div',{class:'nav-grid home-grid'},card('My Gear',ROOT_SUBTITLES.gear,'#/inventory','🎒'),card('Knowledge Base',ROOT_SUBTITLES.kb,'#/kb','📚'),card('Catch Log','Recorded catches','#/catches','🐟')));return page;}
+ function artCard(title,description,href,icon,art){const item=card(title,description,href,icon);item.dataset.art=art;return item;}
+ function recordCard(domain,record){const href=routeFor(domain,record),pictureSrc=record.picture?.src||(domain==='catches'?ctx.maps.kb.get(record.speciesId)?.picture?.src:null),image=pictureSrc?ctx.thumbnail(pictureSrc):null;const item=card(domain==='catches'?(ctx.maps.kb.get(record.speciesId)?.name||record.speciesName||'Catch'):recordTitle(ctx,domain,record),domain==='gear'?record.type:domain==='kb'?record.description||'':record.size||'',href,'',image?el('img',{src:image,alt:'',loading:'lazy',decoding:'async',class:'card-thumbnail',onerror:event=>{event.target.classList.add('card-spacer');}}):null);if(domain==='catches')item.querySelector('h2').after(el('time',{class:'catch-date muted',datetime:record.date},record.date));return item;}
+ function renderHome(){const page=frame('Fishing Companion',null);page.append(text('p','Fishing reference and catch log','lead'),el('div',{class:'nav-grid home-grid'},artCard('My Gear',ROOT_SUBTITLES.gear,rootRoute('gear'),'🎒','home-gear'),artCard('Knowledge Base',ROOT_SUBTITLES.kb,rootRoute('kb'),'📚','home-kb'),artCard('Catch Log','Recorded catches',rootRoute('catches'),'🐟','home-catches')));return page;}
  function listControls(domain,records,{search=false,filter=false,sort='name',title='',pinnedId=''}={}){
   const controls=el('div',{class:'list-controls'}),results=el('div',{class:'record-grid'}),count=text('p','','result-count');let query='',type='';
   if(search){const searchInput=input('',{type:'search',placeholder:'Search '+title});searchInput.addEventListener('input',()=>{query=searchInput.value.toLocaleLowerCase();draw();});searchInput.setAttribute('aria-label','Search');controls.append(searchInput);}
@@ -234,16 +233,16 @@ export function createApp(ctx){
   draw();return {controls,element:el('div',{},count,results)};
  }
  function renderRoot(domain){const gear=domain==='gear',all=ctx.data[domain][DOMAIN[domain].array],rows=gear?gearCategoryChoices(all):KB_TYPES;const page=frame(gear?'My Gear':'Knowledge Base','#/',[],ROOT_SUBTITLES[domain]);
-  const searchInput=input('',{type:'search',placeholder:'Search '+(gear?'My Gear':'Knowledge Base')});const searchResults=el('div',{class:'record-grid',hidden:true});const categories=el('div',{class:'nav-grid'},...rows.map(([key,label])=>{const meta=CATEGORY_PRESENTATION[domain][key]||{icon:'📦'};const item=card(label,meta.description||'',categoryRoute(domain,key),meta.icon);if(meta.svg)item.querySelector('.card-icon').innerHTML=meta.svg;return item;}));
+  const searchInput=input('',{type:'search',placeholder:'Search '+(gear?'My Gear':'Knowledge Base')});const searchResults=el('div',{class:'record-grid',hidden:true});const categories=el('div',{class:'nav-grid'},...rows.map(([key,label])=>{const meta=CATEGORY_PRESENTATION[domain][key]||{icon:'📦'};const item=artCard(label,meta.description||'',categoryRoute(domain,key),meta.icon,domain+'-'+key);if(meta.svg)item.querySelector('.card-icon').innerHTML=meta.svg;return item;}));
   searchInput.addEventListener('input',()=>{const q=searchInput.value.trim().toLocaleLowerCase();searchResults.hidden=!q;categories.hidden=Boolean(q);if(!q){searchResults.replaceChildren();return;}const matches=all.filter(r=>[r.name,r.type,r.description,r.manufacturer,r.model].filter(Boolean).join(' ').toLocaleLowerCase().includes(q));searchResults.replaceChildren(...(matches.length?sortNames(matches).map(r=>recordCard(domain,r)):[empty('No matching entries.')]));});
-  searchInput.setAttribute('aria-label','Search '+(gear?'My Gear':'Knowledge Base'));page.querySelector('.page-actions').prepend(searchInput);page.append(categories,searchResults,...(showEditingLinks()?[anchor(gear?'Add Gear':'Add Entry',gear?'#/inventory/add/lures':'#/kb/add/technique','page-edit-link')]:[]));return page;
+  searchInput.setAttribute('aria-label','Search '+(gear?'My Gear':'Knowledge Base'));page.querySelector('.page-actions').prepend(searchInput);page.append(categories,searchResults,...(showEditingLinks()?[anchor(gear?'Add Gear':'Add Entry',addRoute(domain,gear?'lures':'technique'),'page-edit-link')]:[]));return page;
  }
  function renderList(domain,key){const gear=domain==='gear',rows=gear?gearCategoryChoices(ctx.data.gear.items):KB_TYPES;const definition=rows.find(x=>x[0]===key);if(!definition)return missing('Unknown category',rootRoute(domain));
   const records=ctx.data[domain][DOMAIN[domain].array].filter(r=>(gear?r.category:r.type)===key);
   const page=frame(definition[1],rootRoute(domain));
   if(!gear&&key==='equipment')page.append(text('p','Equipment, rig, and presentation reference','muted'));
   if(!gear&&key==='technique')page.append(text('p','Strategy, conditions, and species reference','muted'));
-  const list=listControls(domain,records,{title:definition[1],search:gear?key==='lures':key==='equipment',filter:gear,sort:gear?'gear':'name',pinnedId:gear?'':KB_PINNED_FIRST[key]||''});page.querySelector('.page-actions').prepend(...list.controls.children);page.append(list.element,...(showEditingLinks()?[anchor(gear?'Add Gear':'Add Entry',gear?`#/inventory/add/${key}`:`#/kb/add/${key}`,'page-edit-link')]:[]));return page;
+  const list=listControls(domain,records,{title:definition[1],search:gear?key==='lures':key==='equipment',filter:gear,sort:gear?'gear':'name',pinnedId:gear?'':KB_PINNED_FIRST[key]||''});page.querySelector('.page-actions').prepend(...list.controls.children);page.append(list.element,...(showEditingLinks()?[anchor(gear?'Add Gear':'Add Entry',addRoute(domain,key),'page-edit-link')]:[]));return page;
  }
  function missing(message,parent='#/'){const page=frame('Not found',parent);page.append(empty(message),anchor('Return to the parent page',parent));return page;}
  function loadError(message){const page=frame('Unable to load page','#/');page.append(empty(message),anchor('Return to the parent page','#/'));return page;}
@@ -316,12 +315,12 @@ export function createApp(ctx){
   if(domain==='catches'){
    const species=ctx.maps.kb.get(record.speciesId),location=ctx.maps.kb.get(record.locationId),lure=ctx.maps.gear.get(record.lureOrBaitId);
    if(species?.picture)appendPicture(page,{...species,name:species.name},'kb');
-   page.append(table([['Date',record.date],...(record.time?[['Time',record.time]]:[]),...(record.size?[['Size',record.size]]:[]),...(species||record.speciesName?[['Species',species?anchor(species.name,routeFor('kb',species.id)):record.speciesName]]:[]),...(location||record.locationName?[['Location',location?anchor(location.name,routeFor('kb',location.id)):record.locationName]]:[]),...(lure||record.lureOrBaitName?[['Lure or bait',lure?anchor(lure.name,routeFor('gear',lure.id)):record.lureOrBaitName]]:[])]));
+   page.append(table([['Date',record.date],...(record.time?[['Time',record.time]]:[]),...(record.size?[['Size',record.size]]:[]),...(species||record.speciesName?[['Species',species?anchor(species.name,routeFor('kb',species)):record.speciesName]]:[]),...(location||record.locationName?[['Location',location?anchor(location.name,routeFor('kb',location)):record.locationName]]:[]),...(lure||record.lureOrBaitName?[['Lure or bait',lure?anchor(lure.name,routeFor('gear',lure)):record.lureOrBaitName]]:[])]));
    if(directNotes!==null){
     if(record.notes)page.append(section('Notes',
      await markdownContent(record.notes,directNotes)));
    }else await appendMarkdown(page,record.notes,'Notes');
-   if(ownerEditingAvailable())page.append(anchor('Edit item',`#/catches/edit/${record.id}`,'page-edit-link'));
+   if(ownerEditingAvailable())page.append(anchor('Edit item',editRoute('catches',record),'page-edit-link'));
    return page;
   }
   appendPicture(page,record,domain);
@@ -338,20 +337,20 @@ export function createApp(ctx){
     await markdownContent(record.content,directNotes)));
    else await appendMarkdown(page,record.content,'Notes');
   }
-  const history=historySection(domain,record);if(history)page.append(history);if(showEditingLinks())page.append(anchor('Edit item',domain==='gear'?`#/inventory/edit/${record.id}`:`#/kb/edit/${record.id}`,'page-edit-link'));return page;
+  const history=historySection(domain,record);if(history)page.append(history);if(showEditingLinks())page.append(anchor('Edit item',editRoute(domain,record),'page-edit-link'));return page;
  }
  function renderCatches(){const page=frame('Recorded catches','#/');
-  if(ownerEditingAvailable())page.append(el('div',{class:'catch-add-row'},anchor('Add Catch','#/catches/add','page-edit-link')));
+  if(ownerEditingAvailable())page.append(el('div',{class:'catch-add-row'},anchor('Add Catch',addRoute('catches'),'page-edit-link')));
   page.append(el('div',{class:'record-grid'},...sortCatches(ctx.data.catches.catches).map(c=>recordCard('catches',c))));return page;}
  async function renderEditor(domain,id,category,type){
   if(readerOnly&&!ownerEditorPreview)return missing('V3 reader preview is read-only. Sign-in and publishing are disabled.');
   const approvedCtx=ownerEditorPreview?await verifiedPreviewContext():ctx;
-  const record=id?approvedCtx.maps[domain].get(id):null;if(id&&!record)return missing('This item does not exist or its ID has been retired.',rootRoute(domain));const fallback=categoryRoute(domain,domain==='gear'?category:type);const origin=previousHash===rootRoute(domain)||previousHash===fallback?previousHash:fallback;const parent=record?routeFor(domain,record.id):fallback;const exitTarget=record?parent:origin;
+  const record=id?approvedCtx.maps[domain].get(id):null;if(id&&!record)return missing('This item does not exist or its ID has been retired.',rootRoute(domain));const fallback=categoryRoute(domain,domain==='gear'?(record?.category||category):(record?.type||type));const origin=previousHash===rootRoute(domain)||previousHash===fallback?previousHash:fallback;const parent=record?routeFor(domain,record):fallback;const exitTarget=record?parent:origin;
   const page=frame(record?'Edit '+record.name:domain==='gear'?'Add Gear':'Add Entry',parent,record?[button('Create Link',()=>copyLink(domain,record.id))]:[]);
   const create=ownerEditorPreview?createD6ApprovedEditorPreview:createEditor;
   const created=await create(approvedCtx,{domain,baseRecord:record,category,type,onBack:({deviceDraftSaved=false,needsReselect=false}={})=>
    deviceDraftSaved?leaveWithSavedDraft(parent,{needsReselect}):navigate(parent),
-   onExit:({savedId}={})=>{disposeEditor();if(savedId){history.replaceState(null,'',routeFor(domain,savedId));return;}navigate(exitTarget);},onDirty:()=>{}});
+   onExit:({savedId,savedRecord}={})=>{disposeEditor();if(savedId){history.replaceState(null,'',routeFor(domain,savedRecord??savedId));return;}navigate(exitTarget);},onDirty:()=>{}});
   editor=created;page.append(created.element);return page;
  }
  async function renderCatchPreview(id=null){
@@ -359,13 +358,13 @@ export function createApp(ctx){
   const approvedCtx=await verifiedPreviewContext();
   const record=id?approvedCtx.maps.catches.get(id):null;
   if(id&&!record)return missing('This Catch does not exist.','#/catches');
-  const parent=record?routeFor('catches',record.id):'#/catches';
+  const parent=record?routeFor('catches',record):'#/catches';
   const page=frame(record?'Edit Catch':'Add Catch',parent);
   const created=await createD6ApprovedCatchPreview(approvedCtx,{
    baseRecord:record,
    onBack:({deviceDraftSaved=false,needsReselect=false}={})=>
     deviceDraftSaved?leaveWithSavedDraft(parent,{needsReselect}):navigate(parent),
-   onExit:({savedId}={})=>{disposeEditor();if(savedId){history.replaceState(null,'',routeFor('catches',savedId));return;}navigate('#/catches');},
+   onExit:({savedId,savedRecord}={})=>{disposeEditor();if(savedId){history.replaceState(null,'',routeFor('catches',savedRecord??savedId));return;}navigate('#/catches');},
    onDirty:()=>{},
   });
   editor=created;page.append(created.element);return page;
@@ -381,7 +380,10 @@ export function createApp(ctx){
   }catch(error){if(ticket===serial){const page=loadError('Unable to load the complete D1 library: '+error.message);page.append(button('Retry',()=>render(),{variant:'primary'}));root.replaceChildren(page);}return;}
   if(ticket!==serial)return;
   try{let page;
-   switch(route.page){case 'home':page=renderHome();break;case 'gear-root':page=renderRoot('gear');break;case 'kb-root':page=renderRoot('kb');break;case 'gear-list':page=renderList('gear',route.category);break;case 'kb-list':page=renderList('kb',route.type);break;case 'gear-detail':page=await renderDetail('gear',route.id);break;case 'kb-detail':page=await renderDetail('kb',route.id);break;case 'catch-list':page=renderCatches();break;case 'catch-detail':page=await renderDetail('catches',route.id);break;
+   // V3 detail/edit URLs must match the authoritative category, not merely the ID.
+   const wrongCategory=(route.id&&route.category!==undefined&&ctx.maps.gear.get(route.id)?.category!==route.category)||(route.id&&route.type!==undefined&&ctx.maps.kb.get(route.id)?.type!==route.type);
+   if(wrongCategory)page=missing('This item does not belong to the requested category.');
+   else switch(route.page){case 'home':page=renderHome();break;case 'gear-root':page=renderRoot('gear');break;case 'kb-root':page=renderRoot('kb');break;case 'gear-list':page=renderList('gear',route.category);break;case 'kb-list':page=renderList('kb',route.type);break;case 'gear-detail':page=await renderDetail('gear',route.id);break;case 'kb-detail':page=await renderDetail('kb',route.id);break;case 'catch-list':page=renderCatches();break;case 'catch-detail':page=await renderDetail('catches',route.id);break;
     case 'catch-add':page=await renderCatchPreview();break;
     case 'catch-edit':page=await renderCatchPreview(route.id);break;case 'gear-edit':page=await renderEditor('gear',route.id);break;case 'kb-edit':page=await renderEditor('kb',route.id);break;case 'gear-add':page=await renderEditor('gear',null,route.category);break;case 'kb-add':page=await renderEditor('kb',null,null,route.type);break;default:page=missing('The requested page is not available.');}
    if(ticket!==serial){if(editor&&ticket!==serial)disposeEditor();return;}

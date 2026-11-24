@@ -1,3 +1,5 @@
+import {routeFor,rootRoute} from './browser-routes.mjs';
+export {parseRoute,routeFor,rootRoute,categoryRoute,addRoute,editRoute} from './browser-routes.mjs';
 // Shared, framework-free domain and authoring primitives. No browser storage.
 export const DOMAIN = {
   gear: {file:'Gear/gear.json', array:'items', definition:'gearBundle'},
@@ -120,47 +122,17 @@ export function catchHistory(data, domain, id) {
   if(domain==='kb'&&!['species','location'].includes(data.kb.entities.find(x=>x.id===id)?.type))return [];
   return sortCatches(data.catches.catches.filter(c=>c[field]===id));
 }
-export function parseRoute(hash) {
-  const [raw,query='']=(hash||'').replace(/^#\/?/,'').split('?');
-  const parts=raw.split('/').filter(Boolean).map(decodeURIComponent);
-  const section=new URLSearchParams(query).get('section');
-  if(!parts.length)return {page:'home'};
-  const detail=(page,id)=>({page,id,...(section?{section}:{})});
-  if(parts[0]==='inventory') {
-    if(parts.length===1)return {page:'gear-root'};
-    if(parts[1]==='item'&&parts.length===3)return detail('gear-detail',parts[2]);
-    if(parts[1]==='edit'&&parts.length===3)return {page:'gear-edit',id:parts[2]};
-    if(parts[1]==='add'&&parts.length===3)return {page:'gear-add',category:parts[2]};
-    if(parts[1]==='category'&&parts.length===3)return {page:'gear-list',category:parts[2]};
-    if(GEAR_CATEGORIES.some(x=>x[0]===parts[1]))return parts[2]?detail('gear-detail',parts[2]):{page:'gear-list',category:parts[1]};
-  }
-  if(parts[0]==='kb') {
-    if(parts.length===1)return {page:'kb-root'};
-    if(parts[1]==='edit'&&parts.length===3)return {page:'kb-edit',id:parts[2]};
-    if(parts[1]==='add'&&parts.length===3)return {page:'kb-add',type:parts[2]};
-    if((parts[1]==='category'||parts[1]==='type')&&parts.length===3)return {page:'kb-list',type:parts[2]};
-    if(KB_TYPES.some(x=>x[0]===parts[1]))return parts[2]?detail('kb-detail',parts[2]):{page:'kb-list',type:parts[1]};
-    if(parts.length===2)return detail('kb-detail',parts[1]);
-  }
-  if(parts[0]==='catches'&&parts[1]==='add'&&parts.length===2)
-   return {page:'catch-add'};
-  if(parts[0]==='catches'&&parts[1]==='edit'&&parts.length===3)
-   return {page:'catch-edit',id:parts[2]};
-  if((parts[0]==='catches'||parts[0]==='catch-log')&&parts.length<=2)return parts[1]?detail('catch-detail',parts[1]):{page:'catch-list'};
-  return {page:'missing'};
-}
-export function routeFor(domain,id) {return domain==='gear'?`#/inventory/item/${encodeURIComponent(id)}`:domain==='kb'?`#/kb/${encodeURIComponent(id)}`:`#/catches/${encodeURIComponent(id)}`;}
 // Only approved navigation pages and existing canonical records resolve.
 // Catch IDs may be referenced manually but are never listed by the Notes picker.
 const INTERNAL_SITE_ROUTES=Object.freeze({
- 'site://home':'#/','site://gear':'#/inventory',
- 'site://kb':'#/kb','site://catches':'#/catches',
+ 'site://home':'#/','site://gear':rootRoute('gear'),
+ 'site://kb':rootRoute('kb'),'site://catches':rootRoute('catches'),
 });
 export function internalLink(uri,maps) {
   if(Object.hasOwn(INTERNAL_SITE_ROUTES,uri))return INTERNAL_SITE_ROUTES[uri];
   const match=/^(gear|kb|catches):\/\/([a-z0-9][a-z0-9-]*)$/.exec(uri);
   if(!match||!maps?.[match[1]]?.has(match[2]))throw new Error(`Unknown internal reference: ${uri}`);
-  return routeFor(match[1],match[2]);
+  return routeFor(match[1],maps[match[1]].get(match[2]));
 }
 export function categoryFolder(domain,key) {const row=(domain==='gear'?GEAR_CATEGORIES:KB_TYPES).find(x=>x[0]===key);if(row)return (domain==='gear'?'Gear/':'KB/')+row[2];assert(domain==='gear'&&typeof key==='string'&&/^[a-z0-9][a-z0-9-]*$/.test(key)&&key.length<=80,`Unknown category: ${key}`);return safePath('Gear/Custom/'+key);}
 export function suggestedFilename(name,ext='.md') {const text=name.normalize('NFC').replace(/[<>:"\\/|?*\x00-\x1f\x7f]/g,'').replace(/[. ]+$/,'').slice(0,175);return text+ext;}

@@ -543,7 +543,7 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
      control.disabled=true;
     onDirty?.(false);
     try{await discardDraft();}catch{/* verified server row remains authoritative */}
-    onExit({savedId:candidate.id});
+    onExit({savedId:candidate.id,savedRecord:candidate});
     window.location.reload();
     return;
    }

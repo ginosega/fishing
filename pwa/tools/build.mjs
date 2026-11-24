@@ -109,6 +109,10 @@ export async function build(){
    plugins:d6StandaloneV3?[{
     name:'l01-remove-v2-editor',
     setup(builder){
+     builder.onResolve({filter:/^\.\/browser-routes\.mjs$/},args=>{
+      if(!isL01SourceImporter(args.importer))return null;
+      return {path:path.join(repo,'pwa/src/v3-routes.mjs')};
+     });
      builder.onResolve({filter:/^\.\/(?:editor|handoff|change-prompt|d6-canonical-authoring-source)\.mjs$/},args=>{
       if(!isL01SourceImporter(args.importer))return null;
       const replacements={
@@ -134,8 +138,11 @@ export async function build(){
       '__FISHING_D6_O02_OFFLINE_CONTENT__':d6OfflineContentPreparation?'true':'false',
       '__FISHING_D6_O03_OFFLINE_READING__':d6OfflineContentReading?'true':'false',
       '__FISHING_D6_STANDALONE_V3__':d6StandaloneV3?'true':'false'}});
-  if(d6StandaloneV3)
-   assertL01StandaloneModuleBoundary(app.metafile?.inputs);
+  if(d6StandaloneV3){
+    assertL01StandaloneModuleBoundary(app.metafile?.inputs);
+    if(Object.keys(app.metafile?.inputs||{}).some(name=>name.replaceAll('\\','/').endsWith('/browser-routes.mjs')))
+     throw Error('Standalone V3 contains legacy browser routes');
+   }
   const baseCss=await fs.readFile(path.join(repo,'pwa/src/styles.css')),cardIconCss=await fs.readFile(path.join(repo,'pwa/src/card-icons.css')),pageHeroCss=await fs.readFile(path.join(repo,'pwa/src/page-hero.css')),css=Buffer.concat([baseCss,Buffer.from('\n'),cardIconCss,Buffer.from('\n'),pageHeroCss]);
   const inputHashes=d6StandaloneV3?[]:await hashFiles(content),thumbnailHashes=thumbs?await hashFiles(path.join(tmp,'card-thumbnails')):[],staticImageHashes=await hashFiles(path.join(tmp,'static-page-artwork')),originalStaticImageHashes=await hashFiles(pageAssetsRoot);const lock=await fs.readFile(path.join(repo,'pwa/package-lock.json'));
   const codeHashes=[];for(const dir of ['src','tools'])for(const file of await hashFiles(path.join(repo,'pwa',dir)))codeHashes.push({...file,path:dir+'/'+file.path});

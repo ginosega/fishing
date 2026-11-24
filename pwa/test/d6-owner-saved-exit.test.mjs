@@ -17,11 +17,11 @@ for(const [domain,path] of [
   assert(success>=0&&error>success,'verified direct Save branch exists');
   const section=source.slice(success,error);
   assert.match(section,/await discardDraft\(\)/);
-  assert.match(section,/onExit\(\{savedId:candidate\.id\}\)/);
+  assert.match(section,/onExit\(\{savedId:candidate\.id,savedRecord:candidate\}\)/);
   assert.match(section,/window\.location\.reload\(\)/);
   assert(section.indexOf('await discardDraft()')<
-   section.indexOf('onExit({savedId:candidate.id})'));
-  assert(section.indexOf('onExit({savedId:candidate.id})')<
+   section.indexOf('onExit({savedId:candidate.id,savedRecord:candidate})'));
+  assert(section.indexOf('onExit({savedId:candidate.id,savedRecord:candidate})')<
    section.indexOf('window.location.reload()'));
   assert.doesNotMatch(section,/button\('Exit'/);
   assert.match(source,/const cancelButton=button\('Cancel',async\(\)=>\{/);
@@ -33,7 +33,7 @@ for(const [domain,path] of [
 
 test('L01 verified Add Save navigates to its newly persisted record',()=>{
  const ui=readFileSync(new URL('../src/ui.mjs',import.meta.url),'utf8');
- assert.match(ui,/history\.replaceState\(null,'',routeFor\(domain,savedId\)\)/);
- assert.match(ui,/history\.replaceState\(null,'',routeFor\('catches',savedId\)\)/);
+ assert.match(ui,/history\.replaceState\(null,'',routeFor\(domain,savedRecord\?\?savedId\)\)/);
+ assert.match(ui,/history\.replaceState\(null,'',routeFor\('catches',savedRecord\?\?savedId\)\)/);
  assert.doesNotMatch(ui,/navigate\(savedId\?routeFor/);
 });

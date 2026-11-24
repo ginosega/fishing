@@ -143,4 +143,4 @@ export function sanitizeHtml(html,window){
  return purifier.sanitize(html,{USE_PROFILES:{html:true},ADD_ATTR:['target','rel'],FORBID_TAGS:['iframe','object','embed','script','style','form','input','button','video','audio','source','svg','math'],FORBID_ATTR:['style','srcset','onerror','onclick','onload'],ALLOW_DATA_ATTR:false});
 }
 export function renderMarkdown(text,options){return sanitizeHtml(parseMarkdown(text,options).html,options.window);}
-export function markdownRouteMap(data){const routes=new Map();for(const r of data.gear.items)if(r.notes)routes.set(r.notes,routeFor('gear',r.id));for(const r of data.kb.entities)routes.set(r.content,routeFor('kb',r.id));for(const r of data.catches.catches)if(r.notes)routes.set(r.notes,routeFor('catches',r.id));return routes;}
+export function markdownRouteMap(data){const routes=new Map();for(const r of data.gear.items)if(r.notes)routes.set(r.notes,routeFor('gear',r));for(const r of data.kb.entities)routes.set(r.content,routeFor('kb',r));for(const r of data.catches.catches)if(r.notes)routes.set(r.notes,routeFor('catches',r));return routes;}
