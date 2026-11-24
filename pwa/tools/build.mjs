@@ -5,6 +5,8 @@ import {execFileSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import * as esbuild from 'esbuild';
 import sharp from 'sharp';
+import {isL01SourceImporter,assertL01StandaloneModuleBoundary}
+ from './l01-module-boundary.mjs';
 import {inventorySource,digest} from './library.mjs';
 import {generateCardThumbnails} from './card-thumbnails.mjs';
 import {generateStaticPageArtwork} from './static-page-artwork.mjs';
@@ -108,7 +110,7 @@ export async function build(){
     name:'l01-remove-v2-editor',
     setup(builder){
      builder.onResolve({filter:/^\.\/(?:editor|handoff|change-prompt|d6-canonical-authoring-source)\.mjs$/},args=>{
-      if(!args.importer.includes('/pwa/src/'))return null;
+      if(!isL01SourceImporter(args.importer))return null;
       const replacements={
        './editor.mjs':'d6-legacy-editor-denial.mjs',
        './handoff.mjs':'d6-v3-content-paths.mjs',
@@ -132,15 +134,8 @@ export async function build(){
       '__FISHING_D6_O02_OFFLINE_CONTENT__':d6OfflineContentPreparation?'true':'false',
       '__FISHING_D6_O03_OFFLINE_READING__':d6OfflineContentReading?'true':'false',
       '__FISHING_D6_STANDALONE_V3__':d6StandaloneV3?'true':'false'}});
-  if(d6StandaloneV3){
-   const activeModules=Object.keys(app.metafile?.inputs??{});
-   if(activeModules.some(file=>/(?:^|\/)(?:editor|handoff|change-prompt|d6-canonical-authoring-source)\.mjs$/.test(file)))
-    throw Error('Standalone V3 must not bundle legacy GitHub handoff/editor modules');
-   if(!['d6-legacy-editor-denial.mjs','d6-v3-content-paths.mjs',
-     'd6-legacy-source-denial.mjs'].every(name=>
-     activeModules.some(file=>file.endsWith('/'+name))))
-    throw Error('Standalone V3 legacy editor boundary was not applied');
-  }
+  if(d6StandaloneV3)
+   assertL01StandaloneModuleBoundary(app.metafile?.inputs);
   const baseCss=await fs.readFile(path.join(repo,'pwa/src/styles.css')),cardIconCss=await fs.readFile(path.join(repo,'pwa/src/card-icons.css')),pageHeroCss=await fs.readFile(path.join(repo,'pwa/src/page-hero.css')),css=Buffer.concat([baseCss,Buffer.from('\n'),cardIconCss,Buffer.from('\n'),pageHeroCss]);
   const inputHashes=d6StandaloneV3?[]:await hashFiles(content),thumbnailHashes=thumbs?await hashFiles(path.join(tmp,'card-thumbnails')):[],staticImageHashes=await hashFiles(path.join(tmp,'static-page-artwork')),originalStaticImageHashes=await hashFiles(pageAssetsRoot);const lock=await fs.readFile(path.join(repo,'pwa/package-lock.json'));
   const codeHashes=[];for(const dir of ['src','tools'])for(const file of await hashFiles(path.join(repo,'pwa',dir)))codeHashes.push({...file,path:dir+'/'+file.path});
