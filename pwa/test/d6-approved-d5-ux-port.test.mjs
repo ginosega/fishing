@@ -36,12 +36,16 @@ const reviewedM03Notes='521cb9a4e648f123a73c37458690a5eccbb9e79f';
 // L01 owner-approved offline Account caption only; preserve the D5 origin pin.
 // https://github.com/ginosega/fishing/issues/377#issuecomment-7136894392
 const reviewedL01Connection='31fe59a9bdcb05b12056e9b4c472cdfdbc5d572c';
-test('D6-UX-PORT01 eleven D5 exact-byte imports and approved M03/L01 extensions',()=>{
+// L01 canonical category hierarchy requires the complete draft record for preview routes.
+// Owner-approved normalization: issue #377 comment 7139397165. No UX changes.
+const reviewedL01Preview='7cb7c73e7a57825921059c87b7a0f8d7fb4abc11';
+test('D6-UX-PORT01 ten D5 exact-byte imports and approved M03/L01 extensions',()=>{
  assert.equal(Object.keys(accepted).length,13);
  for(const [name,expected] of Object.entries(accepted))
   assert.equal(hash(read(name)),
    name==='notes-markdown-editor.mjs'?reviewedM03Notes:
-   name==='v3-connection-experience.mjs'?reviewedL01Connection:expected,
+   name==='v3-connection-experience.mjs'?reviewedL01Connection:
+   name==='editor-preview.mjs'?reviewedL01Preview:expected,
    'Approved D5/M03/L01 source drift without review: '+name);
 });
 test('D6-UX-PORT02 approved Connection Status implementation preserves its contract',()=>{

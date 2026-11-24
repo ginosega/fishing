@@ -14,6 +14,6 @@ export function draftNotesPreviewOptions(ctx,domain,record){
  const owner=record[key]||(typeof record.name==='string'&&record.name.trim()?
   narrativePath(domain,record):fallback);
  const routes=markdownRouteMap(ctx.data);
- if(ID_PATTERN.test(record.id??''))routes.set(owner,routeFor(domain,record.id));
+ if(ID_PATTERN.test(record.id??''))routes.set(owner,routeFor(domain,record));
  return {owner,maps:ctx.maps,assetBase:ctx.base,pathRoutes:routes};
 }
