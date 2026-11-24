@@ -533,6 +533,11 @@ export function createApp(ctx){
    dialog:connectionDialog,controller:approvedController,
    documentObject:document,
   });
+  // Legacy GitHub Publishing Status is not a D1/R2 Save tracker.
+  // Preserve the accepted D5 presenter bytes; omit its obsolete panel only
+  // from standalone V3, where Save reports progress on the editor itself.
+  if(ctx.release.standaloneV3===true)
+   connectionDialog.querySelector('.v3-publishing')?.remove();
   const accountBody=connectionDialog.querySelector('.v3-account-body');
   // Observe only the signed-in/signed-out account subtree: the approved D5
   // command button internally repaints it after its Promise resolves.
