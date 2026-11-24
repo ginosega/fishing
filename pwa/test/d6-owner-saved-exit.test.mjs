@@ -6,19 +6,28 @@ for(const [domain,path] of [
  ['Gear and Knowledge Base','../src/d6-approved-owner-editor-preview.mjs'],
  ['Catch Log','../src/d6-direct-catch-editor.mjs'],
 ]){
- test('M02 '+domain+' verified Save Exit refreshes, while Cancel does not',()=>{
+ test('L01 '+domain+' verified Save auto-exits once; failed Save stays editable',()=>{
   const source=readFileSync(new URL(path,import.meta.url),'utf8');
-  const callback=/button\('Exit',\(\)=>\{\s*onExit\(\{savedId:candidate\.id\}\);window\.location\.reload\(\);\s*\},\{variant:'primary'\}\)/g;
-  assert.equal([...source.matchAll(callback)].length,1,
-   'exactly one successful direct-Save Exit reload handler');
-  assert.match(source,/const cancelButton=button\('Cancel',async\(\)=>\{/,
-   'Cancel first verifies device draft persistence; it does not reload');
+  const success=source.indexOf(domain==='Catch Log'?
+   'accepted=true;\n    // Save completes navigation':
+   'saveAccepted=true;\n    // A verified D1/R2 Save');
+  const error=source.indexOf("}catch(error)",success);
+  assert(success>=0&&error>success,'verified direct Save branch exists');
+  const section=source.slice(success,error);
+  assert.match(section,/await discardDraft\(\)/);
+  assert.match(section,/onExit\(\{savedId:candidate\.id\}\)/);
+  assert.match(section,/window\.location\.reload\(\)/);
+  assert(section.indexOf('await discardDraft()')<
+   section.indexOf('onExit({savedId:candidate.id})'));
+  assert(section.indexOf('onExit({savedId:candidate.id})')<
+   section.indexOf('window.location.reload()'));
+  assert.doesNotMatch(section,/button\('Exit'/);
+  assert.match(source,/const cancelButton=button\('Cancel',async\(\)=>\{/);
+  assert.match(source,/if\(!\w+\)\{[\s\S]*?Save/);
   if(domain==='Gear and Knowledge Base')
-   assert.doesNotMatch(source,/Prepared change package|Publication accepted/,
-    'the direct Gear/KB editor has no GitHub publication UI');
+   assert.doesNotMatch(source,/Prepared change package|Publication accepted/);
  });
 }
-
 
 test('L01 verified Add Save navigates to its newly persisted record',()=>{
  const ui=readFileSync(new URL('../src/ui.mjs',import.meta.url),'utf8');

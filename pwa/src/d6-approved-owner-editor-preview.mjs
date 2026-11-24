@@ -231,14 +231,14 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
     panel.hidden=false;
     valueInput.focus();
    });
-   const apply=button('Use '+label.toLowerCase(),()=>{
+   const apply=button('Add',()=>{
     const value=valueInput.value.trim();
     if(!value){status(notice,'Enter a new '+label.toLowerCase()+' first.','error');return;}
     if(onUse(value)!==true)return;
     panel.hidden=true;
     valueInput.value='';
    },{variant:'primary'});
-   const cancel=button('Cancel new '+label.toLowerCase(),()=>{
+   const cancel=button('Cancel',()=>{
     panel.hidden=true;valueInput.value='';
    });
    panel.append(field('New '+label.toLowerCase(),valueInput),
@@ -276,9 +276,9 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
    return true;
   }});
   categoryControls.append(
-   el('div',{},field('Category',categorySelect),
+   el('div',{class:'gear-choice-control'},field('Category',categorySelect),
     newCategory.open,newCategory.panel),
-   el('div',{},field('Type',typeSelect),
+   el('div',{class:'gear-choice-control'},field('Type',typeSelect),
     newType.open,newType.panel));
   form.append(categoryControls,el('div',{class:'form-grid'},control('Manufacturer',record.manufacturer||'',value=>update('manufacturer',value),{maxlength:120}),control('Model',record.model||'',value=>update('model',value),{maxlength:160})));
   function repeater(title,keyName,fields){
@@ -537,21 +537,14 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
      else ctx.v3?.onDirectKBSaved?.();
     }catch{/* saved row remains authoritative */}
     saveAccepted=true;
+    // A verified D1/R2 Save is final; no second Exit action is needed.
+    // Keep the Saving… state until the freshly saved record is reloaded.
     for(const control of form.querySelectorAll('input,select,textarea,button'))
      control.disabled=true;
-    // After verified direct D1 Save, Exit returns to the item and reloads
-    // the current D1 catalog and R2 image manifest. Cancel never reloads.
-    actions.replaceChildren(button('Exit',()=>{
-     onExit({savedId:candidate.id});window.location.reload();
-    },{variant:'primary'}));
-    notice.replaceChildren();actionNotice.replaceChildren();
-    const success=directGear?'Saved. Click Exit to return to the refreshed Gear item.':
-     'Saved. Click Exit to return to the refreshed Knowledge Base entry.';
-    status(notice,success,'success');
-    // The owner may be scrolled below the top notice at the Save action.
-    status(actionNotice,success,'success');
     onDirty?.(false);
-    void discardDraft().catch(()=>{});
+    try{await discardDraft();}catch{/* verified server row remains authoritative */}
+    onExit({savedId:candidate.id});
+    window.location.reload();
     return;
    }
 

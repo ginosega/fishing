@@ -448,17 +448,14 @@ export async function createCatchEditor(ctx,{
      throw Error('Catch Save was not independently verified.');
     try{ctx.v3.onDirectCatchSaved?.();}catch{}
     accepted=true;
+    // Save completes navigation after a verified D1/R2 result.
+    // Do not expose a redundant second Exit click.
     for(const control of form.querySelectorAll('input,select,textarea,button'))
      control.disabled=true;
-    // After verified direct D1 Save, Exit returns to the item and reloads
-    // the current D1 catalog and R2 image manifest. Cancel never reloads.
-    actions.replaceChildren(button('Exit',()=>{
-     onExit({savedId:candidate.id});window.location.reload();
-    },{variant:'primary'}));
-    output.replaceChildren();notice.replaceChildren();actionNotice.replaceChildren();
-    const message='Saved. Click Exit to return to the refreshed Catch Log.';
-    status(notice,message,'success');status(actionNotice,message,'success');
-    onDirty(false);void discardDraft().catch(()=>{});
+    onDirty(false);
+    try{await discardDraft();}catch{/* verified Catch remains authoritative */}
+    onExit({savedId:candidate.id});
+    window.location.reload();
     return;
    }
    if(!standaloneV3){

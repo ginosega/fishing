@@ -23,8 +23,8 @@ test('L01-ANDROID04 Add new actions preserve native browsing and editable new va
  for(const label of ['Category','Type'])
   assert.match(source,new RegExp("addValueControl\\(\\{label:'"+label+"'"));
  assert.match(source,/button\('Add new '\+label\.toLowerCase\(\)/);
- assert.match(source,/button\('Use '\+label\.toLowerCase\(\)/);
- assert.match(source,/button\('Cancel new '\+label\.toLowerCase\(\)/);
+ assert.match(source,/const apply=button\('Add',/);
+ assert.match(source,/const cancel=button\('Cancel',/);
  assert.match(source,/const key=gearCategoryKey\(label\)/);
  assert.match(source,/categorySelect\.append\(el\('option'/);
  assert.match(source,/typeSelect\.append\(el\('option'/);
@@ -34,4 +34,15 @@ test('L01-ANDROID04 Add new actions preserve native browsing and editable new va
  assert(TAXONOMY.weights.includes('Cannonball sinkers'));
  assert(GEAR_CATEGORIES.some(x=>x[0]==='accessories'&&x[1]==='Equipment'));
  assert(gearCategoryChoices([]).some(x=>x[0]==='weights'));
+});
+
+
+test('L01 Gear choice controls have consistent 14px spacing and concise buttons',()=>{
+ const css=readFileSync(new URL('../src/styles.css',import.meta.url),'utf8');
+ assert.match(source,/el\('div',\{class:'gear-choice-control'\},field\('Category'/);
+ assert.match(source,/el\('div',\{class:'gear-choice-control'\},field\('Type'/);
+ assert.match(css,/\.gear-choice-control\{[^}]*gap:14px/);
+ assert.match(css,/\.gear-choice-control>\.new-choice\{[^}]*gap:14px/);
+ assert.match(css,/\.notes-editor>\.notes-editor-message:not\(:empty\)\{margin-top:4px\}/);
+ assert.match(css,/\.notes-editor\{[^}]*gap:10px/);
 });
