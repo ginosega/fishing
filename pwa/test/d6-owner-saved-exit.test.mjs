@@ -11,7 +11,9 @@ for(const [domain,path] of [
   const success=source.indexOf(domain==='Catch Log'?
    'accepted=true;\n    // Save completes navigation':
    'saveAccepted=true;\n    // A verified D1/R2 Save');
-  const error=source.indexOf("}catch(error)",success);
+  const error=domain==='Catch Log'?
+   source.indexOf('if(!standaloneV3){',success):
+   source.indexOf("}catch(error)",success);
   assert(success>=0&&error>success,'verified direct Save branch exists');
   const section=source.slice(success,error);
   assert.match(section,/await discardDraft\(\)/);

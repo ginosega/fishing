@@ -104,12 +104,13 @@ test('V3-BOOT04 offline, foreign or unverified worker cannot bypass activation',
  }
 });
 
-test('V3-UX01 successful Gear Save appears both above and below actions',()=>{
-  assert.match(editor,/const success=directGear\?'Saved\. Click Exit to return to the refreshed Gear item\.'/);
-  assert.match(editor,/Saved\. Click Exit to return to the refreshed Knowledge Base entry\./);
- assert.match(editor,/status\(notice,success,'success'\);/);
- assert.match(editor,/status\(actionNotice,success,'success'\);/);
- assert.match(editor,/form\.append\(actions,actionNotice\);/);
- assert.match(editor,/editor-notice editor-action-feedback/);
- assert.match(css,/\.editor-action-feedback:not\(:empty\)\{padding-top:8px;padding-bottom:12px\}/);
+test('V3-UX01 verified Gear Save stays busy until automatic return to the saved record',()=>{
+  assert.match(editor,/prepareButton\.textContent='Saving…'/);
+  assert.match(editor,/status\(actionNotice,'Saving changes and pictures…','info'\)/);
+  assert.match(editor,/onExit\(\{savedId:candidate\.id\}\);/);
+  assert.match(editor,/window\.location\.reload\(\);/);
+  assert.doesNotMatch(editor,/Saved\. Click Exit to return/);
+  assert.match(editor,/form\.append\(actions,actionNotice\);/);
+  assert.match(editor,/editor-notice editor-action-feedback/);
+  assert.match(css,/\.editor-action-feedback:not\(:empty\)\{padding-top:8px;padding-bottom:12px\}/);
 });
