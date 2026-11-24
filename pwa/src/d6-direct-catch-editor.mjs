@@ -193,6 +193,10 @@ export async function createCatchEditor(ctx,{
   ++draftSequence;
   if(draftStore&&draftWritable)await draftStore.discard(draftKey);
  };
+ const writeDraft=()=>saveD6RevisionAwareDraft({store:draftStore,key:draftKey,domain:'catches',
+  sourceRevision:ctx.release.sourceRevision,baseHash,
+  baseRevision:directCatch?directRevision:null,record,
+  notes:notesText,requiresMedia:Boolean(notesEditor?.uploads().length)});
  const updated=()=>{
   if(accepted)return;
   output.replaceChildren();onDirty(dirty());
@@ -202,10 +206,7 @@ export async function createCatchEditor(ctx,{
    void draftStore.discard(draftKey).catch(warnDraft);
    return;
   }
-  void saveD6RevisionAwareDraft({store:draftStore,key:draftKey,domain:'catches',
-   sourceRevision:ctx.release.sourceRevision,baseHash,
-   baseRevision:directCatch?directRevision:null,record,
-   notes:notesText,requiresMedia:Boolean(notesEditor?.uploads().length)})
+  void writeDraft()
    .then(()=>{if(sequence===draftSequence&&!accepted)
     status(notice,'Draft saved on this device. Nothing has been published.','info');},
     warnDraft);
@@ -369,7 +370,19 @@ export async function createCatchEditor(ctx,{
  presentD6OwnerImageCapability(notesEditor.element,
   ctx.v3?.mediaCapabilities??DIRECT_D1_MEDIA_CAPABILITIES);
   const submit=el('button',{type:'submit',class:'btn primary'},standaloneV3||directCatch?'Save':'Save and Publish');
- const cancelButton=button('Cancel',onBack);
+ const cancelButton=button('Cancel',async()=>{
+  if(!dirty()||!standaloneV3){onBack();return;}
+  cancelButton.disabled=true;
+  try{
+   if(!draftStore||!draftWritable||await writeDraft()!==true)
+    throw Error('Device draft unavailable');
+   onBack({deviceDraftSaved:true,
+    needsReselect:Boolean(recovery.requiresMedia||notesEditor?.uploads().length)});
+  }catch{
+   status(actionNotice,
+    'Unable to save the device draft. Keep this editor open or copy your edits before leaving.','error');
+  }finally{cancelButton.disabled=false;}
+ });
  const actions=toolbar(submit,cancelButton);
  if(reviewOnly)submit.disabled=true;
  form.append(
