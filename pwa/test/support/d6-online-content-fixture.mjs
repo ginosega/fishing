@@ -20,7 +20,7 @@ export function createD6DirectContentFixture({extra=false,fault=null}={}){
  if(fault==='sameCountSwapKB')kb[0]={...kb[0],id:'malicious-kb-substitution'};
  if(fault==='sameCountSwapCatch')catches[0]={...catches[0],id:'malicious-catch-substitution'};
  if(fault==='duplicate')kb[1]={...kb[0]};
- if(fault==='badType')gear[0].type='Not a valid lure type';
+ if(fault==='badType')gear[0].type='';
  if(fault==='missingReference')catches[0].speciesId='kb-no-such-species';
  const v3={
   enabled:true,readerOnly:true,

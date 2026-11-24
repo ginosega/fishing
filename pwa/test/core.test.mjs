@@ -99,7 +99,7 @@ test('identity, deletion and schema conflicts do not silently mutate source',asy
  const base=maps.gear.get('daiwa-tatula-xt-rod');const record=clone(base);record.name='Another name';
  const pkg=await prepareChange({domain:'gear',operation:'edit',id:base.id,baseRecord:base,record,sourceRevision:'a'.repeat(40)});
  await assert.rejects(promoteChange({package:pkg,currentRecord:null}),/Deleted/);
- assert.throws(()=>validateRecord({...base,category:'unknown'},'gear',data));
+ assert.throws(()=>validateRecord({...base,category:'Invalid category name'},'gear',data));
 });
 test('the complete source inventory hashes and fully decodes all referenced assets',async()=>{
  const result=await inventorySource(root,{pendingMedia:true});
