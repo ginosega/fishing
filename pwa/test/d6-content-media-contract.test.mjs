@@ -168,7 +168,7 @@ test('M02 unverified D1 media manifest fails before any live-image authorization
   request:async()=>new Response(JSON.stringify({
    ok:true,version:1,paths:[gear.picture.src],
   }),{status:403,headers:{'Content-Type':'application/json'}}),
- }),/MEDIA_REGISTRY_UNAVAILABLE/);
+ }),/MEDIA_REGISTRY_SIGN_IN_REQUIRED/);
  for(const bad of ['http://example.invalid/fishing/',
   'https://example.invalid/other/']){
   await assert.rejects(loadD6PublishedMediaPaths({...config,root:bad,
