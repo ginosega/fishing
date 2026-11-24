@@ -4,7 +4,7 @@ import {DOMAIN,validateSemantics,safePath,pathKey,assert,sequenceFolder} from '.
 import {parseMarkdown,markdownRouteMap} from './markdown.mjs';
 export const TAXONOMY={
  line:['Braided','Fluorocarbon','Monofilament'],
- weights:['Cylinder weights','Egg sinkers','Swiveling trolling sinkers','Glass beads','Split shot sinkers'],
+ weights:['Cylinder weights','Egg sinkers','Cannonball sinkers','Swiveling trolling sinkers','Glass beads','Split shot sinkers'],
  'snaps-swivels':['Snaps','Swivels','Snap swivels'],
  hooks:['Wacky','Ned rig','Drop shot','Soft plastics','Swimbait jighead','Trout/bait'],
  lures:['Chatterbaits / bladed jigs','Spinnerbaits','Crankbaits and hard jerkbaits','Inline spinners','Spoons','Trolling lures','Topwater','Jigs','Soft plastics and swimbaits'],
