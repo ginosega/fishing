@@ -3,11 +3,12 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 const read=path=>readFileSync(new URL(path,import.meta.url),'utf8');
 const script=read('../tools/d6-l01-private-deploy.ps1');
-const pilot=JSON.parse(read('../wrangler.o02-private.jsonc'));
+const pilot=JSON.parse(read('../wrangler.l01-private.jsonc'));
+const o02=JSON.parse(read('../wrangler.o02-private.jsonc'));
 const baseline=JSON.parse(read('../wrangler.direct-gear-private.jsonc'));
 
-test('L01 source-pinned private deploy uses only the separately approved O02 config',()=>{
- for(const term of ["$ConfigFile='wrangler.o02-private.jsonc'",
+test('L01 source-pinned private deploy uses the same O02 host and bindings with the canonical build definition',()=>{
+ for(const term of ["$ConfigFile='wrangler.l01-private.jsonc'",
   'git rev-parse HEAD','git status --porcelain',
   '--d6-standalone-v3','--d6-o03-offline-reading',
   '--d6-o02-offline-content','fishing-companion-software-v3',
@@ -28,6 +29,12 @@ test('L01 source-pinned private deploy uses only the separately approved O02 con
  assert.equal(baseline.vars.D6_O02_OFFLINE_SNAPSHOT_ENABLED,undefined);
  assert.equal(pilot.keep_vars,true);
  const {D6_O02_OFFLINE_SNAPSHOT_ENABLED,...vars}=pilot.vars;
- assert.deepEqual({...pilot,vars},baseline,
+ const {define,...config}=pilot;
+ assert.deepEqual(define,{__FISHING_D6_STANDALONE_V3__:'true'});
+ assert.deepEqual(config,o02,'L01 changes only the compile-time define');
+ assert.deepEqual({...config,vars},baseline,
   'no new Worker, binding, authority, R2 bucket or public route');
+ assert.match(script,/Canonical D1 migration is not verified/);
+ assert.match(script,/d6-normalized-id-ledger\.mjs/);
+ assert.ok(script.indexOf('Canonical D1 migration is not verified')<script.lastIndexOf('deploy --config $ConfigFile'));
 });

@@ -25,8 +25,9 @@ Require-Equal $Head $ExpectedRevision 'source revision'
 $Changes=@(& git status --porcelain --untracked-files=no)
 Check-Exit 'Git status'
 if($Changes.Count -ne 0){throw 'Tracked source modifications detected; stop.'}
-$ConfigFile='wrangler.o02-private.jsonc'
+$ConfigFile='wrangler.l01-private.jsonc'
 $Config=Get-Content $ConfigFile -Raw | ConvertFrom-Json
+Require-Equal $Config.define.__FISHING_D6_STANDALONE_V3__ 'true' 'canonical V3 Worker build'
 $Origin='https://fishing-d6-wp2-test.ginosega.workers.dev'
 Require-Equal $Config.name 'fishing-d6-wp2-test' 'Worker name'
 Require-Equal $Config.main './server/d6-direct-gear-worker.mjs' 'Worker script'
@@ -107,7 +108,7 @@ Check-Exit 'Wrangler dry-run'
 Write-Host 'PASS: Private Worker dry-run. No live changes made.'
 
 # Read-only database guard. No D1 writes or original-image R2 copies.
-$Sql="SELECT (SELECT COUNT(*) FROM d6_media_objects) AS objects, (SELECT COUNT(*) FROM d6_media_refs) AS associations, (SELECT COUNT(DISTINCT logical_path) FROM d6_media_refs) AS paths, (SELECT COUNT(*) FROM d6_media_refs WHERE historical=1) AS historical, (SELECT COUNT(*) FROM d6_media_refs WHERE historical=0) AS new_refs, (SELECT COUNT(*) FROM d6_gear_records) AS gear, (SELECT COUNT(*) FROM d6_kb_records) AS kb, (SELECT COUNT(*) FROM d6_catch_records) AS catches;"
+$Sql="SELECT (SELECT COUNT(*) FROM d6_media_objects) AS objects, (SELECT COUNT(*) FROM d6_media_refs) AS associations, (SELECT COUNT(DISTINCT logical_path) FROM d6_media_refs) AS paths, (SELECT COUNT(*) FROM d6_media_refs WHERE historical=1) AS historical, (SELECT COUNT(*) FROM d6_media_refs WHERE historical=0) AS new_refs, (SELECT COUNT(*) FROM d6_gear_records) AS gear, (SELECT COUNT(*) FROM d6_kb_records) AS kb, (SELECT COUNT(*) FROM d6_catch_records) AS catches, (SELECT json_group_array(id) FROM d6_gear_records) AS gear_ids, (SELECT json_group_array(id) FROM d6_kb_records) AS kb_ids, (SELECT json_group_array(id) FROM d6_catch_records) AS catches_ids, (SELECT COUNT(*) FROM d6_gear_records WHERE json_extract(record_json,'$.category')='accessories') AS obsolete_gear, (SELECT COUNT(*) FROM d6_kb_records WHERE json_extract(record_json,'$.type') IS NULL OR json_extract(record_json,'$.type') NOT IN ('locations','species','gear-guides','techniques','knots')) AS obsolete_kb;"
 $Raw=@(& npx --yes wrangler@4.166.0 d1 execute fishing-v3-wp3-operations-test --remote --json --command $Sql)
 Check-Exit 'Read-only live D1 preflight'
 try{$Results=@(ConvertFrom-Json -InputObject ($Raw -join [Environment]::NewLine))}
@@ -135,6 +136,24 @@ foreach($check in @(@('gear',100),@('kb',60),@('catches',12))){
 Write-Host ('PASS: Live D1 media/content preflight (read-only): historical='+
  $D1.historical+' new_refs='+$D1.new_refs+'.')
 
+# Normalized software must not be deployed against the old taxonomy.
+$LedgerRaw=& node --input-type=module -e "import {D6_NORMALIZED_IDS} from './src/d6-normalized-id-ledger.mjs'; console.log(JSON.stringify(D6_NORMALIZED_IDS));"
+Check-Exit 'Canonical original-ID ledger'
+$Ledger=$LedgerRaw | Out-String | ConvertFrom-Json
+$Normalized=([int]$D1.obsolete_gear -eq 0 -and [int]$D1.obsolete_kb -eq 0)
+foreach($domain in @('gear','kb','catches')){
+ $idField=$domain+'_ids'
+ $ActualIds=@(ConvertFrom-Json -InputObject $D1.$idField)
+ foreach($id in $Ledger.$domain){
+  if($ActualIds -cnotcontains $id){$Normalized=$false}
+ }
+}
+if(-not $Normalized){
+ if($Deploy){throw 'Canonical D1 migration is not verified. No deployment.'}
+ Write-Host 'L01 PRIVATE SOFTWARE PREFLIGHT PASS; D1 normalization pending. No deployment performed.'
+ exit 0
+}
+Write-Host 'PASS: Canonical D1 taxonomy and original-ID baseline.'
 if(-not $Deploy){
  Write-Host 'L01 PRIVATE PREFLIGHT PASS. No deployment performed.'
  exit 0
