@@ -43,6 +43,6 @@ export async function createCatchSpecies({name,context}={}){
  context.data.kb.entities=entries.concat(saved.record);
  context.maps?.kb?.set(saved.record.id,saved.record);
  context.v3.source?.files?.add(saved.record.content);
- context.v3.onDirectKBSaved?.();
+ try{context.v3.onDirectKBSaved?.();}catch{/* verified KB row is authoritative */}
  return saved.record;
 }
