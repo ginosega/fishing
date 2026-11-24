@@ -5,17 +5,18 @@ import {v3OfflineLibraryDisplay}
  from '../src/v3-offline-library-status.mjs';
 
 const releaseId='a'.repeat(32),root='https://example.test/fishing/';
-async function withWorker({prepareState='Ready',content=null},check){
+async function withWorker({prepareState='Ready',content=null,standaloneV3=false,wakeLock},check){
  const globalNames=['navigator','window','document','caches'];
  const previous=Object.fromEntries(globalNames.map(k=>
   [k,Object.getOwnPropertyDescriptor(globalThis,k)]));
  let calls=[];
+ const protocol=standaloneV3?'FISHING_V3':'FISHING_V2';
  const ready=()=>({state:'Ready',releaseId,files:575,bytes:2500,
   failed:[],message:''});
  const worker={postMessage(message,ports){
   calls.push(message.type);
   if(message.type==='CHECK_CURRENT'){
-   ports[0].postMessage({type:'FISHING_V2_CURRENT',releaseId});return;
+   ports[0].postMessage({type:protocol+'_CURRENT',releaseId});return;
   }
   const status=message.type==='PREPARE'&&prepareState==='Incomplete'?
    {state:'Incomplete',releaseId:null,files:0,bytes:0,
@@ -23,7 +24,7 @@ async function withWorker({prepareState='Ready',content=null},check){
    message.type==='PREPARE'&&prepareState==='OldReadyAfterFailure'?
     {...ready(),message:'Update incomplete; prior software retained.'}:
    ready();
-  ports[0].postMessage({type:'FISHING_V2_STATUS',status});
+  ports[0].postMessage({type:protocol+'_STATUS',status});
  }};
  const reg={active:worker,installing:null,update:async()=>{}};
  const serviceWorker={
@@ -32,7 +33,7 @@ async function withWorker({prepareState='Ready',content=null},check){
   addEventListener(){},removeEventListener(){},
  };
  const globals={
-  navigator:{onLine:true,serviceWorker},
+  navigator:{onLine:true,serviceWorker,...(wakeLock?{wakeLock}:{})},
   window:{addEventListener(){},removeEventListener(){}},
   document:{hidden:false,addEventListener(){},removeEventListener(){}},
   caches:{},
@@ -44,7 +45,7 @@ async function withWorker({prepareState='Ready',content=null},check){
    });
   const events=[];
   const offline=createOffline({
-   root,releaseId,onStatus:s=>events.push(s),
+   root,releaseId,standaloneV3,onStatus:s=>events.push(s),
    isDirty:()=>false,notify:()=>{},
    ...(content?{prepareContent:content}:{}),
   });
@@ -130,5 +131,57 @@ test('O02-BRIDGE05 a failed FISH091 update reporting old Ready blocks content',a
   assert.equal(offline.getStatus().contentPreparation,null);
   assert.equal(offline.getStatus().state,'Ready',
    'the previous complete software library remains usable');
+ });
+});
+
+test('L01 wake lock covers standalone software and content preparation, then releases',async()=>{
+ const calls=[];
+ const sentinel={released:false,async release(){calls.push('release');this.released=true;}};
+ await withWorker({standaloneV3:true,
+  wakeLock:{async request(type){assert.equal(type,'screen');calls.push('request');return sentinel;}},
+  content:async({onStatus})=>{
+   assert.deepEqual(calls,['request']);assert.equal(sentinel.released,false);
+   calls.push('content');
+   onStatus({phase:'complete',completed:1,total:1});
+  },
+ },({offline})=>{
+  assert.deepEqual(calls,['request','content','release']);
+  assert.equal(offline.getStatus().contentPreparation.libraryReady,true);
+ });
+});
+
+test('L01 wake lock releases on software or content failure',async()=>{
+ for(const prepareState of ['Incomplete','Ready']){
+  let requested=0,released=0;
+  await withWorker({standaloneV3:true,prepareState,
+   wakeLock:{async request(){requested++;return {async release(){released++;}};}},
+   content:async()=>{throw Error('Content preparation failed');},
+  },({offline})=>{
+   assert.equal(requested,1);assert.equal(released,1);
+   assert.notEqual(offline.getStatus().contentPreparation?.libraryReady,true);
+  });
+ }
+});
+
+test('L01 unavailable or rejected wake lock never prevents preparation',async()=>{
+ for(const wakeLock of [undefined,{async request(){throw Error('NotAllowedError');}},
+  {async request(){return {async release(){throw Error('Already released');}};}}]){
+  let prepared=0;
+  await withWorker({standaloneV3:true,wakeLock,
+   content:async({onStatus})=>{prepared++;onStatus({phase:'complete',completed:1,total:1});},
+  },({offline})=>{
+   assert.equal(prepared,1);
+   assert.equal(offline.getStatus().contentPreparation.libraryReady,true);
+  });
+ }
+});
+
+test('L01 nonstandalone preparation does not request a screen lock',async()=>{
+ let requested=0;
+ await withWorker({wakeLock:{async request(){requested++;}},
+  content:async({onStatus})=>onStatus({phase:'complete',completed:1,total:1}),
+ },({offline})=>{
+  assert.equal(requested,0);
+  assert.equal(offline.getStatus().contentPreparation.libraryReady,true);
  });
 });

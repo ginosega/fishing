@@ -156,14 +156,20 @@ export function createOffline({root,releaseId,onStatus,isDirty,notify,
    return;
   }
   updating=true;
-  if(!registration){await start();if(!registration){updating=false;return;}}
-  // The accepted V2/FISH091 path is unchanged when no owner-authorized
-  // O02 transport has been explicitly supplied by a verified V3 build.
-  publish({state:'Downloading',releaseId:status.releaseId,
-   contentPreparation:null,
-   message:'Checking the current production release…'});
-  let contentStarted=false,lastContentStatus=null;
+  let contentStarted=false,lastContentStatus=null,wakeLock=null;
   try{
+   // Only explicit standalone V3 preparation requests the screen lock.
+   // Unsupported browsers, power-saving policies and permission failures
+   // must never block the existing offline preparation process.
+   if(standaloneV3&&typeof prepareContent==='function'){
+    try{wakeLock=await navigator.wakeLock?.request('screen');}catch{}
+   }
+   if(!registration){await start();if(!registration)return;}
+   // The accepted V2/FISH091 path is unchanged when no owner-authorized
+   // O02 transport has been explicitly supplied by a verified V3 build.
+   publish({state:'Downloading',releaseId:status.releaseId,
+    contentPreparation:null,
+    message:'Checking the current production release…'});
    await registration.update();
    const worker=registration.installing;
    if(worker)await new Promise((resolve,reject)=>{
@@ -218,7 +224,10 @@ export function createOffline({root,releaseId,onStatus,isDirty,notify,
     }});
     publish({message:''});
    }else publish({...status,message:error.message});
-  }finally{updating=false;publish(status);}
+  }finally{
+   try{if(wakeLock&&!wakeLock.released)await wakeLock.release();}catch{}
+   updating=false;publish(status);
+  }
  }
  function reload(){if(updating){notify('The offline update is still running. Reload when it finishes.');return;}if(isDirty()&&!confirm('Your prepared changes have not been saved. Discard the current edit and reload?'))return;location.reload();}
  function dispose(){navigator.serviceWorker?.removeEventListener('message',handler);navigator.serviceWorker?.removeEventListener('controllerchange',controllerChanged);window.removeEventListener('focus',becameActive);window.removeEventListener('pageshow',becameActive);window.removeEventListener('online',becameActive);document.removeEventListener('visibilitychange',becameActive);}
