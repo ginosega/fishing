@@ -6,6 +6,17 @@ const md=new MarkdownIt({html:false,linkify:false,typographer:false,breaks:false
 md.validateLink=url=>!(/^(?:javascript|vbscript|data|file|blob):/i.test(url)||url.startsWith('//'));
 const rawImage=md.renderer.rules.image||((tokens,i,options,env,self)=>self.renderToken(tokens,i,options,env,self));
 md.renderer.rules.image=(tokens,i,options,env,self)=>{tokens[i].attrSet('loading','lazy');tokens[i].attrSet('decoding','async');return rawImage(tokens,i,options,env,self);};
+/**
+ * Wide Notes tables scroll independently of the surrounding page.
+ * Insert only fixed application-authored wrapper markup; user HTML remains
+ * disabled and each cell still goes through ordinary Markdown validation.
+ */
+md.renderer.rules.table_open=(tokens,i,options,env,self)=>
+ '<div class="markdown-table-scroll" role="region" aria-label="Notes table, scroll horizontally" tabindex="0">'+
+ self.renderToken(tokens,i,options);
+md.renderer.rules.table_close=(tokens,i,options,env,self)=>
+ self.renderToken(tokens,i,options)+'</div>';
+
 // Markdown pipe tables cannot contain block lists. Allow simple inline lists
 // separated by <br>, <br/> or </br> inside a table cell, without enabling HTML.
 function inlineTableLists(tokens){
