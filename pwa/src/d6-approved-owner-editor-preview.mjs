@@ -133,6 +133,11 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
   ++draftSequence;
   if(draftStore&&draftWritable)await draftStore.discard(draftKey);
  };
+ const writeDraft=()=>saveD6RevisionAwareDraft({store:draftStore,key:draftKey,domain,
+  sourceRevision:ctx.release.sourceRevision,baseHash,
+  baseRevision:directSave?directRevision:null,
+  record,notes:body,requiresMedia:mediaAction!=='keep'||
+   Boolean(notesEditor?.uploads().length)});
  const persistDraft=()=>{
   if(!draftStore||!draftWritable||saveAccepted)return;
   const sequence=++draftSequence;
@@ -140,11 +145,7 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
    void draftStore.discard(draftKey).catch(warnDraft);
    return;
   }
-  void saveD6RevisionAwareDraft({store:draftStore,key:draftKey,domain,
-   sourceRevision:ctx.release.sourceRevision,baseHash,
-   baseRevision:directSave?directRevision:null,
-   record,notes:body,requiresMedia:mediaAction!=='keep'||
-    Boolean(notesEditor?.uploads().length)})
+  void writeDraft()
    .then(()=>{if(sequence===draftSequence&&!saveAccepted)
     status(notice,'Draft saved on this device. Nothing has been published.','info');},
     warnDraft);
@@ -515,7 +516,22 @@ export async function createD6ApprovedEditorPreview(ctx,{domain,baseRecord=null,
   finally{savePending=false;prepareButton.removeAttribute('aria-busy');
    if(!saveAccepted){prepareButton.textContent='Save';prepareButton.disabled=reviewOnly||!dirty();cancelButton.disabled=false;}}
  });
- const cancelButton=button('Cancel',onBack);
+ const cancelButton=button('Cancel',async()=>{
+  if(!dirty()||!standaloneV3){onBack();return;}
+  cancelButton.disabled=true;
+  try{
+   // The draft store serializes prior writes. This final write confirms
+   // the latest editable text/fields before the owner chooses to leave.
+   if(!draftStore||!draftWritable||await writeDraft()!==true)
+    throw Error('Device draft unavailable');
+   const needsReselect=Boolean(recovery.requiresMedia||fileInfo||
+    sequenceInfos.length||notesEditor?.uploads().length);
+   onBack({deviceDraftSaved:true,needsReselect});
+  }catch{
+   status(actionNotice,
+    'Unable to save the device draft. Keep this editor open or copy your edits before leaving.','error');
+  }finally{cancelButton.disabled=false;}
+ });
  const actions=toolbar(prepareButton,cancelButton);
  prepareButton.disabled=true;
  prepareButton.setAttribute('aria-label',directGear?'Save Gear':directKB?'Save Knowledge Base':'Save and Publish unavailable in WP1 preview');
