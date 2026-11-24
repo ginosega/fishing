@@ -21,6 +21,7 @@ import {createD6OwnerConnectionAdapter} from './d6-owner-connection-adapter.mjs'
 import {mountV3ConnectionExperience} from './v3-connection-experience.mjs';
 import {formatV3Diagnostics} from './diagnostics.mjs';
 import {v3DeviceDraftLeaveMessage} from './d6-v3-draft-leave.mjs';
+import {canReadD6DirectNotes} from './d6-direct-notes-readiness.mjs';
 
 const KAYAK_ICON=`<svg viewBox="0 0 64 64" role="img" aria-label="Kayak">
   <defs><linearGradient id="kayakHull" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a2def7"/><stop offset="1" stop-color="#76c8ef"/></linearGradient></defs>
@@ -245,6 +246,7 @@ export function createApp(ctx){
   const list=listControls(domain,records,{title:definition[1],search:gear?key==='lures':key==='equipment',filter:gear,sort:gear?'gear':'name',pinnedId:gear?'':KB_PINNED_FIRST[key]||''});page.querySelector('.page-actions').prepend(...list.controls.children);page.append(list.element,...(showEditingLinks()?[anchor(gear?'Add Gear':'Add Entry',gear?`#/inventory/add/${key}`:`#/kb/add/${key}`,'page-edit-link')]:[]));return page;
  }
  function missing(message,parent='#/'){const page=frame('Not found',parent);page.append(empty(message),anchor('Return to the parent page',parent));return page;}
+ function loadError(message){const page=frame('Unable to load page','#/');page.append(empty(message),anchor('Return to the parent page','#/'));return page;}
  function appendPicture(page,record,domain){
   const pic=record.picture;if(!pic)return;
   const resolve=ctx.image||ctx.asset,src=resolve(pic.src),caption=pic.caption||'';
@@ -278,6 +280,9 @@ export function createApp(ctx){
     throw Error('Verified offline Notes unavailable: '+pathValue);
    content=ctx.offlineMarkdown.get(pathValue);
   }else{
+   // Never request retired release-file Notes in standalone V3.
+   if(ctx.release.standaloneV3===true)
+    throw Error('Verified V3 Notes are unavailable. Retry loading the current library.');
    const response=await fetch(ctx.asset(pathValue));
    if(!response.ok)throw new Error(`Cannot load ${pathValue}: HTTP ${response.status}`);
    content=await response.text();
@@ -291,8 +296,11 @@ export function createApp(ctx){
   if((domain==='gear'&&ctx.v3?.directGearEnabled===true&&gearCatalogReady||
       domain==='kb'&&ctx.v3?.directKBEnabled===true&&kbCatalogReady||
       domain==='catches'&&ctx.v3?.directCatchEnabled===true&&catchCatalogReady)&&
-     navigator.onLine===true&&offline?.getModeAvailable?.()===true&&
-     offline.getMode()==='Automatic'){
+     canReadD6DirectNotes({
+      online:navigator.onLine,modeAvailable:offline?.getModeAvailable?.(),
+      mode:offline?.getMode?.(),contentSource:ctx.v3?.contentSource,
+      contentReadingMode:ctx.v3?.contentReadingMode,
+     })){
    if(domain==='gear'){
     const current=await ctx.v3.directGearClient.read(id);
     record=current.record;directNotes=current.notes;
@@ -370,7 +378,7 @@ export function createApp(ctx){
       (ctx.v3?.directCatchEnabled===true&&
        ['gear-detail','kb-detail'].includes(route.page)))
     await ensureCatchCatalog();
-  }catch(error){if(ticket===serial){const page=missing('Unable to load the complete D1 library: '+error.message);page.append(button('Retry',()=>render(),{variant:'primary'}));root.replaceChildren(page);}return;}
+  }catch(error){if(ticket===serial){const page=loadError('Unable to load the complete D1 library: '+error.message);page.append(button('Retry',()=>render(),{variant:'primary'}));root.replaceChildren(page);}return;}
   if(ticket!==serial)return;
   try{let page;
    switch(route.page){case 'home':page=renderHome();break;case 'gear-root':page=renderRoot('gear');break;case 'kb-root':page=renderRoot('kb');break;case 'gear-list':page=renderList('gear',route.category);break;case 'kb-list':page=renderList('kb',route.type);break;case 'gear-detail':page=await renderDetail('gear',route.id);break;case 'kb-detail':page=await renderDetail('kb',route.id);break;case 'catch-list':page=renderCatches();break;case 'catch-detail':page=await renderDetail('catches',route.id);break;
@@ -378,7 +386,7 @@ export function createApp(ctx){
     case 'catch-edit':page=await renderCatchPreview(route.id);break;case 'gear-edit':page=await renderEditor('gear',route.id);break;case 'kb-edit':page=await renderEditor('kb',route.id);break;case 'gear-add':page=await renderEditor('gear',null,route.category);break;case 'kb-add':page=await renderEditor('kb',null,null,route.type);break;default:page=missing('The requested page is not available.');}
    if(ticket!==serial){if(editor&&ticket!==serial)disposeEditor();return;}root.replaceChildren(page);document.title=(page.querySelector('h1')?.textContent||'Fishing Companion')+' · Fishing Companion';
    if(route.section){requestAnimationFrame(()=>{const heading=[...page.querySelectorAll('[id]')].find(e=>e.id===route.section);heading?.scrollIntoView({block:'start'});});}
-  }catch(error){if(ticket===serial){const page=missing('Unable to display this page: '+error.message);page.append(button('Retry',()=>render(),{variant:'primary'}));root.replaceChildren(page);}console.error(error);}
+  }catch(error){if(ticket===serial){const page=loadError('Unable to display this page: '+error.message);page.append(button('Retry',()=>render(),{variant:'primary'}));root.replaceChildren(page);}console.error(error);}
  }
  window.addEventListener('hashchange',()=>{const requested=location.hash||'#/';if(requested===currentHash)return;if(approvedNavigation!==requested&&!canLeave()){history.replaceState(null,'',currentHash);return;}disposeEditor();approvedNavigation=null;previousHash=currentHash;currentHash=requested;alertHost.replaceChildren();render();window.scrollTo(0,0);});
  window.addEventListener('beforeunload',event=>{if(dirty()){event.preventDefault();event.returnValue='';}});
