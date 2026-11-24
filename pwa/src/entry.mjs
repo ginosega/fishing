@@ -147,10 +147,23 @@ function d6Context(){
 }
 Promise.resolve().then(()=>bootstrap(settings,d6Context())).catch(error=>{
  const main=document.getElementById('app');main.replaceChildren();
- const heading=document.createElement('h1');heading.textContent='Fishing Companion could not load';
- const message=document.createElement('p');message.textContent=error.message;
- const retry=document.createElement('button');retry.textContent='Retry';retry.onclick=()=>location.reload();
- main.append(heading,message,retry);
- mountD6OfflineRecovery({main,error,releaseId:settings.release?.id});
+ const needsSignIn=error?.message==='MEDIA_REGISTRY_SIGN_IN_REQUIRED';
+ const heading=document.createElement('h1');
+ heading.textContent=needsSignIn?'Sign in to Fishing Companion':'Fishing Companion could not load';
+ const message=document.createElement('p');
+ message.textContent=needsSignIn?
+  'This browser is not signed in. Sign in to access your private fishing pictures.':
+  error.message;
+ if(needsSignIn){
+  const signIn=document.createElement('a');
+  signIn.href='/auth/start';signIn.className='btn primary';
+  signIn.textContent='Sign in';
+  main.append(heading,message,signIn);
+ }else{
+  const retry=document.createElement('button');
+  retry.textContent='Retry';retry.onclick=()=>location.reload();
+  main.append(heading,message,retry);
+  mountD6OfflineRecovery({main,error,releaseId:settings.release?.id});
+ }
  console.error(error);
 });
