@@ -1,0 +1,169 @@
+/**
+ * D6 canonical-main publish INTAKE — SOURCE ONLY, not a publishing API.
+ *
+ * Deliberately not wired to the production Worker, a route, any GitHub
+ * permission, D1 operation store, merge, deployment, or polling coordinator.
+ * This validates a bounded Gear/KB/Catch intent and exact new-original
+ * media METADATA (path, byte length, SHA-256), never image bytes or a
+ * staging receipt. It requires later trusted candidate validation and
+ * durable idempotency/unknown-receipt storage. A valid
+ * intent is NEVER an accepted operation or evidence of public Live.
+ *
+ * Reuses the exact D2 owner session/CSRF verifier; no second login or
+ * browser-provided owner/repository selection. The caller MUST supply a
+ * freshly verified canonical main SHA from a trusted server-side reader,
+ * never from an HTTP field. No publisher can call this module alone.
+ */
+import {createD2UnifiedOwnerSession}
+ from './d2-unified-owner-session.mjs';
+import {validatePackage} from '../../../../pwa/src/handoff.mjs';
+import {expectedD6CanonicalMedia}
+ from './d6-production-media-contract.mjs';
+import {createD6Wp3PinnedWriteOrigin}
+ from './d6-production-wp3-origin-profile.mjs';
+
+export const D6_PUBLISH_REPOSITORY=Object.freeze({
+ id:1350909744,name:'ginosega/fishing',ref:'refs/heads/main',
+ ownerGitHubId:265665562,
+});
+export const D6_PUBLISH_INTAKE_ORIGIN='https://fishing.ginosega.workers.dev';
+const PATH='/api/v3/operations';
+const SHA=/^[a-f0-9]{40}$/;
+const KEY=/^[A-Za-z0-9_-]{12,96}$/;
+const MAX_BODY=128*1024;
+const encoder=new TextEncoder();
+const plain=value=>value!==null&&typeof value==='object'&&
+ Object.getPrototypeOf(value)===Object.prototype;
+
+export class D6PublishIntakeError extends Error {
+ constructor(code){
+  super('D6 publishing intent denied');
+  this.name='D6PublishIntakeError';
+  this.code=code;
+ }
+}
+const deny=code=>{throw new D6PublishIntakeError(code);};
+const need=(value,code)=>{if(!value)deny(code);};
+function inspectTree(value,depth=0){
+ need(depth<=18,'UNSAFE_SUBMISSION');
+ if(value===null||typeof value==='boolean'||typeof value==='string')return;
+ if(typeof value==='number'){
+  need(Number.isFinite(value),'UNSAFE_SUBMISSION');return;
+ }
+ need(typeof value==='object','UNSAFE_SUBMISSION');
+ if(Array.isArray(value)){
+  need(value.length<=1024,'UNSAFE_SUBMISSION');
+  for(const item of value)inspectTree(item,depth+1);
+  return;
+ }
+ need(plain(value),'UNSAFE_SUBMISSION');
+ const keys=Object.keys(value);
+ need(keys.length<=200&&keys.every(key=>
+  key!=='__proto__'&&key!=='prototype'&&key!=='constructor'),
+  'UNSAFE_SUBMISSION');
+ for(const key of keys)inspectTree(value[key],depth+1);
+}
+function freezeTree(value){
+ if(value&&typeof value==='object'){
+  for(const child of Object.values(value))freezeTree(child);
+  Object.freeze(value);
+ }
+ return value;
+}
+function parseIntent(raw){
+ need(typeof raw==='string'&&raw.length>0&&
+  encoder.encode(raw).length<=MAX_BODY,'PAYLOAD_TOO_LARGE');
+ let body;
+ try{body=JSON.parse(raw);}catch{deny('INVALID_JSON');}
+ inspectTree(body);
+ need(plain(body)&&Object.keys(body).sort().join(',')===
+  'idempotencyKey,snapshot'&&KEY.test(body.idempotencyKey)&&
+  plain(body.snapshot)&&
+  Object.keys(body.snapshot).sort().join(',')==='media,package'&&
+  Array.isArray(body.snapshot.media)&&body.snapshot.media.length<=24&&
+  plain(body.snapshot.package)&&
+  body.snapshot.package.format==='fishing-companion-change-v2'&&
+  ['gear','kb','catches'].includes(body.snapshot.package.domain)&&
+  ['add','edit'].includes(body.snapshot.package.operation)&&
+  SHA.test(body.snapshot.package.base?.sourceRevision??'')&&
+  JSON.stringify(body)===raw,'INVALID_SUBMISSION');
+ let expected;
+ try{
+  validatePackage(body.snapshot.package);
+  expected=expectedD6CanonicalMedia(body.snapshot.package);
+ }catch{deny('INVALID_SUBMISSION');}
+ // The only allowed media snapshot is the complete, ordered set of
+ // metadata already declared by the source-package. Neither raw bytes,
+ // browser-provided Git blob SHAs nor arbitrary paths can enter D1.
+ need(JSON.stringify(body.snapshot.media)===JSON.stringify(expected),
+  'MEDIA_METADATA_MISMATCH');
+ return freezeTree(body);
+}
+
+export function createD6ProductionPublishIntake({
+ AUTH_DB,csrfKey,enabled=()=>false,now,
+ sessionFactory=createD2UnifiedOwnerSession,
+ origin=D6_PUBLISH_INTAKE_ORIGIN,
+ isolatedOriginEnabled=()=>false,
+}={}){
+ need(typeof enabled==='function'&&
+  typeof sessionFactory==='function'&&
+  (now===undefined||typeof now==='function'),'INVALID_CONFIG');
+ const originGate=createD6Wp3PinnedWriteOrigin({
+  origin,isolatedEnabled:isolatedOriginEnabled,
+ });
+ let session;
+ const requireSession=()=>{
+  if(enabled()!==true||!originGate.enabled())deny('DISABLED');
+  if(!session){
+   try{session=sessionFactory({
+    AUTH_DB,csrfKey,
+    ownerGitHubId:D6_PUBLISH_REPOSITORY.ownerGitHubId,
+    origin,now,
+   });}
+   catch{deny('SESSION_UNAVAILABLE');}
+   need(typeof session?.authorizeWrite==='function',
+    'SESSION_UNAVAILABLE');
+  }
+  return session;
+ };
+ async function inspect(request,{trustedMainSha}={}){
+  if(enabled()!==true||!originGate.enabled())deny('DISABLED');
+  need(request instanceof Request,'INVALID_REQUEST');
+  let url;
+  try{url=new URL(request.url);}catch{deny('INVALID_REQUEST');}
+  need(url.origin===origin&&
+   url.pathname===PATH&&!url.search&&!url.hash&&
+   !url.username&&!url.password&&request.method==='POST'&&
+   !request.headers.has('Authorization'),'ROUTE_DENIED');
+  need(SHA.test(trustedMainSha??''),'UNVERIFIED_MAIN');
+  let actor;
+  try{actor=await requireSession().authorizeWrite(request);}
+  catch{deny('OWNER_DENIED');}
+  need(actor?.authorized===true&&
+   actor.ownerGitHubId===D6_PUBLISH_REPOSITORY.ownerGitHubId,
+   'OWNER_DENIED');
+  const length=request.headers.get('Content-Length');
+  need(length===null||/^\d+$/.test(length)&&Number(length)<=MAX_BODY,
+   'PAYLOAD_TOO_LARGE');
+  let raw;
+  try{raw=await request.text();}
+  catch{deny('INVALID_REQUEST');}
+  const body=parseIntent(raw);
+  // This is a NON-SUBMITTING verified envelope. A future server must
+  // independently validate current Git tree/media, record an immutable
+  // idempotent operation, run guarded exact-head CI/merge and verify hosted
+  // source/bytes before any public Live acknowledgment.
+  return Object.freeze({
+   ...D6_PUBLISH_REPOSITORY,
+   trustedMainSha,
+   submittedSourceRevision:body.snapshot.package.base.sourceRevision,
+   idempotencyKey:body.idempotencyKey,
+   snapshot:body.snapshot,
+   requiresSourceReview:true,
+   sourceOnly:true,
+   canPublish:false,
+  });
+ }
+ return Object.freeze({inspect});
+}

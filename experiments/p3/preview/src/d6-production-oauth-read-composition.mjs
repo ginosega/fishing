@@ -1,0 +1,85 @@
+/**
+ * D6 production OAuth and canonical READ composition — SOURCE ONLY.
+ *
+ * Reuses the reviewed production session + App READ gateway and the
+ * field-compatible first-party PKCE issuer. This is NOT a Worker entrypoint,
+ * credential installer, Cloudflare binding, publisher, or public deployment.
+ * Every route family is default OFF; OAuth is independently gated.
+ */
+import {createD6ProductionReadWithSigner}
+ from './d6-production-read-with-signer.mjs';
+import {createD6ProductionOAuthSessionIssuer,D6_OAUTH_ORIGIN}
+ from './d6-production-oauth-session-issuer.mjs';
+import {createD6ProductionOwnerSignout,D6_OWNER_SIGNOUT_PATH}
+ from './d6-production-owner-signout.mjs';
+
+const response=(status,error)=>new Response(JSON.stringify({ok:false,error}),{
+ status,headers:{
+  'Cache-Control':'private, no-store, max-age=0',
+  'Content-Type':'application/json; charset=utf-8',
+  'X-Content-Type-Options':'nosniff',
+  'Referrer-Policy':'no-referrer',
+ },
+});
+export function createD6ProductionOAuthReadComposition({
+ transport,requestAppGitHub,requestOAuthGitHub,appEnv,
+ oauthClientId,oauthClientSecret,AUTH_DB,csrfKey,cryptoApi,now,
+ pagesBase,origin=D6_OAUTH_ORIGIN,stagingMode=false,gatewayEnabled=false,staticEnabled=false,sessionEnabled=false,
+ sourceEnabled=false,tokenEnabled=false,signerEnabled=false,
+ oauthEnabled=false,signoutEnabled=false,preflightEnabled=false,
+}={}){
+ const flags=[gatewayEnabled,staticEnabled,sessionEnabled,sourceEnabled,
+  tokenEnabled,signerEnabled,oauthEnabled,signoutEnabled,preflightEnabled];
+ if(flags.some(flag=>typeof flag!=='boolean')||
+    (now!==undefined&&typeof now!=='function'))
+  throw Error('Invalid D6 production OAuth-read configuration');
+
+ const reader=createD6ProductionReadWithSigner({
+  transport,requestAppGitHub,appEnv,AUTH_DB,csrfKey,cryptoApi,now,pagesBase,
+  origin,stagingMode,
+  gatewayEnabled,staticEnabled,sessionEnabled,sourceEnabled,
+  tokenEnabled,signerEnabled,preflightEnabled,
+ });
+ const login=createD6ProductionOAuthSessionIssuer({
+  AUTH_DB,clientId:oauthClientId,clientSecret:oauthClientSecret,
+  requestGitHub:requestOAuthGitHub,cryptoApi,now,origin,
+  // OAuth sign-in works without enabling App signing/read or publishing,
+  // but it does require the same owner-session and gateway permission.
+  enabled:()=>gatewayEnabled===true&&sessionEnabled===true&&
+   oauthEnabled===true,
+ });
+ const signout=createD6ProductionOwnerSignout({
+  AUTH_DB,cryptoApi,origin,
+  enabled:()=>gatewayEnabled===true&&sessionEnabled===true&&
+   signoutEnabled===true,
+ });
+ async function fetchRequest(request){
+  if(!(request instanceof Request))return reader.fetch(request);
+  let url;
+  try{url=new URL(request.url);}catch{return response(404,'NOT_FOUND');}
+  // Sign-out remains absent from public routes when the independent
+  // source-only capability is OFF; the accepted D5 UI is not wired yet.
+  if(url.pathname===D6_OWNER_SIGNOUT_PATH&&signoutEnabled===true){
+   return signout.signOut(request);
+  }
+  if(url.pathname==='/auth/start'||url.pathname==='/auth/callback'){
+   if(url.origin!==origin||url.username||url.password)
+    return response(404,'NOT_FOUND');
+   const requestOrigin=request.headers.get('Origin');
+   if(requestOrigin&&requestOrigin!==origin)
+    return response(403,'ORIGIN_DENIED');
+   if(!gatewayEnabled||!sessionEnabled||!oauthEnabled)
+    return response(503,'TEMPORARILY_UNAVAILABLE');
+   // The callback must accept a GitHub cross-site top-level redirect, but
+   // PKCE state, host-only flow cookie, and atomic D1 consumption all apply.
+   return url.pathname==='/auth/start'?
+    login.start(request):login.callback(request);
+  }
+  return reader.fetch(request);
+ }
+ // Never return the OAuth issuer, GitHub tokens, D1, CSRF or signer.
+ return Object.freeze({
+  fetch:fetchRequest,
+  verifyHostedBytes:reader.verifyHostedBytes,
+ });
+}
