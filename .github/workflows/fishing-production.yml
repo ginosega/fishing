@@ -57,6 +57,10 @@ jobs:
           node-version: '24'
           cache: npm
           cache-dependency-path: pwa/package-lock.json
+      # Checkout trusts the repository only under its temporary HOME. The
+      # container's subsequent shell steps need the same exact-path exception.
+      - name: Trust only the checked-out CI workspace
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - name: Final V3 source, security and Chromium browser acceptance
         working-directory: pwa
         run: |
