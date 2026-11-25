@@ -21,7 +21,7 @@ import {validateD6MediaPath,D6_MEDIA_LIMIT_BYTES}
 import {publishedD6MediaRole,d6ValidKnotSequence}
  from '../src/d6-content-media-contract.mjs';
 import {createD2UnifiedOwnerSession}
- from '../../experiments/p3/preview/src/d2-unified-owner-session.mjs';
+ from './auth/d2-unified-owner-session.mjs';
 
 const ID=/^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const SHA=/^[a-f0-9]{64}$/;

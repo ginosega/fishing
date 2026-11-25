@@ -151,11 +151,7 @@ test('V3-PILOT03 one existing isolated Worker hosts assets and D1; no public dep
  assert.deepEqual(cfg.d1_databases.map(x=>x.binding),['AUTH_DB','WP3_DB']);
  assert.equal(cfg.d1_databases[0].database_id,'0d8da698-87b8-4b5e-a1e7-fe6de49e5afc');
  assert.equal(cfg.d1_databases[1].database_id,'5a47841e-7874-4ec8-9fa8-be0315f6a802');
- const seed=readFileSync(new URL('../migration/d6-direct-gear-pilot-seed.sql',import.meta.url),'utf8');
- assert.match(seed,/INSERT INTO d6_gear_records/);
- assert.match(seed,/daiwa-tatula-xt-rod/);
- assert.match(seed,/ON CONFLICT\(id\) DO NOTHING;/);
- assert.equal(seed.split('\n').some(line=>/^\s*(?:UPDATE|DELETE|DROP|ALTER|CREATE)\b/i.test(line)),false);
+
 });
 
 

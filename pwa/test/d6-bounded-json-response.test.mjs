@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readD6BoundedJson,D6BoundedJsonError}
- from '../../experiments/p3/preview/src/d6-bounded-json-response.mjs';
+ from '../server/auth/d6-bounded-json-response.mjs';
 const denied=(value,code)=>assert.rejects(value,error=>
  error instanceof D6BoundedJsonError&&error.code===code);
 test('D6-BOUNDED01 valid bounded JSON parses',async()=>{

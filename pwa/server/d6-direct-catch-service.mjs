@@ -7,7 +7,7 @@ import Ajv2020 from 'ajv/dist/2020.js';
 import {schema} from '../src/content-schema.mjs';
 import {saveD6ContentRevision} from './d6-content-save-transaction.mjs';
 import {createD2UnifiedOwnerSession}
- from '../../experiments/p3/preview/src/d2-unified-owner-session.mjs';
+ from './auth/d2-unified-owner-session.mjs';
 
 const ID=/^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const MAX_BODY=192*1024,MAX_NOTES=128*1024;

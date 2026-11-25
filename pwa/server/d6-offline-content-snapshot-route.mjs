@@ -7,7 +7,7 @@
 import {createD6CurrentContentSnapshot}
  from './d6-current-content-snapshot.mjs';
 import {createD2UnifiedOwnerSession}
- from '../../experiments/p3/preview/src/d2-unified-owner-session.mjs';
+ from './auth/d2-unified-owner-session.mjs';
 
 const PATH='/api/v3/content/offline-snapshot';
 const MAX_RESPONSE_BYTES=8*1024*1024;

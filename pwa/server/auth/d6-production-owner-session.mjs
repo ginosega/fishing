@@ -10,8 +10,8 @@
  * session's internal CSRF value and expiration do not cross this boundary.
  */
 import {createD2UnifiedOwnerSession} from './d2-unified-owner-session.mjs';
-import {isD6GatewayOrigin}
- from '../../../../pwa/server/d6-pages-path-gateway.mjs';
+import {isD6OwnerOrigin}
+ from './owner-origins.mjs';
 
 export const D6_OWNER_SESSION_ORIGIN='https://fishing.ginosega.workers.dev';
 export const D6_OWNER_GITHUB_ID=265665562;
@@ -20,7 +20,7 @@ export function createD6ProductionOwnerSession({
  AUTH_DB,csrfKey,enabled=()=>false,now,
  origin=D6_OWNER_SESSION_ORIGIN,
 }={}){
- if(!isD6GatewayOrigin(origin)||typeof enabled!=='function'||
+ if(!isD6OwnerOrigin(origin)||typeof enabled!=='function'||
    (now!==undefined&&typeof now!=='function'))
   throw Error('D6 owner session configuration invalid');
  let delegate=null;

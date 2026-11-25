@@ -8,7 +8,7 @@ import {schema} from '../src/content-schema.mjs';
 import {narrativePath} from '../src/d6-v3-content-paths.mjs';
 import {saveD6ContentRevision} from './d6-content-save-transaction.mjs';
 import {createD2UnifiedOwnerSession}
- from '../../experiments/p3/preview/src/d2-unified-owner-session.mjs';
+ from './auth/d2-unified-owner-session.mjs';
 
 const ID=/^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const MAX_REQUEST=192*1024,MAX_MARKDOWN=128*1024;

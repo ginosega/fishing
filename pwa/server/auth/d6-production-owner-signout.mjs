@@ -8,8 +8,8 @@
  * This is required before the accepted D5 Connection Status "Sign out"
  * control can be wired into the D6 production owner UI.
  */
-import {isD6GatewayOrigin}
- from '../../../../pwa/server/d6-pages-path-gateway.mjs';
+import {isD6OwnerOrigin}
+ from './owner-origins.mjs';
 export const D6_OWNER_SIGNOUT_ORIGIN='https://fishing.ginosega.workers.dev';
 export const D6_OWNER_SIGNOUT_PATH='/session/signout';
 const OWNER=265665562;
@@ -59,7 +59,7 @@ export function createD6ProductionOwnerSignout({
  AUTH_DB,cryptoApi=globalThis.crypto,enabled=()=>false,
  origin=D6_OWNER_SIGNOUT_ORIGIN,
 }={}){
- if(typeof enabled!=='function'||!isD6GatewayOrigin(origin))
+ if(typeof enabled!=='function'||!isD6OwnerOrigin(origin))
   throw Error('Invalid D6 sign-out gate');
  async function signOut(request){
   if(enabled()!==true)return response(503,'TEMPORARILY_UNAVAILABLE');

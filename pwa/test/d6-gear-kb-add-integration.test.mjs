@@ -4,7 +4,7 @@ import {DatabaseSync} from 'node:sqlite';
 import {createD6DirectGearService} from '../server/d6-direct-gear-service.mjs';
 import {createD6DirectKBService} from '../server/d6-direct-kb-service.mjs';
 import {createD2UnifiedOwnerSession}
- from '../../experiments/p3/preview/src/d2-unified-owner-session.mjs';
+ from '../server/auth/d2-unified-owner-session.mjs';
 import {narrativePath} from '../src/handoff.mjs';
 
 const origin='https://fishing-d6-wp2-test.ginosega.workers.dev';

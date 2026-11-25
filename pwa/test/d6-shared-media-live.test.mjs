@@ -12,7 +12,7 @@ import {createD6SharedMediaStage} from '../server/d6-shared-media-stage.mjs';
 import {createD6OwnerMediaUploadCoordinator} from '../src/d6-owner-media-upload-client.mjs';
 import {saveD6OwnerEditorMedia} from '../src/d6-owner-media-editor-save.mjs';
 import {createD2UnifiedOwnerSession}
- from '../../experiments/p3/preview/src/d2-unified-owner-session.mjs';
+ from '../server/auth/d2-unified-owner-session.mjs';
 import {createD6SharedMediaLive,publishD6MediaRevision,
  isD6NotesImageLinked} from '../server/d6-shared-media-live.mjs';
 

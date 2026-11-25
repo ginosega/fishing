@@ -1,6 +1,6 @@
 import {readD6BoundedJson} from './d6-bounded-json-response.mjs';
-import {isD6GatewayOrigin}
- from '../../../../pwa/server/d6-pages-path-gateway.mjs';
+import {isD6OwnerOrigin}
+ from './owner-origins.mjs';
 
 /**
  * D6 canonical-production GitHub OAuth session issuer, SOURCE ONLY.
@@ -82,7 +82,7 @@ export function createD6ProductionOAuthSessionIssuer({
  now=()=>Math.floor(Date.now()/1000),enabled=()=>false,
  origin=D6_OAUTH_ORIGIN,
 }={}){
- if(!isD6GatewayOrigin(origin)||typeof enabled!=='function'||
+ if(!isD6OwnerOrigin(origin)||typeof enabled!=='function'||
     typeof now!=='function')
   throw Error('Invalid D6 OAuth configuration');
  const sha=async value=>b64(await cryptoApi.subtle.digest(

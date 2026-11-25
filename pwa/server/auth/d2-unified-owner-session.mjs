@@ -49,26 +49,13 @@ export function createD2UnifiedOwnerSession({AUTH_DB,ownerGitHubId,origin,csrfKe
   new URL(origin).origin===origin&&
   typeof csrfKey==='string'&&enc.encode(csrfKey).length>=32&&
   typeof now==='function','INVALID_CONFIG');
- async function identity(request,{pilotNavigation=false}={}){
+ async function identity(request){
   need(request instanceof Request,'INVALID_REQUEST');
   let url;try{url=new URL(request.url);}catch{deny('INVALID_REQUEST');}
   need(url.origin===origin&&url.protocol==='https:','ORIGIN_DENIED');
   need(!request.headers.has('Authorization'),'BEARER_DENIED');
   const fetchSite=request.headers.get('Sec-Fetch-Site');
-  const crossSite=fetchSite==='cross-site'||fetchSite==='same-site';
-  // The OAuth redirect chain passes through github.com. Chromium may
-  // label the final FIRST-PARTY HTML navigation cross-site, even though
-  // the session was issued by our callback on this exact origin.
-  // Only an exact GET document navigation is exempt; JSON, JS, status,
-  // writes and any non-navigation cross-site request remain forbidden.
-  const freshPilotNavigation=pilotNavigation===true&&
-   request.method==='GET'&&
-   (url.pathname==='/__d3_pilot__/'||
-    url.pathname==='/fishing/__d3_pilot__/')&&
-   !url.search&&!url.hash&&
-   request.headers.get('Sec-Fetch-Mode')==='navigate'&&
-   request.headers.get('Sec-Fetch-Dest')==='document';
-  need(!crossSite||freshPilotNavigation,'CROSS_SITE_DENIED');
+  need(fetchSite!=='cross-site'&&fetchSite!=='same-site','CROSS_SITE_DENIED');
   const token=strCookie(request.headers.get('Cookie'));
   if(!token)return null;
   const hash=await sha(token);
@@ -88,21 +75,6 @@ export function createD2UnifiedOwnerSession({AUTH_DB,ownerGitHubId,origin,csrfKe
   // Domain-separated and exact-session bound. Fixed for life of valid
   // session, which is revoked by deleting its AUTH-P0 D1 row.
   return hmac(csrfKey,'fishing-v3-csrf-v1\n'+origin+'\n'+session.token);
- }
- async function authorizeWrite(request){
-  need(request instanceof Request&&request.method==='POST','METHOD_DENIED');
-  need(request.headers.get('Origin')===origin&&
-   request.headers.get('Sec-Fetch-Site')==='same-origin',
-   'CROSS_SITE_DENIED');
-  need(request.headers.get('X-Fish-V3-Intent')==='publish','INTENT_DENIED');
-  need(/^application\/json(?:\s*;\s*charset=utf-8)?$/i.test(
-   request.headers.get('Content-Type')??''),'CONTENT_TYPE_DENIED');
-  const session=await identity(request);
-  need(session,'SESSION_DENIED');
-  const received=request.headers.get('X-Fish-V3-CSRF');
-  need(typeof received==='string'&&CSRF.test(received)&&
-   matches(received,await csrfFor(session)),'CSRF_DENIED');
-  return Object.freeze({ownerGitHubId,authorized:true});
  }
  async function authorizeDirectContentSave(request,intent){
   // Same existing owner session and session-bound CSRF, no GitHub publisher.
@@ -154,12 +126,6 @@ export function createD2UnifiedOwnerSession({AUTH_DB,ownerGitHubId,origin,csrfKe
   need(session,'SESSION_DENIED');
   return Object.freeze({ownerGitHubId,authorized:true});
  }
- async function authorizePilotPage(request){
-  need(request instanceof Request&&request.method==='GET','METHOD_DENIED');
-  const session=await identity(request,{pilotNavigation:true});
-  need(session,'SESSION_DENIED');
-  return Object.freeze({ownerGitHubId,authorized:true});
- }
  async function describe(request){
   need(request instanceof Request&&request.method==='GET','METHOD_DENIED');
   const session=await identity(request);
@@ -170,5 +136,5 @@ export function createD2UnifiedOwnerSession({AUTH_DB,ownerGitHubId,origin,csrfKe
    ownerLogin:ownerGitHubId===265665562?'ginosega':null,
    csrfToken:await csrfFor(session),expiresAt:session.expiresAt});
  }
- return Object.freeze({describe,authorizeWrite,authorizeDirectGearSave,authorizeDirectKBSave,authorizeDirectCatchSave,authorizeMedia,authorizeStatus,authorizePilotPage});
+ return Object.freeze({describe,authorizeDirectGearSave,authorizeDirectKBSave,authorizeDirectCatchSave,authorizeMedia,authorizeStatus});
 }

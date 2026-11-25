@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createD6ProductionOwnerSession,D6_OWNER_SESSION_ORIGIN,
  D6_OWNER_GITHUB_ID}
- from '../../experiments/p3/preview/src/d6-production-owner-session.mjs';
+ from '../server/auth/d6-production-owner-session.mjs';
 
 const ORIGIN='https://fishing.ginosega.workers.dev';
 const NOW=2000000000;

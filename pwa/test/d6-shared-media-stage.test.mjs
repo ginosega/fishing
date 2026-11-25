@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {createD2UnifiedOwnerSession}
- from '../../experiments/p3/preview/src/d2-unified-owner-session.mjs';
+ from '../server/auth/d2-unified-owner-session.mjs';
 import {validateD6MediaPath,validateD6MediaBytes,
  createD6SharedMediaStage,D6_MEDIA_LIMIT_BYTES,validateD6GifFrameStructure}
  from '../server/d6-shared-media-stage.mjs';

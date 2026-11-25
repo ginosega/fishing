@@ -9,7 +9,7 @@
 import {safePath,ID_PATTERN} from '../src/shared.mjs';
 import {validateD6MediaOwnerPath} from '../src/d6-content-media-contract.mjs';
 import {createD2UnifiedOwnerSession}
- from '../../experiments/p3/preview/src/d2-unified-owner-session.mjs';
+ from './auth/d2-unified-owner-session.mjs';
 
 export const D6_MEDIA_LIMIT_BYTES=10*1024*1024;
 const shaRE=/^[a-f0-9]{64}$/;

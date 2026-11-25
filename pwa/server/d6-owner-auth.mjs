@@ -4,11 +4,11 @@
  * gateway/App signer. No GitHub content/API grants, static proxy or publisher.
  */
 import {createD6ProductionOAuthSessionIssuer}
- from '../../experiments/p3/preview/src/d6-production-oauth-session-issuer.mjs';
+ from './auth/d6-production-oauth-session-issuer.mjs';
 import {createD6ProductionOwnerSession}
- from '../../experiments/p3/preview/src/d6-production-owner-session.mjs';
+ from './auth/d6-production-owner-session.mjs';
 import {createD6ProductionOwnerSignout,D6_OWNER_SIGNOUT_PATH}
- from '../../experiments/p3/preview/src/d6-production-owner-signout.mjs';
+ from './auth/d6-production-owner-signout.mjs';
 
 const headers=Object.freeze({
  'Content-Type':'application/json; charset=utf-8',

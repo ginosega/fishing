@@ -4,7 +4,7 @@ import {createHash} from 'node:crypto';
 import {readFileSync} from 'node:fs';
 import {createD6ProductionOAuthSessionIssuer,D6_OAUTH_ORIGIN,
  D6_OAUTH_OWNER_ID}
- from '../../experiments/p3/preview/src/d6-production-oauth-session-issuer.mjs';
+ from '../server/auth/d6-production-oauth-session-issuer.mjs';
 
 const ORIGIN='https://fishing.ginosega.workers.dev';
 const CODE='githubTestCode1234567890';
@@ -255,7 +255,7 @@ test('D6-OAUTH10 config and capability revocation deny independently',async()=>{
 });
 test('D6-OAUTH11 source has no production Worker, sandbox or writer entrypoint',()=>{
  const code=readFileSync(new URL(
-  '../../experiments/p3/preview/src/d6-production-oauth-session-issuer.mjs',
+  '../server/auth/d6-production-oauth-session-issuer.mjs',
   import.meta.url),'utf8');
  assert.match(code,/DELETE FROM auth_flows WHERE state_hash/);
  assert.match(code,/INSERT INTO sessions \(token_hash, github_id, expires_at\)/);
