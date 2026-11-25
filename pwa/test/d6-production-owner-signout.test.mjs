@@ -56,6 +56,30 @@ test('D6-SIGNOUT02 valid owner cookie revokes only that session',async()=>{
  assert.equal(res.headers.get('Cache-Control'),'private, no-store, max-age=0');
  assert(!res.headers.get('Set-Cookie').includes(SID));
 });
+test('A01 sign-out accepts an empty streamed POST and rejects actual body bytes',async()=>{
+ const store=db(),actor=primitive(store);
+ const empty=request(SID,{headers:{'Content-Length':'0','Sec-Fetch-Mode':'cors'},
+  body:new ReadableStream({start(controller){controller.close();}}),duplex:'half'});
+ assert.notEqual(empty.body,null);
+ const res=await actor.signOut(empty);
+ assert.equal(res.status,200);
+ assert.deepEqual(await res.json(),{signedOut:true});
+ assert.equal(store.sessions.has(sha(SID)),false);
+ assert.match(res.headers.get('Set-Cookie'),/Max-Age=0/);
+ const invalidStore=db(),invalidActor=primitive(invalidStore);
+ for(const req of [
+  request(SID,{headers:{'Content-Length':'0'},body:'x'}),
+  request(SID,{headers:{'Content-Length':'1'},body:'x'}),
+  request(SID,{headers:{'Content-Length':'0',Origin:'https://evil.invalid'},
+   body:new Uint8Array(0)}),
+  request(SID,{headers:{'Content-Length':'0'},
+   body:new ReadableStream({start(controller){controller.error(Error('stream error'));}}),
+   duplex:'half'}),
+ ]){
+  assert.equal((await invalidActor.signOut(req)).status,403);
+ }
+ assert.equal(invalidStore.deleted.length,0);
+});
 test('D6-SIGNOUT03 non-owner sessions are never revoked',async()=>{
  const store=db(),res=await primitive(store).signOut(request(OTHER));
  assert.equal(res.status,200);

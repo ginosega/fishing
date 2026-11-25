@@ -44,7 +44,7 @@ function b64(buffer){
 }
 function permitted(request,origin){
  if(!(request instanceof Request)||request.method!=='POST'||
-    request.headers.has('Authorization')||request.body!==null)return false;
+    request.headers.has('Authorization'))return false;
  let url;try{url=new URL(request.url);}catch{return false;}
  return url.origin===origin&&
    url.pathname===D6_OWNER_SIGNOUT_PATH&&!url.search&&!url.hash&&
@@ -55,6 +55,23 @@ function permitted(request,origin){
    !['navigate','websocket'].includes(
     request.headers.get('Sec-Fetch-Mode')??'');
 }
+// An empty HTTP POST may arrive as a readable zero-byte stream rather than
+// a null body. Check actual bytes without buffering a nonempty payload.
+async function emptyBody(request){
+ const length=request.headers.get('Content-Length');
+ if(length!==null&&length!=='0')return false;
+ if(request.body===null)return true;
+ try{
+  const reader=request.body.getReader();
+  try{
+   for(;;){
+    const {done,value}=await reader.read();
+    if(done)return true;
+    if(value.byteLength!==0)return false;
+   }
+  }finally{reader.releaseLock();}
+ }catch{return false;}
+}
 export function createD6ProductionOwnerSignout({
  AUTH_DB,cryptoApi=globalThis.crypto,enabled=()=>false,
  origin=D6_OWNER_SIGNOUT_ORIGIN,
@@ -63,7 +80,8 @@ export function createD6ProductionOwnerSignout({
   throw Error('Invalid D6 sign-out gate');
  async function signOut(request){
   if(enabled()!==true)return response(503,'TEMPORARILY_UNAVAILABLE');
-  if(!permitted(request,origin))return response(403,'REQUEST_DENIED');
+  if(!permitted(request,origin)||!await emptyBody(request))
+   return response(403,'REQUEST_DENIED');
   const secret=cookie(request);
   if(!secret)return response(401,'SESSION_REQUIRED');
   if(typeof AUTH_DB?.prepare!=='function'||
