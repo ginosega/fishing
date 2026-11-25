@@ -77,13 +77,53 @@ test('V3-PILOT02 Worker denies wrong host or disabled direct Gear flag',async()=
  assert.equal((await worker.fetch(new Request(origin+'/api/v3/content/operations'),env)).status,404);
 });
 
-test('L01 final Worker denies GitHub content reads and old static Pages gateway',async()=>{
+test('A01 final Worker has only owner auth, no legacy reader or publisher',async()=>{
+ const {env,worker}=pilot();
  const source=readFileSync(new URL('../server/d6-direct-gear-worker.mjs',
   import.meta.url),'utf8');
- for(const disabled of ['D6_STATIC_ENABLED','D6_SOURCE_ENABLED',
-  'D6_READ_TOKEN_ENABLED','D6_SIGNER_ENABLED',
-  'D6_HOSTED_PREFLIGHT_ENABLED'])
-  assert.match(source,new RegExp(disabled+":'false'"));
+ assert.match(source,/createD6OwnerAuth/);
+ assert.doesNotMatch(source,/createD6ProductionRuntimeBindingContract/);
+ const auth=readFileSync(new URL('../server/d6-owner-auth.mjs',
+  import.meta.url),'utf8');
+ assert.doesNotMatch(auth,/createD6ProductionRead|createD6PublicReadProxy|createD6ProductionAppSigner/);
+ const enabled={...env,D6_STATIC_ENABLED:'true',D6_SOURCE_ENABLED:'true',
+  D6_READ_TOKEN_ENABLED:'true',D6_SIGNER_ENABLED:'true',
+  D6_HOSTED_PREFLIGHT_ENABLED:'true'};
+ for(const path of ['/api/v3/authoring-source','/api/v3/operations',
+  '/fishing/release.json','/session/revoke-all']){
+  assert.equal((await worker.fetch(new Request(origin+path),enabled)).status,404);
+ }
+ const status=await worker.fetch(new Request(origin+'/session',{
+  headers:{Cookie:cookie,'Sec-Fetch-Site':'same-origin'},
+ }),enabled);
+ assert.equal(status.status,200);
+ assert.deepEqual(await status.json(),{authenticated:true,authorized:true,ownerLogin:'ginosega'});
+ assert.deepEqual(await (await worker.fetch(new Request(origin+'/session'),
+  enabled)).json(),{authenticated:false,authorized:false});
+ assert.equal((await worker.fetch(new Request(origin+'/session',{
+  headers:{Origin:'https://evil.invalid'},
+ }),enabled)).status,403);
+ assert.equal((await worker.fetch(new Request(origin+'/auth/start'),enabled)).status,503);
+});
+
+test('A01 retained Worker OAuth creates a PKCE flow and exact callback',async()=>{
+ const {env,worker}=pilot();
+ let inserts=0;
+ const AUTH_DB={prepare(sql){
+  assert.match(sql,/^INSERT INTO auth_flows /);
+  return {bind(){return {run:async()=>{inserts++;return {success:true};}};}};
+ }};
+ const response=await worker.fetch(new Request(origin+'/auth/start'),{
+  ...env,AUTH_DB,D6_OAUTH_ENABLED:'true',D6_OAUTH_CLIENT_ID:'test-client-id',
+  D6_OAUTH_CLIENT_SECRET:'S'.repeat(32),
+ });
+ assert.equal(response.status,303);
+ const url=new URL(response.headers.get('Location'));
+ assert.equal(url.origin,'https://github.com');
+ assert.equal(url.pathname,'/login/oauth/authorize');
+ assert.equal(url.searchParams.get('redirect_uri'),origin+'/auth/callback');
+ assert.equal(url.searchParams.get('code_challenge_method'),'S256');
+ assert.equal(inserts,1);
 });
 
 test('V3-PILOT03 one existing isolated Worker hosts assets and D1; no public deployment',()=>{

@@ -1,11 +1,9 @@
 /**
- * Fishing Companion V3 private Gear pilot.
- * Existing WP2 OAuth/read routes + one direct D1 Gear GET/POST.
- * Source-only until an explicitly approved isolated deployment.
- * No GitHub publisher, operation queue, watchdog, or release switch.
+ * Fishing Companion standalone V3 Worker.
+ * Direct D1 content, private R2 media, offline snapshot and owner OAuth.
+ * Cloudflare Assets serves the software. No GitHub content pipeline.
  */
-import {createD6ProductionRuntimeBindingContract}
- from '../../experiments/p3/preview/src/d6-production-runtime-bindings.mjs';
+import {createD6OwnerAuth} from './d6-owner-auth.mjs';
 import {D6_WP2_STAGING_ORIGIN}
  from '../src/d6-public-reader.mjs';
 import {createD6DirectGearService}
@@ -126,22 +124,12 @@ export function createD6DirectGearWorker({
     return await service.handle(request);
    }catch{return respond(503,'UNAVAILABLE');}
   }
-  // All other routes delegate to the previously reviewed WP2 OAuth/read
-  // runtime. No GitHub write authority is constructed or requested here.
+  // Standalone V3 exposes only the retained owner OAuth/session routes.
+  // Cloudflare Assets handles the software; no Pages proxy or GitHub
+  // content reader, App signing, installation-token or publishing route.
   try{
-   // V3 retains GitHub OAuth for owner identity, never the retired
-   // GitHub authoring-source or App blob/content reader. These gates remain
-   // OFF even if an obsolete staging variable is accidentally reenabled.
-   const authEnv={...env,
-    // Cloudflare Assets serves the software release; the old Pages proxy
-    // must never fetch GitHub Pages content in standalone V3.
-    D6_STATIC_ENABLED:'false',
-    D6_SOURCE_ENABLED:'false',D6_READ_TOKEN_ENABLED:'false',
-    D6_SIGNER_ENABLED:'false',D6_HOSTED_PREFLIGHT_ENABLED:'false'};
-   const read=createD6ProductionRuntimeBindingContract({
-    env:authEnv,network,cryptoApi,now,
-   });
-   return await read.fetch(request);
+   return await createD6OwnerAuth({env,origin:ORIGIN,network,cryptoApi,now})
+    .fetch(request);
   }catch{return respond(503,'UNAVAILABLE');}
  }
  return Object.freeze({fetch:fetchRequest});
