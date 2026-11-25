@@ -1,6 +1,6 @@
 import {bootstrap} from './app.mjs';
 import {mountD6OfflineRecovery} from './d6-online-recovery.mjs';
-import {selectD6PublicReader} from './d6-public-reader.mjs';
+import {selectD6PublicReader,D6_READER_ORIGIN} from './d6-public-reader.mjs';
 import {createD6OwnerSessionReadiness} from './d6-owner-session-readiness.mjs';
 import {createD6CanonicalSourceClient} from './d6-canonical-authoring-source.mjs';
 import {createD6DirectGearClient} from './d6-direct-gear-client.mjs';
@@ -52,7 +52,7 @@ const standaloneV3=typeof __FISHING_D6_STANDALONE_V3__!=='undefined'&&
 function d6Context(){
  if(!d6Reader)return {};
  const reader=selectD6PublicReader({enabled:true,staticStaging:d6StaticStaging,wp2Staging:d6Wp2Staging,
-  root:settings.root,
+  root:settings.root,standalone:standaloneV3,
   release:settings.release,manifest:settings.manifest});
  // Staging may expose only immutable anonymous reading. It never creates
  // a session probe or a canonical authoring-source client.
@@ -60,9 +60,12 @@ function d6Context(){
   if(d6EditorPreview)throw Error('D6 editor preview cannot use static staging');
   return {v3:{...reader}};
  }
+ // The immutable standalone software is identical on both trusted hosts.
+ // Owner session and sign-out always address the actual same-origin host.
+ const ownerWp2Staging=d6Wp2Staging&&(!standaloneV3||new URL(settings.root).origin!==D6_READER_ORIGIN);
  const ownerReadiness=createD6OwnerSessionReadiness({
   root:settings.root,request:(url,options)=>fetch(url,options),
-  wp2Staging:d6Wp2Staging,
+  wp2Staging:ownerWp2Staging,
   enabled:()=>true,online:()=>navigator.onLine===true,
  });
  // Standalone V3 reads online content only from D1, never GitHub main.
@@ -137,7 +140,7 @@ function d6Context(){
   enabled:()=>true,online:()=>navigator.onLine===true,
  }):null;
  return {v3:{...reader,ownerReadiness,canonicalSource,
-  wp2Staging:d6Wp2Staging,ownerConnectionCandidate:d6OwnerConnection,
+  wp2Staging:ownerWp2Staging,ownerConnectionCandidate:d6OwnerConnection,
   ownerEditorPreview:d6EditorPreview,directGearEnabled,directGearClient,
   directKBEnabled,directKBClient,directCatchEnabled,directCatchClient,
   liveMediaReadApproved:privateOwnerMediaCandidate,

@@ -122,9 +122,7 @@ function composed(flags={}){
  const store=db();
  const env={
   D6_PRODUCTION_ENABLED:'true',D6_ORIGIN:HOST,
-  D6_OWNER_GITHUB_ID:String(OWNER),D6_REPOSITORY_ID:'1350909744',
-  D6_WP2_STAGING_ENABLED:'true',D6_ISOLATED_PAGES_ENABLED:'true',
-  D6_GATEWAY_ENABLED:'true',D6_SESSION_ENABLED:'true',
+  D6_OWNER_GITHUB_ID:String(OWNER),D6_SESSION_ENABLED:'true',
   AUTH_DB:store,D6_CSRF_KEY:'source-only-test-key-xxxxxxxxxxxxxxxxx',
   ...flags,
  };
@@ -143,8 +141,8 @@ test('A01 signout requires explicit flag and never exposes a publisher',async()=
   assert.equal((await active.app.fetch(new Request(HOST+path))).status,404);
  }
 });
-test('A01 disabled gateway/session or mismatched owner configuration denies signout',async()=>{
- for(const flag of ['D6_GATEWAY_ENABLED','D6_SESSION_ENABLED','D6_PRODUCTION_ENABLED','D6_WP2_STAGING_ENABLED','D6_ISOLATED_PAGES_ENABLED','D6_OWNER_GITHUB_ID']){
+test('A01 disabled app/session or mismatched owner configuration denies signout',async()=>{
+ for(const flag of ['D6_SESSION_ENABLED','D6_PRODUCTION_ENABLED','D6_ORIGIN','D6_OWNER_GITHUB_ID']){
   const {app,store}=composed({D6_SIGNOUT_ENABLED:'true',[flag]:'false'});
   assert.equal((await app.fetch(request())).status,503);
   assert.equal(store.deleted.length,0);

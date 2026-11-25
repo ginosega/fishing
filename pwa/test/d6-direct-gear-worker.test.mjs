@@ -9,7 +9,7 @@ const cookie='__Host-fish_p0_session='+'A'.repeat(43);
 const original={id:'test-rod',category:'rods-reels',type:'Spinning rod',
  name:'Original rod',specifications:[],links:[]};
 
-function pilot(){
+function pilot(host=origin){
  let writes=0;
  let data={id:original.id,revision:1,record_json:JSON.stringify(original),
   notes_text:'First notes',updated_at:1000000};
@@ -32,10 +32,8 @@ function pilot(){
   github_id:265665562,expires_at:1003600,
  })};}};}};
  const env={D6_DIRECT_GEAR_ENABLED:'true',
-  D6_PRODUCTION_ENABLED:'true',D6_GATEWAY_ENABLED:'true',
-  D6_SESSION_ENABLED:'true',D6_WP2_STAGING_ENABLED:'true',
-  D6_ISOLATED_PAGES_ENABLED:'true',D6_ORIGIN:origin,
-  D6_OWNER_GITHUB_ID:'265665562',D6_REPOSITORY_ID:'1350909744',
+  D6_PRODUCTION_ENABLED:'true',D6_SESSION_ENABLED:'true',D6_ORIGIN:host,
+  D6_OWNER_GITHUB_ID:'265665562',
   D6_CSRF_KEY:'S'.repeat(64),AUTH_DB:authDb,WP3_DB:db,
  };
  const worker=createD6DirectGearWorker({
@@ -46,11 +44,11 @@ function pilot(){
   const headers=new Headers(options.headers);
   headers.set('Sec-Fetch-Site','same-origin');
   headers.set('Cookie',cookie);
-  if(options.method==='POST')headers.set('Origin',origin);
+  if(options.method==='POST')headers.set('Origin',host);
   return worker.fetch(new Request(url,{...options,headers}),env);
  };
  return {env,worker,client:createD6DirectGearClient({
-  root:origin+'/fishing/',request,enabled:()=>true,online:()=>true,
+  root:host+'/fishing/',request,enabled:()=>true,online:()=>true,
  }),writes:()=>writes};
 }
 
@@ -136,7 +134,7 @@ test('V3-PILOT03 one existing isolated Worker hosts assets and D1; no public dep
  assert.equal(cfg.vars.D6_DIRECT_GEAR_ENABLED,'true');
  assert.equal(cfg.vars.D6_OAUTH_ENABLED,'true');
  for(const name of ['D6_SOURCE_ENABLED','D6_READ_TOKEN_ENABLED','D6_SIGNER_ENABLED'])
-  assert.equal(cfg.vars[name],'false');
+  assert.equal(cfg.vars[name],undefined);
  assert.equal(cfg.vars.D6_M02_MEDIA_ENABLED,'true',
   'owner-approved isolated M02 deployment candidate');
  assert.deepEqual(cfg.r2_buckets,[{
@@ -146,7 +144,7 @@ test('V3-PILOT03 one existing isolated Worker hosts assets and D1; no public dep
  assert.equal(cfg.routes,undefined);
  assert.equal(cfg.assets.base_path,'/fishing');
  assert.equal(cfg.assets.directory,'./dist-v3-pilot');
- assert.deepEqual(cfg.assets.run_worker_first,['/api/*','/auth/*','/session']);
+ assert.deepEqual(cfg.assets.run_worker_first,['/api/*','/auth/*','/session','/session/signout']);
  assert.equal(cfg.d1_databases.length,2);
  assert.deepEqual(cfg.d1_databases.map(x=>x.binding),['AUTH_DB','WP3_DB']);
  assert.equal(cfg.d1_databases[0].database_id,'0d8da698-87b8-4b5e-a1e7-fe6de49e5afc');
@@ -203,4 +201,29 @@ test('O02-HTTP05 existing Worker denies new route without BOTH private gates',as
  const cfg=JSON.parse(readFileSync(new URL(
   '../wrangler.l01-private.jsonc',import.meta.url),'utf8'));
  assert.equal(cfg.vars.D6_O02_OFFLINE_SNAPSHOT_ENABLED,'true');
+});
+
+test('A01 production host uses identical owner-authenticated content and OAuth; mismatched hosts are denied',async()=>{
+ const host='https://fishing.ginosega.workers.dev';
+ const {env,worker,client,writes}=pilot(host);
+ assert.equal((await client.read('test-rod')).record.name,'Original rod');
+ await client.save({record:{...original,name:'Production fixture'},notes:'Fixture',expectedRevision:1});
+ assert.equal(writes(),1);
+ assert.equal((await client.read('test-rod')).record.name,'Production fixture');
+ assert.equal((await worker.fetch(new Request(origin+'/session'),env)).status,404);
+ assert.equal((await worker.fetch(new Request(host+'/session'),{...env,D6_ORIGIN:'https://evil.invalid'})).status,404);
+ const session=await worker.fetch(new Request(host+'/session',{headers:{Cookie:cookie,'Sec-Fetch-Site':'same-origin'}}),env);
+ assert.deepEqual(await session.json(),{authenticated:true,authorized:true,ownerLogin:'ginosega'});
+ let inserts=0;
+ const AUTH_DB={prepare(sql){assert.match(sql,/^INSERT INTO auth_flows /);return {bind(){return {run:async()=>{inserts++;return {success:true};}};}};}};
+ const response=await worker.fetch(new Request(host+'/auth/start'),{...env,AUTH_DB,D6_OAUTH_ENABLED:'true',D6_OAUTH_CLIENT_ID:'test-client-id',D6_OAUTH_CLIENT_SECRET:'S'.repeat(32)});
+ assert.equal(response.status,303);
+ assert.equal(new URL(response.headers.get('Location')).searchParams.get('redirect_uri'),host+'/auth/callback');
+ assert.equal(inserts,1);
+ const bound={...env,WP3_DB:{...env.WP3_DB,batch:async()=>[]},
+  MEDIA_R2:{head:async()=>null,get:async()=>null,put:async()=>null},
+  D6_DIRECT_KB_ENABLED:'true',D6_DIRECT_CATCH_ENABLED:'true',
+  D6_M02_MEDIA_ENABLED:'true',D6_O02_OFFLINE_SNAPSHOT_ENABLED:'true'};
+ for(const path of ['/api/v3/media/manifest','/api/v3/content/offline-snapshot'])
+  assert.equal((await worker.fetch(new Request(host+path),bound)).status,403);
 });

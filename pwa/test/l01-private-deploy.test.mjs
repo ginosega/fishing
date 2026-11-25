@@ -31,3 +31,17 @@ test('A01 canonical ID guard flattens the decoded array before checking membersh
  assert.match(script,/\$Missing\.Count -ne 0\)\{\$Normalized=\$false\}/);
  assert.doesNotMatch(script,/\$ActualIds=@\(ConvertFrom-Json/);
 });
+
+test('A01 production and temporary acceptance bind exactly the same retained resources',()=>{
+ const prod=JSON.parse(read('../wrangler.jsonc'));
+ assert.equal(prod.name,'fishing');
+ assert.equal(prod.vars.D6_ORIGIN,'https://fishing.ginosega.workers.dev');
+ assert.equal(prod.keep_vars,false);
+ assert.deepEqual(prod.secrets.required,['D6_CSRF_KEY','D6_OAUTH_CLIENT_SECRET','D6_OAUTH_CLIENT_ID']);
+ const normalized={...prod,name:pilot.name,vars:{...prod.vars,D6_ORIGIN:pilot.vars.D6_ORIGIN},keep_vars:pilot.keep_vars,secrets:pilot.secrets};
+ assert.deepEqual(normalized,pilot);
+ assert.deepEqual(prod.assets.run_worker_first,['/api/*','/auth/*','/session','/session/signout']);
+ for(const name of ['D6_GATEWAY_ENABLED','D6_REPOSITORY_ID','D6_WP2_STAGING_ENABLED','D6_ISOLATED_PAGES_ENABLED','D6_STATIC_ENABLED','D6_SOURCE_ENABLED','D6_READ_TOKEN_ENABLED','D6_SIGNER_ENABLED','D6_HOSTED_PREFLIGHT_ENABLED'])
+  assert.equal(prod.vars[name],undefined);
+ assert.equal(prod.routes,undefined);
+});

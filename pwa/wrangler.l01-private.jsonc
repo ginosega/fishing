@@ -9,20 +9,11 @@
     "D6_DIRECT_KB_ENABLED": "true",
     "D6_DIRECT_CATCH_ENABLED": "true",
     "D6_PRODUCTION_ENABLED": "true",
-    "D6_GATEWAY_ENABLED": "true",
     "D6_ORIGIN": "https://fishing-d6-wp2-test.ginosega.workers.dev",
     "D6_OWNER_GITHUB_ID": "265665562",
-    "D6_REPOSITORY_ID": "1350909744",
-    "D6_WP2_STAGING_ENABLED": "true",
-    "D6_ISOLATED_PAGES_ENABLED": "true",
-    "D6_STATIC_ENABLED": "true",
     "D6_SESSION_ENABLED": "true",
     "D6_OAUTH_ENABLED": "true",
     "D6_SIGNOUT_ENABLED": "true",
-    "D6_SOURCE_ENABLED": "false",
-    "D6_READ_TOKEN_ENABLED": "false",
-    "D6_SIGNER_ENABLED": "false",
-    "D6_HOSTED_PREFLIGHT_ENABLED": "false",
     "D6_M02_MEDIA_ENABLED": "true",
     "D6_M03_THUMBNAILS_ENABLED": "true",
     "D6_O02_OFFLINE_SNAPSHOT_ENABLED": "true"
@@ -54,7 +45,8 @@
     "run_worker_first": [
       "/api/*",
       "/auth/*",
-      "/session"
+      "/session",
+      "/session/signout"
     ],
     "binding": "ASSETS"
   },

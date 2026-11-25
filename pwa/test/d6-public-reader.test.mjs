@@ -94,3 +94,16 @@ test('D6-A06 WP2 staged build requires dedicated origin and matching markers',()
  assert.match(source,/__FISHING_D6_WP2_STAGING__/);
  assert.match(source,/d6Wp2Staging:true/);
 });
+
+test('A01 identical standalone software accepts only the two approved hosts and matching release markers',()=>{
+ const stage='https://fishing-d6-wp2-test.ginosega.workers.dev';
+ const candidate={...good,enabled:true,standalone:true,wp2Staging:true,
+  release:{...good.release,d6Wp2Staging:true,standaloneV3:true},
+  manifest:{...good.manifest,d6Wp2Staging:true,standaloneV3:true}};
+ for(const host of [stage,D6_READER_ORIGIN])
+  assert.equal(selectD6PublicReader({...candidate,root:host+D6_READER_BASE}).readerOnly,true);
+ for(const host of ['https://evil.invalid','https://ginosega.github.io','https://fishing-d6-static-test.ginosega.workers.dev'])
+  assert.throws(()=>selectD6PublicReader({...candidate,root:host+D6_READER_BASE}));
+ assert.throws(()=>selectD6PublicReader({...candidate,root:D6_READER_ORIGIN+D6_READER_BASE,release:{...candidate.release,standaloneV3:false}}));
+ assert.throws(()=>selectD6PublicReader({...candidate,root:D6_READER_ORIGIN+D6_READER_BASE,manifest:{...candidate.manifest,standaloneV3:false}}));
+});

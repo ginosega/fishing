@@ -47,8 +47,8 @@ Require-Equal $Config.d1_databases[0].binding 'AUTH_DB' 'AUTH_DB binding'
 Require-Equal $Config.d1_databases[0].database_id '0d8da698-87b8-4b5e-a1e7-fe6de49e5afc' 'AUTH_DB id'
 Require-Equal $Config.d1_databases[1].binding 'WP3_DB' 'WP3_DB binding'
 Require-Equal $Config.d1_databases[1].database_id '5a47841e-7874-4ec8-9fa8-be0315f6a802' 'WP3_DB id'
-foreach($flag in @('D6_SOURCE_ENABLED','D6_READ_TOKEN_ENABLED','D6_SIGNER_ENABLED')){
- Require-Equal $Config.vars.$flag 'false' "$flag still OFF"
+foreach($flag in @('D6_GATEWAY_ENABLED','D6_REPOSITORY_ID','D6_WP2_STAGING_ENABLED','D6_ISOLATED_PAGES_ENABLED','D6_STATIC_ENABLED','D6_SOURCE_ENABLED','D6_READ_TOKEN_ENABLED','D6_SIGNER_ENABLED','D6_HOSTED_PREFLIGHT_ENABLED')){
+ if($null -ne $Config.vars.$flag){throw "Obsolete variable $flag must not be configured."}
 }
 if(@($Config.assets.run_worker_first) -notcontains '/api/*'){
  throw 'Private API routing is missing.'

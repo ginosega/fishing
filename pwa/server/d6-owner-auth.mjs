@@ -10,6 +10,8 @@ import {createD6ProductionOwnerSession}
 import {createD6ProductionOwnerSignout,D6_OWNER_SIGNOUT_PATH}
  from './auth/d6-production-owner-signout.mjs';
 
+import {isD6OwnerOrigin} from './auth/owner-origins.mjs';
+
 const headers=Object.freeze({
  'Content-Type':'application/json; charset=utf-8',
  'Cache-Control':'private, no-store, max-age=0',
@@ -22,14 +24,10 @@ const headers=Object.freeze({
 const response=(status,body)=>new Response(JSON.stringify(body),{status,headers});
 const fail=(status,error)=>response(status,{ok:false,error});
 export function createD6OwnerAuth({env,origin,network,cryptoApi,now}){
- // Same accepted private trust profile. Production origin activation
- // requires its own configuration and explicit cutover.
+ // One exact configured host and the pinned owner. No GitHub repository grants.
  const gateway=env.D6_PRODUCTION_ENABLED==='true'&&
-  env.D6_GATEWAY_ENABLED==='true'&&env.D6_ORIGIN===origin&&
-  env.D6_OWNER_GITHUB_ID==='265665562'&&
-  env.D6_REPOSITORY_ID==='1350909744'&&
-  env.D6_WP2_STAGING_ENABLED==='true'&&
-  env.D6_ISOLATED_PAGES_ENABLED==='true';
+  isD6OwnerOrigin(origin)&&env.D6_ORIGIN===origin&&
+  env.D6_OWNER_GITHUB_ID==='265665562';
  const sessionOn=gateway&&env.D6_SESSION_ENABLED==='true';
  const loginOn=sessionOn&&env.D6_OAUTH_ENABLED==='true';
  const signoutOn=sessionOn&&env.D6_SIGNOUT_ENABLED==='true';
