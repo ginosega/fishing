@@ -37,7 +37,7 @@ jobs:
         run: |
           npm ci --no-audit --no-fund
           npm test
-          npm run build -- --d6-reader-candidate --d6-owner-connection-candidate --d6-owner-editor-preview --d6-wp2-hosted-candidate --d6-direct-gear-save --base=/fishing/ --out=dist-v3-check --source-revision="$SOURCE_REVISION"
+          npm run build -- --d6-reader-candidate --d6-wp2-hosted-candidate --d6-owner-connection-candidate --d6-owner-editor-preview --d6-direct-gear-save --d6-direct-kb-save --d6-direct-catch-save --d6-owner-media-upload --d6-r2-card-thumbnails --d6-o02-offline-content --d6-o03-offline-reading --d6-standalone-v3 --base=/fishing/ --out=dist-v3-check --source-revision="$SOURCE_REVISION"
           node tools/verify.mjs --out=dist-v3-check
 
   validate-release:
@@ -63,9 +63,9 @@ jobs:
           npm ci --no-audit --no-fund
           npm audit --omit=dev --audit-level=high
           npm test
-          npm run build -- --d6-reader-candidate --d6-owner-connection-candidate --d6-owner-editor-preview --base=/fishing/ --out=dist-v3-acceptance --source-revision="$GITHUB_SHA"
+          npm run build -- --d6-reader-candidate --d6-wp2-hosted-candidate --d6-owner-connection-candidate --d6-owner-editor-preview --d6-direct-gear-save --d6-direct-kb-save --d6-direct-catch-save --d6-owner-media-upload --d6-r2-card-thumbnails --d6-o02-offline-content --d6-o03-offline-reading --d6-standalone-v3 --base=/fishing/ --out=dist-v3-acceptance --source-revision="$GITHUB_SHA"
           node tools/verify.mjs --out=dist-v3-acceptance
-          FISHING_D6_OWNER_EDITOR_DIST=dist-v3-acceptance npx playwright test test/d6-owner-editor-preview.spec.mjs --project=chromium
+          FISHING_A01_DIST=dist-v3-acceptance npx playwright test test/a01-standalone-acceptance.spec.mjs --project=chromium
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
