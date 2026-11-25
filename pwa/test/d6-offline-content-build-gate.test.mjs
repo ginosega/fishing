@@ -36,7 +36,7 @@ test('O02-BUILD01 private O02 application builds only behind a source identity g
  assert.match(content(enabled),
   /api\/v3\/content\/offline-snapshot/);
  const builder=readFileSync(new URL('../tools/build.mjs',import.meta.url),'utf8');
- assert.match(builder,/--d6-o02-offline-content/);
+ assert.match(builder,/d6OfflineContentPreparation=true/);
  assert.match(builder,/d6OfflineContentPreparation/);
  assert.match(builder,/__FISHING_D6_O02_OFFLINE_CONTENT__/);
  const entrySource=readFileSync(new URL('../src/entry.mjs',import.meta.url),'utf8');
@@ -47,7 +47,6 @@ test('O02-BUILD01 private O02 application builds only behind a source identity g
  assert.match(workerSource,/D6_O02_OFFLINE_SNAPSHOT_ENABLED!=='true'/);
 
  const worker=readFileSync(new URL(
-  '../wrangler.direct-gear-private.jsonc',import.meta.url),'utf8');
- assert.doesNotMatch(worker,/D6_O02_OFFLINE_SNAPSHOT_ENABLED/,
-  'existing owner Worker deployment does not enable the new endpoint');
+  '../wrangler.l01-private.jsonc',import.meta.url),'utf8');
+ assert.match(worker,/"D6_O02_OFFLINE_SNAPSHOT_ENABLED": "true"/);
 });

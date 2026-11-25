@@ -1,5 +1,5 @@
-# Owner-approved L01 standalone V3 + Add/Edit private deployment on the existing test Worker.
-# Never use for M02/M03 maintenance, public deployment or A01 cutover.
+# A01 standalone V3 private acceptance deployment on the existing test Worker.
+# Private acceptance only; public cutover remains separately approved.
 # Owner executes with local Cloudflare credentials; GitHub CI cannot deploy.
 # Run on the owner's Windows PC; Cloudflare credentials stay local.
 # -Deploy is required to publish. Without it, only local + D1 preflights run.
@@ -63,22 +63,8 @@ if(-not (Test-Path 'node_modules\esbuild') -or -not (Test-Path 'node_modules\sha
 $Output=Join-Path (Get-Location).Path 'dist-v3-pilot'
 $BuildOptions=@(
  'tools/build.mjs',
- '--base=/fishing/',
  "--out=$Output",
- "--source=$((Get-Location).Path)",
- "--source-revision=$ExpectedRevision",
- '--d6-reader-candidate',
- '--d6-wp2-hosted-candidate',
- '--d6-owner-connection-candidate',
- '--d6-owner-editor-preview',
- '--d6-direct-gear-save',
- '--d6-direct-kb-save',
- '--d6-direct-catch-save',
- '--d6-owner-media-upload',
- '--d6-r2-card-thumbnails',
- '--d6-o02-offline-content',
- '--d6-o03-offline-reading',
- '--d6-standalone-v3'
+ "--source-revision=$ExpectedRevision"
 )
 & node @BuildOptions
 Check-Exit 'L01 standalone V3 UI build'

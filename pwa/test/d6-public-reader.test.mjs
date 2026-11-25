@@ -47,13 +47,11 @@ test('D6-A03 mismatched source or manifest mode fails closed',()=>{
  for(const v of broken)
   assert.throws(()=>selectD6PublicReader({...good,...v,enabled:true}),/D6 reader scope/);
 });
-test('D6-A04 ordinary V2 build remains default; D6 build is explicit and isolated',()=>{
+test('A01 standalone V3 is the only build',()=>{
  const build=readFileSync(new URL('../tools/build.mjs',import.meta.url),'utf8');
  const entry=readFileSync(new URL('../src/entry.mjs',import.meta.url),'utf8');
  const app=readFileSync(new URL('../src/app.mjs',import.meta.url),'utf8');
- assert.match(build,/const d6ReaderCandidate=args.includes\('--d6-reader-candidate'\)/);
- assert.match(build,/base!=='\/fishing\/'\|\|pendingMedia/);
- assert.match(build,/output===path.join\(repo,'pwa\/dist'\)/);
+ assert.match(build,/const d6ReaderCandidate=true/);
  assert.match(build,/__FISHING_D6_PUBLIC_READER__/);
  assert.match(entry,/__FISHING_D6_PUBLIC_READER__===true/);
  assert.match(entry,/selectD6PublicReader\(\{enabled:true/);
@@ -91,7 +89,7 @@ test('D6-A06 WP2 staged build requires dedicated origin and matching markers',()
   assert.throws(()=>selectD6PublicReader(bad));
  }
  const source=readFileSync(new URL('../tools/build.mjs',import.meta.url),'utf8');
- assert.match(source,/--d6-wp2-hosted-candidate/);
+ assert.match(source,/d6Wp2Staging=true/);
  assert.match(source,/d6Wp2Staging/);
  assert.match(source,/__FISHING_D6_WP2_STAGING__/);
  assert.match(source,/d6Wp2Staging:true/);

@@ -109,7 +109,7 @@ test('V3-M02-04 active reader cannot be spoofed using another origin or path',()
  assert.ok(source.includes("env.D6_M02_MEDIA_ENABLED==='true'"));
  // Importing an OFF-by-default handler is not provider activation.
  const config=JSON.parse(readFileSync(new URL(
-  '../wrangler.direct-gear-private.jsonc',import.meta.url),'utf8'));
+  '../wrangler.l01-private.jsonc',import.meta.url),'utf8'));
  assert.equal(config.vars.D6_M02_MEDIA_ENABLED,'true');
  assert.deepEqual(config.r2_buckets,[{
   binding:'MEDIA_R2',bucket_name:'fishing-v3-owner-media-test',

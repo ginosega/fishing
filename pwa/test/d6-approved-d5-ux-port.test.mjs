@@ -75,8 +75,8 @@ test('D6-UX-PORT03 production opt-in mounts only approved UI, not D5 sandbox',()
  assert.match(ui,/ownerConnectionCandidate===true/);
  assert.match(entry,/__FISHING_D6_OWNER_CONNECTION__/);
  assert.doesNotMatch(build,/--d6-production-owner/);
- assert.match(build,/--d6-reader-candidate/);
- assert.match(build,/--d6-owner-connection-candidate/);
+ assert.match(build,/d6ReaderCandidate=true/);
+ assert.match(build,/d6OwnerConnectionCandidate=true/);
 });
 test('D6-UX-PORT04 no extra auth, backend or publishing entry is introduced',()=>{
  const entry=read('entry.mjs').toString();

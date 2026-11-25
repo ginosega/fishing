@@ -127,7 +127,7 @@ test('A01 retained Worker OAuth creates a PKCE flow and exact callback',async()=
 });
 
 test('V3-PILOT03 one existing isolated Worker hosts assets and D1; no public deployment',()=>{
- const cfg=JSON.parse(readFileSync(new URL('../wrangler.direct-gear-private.jsonc',import.meta.url),'utf8'));
+ const cfg=JSON.parse(readFileSync(new URL('../wrangler.l01-private.jsonc',import.meta.url),'utf8'));
  assert.equal(cfg.name,'fishing-d6-wp2-test');
  assert.equal(cfg.keep_vars,true);
  assert.deepEqual(cfg.secrets.required,['D6_CSRF_KEY','D6_OAUTH_CLIENT_SECRET']);
@@ -201,7 +201,6 @@ test('O02-HTTP05 existing Worker denies new route without BOTH private gates',as
   'owner auth remains mandatory, even with source-only flag enabled');
  assert.equal((await worker.fetch(new Request(route+'?id=1'),opt)).status,404);
  const cfg=JSON.parse(readFileSync(new URL(
-  '../wrangler.direct-gear-private.jsonc',import.meta.url),'utf8'));
- assert.equal(cfg.vars.D6_O02_OFFLINE_SNAPSHOT_ENABLED,undefined,
-  'already approved private config must NOT activate O02');
+  '../wrangler.l01-private.jsonc',import.meta.url),'utf8'));
+ assert.equal(cfg.vars.D6_O02_OFFLINE_SNAPSHOT_ENABLED,'true');
 });

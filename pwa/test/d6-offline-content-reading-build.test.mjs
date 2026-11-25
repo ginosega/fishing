@@ -9,10 +9,9 @@ test('O03-BUILD01 source build requires a distinct private O03 flag on app and S
  const source=read('../tools/build.mjs');
  const entry=read('../src/entry.mjs');
  const worker=read('../src/sw.mjs');
- assert.match(source,/--d6-o03-offline-reading/);
+ assert.match(source,/d6OfflineContentReading=true/);
  assert.match(source,/d6OfflineContentReading/);
  assert.match(source,/__FISHING_D6_O03_OFFLINE_READING__/);
- assert.match(source,/if\(d6OfflineContentReading&&!d6OfflineContentPreparation\)/);
  assert.match(entry,/privateOfflineContentRead&&/);
  assert.match(entry,/settings\.manifest\?\.d6OfflineContentReading!==true/);
  assert.match(entry,/settings\.release\?\.d6OfflineContentReading!==true/);

@@ -8,7 +8,7 @@ const build=readFileSync(new URL('../tools/build.mjs',import.meta.url),'utf8');
 const buildPath=fileURLToPath(new URL('../tools/build.mjs',import.meta.url));
 
 test('M02 owner-media build flag remains explicit with immutable matching identities',()=>{
- assert.match(build,/args\.includes\('--d6-owner-media-upload'\)/);
+ assert.match(build,/d6OwnerMediaUpload=true/);
  assert.match(build,/__FISHING_D6_OWNER_MEDIA_UPLOAD__/);
  assert.equal((build.match(/d6OwnerMediaUpload\?\{d6OwnerMediaUpload:true\}/g)||[]).length,3,
   'source digest, release and manifest must all include the media opt-in');
@@ -18,7 +18,7 @@ test('M02 owner-media build flag remains explicit with immutable matching identi
  assert.match(entry,/settings\.manifest\?\.d6OwnerMediaUpload!==true/);
 });
 
-test('M02 private-media build refuses missing direct-D1 owner prerequisites',()=>{
+test('A01 rejects obsolete partial-build arguments',()=>{
  for(const args of [
   ['--d6-owner-media-upload'],
   ['--d6-owner-media-upload','--d6-reader-candidate',
@@ -27,6 +27,6 @@ test('M02 private-media build refuses missing direct-D1 owner prerequisites',()=
  ]) {
   const run=spawnSync(process.execPath,[buildPath,...args],{encoding:'utf8'});
   assert.equal(run.status,1);
-  assert.match(run.stderr,/Private owner media requires complete isolated direct-D1 owner build/);
+  assert.match(run.stderr,/Unsupported build option/);
  }
 });

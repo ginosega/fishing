@@ -13,22 +13,7 @@ import {validateManifest} from '../src/release.mjs';
 const exec=promisify(execFile);
 const builder=fileURLToPath(new URL('../tools/build.mjs',import.meta.url));
 const revision='a'.repeat(40);
-const flags=[
- '--base=/fishing/',
- '--source-revision='+revision,
- '--d6-reader-candidate',
- '--d6-wp2-hosted-candidate',
- '--d6-owner-connection-candidate',
- '--d6-owner-editor-preview',
- '--d6-direct-gear-save',
- '--d6-direct-kb-save',
- '--d6-direct-catch-save',
- '--d6-owner-media-upload',
- '--d6-r2-card-thumbnails',
- '--d6-o02-offline-content',
- '--d6-o03-offline-reading',
- '--d6-standalone-v3',
-];
+const flags=['--source-revision='+revision];
 
 test('L01-BUILD01 standalone V3 contains only verified software, never frozen records/images or V2 cache reuse', {timeout:120000},async()=>{
  const tmp=await fs.mkdtemp(path.join(os.tmpdir(),'fishing-l01-'));

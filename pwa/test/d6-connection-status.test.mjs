@@ -78,7 +78,7 @@ test('D6-CON07 reading controls are only enabled in isolated candidate, never V2
  const read=path=>readFileSync(new URL(path,import.meta.url),'utf8');
  const build=read('../tools/build.mjs'),sw=read('../src/sw.mjs'),ui=read('../src/ui.mjs'),offline=read('../src/offline.mjs');
  assert.match(build,/__FISHING_V3_READING_MODE__/);
- assert.match(build,/d6ReaderCandidate\?'true':'false'/);
+ assert.match(build,/d6ReaderCandidate=true/);
  assert.match(sw,/if\(!v3ReadingMode\)return 'Automatic'/);
  assert.match(sw,/setReadingMode\(message.mode,message.expectedReleaseId\)/);
  assert.match(sw,/resolveSelected\(\{verify:true\}\)/);

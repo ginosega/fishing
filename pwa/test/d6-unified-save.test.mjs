@@ -150,7 +150,7 @@ test('V3-C04-05 all three owner endpoints and media publisher use SAME write cor
  assert.match(live,/d6-shared-media-live/);
  assert.ok(live.includes("env.D6_M02_MEDIA_ENABLED==='true'"));
  const config=JSON.parse(readFileSync(new URL(
-  '../wrangler.direct-gear-private.jsonc',import.meta.url),'utf8'));
+  '../wrangler.l01-private.jsonc',import.meta.url),'utf8'));
  assert.equal(config.vars.D6_M02_MEDIA_ENABLED,'true');
  assert.deepEqual(config.r2_buckets,[{
   binding:'MEDIA_R2',bucket_name:'fishing-v3-owner-media-test',
