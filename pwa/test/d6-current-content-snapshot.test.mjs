@@ -1,28 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {DatabaseSync} from 'node:sqlite';
-import {readFileSync} from 'node:fs';
-import {gunzipSync} from 'node:zlib';
-import path from 'node:path';
-import {fileURLToPath} from 'node:url';
+import {createHash} from 'node:crypto';
+import {D6_ORIGINAL_IDS} from '../src/d6-original-id-ledger.mjs';
 import {createD6CurrentContentSnapshot,isD6CurrentContentSnapshotCompatible}
  from '../server/d6-current-content-snapshot.mjs';
 
-const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const specs=[
  {domain:'gear',bundle:'Gear/gear.json',array:'items',table:'d6_gear_records',column:'notes_text',text:'notes'},
  {domain:'kb',bundle:'KB/kb.json',array:'entities',table:'d6_kb_records',column:'content_text',text:'content'},
  {domain:'catches',bundle:'Catches/catches.json',array:'catches',table:'d6_catch_records',column:'notes_text',text:'notes'},
 ];
-const file=p=>readFileSync(path.join(root,p));
-const inventory=JSON.parse(gunzipSync(file(
- 'migration/d6-historic-media-inventory.json.gz')).toString('utf8'));
-const mimeOf=p=>{
- const ext=p.split('.').at(-1).toLowerCase();
- return {jpg:'image/jpeg',jpeg:'image/jpeg',
-  png:'image/png',webp:'image/webp',gif:'image/gif'}[ext];
-};
-
 function fixture(){
  const sqlite=new DatabaseSync(':memory:');
  sqlite.exec('PRAGMA foreign_keys=ON');
@@ -37,25 +25,43 @@ function fixture(){
   'CREATE TABLE d6_media_refs ('+
   'logical_path TEXT,domain TEXT,record_id TEXT,sha256 TEXT,historical INTEGER,'+
   'PRIMARY KEY(logical_path,domain,record_id))');
- for(const spec of specs){
-  const data=JSON.parse(file(spec.bundle).toString('utf8'));
-  const insert=sqlite.prepare('INSERT INTO '+spec.table+
-   ' (id,revision,record_json,'+spec.column+') VALUES (?,?,?,?)');
-  for(const item of data[spec.array]){
-   const markdown=item[spec.text]?
-    file(item[spec.text]).toString('utf8'):'';
-   insert.run(item.id,1,JSON.stringify(item),markdown);
-  }
- }
+ // Registry-only synthetic images: the snapshot service does not read R2 bytes.
  const putObject=sqlite.prepare('INSERT OR IGNORE INTO d6_media_objects '+
   '(sha256,storage_key,mime,bytes) VALUES (?,?,?,?)');
  const putRef=sqlite.prepare('INSERT OR IGNORE INTO d6_media_refs '+
   '(logical_path,domain,record_id,sha256,historical) VALUES (?,?,?,?,?)');
- for(const asset of inventory.assets){
-  putObject.run(asset.sha256,'staged/v1/sha256/'+asset.sha256,
-   mimeOf(asset.path),asset.bytes);
-  for(const source of asset.references)putRef.run(
-   asset.path,source.domain,source.id,asset.sha256,1);
+ function media(domain,id,path){
+  const hash=createHash('sha256').update(path).digest('hex');
+  putObject.run(hash,'staged/v1/sha256/'+hash,'image/jpeg',path.length);
+  putRef.run(path,domain,id,hash,1);
+ }
+ for(const spec of specs){
+  const insert=sqlite.prepare('INSERT INTO '+spec.table+
+   ' (id,revision,record_json,'+spec.column+') VALUES (?,?,?,?)');
+  for(const id of D6_ORIGINAL_IDS[spec.domain]){
+   let item,markdown='';
+   if(spec.domain==='gear'){
+    const base='Gear/Lures/';
+    item={id,category:'lures',type:'Spoons',name:'Fixture '+id,
+     specifications:[],links:[],notes:base+'content/'+id+'.md',
+     picture:{src:base+'assets/'+id+'.jpg'}};
+    const note=base+'assets/'+id+'-note.jpg';
+    markdown='![Fixture note](../assets/'+id+'-note.jpg)';
+    media(spec.domain,id,item.picture.src);
+    media(spec.domain,id,note);
+   }else if(spec.domain==='kb'){
+    const base='KB/Species/';
+    item={id,type:'species',name:'Fixture '+id,
+     content:base+'content/'+id+'.md',
+     picture:{src:base+'assets/'+id+'.jpg'}};
+    media(spec.domain,id,item.picture.src);
+    markdown='Fixture article.';
+   }else{
+    item={id,date:'2026-11-20',notes:'Catches/content/'+id+'.md'};
+    markdown='Fixture catch.';
+   }
+   insert.run(id,1,JSON.stringify(item),markdown);
+  }
  }
  let batchCalls=0,onRead=()=>{},statementsSeen=[];
  const CONTENT_DB={
@@ -92,8 +98,8 @@ test('O01 reads one coherent D1 transaction and hashes current content independe
   assert.deepEqual([first.counts.gear,first.counts.kb,first.counts.catches],
    [100,60,12]);
   assert.equal(first.records.length,172);
-  assert.ok(first.images.length>=250);
-  assert.ok(first.counts.imageObjects<=272);
+  assert.equal(first.images.length,260);
+  assert.equal(first.counts.imageObjects,260);
   assert.match(first.contentId,/^[a-f0-9]{64}$/);
   assert.equal(second.contentId,first.contentId);
   assert.equal(first.mediaVerification,'registry-only');

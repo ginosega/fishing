@@ -1,15 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readFileSync} from 'node:fs';
 import {GEAR_CATEGORIES,gearCategoryKey,gearCategoryLabel,gearCategoryChoices,
  categoryFolder} from '../src/shared.mjs';
 import {TAXONOMY,validateRecords} from '../src/validation.mjs';
 
-const read=path=>JSON.parse(readFileSync(new URL(path,import.meta.url),'utf8'));
 const load=()=>({
- gear:read('../Gear/gear.json'),
- kb:read('../KB/kb.json'),
- catches:read('../Catches/catches.json'),
+ gear:{schemaVersion:2,items:[{id:'fixture-gear',category:'lures',
+  type:'Spoons',name:'Fixture gear',specifications:[],links:[]}]},
+ kb:{schemaVersion:2,entities:[]},
+ catches:{schemaVersion:2,catches:[]},
 });
 
 test('L01 Gear combo maps built-in labels to unchanged stable keys and media folders',()=>{

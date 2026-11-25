@@ -75,6 +75,7 @@ if(d6OwnerConnectionCandidate&&(!d6ReaderCandidate||d6StaticStaging))
 if(d6StaticStaging&&!d6ReaderCandidate)
  throw Error('D6 static staging requires an isolated read-only D6 reader');
 if(pendingMedia&&base!=='/fishing/v2-preview/')throw new Error('Pending media may only be built for the isolated preview');
+if(!d6StandaloneV3)throw Error('Legacy content releases are archived; build standalone V3 only');
 const source=path.resolve(option('--source',path.join(repo,'pwa'))),output=path.resolve(option('--out',path.join(repo,'pwa/dist')));
 if(d6ReaderCandidate&&(base!=='/fishing/'||pendingMedia||
    !args.some(x=>x.startsWith('--out='))||output===path.join(repo,'pwa/dist')))

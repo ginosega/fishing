@@ -55,7 +55,7 @@ test('FISH113 preserves matching PNG masters and publishes compressed responsive
  const temporary=await fs.mkdtemp(path.join(os.tmpdir(),'fish113-build-'));
  try{
   const out=path.join(temporary,'dist');
-  const result=spawnSync(process.execPath,[path.join(pwa,'tools/build.mjs'),'--base=/fishing/','--source='+pwa,'--out='+out,'--source-revision=fish113-test'],{encoding:'utf8',maxBuffer:8*1024*1024});
+  const result=spawnSync(process.execPath,[path.join(pwa,'tools/build.mjs'),'--d6-reader-candidate','--d6-wp2-hosted-candidate','--d6-owner-connection-candidate','--d6-owner-editor-preview','--d6-direct-gear-save','--d6-direct-kb-save','--d6-direct-catch-save','--d6-owner-media-upload','--d6-r2-card-thumbnails','--d6-o02-offline-content','--d6-o03-offline-reading','--d6-standalone-v3','--base=/fishing/','--out='+out,'--source-revision=fish113-test'],{encoding:'utf8',maxBuffer:8*1024*1024});
   assert.equal(result.status,0,result.stdout+'\n'+result.stderr);
   const release=JSON.parse(await fs.readFile(path.join(out,'release.json'),'utf8'));
   const releaseRoot=path.join(out,'releases',release.id);
