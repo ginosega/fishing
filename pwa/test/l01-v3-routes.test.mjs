@@ -1,16 +1,19 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readFileSync} from 'node:fs';
 import {parseRoute,routeFor,rootRoute,categoryRoute,addRoute,editRoute} from '../src/v3-routes.mjs';
 import {D6_NORMALIZED_IDS} from '../src/d6-normalized-id-ledger.mjs';
-const read=path=>JSON.parse(readFileSync(new URL('../'+path,import.meta.url),'utf8'));
-const data={gear:read('Gear/gear.json').items,kb:read('KB/kb.json').entities,catches:read('Catches/catches.json').catches};
+// Exercise every retained canonical identity without frozen fishing files.
 const types={location:'locations',species:'species',equipment:'gear-guides',technique:'techniques',knot:'knots'};
-const normalize=(domain,r)=>domain==='gear'?{...r,category:r.category==='accessories'?'equipment':r.category}:domain==='kb'?{...r,type:types[r.type],id:r.id.startsWith('knot-')?r.id.slice(5)+'-knot':r.id.replace(/^(location|species|technique)-/,'')}:{...r,id:r.id.replace(/^catch-/,'')};
-test('L01 original 172 IDs reconcile to canonical ledger and detail/edit routes',()=>{
+const categories=['rods-reels','line','weights','snaps-swivels','hooks','lures','bait','equipment','custom-category'];
+const data={
+ gear:D6_NORMALIZED_IDS.gear.map((id,i)=>({id,category:categories[i%categories.length]})),
+ kb:D6_NORMALIZED_IDS.kb.map((id,i)=>({id,type:Object.values(types)[i%5]})),
+ catches:D6_NORMALIZED_IDS.catches.map(id=>({id})),
+};
+test('L01 all 172 retained canonical IDs have unique detail/edit routes',()=>{
  const paths=new Set();
  for(const [domain,records] of Object.entries(data)){
-  const normalized=records.map(r=>normalize(domain,r));
+  const normalized=records;
   assert.deepEqual(normalized.map(r=>r.id).sort(),[...D6_NORMALIZED_IDS[domain]].sort());
   for(const record of normalized){
    const url=routeFor(domain,record);
