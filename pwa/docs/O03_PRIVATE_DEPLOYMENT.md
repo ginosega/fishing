@@ -1,5 +1,8 @@
 # O03 — Owner-approved private deployment and field acceptance
 
+> **HISTORICAL — RETIRED NOV 26, 2026.** The private Worker has been retired; these commands and authorizations are no longer valid. Some resource bindings are now production. Do not execute this procedure. See [current application guide](../README.md) and [project router](../../PROJECT_ROUTER.md).
+
+
 ## Approved scope
 
 The owner approved the **private O03 deployment and validation** on 2026-11-22 Pacific. Use ONLY the existing isolated Worker `fishing-d6-wp2-test`, unchanged O02 Wrangler config `pwa/wrangler.o02-private.jsonc`, original D1/R2/Images bindings and authenticated `/fishing/` application. No new Worker flag or provider resource is required: O03 changes only a separately gated app + service worker reader and matching release/manifest identity. No D1/R2 media writes, public V2 deployment, app/governance merge, public V3 release or V2 device cleanup.

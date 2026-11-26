@@ -124,19 +124,19 @@ test('A01 retained Worker OAuth creates a PKCE flow and exact callback',async()=
  assert.equal(inserts,1);
 });
 
-test('V3-PILOT03 one existing isolated Worker hosts assets and D1; no public deployment',()=>{
- const cfg=JSON.parse(readFileSync(new URL('../wrangler.l01-private.jsonc',import.meta.url),'utf8'));
- assert.equal(cfg.name,'fishing-d6-wp2-test');
- assert.equal(cfg.keep_vars,true);
- assert.deepEqual(cfg.secrets.required,['D6_CSRF_KEY','D6_OAUTH_CLIENT_SECRET']);
+test('V3-PILOT03 permanent production Worker hosts assets and retained D1',()=>{
+ const cfg=JSON.parse(readFileSync(new URL('../wrangler.jsonc',import.meta.url),'utf8'));
+ assert.equal(cfg.name,'fishing');
+ assert.equal(cfg.keep_vars,false);
+ assert.deepEqual(cfg.secrets.required,['D6_CSRF_KEY','D6_OAUTH_CLIENT_SECRET','D6_OAUTH_CLIENT_ID']);
  assert.equal(cfg.main,'./server/d6-direct-gear-worker.mjs');
- assert.equal(cfg.vars.D6_ORIGIN,origin);
+ assert.equal(cfg.vars.D6_ORIGIN,'https://fishing.ginosega.workers.dev');
  assert.equal(cfg.vars.D6_DIRECT_GEAR_ENABLED,'true');
  assert.equal(cfg.vars.D6_OAUTH_ENABLED,'true');
  for(const name of ['D6_SOURCE_ENABLED','D6_READ_TOKEN_ENABLED','D6_SIGNER_ENABLED'])
   assert.equal(cfg.vars[name],undefined);
  assert.equal(cfg.vars.D6_M02_MEDIA_ENABLED,'true',
-  'owner-approved isolated M02 deployment candidate');
+  'owner-approved production media activation');
  assert.deepEqual(cfg.r2_buckets,[{
   binding:'MEDIA_R2',bucket_name:'fishing-v3-owner-media-test',
  }],'one existing private bucket, no public endpoint or additional storage');
@@ -185,7 +185,7 @@ test('M02 Worker default-OFF denies private media routes without R2/flag',async(
  assert.equal(calls,0,'no R2 access for unauthorized requests');
 });
 
-test('O02-HTTP05 existing Worker denies new route without BOTH private gates',async()=>{
+test('O02-HTTP05 Worker denies snapshot route without BOTH required gates',async()=>{
  const {env,worker}=pilot();
  const route=origin+'/api/v3/content/offline-snapshot';
  assert.equal((await worker.fetch(new Request(route),env)).status,503);
@@ -199,7 +199,7 @@ test('O02-HTTP05 existing Worker denies new route without BOTH private gates',as
   'anonymous snapshot read reaches D1; incomplete mock fails closed');
  assert.equal((await worker.fetch(new Request(route+'?id=1'),opt)).status,404);
  const cfg=JSON.parse(readFileSync(new URL(
-  '../wrangler.l01-private.jsonc',import.meta.url),'utf8'));
+  '../wrangler.jsonc',import.meta.url),'utf8'));
  assert.equal(cfg.vars.D6_O02_OFFLINE_SNAPSHOT_ENABLED,'true');
 });
 

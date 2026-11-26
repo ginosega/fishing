@@ -1,5 +1,8 @@
 # M02 — approved private Worker deployment (owner-executed)
 
+> **HISTORICAL — RETIRED NOV 26, 2026.** The private Worker has been retired; these commands and authorizations are no longer valid. Some resource bindings are now production. Do not execute this procedure. See [current application guide](../README.md) and [project router](../../PROJECT_ROUTER.md).
+
+
 Authorized scope: existing test Worker `fishing-d6-wp2-test` only, with the existing private `MEDIA_R2` binding → `fishing-v3-owner-media-test`, D1 Gear/KB/Catch tables and the already verified historical image registry. No public V2, GitHub merge, new bucket or extra migration. All source and browser capabilities remain limited to the authenticated owner.
 
 The source-only configuration already includes one binding and now enables `D6_M02_MEDIA_ENABLED=true` for this separately authorized test. The matching browser application must be built with `--d6-owner-media-upload` as well as the existing direct-D1 owner flags. **Do not deploy the default V2 build** in place of this release.

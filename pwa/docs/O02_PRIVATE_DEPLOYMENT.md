@@ -1,5 +1,8 @@
 # O02 — owner-approved private deployment and field verification
 
+> **HISTORICAL — RETIRED NOV 26, 2026.** The private Worker has been retired; these commands and authorizations are no longer valid. Some resource bindings are now production. Do not execute this procedure. See [current application guide](../README.md) and [project router](../../PROJECT_ROUTER.md).
+
+
 ## Approval and boundaries
 
 Owner approved **the private O02 deployment** on 2026-11-22 Pacific. This approval covers only the previously accepted test Worker `fishing-d6-wp2-test` and its matching owner-only `/fishing/` immutable UI release. No public V2, main/governance merge, new Cloudflare resource, bulk data migration, R2 mutation, or anonymous public V3 cutover.

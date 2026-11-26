@@ -1,5 +1,8 @@
 # Fishing Context
 
+> **FROZEN HISTORICAL RECORD — superseded by Operating Model v2 and accepted production V3.** Do not use the old "current" handoff, instructions or deployment commands below. Start with [PROJECT_ROUTER.md](PROJECT_ROUTER.md) and the unchanged [NEW_CHAT_PROMPT.md](NEW_CHAT_PROMPT.md). Original milestone history is retained below.
+
+
 ### CURRENT transfer checkpoint — October 30, 2026: owner running private V3 Connection Status pilot rollout
 
 This **supersedes earlier October 30 “remain in this chat” text**. The owner approved the complete V3 six-section Connection Status UI after testing the local Windows Edge reader, explicitly requested standard **new-chat transfer preparation**, and plans to run the pinned private Worker deployment and field tests while documentation is updated. There is **no owner deployment result yet**, no verification of a replacement Worker version, no new owner field-acceptance proof, and no public V3 release. Preserve all prior historical context below.

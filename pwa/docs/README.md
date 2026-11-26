@@ -1,38 +1,9 @@
-# Fishing Companion project documentation
+# Fishing Companion historical documentation
 
-This directory contains retained requirements, design, audit, review, approval, release, cleanup, and handoff records for the Fishing Companion project.
+This directory retains historical requirements, design approvals, review, migration and release evidence for V2 and V3. These records are intentionally frozen as provenance: statements such as "current production", "approved deployment", "next task", paths, IDs or permissions describe their original milestone. They are not current instructions or authority.
 
-## Current authority
+**Current entry points:** [project router](../../PROJECT_ROUTER.md), [standard new-chat prompt](../../NEW_CHAT_PROMPT.md), [application guide](../README.md) and [maintenance guide](../../backups/README.md). Canonical current state, queue and accepted/rejected/superseded decisions are routed to the governance branch.
 
-Dated files in this directory are durable **historical milestone records**. Statements such as “current production,” “next task,” “awaiting review,” “implementation authorization,” repository paths, commit IDs, release IDs, or open work inside a dated record describe that record's milestone unless the file explicitly says it has been reconciled to a later outcome.
+V2 and private V3 hosting are retired. Do not execute historical private deployment, data migration or GitHub publishing instructions; old resource names may now belong to production. Historical requirements and original approval bodies are preserved because later decisions and canonical governance reference them. See the [previous documentation index](https://github.com/ginosega/fishing/blob/e6d4bd77b2cae81da5383ce7fbf872a281420804/pwa/docs/README.md) for the historical record inventory.
 
-For the actual current project state, always restore latest `main` and read the repository-root files in this order:
-
-1. `README.md`
-2. `Fishing_Context.md`
-3. `Fishing_TODO.md`
-4. `Fishing_Decision_Log.md`
-5. `Fishing_New_Chat_Bootstrap_Prompt.md`
-
-For current PWA implementation/development guidance, also use `pwa/README.md`.
-
-Newer primary repository evidence controls over stale wording in an older dated record. Historical release/source identities remain valid evidence for the milestone they document; they are not claims about today's production unless explicitly labeled as current.
-
-## Reconciled approval records
-
-FISH091 and FISH096 use staged requirements/design approval records. Their requirements and design documents now explicitly distinguish the original gate state from the final outcome:
-
-- FISH091 requirements: approved as written including S1–S4; design separately approved; implementation is DONE / production-verified.
-- FISH096 requirements: approved as written including S1–S11; design separately approved; implementation is DONE / production-verified.
-
-The separate approval files preserve what each approval authorized **at that checkpoint** while also pointing to the later final outcome. Production release/closeout files preserve the corresponding release evidence.
-
-## Historical v2 records
-
-The original v2 Requirements Inventory, Design Review, Approved Baseline, Source Audit, Technical Contracts, addenda, preview/review records, production release, UI-refinement scope, work handoff, and repository-cleanup records are retained because they document decisions and evidence that still matter for provenance and recovery.
-
-Where those files contain old paths, old release identities, old task IDs, or phase-specific instructions, treat them as historical unless a reconciliation banner in the file says otherwise. Do not use them to override the root current-state files.
-
-## Documentation rule
-
-Keep current continuation state concise in the root project-state files. Preserve milestone evidence here rather than repeatedly rewriting historical bodies to match later releases. When a staged requirements/design document moves from draft to approval/implementation, reconcile its status metadata and link its approval/release record so it cannot be mistaken for an unresolved draft.
+Future current-state updates belong in the canonical governance documents, not in duplicated historical handoffs.

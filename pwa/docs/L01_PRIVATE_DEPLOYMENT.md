@@ -1,5 +1,8 @@
 # L01 — Owner-approved private V3 Add/Edit and standalone deployment
 
+> **HISTORICAL — RETIRED NOV 26, 2026.** The private Worker has been retired; these commands and authorizations are no longer valid. Some resource bindings are now production. Do not execute this procedure. See [current application guide](../README.md) and [project router](../../PROJECT_ROUTER.md).
+
+
 The owner approved one private deployment on November 23, 2026. The only target is the existing `fishing-d6-wp2-test` Cloudflare Worker with its existing O02 read-only snapshot config. Application PR #567 must remain open/draft and public V2 must not be changed.
 
 Use the existing dedicated Windows checkout `$HOME\fishing-o02-private`. From **any PowerShell directory**, fetch the feature branch; stop on conflicts or errors:

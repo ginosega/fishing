@@ -1,116 +1,42 @@
-# Fishing Companion production application
+# Fishing Companion V3 — production application source
 
-Fishing Companion is the active PWA published at https://ginosega.github.io/fishing/.
+Production: https://fishing.ginosega.workers.dev/fishing/
 
-## FISH108 release model
-
-Fishing Companion uses two publication lanes. The authoritative policy is [`docs/FISH108_Fast_Content_Release_Policy_2026-09-14.md`](docs/FISH108_Fast_Content_Release_Policy_2026-09-14.md).
-
-### Fast Content Release
-
-Automatically selected only when **every changed file** is under canonical content roots `Gear/`, `KB/`, or `Catches/` beneath this `pwa/` directory. Typical examples are source-aware Gear/KB add/edit packages, Markdown, representative pictures, Knot sequence frames, and Catch records.
-
-The fast lane performs:
-
-1. lightweight PR review of the exact canonical diff;
-2. locked dependency installation with GitHub Actions cache reuse;
-3. one production build whose source inventory validates schemas, semantic references, canonical paths, Markdown/resources, image/media integrity and unresolved-media rules;
-4. `verify.mjs` verification of the exact generated release and manifest;
-5. exact-current-main guarded Pages deployment after merge; and
-6. dependency-free byte-for-byte hosted verification plus release/source-identity checks.
-
-It deliberately skips Node application behavior tests, dependency audit, Chromium/WebKit installation, preview-browser regression, archived-v1/cutover regression and hosted browser acceptance because canonical content-only changes cannot alter application/runtime behavior.
-
-### Full Application Release
-
-Any changed file outside `Gear/`, `KB/`, or `Catches/` forces the full lane. Mixed content+code changes also force full. The full lane covers runtime/UI/service-worker changes, schemas/contracts, tests, tools/build logic, dependencies, workflows, migration/recovery/offline architecture and any other non-content change.
-
-The full lane retains durable v1 recovery checks, dependency audit, Node tests, preview build, Chromium/WebKit preview acceptance, production-root build/verification, production browser and real archived-v1 cutover acceptance, exact-current-main protection, Pages deployment, byte-for-byte hosted verification and hosted browser verification. Manual workflow dispatch always uses full.
-
-If eligibility is uncertain, use full.
-
-### FISH109 rerun hardening
-
-Pages deployment and hosted-evidence artifact names include `github.run_attempt`, so a failed deployment job can be rerun without duplicate `github-pages` artifact ambiguity. `tools/verify-hosted-fast.mjs` uses bounded backoff for transient Pages propagation/network responses while still failing persistent byte/release mismatches. The exact-current-main guard remains mandatory and prevents stale runs from deploying after `main` advances.
-
-## Source-derived content state
-
-Gear/KB/Catch counts, canonical path totals and inventory-reference totals are mutable content state rather than application invariants. Build/release manifests derive counts from current canonical source. Core tests compare validated maps/inventory against the actual source rather than manually maintained library totals. Full hosted browser verification compares runtime counts against the exact built manifest.
-
-Adding a normal item/page therefore must not require editing test baselines merely because the library grew.
-
-## Current KB editorial structure
-
-The September 2026 Technique-page redesign established a durable editorial split:
-
-- **Bass/Trout Behavior and Habitat** own enduring **where/why** guidance: habitat, structure/cover, temperature, oxygen, forage, light, wind/current, depth and pattern recognition.
-- **Bass/Trout Fishing Techniques** own **how to catch once located**: presentation choice, lure/bait/rig mechanics, retrieves, depth control, strike handling, and bank/kayak execution.
-- **Spring/Summer/Fall/Winter Fishing** are the authoritative combined bass-and-trout seasonal playbooks, covering seasonal location changes and presentation changes.
-- **Topwater Fishing** is the broad specialized surface-fishing reference; Frog, Popper, Whopper Plopper, Walking Bait and Buzzbait remain narrower companion Gear Guides.
-
-Cross-links among species, seasonal, location, tackle and Technique/Gear Guide pages should be curated for reader value rather than mechanically added to every keyword.
-
-Retired live Technique pages include Bass Fishing, Spring Bass Fishing, Fall Bass Fishing, Bass Power and Search Overview, Color and Scent, Paddle-only Kayak Strategy, Seasonal Bass Guidance and Water Visibility. Historical migration/release evidence may still mention them.
-
-## Routine authoring administration
-
-Routine Fast Content Releases do not consume application-level FISH task IDs and do not require one-off production closeout documents or root project-state edits solely to record the item publication. Git history, the content PR, workflow run and hosted verification artifact are the durable release evidence.
-
-Project-state records are updated for architecture/product-behavior/durable-decision/backlog changes or during a requested handoff/reconciliation.
-
-Authoring constraints worth checking before PR:
-
-- KB `description` has a schema maximum of **80 characters**.
-- Normalize accidental trailing whitespace unless explicitly asked to preserve it.
-- Preserve unrelated concurrent source changes and user-uploaded media bytes.
-- If `main` advances during work, reconcile the new commit before merge.
+This directory is the authoritative software source on `main`, not a deployed V2 website or a mirror of the live library. Cloudflare D1 stores Gear, Knowledge Base and Catch records and Markdown; private R2 stores original images; Cloudflare Images provides image transformations. The production Worker serves the static application and its public reading/owner-only authoring routes. Owner Save writes directly to D1/R2, not GitHub. Offline reading uses verified current-content snapshots; offline Save is blocked and supported text drafts are device-local.
 
 ## Directory layout
 
 | Location | Purpose |
-|---|---|
-| `Gear/` | Canonical physical Gear source, including structured records, category content and assets |
-| `KB/` | Canonical physical Knowledge Base source, including structured records, category content and assets |
-| `Catches/` | Canonical physical Catch source and notes |
-| `src/` | Browser application, editor, viewer, verified offline releases and service worker |
-| `tools/` | Build, source validation and local/hosted verification, including fast hosted verifier |
-| `test/` | Core integrity and Chromium/WebKit full-lane acceptance, including retained v1-store/cutover coverage |
-| `contracts/` | Canonical domain schema |
-| `migration/` | Original reconciliation/image approvals and historical migration/recovery evidence |
-| `docs/` | Requirements, designs, durable release policy and historical release evidence |
-| `icon.png` | Canonical transparent app/fav/touch icon source; the build generates the opaque maskable launcher variant |
-| `dist/` | Generated build; ignored by Git |
+| --- | --- |
+| `src/` | Browser application, editing, Notes, Picture Viewer, offline reading and service worker |
+| `server/` | Production Worker, owner authentication, D1/R2 content/media operations and snapshot validation |
+| `assets/`, `icon.png` | Static artwork and source icon |
+| `contracts/` | Content validation schemas |
+| `tools/` | Software build, verification and shared schema/validation helpers |
+| `test/`, `playwright.config.mjs` | Automated regression and final release acceptance |
+| `package.json`, `package-lock.json` | Node 24 commands and locked dependencies |
+| `wrangler.jsonc` | Sole retained deployment configuration, for the permanent `fishing` Worker |
+| `docs/` | Historical requirements, approval and implementation evidence, not current instructions |
 
-Logical record/source references and generated release content remain `Gear/...`, `KB/...` and `Catches/...` even though physical repository source lives beneath `pwa/`.
+The production D1/R2 resources intentionally retain their historical test names; do not infer that they are disposable. No physical Gear/KB/Catches content directories are maintained here. Logical content paths remain part of the application contract.
 
-## Current runtime model
+## Development and validation
 
-Fishing Companion retains independent Gear, KB and Catch domains. Gear/KB Add/Edit provides **Prepare Changes → Copy Changes** source-aware handoffs; the browser does not write repository source directly.
+Use Node.js 24, Git and the locked dependencies. From a clean checkout on Windows:
 
-FISH114 preserves `icon.png` as the approved transparent source and generates `icon-maskable.png` at build time for Android/Edge adaptive-icon installs. The manifest publishes both ordinary (`any`) and maskable entries, and both outputs participate in release identity/verification.
+```powershell
+Set-Location '<checkout>\pwa'
+npm.cmd ci --no-audit --no-fund
+npm.cmd test
+$Revision = (git rev-parse HEAD).Trim()
+npm.cmd run build -- --source-revision=$Revision
+npm.cmd run verify
+```
 
-Simple Markdown-only narrative edits to existing canonical content may be made directly in GitHub. Structured record fields, paths, picture metadata/sequences and relationships should continue through Fishing Companion Edit or an equivalent source-aware workflow.
+Generated software output defaults to `dist-v3-pilot` (historical build directory name; not a separate hosted environment). Do not commit generated output. [Software validation workflow](../.github/workflows/fishing-production.yml) runs fast checks for ordinary PRs and full release acceptance on manual dispatch before an approved production release. It does not deploy. A code or test change is not proof of a hosted deployment.
 
-FISH091 makes online-only the default: ordinary online startup does not prepare the complete offline library. **Connection Status → Update offline library** explicitly prepares/refreshes the verified complete generation; previous verified generations remain fallback until successfully replaced.
+Production changes require separate approval, current exact-source/CI/provider verification and owner field acceptance under the [project router](../PROJECT_ROUTER.md). The production config is `wrangler.jsonc`; do not deploy retired private configs or reuse old migration procedures. No permanent parallel test environment is retained. Never share secret values or use old private deployment scripts.
 
-FISH096 provides optional Knot-only explicit ordered `pictureSequence` support. Logical frames use `KB/Knots/assets/<knot-id>/`; physical source is `pwa/KB/Knots/assets/<knot-id>/`. `picture.src` equals the final frame and remains representative. Directory contents alone never create a sequence. Add/replace uses complete multi-file selection; the final ordered frame becomes representative; no prior static picture is silently reused when converting into a sequence. Replacing references does not delete old source files, and complete offline preparation includes every referenced frame.
+## Maintenance and recovery
 
-FISH102 pins **Line-Tackle-Knot Reference** first only on KB → Knots; remaining Knot cards are alphabetical.
-
-FISH103 keeps external HTTP(S) links new-tab with `noopener noreferrer`, internal navigation same-tab, Caption focus stable, new-KB Markdown Preview validation ordering correct with a provisional required content path, and generated GitHub upload-folder links on physical `/pwa/...` source paths.
-
-FISH110 centralizes the Add/Edit Copy Changes handoff and routes eligible source-aware content packages into FISH108 Fast Content Release while preserving the blank-line instruction/JSON boundary.
-
-## Fishing Companion v3
-
-**Fishing Companion v3** is the preferred name for the deferred future phase historically tracked as `FISH-TODO-077/P2`. It remains **DEFERRED**. Authentication, direct GitHub save/upload, integrated uploads, offline authoring/outbox/sync, Catch authoring and multi-user generalization are not current production.
-
-## Development and publication
-
-Use Node 24 and locked `package-lock.json`.
-
-`.github/workflows/fishing-production.yml` is the sole active publisher and automatically classifies each application/content PR or `main` push into Fast Content or Full Application Release from the changed-file set. Documentation-only project-state changes remain excluded from publication triggers.
-
-`tools/verify-hosted-fast.mjs` is intentionally dependency-free and is used only after a fast content deployment to compare every hosted file against the exact built `dist/` tree and verify release/source identity; FISH109 adds bounded retry/backoff for transient propagation/network failures. `tools/verify-hosted.mjs` remains the full browser-backed hosted verifier for application releases.
-
-Historical implementation/release details remain in Git history and dated records under `docs/`; exact current production identity should be read from current workflow/Pages evidence rather than assumed from old narrative documents.
+[Maintenance guide](../backups/README.md) is the current backup, retention and recovery authority. The GitHub-hosted maintenance workflow reuses the current snapshot validator from this directory. Live content changes do not require application-source edits. [Historical documentation](docs/README.md) and the [previous application README](https://github.com/ginosega/fishing/blob/e6d4bd77b2cae81da5383ce7fbf872a281420804/pwa/README.md) preserve earlier context, not current authority.
