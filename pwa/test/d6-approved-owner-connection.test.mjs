@@ -208,8 +208,7 @@ test('D6-OWNUI13 mounting requires explicit isolated production-path build',()=>
  const e=readFileSync(new URL('../src/entry.mjs',import.meta.url),'utf8');
  const u=readFileSync(new URL('../src/ui.mjs',import.meta.url),'utf8');
  const css=readFileSync(new URL('../src/styles.css',import.meta.url),'utf8');
- assert.match(b,/--d6-owner-connection-candidate/);
- assert.match(b,/!d6ReaderCandidate\|\|d6StaticStaging/);
+ assert.match(b,/d6OwnerConnectionCandidate=true/);
  assert.match(b,/__FISHING_D6_OWNER_CONNECTION__/);
  assert.match(e,/d6OwnerConnectionCandidate/);
  assert.match(e,/if\(d6StaticStaging\)\{/);

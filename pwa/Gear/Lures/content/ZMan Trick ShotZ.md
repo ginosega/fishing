@@ -1,1 +1,0 @@
-Used with [drop shot rig](kb://technique-drop-shot)

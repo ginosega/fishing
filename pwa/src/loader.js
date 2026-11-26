@@ -11,15 +11,33 @@
   const registration=await navigator.serviceWorker.register(new URL('sw.js',root),{scope:root});
   // V1 and production v2 share sw.js. Wait only for a FISH091-capable worker
   // to control the page; complete offline preparation is never part of startup.
-  const controlsCurrent=async()=>{
-   const worker=navigator.serviceWorker.controller;if(worker?.scriptURL!==new URL('sw.js',root).href)return false;
-   return new Promise(resolve=>{const channel=new MessageChannel();const finish=value=>{clearTimeout(timer);channel.port1.close();resolve(value);};const timer=setTimeout(()=>finish(false),1500);channel.port1.onmessage=e=>finish(e.data?.protocol==='fishing-companion-v2'&&e.data.base===new URL(root).pathname&&e.data.capabilities?.onlineDefault===true);worker.postMessage({type:'HELLO'},[channel.port2]);});
+  const expectedScript=new URL('sw.js',root).href;
+  const expectedBase=new URL(root).pathname;
+  const workerVerified=async worker=>{
+   if(worker?.scriptURL!==expectedScript)return false;
+   return new Promise(resolve=>{
+    const channel=new MessageChannel();let settled=false;
+    const finish=value=>{if(settled)return;settled=true;clearTimeout(timer);channel.port1.close();resolve(value);};
+    const timer=setTimeout(()=>finish(false),1500);
+    channel.port1.onmessage=e=>finish(e.data?.protocol==='fishing-companion-v2'&&
+     e.data.base===expectedBase&&e.data.capabilities?.onlineDefault===true);
+    try{worker.postMessage({type:'HELLO'},[channel.port2]);}catch{finish(false);}
+   });
   };
-  if(!await controlsCurrent())await new Promise((resolve,reject)=>{
+  const controlsCurrent=()=>workerVerified(navigator.serviceWorker.controller);
+  // A forced reload deliberately bypasses its current controller in Chromium.
+  // Permit online boot only on a reload with the exact already-activated
+  // registration responding to HELLO. Never imply offline readiness or
+  // accept an unverified/foreign worker on a first navigation.
+  const verifiedReload=()=>!navigator.serviceWorker.controller&&
+   navigator.onLine===true&&
+   globalThis.performance?.getEntriesByType?.('navigation')?.[0]?.type==='reload'&&
+   registration.active?.state==='activated'&&workerVerified(registration.active);
+  if(!await controlsCurrent()&&!await verifiedReload())await new Promise((resolve,reject)=>{
    let timeout;
    const cleanup=()=>{clearTimeout(timeout);navigator.serviceWorker.removeEventListener('controllerchange',changed);registration.removeEventListener('updatefound',watch);};
    const finish=error=>{cleanup();error?reject(error):resolve();};
-   const changed=async()=>{if(await controlsCurrent())finish();};
+   const changed=async()=>{if(await controlsCurrent()||await verifiedReload())finish();};
    const watch=()=>{const worker=registration.installing;if(worker)worker.addEventListener('statechange',async()=>{if(worker.state==='redundant'&&!await controlsCurrent())finish(new Error('Fishing Companion could not activate its current service worker. Retry while online.'));});};
    navigator.serviceWorker.addEventListener('controllerchange',changed);registration.addEventListener('updatefound',watch);watch();timeout=setTimeout(()=>finish(new Error('Fishing Companion could not activate its current service worker. Retry while online.')),30000);changed();
   });

@@ -27,6 +27,26 @@ export function picture(src,alt,caption='',open){
  const fallback=el('span',{class:'picture-empty',hidden:true},'Picture unavailable');
  return el('figure',{class:'picture'},open?el('button',{type:'button',class:'picture-button','aria-label':'Enlarge '+alt,onclick:open},img,fallback):[img,fallback],caption?el('figcaption',{},caption):null);
 }
+// Detail pages remain detached until their main picture is decoded.
+// The existing missing-picture state also prevents a stalled image from
+// holding the whole page indefinitely. List thumbnails remain progressive.
+export async function waitForDetailPicture(page,{timeoutMs=8000}={}){
+ const img=page.querySelector('.picture img');
+ if(!img)return;
+ const fallback=page.querySelector('.picture .picture-empty');
+ img.loading='eager';
+ let timer;
+ try{
+  await Promise.race([
+   img.decode(),
+   new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('Picture loading timed out')),timeoutMs);}),
+  ]);
+  if(!img.naturalWidth)throw Error('Picture unavailable');
+ }catch{
+  img.hidden=true;
+  if(fallback)fallback.hidden=false;
+ }finally{clearTimeout(timer);}
+}
 export function section(title,...children){return el('section',{class:'section'},text('h2',title),...children);}
 export function toolbar(...children){return el('div',{class:'toolbar'},...children);}
 export function table(rows){return el('table',{class:'details-table'},el('tbody',{},rows.map(([key,value])=>el('tr',{},text('th',key),el('td',{},value)) )));}

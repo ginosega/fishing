@@ -50,7 +50,7 @@
       "required": ["id", "category", "type", "name"],
       "properties": {
         "id": { "$ref": "#/$defs/id" },
-        "category": { "enum": ["rods-reels", "line", "weights", "snaps-swivels", "hooks", "lures", "bait", "accessories"] },
+        "category": { "type": "string", "minLength": 1, "maxLength": 80, "pattern": "^[a-z0-9][a-z0-9-]*$" },
         "type": { "type": "string", "minLength": 1, "maxLength": 160 },
         "name": { "type": "string", "minLength": 1, "maxLength": 160 },
         "manufacturer": { "type": "string", "minLength": 1, "maxLength": 120 },
@@ -85,8 +85,11 @@
         "time": { "type": "string", "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$" },
         "size": { "type": "string", "minLength": 1, "maxLength": 500 },
         "speciesId": { "$ref": "#/$defs/id" },
+        "speciesName": { "type": "string", "minLength": 1, "maxLength": 160 },
         "locationId": { "$ref": "#/$defs/id" },
+        "locationName": { "type": "string", "minLength": 1, "maxLength": 160 },
         "lureOrBaitId": { "$ref": "#/$defs/id" },
+        "lureOrBaitName": { "type": "string", "minLength": 1, "maxLength": 160 },
         "notes": { "$ref": "#/$defs/path" }
       }
     },

@@ -113,7 +113,7 @@ export function mountV3ConnectionExperience({
    accountBody.append(caption('Account status unavailable. Reconnect and reopen Connection Status.'));
   }else{
    accountBody.append(title('Not signed in'),
-    caption('Sign in to add or edit content.'));
+    caption(state.phase==='Offline'?'You must be online to add or edit content.':'Sign in to add or edit content.'));
    if(state.phase!=='Offline'){
     const a=mk('a','btn secondary','Sign in with GitHub');
     a.href=globalThis.location?.pathname==='/__d3_pilot__/'?

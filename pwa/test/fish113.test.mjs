@@ -55,7 +55,7 @@ test('FISH113 preserves matching PNG masters and publishes compressed responsive
  const temporary=await fs.mkdtemp(path.join(os.tmpdir(),'fish113-build-'));
  try{
   const out=path.join(temporary,'dist');
-  const result=spawnSync(process.execPath,[path.join(pwa,'tools/build.mjs'),'--base=/fishing/','--source='+pwa,'--out='+out,'--source-revision=fish113-test'],{encoding:'utf8',maxBuffer:8*1024*1024});
+  const result=spawnSync(process.execPath,[path.join(pwa,'tools/build.mjs'), '--out='+out,'--source-revision=fish113-test'],{encoding:'utf8',maxBuffer:8*1024*1024});
   assert.equal(result.status,0,result.stdout+'\n'+result.stderr);
   const release=JSON.parse(await fs.readFile(path.join(out,'release.json'),'utf8'));
   const releaseRoot=path.join(out,'releases',release.id);

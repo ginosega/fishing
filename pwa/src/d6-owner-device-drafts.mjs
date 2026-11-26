@@ -4,7 +4,7 @@
  * It stores structured editor fields and Markdown, NOT media bytes, upload
  * tickets, CSRF tokens, operations, credentials or a publishing outbox.
  */
-import {D6_READER_BASE,D6_READER_ORIGIN} from './d6-public-reader.mjs';
+import {D6_READER_BASE,D6_READER_ORIGIN,D6_WP2_STAGING_ORIGIN} from './d6-public-reader.mjs';
 const SHA=/^[a-f0-9]{40}$/;
 const HASH=/^[a-f0-9]{64}$/;
 const KEY=/^(gear|kb|catches):(edit:[a-z0-9-]+|add:[a-z0-9-]+)$/;
@@ -22,16 +22,19 @@ const clone=x=>JSON.parse(JSON.stringify(x));
 const validRecord=(domain,record)=>record&&typeof record==='object'&&!Array.isArray(record)&&
  Object.keys(record).every(x=>DOMAIN_FIELDS[domain]?.has(x));
 function normalized(row){
- if(!row||row.version!==1||!KEY.test(row.key??'')||
+ if(!row||![1,2].includes(row.version)||!KEY.test(row.key??'')||
   !['gear','kb','catches'].includes(row.domain)||
   !row.key.startsWith(row.domain+':')||
   !SHA.test(row.sourceRevision??'')||
   !(row.baseHash===null||HASH.test(row.baseHash??''))||
+  (row.version===2&&(!Number.isSafeInteger(row.baseRevision)||
+   row.baseRevision<0))||
   !validRecord(row.domain,row.record)||typeof row.notes!=='string'||
   typeof row.requiresMedia!=='boolean'||typeof row.updatedAt!=='number')
   throw Error('INVALID_DEVICE_DRAFT');
- const safe={version:1,key:row.key,domain:row.domain,
+ const safe={version:row.version,key:row.key,domain:row.domain,
   sourceRevision:row.sourceRevision,baseHash:row.baseHash,
+  ...(row.version===2?{baseRevision:row.baseRevision}:{}),
   record:clone(row.record),notes:row.notes,
   requiresMedia:row.requiresMedia,updatedAt:row.updatedAt};
  if(new TextEncoder().encode(JSON.stringify(safe)).length>MAX_BYTES)
@@ -70,14 +73,17 @@ function indexedDbIO(indexedDB){
   delete:key=>run('readwrite',s=>s.delete(key))};
 }
 export function createD6OwnerDeviceDraftStore({
- enabled=false,root,io=null,indexedDB=globalThis.indexedDB,
+ enabled=false,root,privateGearPilot=false,io=null,indexedDB=globalThis.indexedDB,
 }={}){
  if(enabled!==true)return null;
  let url;
  try{url=new URL(root);}catch{throw Error('DEVICE_DRAFT_SCOPE_DENIED');}
  const loopback=url.protocol==='http:'&&
   ['localhost','127.0.0.1','[::1]'].includes(url.hostname);
- if((url.origin!==D6_READER_ORIGIN&&!loopback)||
+ // Allow the exact private WP2 host only when the direct-Gear pilot is
+ // explicitly enabled by the verified app build. V2 and other origins deny.
+ const pilotOrigin=privateGearPilot===true&&url.origin===D6_WP2_STAGING_ORIGIN;
+ if((url.origin!==D6_READER_ORIGIN&&!pilotOrigin&&!loopback)||
   url.pathname!==OWNER_SCOPE||url.search||url.hash||
   url.username||url.password)
   throw Error('DEVICE_DRAFT_SCOPE_DENIED');
@@ -102,7 +108,7 @@ export function createD6OwnerDeviceDraftStore({
  };
  const checkKey=key=>{if(!KEY.test(key??''))throw Error('INVALID_DEVICE_DRAFT_KEY');};
  return Object.freeze({
-  async read(key,{sourceRevision,baseHash=null}={}){
+  async read(key,{sourceRevision,baseHash=null,baseRevision=null}={}){
    checkKey(key);
    let row;
    try{await queues.get(key)?.catch(()=>{});row=await backend.get(scoped(key));}
@@ -112,16 +118,32 @@ export function createD6OwnerDeviceDraftStore({
     // Only this exact isolated app prefix may recover these records.
     if(row.key!==scoped(key))return {status:'corrupt'};
     const draft=normalized({...row,key});
-    if(draft.sourceRevision!==sourceRevision||draft.baseHash!==baseHash)
+    // V3 drafts are pinned to the *record's D1 revision*, not the
+    // application's source SHA or unrelated snapshot/software changes.
+    // An older v1 draft has no recorded D1 revision: it is kept for
+    // read-only recovery, never silently promoted to a writable V3 draft.
+    if(Number.isSafeInteger(baseRevision)&&baseRevision>=0){
+     if(draft.version===1)return {status:'legacy',draft};
+     if(draft.baseRevision!==baseRevision||draft.baseHash!==baseHash)
+      return {status:'conflict',draft};
+     return {status:'ready',draft};
+    }
+    // Historical standalone D6 draft callers retain their v1 contract.
+    if(draft.version!==1||
+       draft.sourceRevision!==sourceRevision||draft.baseHash!==baseHash)
      return {status:'stale'};
     return {status:'ready',draft};
    }catch{return {status:'corrupt'};}
   },
-  async save({key,domain,sourceRevision,baseHash=null,record,notes,
-   requiresMedia=false}={}){
+  async save({key,domain,sourceRevision,baseHash=null,baseRevision=null,
+   record,notes,requiresMedia=false}={}){
    checkKey(key);
-   const draft=normalized({version:1,key,domain,sourceRevision,
-    baseHash,record,notes,requiresMedia,updatedAt:Date.now()});
+   if(baseRevision!==null&&(!Number.isSafeInteger(baseRevision)||
+      baseRevision<0))throw Error('INVALID_DEVICE_DRAFT');
+   const draft=normalized({version:baseRevision===null?1:2,key,domain,
+    sourceRevision,baseHash,
+    ...(baseRevision===null?{}:{baseRevision}),
+    record,notes,requiresMedia,updatedAt:Date.now()});
    return enqueue(key,async()=>{
     try{await backend.put({...draft,key:scoped(key)});return true;}
     catch{throw Error('DEVICE_DRAFT_STORAGE_UNAVAILABLE');}

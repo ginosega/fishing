@@ -47,25 +47,25 @@ test('D6-A03 mismatched source or manifest mode fails closed',()=>{
  for(const v of broken)
   assert.throws(()=>selectD6PublicReader({...good,...v,enabled:true}),/D6 reader scope/);
 });
-test('D6-A04 ordinary V2 build remains default; D6 build is explicit and isolated',()=>{
+test('A01 standalone V3 is the only build',()=>{
  const build=readFileSync(new URL('../tools/build.mjs',import.meta.url),'utf8');
  const entry=readFileSync(new URL('../src/entry.mjs',import.meta.url),'utf8');
  const app=readFileSync(new URL('../src/app.mjs',import.meta.url),'utf8');
- assert.match(build,/const d6ReaderCandidate=args.includes\('--d6-reader-candidate'\)/);
- assert.match(build,/base!=='\/fishing\/'\|\|pendingMedia/);
- assert.match(build,/output===path.join\(repo,'pwa\/dist'\)/);
+ assert.match(build,/const d6ReaderCandidate=true/);
  assert.match(build,/__FISHING_D6_PUBLIC_READER__/);
  assert.match(entry,/__FISHING_D6_PUBLIC_READER__===true/);
  assert.match(entry,/selectD6PublicReader\(\{enabled:true/);
  assert.match(app,/v3\?\.enabled===true&&v3\?\.readerOnly===true/);
 });
-test('D6-A05 normal V2 Add/Edit remains, candidate hides all editing routes',()=>{
+test('D6-A05 V2 Add/Edit remains and V3 Add is owner-gated',()=>{
  const ui=readFileSync(new URL('../src/ui.mjs',import.meta.url),'utf8');
  assert.match(ui,/const readerOnly=ctx.v3\?\.enabled===true&&ctx.v3\?\.readerOnly===true/);
  assert.match(ui,/if\(readerOnly&&!ownerEditorPreview\)return missing\('V3 reader preview is read-only/);
- assert.match(ui,/page.append\(categories,searchResults,\.\.\.\(showEditingLinks\(\)\?\[anchor/);
+  assert.match(ui,/page.append\(categories,searchResults/);
  assert.match(ui,/approvedController\?\.current\(\)\?\.authorized===true/);
- assert.match(ui,/page.append\(list.element,\.\.\.\(showEditingLinks\(\)\?\[anchor/);
+  assert.match(ui,/page.append\(list.element/);
+  const addGate='showEditingLinks()?';
+  assert.equal(ui.split(addGate).length-1,2);
  assert.match(ui,/if\(showEditingLinks\(\)\)page.append\(anchor\('Edit item'/);
  assert.match(ui,/viewerImages:readerOnly/);
  assert.match(ui,/if\(readerOnly\)bindMarkdownPictureViewer/);
@@ -89,8 +89,21 @@ test('D6-A06 WP2 staged build requires dedicated origin and matching markers',()
   assert.throws(()=>selectD6PublicReader(bad));
  }
  const source=readFileSync(new URL('../tools/build.mjs',import.meta.url),'utf8');
- assert.match(source,/--d6-wp2-hosted-candidate/);
+ assert.match(source,/d6Wp2Staging=true/);
  assert.match(source,/d6Wp2Staging/);
  assert.match(source,/__FISHING_D6_WP2_STAGING__/);
  assert.match(source,/d6Wp2Staging:true/);
+});
+
+test('A01 identical standalone software accepts only the two approved hosts and matching release markers',()=>{
+ const stage='https://fishing-d6-wp2-test.ginosega.workers.dev';
+ const candidate={...good,enabled:true,standalone:true,wp2Staging:true,
+  release:{...good.release,d6Wp2Staging:true,standaloneV3:true},
+  manifest:{...good.manifest,d6Wp2Staging:true,standaloneV3:true}};
+ for(const host of [stage,D6_READER_ORIGIN])
+  assert.equal(selectD6PublicReader({...candidate,root:host+D6_READER_BASE}).readerOnly,true);
+ for(const host of ['https://evil.invalid','https://ginosega.github.io','https://fishing-d6-static-test.ginosega.workers.dev'])
+  assert.throws(()=>selectD6PublicReader({...candidate,root:host+D6_READER_BASE}));
+ assert.throws(()=>selectD6PublicReader({...candidate,root:D6_READER_ORIGIN+D6_READER_BASE,release:{...candidate.release,standaloneV3:false}}));
+ assert.throws(()=>selectD6PublicReader({...candidate,root:D6_READER_ORIGIN+D6_READER_BASE,manifest:{...candidate.manifest,standaloneV3:false}}));
 });

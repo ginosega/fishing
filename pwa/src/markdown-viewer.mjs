@@ -1,7 +1,7 @@
 // D6 opt-in reader Markdown original-image viewer behavior. The parser has already
 // resolved every image to a repository-local source and rejected remote URLs.
 // This module never loads arbitrary URLs or invents missing source references.
-export function bindMarkdownPictureViewer(article,{references,resolveAsset,openViewer}){
+export function bindMarkdownPictureViewer(article,{references,resolveAsset,resolveThumbnail=null,resolveStagedAsset=null,openViewer,resolveAllImages=false}){
  const images=[...article.querySelectorAll('img')];
  const allowed=references.filter(ref=>ref.isImage===true);
  // Fail closed if sanitized DOM no longer matches the validated Markdown
@@ -32,19 +32,41 @@ export function bindMarkdownPictureViewer(article,{references,resolveAsset,openV
   if(reference.missing===true){
    img.replaceWith(fallback());return;
   }
-  if(reference.viewerEnabled!==true)return;
+  if(reference.viewerEnabled!==true&&!resolveAllImages)return;
   const source=resolveAsset(reference.local);
+  if(!source){if(resolveAllImages)img.replaceWith(fallback());return;}
   // Candidate acceptance uses a loopback secure-context exception. Never
   // permit plaintext remote images, even when the original Markdown target
   // has been validated as a repository-local reference.
   let url;
   try{url=new URL(source);}catch{return;}
-  if(url.protocol!=='https:'&&!(url.protocol==='http:'&&
+  const localPreviewBlob=url.protocol==='blob:'&&
+   typeof resolveStagedAsset==='function'&&
+   resolveStagedAsset(reference.local)===source&&
+   url.origin===new URL(article.ownerDocument.baseURI||reference.target).origin;
+  if(!localPreviewBlob&&url.protocol!=='https:'&&!(url.protocol==='http:'&&
     ['localhost','127.0.0.1','[::1]'].includes(url.hostname)))return;
-  if(url.username||url.password)return;
-  // Resolve original bytes only from the selected, immutable V3 release.
-  // Never source an image from another release or a browser-supplied URL.
-  img.src=source;
+  if(url.username||url.password){
+   if(resolveAllImages)img.replaceWith(fallback());return;
+  }
+  // The exact published R2 URL, or the selected immutable release URL
+  // before migration, is used for both ordinary and viewer-tagged images.
+  let displaySource=source;
+  if(reference.viewerEnabled===true&&reference.viewerThumbnail===true&&
+      typeof resolveThumbnail==='function'){
+   const selected=resolveThumbnail(reference.local);
+   if(selected){
+    try{
+     const urlThumb=new URL(selected);
+     if(urlThumb.origin===url.origin&&!urlThumb.username&&!urlThumb.password&&
+        !urlThumb.search&&!urlThumb.hash&&
+        urlThumb.pathname.startsWith('/api/v3/media/thumb/'))
+      displaySource=urlThumb.href;
+    }catch{ /* Reuse the verified original, not a foreign URL. */ }
+   }
+  }
+  img.src=displaySource;
+  if(reference.viewerEnabled!==true)return;
   const linked=img.closest('a');
   let wrapper=null;
   if(!linked){
@@ -57,9 +79,10 @@ export function bindMarkdownPictureViewer(article,{references,resolveAsset,openV
    wrapper.append(img);
   }
   img.addEventListener('error',()=>{
+   if(img.src!==source){img.src=source;return;}
    if(wrapper)wrapper.replaceWith(fallback());
    else img.replaceWith(fallback());
-  },{once:true});
+  });
  });
  return true;
 }
