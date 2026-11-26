@@ -1,5 +1,8 @@
 # Fishing Decision Log
 
+> **FROZEN HISTORICAL RECORD — superseded by Operating Model v2 and accepted production V3.** Do not use the old "current" handoff, instructions or deployment commands below. Start with [PROJECT_ROUTER.md](PROJECT_ROUTER.md) and the unchanged [NEW_CHAT_PROMPT.md](NEW_CHAT_PROMPT.md). Original milestone history is retained below.
+
+
 ## October 30 — New-chat transfer and private D3 owner-pilot deployment gate (LATEST)
 
 **Owner action and intent:** Accepted six-section V3 Connection Status UX after Edge preview. Requested a full standard handoff while independently running the version-pinned **private** Worker deployment and functional test. The comprehensive historical Bootstrap Prompt must be updated and **copied in full** to the next Chat session; do not substitute a short handoff prompt. Earlier instructions saying to stay in the current chat are superseded by this user request.

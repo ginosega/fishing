@@ -1,5 +1,8 @@
 # Fishing TODO
 
+> **FROZEN HISTORICAL RECORD — superseded by Operating Model v2 and accepted production V3.** Do not use the old "current" handoff, instructions or deployment commands below. Start with [PROJECT_ROUTER.md](PROJECT_ROUTER.md) and the unchanged [NEW_CHAT_PROMPT.md](NEW_CHAT_PROMPT.md). Original milestone history is retained below.
+
+
 ## CURRENT HANDOFF TASKS — October 30, 2026: private owner-pilot rollout pending user report
 
 - [x] Owner reviewed and accepted the isolated Windows Edge V3 Connection Status layout (six sections).

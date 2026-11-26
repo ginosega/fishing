@@ -1,0 +1,21 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+const prod=JSON.parse(readFileSync(new URL('../wrangler.jsonc',import.meta.url),'utf8'));
+test('A01 production binds the permanent Worker and retained production resources',()=>{
+ assert.equal(prod.name,'fishing');
+ assert.equal(prod.vars.D6_ORIGIN,'https://fishing.ginosega.workers.dev');
+ assert.equal(prod.keep_vars,false);
+ assert.deepEqual(prod.secrets.required,['D6_CSRF_KEY','D6_OAUTH_CLIENT_SECRET','D6_OAUTH_CLIENT_ID']);
+ assert.deepEqual(prod.d1_databases,[{binding:'AUTH_DB',database_name:'fishing-v3-wp3-auth-test',database_id:'0d8da698-87b8-4b5e-a1e7-fe6de49e5afc'},{binding:'WP3_DB',database_name:'fishing-v3-wp3-operations-test',database_id:'5a47841e-7874-4ec8-9fa8-be0315f6a802'}]);
+ assert.deepEqual(prod.r2_buckets,[{binding:'MEDIA_R2',bucket_name:'fishing-v3-owner-media-test'}]);
+ assert.deepEqual(prod.images,{binding:'IMAGES'});
+ assert.deepEqual(prod.define,{__FISHING_D6_STANDALONE_V3__:'true'});
+ assert.equal(prod.workers_dev,true);
+ assert.equal(prod.assets.directory,'./dist-v3-pilot');
+ assert.equal(prod.assets.base_path,'/fishing');
+ assert.deepEqual(prod.assets.run_worker_first,['/api/*','/auth/*','/session','/session/signout']);
+ for(const name of ['D6_DIRECT_GEAR_ENABLED','D6_DIRECT_KB_ENABLED','D6_DIRECT_CATCH_ENABLED','D6_PRODUCTION_ENABLED','D6_SESSION_ENABLED','D6_OAUTH_ENABLED','D6_SIGNOUT_ENABLED','D6_M02_MEDIA_ENABLED','D6_M03_THUMBNAILS_ENABLED','D6_O02_OFFLINE_SNAPSHOT_ENABLED']) assert.equal(prod.vars[name],'true',name);
+ for(const name of ['D6_GATEWAY_ENABLED','D6_REPOSITORY_ID','D6_WP2_STAGING_ENABLED','D6_ISOLATED_PAGES_ENABLED','D6_STATIC_ENABLED','D6_SOURCE_ENABLED','D6_READ_TOKEN_ENABLED','D6_SIGNER_ENABLED','D6_HOSTED_PREFLIGHT_ENABLED']) assert.equal(prod.vars[name],undefined,name);
+ assert.equal(prod.routes,undefined);
+});

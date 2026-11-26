@@ -1,5 +1,8 @@
 # FISHING NEW-CHAT BOOTSTRAP — CURRENT RESUME POINT (October 30, 2026)
 
+> **FROZEN HISTORICAL RECORD — superseded by Operating Model v2 and accepted production V3.** Do not use the old "current" handoff, instructions or deployment commands below. Start with [PROJECT_ROUTER.md](PROJECT_ROUTER.md) and the unchanged [NEW_CHAT_PROMPT.md](NEW_CHAT_PROMPT.md). Original milestone history is retained below.
+
+
 **This section supersedes earlier October 30 notes saying to stay in the current chat.** The owner explicitly requested a transition and expects the **entire** canonical Bootstrap Prompt to be pasted into a new Fishing Chat conversation. Read this current block first, then honor the complete preserved history and SOP below. Do not compress this file into a short handoff prompt or ask for prior details already recorded here.
 
 ## Current task and authority
