@@ -376,12 +376,12 @@ test('V3-MEDIA-LIVE11 existing Worker stages source routes only behind opt-in',(
  assert.match(worker,/env\.D6_M02_MEDIA_ENABLED==='true'/);
  assert.match(worker,/env\.MEDIA_R2/);
  const deployed=JSON.parse(readFileSync(new URL(
-  '../wrangler.l01-private.jsonc',import.meta.url),'utf8'));
+  '../wrangler.jsonc',import.meta.url),'utf8'));
  assert.equal(deployed.vars.D6_M02_MEDIA_ENABLED,'true',
-  'M02 activation is approved for the isolated private Worker only');
+  'M02 activation is approved for the production Worker');
  assert.deepEqual(deployed.r2_buckets,[{
   binding:'MEDIA_R2',bucket_name:'fishing-v3-owner-media-test',
- }], 'owner-approved private R2 binding is source-only until deployment');
+ }], 'owner-approved retained private R2 bucket binding');
 });
 
 test('V3-M02-05 record-linked Gear and KB cover images publish and read privately',async()=>{

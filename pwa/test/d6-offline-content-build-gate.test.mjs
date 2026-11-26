@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 import {build} from 'esbuild';
 
-test('O02-BUILD01 private O02 application builds only behind a source identity gate',async()=>{
+test('O02-BUILD01 offline application builds only behind a source identity gate',async()=>{
  const entry=fileURLToPath(new URL('../src/entry.mjs',import.meta.url));
  const defs={
   'process.env.NODE_ENV':'"production"',
@@ -47,6 +47,6 @@ test('O02-BUILD01 private O02 application builds only behind a source identity g
  assert.match(workerSource,/D6_O02_OFFLINE_SNAPSHOT_ENABLED!=='true'/);
 
  const worker=readFileSync(new URL(
-  '../wrangler.l01-private.jsonc',import.meta.url),'utf8');
+  '../wrangler.jsonc',import.meta.url),'utf8');
  assert.match(worker,/"D6_O02_OFFLINE_SNAPSHOT_ENABLED": "true"/);
 });
