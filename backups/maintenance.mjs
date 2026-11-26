@@ -6,7 +6,12 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {inspectContent,prepareBackup} from './prepare.mjs';
-import {createD6CurrentContentSnapshot} from '../pwa/server/d6-current-content-snapshot.mjs';
+// Select the same normalized taxonomy as the production Worker before loading its graph validator.
+// This maintenance process is isolated from the app and archived source fixtures.
+globalThis.__FISHING_D6_STANDALONE_V3__=true;
+const {createD6CurrentContentSnapshot,D6_CONTENT_READER_VERSION}=
+ await import('../pwa/server/d6-current-content-snapshot.mjs');
+if(D6_CONTENT_READER_VERSION!==2)throw Error('Normalized production graph validator required');
 
 const check=(ok,why)=>{if(!ok)throw Error(why);};
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
@@ -70,7 +75,7 @@ export async function auditAndPrepare({input,physical,fetchOriginal,stage,source
   audit:'INCOMPLETE',backup:mode==='audit'?'NOT REQUESTED':'NOT VERIFIED'};
  await report(summary);
  // Verify registered bytes even when publication is withheld or audit-only.
- const publicationAllowed=audit.registeredUnlinked.length===0&&audit.unlinkedRefs.length===0;
+ const publicationAllowed=audit.registeredUnlinked.length===0;
  const verify=async row=>{
   try{
    const bytes=Buffer.from(await fetchOriginal(row));
@@ -79,6 +84,7 @@ export async function auditAndPrepare({input,physical,fetchOriginal,stage,source
    return bytes;
   }catch{
    summary.corruptOrUnreadable++;
+   summary.audit='INTEGRITY FAILURE';
    await report(summary);
    throw Error('Registered original verification failed');
   }
@@ -94,7 +100,7 @@ export async function auditAndPrepare({input,physical,fetchOriginal,stage,source
   for(const row of graphData.rows)await verify(row);
  }
  summary.audit=summary.registeredUnlinked||summary.unregistered||summary.unlinkedAssociations?'REVIEW NEEDED':'PASS';
- if(mode==='complete')summary.backup=publicationAllowed?'PREPARED':'WITHHELD — non-public registered media or associations';
+ if(mode==='complete')summary.backup=publicationAllowed?'PREPARED':'WITHHELD — non-public registered media';
  await report(summary);
  if(mode==='complete'&&!publicationAllowed)throw Error('Full public backup withheld; owner review required');
  return summary;

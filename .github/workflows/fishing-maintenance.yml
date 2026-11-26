@@ -80,15 +80,23 @@ jobs:
           w="$RUNNER_TEMP/fish-maintenance"
           tag="$(cat "$w/tag")"
           # No overwrite, deletion or automatic retry of a possibly published release.
+          existing="$(gh api --paginate "repos/$GITHUB_REPOSITORY/releases?per_page=100" --jq ".[] | select(.tag_name == \"$tag\") | .id")"
+          [[ -z "$existing" ]] || { echo 'Existing release requires manual reconciliation.'; exit 1; }
           gh release create "$tag" "$w/$tag.zip" "$w/$tag.zip.sha256" --draft --target "$GITHUB_SHA" --title "$tag" --notes "Fishing Companion V3 verified content recovery archive." --latest=false
-          gh release verify-asset "$tag" "$w/$tag.zip"
-          mkdir "$w/draft-readback"
-          gh release download "$tag" --pattern "$tag.zip" --dir "$w/draft-readback"
-          cmp "$w/$tag.zip" "$w/draft-readback/$tag.zip"
+          id="$(gh api --paginate "repos/$GITHUB_REPOSITORY/releases?per_page=100" --jq ".[] | select(.tag_name == \"$tag\") | .id")"
+          [[ "$id" =~ ^[1-9][0-9]*$ ]]
+          gh api "repos/$GITHUB_REPOSITORY/releases/$id" > "$w/draft-release.json"
+          ziphash="$(cat "$w/$tag.zip.sha256")"
+          checkhash="$(sha256sum "$w/$tag.zip.sha256" | cut -d' ' -f1)"
+          jq -e --arg zip "$tag.zip" --arg checksum "$tag.zip.sha256" --arg zh "sha256:$ziphash" --arg ch "sha256:$checkhash" \
+            '.draft == true and (.assets|length)==2 and ([.assets[]|select(.name==$zip and .state=="uploaded" and .digest==$zh)]|length)==1 and ([.assets[]|select(.name==$checksum and .state=="uploaded" and .digest==$ch)]|length)==1' "$w/draft-release.json" >/dev/null
           gh release edit "$tag" --draft=false --latest=false
           mkdir "$w/public-readback"
-          gh release download "$tag" --pattern "$tag.zip" --dir "$w/public-readback"
-          test "$(sha256sum "$w/public-readback/$tag.zip" | cut -d' ' -f1)" = "$(cat "$w/$tag.zip.sha256")"
+          # Independent download through the public release URL, without authentication.
+          curl --fail --silent --show-error --location "https://github.com/$GITHUB_REPOSITORY/releases/download/$tag/$tag.zip" --output "$w/public-readback/$tag.zip"
+          curl --fail --silent --show-error --location "https://github.com/$GITHUB_REPOSITORY/releases/download/$tag/$tag.zip.sha256" --output "$w/public-readback/$tag.zip.sha256"
+          cmp "$w/$tag.zip.sha256" "$w/public-readback/$tag.zip.sha256"
+          test "$(sha256sum "$w/public-readback/$tag.zip" | cut -d' ' -f1)" = "$ziphash"
           printf '%s\n' "$tag" > "$w/verified-release"
       - name: Post consolidated results (including failure)
         if: always()
