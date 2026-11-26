@@ -14,6 +14,10 @@ Follow the entry point's bounded-reading instructions. Read only the current sta
 Independently reconcile code/CI evidence with private or public deployment and owner field acceptance. Treat possibly in-flight or interrupted writes as unknown until proven; never blindly repeat them or discard drafts/receipts.
 
 Before continuing work, briefly report the last verified checkpoint, unresolved operations, relevant historical decisions, and next safe action. Ask me only for essential information that cannot be recovered from the available evidence.
+
+Do not begin implementation.
+
+Stop after reporting.
 ```
 
 ## Use this prompt for either kind of chat transfer
