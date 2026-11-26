@@ -154,7 +154,7 @@ Write-Host 'DEPLOY: Approved L01 standalone Add/Edit UI to existing private Work
 Check-Exit 'Approved private O03 deployment'
 Write-Host 'PASS: Wrangler private deployment completed.'
 
-# Read-only hosted acceptance: exact release and anonymous media denial.
+# Read-only hosted acceptance: exact release, anonymous reading and protected authoring.
 $Remote=Invoke-RestMethod -Uri "$Origin/fishing/release.json?l01=$($Release.id)" -Headers @{'Cache-Control'='no-cache'}
 Require-Equal $Remote.id $Release.id 'hosted release ID'
 Require-Equal $Remote.sourceRevision $ExpectedRevision 'hosted source'
@@ -164,25 +164,37 @@ Require-Equal $Remote.d6OfflineContentPreparation $true 'hosted O02 content flag
 Require-Equal $Remote.d6OfflineContentReading $true 'hosted O03 reading flag'
 Require-Equal $Remote.standaloneV3 $true 'hosted L01 software-only flag'
 Write-Host 'PASS: Hosted private release pointer matches L01 source.'
-$Status=0
-try{
- $Answer=Invoke-WebRequest -Uri "$Origin/api/v3/media/manifest" -UseBasicParsing -MaximumRedirection 0
- $Status=[int]$Answer.StatusCode
-}catch{
- if($null -eq $_.Exception.Response){throw}
- $Status=[int]$_.Exception.Response.StatusCode
+$Media=Invoke-RestMethod -Uri "$Origin/api/v3/media/manifest" -MaximumRedirection 0
+Require-Equal $Media.ok $true 'anonymous media manifest'
+Require-Equal $Media.version 1 'anonymous manifest version'
+if(@($Media.paths).Count -lt 1){throw 'Anonymous manifest missing published media.'}
+Write-Host 'PASS: Anonymous media manifest readable.'
+$Snapshot=Invoke-RestMethod -Uri "$Origin/api/v3/content/offline-snapshot" -MaximumRedirection 0
+Require-Equal $Snapshot.ok $true 'anonymous offline snapshot'
+Require-Equal $Snapshot.snapshot.format 'fishing-content-snapshot-v1' 'snapshot format'
+if(@($Snapshot.snapshot.records).Count -lt 172 -or @($Snapshot.snapshot.images).Count -lt 1){throw 'Anonymous snapshot incomplete.'}
+Write-Host 'PASS: Anonymous offline content snapshot readable.'
+$ImagePath=(@($Media.paths)[0].Split('/') | ForEach-Object {[Uri]::EscapeDataString($_)}) -join '/'
+foreach($Kind in @('live','thumb')){
+ $Image=Invoke-WebRequest -Uri "$Origin/api/v3/media/$Kind/$ImagePath" -UseBasicParsing -MaximumRedirection 0
+ Require-Equal ([int]$Image.StatusCode) 200 "anonymous $Kind image"
+ if($Image.Headers['Content-Type'] -notmatch '^image/'){throw "Unexpected $Kind media response."}
 }
-Require-Equal $Status 403 'unauthenticated media protection'
-Write-Host 'PASS: Private manifest denies anonymous requests (403).'
-# Both anonymous reads must be denied, even after the new route is enabled.
-$SnapshotStatus=0
-try{
- $Answer=Invoke-WebRequest -Uri "$Origin/api/v3/content/offline-snapshot" -UseBasicParsing -MaximumRedirection 0
- $SnapshotStatus=[int]$Answer.StatusCode
-}catch{
- if($null -eq $_.Exception.Response){throw}
- $SnapshotStatus=[int]$_.Exception.Response.StatusCode
+Write-Host 'PASS: Anonymous referenced original and thumbnail readable.'
+foreach($Probe in @(
+ @{Path='owner-csrf';Intent='gear-csrf'},
+ @{Path='kb-csrf';Intent='kb-csrf'},
+ @{Path='catches-csrf';Intent='catch-csrf'}
+)){
+ $Status=0
+ try{
+  $Answer=Invoke-WebRequest -Uri "$Origin/api/v3/content/$($Probe.Path)" -UseBasicParsing -MaximumRedirection 0 -Headers @{'Sec-Fetch-Site'='same-origin';'X-Fish-V3-Intent'=$Probe.Intent}
+  $Status=[int]$Answer.StatusCode
+ }catch{
+  if($null -eq $_.Exception.Response){throw}
+  $Status=[int]$_.Exception.Response.StatusCode
+ }
+ Require-Equal $Status 401 "anonymous $($Probe.Path) denial"
 }
-Require-Equal $SnapshotStatus 403 'unauthenticated O02 snapshot protection'
-Write-Host 'PASS: New O02 snapshot denies anonymous requests (403).'
+Write-Host 'PASS: Anonymous authoring CSRF requests denied (401).'
 Write-Host 'L01 PRIVATE DEPLOYMENT SMOKE PASS; owner Edge and Android Add/Edit/offline acceptance required.'

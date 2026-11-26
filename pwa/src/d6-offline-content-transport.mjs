@@ -1,6 +1,6 @@
 /**
- * O02 — source-only owner transport for explicit offline preparation.
- * Uses existing same-origin session cookie, read-only D1 snapshot endpoint
+ * O02 — read-only transport for explicit offline preparation.
+ * Uses the same-origin read-only D1 snapshot endpoint
  * and private M02 original-image route. This file performs no work on import.
  * No public media URLs, new service, write requests or offline write queue.
  */
@@ -27,7 +27,7 @@ function originFor(root){
 }
 /**
  * Caller must explicitly invoke prepare from the existing Update action.
- * All private media requests remain owner-authenticated and no-store.
+ * Read requests are available without a session and remain no-store.
  */
 export function createD6OfflineContentTransport({
  root,request,enabled=()=>false,readingMode=()=> 'Checking',
@@ -38,7 +38,7 @@ export function createD6OfflineContentTransport({
   throw fail('Offline transport unavailable','CONFIG');
  function ready(){
   if(enabled()!==true||readingMode()!=='Automatic')
-   throw fail('Current owner offline preparation is unavailable',
+   throw fail('Current offline preparation is unavailable',
     'NOT_ENABLED');
  }
  async function fetchSnapshot(){
@@ -50,8 +50,6 @@ export function createD6OfflineContentTransport({
    redirect:'manual',headers:{Accept:'application/json'},
   });}catch{throw fail('Could not connect to the content service',
    'NETWORK_UNAVAILABLE');}
-  if(reply?.status===401||reply?.status===403)
-   throw fail('Owner session expired','SIGN_IN_REQUIRED');
   if(!goodJson(reply)||!sameResponse(reply,url))
    throw fail('Current content snapshot unavailable','SNAPSHOT_UNAVAILABLE');
   const declared=reply.headers.get('Content-Length');
@@ -85,8 +83,6 @@ export function createD6OfflineContentTransport({
    redirect:'manual',headers:{Accept:image.mime},
   });}catch{throw fail('Image download unavailable',
    'NETWORK_UNAVAILABLE');}
-  if(reply?.status===401||reply?.status===403)
-   throw fail('Owner session expired','SIGN_IN_REQUIRED');
   if(!(reply instanceof Response)||reply.status!==200||
      reply.redirected===true||!sameResponse(reply,url)||
      reply.headers.get('Content-Type')!==image.mime)

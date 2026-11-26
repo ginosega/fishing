@@ -177,9 +177,9 @@ test('M02 Worker default-OFF denies private media routes without R2/flag',async(
  // This is a source-only configured mock, not any real Cloudflare binding.
  const opted={...bound,D6_M02_MEDIA_ENABLED:'true',
   D6_DIRECT_KB_ENABLED:'true',D6_DIRECT_CATCH_ENABLED:'true'};
- const denial=await worker.fetch(new Request(origin+names[0]),opted);
- assert.equal(denial.status,403,
-  'even with mock opt-in an owner session is required');
+ const result=await worker.fetch(new Request(origin+names[0]),opted);
+ assert.equal(result.status,503,
+  'anonymous registry read reaches D1; incomplete mock fails closed');
  assert.equal((await worker.fetch(new Request(origin+names[1]),opted)).status,405,
   'stage is POST only');
  assert.equal(calls,0,'no R2 access for unauthorized requests');
@@ -195,8 +195,8 @@ test('O02-HTTP05 existing Worker denies new route without BOTH private gates',as
   D6_DIRECT_CATCH_ENABLED:'true',D6_M02_MEDIA_ENABLED:'true'};
  assert.equal((await worker.fetch(new Request(route),bound)).status,503);
  const opt={...bound,D6_O02_OFFLINE_SNAPSHOT_ENABLED:'true'};
- assert.equal((await worker.fetch(new Request(route),opt)).status,403,
-  'owner auth remains mandatory, even with source-only flag enabled');
+ assert.equal((await worker.fetch(new Request(route),opt)).status,503,
+  'anonymous snapshot read reaches D1; incomplete mock fails closed');
  assert.equal((await worker.fetch(new Request(route+'?id=1'),opt)).status,404);
  const cfg=JSON.parse(readFileSync(new URL(
   '../wrangler.l01-private.jsonc',import.meta.url),'utf8'));
@@ -225,5 +225,6 @@ test('A01 production host uses identical owner-authenticated content and OAuth; 
   D6_DIRECT_KB_ENABLED:'true',D6_DIRECT_CATCH_ENABLED:'true',
   D6_M02_MEDIA_ENABLED:'true',D6_O02_OFFLINE_SNAPSHOT_ENABLED:'true'};
  for(const path of ['/api/v3/media/manifest','/api/v3/content/offline-snapshot'])
-  assert.equal((await worker.fetch(new Request(host+path),bound)).status,403);
+  assert.equal((await worker.fetch(new Request(host+path),bound)).status,503,
+   'anonymous reads reach D1 on production host; incomplete fixture fails closed');
 });

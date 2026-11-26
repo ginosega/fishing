@@ -35,7 +35,7 @@ async function serve(req,res){
   const items=catalogs[domain];return json(res,200,{ok:true,count:items.length,items});
  }
  if(url.pathname==='/api/v3/media/manifest')
-  return authorized?json(res,200,{ok:true,version:1,paths:[]}):json(res,403,{ok:false});
+  return json(res,200,{ok:true,version:1,paths:[]});
  if(!url.pathname.startsWith(prefix))return json(res,403,{ok:false});
  const file=path.resolve(root,decodeURIComponent(url.pathname.slice(prefix.length))||'index.html');
  if(!file.startsWith(root+path.sep))return json(res,403,{ok:false});
@@ -69,13 +69,20 @@ function assertNoLegacyOrWrites(){
  expect(requests.filter(r=>!['GET','HEAD'].includes(r.method))).toEqual([]);
  expect(requests.filter(r=>/\/releases\/[^/]+\/(?:content|card-thumbnails)\/|\/api\/v3\/authoring-source/.test(r.path))).toEqual([]);
 }
-test('A01 fresh unsigned standalone browser offers sign-in and never exposes editor',async({page})=>{
+test('A01 fresh unsigned standalone browser opens current library without editor or login gate',async({page})=>{
  await page.goto(base,{waitUntil:'domcontentloaded'});
- await expect(page.getByRole('heading',{name:'Sign in to Fishing Companion'})).toBeVisible({timeout:60000});
- await expect(page.getByRole('link',{name:'Sign in',exact:true})).toHaveAttribute('href','/auth/start');
+ await expect.poll(()=>page.evaluate(()=>window.__FISHING_V3__?.counts??null),
+  {timeout:60000}).toEqual({gear:100,kb:60,catches:12});
+ await expect(page.locator('#app h1').first()).toHaveText('Fishing Companion');
  await expect(page.locator('#app .editor')).toHaveCount(0);
- expect(await page.evaluate(()=>Boolean(window.__FISHING_V3__))).toBe(false);
+ await page.locator('#connection-status').click();
+ await expect(page.getByText('Not signed in',{exact:true})).toBeVisible();
+ await expect(page.getByRole('link',{name:'Sign in with GitHub'})).toHaveAttribute('href','/auth/start');
+ await expect(page.locator('#offline-update')).toBeEnabled();
+ for(const domain of Object.keys(catalogs))
+  expect(requests.some(r=>r.path==='/api/v3/content/'+domain)).toBe(true);
  expect(requests.some(r=>r.path==='/api/v3/media/manifest')).toBe(true);
+ expect(requests.some(r=>r.path==='/api/v3/content/offline-snapshot')).toBe(false);
  assertNoLegacyOrWrites();
 });
 test('A01 fresh authorized standalone browser loads current catalogs without legacy assets',async({page})=>{

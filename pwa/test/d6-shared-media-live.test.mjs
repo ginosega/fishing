@@ -467,11 +467,12 @@ test('V3-M02-07 non-owned cover and forged Knot paths do not reach D1 batch',asy
  assert.equal(f.count('d6_media_refs'),0);
 });
 
-test('M02 D1 manifest is owner-only and includes only published linked paths',async()=>{
+test('A01 D1 manifest allows anonymous reads of only published linked paths',async()=>{
  const f=fixture(),url=origin+'/api/v3/media/manifest';
  const live=f.live({enabled:()=>true});
  assert.equal((await f.live().handle(new Request(url))).status,503);
- assert.equal((await live.handle(new Request(url))).status,403);
+ assert.equal((await live.handle(new Request(url))).status,200);
+ assert.equal((await live.handle(new Request(url,{headers:{'Sec-Fetch-Site':'cross-site'}}))).status,403);
  assert.equal((await live.handle(new Request(url,{method:'POST',
   headers:{Cookie:cookie,'Sec-Fetch-Site':'same-origin'}}))).status,405);
  const owner=()=>new Request(url,{
@@ -482,7 +483,7 @@ test('M02 D1 manifest is owner-only and includes only published linked paths',as
  assert.deepEqual(await empty.json(),{ok:true,version:1,paths:[]});
  f.seed('gear');
  assert.equal((await f.publish('gear')).status,200);
- const published=await live.handle(owner());
+ const published=await live.handle(new Request(url));
  assert.equal(published.status,200);
  assert.deepEqual(await published.json(),
   {ok:true,version:1,paths:[pathOf('gear')]});
@@ -528,11 +529,11 @@ test('M02 end-to-end D1 manifest to verified browser R2 image read',async()=>{
  const result=await f.publish('gear');
  assert.equal(result.status,200,result.error);
  const requests=[];
- // Simulate the browser carrying its existing owner session cookie.
+ // Fresh signed-out browser uses the same published registry.
  const request=async(url,options)=>{
   requests.push({url,options});
   return live.handle(new Request(url,{method:options.method,
-   headers:{Cookie:cookie,'Sec-Fetch-Site':'same-origin'}}));
+   headers:{'Sec-Fetch-Site':'same-origin'}}));
  };
  const paths=await loadD6PublishedMediaPaths({root,request,
   enabled:()=>true,readingMode:()=> 'Automatic'});
@@ -544,7 +545,7 @@ test('M02 end-to-end D1 manifest to verified browser R2 image read',async()=>{
  const url=d6ResolveImageForDisplay(path,{verifiedLive:resolver,
   frozenAsset:()=>{throw Error('No stale release fallback');}});
  assert.equal(url,origin+'/api/v3/media/live/'+encodedPath(path));
- const response=await live.handle(ownerImageRequest(url));
+ const response=await live.handle(new Request(url));
  assert.equal(response.status,200);
  assert.equal(response.headers.get('Content-Type'),'image/png');
  assert.deepEqual(new Uint8Array(await response.arrayBuffer()),image);
@@ -555,13 +556,18 @@ test('M02 end-to-end D1 manifest to verified browser R2 image read',async()=>{
   'no registry when private provider disabled');
 });
 
-test('M02 private published R2 originals require the owner session',async()=>{
+test('A01 published R2 originals support anonymous GET and HEAD',async()=>{
  const f=fixture();f.seed('gear');
  assert.equal((await f.publish('gear')).status,200);
  const live=f.live({enabled:()=>true});
  const imageUrl=f.url('gear');
- assert.equal((await live.handle(new Request(imageUrl))).status,403);
- assert.equal((await live.handle(new Request(imageUrl,{method:'HEAD'}))).status,403);
+ const anonymous=await live.handle(new Request(imageUrl));
+ assert.equal(anonymous.status,200);
+ assert.deepEqual(new Uint8Array(await anonymous.arrayBuffer()),image);
+ const head=await live.handle(new Request(imageUrl,{method:'HEAD'}));
+ assert.equal(head.status,200);
+ assert.equal((await head.arrayBuffer()).byteLength,0);
+ assert.equal((await live.handle(new Request(imageUrl,{headers:{'Sec-Fetch-Site':'cross-site'}}))).status,403);
  assert.equal((await live.handle(ownerImageRequest(imageUrl))).status,200);
  assert.equal((await live.handle(ownerImageRequest(imageUrl,{method:'HEAD'}))).status,200);
 });
@@ -752,8 +758,8 @@ test('M02 M01 historical Catch Notes + shared KB→Gear cover survive live Save'
   assert.equal(photo.status,200,path);
   assert.deepEqual(new Uint8Array(await photo.arrayBuffer()),image);
  }
- assert.equal((await live.handle(new Request(browser.resolve(jpgPath)))).status,403,
-  'historical photos remain owner-only');
+ assert.equal((await live.handle(new Request(browser.resolve(jpgPath)))).status,200,
+  'historical published photos are readable when signed out');
  let saved=await f.publish('kb',{record:kb,expectedRevision:1,
   markdown:'Revised KB article',media:[]});
  assert.equal(saved.status,200,saved.error);
@@ -868,8 +874,8 @@ test('M02 source-only owner editor → private stage → atomic D1 Save → R2 r
   assert.equal(img.status,200);
   assert.deepEqual(new Uint8Array(await img.arrayBuffer()),image);
   assert.equal((await live.handle(new Request(
-   origin+'/api/v3/media/live/'+encodedPath(cover)))).status,403,
-   'private content images still require the owner session');
+   origin+'/api/v3/media/live/'+encodedPath(cover)))).status,200,
+   'published content images are readable when signed out');
   const before=calls.length;
   const offline=createD6OwnerMediaUploadCoordinator({
    root:origin+'/fishing/',request,enabled:()=>true,
@@ -1041,7 +1047,7 @@ test('M02 Catch Notes and Knot frames use the real stage → D1 Save → R2 read
     const response=await live.handle(ownerImageRequest(url));
     assert.equal(response.status,200,x.path);
     assert.deepEqual(new Uint8Array(await response.arrayBuffer()),image);
-    assert.equal((await live.handle(new Request(url))).status,403);
+    assert.equal((await live.handle(new Request(url))).status,200);
    }
    const beforeOffline=requests.length;
    const offline=createD6OwnerMediaUploadCoordinator({
@@ -1082,14 +1088,11 @@ test('M03 private card derivatives reuse D1/R2 publication and preserve full ori
   }};
  }};
  const service=f.live({enabled:()=>true,IMAGES,thumbnailEnabled:()=>true});
- assert.equal((await service.handle(ownerImageRequest(thumbUrl))).status,404,
+ assert.equal((await service.handle(new Request(thumbUrl))).status,404,
   'unlinked stage-only image cannot be thumbnailed');
  assert.equal(transforms,0);
  assert.equal((await f.publish('gear')).status,200);
- assert.equal((await service.handle(new Request(thumbUrl))).status,403,
-  'anonymous callers cannot access private thumbnail bytes');
- assert.equal(transforms,0);
- const thumb=await service.handle(ownerImageRequest(thumbUrl));
+ const thumb=await service.handle(new Request(thumbUrl));
  assert.equal(thumb.status,200);
  assert.equal(thumb.headers.get('Content-Type'),'image/webp');
  assert.equal(thumb.headers.get('Cache-Control'),'private, no-cache');

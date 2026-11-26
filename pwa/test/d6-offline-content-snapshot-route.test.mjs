@@ -42,21 +42,23 @@ test('O02-HTTP01 disabled-by-default and strict paths never touch D1',async()=>{
  assert.equal(f.authReads(),0);
 });
 
-test('O02-HTTP02 owner cookie and same-origin GET are mandatory',async()=>{
+test('A01 snapshot allows anonymous GET but not cross-site or POST',async()=>{
  const f=fixture();
- assert.equal((await f.route.handle(new Request(endpoint))).status,403);
+ assert.equal((await f.route.handle(new Request(endpoint))).status,200);
+ assert.equal(f.authReads(),0);
  assert.equal((await f.route.handle(owner({
   'Sec-Fetch-Site':'cross-site',
  }))).status,403);
  assert.equal((await f.route.handle(new Request(endpoint,{
   method:'POST',headers:{Cookie:cookie,'Sec-Fetch-Site':'same-origin'},
  }))).status,405);
- assert.equal(f.reads(),0);
+ assert.equal(f.reads(),1);
+ assert.equal(f.authReads(),0);
 });
 
-test('O02-HTTP03 authorized GET returns only private immutable read metadata',async()=>{
+test('O02-HTTP03 anonymous and owner GET return identical published read metadata',async()=>{
  const f=fixture();
- const response=await f.route.handle(owner());
+ const response=await f.route.handle(new Request(endpoint));
  assert.equal(response.status,200);
  assert.match(response.headers.get('Content-Type'),/^application\/json/);
  assert.equal(response.headers.get('Cache-Control'),
@@ -68,6 +70,7 @@ test('O02-HTTP03 authorized GET returns only private immutable read metadata',as
  assert.equal(f.reads(),1);
  assert.equal((await f.route.handle(owner())).status,200);
  assert.equal(f.reads(),2);
+ assert.equal(f.authReads(),0);
 });
 
 test('O02-HTTP04 unverified manifest, read failure and overlarge response deny',async()=>{

@@ -242,13 +242,10 @@ export function createD6SharedMediaLive({
   if(!ready())return fail(503,'MEDIA_NOT_ENABLED');
   if(url.pathname===ORIGIN_PATH+'manifest'){
    if(request.method!=='GET')return fail(405,'METHOD_NOT_ALLOWED');
-   // One existing owner-session gate; no second account or media service.
-   try{
-    const auth=createD2UnifiedOwnerSession({
-     AUTH_DB,ownerGitHubId:265665562,origin,csrfKey,now,
-    });
-    await auth.authorizeStatus(request);
-   }catch{return fail(403,'MEDIA_NOT_AUTHORIZED');}
+   // Published read-only paths do not require a session.
+   if(['cross-site','same-site'].includes(request.headers.get('Sec-Fetch-Site'))||
+      (request.headers.has('Origin')&&request.headers.get('Origin')!==origin))
+    return fail(403,'MEDIA_NOT_AUTHORIZED');
    try{
     // Join current D1 records and published references in one read.
     // Stage-only R2 objects have no D1 reference and cannot enter the list.
@@ -336,17 +333,10 @@ export function createD6SharedMediaLive({
   if(request.method!=='GET'&&request.method!=='HEAD')
    return fail(405,'METHOD_NOT_ALLOWED');
   if(request.headers.has('Range'))return fail(416,'RANGE_NOT_SUPPORTED');
-  // One existing owner-only session check protects both the manifest and
-  // referenced R2 originals. No second media auth mechanism or public URL.
-  try{
-   const auth=createD2UnifiedOwnerSession({
-    AUTH_DB,ownerGitHubId:265665562,origin,csrfKey,now,
-   });
-   // The existing session validator accepts GET; authenticate HEAD using
-   // an equivalent read-only GET request, then return no response body.
-   await auth.authorizeStatus(request.method==='HEAD'?
-    new Request(request,{method:'GET'}):request);
-  }catch{return fail(403,'MEDIA_NOT_AUTHORIZED');}
+  // Serve only verified published images; reject cross-site embedding.
+  if(['cross-site','same-site'].includes(request.headers.get('Sec-Fetch-Site'))||
+     (request.headers.has('Origin')&&request.headers.get('Origin')!==origin))
+   return fail(403,'MEDIA_NOT_AUTHORIZED');
   try{
    // A historical photo can be referenced by several records. All rows
    // must identify the same immutable object; a currently linked owner must

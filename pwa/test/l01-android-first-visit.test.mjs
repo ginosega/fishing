@@ -9,18 +9,19 @@ const load=request=>loadD6PublishedMediaPaths({
  root,request,enabled:()=>true,readingMode:()=> 'Automatic',
 });
 
-test('L01-ANDROID01 new browser HTTP 403/401 asks for sign-in without publishing any media paths',async()=>{
+test('A01 anonymous browser loads published registry; denied reads are service failures',async()=>{
+ assert.deepEqual([...await load(async()=>new Response(JSON.stringify({
+  ok:true,version:1,paths:['Gear/Lures/assets/example.png'],
+ }),{status:200,headers:{'Content-Type':'application/json'}}))],
+ ['Gear/Lures/assets/example.png']);
  for(const code of [401,403]){
   await assert.rejects(()=>load(async()=>new Response(JSON.stringify({
    ok:false,error:'MEDIA_NOT_AUTHORIZED',
   }),{status:code,headers:{'Content-Type':'application/json'}})),
-  /MEDIA_REGISTRY_SIGN_IN_REQUIRED/);
+  /MEDIA_REGISTRY_UNAVAILABLE/);
  }
  const shell=read('../src/entry.mjs');
- assert.match(shell,/MEDIA_REGISTRY_SIGN_IN_REQUIRED/);
- assert.match(shell,/signIn.href='\/auth\/start'/);
- assert.match(shell,/This browser is not signed in/);
- assert.match(shell,/if\(needsSignIn\)[\s\S]*?main\.append\(heading,message,signIn\)/);
+ assert.doesNotMatch(shell,/MEDIA_REGISTRY_SIGN_IN_REQUIRED|This browser is not signed in/);
 });
 
 test('L01-ANDROID02 service failure stays distinct from unsigned browser',async()=>{

@@ -1,13 +1,8 @@
-/**
- * O02 — owner-only read endpoint for a coherent current-content manifest.
- * Source-only until a separately approved private Worker opt-in and deployment.
- * Reuses the existing owner cookie and D1 binding; no new provider, table,
- * R2 read, mutation, new authentication system, or public content access.
+/** O02 — read-only coherent current-content snapshot for all readers.
+ * No authentication data, drafts, unreferenced media or writes are exposed.
  */
 import {createD6CurrentContentSnapshot}
  from './d6-current-content-snapshot.mjs';
-import {createD2UnifiedOwnerSession}
- from './auth/d2-unified-owner-session.mjs';
 
 const PATH='/api/v3/content/offline-snapshot';
 const MAX_RESPONSE_BYTES=8*1024*1024;
@@ -41,12 +36,9 @@ export function createD6OfflineContentSnapshotRoute({
      typeof csrfKey!=='string'||csrfKey.length<32)
    return fail(503,'SNAPSHOT_NOT_ENABLED');
   if(request.method!=='GET')return fail(405,'METHOD_NOT_ALLOWED');
-  try{
-   const auth=createD2UnifiedOwnerSession({
-    AUTH_DB,ownerGitHubId:265665562,origin,csrfKey,now,
-   });
-   await auth.authorizeStatus(request);
-  }catch{return fail(403,'SNAPSHOT_NOT_AUTHORIZED');}
+  if(['cross-site','same-site'].includes(request.headers.get('Sec-Fetch-Site'))||
+     (request.headers.has('Origin')&&request.headers.get('Origin')!==origin))
+   return fail(403,'SNAPSHOT_NOT_AUTHORIZED');
   try{
    const snapshot=await snapshotFactory({CONTENT_DB});
    if(snapshot?.format!=='fishing-content-snapshot-v1'||

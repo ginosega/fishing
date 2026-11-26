@@ -1,5 +1,5 @@
 /**
- * M02 — exact-origin private R2 live image resolver.
+ * M02 — exact-origin published R2 live image resolver.
  *
  * Reads ONLY paths published by D1 and independently handed to the caller
  * after a verified catalog/snapshot read. Default OFF. Existing immutable
@@ -7,7 +7,7 @@
  * An unknown path is never assembled into a live R2 URL.
  */
 import {encodedPath,safePath} from './shared.mjs';
-/** Read D1-published image paths from the existing private media handler.
+/** Read D1-published image paths from the existing read-only media handler.
  * Only the approved Automatic-mode V3 bootstrap may call this. A failed
  * registry fetch never authorizes legacy or guessed R2 image URLs.
  */
@@ -31,10 +31,6 @@ export async function loadD6PublishedMediaPaths({
   reply=await request(endpoint,{method:'GET',credentials:'same-origin',
    cache:'no-store',redirect:'manual',headers:{Accept:'application/json'}});
  }catch{throw Error('MEDIA_REGISTRY_UNAVAILABLE');}
- // A fresh browser does not share the owner's session with another browser.
- // Keep the manifest private, but let the shell offer the existing OAuth login.
- if(reply instanceof Response&&[401,403].includes(reply.status))
-  throw Error('MEDIA_REGISTRY_SIGN_IN_REQUIRED');
  try{
   if(!(reply instanceof Response)||reply.status!==200||
      reply.redirected===true||(reply.url&&reply.url!==endpoint)||
