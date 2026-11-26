@@ -104,3 +104,39 @@ test('maintenance produces full recovery stage despite R2-only candidates, but w
   assert.equal(reports.at(-1).audit,'INTEGRITY FAILURE');
  }finally{await rm(temp,{recursive:true,force:true});}
 });
+
+import {spawnSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
+test('maintenance archive tooling preserves exact recovery format and refuses overwrite or extra files',async t=>{
+ const python=process.platform==='win32'?'python':'python3';
+ const version=spawnSync(python,['--version']);
+ if(version.status!==0){
+  if(process.env.CI&&process.platform==='linux')assert.fail('CI Python 3 required for recovery ZIP test');
+  return t.skip('Python 3 not installed on local test device');
+ }
+ const temp=await mkdtemp(join(tmpdir(),'fish-maint-zip-'));
+ try{
+  const stage=join(temp,'stage'),zip=join(temp,'archive.zip');
+  await auditAndPrepare({input:normalizedFixture(),physical:[{key,bytes:image.length}],fetchOriginal:async()=>image,
+   stage,sourceRevision:'d'.repeat(40),mode:'complete',report:async()=>{}});
+  const script=fileURLToPath(new URL('../../backups/verify-archive.py',import.meta.url));
+  const run=target=>spawnSync(python,['-I',script,stage,target],{encoding:'utf8'});
+  assert.equal(run(zip).status,0);
+  const data=await readFile(zip);
+  assert.equal((await readFile(zip+'.sha256','ascii')).trim(),createHash('sha256').update(data).digest('hex'));
+  assert.notEqual(run(zip).status,0);
+  const {writeFile}=await import('node:fs/promises');
+  await writeFile(join(stage,'unexpected.txt'),'not in manifest');
+  assert.notEqual(run(join(temp,'extra.zip')).status,0);
+ }finally{await rm(temp,{recursive:true,force:true});}
+});
+test('maintenance workflow is default-off, main-only and has no production mutation or keepalive commands',async()=>{
+ const workflow=await readFile(new URL('../../.github/workflows/fishing-maintenance.yml',import.meta.url),'utf8');
+ assert.match(workflow,/cron: '0 4 1 \* \*'/);
+ assert.match(workflow,/timezone: 'America\/Los_Angeles'/);
+ assert.match(workflow,/vars\.FISH_MAINTENANCE_ENABLED == 'true'/);
+ assert.match(workflow,/vars\.FISH_MAINTENANCE_MONTHLY == 'true'/);
+ assert.match(workflow,/github\.ref == 'refs\/heads\/main'/);
+ assert.match(workflow,/d1 export fishing-v3-wp3-operations-test --remote/);
+ assert.doesNotMatch(workflow,/d1 execute|wrangler deploy|release delete|git commit|git push|--clobber|pull_request_target/);
+});
