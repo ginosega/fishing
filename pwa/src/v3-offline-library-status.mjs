@@ -8,7 +8,7 @@
 const ACTIVE = new Set(['checking','images','verifying']);
 const MESSAGES = Object.freeze({
  checking:'Checking for offline library updates…',
- images:'Reusing existing images and downloading changes…',
+ images:'Downloading images...',
  verifying:'Verifying offline library integrity…',
 });
 const ISSUES = Object.freeze({
@@ -39,13 +39,11 @@ const countLabel=(state,unit)=>{
 function legacyView(status,{online,currentReleaseId}){
  const ready=status?.state==='Ready';
  const needsUpdate=status?.state==='Incomplete'&&Boolean(status.message);
- const label=ready?(online?
-  (status.releaseId===currentReleaseId?
-   `Offline library ready · current · ${status.files||0} files`:
-   `Offline library ready · update available · ${status.files||0} files`):
-  `Offline library ready · ${status.files||0} files`):
+ const label=ready?
+  (online&&status.releaseId!==currentReleaseId?
+   'Offline library needs update':'Offline library ready'):
   status?.state==='Downloading'?
-   `Preparing offline library · ${status.completed||0}/${status.files||'?'} files`:
+   'Preparing offline library…':
   needsUpdate?'Offline library needs update':'Offline library not prepared';
  return {label,message:status?.message||'',busy:status?.state==='Downloading'||
   status?.updating===true};
@@ -58,7 +56,7 @@ export function v3OfflineLibraryDisplay(status,options={}){
   message:status?.message||'',busy:status?.updating===true};
  if(ACTIVE.has(phase)){
   const progress=phase==='checking'?'':countLabel(task,'images');
-  return {label:'Preparing offline library'+progress,
+  return {label:progress?'Preparing offline library'+progress:'Preparing offline library…',
    message:MESSAGES[phase],busy:true};
  }
  if(phase==='error'){

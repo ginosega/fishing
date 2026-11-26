@@ -11,24 +11,34 @@ const status=(contentPreparation,state='Ready')=>({
  state,releaseId:'abc123',files:575,bytes:11000,contentPreparation,
 });
 
-test('O02-UX01 existing FISH091 two-line copy remains exactly unchanged',()=>{
+test('A01-UX01 simplified software preparation and ready status',()=>{
  const display=v3OfflineLibraryDisplay({
   state:'Downloading',completed:16,files:575,
-  message:'Checking the current production release…',
+  message:'Preparing application files...',
  },context);
  assert.deepEqual(display,{
-  label:'Preparing offline library · 16/575 files',
-  message:'Checking the current production release…',
+  label:'Preparing offline library…',
+  message:'Preparing application files...',
   busy:true,
  });
  assert.deepEqual(v3OfflineLibraryDisplay({
   state:'Ready',releaseId:'abc123',files:575,
  },context),{
-  label:'Offline library ready · current · 575 files',
+  label:'Offline library ready',
   message:'',busy:false,
  });
+ assert.equal(v3OfflineLibraryDisplay({
+  state:'Ready',releaseId:'older',files:575,
+ },context).label,'Offline library needs update');
+ assert.equal(v3OfflineLibraryDisplay({
+  state:'Ready',releaseId:'older',files:575,
+ },{...context,online:false}).label,'Offline library ready');
+ assert.equal(v3OfflineLibraryDisplay({state:'Incomplete',message:'Repair needed'},context).label,
+  'Offline library needs update');
  assert.equal(v3OfflineLibraryDisplay({state:'Incomplete'},context).label,
   'Offline library not prepared');
+ const bridge=readFileSync(new URL('../src/offline.mjs',import.meta.url),'utf8');
+ assert.match(bridge,/message:'Preparing application files\.\.\.'/);
 });
 
 test('O02-UX02 approved two-line phases have incrementing distinct image count',()=>{
@@ -36,7 +46,7 @@ test('O02-UX02 approved two-line phases have incrementing distinct image count',
   phase:'checking',completed:0,total:272,
  }),context);
  assert.deepEqual(checking,{
-  label:'Preparing offline library',
+  label:'Preparing offline library…',
   message:'Checking for offline library updates…',busy:true,
  });
  const progress=[0,1,147,272].map(completed=>
@@ -50,7 +60,7 @@ test('O02-UX02 approved two-line phases have incrementing distinct image count',
   'Preparing offline library · 272/272 images',
  ]);
  assert(progress.every(x=>x.message===
-  'Reusing existing images and downloading changes…'&&x.busy));
+  'Downloading images...'&&x.busy));
  assert.deepEqual(v3OfflineLibraryDisplay(status({
   phase:'verifying',completed:272,total:272,
  }),context),{
@@ -71,7 +81,7 @@ test('O02-UX03 completion or no changes is not Ready before combined integrity g
   const verified=v3OfflineLibraryDisplay(status({
    phase,completed:272,total:272,libraryReady:true,
   }),context);
-  assert.equal(verified.label,'Offline library ready · current · 575 files');
+  assert.equal(verified.label,'Offline library ready');
   assert.equal(verified.message,'');
   assert.equal(verified.busy,false);
  }
@@ -92,7 +102,7 @@ test('O02-UX04 failure messages preserve last-good and give retry guidance',()=>
    phase:'error',reason,previousVerified:true,
   }),context);
   assert.deepEqual(display,{
-   label:'Offline library ready · current · 575 files',message,busy:false,
+   label:'Offline library ready',message,busy:false,
   });
  }
 });

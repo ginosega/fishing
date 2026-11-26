@@ -169,7 +169,7 @@ export function createOffline({root,releaseId,onStatus,isDirty,notify,
    // O02 transport has been explicitly supplied by a verified V3 build.
    publish({state:'Downloading',releaseId:status.releaseId,
     contentPreparation:null,
-    message:'Checking the current production release…'});
+    message:'Preparing application files...'});
    await registration.update();
    const worker=registration.installing;
    if(worker)await new Promise((resolve,reject)=>{
