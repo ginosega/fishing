@@ -5,7 +5,7 @@
 
 ## Triggers and owner burden
 
-- **Scheduled backstop:** ChatGPT scheduled task **Fishing Semantic Audit** was created on **2026-11-01**, configured for Monday mornings in `America/Los_Angeles` (weekly, flexible timing). It is intended to execute without owner initiation; the first scheduled audit has **not yet run**. If the scheduled task is paused, fails, cannot use connected GitHub or lacks reliable evidence, report **AUDIT BLOCKED** rather than **PASS**. Do not infer an audit occurred from a schedule.
+- **Scheduled backstop:** ChatGPT scheduled task **Fishing Semantic Audit** was created on **2026-11-01**, configured for Monday mornings in `America/Los_Angeles` (weekly, flexible timing). It was intended to execute without owner initiation; on 2026-11-26 the task was not found in the current task list. Its current execution/availability is unknown; do not rely on it as a maintenance monitor or silently recreate it. [Owner-approved maintenance design](https://github.com/ginosega/fishing/issues/377#issuecomment-7201998967). If the scheduled task is paused, fails, cannot use connected GitHub or lacks reliable evidence, report **AUDIT BLOCKED** rather than **PASS**. Do not infer an audit occurred from a schedule.
 - **At material project transitions:** The assistant completes a targeted semantic audit **as part of** milestone/phase acceptance, significant approved product or architecture decisions, PR integration or public/private release acceptance, operating-model branch/authority changes, and before a planned chat transfer after substantial work. Reconcile and document state **before reporting the milestone accepted**. No extra owner reminder or approval is needed for normal documentation reconciliation.
 - **GitHub PR structural checks:** Separately, every PR targeting the canonical `governance/project-ops` branch automatically runs the required `governance-docs` and `fishing-merge-ready` checks. These detect schema/links/size/duplicate-ID errors; they **do not** establish semantic freshness.
 
@@ -20,7 +20,7 @@
 
 ## Operational failure safeguards
 
-The weekly ChatGPT task is the **independent time-based trigger**, not a GitHub webhook, continuously running agent, or guarantee of GitHub connectivity. It may deliver an audit summary without directly creating GitHub PRs. A scheduled run that reports GitHub inaccessible is a **failed/blocked audit** and must not reset the last-successful-audit checkpoint.
+When available, the weekly ChatGPT task is the **independent time-based trigger**, not a GitHub webhook, continuously running agent, or guarantee of GitHub connectivity. It may deliver an audit summary without directly creating GitHub PRs. A scheduled run that reports GitHub inaccessible is a **failed/blocked audit** and must not reset the last-successful-audit checkpoint.
 
 A milestone audit is an **operating requirement executed by the assistant during that workflow**, not proof that GitHub has an LLM which can automatically verify semantics. A GitHub PR can pass structural CI while a real-world deployment has changed unrecorded. For that reason, the weekly scheduled audit and milestone reviews are complementary, not substitutes for truthful provider/owner verification.
 
