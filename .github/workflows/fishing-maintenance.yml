@@ -1,0 +1,133 @@
+name: Fishing Companion Maintenance
+on:
+  schedule:
+    - cron: '0 4 1 * *'
+      timezone: 'America/Los_Angeles'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Maintenance mode (do not use the app during the run)'
+        type: choice
+        options: [complete, audit]
+        default: complete
+permissions: {}
+concurrency:
+  group: fishing-production-maintenance
+  cancel-in-progress: false
+jobs:
+  maintenance:
+    # Both variables are deliberately unset/false until separately approved activation.
+    # First enable manual runs only, then enable monthly after owner acceptance.
+    if: ${{ github.repository == 'ginosega/fishing' && github.ref == 'refs/heads/main' && vars.FISH_MAINTENANCE_ENABLED == 'true' && (github.event_name == 'workflow_dispatch' || vars.FISH_MAINTENANCE_MONTHLY == 'true') }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    permissions:
+      contents: write
+      issues: write
+    env:
+      MODE: ${{ inputs.mode || 'complete' }}
+      TZ: America/Los_Angeles
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Install existing tooling (no production credentials in this step)
+        run: |
+          set -euo pipefail
+          npm ci --prefix pwa --no-audit --no-fund
+          npm install --prefix "$RUNNER_TEMP/fish-sdk" --no-audit --no-fund --ignore-scripts @aws-sdk/client-s3@3.1175.0
+          npm install --prefix "$RUNNER_TEMP/fish-wrangler" --no-audit --no-fund wrangler@4.166.0
+          mkdir "$RUNNER_TEMP/fish-maintenance"
+      - name: Export only production content database
+        working-directory: pwa
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.FISH_D1_BACKUP_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.FISH_R2_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          test -n "$CLOUDFLARE_API_TOKEN" && test -n "$CLOUDFLARE_ACCOUNT_ID"
+          # Do not log export output: it may include a signed download URL.
+          "$RUNNER_TEMP/fish-wrangler/node_modules/.bin/wrangler" d1 export fishing-v3-wp3-operations-test --remote --output "$RUNNER_TEMP/fish-maintenance/content.sql" > "$RUNNER_TEMP/fish-maintenance/export.log" 2>&1
+          test -s "$RUNNER_TEMP/fish-maintenance/content.sql"
+      - name: Audit and prepare recovery content
+        env:
+          FISH_R2_ACCOUNT_ID: ${{ secrets.FISH_R2_ACCOUNT_ID }}
+          FISH_R2_ACCESS_KEY_ID: ${{ secrets.FISH_R2_ACCESS_KEY_ID }}
+          FISH_R2_SECRET_ACCESS_KEY: ${{ secrets.FISH_R2_SECRET_ACCESS_KEY }}
+        run: |
+          set -euo pipefail
+          w="$RUNNER_TEMP/fish-maintenance"
+          node backups/maintenance.mjs "$w/content.sql" "$w/stage" "$RUNNER_TEMP/fish-sdk" "$GITHUB_SHA" "$MODE" "$w/report.json"
+      - name: Create and verify archive
+        if: ${{ inputs.mode != 'audit' }}
+        run: |
+          set -euo pipefail
+          w="$RUNNER_TEMP/fish-maintenance"
+          kind=manual
+          if [[ "$GITHUB_EVENT_NAME" == schedule ]]; then kind=monthly; fi
+          tag="fishing-backup-$kind-$(date +%F)-$GITHUB_RUN_ID"
+          printf '%s\n' "$tag" > "$w/tag"
+          python -I backups/verify-archive.py "$w/stage" "$w/$tag.zip"
+      - name: Publish verified recovery archive and verify independent download
+        if: ${{ inputs.mode != 'audit' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          w="$RUNNER_TEMP/fish-maintenance"
+          tag="$(cat "$w/tag")"
+          # No overwrite, deletion or automatic retry of a possibly published release.
+          existing="$(gh api --paginate "repos/$GITHUB_REPOSITORY/releases?per_page=100" --jq ".[] | select(.tag_name == \"$tag\") | .id")"
+          [[ -z "$existing" ]] || { echo 'Existing release requires manual reconciliation.'; exit 1; }
+          gh release create "$tag" "$w/$tag.zip" "$w/$tag.zip.sha256" --draft --target "$GITHUB_SHA" --title "$tag" --notes "Fishing Companion V3 verified content recovery archive." --latest=false
+          id="$(gh api --paginate "repos/$GITHUB_REPOSITORY/releases?per_page=100" --jq ".[] | select(.tag_name == \"$tag\") | .id")"
+          [[ "$id" =~ ^[1-9][0-9]*$ ]]
+          gh api "repos/$GITHUB_REPOSITORY/releases/$id" > "$w/draft-release.json"
+          ziphash="$(cat "$w/$tag.zip.sha256")"
+          checkhash="$(sha256sum "$w/$tag.zip.sha256" | cut -d' ' -f1)"
+          jq -e --arg zip "$tag.zip" --arg checksum "$tag.zip.sha256" --arg zh "sha256:$ziphash" --arg ch "sha256:$checkhash" \
+            '.draft == true and (.assets|length)==2 and ([.assets[]|select(.name==$zip and .state=="uploaded" and .digest==$zh)]|length)==1 and ([.assets[]|select(.name==$checksum and .state=="uploaded" and .digest==$ch)]|length)==1' "$w/draft-release.json" >/dev/null
+          gh api --method PATCH "repos/$GITHUB_REPOSITORY/releases/$id" -F draft=false -f make_latest=false > "$w/published-release.json"
+          jq -e --arg tag "$tag" '.draft == false and .tag_name == $tag' "$w/published-release.json" >/dev/null
+          mkdir "$w/public-readback"
+          # Independent download through the public release URL, without authentication.
+          curl --fail --silent --show-error --location "https://github.com/$GITHUB_REPOSITORY/releases/download/$tag/$tag.zip" --output "$w/public-readback/$tag.zip"
+          curl --fail --silent --show-error --location "https://github.com/$GITHUB_REPOSITORY/releases/download/$tag/$tag.zip.sha256" --output "$w/public-readback/$tag.zip.sha256"
+          cmp "$w/$tag.zip.sha256" "$w/public-readback/$tag.zip.sha256"
+          test "$(sha256sum "$w/public-readback/$tag.zip" | cut -d' ' -f1)" = "$ziphash"
+          printf '%s\n' "$tag" > "$w/verified-release"
+      - name: Post consolidated results (including failure)
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MAINTENANCE_ISSUE: ${{ vars.FISH_MAINTENANCE_ISSUE }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          set -euo pipefail
+          w="$RUNNER_TEMP/fish-maintenance"
+          [[ "$MAINTENANCE_ISSUE" =~ ^[1-9][0-9]*$ ]]
+          mkdir -p "$w"
+          {
+            printf '## Fishing Companion maintenance — %s\n\n' "$(date +%F)"
+            printf 'Mode: %s | Run: %s\n\n' "$MODE" "$JOB_STATUS"
+            if [[ -f "$w/report.json" ]]; then
+              jq -r '"Audit: \(.audit)\n\nGear / KB / Catch: \(.gear) / \(.kb) / \(.catches)\n\nLinked / registered / physical originals: \(.linkedOriginals) / \(.registeredOriginals) / \(.physicalObjects)\n\nPotential orphan objects (registered unlinked / unregistered): \(.registeredUnlinked) / \(.unregistered)\n\nUnlinked associations: \(.unlinkedAssociations)\n\nCandidate bytes (not approved for deletion): \(.candidateBytes)\n\nMissing / wrong-size / corrupt or unreadable: \(.missing) / \(.wrongSize) / \(.corruptOrUnreadable)\n\nVerified originals: \(.verifiedOriginals)\n\nPreparation: \(.backup)"' "$w/report.json"
+            else
+              printf 'Audit incomplete — no verified inventory available.\n'
+            fi
+            if [[ -f "$w/verified-release" ]]; then
+              tag="$(cat "$w/verified-release")"
+              printf '\n\nBackup: PASS — independent published ZIP checksum verified. [Recovery archive](https://github.com/%s/releases/tag/%s)\n' "$GITHUB_REPOSITORY" "$tag"
+              printf '\nRetention: preserve baseline and latest three verified monthly backups; review older releases manually as needed.\n'
+            elif [[ "$MODE" == audit ]]; then
+              printf '\n\nBackup: not requested.\n'
+            else
+              printf '\n\nBackup: NOT VERIFIED. Inspect any existing draft or published archive before retrying.\n'
+            fi
+            printf '\nNo production content or backups deleted. Review candidates via ChatGPT as needed.\n\n[Workflow run](https://github.com/%s/actions/runs/%s)\n' "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID"
+          } > "$w/summary.md"
+          cat "$w/summary.md" >> "$GITHUB_STEP_SUMMARY"
+          gh issue comment "$MAINTENANCE_ISSUE" --body-file "$w/summary.md"
