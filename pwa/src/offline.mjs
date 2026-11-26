@@ -1,22 +1,99 @@
-// Explicit complete-offline-library management. Editing remains exclusively in memory.
-export function createOffline({root,releaseId,onStatus,isDirty,notify}){
+// D6 selectively adopts the accepted V3 reading preference over the
+// existing explicit, verified offline library. No private owner pilot or writer.
+export function createOffline({root,releaseId,onStatus,isDirty,notify,
+ v3ReadingMode=false,standaloneV3=false,onMode=()=>{},prepareContent=null,
+ verifyContent=null}){
  let registration=null,updating=false,checking=null,switching=false,warned=false;
- let status={state:'Incomplete',releaseId:null,files:0,bytes:0,failed:[]};
+ let mode='Automatic',modeAvailable=false;
+ let status={state:'Incomplete',releaseId:null,files:0,bytes:0,failed:[],
+  ...(typeof verifyContent==='function'?{contentPreparation:{phase:'unprepared'}}:{})};
+ const statusType=standaloneV3?'FISHING_V3_STATUS':'FISHING_V2_STATUS';
+ const progressType=standaloneV3?'FISHING_V3_PROGRESS':'FISHING_V2_PROGRESS';
+ const currentType=standaloneV3?'FISHING_V3_CURRENT':'FISHING_V2_CURRENT';
  const publish=next=>{status={...status,...next};onStatus({...status,updating});};
- const handler=event=>{const msg=event.data||{};if(msg.type==='FISHING_V2_STATUS'||msg.type==='FISHING_V2_PROGRESS')publish(msg.status);};
+ const handler=event=>{const msg=event.data||{};if(msg.type===statusType||msg.type===progressType)publish(msg.status);};
  navigator.serviceWorker?.addEventListener('message',handler);
  async function command(type){
   const controller=registration?.active||navigator.serviceWorker?.controller;if(!controller)return;
   return new Promise((resolve,reject)=>{
    const channel=new MessageChannel();const timeout=setTimeout(()=>{channel.port1.close();reject(new Error('The offline operation did not respond.'));},180000);
-   channel.port1.onmessage=e=>{clearTimeout(timeout);channel.port1.close();if(e.data?.type==='FISHING_V2_STATUS'){publish(e.data.status);resolve(e.data.status);}else reject(new Error('Unexpected offline response'));};
+   channel.port1.onmessage=e=>{clearTimeout(timeout);channel.port1.close();if(e.data?.type===statusType){publish(e.data.status);resolve(e.data.status);}else reject(new Error('Unexpected offline response'));};
    controller.postMessage({type},[channel.port2]);
   });
+ }
+ async function modeCommand(type,newMode){
+  const worker=registration?.active||navigator.serviceWorker?.controller;
+  if(!worker)return null;
+  return new Promise(resolve=>{
+   const channel=new MessageChannel();
+   // A real Work Offline transition re-hashes every selected library file.
+   // Hundreds of images can take far longer than the former 4s timeout.
+   // Keep the only submitted request alive; no automatic second write.
+   const timeoutMs=type==='V3_SET_MODE'&&newMode==='Work Offline'?
+    180000:12000;
+   const timeout=setTimeout(()=>{channel.port1.close();resolve(null);},timeoutMs);
+   channel.port1.onmessage=event=>{
+    clearTimeout(timeout);channel.port1.close();
+    const value=event.data;
+    resolve(value?.type==='FISHING_V3_MODE'&&
+     ['Automatic','Work Offline'].includes(value.mode)?value:null);
+   };
+   try{worker.postMessage({type,mode:newMode,expectedReleaseId:releaseId},[channel.port2]);}
+   catch{clearTimeout(timeout);channel.port1.close();resolve(null);}
+  });
+ }
+ const reportMode=(message='',busy=false)=>
+  onMode(mode,modeAvailable,{message,busy});
+ function setModeState(result){
+  if(result?.available!==true){
+   modeAvailable=false;
+   reportMode('Reading controls could not reach the V3 service worker. Try Retry reading controls.');
+   return false;
+  }
+  modeAvailable=true;mode=result.mode;
+  reportMode(result.error||('Reading mode: '+mode));
+  return true;
+ }
+ async function refreshMode(){
+  if(!v3ReadingMode)return true;
+  reportMode('Checking service-worker reading mode…',true);
+  const result=await modeCommand('V3_READ_MODE');
+  return setModeState(result); // A missing/untrusted reply never grants publishing.
+ }
+ async function setMode(next){
+  if(!v3ReadingMode||!['Automatic','Work Offline'].includes(next))return false;
+  if(!registration)await start();
+  if(!modeAvailable){
+   reportMode('Reading controls are unavailable. Retry reading controls.');
+   return false;
+  }
+  reportMode(next==='Work Offline'?
+   'Verifying the offline library...':
+   'Switching to Automatic…',true);
+  // O03 requires a complete verified V3 content generation in addition
+  // to the existing software integrity gate before Work Offline.
+  if(next==='Work Offline'&&typeof verifyContent==='function'){
+   try{await verifyContent();}
+   catch{
+    const message='Current offline content is unavailable. Connect online and update the offline library.';
+    reportMode(message);notify(message,'warning');
+    return false;
+   }
+  }
+  const result=await modeCommand('V3_SET_MODE',next);
+  if(!setModeState(result)){
+   notify('Reading-mode change could not be verified. Previous mode retained.','warning');
+   return false;
+  }
+  if(result.error){notify(result.error,'warning');return false;}
+  if(next==='Work Offline'&&isDirty())
+   notify('The unsaved editor stays open, but publishing is disabled in Work Offline.','warning');
+  return true;
  }
  // Check the hosted pointer through the worker's own verified network path.
  // Do not trust the page's intercepted release.json: it is pinned to this tab.
  async function checkCurrent(){
-  if(!navigator.onLine||updating||switching)return !switching;
+  if(mode==='Work Offline'||!navigator.onLine||updating||switching)return !switching;
   if(checking)return checking;
   checking=(async()=>{
    const controller=navigator.serviceWorker?.controller||registration?.active;
@@ -26,7 +103,7 @@ export function createOffline({root,releaseId,onStatus,isDirty,notify}){
     channel.port1.onmessage=event=>{clearTimeout(timeout);channel.port1.close();resolve(event.data);};
     try{controller.postMessage({type:'CHECK_CURRENT'},[channel.port2]);}catch{clearTimeout(timeout);channel.port1.close();resolve(null);}
    });
-   if(response?.type!=='FISHING_V2_CURRENT'||!response.releaseId||response.releaseId===releaseId)return true;
+   if(response?.type!==currentType||!response.releaseId||response.releaseId===releaseId)return true;
    if(isDirty()){
     if(!warned){notify('A new Fishing Companion release is available. Finish or copy your unsaved changes before reloading.','warning');warned=true;}
     return false;
@@ -48,27 +125,113 @@ export function createOffline({root,releaseId,onStatus,isDirty,notify}){
    window.addEventListener('pageshow',becameActive);
    window.addEventListener('online',becameActive);
    document.addEventListener('visibilitychange',becameActive);
-   await navigator.serviceWorker.ready;await command('STATUS');await checkCurrent();
+   await navigator.serviceWorker.ready;await command('STATUS');
+   // O03 restores verified *content* readiness independently after restart.
+   // Software Ready alone must never imply that a V3 fishing snapshot exists.
+   if(typeof verifyContent==='function'){
+    try{
+     const content=await verifyContent();
+     if(content?.source!=='v3-content'||!content.contentId||
+        !Number.isSafeInteger(content.imageObjects))
+      throw Error('Current content not verified');
+     publish({contentPreparation:{
+      phase:'complete',libraryReady:true,previousVerified:true,
+      completed:content.imageObjects,total:content.imageObjects,
+      restored:true,
+     }});
+    }catch{
+     // A startup cache probe is not a preparation attempt. An absent or
+     // incompatible snapshot is simply not prepared; actual update errors
+     // are reported by update() below.
+     publish({contentPreparation:{phase:'unprepared'}});
+    }
+   }
+   await refreshMode();await checkCurrent();
   }catch(error){publish({state:'Incomplete',message:error.message});}
  }
  async function update(){
   if(updating)return;
-  if(!navigator.onLine){publish({...status,message:'Reconnect to the internet before updating the offline library.'});return;}
+  if(!navigator.onLine){
+   publish({...status,message:'Reconnect to the internet before updating the offline library.'});
+   return;
+  }
   updating=true;
-  if(!registration){await start();if(!registration){updating=false;return;}}
-  publish({state:'Downloading',releaseId:status.releaseId,message:'Checking the current production release…'});
+  let contentStarted=false,lastContentStatus=null,wakeLock=null;
   try{
-   // A worker update is lightweight under FISH091; it never provisions content.
+   // Only explicit standalone V3 preparation requests the screen lock.
+   // Unsupported browsers, power-saving policies and permission failures
+   // must never block the existing offline preparation process.
+   if(standaloneV3&&typeof prepareContent==='function'){
+    try{wakeLock=await navigator.wakeLock?.request('screen');}catch{}
+   }
+   if(!registration){await start();if(!registration)return;}
+   // The accepted V2/FISH091 path is unchanged when no owner-authorized
+   // O02 transport has been explicitly supplied by a verified V3 build.
+   publish({state:'Downloading',releaseId:status.releaseId,
+    contentPreparation:null,
+    message:'Preparing application files...'});
    await registration.update();
    const worker=registration.installing;
    if(worker)await new Promise((resolve,reject)=>{
-    const changed=()=>{if(worker.state==='activated'){worker.removeEventListener('statechange',changed);resolve();}else if(worker.state==='redundant'){worker.removeEventListener('statechange',changed);reject(new Error('The current service worker could not activate.'));}};
+    const changed=()=>{
+     if(worker.state==='activated'){
+      worker.removeEventListener('statechange',changed);resolve();
+     }else if(worker.state==='redundant'){
+      worker.removeEventListener('statechange',changed);
+      reject(new Error('The current service worker could not activate.'));
+     }
+    };
     worker.addEventListener('statechange',changed);changed();
    });
-   await command('PREPARE');
-  }catch(error){await command('STATUS').catch(()=>{});publish({...status,message:error.message});}finally{updating=false;publish(status);}
+   const prepared=await command('PREPARE');
+   if(typeof prepareContent==='function'){
+    // Never stage current D1/R2 content unless the FISH091 software
+    // release is already verified and complete.
+    if(prepared?.state!=='Ready'||!prepared.releaseId||
+       prepared.message||prepared.failed?.length)
+     throw Error('Offline software release was not verified');
+    contentStarted=true;
+    await prepareContent({
+     caches:globalThis.caches,scope:root,
+     onStatus:progress=>{
+      lastContentStatus=progress;
+      publish({message:'',contentPreparation:{
+       ...progress,libraryReady:false,
+      }});
+     },
+    });
+    // A complete content cache alone does not authorize a Ready message:
+    // recheck the separate software-release FISH091 integrity gate first.
+    const verified=await command('STATUS');
+    if(verified?.state!=='Ready'||
+       verified.releaseId!==prepared.releaseId||
+       verified.message||verified.failed?.length)
+     throw Error('Offline software release changed during preparation');
+    if(!['complete','unchanged'].includes(lastContentStatus?.phase))
+     throw Error('Offline content result was not verified');
+    publish({message:'',contentPreparation:{
+     ...lastContentStatus,libraryReady:true,
+    }});
+   }
+   if(v3ReadingMode)await refreshMode();
+  }catch(error){
+   await command('STATUS').catch(()=>{});
+   if(contentStarted){
+    const latest=status.contentPreparation;
+    if(latest?.phase!=='error')publish({contentPreparation:{
+     phase:'error',reason:'content',
+     previousVerified:latest?.previousVerified===true,
+    }});
+    publish({message:''});
+   }else publish({...status,message:error.message});
+  }finally{
+   try{if(wakeLock&&!wakeLock.released)await wakeLock.release();}catch{}
+   updating=false;publish(status);
+  }
  }
  function reload(){if(updating){notify('The offline update is still running. Reload when it finishes.');return;}if(isDirty()&&!confirm('Your prepared changes have not been saved. Discard the current edit and reload?'))return;location.reload();}
  function dispose(){navigator.serviceWorker?.removeEventListener('message',handler);navigator.serviceWorker?.removeEventListener('controllerchange',controllerChanged);window.removeEventListener('focus',becameActive);window.removeEventListener('pageshow',becameActive);window.removeEventListener('online',becameActive);document.removeEventListener('visibilitychange',becameActive);}
- return {start,update,reload,dispose,checkCurrent,getStatus:()=>status,getSessionReleaseId:()=>releaseId};
+ return {start,update,reload,dispose,checkCurrent,getStatus:()=>status,
+  getSessionReleaseId:()=>releaseId,getMode:()=>mode,
+  getModeAvailable:()=>modeAvailable,setMode,refreshMode};
 }

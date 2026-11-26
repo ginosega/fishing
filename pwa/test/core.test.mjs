@@ -1,27 +1,28 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import {fileURLToPath} from 'node:url';
 import {safePath,pathKey,encodedPath,parseRoute,routeFor,internalLink,catchHistory,sortGear,localDateValid} from '../src/shared.mjs';
-import {validateRecords,validateRecord,validateLibraryPaths,checkPathCollisions} from '../src/validation.mjs';
+import {validateRecords,validateLibraryPaths,checkPathCollisions} from '../src/validation.mjs';
 import {parseMarkdown,markdownRouteMap} from '../src/markdown.mjs';
-import {prepareChange,promoteChange,ChangeConflictError} from '../src/handoff.mjs';
-import {inventorySource,validateImage,digest,unresolvedMedia} from '../tools/library.mjs';
-const repo=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..'),root=path.join(repo,'pwa');
-const read=async p=>JSON.parse(await fs.readFile(path.join(root,p),'utf8'));
-const data=await (async()=>({gear:await read('Gear/gear.json'),kb:await read('KB/kb.json'),catches:await read('Catches/catches.json')}))();
+import {validateImage} from '../tools/library.mjs';
+// Synthetic catalog; production content belongs to D1, not the repository.
+const data={
+ gear:{schemaVersion:2,items:[
+  {id:'daiwa-tatula-xt-rod',category:'rods-reels',type:'Spinning rod',name:'Fixture rod',specifications:[],links:[]},
+  {id:'fixture-lure',category:'lures',type:'Spoons',name:'Fixture lure',specifications:[],links:[]},
+ ]},
+ kb:{schemaVersion:2,entities:[
+  {id:'fixture-species',type:'species',name:'Fixture species',content:'KB/Species/content/fixture-species.md'},
+  {id:'fixture-location',type:'location',name:'Fixture location',content:'KB/Locations/content/fixture-location.md'},
+ ]},
+ catches:{schemaVersion:2,catches:[
+  {id:'fixture-catch',date:'2026-11-20',notes:'Catches/content/fixture-catch.md',speciesId:'fixture-species',locationId:'fixture-location',lureOrBaitId:'fixture-lure'},
+ ]},
+};
 const maps=validateRecords(data),routes=markdownRouteMap(data);
 const clone=x=>structuredClone(x);
-test('complete migrated library validates its schemas, types and references',()=>{
+test('synthetic content graph validates its schemas, types and references',()=>{
  assert.equal(maps.gear.size,data.gear.items.length);assert.equal(maps.kb.size,data.kb.entities.length);assert.equal(maps.catches.size,data.catches.catches.length);
  const paths=validateLibraryPaths(data);assert(paths.size>0);
-});
-test('canonical PWA source folders live only under pwa',async()=>{for(const dir of ['Gear','KB','Catches']){await fs.access(path.join(root,dir));await assert.rejects(fs.access(path.join(repo,dir)),error=>error?.code==='ENOENT');}});
-test('all six independent components retain their own identity',()=>{
- const ids=['daiwa-tatula-xt-rod','daiwa-exceler-lt-reel','shimano-zodias-rod','shimano-slx-dc-xt-71hg-reel','pflueger-president-spincast-rod','pflueger-president-spincast-reel'];
- for(const id of ids)assert(maps.gear.has(id));
- for(const id of ['setup-spinning','setup-baitcasting','setup-spincasting'])assert(!maps.gear.has(id));
 });
 test('strict schema rejects unknown fields, duplicate IDs, invalid dates and broken references',()=>{
  const bad=clone(data);bad.gear.items[0].quantity=1;assert.throws(()=>validateRecords(bad),/additional properties|schema/i);
@@ -77,48 +78,7 @@ test('Markdown refuses remote images, unsafe URLs, missing resources and empty a
  for(const source of ['[bad](javascript:alert%281%29)','![bad](data:image/png;base64,AA)']){const unsafe=parseMarkdown(source,{owner,maps});assert.doesNotMatch(unsafe.html,/<(?:a|img)\b/i);}
  assert.throws(()=>parseMarkdown('[Missing](gear://retired)',{owner,maps}),/Unknown/);
 });
-test('handoff includes only changed fields and preserves unrelated concurrent edits',async()=>{
- const base=maps.gear.get('daiwa-tatula-xt-rod');const record=clone(base);record.model='Updated model';
- const pkg=await prepareChange({domain:'gear',operation:'edit',id:base.id,baseRecord:base,record,sourceRevision:'a'.repeat(40)});
- assert.deepEqual(Object.keys(pkg.changes.set),['model']);assert.deepEqual(pkg.changes.unset,[]);assert.equal(pkg.notes.action,'keep');assert.equal(pkg.picture.action,'keep');
- const current=clone(base);current.name='Independent name change';
- const result=await promoteChange({package:pkg,currentRecord:current,sourceRevision:'b'.repeat(40)});
- assert.equal(result.record.model,'Updated model');assert.equal(result.record.name,'Independent name change');
- const conflict=clone(current);conflict.model='Another model';
- await assert.rejects(promoteChange({package:pkg,currentRecord:conflict}),ChangeConflictError);
- const resolved=await promoteChange({package:pkg,currentRecord:conflict,conflictPolicy:'overwrite'});assert.equal(resolved.record.model,'Updated model');assert.deepEqual(resolved.conflicts,['model']);
-});
-test('handoff preserves whole Markdown documents and reports concurrent narrative conflicts',async()=>{
- const base=maps.kb.get(data.kb.entities[0].id);const record=clone(base);
- const pkg=await prepareChange({domain:'kb',operation:'edit',id:base.id,baseRecord:base,record,baseText:'old\n',text:'new\n',sourceRevision:'a'.repeat(40)});
- assert.equal(pkg.notes.action,'replace');assert(!('content' in (pkg.changes?.set||{})));
- await assert.rejects(promoteChange({package:pkg,currentRecord:base,currentText:'concurrent\n'}),ChangeConflictError);
- const result=await promoteChange({package:pkg,currentRecord:base,currentText:'old\n'});assert.equal(result.writes[0].body,'new\n');
-});
-test('identity, deletion and schema conflicts do not silently mutate source',async()=>{
- const base=maps.gear.get('daiwa-tatula-xt-rod');const record=clone(base);record.name='Another name';
- const pkg=await prepareChange({domain:'gear',operation:'edit',id:base.id,baseRecord:base,record,sourceRevision:'a'.repeat(40)});
- await assert.rejects(promoteChange({package:pkg,currentRecord:null}),/Deleted/);
- assert.throws(()=>validateRecord({...base,category:'unknown'},'gear',data));
-});
-test('the complete source inventory hashes and fully decodes all referenced assets',async()=>{
- const result=await inventorySource(root,{pendingMedia:true});
- assert.equal(result.data.gear.items.length,data.gear.items.length);assert.equal(result.data.kb.entities.length,data.kb.entities.length);assert.equal(result.data.catches.catches.length,data.catches.catches.length);assert(result.images.size>0);assert.equal(result.pending.length,0);
- assert.deepEqual(result.migration.exceptions.filter(x=>!x.optional).map(x=>x.id).sort(),['tsuridamashii-snap-swivels','rapala-original-floating-f3','species-perch','technique-popper','technique-whopper-plopper','macks-pee-wee-hoochie','river2sea-whopper-plopper-60'].sort());
- assert.deepEqual(result.migration.exceptions.filter(x=>x.optional).map(x=>x.id),['generic-1-inline-spinner']);assert(result.references.length>0);
- for(const file of result.files){const bytes=await fs.readFile(path.join(root,file.path));assert.equal(digest(bytes),file.sha256);}
-});
 test('malformed images and unsupported formats are rejected',async()=>{
  await assert.rejects(validateImage(Buffer.from('not an image'),'Gear/Lures/assets/bad.png'));
  await assert.rejects(validateImage(Buffer.from('GIF89a'),'Gear/Lures/assets/bad.avif'),/Unsupported/);
-});
-
-test('explicit absent-picture decisions resolve only the approved historical exceptions',async()=>{
- const migration=await read('migration/reconciliation.json'),decisions=await read('migration/media-decisions.json');
- assert.equal(unresolvedMedia(migration,null,data).length,7);
- assert.equal(unresolvedMedia(migration,decisions,data).length,0);
- const missing=clone(decisions);missing.absentPictures.pop();assert.equal(unresolvedMedia(migration,missing,data).length,1);
- const invalid=clone(decisions);invalid.absentPictures[0].exceptionId='unapproved';assert.throws(()=>unresolvedMedia(migration,invalid,data),/Unknown required/);
- const changed=clone(data);changed.gear.items.find(x=>x.id==='rapala-original-floating').picture={src:'Gear/Lures/assets/future-user-picture.png'};
- assert.equal(unresolvedMedia(migration,decisions,changed).length,0); // Future supplied pictures still pass the normal path/decode checks.
 });

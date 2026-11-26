@@ -18,11 +18,21 @@ export function validatePointer(pointer){
  assert(isDigest(pointer.manifestSha256),'Invalid manifest digest');
  assert(pointer.schemaVersions?.gear===2&&pointer.schemaVersions?.kb===2&&pointer.schemaVersions?.catches===2,'Incompatible schema versions');
  assert(typeof pointer.sourceRevision==='string'&&pointer.sourceRevision.length>0,'Missing source revision');
+ if(pointer.standaloneV3===true)assert(pointer.pendingMedia===false&&
+  pointer.d6OfflineContentReading===true&&pointer.d6OfflineContentPreparation===true&&
+  pointer.d6OwnerMediaUpload===true&&/^[a-f0-9]{40}$/.test(pointer.sourceRevision),
+  'Invalid standalone V3 release pointer');
  return pointer;
 }
 export function validateManifest(manifest,pointer,base){
  validatePointer(pointer);
- assert(manifest&&typeof manifest==='object'&&manifest.format==='fishing-companion-release-v2','Invalid release manifest');
+ const standalone=pointer.standaloneV3===true;
+ assert(manifest&&typeof manifest==='object'&&
+  manifest.format===(standalone?'fishing-companion-software-v3':'fishing-companion-release-v2')&&
+  (manifest.standaloneV3===true)===standalone,'Invalid release manifest');
+ if(standalone)assert(manifest.pendingMedia===false&&manifest.cardThumbnails==null&&
+  manifest.counts==null&&manifest.unresolvedMedia==null,
+  'Standalone V3 release must not bundle content');
  assert(manifest.releaseId===pointer.id&&manifest.sourceRevision===pointer.sourceRevision,'Release identity mismatch');
  assert(manifest.base===base,'Release scope mismatch');
  assert(manifest.schemaVersions?.gear===2&&manifest.schemaVersions?.kb===2&&manifest.schemaVersions?.catches===2,'Incompatible release');
@@ -30,6 +40,8 @@ export function validateManifest(manifest,pointer,base){
  const entries=new Map();let total=0;
  for(const file of manifest.files){
   releasePath(file.path);
+  if(standalone)assert(!/^releases\/[a-f0-9]{32}\/(?:content|card-thumbnails)\//.test(file.path)&&
+   !/^content\//.test(file.path),'Standalone V3 contains frozen content');
   assert(!entries.has(file.path),'Duplicate release asset');
   assert(Number.isSafeInteger(file.bytes)&&file.bytes>=0&&isDigest(file.sha256),'Invalid release asset metadata');
   total+=file.bytes;assert(Number.isSafeInteger(total)&&total<=MAX_BYTES,'Release exceeds storage budget');
@@ -52,7 +64,10 @@ export function validateManifest(manifest,pointer,base){
   }
  }
 
- const required=['index.html','loader.js','sw.js','manifest.webmanifest',`releases/${pointer.id}/app.js`,`releases/${pointer.id}/styles.css`,`releases/${pointer.id}/content/Gear/gear.json`,`releases/${pointer.id}/content/KB/kb.json`,`releases/${pointer.id}/content/Catches/catches.json`];
+ const required=['index.html','loader.js','sw.js','manifest.webmanifest',`releases/${pointer.id}/app.js`,`releases/${pointer.id}/styles.css`,
+  ...(!standalone?[`releases/${pointer.id}/content/Gear/gear.json`,
+   `releases/${pointer.id}/content/KB/kb.json`,
+   `releases/${pointer.id}/content/Catches/catches.json`]:[])];
  // Historical icon names remain valid for already-cached releases.
  assert(entries.has('icon.png')||entries.has('revised-icon.png')||entries.has('icon.svg'),'Missing required release icon');
  for(const file of required)assert(entries.has(file),`Missing required release asset: ${file}`);

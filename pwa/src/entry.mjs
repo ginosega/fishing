@@ -1,11 +1,162 @@
 import {bootstrap} from './app.mjs';
+import {mountD6OfflineRecovery} from './d6-online-recovery.mjs';
+import {selectD6PublicReader,D6_READER_ORIGIN} from './d6-public-reader.mjs';
+import {createD6OwnerSessionReadiness} from './d6-owner-session-readiness.mjs';
+import {createD6CanonicalSourceClient} from './d6-canonical-authoring-source.mjs';
+import {createD6DirectGearClient} from './d6-direct-gear-client.mjs';
+import {createD6DirectKBClient} from './d6-direct-kb-client.mjs';
+import {createD6DirectCatchClient} from './d6-direct-catch-client.mjs';
+import {createD6OfflineContentTransport}
+ from './d6-offline-content-transport.mjs';
+import {readD6OfflineContent}
+ from './d6-offline-content-reader.mjs';
 import {installPageHero} from './page-hero.mjs';
 const settings=globalThis.__FISHING_BOOT__;
 installPageHero();
-bootstrap(settings).catch(error=>{
+const d6Reader=typeof __FISHING_D6_PUBLIC_READER__!=='undefined'&&
+ __FISHING_D6_PUBLIC_READER__===true;
+const d6StaticStaging=typeof __FISHING_D6_STATIC_STAGING__!=='undefined'&&
+ __FISHING_D6_STATIC_STAGING__===true;
+const d6Wp2Staging=typeof __FISHING_D6_WP2_STAGING__!=='undefined'&&
+ __FISHING_D6_WP2_STAGING__===true;
+const d6OwnerConnection=typeof __FISHING_D6_OWNER_CONNECTION__!=='undefined'&&
+ __FISHING_D6_OWNER_CONNECTION__===true;
+const d6EditorPreview=typeof __FISHING_D6_OWNER_EDITOR_PREVIEW__!=='undefined'&&
+ __FISHING_D6_OWNER_EDITOR_PREVIEW__===true;
+// A separate private-build flag: disabled by default in every existing build.
+const directGearEnabled=typeof __FISHING_D6_DIRECT_GEAR_SAVE__!=='undefined'&&
+ __FISHING_D6_DIRECT_GEAR_SAVE__===true;
+const directKBEnabled=typeof __FISHING_D6_DIRECT_KB_SAVE__!=='undefined'&&
+ __FISHING_D6_DIRECT_KB_SAVE__===true;
+const directCatchEnabled=typeof __FISHING_D6_DIRECT_CATCH_SAVE__!=='undefined'&&
+ __FISHING_D6_DIRECT_CATCH_SAVE__===true;
+// M02 upload path: absent from every existing build. Future private releases
+// must explicitly opt in and carry matching release + manifest identity.
+const privateOwnerMediaCandidate=
+ typeof __FISHING_D6_OWNER_MEDIA_UPLOAD__!=='undefined'&&
+ __FISHING_D6_OWNER_MEDIA_UPLOAD__===true;
+// M03 remains OFF in existing private/public builds.
+const privateR2CardThumbnails=
+ typeof __FISHING_D6_R2_CARD_THUMBNAILS__!=='undefined'&&
+ __FISHING_D6_R2_CARD_THUMBNAILS__===true;
+// O02 source-only opt-in; absent from all existing release identities.
+const privateOfflineContentPrep=
+ typeof __FISHING_D6_O02_OFFLINE_CONTENT__!=='undefined'&&
+ __FISHING_D6_O02_OFFLINE_CONTENT__===true;
+// O03 is a separate, source-only reader flag. O02 hosted release is untouched.
+const privateOfflineContentRead=
+ typeof __FISHING_D6_O03_OFFLINE_READING__!=='undefined'&&
+ __FISHING_D6_O03_OFFLINE_READING__===true;
+const standaloneV3=typeof __FISHING_D6_STANDALONE_V3__!=='undefined'&&
+ __FISHING_D6_STANDALONE_V3__===true;
+function d6Context(){
+ if(!d6Reader)return {};
+ const reader=selectD6PublicReader({enabled:true,staticStaging:d6StaticStaging,wp2Staging:d6Wp2Staging,
+  root:settings.root,standalone:standaloneV3,
+  release:settings.release,manifest:settings.manifest});
+ // Staging may expose only immutable anonymous reading. It never creates
+ // a session probe or a canonical authoring-source client.
+ if(d6StaticStaging){
+  if(d6EditorPreview)throw Error('D6 editor preview cannot use static staging');
+  return {v3:{...reader}};
+ }
+ // The immutable standalone software is identical on both trusted hosts.
+ // Owner session and sign-out always address the actual same-origin host.
+ const ownerWp2Staging=d6Wp2Staging&&(!standaloneV3||new URL(settings.root).origin!==D6_READER_ORIGIN);
+ const ownerReadiness=createD6OwnerSessionReadiness({
+  root:settings.root,request:(url,options)=>fetch(url,options),
+  wp2Staging:ownerWp2Staging,
+  enabled:()=>true,online:()=>navigator.onLine===true,
+ });
+ // Standalone V3 reads online content only from D1, never GitHub main.
+ const canonicalSource=standaloneV3?null:createD6CanonicalSourceClient({
+  root:settings.root,expectedReleaseRevision:settings.release.sourceRevision,
+  wp2Staging:d6Wp2Staging,
+  request:(url,options)=>fetch(url,options),
+  enabled:()=>true,online:()=>navigator.onLine===true,
+ });
+ if(d6Wp2Staging&&
+   (settings.release?.d6Wp2Staging!==true||
+    settings.manifest?.d6Wp2Staging!==true))
+  throw Error('D6 WP2 staging build identity missing');
+ // Even after both read checks, nothing authorizes a repository write.
+ if(d6OwnerConnection&&
+   (settings.release?.d6OwnerConnectionCandidate!==true||
+    settings.manifest?.d6OwnerConnectionCandidate!==true))
+  throw Error('D6 approved Connection Status build identity missing');
+ if(directGearEnabled&&(!d6EditorPreview||!d6Wp2Staging||
+    settings.release?.d6DirectGearSave!==true||
+    settings.manifest?.d6DirectGearSave!==true))
+  throw Error('Direct Gear pilot requires verified isolated WP2 build identity');
+ if(directKBEnabled&&(!directGearEnabled||!d6EditorPreview||
+    settings.release?.d6DirectKBSave!==true||
+    settings.manifest?.d6DirectKBSave!==true))
+  throw Error('Direct Knowledge Base requires verified private release identity');
+ if(directCatchEnabled&&(!directKBEnabled||!d6EditorPreview||
+    settings.release?.d6DirectCatchSave!==true||
+    settings.manifest?.d6DirectCatchSave!==true))
+  throw Error('Direct Catches requires verified private release identity');
+ if(d6EditorPreview&&(!d6OwnerConnection||
+    settings.release?.d6OwnerEditorPreview!==true||
+    settings.manifest?.d6OwnerEditorPreview!==true))
+  throw Error('D6 owner editor preview build identity missing');
+ if(privateOwnerMediaCandidate&&(!d6Reader||!d6OwnerConnection||
+    !d6EditorPreview||!directGearEnabled||!directKBEnabled||
+    !directCatchEnabled||
+    settings.release?.d6OwnerMediaUpload!==true||
+    settings.manifest?.d6OwnerMediaUpload!==true))
+  throw Error('Private owner media requires separately verified release identity');
+ if(privateR2CardThumbnails&&(!privateOwnerMediaCandidate||
+    settings.release?.d6R2CardThumbnails!==true||
+    settings.manifest?.d6R2CardThumbnails!==true))
+  throw Error('Private M03 thumbnails require verified release identity');
+ if(privateOfflineContentPrep&&(!privateR2CardThumbnails||
+    !privateOwnerMediaCandidate||!directCatchEnabled||
+    settings.release?.d6OfflineContentPreparation!==true||
+    settings.manifest?.d6OfflineContentPreparation!==true))
+  throw Error('O02 offline preparation needs verified private M03 release identity');
+ if(privateOfflineContentRead&&(!privateOfflineContentPrep||
+    settings.release?.d6OfflineContentReading!==true||
+    settings.manifest?.d6OfflineContentReading!==true))
+  throw Error('O03 offline reading requires verified private O02 release identity');
+ const offlineContentReader=privateOfflineContentRead?
+  ()=>readD6OfflineContent({caches:globalThis.caches,
+   scope:settings.root}):null;
+ const offlineContentTransportFactory=privateOfflineContentPrep?
+  ({readingMode})=>createD6OfflineContentTransport({
+   root:settings.root,request:(url,options)=>fetch(url,options),
+   enabled:()=>true,readingMode,
+  }):null;
+ const directGearClient=directGearEnabled?createD6DirectGearClient({
+  root:settings.root,request:(url,options)=>fetch(url,options),
+  enabled:()=>true,online:()=>navigator.onLine===true,
+ }):null;
+ const directKBClient=directKBEnabled?createD6DirectKBClient({
+  root:settings.root,request:(url,options)=>fetch(url,options),
+  enabled:()=>true,online:()=>navigator.onLine===true,
+ }):null;
+ const directCatchClient=directCatchEnabled?createD6DirectCatchClient({
+  root:settings.root,request:(url,options)=>fetch(url,options),
+  enabled:()=>true,online:()=>navigator.onLine===true,
+ }):null;
+ return {v3:{...reader,ownerReadiness,canonicalSource,
+  wp2Staging:ownerWp2Staging,ownerConnectionCandidate:d6OwnerConnection,
+  ownerEditorPreview:d6EditorPreview,directGearEnabled,directGearClient,
+  directKBEnabled,directKBClient,directCatchEnabled,directCatchClient,
+  liveMediaReadApproved:privateOwnerMediaCandidate,
+  thumbnailReadApproved:privateR2CardThumbnails,
+  ownerMediaUploadCandidate:privateOwnerMediaCandidate,
+  offlineContentTransportFactory,offlineContentReader}};
+}
+Promise.resolve().then(()=>bootstrap(settings,d6Context())).catch(error=>{
  const main=document.getElementById('app');main.replaceChildren();
- const heading=document.createElement('h1');heading.textContent='Fishing Companion could not load';
- const message=document.createElement('p');message.textContent=error.message;
- const retry=document.createElement('button');retry.textContent='Retry';retry.onclick=()=>location.reload();
- main.append(heading,message,retry);console.error(error);
+ const heading=document.createElement('h1');
+ heading.textContent='Fishing Companion could not load';
+ const message=document.createElement('p');
+ message.textContent=error.message;
+  const retry=document.createElement('button');
+  retry.textContent='Retry';retry.onclick=()=>location.reload();
+  main.append(heading,message,retry);
+  mountD6OfflineRecovery({main,error,releaseId:settings.release?.id});
+ console.error(error);
 });

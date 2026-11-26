@@ -1,0 +1,542 @@
+import {KB_LOCATIONS} from './taxonomy.mjs';
+/* FISH118 D4: V3 owner-only Catch Add/Edit, canonical text-only workflow.
+ * No Catch images, GPS, offline writes, copy/export, or separate confirmation.
+ * This module is unreachable from published V2 routes and never grants
+ * server authorization. Source-aware verification remains server-side.
+ */
+import {el,text,button,field,select,toolbar,status} from './dom.mjs';
+import {DOMAIN,ID_PATTERN,newId,sha256} from './shared.mjs';
+import {validateRecord} from './validation.mjs';
+import {parseMarkdown,markdownRouteMap,sanitizeHtml} from './markdown.mjs';
+import {applyCatchField,catchFieldValue,speciesCatchChoices,lureCatchChoices} from './catch-fields.mjs';
+import {prepareChange,narrativePath} from './handoff.mjs';
+import {createNotesMarkdownEditor} from './notes-markdown-editor.mjs';
+import {DIRECT_D1_MEDIA_CAPABILITIES,presentD6OwnerImageCapability}
+ from './d6-owner-media-capabilities.mjs';
+import {saveD6OwnerEditorMedia} from './d6-owner-media-editor-save.mjs';
+import {restoreD6RevisionAwareDraft,saveD6RevisionAwareDraft} from './d6-revision-aware-draft-recovery.mjs';
+import {catchLureTargets,filterCatchLureTargets,applyCatchLureSelection}
+ from './catch-lure-picker.mjs';
+import {createCatchSpecies} from './d6-catch-species.mjs';
+
+const standaloneV3=typeof __FISHING_D6_STANDALONE_V3__!=='undefined'&&
+ __FISHING_D6_STANDALONE_V3__===true;
+const clone=value=>structuredClone(value);
+const str=value=>typeof value==='string'?value.trim():'';
+const allowed=new Set(['id','date','time','size','speciesId',
+ 'speciesName','locationId','locationName',
+ 'lureOrBaitId','lureOrBaitName','notes']);
+const validReceipt=r=>r?.accepted===true&&
+ /^p3_[a-f0-9-]{36}$/.test(r.operationId??'');
+// Show only a bounded, machine-generated error code. Never surface raw server
+// responses, authentication data, request packages or staged image bytes.
+export function catchPublicationErrorText(error){
+ const message=typeof error?.message==='string'&&error.message.length<=450?
+  error.message:'Catch publication not confirmed. Keep this edit and check Connection Status.';
+ const code=typeof error?.code==='string'&&/^[A-Z][A-Z0-9_]{2,63}$/.test(error.code)?
+  error.code:null;
+ return message+(code?' (code: '+code+')':'');
+}
+
+export function suggestedCatchId(record,existing,{sandboxOnly=false}={}){
+ const location=record.locationId??record.locationName??'';
+ const species=record.speciesId??record.speciesName??'';
+ if(standaloneV3)return newId([record.date||'undated',location||'unknown',species||'fish'].join('-'),existing);
+ return newId([sandboxOnly?'p3-test-catch':'catch',
+  record.date||'undated',location.replace(/^location-/,'')||'unknown',
+  species.replace(/^species-/,'')||'fish'].join('-'),existing);
+}
+
+/**
+ * Private P3 source CI permits fabricated Catch entries only. Keep this
+ * presentation guard scoped to that sandbox; production names are unrestricted.
+ * This mirrors the trusted sandbox validator, which remains authoritative.
+ */
+export function validatePrivateSandboxCatch(record,{sandboxOnly=false,adding=false,count=0}={}){
+ if(!sandboxOnly)return;
+ if(!record?.id?.startsWith('p3-test-catch-'))
+  throw new Error('Private sandbox Catch IDs must start with p3-test-catch-.');
+ if(adding&&count>=5)
+  throw new Error('The private sandbox has reached its five-Catch test limit.');
+ for(const [key,label] of [
+  ['speciesName','Species'],['locationName','Location'],
+  ['lureOrBaitName','Lure or bait'],
+ ]){
+  const value=record[key];
+  if(!value)continue;
+  if(/p3|test|synthetic/i.test(value)||
+   (key==='lureOrBaitName'&&value==='Other'))continue;
+  throw new Error('Private sandbox '+label+' must clearly identify fabricated test data. Include "Test", "Synthetic", or "p3" (for example, "Synthetic '+value+'"). Real '+label.toLowerCase()+' names are permitted in production.');
+ }
+}
+
+export async function prepareCatchPackage({
+ ctx,record,baseRecord=null,text:notesText='',baseText='',baseHash=null,notesImages=[],
+}={}){
+ if(!ctx?.v3?.source||!(ctx.v3.source.files instanceof Set)||
+  !ctx.release?.sourceRevision)
+  throw new Error('Verified private Catch source is required.');
+ if(!record||typeof record!=='object'||Array.isArray(record)||
+  Object.keys(record).some(key=>!allowed.has(key))||
+  !ID_PATTERN.test(record.id??''))
+  throw new Error('Invalid Catch fields or identity.');
+ if(baseRecord&&baseRecord.id!==record.id)
+  throw new Error('Existing Catch IDs cannot be changed.');
+ const candidate=clone(record);
+ for(const key of ['time','size','speciesId','speciesName',
+  'locationId','locationName','lureOrBaitId','lureOrBaitName'])
+  if(!str(candidate[key]))delete candidate[key];
+  else candidate[key]=str(candidate[key]);
+ // Fail fast before a durable receipt, GitHub PR or unneeded CI run.
+ // Sandbox-only synthetic-content restrictions never apply to production.
+ validatePrivateSandboxCatch(candidate,{
+  sandboxOnly:ctx.v3.source.sandboxOnly===true,
+  adding:!baseRecord,count:ctx.data.catches.catches.length,
+ });
+ if(typeof notesText!=='string'||typeof baseText!=='string')
+  throw new Error('Invalid Catch Notes.');
+ if(baseRecord?.notes&&!notesText.trim())
+  throw new Error('Existing Catch Notes cannot be removed in this pilot.');
+ const expectedPath=narrativePath('catches',candidate);
+ if(baseRecord?.notes)candidate.notes=baseRecord.notes;
+ else if(notesText.trim())candidate.notes=expectedPath;
+ else delete candidate.notes;
+ const known=ctx.v3.source.files;
+ if(baseRecord?.notes&&!known.has(baseRecord.notes))
+  throw new Error('The original Catch Notes are missing from the verified source.');
+ if(!baseRecord?.notes&&candidate.notes&&known.has(candidate.notes))
+  throw new Error('The new Catch Notes path already exists.');
+ if(!baseRecord&&ctx.data.catches.catches.some(c=>c.id===candidate.id))
+  throw new Error('A Catch with this ID already exists.');
+ const maps=validateRecord(candidate,'catches',ctx.data);
+ if(notesText.trim()){
+  const data=clone(ctx.data),items=data.catches.catches;
+  const pos=items.findIndex(x=>x.id===candidate.id);
+  if(pos<0)items.push(candidate);else items[pos]=candidate;
+  parseMarkdown(notesText,{owner:candidate.notes,
+   maps,exists:new Set([...known,...notesImages.map(x=>x.path)]),pathRoutes:markdownRouteMap(data),
+   assetBase:ctx.base});
+ }
+ return prepareChange({
+  domain:'catches',operation:baseRecord?'edit':'add',
+  id:candidate.id,baseRecord,record:candidate,
+  baseText,text:notesText,sourceRevision:ctx.release.sourceRevision,
+  notesPath:candidate.notes??expectedPath,baseFileHash:baseHash,notesImages,
+ });
+}
+
+export async function createCatchEditor(ctx,{
+ baseRecord=null,onBack=()=>{},onExit=()=>{},
+ onDirty=()=>{},onPrepared=()=>{},publishChange,
+}={}){
+ if(typeof publishChange!=='function'||!ctx?.v3?.source)
+  throw new Error('Owner-only Catch publishing is unavailable.');
+ const directCatch=ctx.v3?.directCatchEnabled===true&&
+  typeof ctx.v3?.directCatchClient?.read==='function'&&
+  typeof ctx.v3?.directCatchClient?.save==='function';
+ if(ctx.v3?.directCatchEnabled===true&&!directCatch)
+  throw Error('Direct Catch service unavailable. No edit submitted.');
+ if(standaloneV3&&!directCatch)
+  throw Error('Standalone V3 requires direct Catch Save.');
+ let directRevision=0,directText=null;
+ if(directCatch&&baseRecord){
+  const current=await ctx.v3.directCatchClient.read(baseRecord.id);
+  baseRecord=current.record;directRevision=current.revision;
+  directText=current.notes;
+ }
+ const editing=Boolean(baseRecord),record=baseRecord?clone(baseRecord):
+  {id:'',date:''};
+ const original=JSON.stringify(record);
+ let initialText='',notesText='',baseHash=null;
+ if(baseRecord?.notes){
+  if(directCatch)initialText=directText;
+  else{
+   const source=ctx.v3.source.markdown;
+   if(!(source instanceof Map)||!source.has(baseRecord.notes))
+    throw new Error('The verified Catch Notes cannot be loaded.');
+   initialText=source.get(baseRecord.notes);
+  }
+  if(typeof initialText!=='string')
+   throw new Error('Invalid verified Catch Notes.');
+  notesText=initialText;
+  baseHash=await sha256(new TextEncoder().encode(initialText));
+ }
+ const draftStore=ctx.v3?.drafts??null;
+ const draftKey='catches:'+(editing?'edit:'+baseRecord.id:'add:catch');
+ const recovery=await restoreD6RevisionAwareDraft({store:draftStore,key:draftKey,
+  sourceRevision:ctx.release.sourceRevision,baseHash,
+  baseRevision:directCatch?directRevision:null});
+ if(recovery.status==='restored'||recovery.status==='review'){
+  for(const name of Object.keys(record))delete record[name];
+  Object.assign(record,recovery.record);notesText=recovery.notes;
+ }
+ const reviewOnly=recovery.reviewOnly===true;
+ const draftWritable=!reviewOnly&&
+  !['stale','corrupt','unavailable','conflict','legacy'].includes(recovery.status);
+ let pending=false,accepted=false,notesEditor=null;
+ const dirty=()=>!accepted&&
+  (JSON.stringify(record)!==original||notesText!==initialText);
+ const host=el('div',{class:'editor'}),form=el('form',{class:'editor-form'}),
+  notice=el('div',{class:'editor-notice','aria-live':'polite'}),
+  actionNotice=el('div',{class:'editor-notice editor-action-feedback','aria-live':'polite'}),
+  output=el('div',{class:'handoff-output'});
+ if(recovery.message)status(notice,recovery.message,
+  recovery.status==='restored'||recovery.status==='discarded'?'info':'warning');
+ let draftSequence=0;
+ const warnDraft=()=>status(notice,
+  'Device draft could not be saved. Keep this editor open until the changes are safely submitted.','warning');
+ const reviewAction=reviewOnly?toolbar(button('Discard saved draft and reload',async()=>{
+  if(!confirm('Discard this saved draft permanently and reload the current server record?'))return;
+  try{await draftStore.discard(draftKey);location.reload();}
+  catch{status(notice,'The saved draft could not be discarded. It was retained.','warning');}
+ },{variant:'danger'})):null;
+ const discardDraft=async()=>{
+  ++draftSequence;
+  if(draftStore&&draftWritable)await draftStore.discard(draftKey);
+ };
+ const writeDraft=()=>saveD6RevisionAwareDraft({store:draftStore,key:draftKey,domain:'catches',
+  sourceRevision:ctx.release.sourceRevision,baseHash,
+  baseRevision:directCatch?directRevision:null,record,
+  notes:notesText,requiresMedia:Boolean(notesEditor?.uploads().length)});
+ const updated=()=>{
+  if(accepted)return;
+  output.replaceChildren();onDirty(dirty());
+  if(!draftStore||!draftWritable)return;
+  const sequence=++draftSequence;
+  if(!dirty()){
+   void draftStore.discard(draftKey).catch(warnDraft);
+   return;
+  }
+  void writeDraft()
+   .then(()=>{if(sequence===draftSequence&&!accepted)
+    status(notice,'Draft saved on this device. Nothing has been published.','info');},
+    warnDraft);
+ };
+ const ids=new Set(ctx.data.catches.catches.map(x=>x.id));
+ const idInput=el('input',{type:'text',readonly:true,value:record.id});
+ const generateId=()=>{
+  if(editing)return;
+  record.id=suggestedCatchId(record,ids,{
+   sandboxOnly:ctx.v3.source.sandboxOnly===true});
+  idInput.value=record.id;
+  notesEditor?.syncPaths();
+ };
+ const dateInput=el('input',{type:'date',required:true,value:record.date});
+ dateInput.addEventListener('input',()=>{
+  record.date=dateInput.value;generateId();updated();
+ });
+ const timeInput=el('input',{type:'time',value:record.time||''});
+ timeInput.addEventListener('input',()=>{
+  if(timeInput.value)record.time=timeInput.value;else delete record.time;
+  updated();
+ });
+ const sizeInput=el('input',{type:'text',maxlength:500,
+  placeholder:'e.g., 14 in',value:record.size||''});
+ sizeInput.addEventListener('input',()=>{
+  if(sizeInput.value.trim())record.size=sizeInput.value;
+  else delete record.size;
+  updated();
+ });
+ const species=speciesCatchChoices(ctx.data),
+  lure=lureCatchChoices(ctx.data);
+ // The same standard native selector used for Gear Category and Type.
+ // Historical Catch-only names remain selectable without manufacturing KB rows.
+ const initialSpecies=catchFieldValue(record,'species',species.linked);
+ const speciesNames=[...species.suggestions];
+ if(initialSpecies&&!speciesNames.includes(initialSpecies))
+  speciesNames.push(initialSpecies);
+ const speciesSelect=select([['','Choose species'],
+  ...speciesNames.map(name=>[name,name])],initialSpecies,()=>{
+   applyCatchField(record,'species',speciesSelect.value,species.linked);
+   generateId();updated();
+ });
+ speciesSelect.required=false;
+ const speciesNameInput=el('input',{type:'text',maxlength:160,
+  placeholder:'New species name'});
+ const speciesPanel=el('div',{class:'new-choice',hidden:true});
+ const speciesMessage=el('div',{'aria-live':'polite'});
+ const closeSpecies=()=>{
+  speciesPanel.hidden=true;speciesNameInput.value='';
+ };
+ const openSpecies=button('Add new species',()=>{
+  if(reviewOnly)return;
+  speciesPanel.hidden=false;
+  speciesNameInput.focus();
+ });
+ const speciesCancel=button('Cancel',closeSpecies);
+ openSpecies.disabled=reviewOnly;
+ const speciesAdd=button('Add',async()=>{
+  if(speciesAdd.disabled||pending||accepted)return;
+  const name=speciesNameInput.value.trim();
+  if(!name){status(speciesMessage,'Enter a species name first.','error');return;}
+  speciesAdd.disabled=true;speciesCancel.disabled=true;
+  submit.disabled=true;cancelButton.disabled=true;
+  speciesAdd.textContent='Adding…';
+  status(speciesMessage,'Adding the new Knowledge Base species…','info');
+  try{
+   const created=await createCatchSpecies({name,context:ctx});
+   species.linked.push({id:created.id,name:created.name});
+   if(!Array.from(speciesSelect.options).some(x=>x.value===created.name))
+    speciesSelect.append(el('option',{value:created.name},created.name));
+   speciesSelect.value=created.name;
+   record.speciesId=created.id;delete record.speciesName;
+   generateId();updated();
+   closeSpecies();
+   status(speciesMessage,
+    'Species added to Knowledge Base. You can edit its details there. The Catch has not been saved.','success');
+  }catch(error){
+   status(speciesMessage,error?.message||'Species was not added.','error');
+  }finally{
+   speciesAdd.textContent='Add';speciesAdd.disabled=false;
+   speciesCancel.disabled=false;
+   if(!pending&&!accepted){submit.disabled=reviewOnly;cancelButton.disabled=false;}
+  }
+ },{variant:'primary'});
+ speciesPanel.append(field('New species',speciesNameInput),
+  text('p','Adding a species saves it to Knowledge Base immediately, even if you later cancel the Catch.','hint'),
+  toolbar(speciesAdd,speciesCancel));
+ const speciesField=el('div',{class:'gear-choice-control'},
+  field('Species',speciesSelect),openSpecies,speciesPanel,speciesMessage);
+ const locationEntry=el('input',{type:'text',maxlength:160,
+  placeholder:'Enter lake, river, or specific location',
+  value:catchFieldValue(record,'location',ctx.data.kb.entities
+   .filter(e=>e.type===KB_LOCATIONS))});
+ locationEntry.addEventListener('input',()=>{
+  applyCatchField(record,'location',locationEntry.value,
+   ctx.data.kb.entities.filter(e=>e.type===KB_LOCATIONS));
+  generateId();updated();
+ });
+ const locationField=field('Location',locationEntry);
+ // The native datalist becomes very tall and hard to scan as the Gear
+ // catalog grows. Use the same search/filter/bounded list pattern as
+ // Insert link, but leave the Catch form compact until Choose is pressed.
+ const lureDisplay=el('input',{type:'text',readonly:true,
+  value:catchFieldValue(record,'lureOrBait',lure.linked),
+  placeholder:'No lure or bait selected'});
+ const lurePickButton=button('Choose',openLurePicker);
+ const lureSummary=el('div',{class:'catch-lure-summary'},
+  field('Lure or bait',lureDisplay),lurePickButton);
+ const lurePanel=el('div',{class:'catch-lure-panel',hidden:true});
+ const lureKinds='catch-lure-kind-'+Math.random().toString(36).slice(2);
+ const gearRadio=el('input',{type:'radio',name:lureKinds,checked:true});
+ const customRadio=el('input',{type:'radio',name:lureKinds});
+ const lureSearch=el('input',{type:'search',placeholder:'Search Gear by name or type',
+  'aria-label':'Search lures and bait'});
+ const targets=catchLureTargets(ctx.data);
+ const groups=[...new Set(targets.map(x=>x.group))].sort((a,b)=>a.localeCompare(b));
+ const lureFilter=el('select',{},
+  el('option',{value:'all'},'All types'),
+  groups.map(group=>el('option',{value:group},group)));
+ const lureList=el('select',{size:7,'aria-label':'Matching lure or bait items'});
+ const customInput=el('input',{type:'text',maxlength:160,
+  placeholder:'Enter a custom lure or bait'});
+ const gearFields=el('div',{class:'catch-lure-catalog'},
+  field('Search catalog',lureSearch),field('Gear type',lureFilter),
+  field('Matching items',lureList));
+ const customFields=el('div',{class:'catch-lure-custom',hidden:true},
+  field('Custom lure or bait',customInput));
+ const lureMessage=el('div',{'aria-live':'polite'});
+ let visibleTargets=[];
+ function renderLureList(){
+  const old=lureList.value;
+  visibleTargets=filterCatchLureTargets(targets,{
+   query:lureSearch.value,group:lureFilter.value});
+  lureList.replaceChildren(...(visibleTargets.length?
+   visibleTargets.map(x=>el('option',{value:x.key},
+    x.group+' · '+x.name)):
+   [el('option',{value:'',disabled:true},'No matching items')]));
+  if(visibleTargets.some(x=>x.key===old))lureList.value=old;
+  else if(visibleTargets.length)lureList.value=visibleTargets[0].key;
+ }
+ function updateLureMode(){
+  gearFields.hidden=!gearRadio.checked;
+  customFields.hidden=gearRadio.checked;
+ }
+ function closeLurePicker(){lurePanel.hidden=true;lureMessage.replaceChildren();}
+ function openLurePicker(){
+  closeLurePicker();
+  lureSearch.value='';lureFilter.value='all';customInput.value='';
+  gearRadio.checked=true;customRadio.checked=false;
+  const current=record.lureOrBaitId;
+  renderLureList();
+  if(current&&visibleTargets.some(x=>x.key==='gear:'+current))
+   lureList.value='gear:'+current;
+  else if(record.lureOrBaitName){
+   const item=visibleTargets.find(x=>x.kind==='name'&&
+    x.name.toLocaleLowerCase()===record.lureOrBaitName.toLocaleLowerCase());
+   if(item)lureList.value=item.key;
+   else{
+    customRadio.checked=true;gearRadio.checked=false;
+    customInput.value=record.lureOrBaitName;
+   }
+  }
+  updateLureMode();lurePanel.hidden=false;
+  lurePanel.scrollIntoView({block:'nearest'});
+  if(gearRadio.checked)lureSearch.focus();else customInput.focus();
+ }
+ lureSearch.addEventListener('input',renderLureList);
+ lureFilter.addEventListener('change',renderLureList);
+ gearRadio.addEventListener('change',updateLureMode);
+ customRadio.addEventListener('change',updateLureMode);
+ const selectLure=button('Select',()=>{
+  const item=gearRadio.checked?
+   visibleTargets.find(x=>x.key===lureList.value):
+   {kind:'name',name:customInput.value.trim()};
+  try{
+   if(!item?.name?.trim())throw Error('Choose a lure or bait or enter a custom name.');
+   applyCatchLureSelection(record,item);
+   lureDisplay.value=catchFieldValue(record,'lureOrBait',lure.linked);
+   updated();closeLurePicker();
+  }catch(error){status(lureMessage,error.message,'error');}
+ });
+ lurePanel.append(el('h3',{},'Choose lure or bait'),
+  el('fieldset',{class:'catch-lure-kind'},
+   el('legend',{},'Source'),
+   el('label',{},gearRadio,' Gear catalog or previous entries'),
+   el('label',{},customRadio,' Custom name')),
+  gearFields,customFields,lureMessage,
+  el('div',{class:'notes-image-actions'},
+   button('Cancel',closeLurePicker),selectLure));
+ const lureField=el('div',{class:'catch-lure-picker'},lureSummary,lurePanel);
+ generateId();
+ notesEditor=createNotesMarkdownEditor({
+  domain:'catches',getRecord:()=>record,value:notesText,
+  label:'Notes (Markdown, optional)',
+  onChange:value=>{notesText=value;updated();},
+  knownPaths:()=>ctx.mediaLiveReader===true?
+   new Set(ctx.mediaPublishedPaths??[]):new Set(ctx.v3.source.files),
+  resolveSavedAsset:path=>(ctx.image||ctx.asset)(path),
+  allowUpload:ctx.v3?.mediaCapabilities?.canUploadNewImages===true,
+  linkMaps:()=>ctx.maps,
+  previewOptions:()=>({owner:record.notes||'Catches/content/'+record.id+'.md',
+   maps:ctx.maps,pathRoutes:markdownRouteMap(ctx.data),assetBase:ctx.base,
+  }),
+ });
+ presentD6OwnerImageCapability(notesEditor.element,
+  ctx.v3?.mediaCapabilities??DIRECT_D1_MEDIA_CAPABILITIES);
+  const submit=el('button',{type:'submit',class:'btn primary'},standaloneV3||directCatch?'Save':'Save and Publish');
+ const cancelButton=button('Cancel',async()=>{
+  if(!dirty()||!standaloneV3){onBack();return;}
+  cancelButton.disabled=true;
+  try{
+   if(!draftStore||!draftWritable||await writeDraft()!==true)
+    throw Error('Device draft unavailable');
+   onBack({deviceDraftSaved:true,
+    needsReselect:Boolean(recovery.requiresMedia||notesEditor?.uploads().length)});
+  }catch{
+   status(actionNotice,
+    'Unable to save the device draft. Keep this editor open or copy your edits before leaving.','error');
+  }finally{cancelButton.disabled=false;}
+ });
+ const actions=toolbar(submit,cancelButton);
+ if(reviewOnly)submit.disabled=true;
+ form.append(
+  field(baseRecord?'ID':'ID (generated automatically)',idInput),
+  field('Date',dateInput),field('Time (optional)',timeInput),
+  field('Size (optional)',sizeInput),
+  speciesField,locationField,lureField,
+  notesEditor.element,
+  actions,actionNotice,
+ );
+ form.addEventListener('submit',async event=>{
+  event.preventDefault();
+  if(pending||accepted)return;
+  if(reviewOnly){status(notice,'This saved draft is for copying only. Save is blocked until you discard it and open a fresh edit.','warning');return;}
+  pending=true;submit.disabled=true;cancelButton.disabled=true;
+  submit.textContent='Saving…';submit.setAttribute('aria-busy','true');
+  notice.replaceChildren();actionNotice.replaceChildren();
+  status(actionNotice,'Saving changes and pictures…','info');
+  try{
+   notesEditor.syncPaths();
+    notesText=notesEditor.value();
+    const notesUploads=notesEditor.uploads();
+    // Legacy GitHub D4 staging is never the direct-D1 media writer.
+    if(notesUploads.length&&!directCatch)
+     throw Error('Legacy Notes-image publication is disabled.');
+   if(directCatch){
+    if(ctx.v3?.directCatchCanSave?.()!==true)
+     throw Error('Work Offline or signed out. Save unavailable; your edit is preserved.');
+    if(notesUploads.length&&ctx.v3?.mediaCapabilities?.canUploadNewImages!==true)
+     throw Error('New Notes image uploads are unavailable. Your edit is preserved.');
+    const candidate=clone(record);
+    for(const key of ['time','size','speciesId','speciesName',
+     'locationId','locationName','lureOrBaitId','lureOrBaitName']){
+     if(!str(candidate[key]))delete candidate[key];
+     else candidate[key]=str(candidate[key]);
+    }
+    if(notesText.trim())candidate.notes=baseRecord?.notes||
+     'Catches/content/'+candidate.id+'.md';
+    else if(baseRecord?.notes)throw Error('Existing Catch Notes cannot be removed.');
+    else delete candidate.notes;
+    const maps=validateRecord(candidate,'catches',ctx.data);
+    if(notesText.trim())parseMarkdown(notesText,{
+     owner:candidate.notes,maps,
+     exists:new Set([...ctx.v3.source.files,...notesUploads.map(x=>x.path)]),
+     pathRoutes:markdownRouteMap(ctx.data),assetBase:ctx.base,
+    });
+    // The approved hosted Worker remains upload-OFF; only a separately
+    // authorized coordinator can stage, publish and verify D1/R2.
+    const saved=(notesUploads.length||
+     ctx.v3?.mediaCapabilities?.canUploadNewImages===true)?
+     await saveD6OwnerEditorMedia({
+      domain:'catches',record:candidate,markdown:notesText,
+      expectedRevision:directRevision,
+      uploads:notesUploads.map(x=>({path:x.path,file:x.file,role:'notes'})),
+      capabilities:ctx.v3?.mediaCapabilities,
+      coordinator:ctx.v3?.ownerMediaCoordinator,
+     }):
+     await ctx.v3.directCatchClient.save({
+      record:candidate,notes:notesText,expectedRevision:directRevision,
+     });
+    if(saved?.record?.id!==candidate.id||
+       saved.revision!==directRevision+1)
+     throw Error('Catch Save was not independently verified.');
+    try{ctx.v3.onDirectCatchSaved?.();}catch{}
+    accepted=true;
+    // Save completes navigation after a verified D1/R2 result.
+    // Do not expose a redundant second Exit click.
+    for(const control of form.querySelectorAll('input,select,textarea,button'))
+     control.disabled=true;
+    onDirty(false);
+    try{await discardDraft();}catch{/* verified Catch remains authoritative */}
+    onExit({savedId:candidate.id,savedRecord:candidate});
+    window.location.reload();
+    return;
+   }
+   if(!standaloneV3){
+    const pkg=await prepareCatchPackage({
+    ctx,record,baseRecord,text:notesText,baseText:initialText,baseHash,
+     notesImages:notesUploads.map(x=>({path:x.path,bytes:x.bytes,sha256:x.sha256})),
+   });
+   // No local queuing, retrying, or optimistic publication confirmation.
+   const receipt=await publishChange(pkg,notesUploads.map(x=>({path:x.path,file:x.file})));
+   if(!validReceipt(receipt))
+    throw new Error('A durable Catch publication receipt was not confirmed.');
+   accepted=true;
+   for(const control of form.querySelectorAll('input,select,textarea,button'))
+    control.disabled=true;
+   // Keep the submitted Catch form visible and locked for review.
+   // Rejected submissions keep Save and Publish / Cancel for correction.
+   actions.replaceChildren(button('Exit',onExit,{variant:'primary'}));
+   output.replaceChildren(text('p',
+    'Publication accepted. Verification and publishing are in progress. You may leave the editor and check publication status in the Connection Status screen.',
+    'hint'));
+   notice.replaceChildren();
+   actionNotice.replaceChildren();
+   onDirty(false);
+   try{onPrepared(draftStore?{...receipt,draftKey}:receipt);}catch{ /* Cannot undo a durable receipt. */ }
+   }
+  }catch(error){
+   status(notice,catchPublicationErrorText(error),'error');
+   status(actionNotice,directCatch?'Save was not confirmed. Your edit is preserved.':'Nothing was confirmed as published. Your edit is retained.','error');
+  }finally{
+   pending=false;submit.removeAttribute('aria-busy');
+   if(!accepted){submit.textContent='Save';submit.disabled=reviewOnly;cancelButton.disabled=false;}
+  }
+ });
+ if(ctx.v3.source.sandboxOnly===true)
+  host.append(text('p',
+   'Private sandbox: use fabricated test Catch data only. Real catches belong in the eventual production release.','hint'));
+ host.append(notice,...(reviewAction?[reviewAction]:[]),form,output);
+ return {element:host,isDirty:dirty,discardDraft,dispose:()=>notesEditor.dispose(),record};
+}

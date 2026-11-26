@@ -1,1 +1,0 @@
-Includes KastKing hook remover and fish gripper, 44 lb. capacity

@@ -1,13 +1,27 @@
 /* Verified online-current releases plus explicit complete offline-library generations. */
 import {encodedPath} from './shared.mjs';
 import {validatePointer,validateManifest,verifyBytes,decodeVerifiedJson,isReleaseId,isDigest} from './release.mjs';
+import {readD6OfflineImage} from './d6-offline-content-image-route.mjs';
 
 const scope=self.registration.scope;
 const base=new URL(scope).pathname;
-const prefix='fishing-v2:'+base+':';
+const standaloneV3=typeof __FISHING_D6_STANDALONE_V3__!=='undefined'&&
+ __FISHING_D6_STANDALONE_V3__===true;
+const prefix=(standaloneV3?'fishing-v3-software:':'fishing-v2:')+base+':';
+// V3 keeps the established verified software-cache algorithm but has its
+// own protocol. Its runtime never speaks to or opens V2/FISH091 storage.
+const statusType=standaloneV3?'FISHING_V3_STATUS':'FISHING_V2_STATUS';
+const progressType=standaloneV3?'FISHING_V3_PROGRESS':'FISHING_V2_PROGRESS';
+const currentType=standaloneV3?'FISHING_V3_CURRENT':'FISHING_V2_CURRENT';
 const metadataName=prefix+'metadata';
 const marker=new URL('__fishing_complete__',scope).href;
 const selectionKey=new URL('__fishing_selected__',scope).href;
+const v3ReadingMode=typeof __FISHING_V3_READING_MODE__!=='undefined'&&
+ __FISHING_V3_READING_MODE__===true;
+// This route is absent from the deployed O02 service worker.
+const o03OfflineContent=typeof __FISHING_D6_O03_OFFLINE_READING__!=='undefined'&&
+ __FISHING_D6_O03_OFFLINE_READING__===true;
+const readingModeKey=new URL('__fishing_v3_reading_mode__',scope).href;
 const absolute=relative=>new URL(encodedPath(relative),scope).href;
 const clientContexts=new Map();
 let operation=null;
@@ -15,10 +29,15 @@ let operation=null;
 const mime=p=>p.endsWith('.json')?'application/json':p.endsWith('.js')?'text/javascript':p.endsWith('.css')?'text/css':p.endsWith('.html')?'text/html; charset=utf-8':p.endsWith('.svg')?'image/svg+xml':p.endsWith('.png')?'image/png':p.endsWith('.webp')?'image/webp':p.endsWith('.gif')?'image/gif':p.endsWith('.jpg')||p.endsWith('.jpeg')?'image/jpeg':'application/octet-stream';
 const responseFor=(bytes,path,status=200)=>new Response(bytes,{status,headers:{'Content-Type':mime(path),'Cache-Control':'no-store'}});
 async function broadcast(type,status){for(const client of await self.clients.matchAll({includeUncontrolled:true,type:'window'}))client.postMessage({type,status});}
-async function network(path){const response=await fetch(absolute(path),{cache:'no-store',redirect:'error'});if(!response.ok||response.type==='opaque')throw new Error(`Asset unavailable: ${path} (HTTP ${response.status})`);return response.arrayBuffer();}
+// The hosted Pages layer may redirect /index.html to the canonical scope root.
+// V3 reads that exact root without allowing redirects or weakening byte checks.
+const networkUrl=path=>v3ReadingMode&&path==='index.html'?scope:absolute(path);
+async function network(path){const response=await fetch(networkUrl(path),{cache:'no-store',redirect:'error'});if(!response.ok||response.type==='opaque')throw new Error(`Asset unavailable: ${path} (HTTP ${response.status})`);return response.arrayBuffer();}
 async function loadOnlineContext(){
  const pointerBytes=await network('release.json');
  const pointer=validatePointer(JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(pointerBytes)));
+ if(standaloneV3&&pointer.standaloneV3!==true)
+  throw Error('Standalone V3 software release required');
  const manifestBytes=await network(pointer.manifest);
  const manifest=await decodeVerifiedJson(manifestBytes,pointer.manifestSha256);
  const entries=validateManifest(manifest,pointer,base);
@@ -35,6 +54,7 @@ async function completed(){
    const pointerResponse=await cache.match(absolute('release.json'));if(!pointerResponse)continue;
    const pointerBytes=await pointerResponse.arrayBuffer();
    const pointer=validatePointer(await decodeVerifiedJson(pointerBytes,meta.pointerSha256));
+   if(standaloneV3&&pointer.standaloneV3!==true)continue;
    if(pointer.id!==meta.releaseId||pointer.manifestSha256!==meta.manifestSha256)continue;
    const manifestResponse=await cache.match(absolute(pointer.manifest));if(!manifestResponse)continue;
    const manifestBytes=await manifestResponse.arrayBuffer();
@@ -61,6 +81,41 @@ async function writeSelection(entry){
  if(!entry){await cache.delete(selectionKey);return;}
  await cache.put(selectionKey,new Response(JSON.stringify({cacheName:entry.name,releaseId:entry.meta.releaseId}),{headers:{'Content-Type':'application/json','Cache-Control':'no-store'}}));
 }
+async function readingMode(){
+ if(!v3ReadingMode)return 'Automatic';
+ try{
+  const r=await (await caches.open(metadataName)).match(readingModeKey);
+  const value=r?await r.json():null;
+  return value?.version===1&&value.mode==='Work Offline'?
+   'Work Offline':'Automatic';
+ }catch{return 'Automatic';}
+}
+async function setReadingMode(mode,expectedReleaseId){
+ if(!v3ReadingMode)return {mode:'Automatic',available:false};
+ if(!['Automatic','Work Offline'].includes(mode))
+  return {mode:await readingMode(),available:true,error:'Invalid reading mode.'};
+ if(mode==='Work Offline'){
+  const {entry}=await resolveSelected({verify:true});
+  if(!entry)return {mode:await readingMode(),available:true,
+   error:'Prepare a complete verified offline library before selecting Work Offline.'};
+  // A live tab can hold release A while the selected offline library is B.
+  // Without a reload, using B for A's pinned assets would break integrity.
+  if(expectedReleaseId!==undefined&&
+     (!isReleaseId(expectedReleaseId)||entry.pointer.id!==expectedReleaseId))
+   return {mode:await readingMode(),available:true,
+    error:'The offline library is for a different release. Update the offline library or reopen the app before switching to Work Offline.'};
+ }
+ try{
+  const cache=await caches.open(metadataName);
+  if(mode==='Work Offline')await cache.put(readingModeKey,
+   new Response(JSON.stringify({version:1,mode}),{
+    headers:{'Content-Type':'application/json','Cache-Control':'no-store'}}));
+  else await cache.delete(readingModeKey);
+  clientContexts.clear();
+  return {mode,available:true};
+ }catch{return {mode:await readingMode(),available:true,
+  error:'Unable to save the reading mode. Previous mode retained.'};}
+}
 async function resolveSelected({verify=false}={}){
  const entries=await completed();if(!entries.length)return {entry:null,error:null};
  const saved=await selectedRecord();const preferred=entries.find(x=>x.name===saved?.cacheName&&x.meta.releaseId===saved?.releaseId);
@@ -83,14 +138,14 @@ async function prepareRelease(){
   try{
    const context=await loadOnlineContext(),{pointer,pointerBytes,manifest,manifestBytes,entries}=context;
    const existing=(await completed()).filter(x=>x.meta.releaseId===pointer.id).reverse();
-   for(const entry of existing){try{await verifyCache(entry);await writeSelection(entry);await broadcast('FISHING_V2_STATUS',await state());return;}catch{}}
+   for(const entry of existing){try{await verifyCache(entry);await writeSelection(entry);await broadcast(statusType,await state());return;}catch{}}
    stageName=prefix+'offline:'+crypto.randomUUID()+':'+pointer.id;const staging=await caches.open(stageName);
    let completedFiles=0,totalBytes=0;
-   await broadcast('FISHING_V2_PROGRESS',{state:'Downloading',releaseId:pointer.id,files:entries.size,completed:0,bytes:0});
+   await broadcast(progressType,{state:'Downloading',releaseId:pointer.id,files:entries.size,completed:0,bytes:0});
    for(const file of entries.values()){
     failed=file.path;const bytes=await network(file.path);await verifyBytes(bytes,file);
     await staging.put(absolute(file.path),responseFor(bytes,file.path));completedFiles++;totalBytes+=file.bytes;
-    if(completedFiles%8===0||completedFiles===entries.size)await broadcast('FISHING_V2_PROGRESS',{state:'Downloading',releaseId:pointer.id,files:entries.size,completed:completedFiles,bytes:totalBytes});
+    if(completedFiles%8===0||completedFiles===entries.size)await broadcast(progressType,{state:'Downloading',releaseId:pointer.id,files:entries.size,completed:completedFiles,bytes:totalBytes});
    }
    await staging.put(absolute(pointer.manifest),responseFor(manifestBytes,pointer.manifest));
    await staging.put(absolute('release.json'),responseFor(pointerBytes,'release.json'));
@@ -99,11 +154,11 @@ async function prepareRelease(){
    await staging.put(marker,new Response(JSON.stringify(meta),{headers:{'Content-Type':'application/json','Cache-Control':'no-store'}}));
    const entry={source:'offline',name:stageName,cache:staging,meta,pointerBytes,manifestBytes,pointer,manifest,entries};
    await writeSelection(entry);stageName=null;
-   await broadcast('FISHING_V2_STATUS',await state());
+   await broadcast(statusType,await state());
   }catch(error){
    if(stageName)await caches.delete(stageName);
    const status=await state({message:'Update incomplete; any previous complete offline library is retained. '+error.message,failed:[failed]});
-   await broadcast('FISHING_V2_STATUS',status);throw error;
+   await broadcast(statusType,status);throw error;
   }
  })();
  try{return await operation;}finally{operation=null;}
@@ -113,59 +168,98 @@ async function cachedFile(entry,path){
  const response=await entry.cache.match(absolute(path));if(!response)return null;
  return responseFor(await verifyBytes(await response.arrayBuffer(),file),file.path);
 }
+// A failed cached read must invalidate the visible library status too.
+// Do not claim Ready after refusing bytes; independently re-verify the full
+// selected library, preserving a different still-complete fallback if one exists.
+async function offlineCachedOrUnavailable(entry,path,url,label='Verified offline asset unavailable'){
+ try{const valid=await cachedFile(entry,path);if(valid)return valid;}catch{}
+ await broadcast(statusType,await state({
+  message:'A release asset failed integrity verification. Update the offline library before relying on offline access.',
+  failed:[url],
+ }));
+ return new Response(label,{status:503});
+}
 async function networkFile(context,path){const file=context.entries.get(path);if(!file)throw new Error('Resource is not part of the selected release: '+path);const bytes=await network(path);await verifyBytes(bytes,file);return responseFor(bytes,file.path);}
 function remember(event,context){for(const key of [event.clientId,event.resultingClientId])if(key)clientContexts.set(key,context);return context;}
 async function fallbackContext(){const {entry}=await resolveSelected();return entry;}
 function offlineUnavailable(){return new Response('<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Fishing Companion · Offline</title><style>body{font:16px system-ui,sans-serif;background:#101b18;color:#eef7f4;margin:0;padding:2rem}main{max-width:42rem;margin:auto}h1{font-size:1.5rem}p{line-height:1.5}</style><main><h1>Fishing Companion is not prepared for offline use</h1><p>Reconnect to the internet, open Fishing Companion, then choose <strong>Connection Status → Update offline library</strong> before going offline.</p></main>',{status:503,headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'}});}
-async function contextFor(event){
- const key=event.clientId||event.resultingClientId;if(key&&clientContexts.has(key))return clientContexts.get(key);
+async function contextFor(event,offlineOnly=false){
+ const key=event.clientId||event.resultingClientId;
+ if(key&&clientContexts.has(key)&&
+  (!offlineOnly||clientContexts.get(key).source==='offline'))
+  return clientContexts.get(key);
+ if(offlineOnly){const fallback=await fallbackContext();
+  return fallback?remember(event,fallback):null;}
  try{return remember(event,await loadOnlineContext());}catch{const fallback=await fallbackContext();return fallback?remember(event,fallback):null;}
 }
 self.addEventListener('install',event=>event.waitUntil(self.skipWaiting()));
-self.addEventListener('activate',event=>event.waitUntil((async()=>{await self.clients.claim();await broadcast('FISHING_V2_STATUS',await state());})()));
+self.addEventListener('activate',event=>event.waitUntil((async()=>{await self.clients.claim();await broadcast(statusType,await state());})()));
 self.addEventListener('message',event=>{
  const message=event.data||{};
- if(message.type==='HELLO')event.ports[0]?.postMessage({protocol:'fishing-companion-v2',base,capabilities:{onlineDefault:true,explicitOffline:true}});
- if(message.type==='STATUS')event.waitUntil(state().then(status=>event.ports[0]?.postMessage({type:'FISHING_V2_STATUS',status})));
- if(message.type==='CHECK_CURRENT')event.waitUntil(loadOnlineContext()
-  .then(context=>event.ports[0]?.postMessage({type:'FISHING_V2_CURRENT',releaseId:context.pointer.id}))
-  .catch(()=>event.ports[0]?.postMessage({type:'FISHING_V2_CURRENT',releaseId:null})));
- if(message.type==='PREPARE'||message.type==='REPAIR')event.waitUntil(prepareRelease().then(()=>state(),error=>state({message:error.message,failed:[]})).then(status=>event.ports[0]?.postMessage({type:'FISHING_V2_STATUS',status})));
+ if(message.type==='HELLO')event.ports[0]?.postMessage({protocol:standaloneV3?'fishing-companion-v3':'fishing-companion-v2',base,capabilities:{onlineDefault:true,explicitOffline:true}});
+ if(message.type==='STATUS')event.waitUntil(state().then(status=>event.ports[0]?.postMessage({type:statusType,status})));
+ if(message.type==='V3_READ_MODE'&&v3ReadingMode)event.waitUntil(
+  readingMode().then(mode=>event.ports[0]?.postMessage({
+   type:'FISHING_V3_MODE',mode,available:true})));
+ if(message.type==='V3_SET_MODE'&&v3ReadingMode)event.waitUntil(
+  setReadingMode(message.mode,message.expectedReleaseId).catch(async()=>({
+   mode:await readingMode(),available:true,
+   error:'The offline library could not be verified. Previous mode retained.',
+  })).then(result=>event.ports[0]?.postMessage({
+   type:'FISHING_V3_MODE',...result})));
+ if(message.type==='CHECK_CURRENT')event.waitUntil(readingMode().then(mode=>
+  mode==='Work Offline'?null:loadOnlineContext().then(context=>context.pointer.id)
+   .catch(()=>null)).then(releaseId=>event.ports[0]?.postMessage({
+    type:currentType,releaseId})));
+ if(message.type==='PREPARE'||message.type==='REPAIR')event.waitUntil(prepareRelease().then(()=>state(),error=>state({message:error.message,failed:[]})).then(status=>event.ports[0]?.postMessage({type:statusType,status})));
 });
 self.addEventListener('fetch',event=>{
  const request=event.request,url=new URL(request.url),scopeUrl=new URL(scope);
  if(request.method!=='GET'||url.origin!==scopeUrl.origin||!url.pathname.startsWith(scopeUrl.pathname))return;
  event.respondWith((async()=>{
+  const offlineOnly=(await readingMode())==='Work Offline';
   let relative;try{relative=decodeURIComponent(url.pathname.slice(scopeUrl.pathname.length));}catch{return new Response('Invalid resource path',{status:400});}
-  if(relative==='__fishing_complete__'||relative==='__fishing_selected__')return new Response('Not found',{status:404});
+  // Only a selected complete V3 content generation may serve SHA-addressed images.
+  // No network, legacy image path or R2 fallback is available here.
+  if(o03OfflineContent&&/^__fishing_v3_content_image__\/[a-f0-9]{64}$/.test(relative))
+   return readD6OfflineImage({caches,scope,
+    digest:relative.slice('__fishing_v3_content_image__/'.length)});
+  if(relative.startsWith('__fishing_v3_content_image__/'))
+   return new Response('Not found',{status:404});
+  if(relative==='__fishing_complete__'||relative==='__fishing_selected__'||
+     relative==='__fishing_v3_reading_mode__')return new Response('Not found',{status:404});
   const target=request.mode==='navigate'&&(!relative||relative==='index.html')?'index.html':relative;
   if(request.mode==='navigate'){
+   if(offlineOnly){const fallback=await fallbackContext();
+    if(!fallback)return offlineUnavailable();
+    remember(event,fallback);
+    return await cachedFile(fallback,'index.html')||offlineUnavailable();}
    try{const context=remember(event,await loadOnlineContext());return await networkFile(context,'index.html');}
    catch{const fallback=await fallbackContext();if(!fallback)return offlineUnavailable();remember(event,fallback);try{return await cachedFile(fallback,'index.html')||offlineUnavailable();}catch{return offlineUnavailable();}}
   }
-  const context=await contextFor(event);
+  const context=await contextFor(event,offlineOnly);
   if(!context)return new Response('Fishing Companion is not prepared for offline use',{status:503,headers:{'Content-Type':'text/plain; charset=utf-8'}});
   if(target==='release.json')return responseFor(context.pointerBytes,'release.json');
   if(target===context.pointer.manifest)return responseFor(context.manifestBytes,context.pointer.manifest);
   const pinned=/^releases\/([a-f0-9]{32})\//.exec(target);
   if(pinned){
    if(context.pointer.id!==pinned[1]){
-    const fallback=await fallbackContext();if(fallback?.pointer.id===pinned[1])try{return await cachedFile(fallback,target)||new Response('Release asset unavailable',{status:503});}catch{return new Response('Release asset unavailable',{status:503});}
+    const fallback=await fallbackContext();if(fallback?.pointer.id===pinned[1])return offlineCachedOrUnavailable(fallback,target,event.request.url,'Release asset unavailable');
     return new Response('Release unavailable for this session',{status:503});
    }
-   if(context.source==='offline')try{return await cachedFile(context,target)||new Response('Verified offline asset unavailable',{status:503});}catch{return new Response('Verified offline asset unavailable',{status:503});}
+   if(context.source==='offline')return offlineCachedOrUnavailable(context,target,event.request.url);
    try{return await networkFile(context,target);}catch{
-    const fallback=await fallbackContext();if(fallback?.pointer.id===context.pointer.id)try{return await cachedFile(fallback,target)||new Response('Verified release asset unavailable',{status:503});}catch{}
+    const fallback=await fallbackContext();if(fallback?.pointer.id===context.pointer.id)return offlineCachedOrUnavailable(fallback,target,event.request.url,'Verified release asset unavailable');
     return new Response('Verified release asset unavailable',{status:503});
    }
   }
   if(context.entries.has(target)){
-   if(context.source==='offline')try{return await cachedFile(context,target)||new Response('Verified offline asset unavailable',{status:503});}catch{return new Response('Verified offline asset unavailable',{status:503});}
+   if(context.source==='offline')return offlineCachedOrUnavailable(context,target,event.request.url);
    try{return await networkFile(context,target);}catch{
-    const fallback=await fallbackContext();if(fallback?.pointer.id===context.pointer.id)try{return await cachedFile(fallback,target)||new Response('Verified release asset unavailable',{status:503});}catch{}
+    const fallback=await fallbackContext();if(fallback?.pointer.id===context.pointer.id)return offlineCachedOrUnavailable(fallback,target,event.request.url,'Verified release asset unavailable');
     return new Response('Verified release asset unavailable',{status:503});
    }
   }
   return new Response('Resource unavailable in the selected verified release',{status:503,headers:{'Content-Type':'text/plain; charset=utf-8'}});
- })().catch(async error=>{await broadcast('FISHING_V2_STATUS',await state({message:'A release asset failed integrity verification. Update the offline library before relying on offline access.',failed:[event.request.url]}));return new Response('Verified release asset unavailable: '+error.message,{status:503,headers:{'Content-Type':'text/plain; charset=utf-8'}});}));
+ })().catch(async error=>{await broadcast(statusType,await state({message:'A release asset failed integrity verification. Update the offline library before relying on offline access.',failed:[event.request.url]}));return new Response('Verified release asset unavailable: '+error.message,{status:503,headers:{'Content-Type':'text/plain; charset=utf-8'}});}));
 });

@@ -1,90 +1,26 @@
-name: Fishing production acceptance and deployment
+# V3 source validation. V2 is frozen; no legacy deploy or publication lanes.
+# Every application PR runs a single fast source check. A full browser pass
+# is operator-triggered only for final V3 pre-release acceptance.
+name: Fishing Companion V3 validation
+
 on:
-  push:
-    branches: [main, feature/v2-implementation-20260908]
-    paths: ['pwa/**', '!pwa/docs/**', '!pwa/README.md', '.github/workflows/**']
   pull_request:
-    # Every PR must emit the same required check, including docs-only PRs.
   workflow_dispatch:
+
 permissions:
   contents: read
-concurrency:
-  group: ${{ github.ref == 'refs/heads/main' && 'fishing-pages' || format('production-validation-{0}', github.ref) }}
-  cancel-in-progress: false
-jobs:
-  classify:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
-    outputs:
-      mode: ${{ steps.classify.outputs.mode }}
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-      - id: classify
-        name: Select fast content or full application lane
-        shell: bash
-        run: |
-          set -euo pipefail
-          mode=''
-          files=''
-          if [[ "$GITHUB_EVENT_NAME" == 'workflow_dispatch' ]]; then
-            mode='full'
-          elif [[ "$GITHUB_EVENT_NAME" == 'pull_request' ]]; then
-            base='${{ github.event.pull_request.base.sha }}'
-            files="$(git diff --name-only "$base"...HEAD)"
-          else
-            base='${{ github.event.before }}'
-            if [[ -z "$base" || "$base" =~ ^0+$ ]]; then
-              base="$(git rev-parse HEAD^)"
-            fi
-            files="$(git diff --name-only "$base" "$GITHUB_SHA")"
-          fi
-          if [[ "$mode" != 'full' ]]; then
-            mode='docs'
-            seen_docs=false
-            if [[ -z "$files" ]]; then
-              mode='full'
-            else
-              while IFS= read -r file; do
-                [[ -z "$file" ]] && continue
-                case "$file" in
-                  pwa/Gear/*|pwa/KB/*|pwa/Catches/*)
-                    if [[ "$seen_docs" == true ]]; then
-                      mode='full'
-                      break
-                    fi
-                    mode='content'
-                    ;;
-                  *.md)
-                    # Markdown outside canonical content roots has no published
-                    # runtime effect. Mixed canonical + docs changes are full.
-                    seen_docs=true
-                    if [[ "$mode" == 'content' ]]; then
-                      mode='full'
-                      break
-                    fi
-                    ;;
-                  *)
-                    mode='full'
-                    break
-                    ;;
-                esac
-              done <<< "$files"
-            fi
-          fi
-          echo "mode=$mode" >> "$GITHUB_OUTPUT"
-          echo "Release lane: $mode"
-          if [[ -n "$files" ]]; then printf 'Changed files:\n%s\n' "$files"; fi
 
-  validate-content:
-    if: needs.classify.outputs.mode == 'content'
-    needs: classify
+concurrency:
+  group: fishing-v3-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  validate-fast:
+    name: v3-fast-checks
+    # Governance docs have their own protected governance-docs check.
+    if: github.event_name == 'pull_request' && github.base_ref != 'governance/project-ops'
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
-    env:
-      SOURCE_REVISION: ${{ github.event.pull_request.head.sha || github.sha }}
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -94,244 +30,71 @@ jobs:
           node-version: '24'
           cache: npm
           cache-dependency-path: pwa/package-lock.json
-      - name: Install locked dependencies
+      - name: Test source, build approved V3 UI once, verify
         working-directory: pwa
-        run: npm ci --no-audit --no-fund
-      - name: Validate canonical content, build production and verify release
-        timeout-minutes: 6
-        working-directory: pwa
+        env:
+          SOURCE_REVISION: ${{ github.event.pull_request.head.sha }}
         run: |
-          npm run build -- --base=/fishing/ --source-revision="$SOURCE_REVISION"
-          npm run verify
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        with:
-          name: production-bundle-content
-          path: pwa/dist/
-          retention-days: 14
+          npm ci --no-audit --no-fund
+          npm test
+          npm run build -- --out=dist-v3-check --source-revision="$SOURCE_REVISION"
+          node tools/verify.mjs --out=dist-v3-check
 
-  validate-full:
-    if: needs.classify.outputs.mode == 'full'
-    needs: classify
+  validate-release:
+    name: v3-release-acceptance
+    # Manual, pre-release only. Does not publish, migrate, or deploy.
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
     timeout-minutes: 45
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.0-noble
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
-          fetch-depth: 0
           persist-credentials: false
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '24'
           cache: npm
           cache-dependency-path: pwa/package-lock.json
-      - name: Verify durable v1 recovery and prepare actual cutover fixture
-        run: |
-          git show 4aafcd2f88b35bb34b608e2f85dec1daffc6c1d1:recovery/v1-production.zip > /tmp/v1-production.zip
-          echo 'fc036dc92dbf25a250917f8236c22099b798be1d5f2aa7274f6df9cb5215396e  /tmp/v1-production.zip' | sha256sum --check
-          git show 4aafcd2f88b35bb34b608e2f85dec1daffc6c1d1:recovery/v1-migration-source.zip > /tmp/v1-migration-source.zip
-          echo '83100e9cf2788b2d33959b39a6bb63fdd0e78c5e512936a07e46b22632bf7dbf  /tmp/v1-migration-source.zip' | sha256sum --check
-          mkdir /tmp/v1-root
-          unzip -q /tmp/v1-production.zip -d /tmp/v1-root
-      - name: Install and audit locked dependencies
-        timeout-minutes: 5
+      # Checkout trusts the repository only under its temporary HOME. The
+      # container's subsequent shell steps need the same exact-path exception.
+      - name: Trust only the checked-out CI workspace
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      - name: Final V3 source, security and Chromium browser acceptance
         working-directory: pwa
         run: |
           npm ci --no-audit --no-fund
           npm audit --omit=dev --audit-level=high
-      - name: Validate core behavior and preview build
-        timeout-minutes: 5
-        working-directory: pwa
-        run: |
           npm test
-          npm run build -- --pending-media --source-revision="$GITHUB_SHA"
-          npm run verify
-      - name: Install Chromium and WebKit
-        timeout-minutes: 10
-        working-directory: pwa
-        run: npx playwright install --with-deps chromium webkit
-      - name: Preserve preview scope regression coverage
-        timeout-minutes: 12
-        working-directory: pwa
-        run: |
-          npm run test:browser
-          mv .test-output .preview-test-output
-      - name: Build and verify production root
-        timeout-minutes: 5
-        working-directory: pwa
-        run: |
-          npm run build -- --base=/fishing/ --source-revision="$GITHUB_SHA"
-          npm run verify
-      - name: Complete production browser and real v1 cutover acceptance
-        timeout-minutes: 15
-        working-directory: pwa
-        env:
-          FISHING_BASE: /fishing/
-          FISHING_V1_DIST: /tmp/v1-root
-        run: npm run test:browser
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        with:
-          name: production-bundle-full
-          path: pwa/dist/
-          retention-days: 30
+          npm run build -- --out=dist-v3-acceptance --source-revision="$GITHUB_SHA"
+          node tools/verify.mjs --out=dist-v3-acceptance
+          FISHING_A01_DIST=dist-v3-acceptance npx playwright test test/a01-standalone-acceptance.spec.mjs --project=chromium
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
-          name: production-acceptance-evidence
-          path: |
-            pwa/.test-output/
-            pwa/.preview-test-output/
-          include-hidden-files: true
-          retention-days: 90
-
-  validate-docs:
-    if: needs.classify.outputs.mode == 'docs' && github.event_name == 'pull_request'
-    needs: classify
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-      - name: Verify documentation-only diff has no whitespace errors
-        shell: bash
-        env:
-          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
-        run: |
-          set -euo pipefail
-          git diff --check "$PR_BASE_SHA"...HEAD
+          name: v3-release-acceptance-evidence
+          path: pwa/.test-output/
+          if-no-files-found: ignore
+          retention-days: 14
 
   merge-ready:
     name: fishing-merge-ready
     if: ${{ always() && github.event_name == 'pull_request' }}
-    needs: [classify, validate-content, validate-full, validate-docs]
+    needs: [validate-fast]
     runs-on: ubuntu-24.04
     timeout-minutes: 5
-    permissions:
-      contents: read
     steps:
-      - name: Require the correct FISH108 validation lane
+      - name: Fail closed on missing or failed required checks
         shell: bash
         env:
-          LANE: ${{ needs.classify.outputs.mode }}
-          CLASSIFY: ${{ needs.classify.result }}
-          CONTENT: ${{ needs.validate-content.result }}
-          FULL: ${{ needs.validate-full.result }}
-          DOCS: ${{ needs.validate-docs.result }}
+          TARGET_BRANCH: ${{ github.base_ref }}
+          FAST_RESULT: ${{ needs.validate-fast.result }}
         run: |
           set -euo pipefail
-          [[ "$CLASSIFY" == 'success' ]] || exit 1
-          case "$LANE" in
-            content)
-              [[ "$CONTENT" == 'success' && "$FULL" == 'skipped' && "$DOCS" == 'skipped' ]]
-              ;;
-            full)
-              [[ "$FULL" == 'success' && "$CONTENT" == 'skipped' && "$DOCS" == 'skipped' ]]
-              ;;
-            docs)
-              [[ "$DOCS" == 'success' && "$CONTENT" == 'skipped' && "$FULL" == 'skipped' ]]
-              ;;
-            *)
-              echo 'Missing or invalid source classification' >&2
-              exit 1
-              ;;
-          esac
-
-  deploy-content:
-    if: needs.classify.outputs.mode == 'content' && github.ref == 'refs/heads/main' && github.event_name == 'push'
-    needs: [classify, validate-content]
-    runs-on: ubuntu-24.04
-    timeout-minutes: 10
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: https://ginosega.github.io/fishing/
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-        with:
-          persist-credentials: false
-      - uses: actions/download-artifact@v4
-        with:
-          name: production-bundle-content
-          path: pwa/dist
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
-        with:
-          node-version: '24'
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          name: github-pages-${{ github.run_attempt }}
-          path: pwa/dist
-      - name: Guard exact current main
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: test "$(gh api repos/$GITHUB_REPOSITORY/git/ref/heads/main --jq .object.sha)" = "$GITHUB_SHA"
-      - uses: actions/deploy-pages@v4
-        with:
-          artifact_name: github-pages-${{ github.run_attempt }}
-      - name: Verify hosted bytes and release identity
-        working-directory: pwa
-        run: node tools/verify-hosted-fast.mjs --dist=dist --url=https://ginosega.github.io/fishing/ --source-revision="$GITHUB_SHA"
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        if: always()
-        with:
-          name: actual-hosted-content-verification-${{ github.run_attempt }}
-          path: pwa/hosted-evidence/
-          retention-days: 30
-
-  deploy-full:
-    if: needs.classify.outputs.mode == 'full' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-    needs: [classify, validate-full]
-    runs-on: ubuntu-24.04
-    timeout-minutes: 25
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: https://ginosega.github.io/fishing/
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-        with:
-          persist-credentials: false
-      - uses: actions/download-artifact@v4
-        with:
-          name: production-bundle-full
-          path: pwa/dist
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
-        with:
-          node-version: '24'
-      - name: Prepare hosted verifier before deployment
-        timeout-minutes: 10
-        working-directory: pwa
-        run: |
-          npm ci --no-audit --no-fund
-          npx playwright install --with-deps chromium
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          name: github-pages-${{ github.run_attempt }}
-          path: pwa/dist
-      - name: Guard exact current main
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: test "$(gh api repos/$GITHUB_REPOSITORY/git/ref/heads/main --jq .object.sha)" = "$GITHUB_SHA"
-      - uses: actions/deploy-pages@v4
-        with:
-          artifact_name: github-pages-${{ github.run_attempt }}
-      - name: Verify actual hosted production bytes and browser behavior
-        working-directory: pwa
-        run: node tools/verify-hosted.mjs --production=true --dist=dist
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-        if: always()
-        with:
-          name: actual-hosted-production-verification-${{ github.run_attempt }}
-          path: pwa/hosted-evidence/
-          retention-days: 90
+          if [[ "$TARGET_BRANCH" == 'governance/project-ops' ]]; then
+            # Separate required governance-docs validation controls this branch.
+            [[ "$FAST_RESULT" == 'skipped' ]]
+          else
+            [[ "$FAST_RESULT" == 'success' ]]
+          fi
