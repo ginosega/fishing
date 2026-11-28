@@ -17,36 +17,78 @@ md.renderer.rules.table_open=(tokens,i,options,env,self)=>
 md.renderer.rules.table_close=(tokens,i,options,env,self)=>
  self.renderToken(tokens,i,options)+'</div>';
 
-// Markdown pipe tables cannot contain block lists. Allow simple inline lists
-// separated by <br>, <br/> or </br> inside a table cell, without enabling HTML.
-function inlineTableLists(tokens){
+// Pipe tables contain inline Markdown, not block lists. Recognize only
+// br separators during a cell-specific inline parse; arbitrary HTML stays
+// disabled. The inline parser consumes code spans and escapes before this rule.
+md.inline.ruler.before('html_inline','notes_table_break',(state,silent)=>{
+ if(!state.env.notesTableBreaks||state.src.charCodeAt(state.pos)!==60)return false;
+ const match=/^<\/?br\s*\/?>/i.exec(state.src.slice(state.pos));
+ if(!match)return false;
+ if(!silent)state.push('notes_table_break','',0);
+ state.pos+=match[0].length;
+ return true;
+});
+
+function inlineTableLists(tokens,env){
  let inCell=false;
  for(const token of tokens){
   if(token.type==='th_open'||token.type==='td_open')inCell=true;
   else if(token.type==='th_close'||token.type==='td_close')inCell=false;
   if(!inCell||token.type!=='inline'||!/<\/?br\s*\/?>/i.test(token.content))continue;
-  const fragments=token.content.split(/<\/?br\s*\/?>/i)
-   .map(x=>x.trim()).filter(Boolean);
-  if(fragments.length<2)continue;
-  const items=fragments.map(x=>/^([-*+]|\d+[.)])\s+(.+)$/s.exec(x));
-  if(items.some(x=>!x))continue;
-  const ordered=/^\d/.test(items[0][1]);
-  if(!items.every(x=>/^\d/.test(x[1])===ordered))continue;
-  const start=ordered?Number.parseInt(items[0][1],10):1;
-  if(!Number.isSafeInteger(start)||start<1||start>9999)continue;
-  // Markdown-it renders inline tokens directly from token.children; its
-  // renderer.rules.inline hook is not invoked by the block renderer.
-  // Construct only trusted list tag tokens, never HTML from the Notes text.
+  const parsed=md.parseInline(token.content,{...env,notesTableBreaks:true})[0].children;
+  const fragments=[[]];
+  let depth=0,unsupported=false;
+  for(const child of parsed){
+   if(child.type==='notes_table_break'){
+    // Never split a link, emphasis span or other open inline construct.
+    if(depth!==0){unsupported=true;break;}
+    fragments.push([]);
+   }else{
+    fragments.at(-1).push(child);
+    depth+=child.nesting;
+   }
+  }
+  if(unsupported||fragments.length<2)continue;
+  const parts=fragments.map(items=>{
+   if(items[0]?.type==='text')items[0].content=items[0].content.trimStart();
+   if(items.at(-1)?.type==='text')items.at(-1).content=items.at(-1).content.trimEnd();
+   return items.filter(t=>t.type!=='text'||t.content!=='');
+  }).filter(items=>items.length);
+  const marker=items=>items[0]?.type==='text'?
+   /^([-*+]|\d+[.)])\s+/.exec(items[0].content):null;
+  if(!parts.some(items=>marker(items)))continue;
+  // Fixed application-authored tags only. Keep the original Markdown tokens
+  // for text, links and images so the normal validation walk sees all of them.
   const html=content=>{const t=new token.constructor('html_inline','',0);
    t.content=content;return t;};
-  const tag=ordered?'ol':'ul';
-  const startAttr=ordered&&start!==1?' start="'+start+'"':'';
-  const children=[html('<'+tag+startAttr+'>')];
-  for(const item of items){
-   children.push(html('<li>'),...md.parseInline(item[2],{})[0].children,
-    html('</li>'));
+  const children=[];
+  let list=null;
+  const close=()=>{if(list){children.push(html('</'+list+'>'));list=null;}};
+  for(const items of parts){
+   const match=marker(items);
+   if(match){
+    items[0].content=items[0].content.slice(match[0].length);
+    if(!items[0].content)items.shift();
+   }
+   // An explicitly bold NOTE: following a list is a separate paragraph,
+   // even if the author included a list marker.
+   const note=list&&items[0]?.type==='strong_open'&&items[1]?.type==='text'&&
+    /^note:\s*$/i.test(items[1].content)&&items[2]?.type==='strong_close';
+   if(match&&!note){
+    const tag=/^\d/.test(match[1])?'ol':'ul';
+    const start=tag==='ol'?Number.parseInt(match[1],10):1;
+    if(!Number.isSafeInteger(start)||start<1||start>9999){unsupported=true;break;}
+    if(list!==tag){
+     close();list=tag;
+     children.push(html('<'+tag+(tag==='ol'&&start!==1?' start="'+start+'"':'')+'>'));
+    }
+    children.push(html('<li>'),...items,html('</li>'));
+   }else{
+    close();children.push(html('<p>'),...items,html('</p>'));
+   }
   }
-  children.push(html('</'+tag+'>'));
+  if(unsupported)continue;
+  close();
   token.children=children;
  }
 }
@@ -81,8 +123,8 @@ export function resolveMarkdownTarget(url,{owner,maps,assetBase,pathRoutes=new M
  return {target:new URL('content/'+encodedPath(local)+query+fragment,assetBase).href,kind:'local',local};
 }
 export function parseMarkdown(text,{owner,maps,assetBase='https://example.invalid/fishing/releases/test/',exists,pathRoutes=new Map(),ownerRoute,allowMissing=false,allowMissingImages=false,viewerImages=false,resolveImage=null}={}){
- const tokens=md.parse(text,{}),references=[];
- inlineTableLists(tokens);
+ const env={},tokens=md.parse(text,env),references=[];
+ inlineTableLists(tokens,env);
  function walk(items){for(const token of items){
   if(token.children)walk(token.children);
   if(token.type!=='link_open'&&token.type!=='image')continue;
